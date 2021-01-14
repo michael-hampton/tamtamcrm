@@ -1,0 +1,288 @@
+.sidebar .nav-link.active {
+  border-left: 4px solid $color_science_blue_approx_hover;
+}
+
+@media (min-width: 768px) {
+  .header-md {
+    width: 65.2% !important;
+  }
+}
+
+.extra-tab-space {
+  width: 120px !important;
+}
+
+.nav-link {
+  font-size: 16px !important;
+
+  .nav-icon {
+    font-size: 20px !important;
+    margin-right: 20px !important;
+  }
+}
+
+.sidebar .nav-dropdown.open .nav-link {
+  color: $dark_grey;
+}
+
+.float {
+  z-index: 9999 !important;
+}
+
+@media (max-width: 768px) {
+  //.container {
+  //  max-width: 660px;
+  //}
+
+  .sidebar {
+    z-index: 999999;
+  }
+}
+
+.fixed-margin-mobile {
+  margin-top: 106px !important;
+}
+
+.fixed-margin-extra {
+  margin-top: 62px !important;
+}
+
+@media (min-width: 375px) and (max-width: 666px) {
+  .fixed-margin-datatable-mobile {
+    margin-top: 315px !important;
+  }
+}
+
+@media (min-width: 666px) and (max-width: 767px) {
+  .fixed-margin-datatable-mobile {
+    margin-top: 295px !important;
+  }
+}
+
+.fixed-margin-datatable-large-mobile {
+  margin-top: 430px !important;
+}
+
+.fixed-margin-datatable-collapsed {
+  margin-top: 82px;
+}
+
+@media (min-width: 576px) and (max-width: 668px) {
+  .container {
+    max-width: 665px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container:not(.sidebar-show) {
+    max-width: 765px;
+  }
+
+  .sidebar-show .container, .sidebar-minimized .container {
+    max-width: 568px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1200px) {
+  .sidebar-show .topbar {
+    padding-left: 208px !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container:not(.sidebar-lg-show) {
+    max-width: 1025px !important;
+  }
+
+  .sidebar-lg-show .container, .sidebar-minimized .container {
+    max-width: 795px !important;
+  }
+}
+
+/** Dashboard **/
+//.dashboard-tabs {
+//  border-top-width: 4px;
+//  top: 60px !important;
+//}
+
+@media(min-width: 1024px) and (max-width: 1200px) {
+  .dashboard-tabs {
+    width: 46.5% !important;
+    left: 240px !important;
+  }
+
+  //.dashboard-tabs-right {
+  //  position: fixed;
+  //  top: 60px;
+  //  right: 0;
+  //  width: 32.6%;
+  //}
+}
+
+//.dashboard-tabs-right > * {
+//  z-index: 99 !important;
+//}
+
+.z-index-high {
+  z-index: 999 !important;
+}
+
+@media(min-width: 1200px) {
+  .dashboard-tabs {
+    width: 49.5% !important;
+    left: 240px !important;
+  }
+
+  .dashboard-tabs-full {
+    width: 82.8% !important;
+  }
+
+  //.dashboard-tabs-right {
+  //  position: fixed;
+  //  top: 60px;
+  //  right: 0;
+  //  width: 34.7%;
+  //}
+}
+
+.dashboard-tabs-margin {
+  margin-top: 130px !important;
+}
+
+@media(min-width: 1200px) {
+  .container:not(.sidebar-lg-show):not(.sidebar-minimized) {
+    max-width: 1400px !important;
+  }
+
+  .sidebar-lg-show:not(.sidebar-minimized) {
+    .container {
+      max-width: 1140px !important;
+    }
+  }
+
+  //.sidebar-minimized {
+  //  .container {
+  //    max-width: 1140px !important;
+  //  }
+  //}
+}
+
+@media (min-width: 768px) {
+  //.container {
+  //  max-width: 768px;
+  //}
+
+  .fixed-margin-datatable {
+    margin-top: 134px !important;
+  }
+
+  .fixed-margin-datatable-large {
+    margin-top: 190px !important;
+  }
+}
+
+.light-theme {
+  .sidebar {
+    background-color: $white;
+  }
+
+  .sidebar .nav-link {
+    color: $dark_grey;
+  }
+
+  .nav-dropdown.open {
+    background: $white !important;
+    color: $dark_grey !important;
+  }
+}
+
+
+@media (max-width: 575.98px) {
+  .sidebar-show .topbar {
+    background: rgba(0, 0, 0, 0.7) !important;
+    //opacity: 0.25;
+  }
+}
+
+
+//@media (min-width: 1024px) {
+//  .fixed-margin-mobile {
+//    margin-top: 160px !important;
+//  }
+//
+//}
+@media (min-width: 992px) {
+  .sidebar-nav:not(.ps-container) {
+    width: 60px !important;
+  }
+
+  .sidebar-minimized {
+    .main {
+      //margin-left: 0 !important;
+    }
+
+    .container {
+      padding-left: 15px !important;
+      padding-right: 15px !important;
+    }
+
+    .topbar {
+      padding-left: 60px !important;
+    }
+  }
+
+
+  .sidebar-lg-show:not(.sidebar-minimized) {
+    .sidebar {
+      width: 230px;
+
+      .sidebar-nav {
+        width: 225px;
+
+        .nav {
+          width: 226px !important;
+        }
+      }
+    }
+
+    .topbar {
+      padding-left: 232px;
+    }
+
+    .main {
+      margin-left: 225px !important;
+    }
+
+    .sidebar-fixed .sidebar {
+      width: 230px !important;
+    }
+  }
+}
+
+.navbar {
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+
+.navbar-toggler {
+  color: rgba(0, 0, 0, .5) !important;
+  border-color: rgba(0, 0, 0, .1) !important;
+}
+
+.topbar {
+  z-index: 999;
+  top: 32px;
+  left: 6px;
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: 20px;
+  padding-left: 8px;
+  //margin-top: 68px;
+  position: fixed;
+}
+
+.Toastify__toast-container {
+  z-index: 999999 !important;
+}

@@ -1,0 +1,335 @@
+//colors
+//$seashell: #f1f1f1;
+//$color_gray_approx: #888;
+//$color_dorado_approx: #555;
+//$color_science_blue_approx: #0062cc;
+//$color_slate_gray_approx: #73818f;
+//$white: #fff;
+//$color_shark_approx: #23282c;
+//$color_martini_approx: #999;
+//$color_athens_gray_approx: #e4e7ea;
+//$color_nevada_approx: #5c6873;
+//$color_mako_approx: #43464b;
+//$color_iron_approx: #dee2e6;
+//$black: #000;
+//$color_eastern_blue_approx: #17a2b8;
+
+.badge {
+  font-size: 16px;
+}
+
+::-webkit-scrollbar {
+  width: 10px !important;
+  z-index: 9 !important;
+}
+
+.table-responsive::-webkit-scrollbar {
+  width: 10px !important;
+  z-index: 9 !important;
+}
+
+.textarea-lg {
+  min-height: 200px;
+}
+
+::-webkit-scrollbar-track {
+  background: $seashell;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $color_gray_approx;
+
+  &:hover {
+    background: $color_dorado_approx;
+  }
+}
+
+@media(min-width: 576px) {
+  .card-group > .card {
+    flex: 1 0 auto !important;
+  }
+}
+
+.modal-dialog-centered {
+  display: flex;
+  align-items: center;
+  min-height: calc(100% - (0.5rem * 2));
+}
+
+body {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+}
+
+.container-fluid {
+  height: inherit;
+  padding-left: 15px !important;
+  padding-right: 15px !important;
+}
+
+@media(min-width: 1920px) {
+  .table-responsive {
+    margin-bottom: 25px;
+  }
+}
+
+@media(min-width: 768px) {
+  .scrollable-settings {
+    overflow-y: auto;
+    height: 465px;
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+}
+
+.app-header {
+  position: fixed !important;
+  flex-direction: row;
+  height: 32px !important;
+  padding: 0;
+  margin: 0;
+  background-color: $white;
+  border-bottom: 1px solid $color_shark_approx;
+  //Instead of the line below you could use @include transition($transition-1, $transition-2, $transition-3, $transition-4, $transition-5, $transition-6, $transition-7, $transition-8, $transition-9, $transition-10)
+  transition: margin-left 0.25s, margin-right 0.25s, width 0.25s, flex 0.25s;
+
+  .navbar-nav {
+    flex-direction: row;
+    align-items: center;
+
+    .dropdown-menu {
+      position: absolute;
+    }
+
+    .dropdown-menu-right {
+      right: 0;
+      left: auto;
+    }
+
+    .dropdown-menu-left {
+      right: auto;
+      left: 0;
+    }
+  }
+
+  .navbar-brand {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 155px;
+    height: 55px;
+    padding: 0;
+    margin-right: 0;
+    background-color: transparent;
+
+    .navbar-brand-minimized {
+      display: none;
+    }
+  }
+
+  .navbar-toggler {
+    min-width: 50px;
+    padding: 0.25rem 0;
+  }
+
+  .nav-item {
+    position: relative;
+    min-width: 50px;
+    margin: 0;
+    text-align: center;
+
+    button {
+      margin: 0 auto;
+    }
+
+    .nav-link {
+      padding-top: 0;
+      padding-bottom: 0;
+      background: 0;
+      border: 0;
+
+      .badge {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-top: -16px;
+        margin-left: 0;
+      }
+
+      > .img-avatar {
+        height: 35px;
+        margin: 0 10px;
+      }
+    }
+
+    .avatar.nav-link > img {
+      height: 35px;
+      margin: 0 10px;
+    }
+  }
+
+  .dropdown-menu {
+    padding-bottom: 0;
+    line-height: 1.5;
+  }
+
+  .dropdown-item {
+    min-width: 180px;
+  }
+}
+
+.list-action {
+  .dropdown-item {
+    padding: 10px 20px !important;
+
+    .dropdown-menu {
+      color: $black !important;
+    }
+  }
+}
+
+@media(min-width: 768px) and(max-width: 1024px) {
+  .topbar {
+    top: 32px !important;
+  }
+  .app-body {
+    margin-top: 5px !important;
+  }
+}
+
+//@media(max-width: 768px) {
+//  .topbar {
+//    top: 42px !important;
+//  }
+//}
+
+.disable-scrollbars {
+  scrollbar-width: none;
+}
+
+.disable-scrollbars::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+  display: none;
+}
+
+.setting-tabs {
+  border-bottom: none !important;
+  display: inline-flex;
+  width: 100%;
+  overflow-x: auto;
+  flex-wrap: nowrap !important;
+}
+
+.app-body {
+  margin-top: 36px !important;
+}
+
+.light-theme {
+  .topbar {
+    border-top: 6px solid #e4e5e6;
+  }
+
+  .status-dropdown {
+    text-align: left;
+    padding-left: 20px;
+    border: 1px solid $color_athens_gray_approx;
+    color: $color_nevada_approx;
+    background-color: $white;
+  }
+
+  .primary-info-alert {
+    color: $white;
+    background-color: $color_science_blue_approx;
+  }
+
+  .list-group-item-dark:not(.dark-theme) {
+    background-color: $white !important;
+    color: $color_martini_approx !important;
+  }
+
+  td .dropdown .dropdown-menu .dropdown-item {
+    i {
+      color: $color_science_blue_approx !important;
+    }
+
+    a {
+      color: $color_science_blue_approx !important;
+    }
+  }
+
+  .dropdown-item i {
+    color: $color_science_blue_approx !important;
+  }
+
+  .view-entity .list-group-item {
+    color: $color_mako_approx !important;
+  }
+
+  table.mobile td {
+    background-color: $white !important;
+
+    &:hover {
+      background-color: $color_iron_approx !important;
+    }
+  }
+
+  .sidebar .nav-link {
+    color: $black !important;
+
+    &.active {
+      color: $white !important;
+      background: $color_eastern_blue_approx;
+
+      i {
+        color: $white !important;
+      }
+    }
+  }
+
+  .nav-fill .nav-link {
+    background-color: transparent !important;
+    border: none !important;
+  }
+
+  //.MuiInputBase-input {
+  //  color: #FFF !important;
+  //}
+  //
+  //.MuiIconButton-label {
+  //  color: #FFF !important;
+  //}
+
+  .MuiFormControl-root, .MuiInputBase-root {
+    width: 100% !important;
+  }
+
+  //.MuiInput-underline:before {
+  //  border-bottom: 1px solid #CCC;
+  //}
+}
+
+.tab-content {
+  background-color: transparent !important;
+}
+
+.nav-tabs {
+  border-bottom: none !important;
+
+  .nav-link.active {
+    border: none !important;
+  }
+}
+
+.sidebar .nav-link.active {
+  border-left: 4px solid $color_science_blue_approx;
+
+  .nav-icon {
+    color: $color_slate_gray_approx;
+  }
+}
+
+.view-entity .list-group-item {
+  background-color: transparent;
+}

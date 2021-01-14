@@ -1,0 +1,3 @@
+number,customer name,description,product,unit_price,unit_discount,quantity,terms,public notes,private notes,po number,date,due date
+00022,Michael Hampton,test mike, test mikes product,12,2,2,test import,public,private,123,25/11/2020,30/11/2020
+lexie,1500,Michael Hampton, test lexie, test lexie,14,3,3, test import,public,private,456,25/11/2020,30/11/2020

@@ -1,0 +1,67 @@
+.btn-primary {
+  background-color: $color_science_blue_approx;
+  border-color: $color_science_blue_approx;
+
+  &:hover {
+    color: $white;
+    background-color: $color_science_blue_approx_hover;
+    border-color: $color_science_blue_approx_hover;
+  }
+}
+
+.btn-warning {
+  color: $white;
+  background-color: $color_galliano_approx;
+  border-color: $color_amber_approx;
+}
+
+.btn-danger {
+  color: $white;
+  background-color: $color_amaranth_approx;
+  border-color: $color_amaranth_approx;
+
+  &:hover {
+    color: $white;
+    background-color: $color_brick_red_approx;
+    border-color: $color_amaranth_approx_hover;
+  }
+}
+
+.btn-secondary {
+  color: $white;
+  background-color: $color_tapa_approx;
+  border: 1px solid $color_star_dust_approx;
+
+  &:hover {
+    background-color: $color_suva_gray_approx;
+    border-color: $color_iron_approx;
+  }
+}
+
+.float {
+  position: fixed;
+  width: 60px;
+  height: 60px;
+  bottom: 40px;
+  right: 40px;
+  border-radius: 50px;
+  text-align: center;
+}
+
+.nav-tabs {
+  .nav-item {
+    .active.nav-link {
+      border-bottom: 3px solid #005dc1 !important;
+    }
+  }
+}
+
+.MuiBottomNavigationAction-label {
+  font-size: 14px !important;
+}
+
+.fa-palette:before {
+  content: "\f53f";
+}
+
+

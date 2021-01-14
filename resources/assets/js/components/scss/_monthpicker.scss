@@ -1,0 +1,374 @@
+//colors
+$black_25: rgba(0, 0, 0, 0.25);
+$color_silver_approx: #ccc;
+$black_8: rgba(0, 0, 0, 0.08);
+$color_silver_50_approx: rgba(204, 204, 204, 0.5);
+$color_alto_approx: #ddd;
+$color_gallery_90_approx: rgba(238, 238, 238, 0.9);
+$color_cream_brulee_59_approx: rgba(255, 227, 160, 0.59);
+$color_dove_gray_41_approx: rgba(113, 113, 113, 0.41);
+$color_mine_shaft_90_approx: rgba(70, 70, 70, 0.9);
+$color_golden_tainoi_33_approx: rgba(255, 210, 96, 0.33);
+$color_dove_gray_approx: #666;
+$white_96: rgba(255, 255, 255, 0.96);
+$color_big_stone_73_approx: rgba(31, 42, 58, 0.73);
+$white: white;
+$mine_shaft_96: rgba(50, 50, 50, 0.96);
+$color_outer_space_approx: #262828;
+$color_spindle_70_approx: rgba(189, 211, 242, 0.7);
+$color_mine_shaft_approx: #303030;
+
+.month-picker {
+  position: relative;
+
+  .box {
+    font-size: 20px;
+  }
+
+  > .rmp-container {
+    position: relative;
+    //Instead of the line below you could use @include box-sizing($bs)
+    box-sizing: border-box;
+    z-index: 100;
+    top: 1px;
+    left: -10000px;
+    //Instead of the line below you could use @include transition($transition-1, $transition-2, $transition-3, $transition-4, $transition-5, $transition-6, $transition-7, $transition-8, $transition-9, $transition-10)
+    transition: left 0ms cubic-bezier(0.23, 1, 0.32, 1) 450ms;
+
+    &.rmp-table {
+      display: table;
+    }
+
+    &.show {
+      left: 0;
+      //Instead of the line below you could use @include transition($transition-1, $transition-2, $transition-3, $transition-4, $transition-5, $transition-6, $transition-7, $transition-8, $transition-9, $transition-10)
+      transition: left 0ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+
+      .rmp-overlay {
+        left: 0;
+      }
+    }
+
+    .rmp-overlay {
+      position: fixed;
+      height: 100%;
+      width: 100%;
+      z-index: 9;
+      top: 0;
+      left: -10000px;
+      opacity: 1;
+      will-change: opacity;
+      //Instead of the line below you could use @include transform($scale, $rotate, $transx, $transy, $skewx, $skewy, $originx, $originy)
+      transform: translateZ(0);
+      //Instead of the line below you could use @include transition($transition-1, $transition-2, $transition-3, $transition-4, $transition-5, $transition-6, $transition-7, $transition-8, $transition-9, $transition-10)
+      transition: left 0ms cubic-bezier(0.23, 1, 0.32, 1) 0ms, opacity 400ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+    }
+
+    .rmp-cell {
+      display: table-cell;
+      vertical-align: middle;
+      //Instead of the line below you could use @include box-sizing($bs)
+      box-sizing: border-box;
+      width: 100%;
+      height: 100%;
+    }
+
+    .rmp-popup {
+      position: absolute;
+      //Instead of the line below you could use @include transition($transition-1, $transition-2, $transition-3, $transition-4, $transition-5, $transition-6, $transition-7, $transition-8, $transition-9, $transition-10)
+      transition: all 450ms cubic-bezier(0.23, 1, 0.32, 1);
+      margin: 0 auto;
+      z-index: 10;
+      font-size: 1.2rem;
+      opacity: 0;
+      //Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+      border-radius: 3px;
+      padding: 0.4rem;
+      //Instead of the line below you could use @include box-sizing($bs)
+      box-sizing: content-box;
+
+      &.show {
+        opacity: 1;
+        //Instead of the line below you could use @include transform($scale, $rotate, $transx, $transy, $skewx, $skewy, $originx, $originy)
+        transform: translate3d(0, 0, 0);
+      }
+
+      &:after {
+        content: ' ';
+        clear: both;
+        display: table;
+      }
+
+      .rmp-pad {
+        position: relative;
+
+        > div {
+          label {
+            display: block;
+            font-size: 1.4rem;
+            text-align: center;
+            line-height: 3.4rem;
+
+            b {
+              font-weight: normal;
+              margin-right: 0.5em;
+            }
+          }
+
+          i {
+            font-style: normal;
+            text-align: center;
+            width: 3.4rem;
+            height: 3.4rem;
+            line-height: 3.4rem;
+            position: absolute;
+            top: 0;
+
+            &.prev {
+              left: 0;
+            }
+
+            &.next {
+              right: 0;
+            }
+          }
+        }
+
+        ul {
+          list-style-type: none;
+          margin: 0;
+          padding: 0;
+          display: block;
+          width: 100%;
+
+          &:after {
+            content: ' ';
+            clear: both;
+            display: table;
+          }
+        }
+
+        li {
+          list-style-type: none;
+          margin: 0;
+          padding: 0;
+          display: block;
+          float: left;
+          text-align: center;
+          line-height: 3.4rem;
+          font-size: 1.15rem;
+          //Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+          border-radius: 2px;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          *white-space: nowrap;
+          overflow: hidden;
+          //Instead of the line below you could use @include transition($transition-1, $transition-2, $transition-3, $transition-4, $transition-5, $transition-6, $transition-7, $transition-8, $transition-9, $transition-10)
+          transition: background-color 200ms ease-in-out, color 200ms ease-in-out;
+        }
+      }
+
+      &.light {
+        color: $color_dove_gray_approx;
+        background-color: $white_96;
+
+        .rmp-pad {
+          .rmp-btn {
+            cursor: pointer;
+
+            &.select {
+              background-color: $color_alto_approx;
+            }
+          }
+
+          .disable {
+            background-color: transparent;
+            color: $color_silver_approx;
+            cursor: default;
+
+            &:hover {
+              background-color: transparent;
+              color: $color_silver_approx;
+              cursor: default;
+            }
+          }
+
+          li.active {
+            background-color: $color_big_stone_73_approx;
+            color: $white;
+            cursor: default;
+
+            &:hover {
+              background-color: $color_big_stone_73_approx;
+              color: $white;
+              cursor: default;
+            }
+          }
+        }
+      }
+
+      &.dark {
+        color: $white;
+        background-color: $mine_shaft_96;
+
+        .rmp-pad {
+          .rmp-btn {
+            cursor: pointer;
+
+            &.select {
+              background-color: $color_outer_space_approx;
+            }
+          }
+
+          .disable {
+            background-color: transparent;
+            color: $color_dove_gray_approx;
+            cursor: default;
+
+            &:hover {
+              background-color: transparent;
+              color: $color_dove_gray_approx;
+              cursor: default;
+            }
+          }
+
+          li.active {
+            background-color: $color_spindle_70_approx;
+            color: $color_mine_shaft_approx;
+            cursor: default;
+
+            &:hover {
+              background-color: $color_spindle_70_approx;
+              color: $color_mine_shaft_approx;
+              cursor: default;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@media screen and(max-width: 767px) {
+  .month-picker > .rmp-container {
+    position: fixed;
+    top: 0;
+    left: -10000px;
+    width: 100%;
+    height: 100%;
+    //Instead of the line below you could use @include transition($transition-1, $transition-2, $transition-3, $transition-4, $transition-5, $transition-6, $transition-7, $transition-8, $transition-9, $transition-10)
+    transition: left 0ms cubic-bezier(0.23, 1, 0.32, 1) 450ms;
+
+    .rmp-overlay {
+      background-color: $black_25;
+    }
+
+    .rmp-cell {
+      vertical-align: bottom;
+    }
+
+    .rmp-popup {
+      //Instead of the line below you could use @include box-sizing($bs)
+      box-sizing: border-box;
+      bottom: 0;
+      width: 100%;
+      max-width: 100%;
+      height: 14.4rem;
+      //Instead of the line below you could use @include transform($scale, $rotate, $transx, $transy, $skewx, $skewy, $originx, $originy)
+      transform: translate3d(0, 14.4rem, 0);
+
+      &.range {
+        height: 28rem;
+        //Instead of the line below you could use @include transform($scale, $rotate, $transx, $transy, $skewx, $skewy, $originx, $originy)
+        transform: translate3d(0, 28rem, 0);
+
+        .rmp-pad {
+          margin-top: 0.4rem;
+
+          &:first-of-type {
+            margin-top: 0;
+          }
+        }
+      }
+
+      &.light {
+        border-top: 1px solid $color_silver_approx;
+        //Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+        box-shadow: 0 -1px 5px $black_8;
+
+        &.range .rmp-pad {
+          border-top: 1px solid $color_silver_50_approx;
+
+          &:first-of-type {
+            border-top: 0;
+          }
+        }
+      }
+
+      .rmp-pad li {
+        width: 25%;
+      }
+
+      &.dark.range .rmp-pad {
+        border-top: 1px solid $color_dove_gray_41_approx;
+
+        &:first-of-type {
+          border-top: 0;
+        }
+      }
+    }
+  }
+}
+
+@media screen and(min-width: 768px) {
+  .month-picker > .rmp-container .rmp-popup {
+    //Instead of the line below you could use @include transform($scale, $rotate, $transx, $transy, $skewx, $skewy, $originx, $originy)
+    transform: translate3d(0, -64px, 0);
+    top: 0;
+    width: 20rem;
+
+    &.range {
+      width: 40.6rem;
+      padding: 0.6rem;
+    }
+
+    .rmp-pad {
+      //Instead of the line below you could use @include box-sizing($bs)
+      box-sizing: border-box;
+      float: left;
+      width: 20rem;
+
+      &:nth-of-type(2) {
+        float: right;
+      }
+
+      li {
+        width: 33.3333333333%;
+      }
+    }
+
+    &.light {
+      border: 1px solid $color_silver_approx;
+      //Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+      box-shadow: 0 1px 5px $color_alto_approx;
+
+      &.range .rmp-pad {
+        background-color: $color_gallery_90_approx;
+      }
+
+      .rmp-pad .rmp-btn:hover {
+        background-color: $color_cream_brulee_59_approx;
+      }
+    }
+
+    &.dark {
+      &.range .rmp-pad {
+        background-color: $color_mine_shaft_90_approx;
+      }
+
+      .rmp-pad .rmp-btn:hover {
+        background-color: $color_golden_tainoi_33_approx;
+      }
+    }
+  }
+}

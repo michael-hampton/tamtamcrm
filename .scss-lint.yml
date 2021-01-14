@@ -1,0 +1,27 @@
+linters:
+  Indentation:
+    enabled: true
+    character: space
+    width: 2
+
+  DeclarationOrder:
+    enabled: false
+
+  Comment:
+    enabled: true
+    allowed: '/*doc'
+
+  VendorPrefix:
+    enabled: false
+
+  PlaceholderInExtend:
+    enabled: false
+
+  NestingDepth:
+    max_depth: 4
+    ignore_parent_selectors: true
+
+exclude:
+  - '**/*.css'
+  - public/css/morris.scss
+  - resources/assets/sass/backup.scss

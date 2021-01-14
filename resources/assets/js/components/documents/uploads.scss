@@ -1,0 +1,36 @@
+.Files {
+  margin-left: 32px;
+  align-items: flex-start;
+  justify-items: flex-start;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.dark-theme {
+  .Filename {
+    color: #fff;
+  }
+}
+
+.light-theme {
+  .Filename {
+    color: #000;
+  }
+}
+
+.Filename {
+  margin-bottom: 8px;
+  font-size: 16px;
+  color: #fff;
+}
+
+.Row {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 50px;
+  padding: 8px;
+  overflow: hidden;
+  box-sizing: border-box;
+}

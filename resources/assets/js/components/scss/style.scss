@@ -1,0 +1,70 @@
+
+.signatureCanvas {
+  background-color: #FFF;
+  width: 100%;
+  border: 1px solid #999;
+}
+
+.desktop {
+  .MuiFormControl-root {
+    margin-top: 0 !important;
+  }
+}
+
+// If you want to override variables do it here
+@import "variables";
+
+// Import styles
+@import "~@coreui/coreui/scss/coreui.scss";
+
+// Temp fix for reactstrap
+@import '~@coreui/coreui/scss/_dropdown-menu-right.scss';
+
+//dark theme
+@import "dark-theme";
+
+// If you want to add something do it here
+@import "light-theme";
+
+@import "buttons";
+
+@import "tables";
+
+@import "navbar";
+
+@import "multiselect";
+
+@import "dropdown";
+
+@import "list";
+
+@import "navbar";
+
+// ie fixes
+@import "ie-fix";
+
+@import "monthpicker";
+
+@import "html_editor";
+
+.form-control-inline {
+  width: auto !important;
+  display: inline-block !important;
+}
+
+.settings-container {
+  margin-left: 10px;
+  margin-right: 10px;
+
+  .tab-pane {
+    padding: 0px !important;
+  }
+}
+
+.settings-container-narrow {
+  margin-right: 5px !important;
+}
+
+.settings-pane {
+
+}

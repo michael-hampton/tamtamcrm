@@ -1,0 +1,2530 @@
+
+// Fonts
+
+// Variables
+@import "variables";
+@import "main";
+@import "setup";
+
+$color_persian_red_approx: #d62d20;
+$color_blue_ribbon_approx: #0057e7;
+$color_salem_approx: #008744;
+$color_web_orange_approx: #ffa700;
+$color_catskill_white_approx: #eef2f9;
+$white: #ffffff;
+$color_pumice_approx: #c8c8c8;
+$color_heather_approx: #b8c9d3;
+$color_azure_radiance_approx: #007bff;
+$color_mischka_approx: #ced4da;
+$color_fuscous_gray_approx: #535353;
+$color_slate_gray_approx: #658190;
+$color_alabaster_approx: #fafbfc;
+$boulder: #7a7a7a;
+$color_razzmatazz_approx: #e91e63;
+$color_apple_approx: #4caf50;
+$color_smalt_blue_approx: #607d8b;
+$color_trout_approx: #4c4d61;
+$color_zircon_approx: #f5f8fc;
+$color_lavender_approx: #c774e9;
+$color_charm_approx: #dc6a84;
+$color_vivid_tangerine_approx: #fe8f78;
+$color_yellow_orange_approx: #feb142;
+$color_portage_approx: #949efb;
+$color_cornflower_blue_approx: #64aef7;
+$color_vista_blue_approx: #76d2a6;
+$color_sky_blue_approx: #79d3eb;
+$color_white_lilac_approx: #f6f8fc;
+$color_athens_gray_approx: #ebeff3;
+//colors
+$white: #fff;
+$black_5: rgba(0,0,0,.05);
+$color_wild_sand_approx: #f5f5f5;
+$color_alto_approx: #ddd;
+$color_mine_shaft_approx: #333;
+$color_steel_blue_approx: #337ab7;
+$color_beryl_green_approx: #d6e9c6;
+$color_killarney_approx: #3c763d;
+$color_willow_brook_approx: #dff0d8;
+$color_charlotte_approx: #bce8f1;
+$color_calypso_approx: #31708f;
+$color_link_water_approx: #d9edf7;
+$color_champagne_approx: #faebcc;
+$color_pesto_approx: #8a6d3b;
+$color_solitaire_approx: #fcf8e3;
+$color_oyster_pink_approx: #ebccd1;
+$color_apple_blossom_approx: #a94442;
+$color_vanilla_ice_approx: #f2dede;
+
+// Small tablets and large smartphones (landscape view)
+$screen-sm-min: 576px;
+
+// Small tablets (portrait view)
+$screen-md-min: 768px;
+
+// Tablets and small desktops
+$screen-lg-min: 992px;
+
+// Large tablets and desktops
+$screen-xl-min: 1200px;
+
+$breakpoints: (
+  xs: 576px,
+  sm: 768px,
+  md: 992px,
+  lg: 1200px
+);
+
+
+// Respond above.
+@mixin respond-above($breakpoint) {
+
+  // If the breakpoint exists in the map.
+  @if map-has-key($breakpoints, $breakpoint) {
+
+    // Get the breakpoint value.
+    $breakpoint-value: map-get($breakpoints, $breakpoint);
+
+    // Write the media query.
+    @media (min-width: $breakpoint-value) {
+      @content;
+    }
+
+  // If the breakpoint doesn't exist in the map.
+  } @else {
+
+    // Log a warning.
+    @warn 'Invalid breakpoint: #{$breakpoint}.';
+  }
+}
+
+@mixin respond-below($breakpoint) {
+
+  // If the breakpoint exists in the map.
+  @if map-has-key($breakpoints, $breakpoint) {
+
+    // Get the breakpoint value.
+    $breakpoint-value: map-get($breakpoints, $breakpoint);
+
+    // Write the media query.
+    @media (max-width: ($breakpoint-value - 1)) {
+      @content;
+    }
+
+  // If the breakpoint doesn't exist in the map.
+  } @else {
+
+    // Log a warning.
+    @warn 'Invalid breakpoint: #{$breakpoint}.';
+  }
+}
+
+// Small devices
+@mixin sm {
+   @media (min-width: #{$screen-sm-min}) {
+       @content;
+   }
+}
+
+// Medium devices
+@mixin md {
+   @media (min-width: #{$screen-md-min}) {
+       @content;
+   }
+}
+
+// Large devices
+@mixin lg {
+   @media (min-width: #{$screen-lg-min}) {
+       @content;
+   }
+}
+
+// Extra large devices
+@mixin xl {
+   @media (min-width: #{$screen-xl-min}) {
+       @content;
+   }
+}
+
+//@extend-elements
+//original selectors
+//.panel >.list-group:first-child .list-group-item:first-child, .panel >.panel-collapse >.list-group:first-child .list-group-item:first-child
+
+//fonts
+$font_0: PT Sans;
+$font_1: sans-serif;
+
+//@extend-elements
+//original selectors
+//input[type=date], input[type=datetime-local], input[type=month], input[type=time]
+%extend_1 {
+	border: 1px solid $color_mischka_approx;
+	//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+	border-radius: 4px;
+	padding: 2px;
+}
+
+
+//original selectors
+//.colorBlue, .colorGreen, .colorGrey
+%extend_3 {
+	width: 8px;
+	height: 26px;
+	display: inline-table;
+	position: relative;
+	top: 32px;
+	margin-top: -32px;
+	//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+	border-radius: 4px;
+}
+
+//original selectors
+//.story i, .task-name i
+%extend_4 {
+	float: right;
+	font-size: 18px;
+	padding: 3px;
+	cursor: pointer;
+}
+
+//original selectors
+//.mcolor1:before, .mcolor2:before, .mcolor3:before, .mcolor4:before
+%extend_5 {
+	height: 4px;
+	width: 100%;
+	position: absolute;
+	top: -4px;
+	left: 0;
+	content: '';
+	//Instead of the line below you could use @include border-top-left-radius($radius)
+	border-top-left-radius: 4px;
+	//Instead of the line below you could use @include border-top-right-radius($radius)
+	border-top-right-radius: 4px;
+}
+
+%extend_6 {
+	border-top: 0;
+	//Instead of the line below you could use @include border-top-left-radius($radius)
+	border-top-left-radius: 3px;
+	//Instead of the line below you could use @include border-top-right-radius($radius)
+	border-top-right-radius: 3px;
+}
+
+//original selectors
+//.panel >.list-group:last-child .list-group-item:last-child, .panel >.panel-collapse >.list-group:last-child .list-group-item:last-child
+%extend_7 {
+	border-bottom: 0;
+	//Instead of the line below you could use @include border-bottom-right-radius($radius)
+	border-bottom-right-radius: 3px;
+	//Instead of the line below you could use @include border-bottom-left-radius($radius)
+	border-bottom-left-radius: 3px;
+}
+
+body {
+	background-color: $color_catskill_white_approx;
+	font-family: $font_0, $font_1;
+}
+header {
+	background-color: $white;
+	height: 58px;
+	//Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+	box-shadow: 5px -5px 16px 5px $color_pumice_approx;
+}
+ul {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+}
+.con {
+	position: relative;
+	left: 184px;
+	width: calc(100% - 184px);
+}
+.containerDashboard {
+	padding-top: 10px;
+}
+input::placeholder {
+	color: $color_heather_approx;
+}
+.logo {
+	background: $color_azure_radiance_approx;
+	display: block;
+	text-align: center;
+	font-size: 22px;
+	line-height: 58px;
+	color: $white;
+	font-weight: bold;
+}
+input[type=date] {
+	@extend %extend_1;
+}
+input[type=datetime-local] {
+	@extend %extend_1;
+}
+input[type=month] {
+	@extend %extend_1;
+}
+input[type=time] {
+	@extend %extend_1;
+}
+.side {
+	height: 100vh;
+	float: left;
+	background: $white;
+	width: 184px;
+	//Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+	box-shadow: -3px 0 14px $color_fuscous_gray_approx;
+}
+//.side-menu {
+//	list-style-type: none;
+//	padding: 0;
+//	margin: 0;
+//	i {
+//		font-size: 23px;
+//		display: inline-block;
+//	}
+//	li {
+//		//Instead of the line below you could use @include transition($transition-1, $transition-2, $transition-3, $transition-4, $transition-5, $transition-6, $transition-7, $transition-8, $transition-9, $transition-10)
+//		transition: all 0.3s ease-out;
+//		a {
+//			color: $color_slate_gray_approx;
+//			display: block;
+//			padding: 15px;
+//			//Instead of the line below you could use @include transition($transition-1, $transition-2, $transition-3, $transition-4, $transition-5, $transition-6, $transition-7, $transition-8, $transition-9, $transition-10)
+//			transition: all .20s ease-in-out;
+//			&:hover {
+//				color: $boulder;
+//				text-decoration: none;
+//				background: $color_alabaster_approx;
+//			}
+//		}
+//		&:hover:before {
+//			//Instead of the line below you could use @include transition($transition-1, $transition-2, $transition-3, $transition-4, $transition-5, $transition-6, $transition-7, $transition-8, $transition-9, $transition-10)
+//			transition: all 0.3s ease-out;
+//			@extend %extend_2;
+//		}
+//	}
+//}
+.mainMenu {
+	width: 94%;
+	display: inline-block;
+	font-size: 16px;
+	font-weight: bold;
+	.active {
+		border-bottom: 3px solid $color_azure_radiance_approx;
+		padding-bottom: 13px;
+	}
+	ul li {
+		padding: 17px 13px 9px;
+		display: inline-block;
+		height: 58px;
+		margin: -7px 5px;
+		top: -3px;
+		position: relative;
+		//Instead of the line below you could use @include transition($transition-1, $transition-2, $transition-3, $transition-4, $transition-5, $transition-6, $transition-7, $transition-8, $transition-9, $transition-10)
+		transition: all .3s;
+		&:hover {
+			border-bottom: 3px solid $color_azure_radiance_approx;
+		}
+	}
+}
+.profilewidget {
+	display: inline-block;
+	width: 6%;
+	text-align: right;
+	div {
+		display: inline-block;
+		i {
+			cursor: pointer;
+			font-size: 24px;
+			color: $color_heather_approx;
+			position: relative;
+		}
+	}
+}
+.mainMenuText {
+	padding-left: 10px;
+}
+.btnDashboard {
+	margin-left: 14px;
+}
+.colorBlue {
+	@extend %extend_3;
+	background-color: $color_razzmatazz_approx;
+}
+.colorGreen {
+	@extend %extend_3;
+	background-color: $color_apple_approx;
+}
+.colorGrey {
+	@extend %extend_3;
+	background-color: $color_smalt_blue_approx;
+}
+.space {
+	margin: 15px 0 20px;
+}
+.customAddTask {
+	top: -22.5px;
+	position: relative;
+}
+.story {
+	color: $color_trout_approx!important;
+	i {
+		@extend %extend_4;
+	}
+}
+.task-name {
+	display: block;
+	font-weight: normal;
+	font-size: 19px;
+	i {
+		@extend %extend_4;
+	}
+}
+.mcell {
+	background-color: $color_zircon_approx;
+	margin: 6px;
+	//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+	border-radius: 0 0 4px 4px;
+	display: inline-table;
+	//Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+	box-shadow: 0 3px 5px #bababa7d;
+	min-height: 400px !important;
+}
+.mcell-title {
+	background-color: $color_white_lilac_approx;
+	font-size: 15px;
+	margin: 0 -14px;
+	padding: 10px 10px 12px;
+	font-weight: bold;
+}
+.mcell-task {
+	background-color: $white;
+	padding: 4px 8px;
+	margin: 10px -6px;
+	//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+	border-radius: 4px;
+	//Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+	box-shadow: 2px 2px 8px #8080800d;
+	list-style-type: none;
+}
+/* .ui-draggable {
+	width: 308px;
+} */
+.ui-droppable-hover {
+	background: $color_athens_gray_approx;
+	min-height: 186px;
+	width: 300px;
+}
+.ui-state-default {
+}
+.task-details {
+	display: block;
+	font-weight: normal;
+	font-size: 13px;
+}
+.task-contributors {
+	display: block;
+	font-weight: normal;
+	text-align: right;
+	display: inline-block;
+	width: 100%;
+	img {
+		//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+		border-radius: 50%;
+		width: 40px;
+		height: 40px;
+	}
+	span {
+		text-align: left;
+	}
+}
+.task-due {
+	display: inline-block;
+	width: 48%;
+	font-weight: normal;
+	font-size: 16px;
+}
+.aboutUs {
+	background: $white;
+	padding: 0 14px;
+	margin-top: 50px;
+	//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+	border-radius: 4px;
+}
+.padding20 {
+	padding: 20px;
+}
+@media(min-width: 1200px) {
+	.container {
+		max-width: 1200px;
+	}
+}
+@media(min-width: 1500px) {
+	.container {
+		max-width: 1350px;
+	}
+}
+@media(max-width: 800px) {
+	.con {
+		width: 100%;
+		left: 0;
+	}
+	.side {
+		position: fixed;
+		width: 100%;
+		z-index: 999;
+		display: none;
+	}
+	.mainMenuText {
+		display: none;
+	}
+	.ui-draggable {
+		width: calc(100% +12px);
+	}
+}
+.loader {
+	position: relative;
+	margin: 12px auto 20px;
+	width: 40px;
+	&:before {
+		content: '';
+		display: block;
+		padding-top: 100%;
+	}
+	svg {
+		animation: rotate 2s linear infinite;
+		height: 100%;
+		//Instead of the line below you could use @include transform-origin($origin-x, $origin-y, $origin-z, $only3d)
+		transform-origin: center center;
+		width: 100%;
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		margin: auto;
+		circle {
+			stroke-dasharray: 1, 200;
+			stroke-dashoffset: 0;
+			animation: dash 1.5s ease-in-out infinite, color 6s ease-in-out infinite;
+			stroke-linecap: round;
+			stroke-width: 4;
+			stroke-miterlimit: 10;
+		}
+	}
+}
+@-webkit-keyframes rotate {
+	100% {
+		//Instead of the line below you could use @include transform($scale, $rotate, $transx, $transy, $skewx, $skewy, $originx, $originy)
+		transform: rotate(360deg);
+	}
+}
+@keyframes rotate {
+	100% {
+		//Instead of the line below you could use @include transform($scale, $rotate, $transx, $transy, $skewx, $skewy, $originx, $originy)
+		transform: rotate(360deg);
+	}
+}
+@-webkit-keyframes dash {
+	0% {
+		stroke-dasharray: 1, 200;
+		stroke-dashoffset: 0;
+	}
+	50% {
+		stroke-dasharray: 89, 200;
+		stroke-dashoffset: -35;
+	}
+	100% {
+		stroke-dasharray: 89, 200;
+		stroke-dashoffset: -124;
+	}
+}
+@keyframes dash {
+	0% {
+		stroke-dasharray: 1, 200;
+		stroke-dashoffset: 0;
+	}
+	50% {
+		stroke-dasharray: 89, 200;
+		stroke-dashoffset: -35;
+	}
+	100% {
+		stroke-dasharray: 89, 200;
+		stroke-dashoffset: -124;
+	}
+}
+@-webkit-keyframes color {
+	100% {
+		stroke: $color_persian_red_approx;
+	}
+	0% {
+		stroke: $color_persian_red_approx;
+	}
+	40% {
+		stroke: $color_blue_ribbon_approx;
+	}
+	66% {
+		stroke: $color_salem_approx;
+	}
+	80% {
+		stroke: $color_web_orange_approx;
+	}
+	90% {
+		stroke: $color_web_orange_approx;
+	}
+}
+@keyframes color {
+	100% {
+		stroke: $color_persian_red_approx;
+	}
+	0% {
+		stroke: $color_persian_red_approx;
+	}
+	40% {
+		stroke: $color_blue_ribbon_approx;
+	}
+	66% {
+		stroke: $color_salem_approx;
+	}
+	80% {
+		stroke: $color_web_orange_approx;
+	}
+	90% {
+		stroke: $color_web_orange_approx;
+	}
+}
+span.menu-text {
+	display: inline-block;
+	vertical-align: top;
+	padding: 2px 0 0 15px;
+	font-weight: bold;
+	font-size: 14px;
+}
+//li .active {
+//	background: $color_alabaster_approx;
+//	color: $color_azure_radiance_approx!important;
+//	&:hover {
+//		background: $color_alabaster_approx!important;
+//	}
+//	&:before {
+//		@extend %extend_2;
+//		margin: -10px -15px!important;
+//	}
+//}
+.modal-header .close {
+	font-size: 35px;
+	padding: 9px 15px;
+}
+.mcolor1:before {
+	@extend %extend_5;
+	background: linear-gradient(to right, $color_lavender_approx 0, $color_charm_approx 100%);
+}
+.mcolor2:before {
+	@extend %extend_5;
+	background: linear-gradient(to right, $color_vivid_tangerine_approx 0, $color_yellow_orange_approx 100%);
+}
+.mcolor3:before {
+	@extend %extend_5;
+	background: linear-gradient(to right, $color_portage_approx 0, $color_cornflower_blue_approx 100%);
+}
+.mcolor4:before {
+	@extend %extend_5;
+	background: linear-gradient(to right, $color_vista_blue_approx 0, $color_sky_blue_approx 100%);
+}
+.otherMenu div {
+	margin: 13px;
+	display: grid;
+}
+
+.pull-right {
+	float: right;
+}
+
+.panel {
+	margin-bottom: 20px;
+	background-color: $white;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	-webkit-box-shadow: 0 1px 1px $black_5;
+	box-shadow: 0 1px 1px $black_5;
+}
+
+/** Panels **/
+//.panel {
+//	margin-bottom: 20px;
+//	background-color: $white;
+//	border: 1px solid transparent;
+//	//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+//	border-radius: 4px;
+//	//Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+//	box-shadow: 0 1px 1px $black_5;
+//	> {
+//		.list-group {
+//			margin-bottom: 0;
+//			.list-group-item {
+//				border-width: 1px 0;
+//				//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+//				border-radius: 0;
+//			}
+//			&:first-child .list-group-item:first-child {
+//				@extend %extend_6;
+//			}
+//			&:last-child .list-group-item:last-child {
+//				@extend %extend_7;
+//			}
+//		}
+//		.table {
+//			margin-bottom: 0;
+//			caption {
+//				padding-right: 15px;
+//				padding-left: 15px;
+//			}
+//			&:first-child {
+//				//Instead of the line below you could use @include border-top-left-radius($radius)
+//				border-top-left-radius: 3px;
+//				//Instead of the line below you could use @include border-top-right-radius($radius)
+//				border-top-right-radius: 3px;
+//				> tbody:first-child > tr:first-child {
+//					//Instead of the line below you could use @include border-top-left-radius($radius)
+//					border-top-left-radius: 3px;
+//					//Instead of the line below you could use @include border-top-right-radius($radius)
+//					border-top-right-radius: 3px;
+//					td {
+//						&:first-child {
+//							//Instead of the line below you could use @include border-top-left-radius($radius)
+//							border-top-left-radius: 3px;
+//						}
+//						&:last-child {
+//							//Instead of the line below you could use @include border-top-right-radius($radius)
+//							border-top-right-radius: 3px;
+//						}
+//					}
+//					th {
+//						&:first-child {
+//							//Instead of the line below you could use @include border-top-left-radius($radius)
+//							border-top-left-radius: 3px;
+//						}
+//						&:last-child {
+//							//Instead of the line below you could use @include border-top-right-radius($radius)
+//							border-top-right-radius: 3px;
+//						}
+//					}
+//				}
+//				> thead:first-child > tr:first-child {
+//					//Instead of the line below you could use @include border-top-left-radius($radius)
+//					border-top-left-radius: 3px;
+//					//Instead of the line below you could use @include border-top-right-radius($radius)
+//					border-top-right-radius: 3px;
+//					td {
+//						&:first-child {
+//							//Instead of the line below you could use @include border-top-left-radius($radius)
+//							border-top-left-radius: 3px;
+//						}
+//						&:last-child {
+//							//Instead of the line below you could use @include border-top-right-radius($radius)
+//							border-top-right-radius: 3px;
+//						}
+//					}
+//					th {
+//						&:first-child {
+//							//Instead of the line below you could use @include border-top-left-radius($radius)
+//							border-top-left-radius: 3px;
+//						}
+//						&:last-child {
+//							//Instead of the line below you could use @include border-top-right-radius($radius)
+//							border-top-right-radius: 3px;
+//						}
+//					}
+//				}
+//			}
+//			&:last-child {
+//				//Instead of the line below you could use @include border-bottom-right-radius($radius)
+//				border-bottom-right-radius: 3px;
+//				//Instead of the line below you could use @include border-bottom-left-radius($radius)
+//				border-bottom-left-radius: 3px;
+//				> tbody:last-child > tr:last-child {
+//					//Instead of the line below you could use @include border-bottom-right-radius($radius)
+//					border-bottom-right-radius: 3px;
+//					//Instead of the line below you could use @include border-bottom-left-radius($radius)
+//					border-bottom-left-radius: 3px;
+//					td {
+//						&:first-child {
+//							//Instead of the line below you could use @include border-bottom-left-radius($radius)
+//							border-bottom-left-radius: 3px;
+//						}
+//						&:last-child {
+//							//Instead of the line below you could use @include border-bottom-right-radius($radius)
+//							border-bottom-right-radius: 3px;
+//						}
+//					}
+//					th {
+//						&:first-child {
+//							//Instead of the line below you could use @include border-bottom-left-radius($radius)
+//							border-bottom-left-radius: 3px;
+//						}
+//						&:last-child {
+//							//Instead of the line below you could use @include border-bottom-right-radius($radius)
+//							border-bottom-right-radius: 3px;
+//						}
+//					}
+//				}
+//				> tfoot:last-child > tr:last-child {
+//					//Instead of the line below you could use @include border-bottom-right-radius($radius)
+//					border-bottom-right-radius: 3px;
+//					//Instead of the line below you could use @include border-bottom-left-radius($radius)
+//					border-bottom-left-radius: 3px;
+//					td {
+//						&:first-child {
+//							//Instead of the line below you could use @include border-bottom-left-radius($radius)
+//							border-bottom-left-radius: 3px;
+//						}
+//						&:last-child {
+//							//Instead of the line below you could use @include border-bottom-right-radius($radius)
+//							border-bottom-right-radius: 3px;
+//						}
+//					}
+//					th {
+//						&:first-child {
+//							//Instead of the line below you could use @include border-bottom-left-radius($radius)
+//							border-bottom-left-radius: 3px;
+//						}
+//						&:last-child {
+//							//Instead of the line below you could use @include border-bottom-right-radius($radius)
+//							border-bottom-right-radius: 3px;
+//						}
+//					}
+//				}
+//			}
+//			+ .panel-body {
+//				border-top: 1px solid $color_alto_approx;
+//			}
+//			> tbody:first-child > tr:first-child {
+//				td {
+//					border-top: 0;
+//				}
+//				th {
+//					border-top: 0;
+//				}
+//			}
+//		}
+//		.table-responsive {
+//			margin-bottom: 0;
+//			border: 0;
+//			> {
+//				.table {
+//					margin-bottom: 0;
+//					caption {
+//						padding-right: 15px;
+//						padding-left: 15px;
+//					}
+//				}
+//				.table-bordered {
+//					border: 0;
+//					> tbody > tr {
+//						> td {
+//							&:first-child {
+//								border-left: 0;
+//							}
+//							&:last-child {
+//								border-right: 0;
+//							}
+//						}
+//						> th {
+//							&:first-child {
+//								border-left: 0;
+//							}
+//							&:last-child {
+//								border-right: 0;
+//							}
+//						}
+//						&:first-child {
+//							> td {
+//								border-bottom: 0;
+//							}
+//							> th {
+//								border-bottom: 0;
+//							}
+//						}
+//						&:last-child {
+//							> td {
+//								border-bottom: 0;
+//							}
+//							> th {
+//								border-bottom: 0;
+//							}
+//						}
+//					}
+//					> tfoot > tr {
+//						> td {
+//							&:first-child {
+//								border-left: 0;
+//							}
+//							&:last-child {
+//								border-right: 0;
+//							}
+//						}
+//						> th {
+//							&:first-child {
+//								border-left: 0;
+//							}
+//							&:last-child {
+//								border-right: 0;
+//							}
+//						}
+//						&:last-child {
+//							> td {
+//								border-bottom: 0;
+//							}
+//							> th {
+//								border-bottom: 0;
+//							}
+//						}
+//					}
+//					> thead > tr {
+//						> td {
+//							&:first-child {
+//								border-left: 0;
+//							}
+//							&:last-child {
+//								border-right: 0;
+//							}
+//						}
+//						> th {
+//							&:first-child {
+//								border-left: 0;
+//							}
+//							&:last-child {
+//								border-right: 0;
+//							}
+//						}
+//						&:first-child {
+//							> td {
+//								border-bottom: 0;
+//							}
+//							> th {
+//								border-bottom: 0;
+//							}
+//						}
+//					}
+//				}
+//			}
+//			&:first-child > .table:first-child {
+//				//Instead of the line below you could use @include border-top-left-radius($radius)
+//				border-top-left-radius: 3px;
+//				//Instead of the line below you could use @include border-top-right-radius($radius)
+//				border-top-right-radius: 3px;
+//				> tbody:first-child > tr:first-child {
+//					//Instead of the line below you could use @include border-top-left-radius($radius)
+//					border-top-left-radius: 3px;
+//					//Instead of the line below you could use @include border-top-right-radius($radius)
+//					border-top-right-radius: 3px;
+//					td {
+//						&:first-child {
+//							//Instead of the line below you could use @include border-top-left-radius($radius)
+//							border-top-left-radius: 3px;
+//						}
+//						&:last-child {
+//							//Instead of the line below you could use @include border-top-right-radius($radius)
+//							border-top-right-radius: 3px;
+//						}
+//					}
+//					th {
+//						&:first-child {
+//							//Instead of the line below you could use @include border-top-left-radius($radius)
+//							border-top-left-radius: 3px;
+//						}
+//						&:last-child {
+//							//Instead of the line below you could use @include border-top-right-radius($radius)
+//							border-top-right-radius: 3px;
+//						}
+//					}
+//				}
+//				> thead:first-child > tr:first-child {
+//					//Instead of the line below you could use @include border-top-left-radius($radius)
+//					border-top-left-radius: 3px;
+//					//Instead of the line below you could use @include border-top-right-radius($radius)
+//					border-top-right-radius: 3px;
+//					td {
+//						&:first-child {
+//							//Instead of the line below you could use @include border-top-left-radius($radius)
+//							border-top-left-radius: 3px;
+//						}
+//						&:last-child {
+//							//Instead of the line below you could use @include border-top-right-radius($radius)
+//							border-top-right-radius: 3px;
+//						}
+//					}
+//					th {
+//						&:first-child {
+//							//Instead of the line below you could use @include border-top-left-radius($radius)
+//							border-top-left-radius: 3px;
+//						}
+//						&:last-child {
+//							//Instead of the line below you could use @include border-top-right-radius($radius)
+//							border-top-right-radius: 3px;
+//						}
+//					}
+//				}
+//			}
+//			&:last-child > .table:last-child {
+//				//Instead of the line below you could use @include border-bottom-right-radius($radius)
+//				border-bottom-right-radius: 3px;
+//				//Instead of the line below you could use @include border-bottom-left-radius($radius)
+//				border-bottom-left-radius: 3px;
+//				> tbody:last-child > tr:last-child {
+//					//Instead of the line below you could use @include border-bottom-right-radius($radius)
+//					border-bottom-right-radius: 3px;
+//					//Instead of the line below you could use @include border-bottom-left-radius($radius)
+//					border-bottom-left-radius: 3px;
+//					td {
+//						&:first-child {
+//							//Instead of the line below you could use @include border-bottom-left-radius($radius)
+//							border-bottom-left-radius: 3px;
+//						}
+//						&:last-child {
+//							//Instead of the line below you could use @include border-bottom-right-radius($radius)
+//							border-bottom-right-radius: 3px;
+//						}
+//					}
+//					th {
+//						&:first-child {
+//							//Instead of the line below you could use @include border-bottom-left-radius($radius)
+//							border-bottom-left-radius: 3px;
+//						}
+//						&:last-child {
+//							//Instead of the line below you could use @include border-bottom-right-radius($radius)
+//							border-bottom-right-radius: 3px;
+//						}
+//					}
+//				}
+//				> tfoot:last-child > tr:last-child {
+//					//Instead of the line below you could use @include border-bottom-right-radius($radius)
+//					border-bottom-right-radius: 3px;
+//					//Instead of the line below you could use @include border-bottom-left-radius($radius)
+//					border-bottom-left-radius: 3px;
+//					td {
+//						&:first-child {
+//							//Instead of the line below you could use @include border-bottom-left-radius($radius)
+//							border-bottom-left-radius: 3px;
+//						}
+//						&:last-child {
+//							//Instead of the line below you could use @include border-bottom-right-radius($radius)
+//							border-bottom-right-radius: 3px;
+//						}
+//					}
+//					th {
+//						&:first-child {
+//							//Instead of the line below you could use @include border-bottom-left-radius($radius)
+//							border-bottom-left-radius: 3px;
+//						}
+//						&:last-child {
+//							//Instead of the line below you could use @include border-bottom-right-radius($radius)
+//							border-bottom-right-radius: 3px;
+//						}
+//					}
+//				}
+//			}
+//			+ .panel-body {
+//				border-top: 1px solid $color_alto_approx;
+//			}
+//		}
+//		.table-bordered {
+//			border: 0;
+//			> tbody > tr {
+//				> td {
+//					&:first-child {
+//						border-left: 0;
+//					}
+//					&:last-child {
+//						border-right: 0;
+//					}
+//				}
+//				> th {
+//					&:first-child {
+//						border-left: 0;
+//					}
+//					&:last-child {
+//						border-right: 0;
+//					}
+//				}
+//				&:first-child {
+//					> td {
+//						border-bottom: 0;
+//					}
+//					> th {
+//						border-bottom: 0;
+//					}
+//				}
+//				&:last-child {
+//					> td {
+//						border-bottom: 0;
+//					}
+//					> th {
+//						border-bottom: 0;
+//					}
+//				}
+//			}
+//			> tfoot > tr {
+//				> td {
+//					&:first-child {
+//						border-left: 0;
+//					}
+//					&:last-child {
+//						border-right: 0;
+//					}
+//				}
+//				> th {
+//					&:first-child {
+//						border-left: 0;
+//					}
+//					&:last-child {
+//						border-right: 0;
+//					}
+//				}
+//				&:last-child {
+//					> td {
+//						border-bottom: 0;
+//					}
+//					> th {
+//						border-bottom: 0;
+//					}
+//				}
+//			}
+//			> thead > tr {
+//				> td {
+//					&:first-child {
+//						border-left: 0;
+//					}
+//					&:last-child {
+//						border-right: 0;
+//					}
+//				}
+//				> th {
+//					&:first-child {
+//						border-left: 0;
+//					}
+//					&:last-child {
+//						border-right: 0;
+//					}
+//				}
+//				&:first-child {
+//					> td {
+//						border-bottom: 0;
+//					}
+//					> th {
+//						border-bottom: 0;
+//					}
+//				}
+//			}
+//		}
+//		.panel-collapse > {
+//			.list-group {
+//				margin-bottom: 0;
+//				.list-group-item {
+//					border-width: 1px 0;
+//					//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+//					border-radius: 0;
+//				}
+//				&:first-child .list-group-item:first-child {
+//					@extend %extend_6;
+//				}
+//				&:last-child .list-group-item:last-child {
+//					@extend %extend_7;
+//				}
+//			}
+//			.table {
+//				margin-bottom: 0;
+//				caption {
+//					padding-right: 15px;
+//					padding-left: 15px;
+//				}
+//			}
+//		}
+//	}
+//}
+
+//.panel>.panel-body+.table,.panel>.panel-body+.table-responsive,.panel>.table+.panel-body,.panel>.table-responsive+.panel-body{
+//    border-top:1px solid $color_alto_approx
+//}
+//
+//.panel-body {
+//	padding: 15px;
+//}
+//.panel-heading {
+//	padding: 10px 15px;
+//	border-bottom: 1px solid transparent;
+//	//Instead of the line below you could use @include border-top-left-radius($radius)
+//	border-top-left-radius: 3px;
+//	//Instead of the line below you could use @include border-top-right-radius($radius)
+//	border-top-right-radius: 3px;
+//	> .dropdown .dropdown-toggle {
+//		color: inherit;
+//	}
+//	+ .list-group .list-group-item:first-child {
+//		border-top-width: 0;
+//	}
+//}
+//.panel-title {
+//	margin-top: 0;
+//	margin-bottom: 0;
+//	font-size: 16px;
+//	color: inherit;
+//	> a {
+//		color: inherit;
+//	}
+//	> small {
+//		color: inherit;
+//		> a {
+//			color: inherit;
+//		}
+//	}
+//	> .small {
+//		color: inherit;
+//		> a {
+//			color: inherit;
+//		}
+//	}
+//}
+//.panel-footer {
+//	padding: 10px 15px;
+//	background-color: $color_wild_sand_approx;
+//	border-top: 1px solid $color_alto_approx;
+//	//Instead of the line below you could use @include border-bottom-right-radius($radius)
+//	border-bottom-right-radius: 3px;
+//	//Instead of the line below you could use @include border-bottom-left-radius($radius)
+//	border-bottom-left-radius: 3px;
+//}
+//.panel-group {
+//	margin-bottom: 20px;
+//	.panel {
+//		margin-bottom: 0;
+//		//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+//		border-radius: 4px;
+//		+ .panel {
+//			margin-top: 5px;
+//		}
+//	}
+//	.panel-heading {
+//		border-bottom: 0;
+//		+ .panel-collapse > {
+//			.list-group {
+//				border-top: 1px solid $color_alto_approx;
+//			}
+//			.panel-body {
+//				border-top: 1px solid $color_alto_approx;
+//			}
+//		}
+//	}
+//	.panel-footer {
+//		border-top: 0;
+//		+ .panel-collapse .panel-body {
+//			border-bottom: 1px solid $color_alto_approx;
+//		}
+//	}
+//}
+//.panel-default {
+//	border-color: $color_alto_approx;
+//	> {
+//		.panel-heading {
+//			color: $color_mine_shaft_approx;
+//			background-color: $color_wild_sand_approx;
+//			border-color: $color_alto_approx;
+//			.badge {
+//				color: $color_wild_sand_approx;
+//				background-color: $color_mine_shaft_approx;
+//			}
+//			+ .panel-collapse > .panel-body {
+//				border-top-color: $color_alto_approx;
+//			}
+//		}
+//		.panel-footer + .panel-collapse > .panel-body {
+//			border-bottom-color: $color_alto_approx;
+//		}
+//	}
+//}
+//.panel-primary {
+//	border-color: $color_steel_blue_approx;
+//	> {
+//		.panel-heading {
+//			color: $white;
+//			background-color: $color_steel_blue_approx;
+//			border-color: $color_steel_blue_approx;
+//			.badge {
+//				color: $color_steel_blue_approx;
+//				background-color: $white;
+//			}
+//			+ .panel-collapse > .panel-body {
+//				border-top-color: $color_steel_blue_approx;
+//			}
+//		}
+//		.panel-footer + .panel-collapse > .panel-body {
+//			border-bottom-color: $color_steel_blue_approx;
+//		}
+//	}
+//}
+//.panel-success {
+//	border-color: $color_beryl_green_approx;
+//	> {
+//		.panel-heading {
+//			color: $color_killarney_approx;
+//			background-color: $color_willow_brook_approx;
+//			border-color: $color_beryl_green_approx;
+//			.badge {
+//				color: $color_willow_brook_approx;
+//				background-color: $color_killarney_approx;
+//			}
+//			+ .panel-collapse > .panel-body {
+//				border-top-color: $color_beryl_green_approx;
+//			}
+//		}
+//		.panel-footer + .panel-collapse > .panel-body {
+//			border-bottom-color: $color_beryl_green_approx;
+//		}
+//	}
+//}
+//.panel-info {
+//	border-color: $color_charlotte_approx;
+//	> {
+//		.panel-heading {
+//			color: $color_calypso_approx;
+//			background-color: $color_link_water_approx;
+//			border-color: $color_charlotte_approx;
+//			.badge {
+//				color: $color_link_water_approx;
+//				background-color: $color_calypso_approx;
+//			}
+//			+ .panel-collapse > .panel-body {
+//				border-top-color: $color_charlotte_approx;
+//			}
+//		}
+//		.panel-footer + .panel-collapse > .panel-body {
+//			border-bottom-color: $color_charlotte_approx;
+//		}
+//	}
+//}
+//.panel-warning {
+//	border-color: $color_champagne_approx;
+//	> {
+//		.panel-heading {
+//			color: $color_pesto_approx;
+//			background-color: $color_solitaire_approx;
+//			border-color: $color_champagne_approx;
+//			.badge {
+//				color: $color_solitaire_approx;
+//				background-color: $color_pesto_approx;
+//			}
+//			+ .panel-collapse > .panel-body {
+//				border-top-color: $color_champagne_approx;
+//			}
+//		}
+//		.panel-footer + .panel-collapse > .panel-body {
+//			border-bottom-color: $color_champagne_approx;
+//		}
+//	}
+//}
+//.panel-danger {
+//	border-color: $color_oyster_pink_approx;
+//	> {
+//		.panel-heading {
+//			color: $color_apple_blossom_approx;
+//			background-color: $color_vanilla_ice_approx;
+//			border-color: $color_oyster_pink_approx;
+//			.badge {
+//				color: $color_vanilla_ice_approx;
+//				background-color: $color_apple_blossom_approx;
+//			}
+//			+ .panel-collapse > .panel-body {
+//				border-top-color: $color_oyster_pink_approx;
+//			}
+//		}
+//		.panel-footer + .panel-collapse > .panel-body {
+//			border-bottom-color: $color_oyster_pink_approx;
+//		}
+//	}
+//}
+.list-group + .panel-footer {
+	border-top-width: 0;
+}
+
+/** Upload Button **/@at-root//colors
+$color_mine_shaft_approx: #333;
+$color_quill_gray_approx: #d4d4d4;
+$color_stack_approx: #8c8c8c;
+$black_12_5: rgba(0,0,0,.125);
+$white: #fff;
+$color_celeste_approx: #ccc;
+
+//@extend-elements
+//original selectors
+//.btn-default.active.focus, .btn-default.active:focus, .btn-default.active:hover, .btn-default:active.focus, .btn-default:active:focus, .btn-default:active:hover, .open >.dropdown-toggle.btn-default.focus, .open >.dropdown-toggle.btn-default:focus, .open >.dropdown-toggle.btn-default:hover
+%extend_8 {
+	color: $color_mine_shaft_approx;
+	background-color: $color_quill_gray_approx;
+	border-color: $color_stack_approx;
+}
+
+//original selectors
+//.btn.active, .btn:active
+%extend_9 {
+	background-image: none;
+	outline: 0;
+	//Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+	box-shadow: inset 0 3px 5px $black_12_5;
+}
+
+
+.btn-default {
+	color: $color_mine_shaft_approx;
+	background-color: $white;
+	border-color: $color_celeste_approx !important;
+	&.active {
+		&.focus {
+			@extend %extend_8;
+		}
+		&:focus {
+			@extend %extend_8;
+		}
+		&:hover {
+			@extend %extend_8;
+		}
+	}
+	&:active {
+		&.focus {
+			@extend %extend_8;
+		}
+		&:focus {
+			@extend %extend_8;
+		}
+		&:hover {
+			@extend %extend_8;
+		}
+	}
+}
+.btn {
+	display: inline-block;
+	padding: 6px 12px;
+	margin-bottom: 0;
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 1.42857143;
+	text-align: center;
+	white-space: nowrap;
+	vertical-align: middle;
+	touch-action: manipulation;
+	cursor: pointer;
+	//Instead of the line below you could use @include user-select($select)
+	user-select: none;
+	background-image: none;
+	border: 1px solid transparent;
+	//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+	border-radius: 4px;
+	&.active {
+		@extend %extend_9;
+	}
+	&:active {
+		@extend %extend_9;
+	}
+	&.focus {
+		color: $color_mine_shaft_approx;
+		text-decoration: none;
+	}
+	&:focus {
+		color: $color_mine_shaft_approx;
+		text-decoration: none;
+	}
+	&:hover {
+		color: $color_mine_shaft_approx;
+		text-decoration: none;
+	}
+}
+.btn-file {
+	overflow: hidden;
+	position: relative;
+	input[type=file] {
+		background: $white;
+		cursor: inherit;
+		display: block;
+		font-size: 100px;
+		min-height: 100%;
+		min-width: 100%;
+		opacity: 0;
+		outline: none;
+		position: absolute;
+		right: 0;
+		text-align: right;
+		top: 0;
+	}
+}
+.open > .dropdown-toggle.btn-default {
+	&.focus {
+		@extend %extend_8;
+	}
+	&:focus {
+		@extend %extend_8;
+	}
+	&:hover {
+		@extend %extend_8;
+	}
+}
+
+/************************** TAbles **********************************/
+//@extend-elements
+%extend_table_1 {
+  position: absolute;
+  bottom: .8em;
+  display: block;
+  opacity: .3;
+}
+
+%extend_table_2 {
+  position: absolute;
+  bottom: 1.2em;
+  display: block;
+  opacity: .3;
+}
+
+%extend_table_3 {
+  right: 1em;
+  content: "\f0de";
+  font: normal normal normal 14px/1 FontAwesome;
+  font-weight: 900;
+  font-size: 1rem;
+}
+
+%extend_table_4 {
+  content: "\f0dd";
+  font: normal normal normal 14px/1 FontAwesome;
+  font-weight: 900;
+  right: 16px;
+  font-size: 1rem;
+}
+
+
+thead {
+  .sorting_asc {
+    cursor: pointer;
+    position: relative;
+
+    &:after {
+      @extend %extend_table_1;
+    }
+
+    &:before {
+      @extend %extend_table_1;
+      @extend %extend_table_3;
+      opacity: 1;
+    }
+  }
+
+  .sorting_asc_disabled {
+    cursor: pointer;
+    position: relative;
+
+    &:after {
+      @extend %extend_table_1;
+    }
+
+    &:before {
+      @extend %extend_table_1;
+      @extend %extend_table_3;
+    }
+  }
+
+  .sorting_desc {
+    cursor: pointer;
+    position: relative;
+
+    &:after {
+      @extend %extend_table_2;
+      @extend %extend_table_4;
+      opacity: 1;
+    }
+
+    &:before {
+      @extend %extend_table_2;
+    }
+  }
+
+  .sorting_desc_disabled {
+    cursor: pointer;
+    position: relative;
+
+    &:after {
+      @extend %extend_table_2;
+      @extend %extend_table_4;
+    }
+
+    &:before {
+      @extend %extend_table_2;
+    }
+  }
+}
+
+th.sorting_asc {
+  padding-right: 30px;
+}
+
+th.sorting_desc {
+  padding-right: 30px;
+}
+/* .mcell-task {
+	max-width: 288px;
+} */
+
+@include lg {
+    .tasks {
+	width: 23% !important;
+    }
+}
+
+@include md {
+    .tasks {
+        width: 46.5% !important;
+    }
+}
+
+@include respond-below(sm) {
+    .kanban {
+        padding: 0 !important;
+    }
+}
+
+@include respond-above(lg) {
+    .tasks {
+        width: 31% !important;
+    }
+}
+
+
+.task-body {
+	padding: .5rem;
+	min-height: 2rem;
+	flex: 1;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+.tasks {
+	margin: 8px;
+  display: inline-flex;
+  flex-direction: column;
+  height: 100%;
+  vertical-align: top;
+  background-color: #e6e8ed;
+  box-shadow: 0 0 0 1px rgba(20,20,31,.05), 0 1px 3px 0 rgba(20,20,31,.15);
+  border-radius: .25rem;
+}
+
+.task-header {
+	padding: .5rem .75rem 0;
+	display: flex;
+	align-items: center;
+	font-weight: 600;
+}
+
+.task-title {
+	margin: 0;
+	font-size: 1rem;
+}
+
+@media (min-width: 768px) {
+	.btn-icon {
+		line-height: calc(1.5em + .75rem);
+		width: 2.25rem;
+		height: 2.25rem;
+	}
+}
+
+.btn-icon {
+	padding: 0;
+	line-height: calc(1.5em + .75rem + 2px);
+	border-radius: 2.25rem;
+	width: calc(1.5em + .75rem + 2px);
+	height: calc(1.5em + .75rem + 2px);
+}
+
+.btn-light {
+	color: #888c9b;
+	background-color: transparent;
+	border-color: transparent;
+}
+
+.chat-room {
+	.friend-list {
+		.list-group-item {
+			margin-bottom: 0;
+			border: 0;
+			border-bottom: 1px solid #CCC;
+			&:last-of-type {
+				border-bottom: 0;
+			}
+		}
+		.list-group-item.active {
+			background-color: #eeeeee;
+		}
+	}
+	.avatar {
+		height: 3rem;
+		width: 3rem;
+	}
+	.chat-message {
+		&:nth-of-type(even) {
+			flex-direction: row-reverse;
+		}
+	}
+	.scrollable-friends-list {
+		height: 570px;
+	}
+	.scrollable-chat {
+		height: 624px;
+		padding-bottom: 15px;
+		overflow-y: auto;
+		margin-bottom: 16px;
+	}
+}
+
+@media (min-width: 992px) {
+	.modal-lg {
+		max-width: 1064px !important;
+	}
+}
+
+@mixin avatar($size) {
+	width: $size;
+	height: $size;
+	background-color: #72d80c;
+	text-align: center;
+	border-radius: 50%;
+	-webkit-border-radius: 50%;
+	-moz-border-radius: 50%;
+
+	.initials {
+		position: relative;
+		top: $size*0.20;
+		font-size: $size*0.5;
+		line-height: $size*0.5;
+		color: #fff;
+		font-family: "Courier New", monospace;
+		font-weight: bold;
+	}
+}
+
+.avatar-circle      { @include avatar(100px); }
+.avatar-circle-sm   { @include avatar(50px); }
+.avatar-circle-xs   { @include avatar(35px); }
+.avatar-circle-lg   { @include avatar(250px); }
+
+//.open aside.left-panel {
+//	width: 220px !important;
+//}
+
+.font-large-2 {
+	font-size: 3rem!important;
+}
+
+.card {
+	margin-bottom: 1.875rem;
+	border: none;
+	-webkit-box-shadow: 0 2px 1px rgba(0,0,0,.05);
+	box-shadow: 0 2px 1px rgba(0,0,0,.05);
+}
+
+.media [class*=avatar-] {
+	position: relative;
+	padding-right: 0!important;
+	margin-right: 0;
+}
+
+.avatar-md {
+	width: 40px;
+}
+
+.card-header {
+	border-bottom: none;
+}
+
+.font-small-2 {
+	font-size: .8rem!important;
+}
+
+.text-bold-600 {
+	font-weight: 600;
+}
+
+.icon-spin, ul.list-inline li {
+	display: inline-block;
+}
+
+.height-200 {
+	height: 200px!important;
+}
+
+.height-400 {
+	height: 400px!important;
+}
+
+
+.height-300 {
+	height: 300px!important;
+}
+
+.text-bold-400 {
+	font-weight: 400;
+}
+
+.position-right-0 {
+	right: 0;
+}
+
+.position-bottom-0 {
+	bottom: 0;
+}
+
+
+
+/****************** Activities page *********************/
+//colors
+$black_30: rgba(0, 0, 0, 0.3);
+$color_alto_approx: #dddddd;
+$color_mine_shaft_approx: #333;
+$white: #fff;
+$black: black;
+$color_silver_chalice_approx: #aaaaaa;
+$color_mountain_mist_approx: #999;
+$color_tundora_approx: #454545;
+
+.panel-shadow {
+	//Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+	box-shadow: $black_30 7px 7px 7px;
+}
+.panel-white {
+	border: 1px solid $color_alto_approx;
+	.panel-heading {
+		color: $color_mine_shaft_approx;
+		background-color: $white;
+		border-color: $color_alto_approx;
+	}
+	.panel-footer {
+		background-color: $white;
+		border-color: $color_alto_approx;
+	}
+}
+.post {
+	.post-heading {
+		height: 95px;
+		padding: 20px 15px;
+		.avatar {
+			width: 60px;
+			height: 60px;
+			display: block;
+			margin-right: 15px;
+		}
+		.meta {
+			.title {
+				margin-bottom: 0;
+				a {
+					color: $black;
+					&:hover {
+						color: $color_silver_chalice_approx;
+					}
+				}
+			}
+			.time {
+				margin-top: 8px;
+				color: $color_mountain_mist_approx;
+			}
+		}
+	}
+	.post-description {
+		padding: 15px;
+		p {
+			font-size: 14px;
+		}
+		.stats {
+			margin-top: 20px;
+			.stat-item {
+				display: inline-block;
+				margin-right: 15px;
+				.icon {
+					margin-right: 8px;
+				}
+			}
+		}
+	}
+	.post-footer {
+		border-top: 1px solid $color_alto_approx;
+		padding: 15px;
+		.comments-list {
+			padding: 0;
+			margin-top: 20px;
+			list-style-type: none;
+			.comment {
+				display: block;
+				width: 100%;
+				margin: 20px 0;
+				.avatar {
+					width: 35px;
+					height: 35px;
+				}
+				.comment-heading {
+					display: block;
+					width: 100%;
+					.user {
+						font-size: 14px;
+						font-weight: bold;
+						display: inline;
+						margin-top: 0;
+						margin-right: 10px;
+					}
+					.time {
+						font-size: 12px;
+						color: $color_silver_chalice_approx;
+						margin-top: 0;
+						display: inline;
+					}
+				}
+				.comment-body {
+					margin-left: 50px;
+				}
+				> .comments-list {
+					margin-left: 50px;
+				}
+			}
+		}
+		.input-group-addon a {
+			color: $color_tundora_approx;
+		}
+	}
+	.post-image .image {
+		width: 100%;
+		height: auto;
+	}
+}
+
+/***************** Chat **********************/
+//colors
+$color_desert_storm_approx: #f8f8f8;
+$color_cloud_approx: #c4c4c4;
+$color_blue_lagoon_approx: #05728f;
+$color_celeste_approx: #cdcdcd;
+$color_dove_gray_approx: #707070;
+$color_tundora_approx: #464646;
+$color_mountain_mist_approx: #989898;
+$color_cararra_approx: #ebebeb;
+$color_storm_dust_approx: #646464;
+$color_tapa_approx: #747474;
+$white: #fff;
+$color_gravel_approx: #4c4c4c;
+
+.container {
+	max-width: 1170px;
+	margin: auto;
+}
+img {
+	max-width: 100%;
+}
+.inbox_people {
+	background: $color_desert_storm_approx none repeat scroll 0 0;
+	float: left;
+	overflow: hidden;
+	width: 40%;
+	border-right: 1px solid $color_cloud_approx;
+}
+.inbox_msg {
+	border: 1px solid $color_cloud_approx;
+	clear: both;
+	overflow: hidden;
+}
+.top_spac {
+	margin: 20px 0 0;
+}
+.recent_heading {
+	float: left;
+	width: 40%;
+	h4 {
+		color: $color_blue_lagoon_approx;
+		font-size: 21px;
+		margin: auto;
+	}
+}
+.srch_bar {
+	display: inline-block;
+	text-align: right;
+	width: 60%;
+	input {
+		border: 1px solid $color_celeste_approx;
+		border-width: 0 0 1px 0;
+		width: 80%;
+		padding: 2px 0 4px 6px;
+		background: none;
+	}
+	.input-group-addon {
+		margin: 0 0 0 -27px;
+		button {
+			background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+			border: medium none;
+			padding: 0;
+			color: $color_dove_gray_approx;
+			font-size: 18px;
+		}
+	}
+}
+.headind_srch {
+	padding: 10px 29px 10px 20px;
+	overflow: hidden;
+	border-bottom: 1px solid $color_cloud_approx;
+}
+.chat_ib {
+	float: left;
+	padding: 0 0 0 15px;
+	width: 88%;
+	h5 {
+		font-size: 15px;
+		color: $color_tundora_approx;
+		margin: 0 0 8px 0;
+		span {
+			font-size: 13px;
+			float: right;
+		}
+	}
+	p {
+		font-size: 14px;
+		color: $color_mountain_mist_approx;
+		margin: auto;
+	}
+}
+.chat_img {
+	float: left;
+	width: 11%;
+}
+.chat_people {
+	overflow: hidden;
+	clear: both;
+}
+.chat_list {
+	border-bottom: 1px solid $color_cloud_approx;
+	margin: 0;
+	padding: 18px 16px 10px;
+}
+.inbox_chat {
+	height: 550px;
+	overflow-y: scroll;
+}
+.active_chat {
+	background: $color_cararra_approx;
+}
+.incoming_msg_img {
+	display: inline-block;
+	width: 6%;
+}
+.received_msg {
+	display: inline-block;
+	padding: 0 0 0 10px;
+	vertical-align: top;
+	width: 92%;
+}
+.received_withd_msg {
+	width: 57%;
+	p {
+		background: $color_cararra_approx none repeat scroll 0 0;
+		//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+		border-radius: 3px;
+		color: $color_storm_dust_approx;
+		font-size: 14px;
+		margin: 0;
+		padding: 5px 10px 5px 12px;
+		width: 100%;
+	}
+}
+.time_date {
+	color: $color_tapa_approx;
+	display: block;
+	font-size: 12px;
+	margin: 8px 0 0;
+}
+.mesgs {
+	float: left;
+	padding: 30px 15px 0 25px;
+	width: 60%;
+	background-color: $white;
+}
+.sent_msg {
+	float: right;
+	width: 46%;
+	p {
+		background: $color_blue_lagoon_approx none repeat scroll 0 0;
+		//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+		border-radius: 3px;
+		font-size: 14px;
+		margin: 0;
+		color: $white;
+		padding: 5px 10px 5px 12px;
+		width: 100%;
+	}
+}
+.outgoing_msg {
+	overflow: hidden;
+	margin: 26px 0;
+}
+.type_msg {
+	border-top: 1px solid $color_cloud_approx;
+	position: relative;
+}
+.msg_send_btn {
+	background: $color_blue_lagoon_approx none repeat scroll 0 0;
+	border: medium none;
+	//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+	border-radius: 50%;
+	color: $white;
+	cursor: pointer;
+	font-size: 17px;
+	height: 33px;
+	position: absolute;
+	right: 0;
+	top: 11px;
+	width: 33px;
+}
+.messaging {
+	padding: 0 0 50px 0;
+}
+.msg_history {
+	height: 516px;
+	overflow-y: auto;
+}
+.input_msg_write input {
+	background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+	border: medium none;
+	color: $color_gravel_approx;
+	font-size: 15px;
+	min-height: 48px;
+	width: 100%;
+}
+
+/************** datetime picker ******************/
+$color_alabaster_approx: #f9f9f9;
+$color_gallery_approx: #eeeeee;
+$color_mountain_mist_approx: #999999;
+$color_boston_blue_approx: #428bca;
+$black_20: rgba(0, 0, 0, 0.2);
+$black_25: rgba(0, 0, 0, 0.25);
+
+//@extend-elements
+//original selectors
+//.rdtPicker td.rdtActive, .rdtPicker td.rdtActive:hover
+%extend_picker_1 {
+  background-color: $color_boston_blue_approx;
+  color: $white;
+  //Instead of the line below you could use @include text-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+  text-shadow: 0 -1px 0 $black_25;
+}
+
+//original selectors
+//.rdtPicker td.rdtDisabled, .rdtPicker td.rdtDisabled:hover
+%extend_picker_2 {
+  background: none;
+  color: $color_mountain_mist_approx;
+  cursor: not-allowed;
+}
+
+//original selectors
+//.rdtPicker td span.rdtDisabled, .rdtPicker td span.rdtDisabled:hover
+%extend_picker_3 {
+  background: none;
+  color: $color_mountain_mist_approx;
+  cursor: not-allowed;
+}
+
+//original selectors
+//.rdtPicker th.rdtDisabled, .rdtPicker th.rdtDisabled:hover
+%extend_picker_4 {
+  background: none;
+  color: $color_mountain_mist_approx;
+  cursor: not-allowed;
+}
+
+//original selectors
+//td.rdtMonth, td.rdtYear
+%extend_picker_5 {
+  height: 50px;
+  width: 25%;
+  cursor: pointer;
+}
+
+
+.rdt {
+  position: relative;
+}
+.rdtPicker {
+  display: none;
+  position: absolute;
+  width: 250px;
+  padding: 4px;
+  margin-top: 1px;
+  z-index: 99999 !important;
+  background: $white;
+  //Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+  box-shadow: 0 1px 3px $black_5;
+  border: 1px solid $color_alabaster_approx;
+  .rdtTimeToggle {
+    text-align: center;
+    &:hover {
+      background: $color_gallery_approx;
+      cursor: pointer;
+    }
+  }
+  table {
+    width: 100%;
+    margin: 0;
+  }
+  td {
+    text-align: center;
+    height: 28px;
+    cursor: pointer;
+    &.rdtOld {
+      color: $color_mountain_mist_approx;
+    }
+    &.rdtNew {
+      color: $color_mountain_mist_approx;
+    }
+    &.rdtToday {
+      position: relative;
+      &:before {
+        content: '';
+        display: inline-block;
+        border-left: 7px solid transparent;
+        border-bottom: 7px solid $color_boston_blue_approx;
+        border-top-color: $black_20;
+        position: absolute;
+        bottom: 4px;
+        right: 4px;
+      }
+    }
+    &.rdtActive {
+      @extend %extend_picker_1;
+      &:hover {
+        @extend %extend_picker_1;
+      }
+      &.rdtToday:before {
+        border-bottom-color: $white;
+      }
+    }
+    &.rdtDisabled {
+      @extend %extend_picker_2;
+      &:hover {
+        @extend %extend_picker_2;
+      }
+    }
+    span {
+      &.rdtOld {
+        color: $color_mountain_mist_approx;
+      }
+      &.rdtDisabled {
+        @extend %extend_picker_3;
+        &:hover {
+          @extend %extend_picker_3;
+        }
+      }
+    }
+    &.rdtDay:hover {
+      background: $color_gallery_approx;
+      cursor: pointer;
+    }
+    &.rdtHour:hover {
+      background: $color_gallery_approx;
+      cursor: pointer;
+    }
+    &.rdtMinute:hover {
+      background: $color_gallery_approx;
+      cursor: pointer;
+    }
+    &.rdtSecond:hover {
+      background: $color_gallery_approx;
+      cursor: pointer;
+    }
+  }
+  th {
+    text-align: center;
+    height: 28px;
+    border-bottom: 1px solid $color_alabaster_approx;
+    &.rdtSwitch {
+      width: 100px;
+    }
+    &.rdtNext {
+      font-size: 21px;
+      vertical-align: top;
+    }
+    &.rdtPrev {
+      font-size: 21px;
+      vertical-align: top;
+    }
+    &.rdtDisabled {
+      @extend %extend_picker_4;
+      &:hover {
+        @extend %extend_picker_4;
+      }
+    }
+  }
+  .dow {
+    width: 14.2857%;
+    border-bottom: none;
+    cursor: default;
+  }
+  thead {
+    button {
+      width: 100%;
+      height: 100%;
+    }
+    tr:first-child th {
+      cursor: pointer;
+      &:hover {
+        background: $color_gallery_approx;
+      }
+    }
+  }
+  tfoot {
+    border-top: 1px solid $color_alabaster_approx;
+  }
+  button {
+    border: none;
+    background: none;
+    cursor: pointer;
+    &:hover {
+      background-color: $color_gallery_approx;
+    }
+  }
+}
+td {
+  &.rdtMonth {
+    @extend %extend_picker_5;
+    &:hover {
+      background: $color_gallery_approx;
+    }
+  }
+  &.rdtYear {
+    @extend %extend_picker_5;
+    &:hover {
+      background: $color_gallery_approx;
+    }
+  }
+}
+.rdtCounters {
+  display: inline-block;
+  > div {
+    float: left;
+  }
+}
+.rdtCounter {
+  height: 100px;
+  width: 40px;
+  .rdtBtn {
+    height: 40%;
+    line-height: 40px;
+    cursor: pointer;
+    display: block;
+    //Instead of the line below you could use @include user-select($select)
+    user-select: none;
+    &:hover {
+      background: $color_gallery_approx;
+    }
+  }
+  .rdtCount {
+    height: 20%;
+    font-size: 1.2em;
+  }
+}
+.rdtCounterSeparator {
+  line-height: 100px;
+}
+.rdtMilli {
+  vertical-align: middle;
+  padding-left: 8px;
+  width: 48px;
+  input {
+    width: 100%;
+    font-size: 1.2em;
+    margin-top: 37px;
+  }
+}
+.rdtOpen .rdtPicker {
+  display: block;
+}
+.rdtStatic .rdtPicker {
+  //Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+  box-shadow: none;
+  position: static;
+}
+.rdtPrev span {
+  display: block;
+  //Instead of the line below you could use @include user-select($select)
+  user-select: none;
+}
+.rdtNext span {
+  display: block;
+  //Instead of the line below you could use @include user-select($select)
+  user-select: none;
+}
+.rdtTime td {
+  cursor: default;
+}
+
+/***** week calendar ******/
+$color_royal_blue_approx: #337ddf;
+$color_gray_nurse_approx: #e8e8e8;
+$color_portage_approx: #7ea8df;
+
+@media(max-width: 992px) {
+	#react-week-calendar {
+		.show-sm {
+			display: block !important;
+		}
+		.hidden-sm {
+			display: none !important;
+		}
+		.week {
+			display: block !important;
+			width: 100%;
+		}
+		.day {
+			max-width: 100% !important;
+			width: 100%;
+			margin-top: 10px !important;
+			margin: 0 !important;
+		}
+		.event-list {
+			margin: 10px 0;
+		}
+	}
+}
+#react-week-calendar {
+	.row {
+		display: flex;
+		flex-wrap: wrap;
+		&.event-list {
+			width: 100%;
+		}
+	}
+	.event-list-parent {
+		padding: 0 !important;
+	}
+	.hidden-lg {
+		display: none;
+	}
+	.hidden-sm {
+		display: none;
+	}
+	.show-lg {
+		display: flex;
+	}
+	.week {
+		display: flex;
+	}
+	.day {
+		flex-basis: 0;
+		flex: 1 1 0;
+		margin: 0 2.5px;
+		&:last-child {
+			margin-right: 0 !important;
+		}
+		&:first-child {
+			margin-left: 0 !important;
+		}
+	}
+	.day-row {
+		background-color: $color_royal_blue_approx;
+		color: $white;
+	}
+	.calendar-container {
+		min-height: 200px;
+	}
+	.day-event {
+		background: $color_gray_nurse_approx;
+		padding: 10px;
+		margin: 2.5px 0;
+		width: 100%;
+		//Instead of the line below you could use @include word-break($value)
+		word-break: break-all;
+		cursor: pointer;
+		&:last-child {
+			margin-bottom: 0 !important;
+		}
+		&:first-child {
+			margin-top: 0 !important;
+		}
+	}
+	.today {
+		border: 1px solid $color_royal_blue_approx;
+		border-top: none;
+	}
+	.week-header {
+		background: $color_royal_blue_approx;
+		padding: 20px 0;
+		width: 100%;
+	}
+	.box-button {
+		//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+		border-radius: 0 !important;
+	}
+	.col-12 {
+		position: relative;
+		width: 100%;
+		min-height: 1px;
+		padding-right: 15px;
+		padding-left: 15px;
+	}
+	.empty-state {
+		color: $color_gray_nurse_approx;
+	}
+	.btn {
+		border-color: $color_royal_blue_approx;
+		padding: 7px 20px;
+		background-color: $color_royal_blue_approx;
+		color: $white;
+		cursor: pointer;
+		//Instead of the line below you could use @include border-radius($radius, $vertical-radius)
+		border-radius: 0;
+		outline: none;
+		border: none;
+		//Instead of the line below you could use @include transition-duration($duration-1, $duration-2, $duration-3, $duration-4, $duration-5, $duration-6, $duration-7, $duration-8, $duration-9, $duration-10)
+		transition-duration: .2s;
+		&:active {
+			border-style: outset;
+			border: none;
+			background-color: $color_portage_approx;
+		}
+	}
+	.fade {
+		animation: fade;
+		animation-duration: 1s;
+	}
+}
+@keyframes fade {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+@keyframes btn-click {
+	from {
+		background-color: $white;
+	}
+	to {
+		//Instead of the line below you could use @include background-clip($clip)
+		background-clip: $color_royal_blue_approx;
+	}
+}
+
+.tab-content {
+	border: none !important;
+}
+
+.select__input input {
+	min-width: 210px !important;
+}
+
+.basic-multi-select {
+	width: 92% !important;
+}
+
