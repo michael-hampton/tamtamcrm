@@ -29,21 +29,25 @@ class CreatedUser
     {
         $fields = [];
 
-        if (auth()->user()->id) {
+        if (auth()->user()) {
             $fields['data']['id'] = auth()->user()->id;
             $fields['notifiable_id'] = auth()->user()->id;
+            $user = auth()->user();
         } else {
             $fields['data']['id'] = $event->user->id;
             $fields['notifiable_id'] = $event->user->id;
+            $user = $event->user;
         }
 
+        $account_id = !empty($user->account_user()) ? $user->account_user()->account_id : $user->accounts->first()->id;
+
         $fields['data']['message'] = 'A user was created';
-        $fields['account_id'] = $event->user->account_id;
+        $fields['account_id'] = $account_id;
         $fields['notifiable_type'] = get_class($event->user);
         $fields['type'] = get_class($this);
         $fields['data'] = json_encode($fields['data']);
 
-        $notification = NotificationFactory::create($event->user->account_id, $event->user->user_id);
+        $notification = NotificationFactory::create($account_id, $event->user->id);
         $notification->entity_id = $event->user->id;
         $this->notification_repo->save($notification, $fields);
     }

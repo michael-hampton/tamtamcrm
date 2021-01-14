@@ -78,10 +78,13 @@ class UserEmailChangedNotification extends Mailable
 
     private function buildMessage()
     {
+        $account = !empty($this->user->account_user()) ? $this->user->account_user(
+        )->account : $this->user->accounts->first();
+
         $this->message_array = [
             'title'   => $this->subject,
             'message' => $this->message,
-            'logo'    => $this->user->account_user()->account->present()->logo(),
+            'logo'    => $account->present()->logo(),
         ];
     }
 

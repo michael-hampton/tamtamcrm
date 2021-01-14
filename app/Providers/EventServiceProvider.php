@@ -114,8 +114,11 @@ use App\Events\Task\TaskWasUpdated;
 use App\Events\Uploads\FileWasDeleted;
 use App\Events\Uploads\FileWasUploaded;
 use App\Events\User\UserEmailChanged;
+use App\Events\User\UserWasArchived;
 use App\Events\User\UserWasCreated;
 use App\Events\User\UserWasDeleted;
+use App\Events\User\UserWasRestored;
+use App\Events\User\UserWasUpdated;
 use App\Listeners\Cases\CaseArchived;
 use App\Listeners\Cases\CaseCreated;
 use App\Listeners\Cases\CaseDeleted;
@@ -245,8 +248,12 @@ use App\Listeners\Task\TaskCreated;
 use App\Listeners\Task\TaskDeleted;
 use App\Listeners\Task\TaskRestored;
 use App\Listeners\Task\TaskUpdated;
+use App\Listeners\User\ArchivedUser;
+use App\Listeners\User\CreatedUser;
 use App\Listeners\User\DeletedUser;
+use App\Listeners\User\RestoredUser;
 use App\Listeners\User\SendUserEmailChangedEmail;
+use App\Listeners\User\UpdatedUser;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -259,12 +266,22 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         UserWasCreated::class                  => [
             NewUserNotification::class,
+            CreatedUser::class
         ],
         UserWasDeleted::class                  => [
             DeletedUser::class,
         ],
         UserEmailChanged::class                => [
             SendUserEmailChangedEmail::class
+        ],
+        UserWasArchived::class                 => [
+            ArchivedUser::class
+        ],
+        UserWasUpdated::class                  => [
+            UpdatedUser::class
+        ],
+        UserWasRestored::class                 => [
+            RestoredUser::class
         ],
         // Customers
         CustomerWasCreated::class              => [

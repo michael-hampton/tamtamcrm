@@ -116,10 +116,10 @@ class User extends Authenticatable implements JWTSubject
      *
      * @return Collection
      */
-    public function account()
+    /*public function account()
     {
         return $this->getAccount();
-    }
+    }*/
 
     public function account_users()
     {

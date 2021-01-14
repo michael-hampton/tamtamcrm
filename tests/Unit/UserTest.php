@@ -52,8 +52,26 @@ class UserTest extends TestCase
     /** @test */
     public function it_can_update_the_user()
     {
-        $user = User::factory()->create();;
-        $data = ['first_name' => $this->faker->firstName, 'email' => $this->faker->unique()->email];
+        $factory = (new UserFactory())->create(5);
+        $data = [
+            'first_name' => $this->faker->firstName,
+            'last_name' => $this->faker->lastName,
+            'email' => $this->faker->email,
+            'username' => $this->faker->userName,
+            'password' => $this->faker->password,
+            'is_active' => 1,
+            'profile_photo' => $this->faker->word,
+            'company_user' => ['is_admin' => false]
+        ];
+
+        $userRepo = new UserRepository(new User);
+        $user = $userRepo->save($data, $factory);
+        $data = [
+            'first_name' => $this->faker->firstName,
+            'email'      => $this->faker->unique()->email,
+            'company_user' => ['is_admin' => false]
+        ];
+
         $userRepo = new UserRepository($user);
         $updated = $userRepo->save($data, $user);
         $this->assertInstanceOf(User::class, $updated);
@@ -74,13 +92,14 @@ class UserTest extends TestCase
     {
         $factory = (new UserFactory())->create(5);
         $data = [
-            'first_name'    => $this->faker->firstName,
-            'last_name'     => $this->faker->lastName,
-            'email'         => $this->faker->email,
-            'username'      => $this->faker->userName,
-            'password'      => $this->faker->password,
-            'is_active'     => 1,
+            'first_name' => $this->faker->firstName,
+            'last_name' => $this->faker->lastName,
+            'email' => $this->faker->email,
+            'username' => $this->faker->userName,
+            'password' => $this->faker->password,
+            'is_active' => 1,
             'profile_photo' => $this->faker->word,
+            'company_user' => ['is_admin' => false]
         ];
 
         $userRepo = new UserRepository(new User);

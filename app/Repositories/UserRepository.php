@@ -3,7 +3,9 @@
 namespace App\Repositories;
 
 use App\Events\User\UserEmailChanged;
+use App\Events\User\UserWasCreated;
 use App\Events\User\UserWasDeleted;
+use App\Events\User\UserWasUpdated;
 use App\Models\Account;
 use App\Models\AccountUser;
 use App\Models\Department;
@@ -123,6 +125,8 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
             $email_changed = true;
         }
 
+        $is_new = empty($user->id);
+
         /*************** save new user ***************************/
         $user->fill($data);
 
@@ -142,7 +146,8 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         }
 
         if (isset($data['company_user'])) {
-            $account = Account::find(auth()->user()->account_user()->account_id);
+            $account_id = !empty(auth()->user()) ? auth()->user()->account_user()->account_id : $user->domain->default_account_id;
+            $account = Account::find($account_id);
 
             $cu = AccountUser::whereUserId($user->id)->whereAccountId($account->id)->withTrashed()->first();
 
@@ -160,13 +165,18 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
                 $cu->restore();
                 $cu->save();
             }
-
-            if ($email_changed === true) {
-                event(new UserEmailChanged($user));
-            }
         }
 
-        return $user->fresh();
+        if ($email_changed === true) {
+            event(new UserEmailChanged($user));
+        }
+
+        $user = $user->fresh();
+
+        $event_class = $is_new ? new UserWasCreated($user) : new UserWasUpdated($user);
+        event($event_class);
+
+        return $user;
     }
 
     /**
