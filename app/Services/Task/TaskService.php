@@ -3,7 +3,9 @@
 namespace App\Services\Task;
 
 use App\Components\Pdf\TaskPdf;
+use App\Events\Task\TaskWasEmailed;
 use App\Factory\TimerFactory;
+use App\Jobs\Email\SendEmail;
 use App\Jobs\Pdf\CreatePdf;
 use App\Models\Task;
 use App\Models\Timer;
@@ -44,7 +46,12 @@ class TaskService extends ServiceBase
      */
     public function sendEmail($contact = null, $subject = '', $body = '', $template = 'deal')
     {
-        return (new TaskEmail($this->task, $subject, $body))->execute();
+        $subject = !empty($subject) ? $subject : $this->task->account->getSetting('email_subject_task');
+        $body = !empty($body) ? $body : $this->task->account->getSetting('email_template_task');
+
+        SendEmail::dispatchNow($this->task, $subject, $body, 'task', $this->task->customer->contacts->first());
+
+        event(new TaskWasEmailed($this->task));
     }
 
     /**

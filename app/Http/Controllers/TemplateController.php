@@ -7,7 +7,6 @@ use App\Components\Pdf\LeadPdf;
 use App\Components\Pdf\PurchaseOrderPdf;
 use App\Components\Pdf\TaskPdf;
 use App\Traits\BuildVariables;
-use App\Utils\TemplateEngine;
 use Illuminate\Http\Response;
 use League\CommonMark\CommonMarkConverter;
 use ReflectionException;

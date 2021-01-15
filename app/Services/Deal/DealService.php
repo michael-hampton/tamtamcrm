@@ -3,6 +3,7 @@
 namespace App\Services\Deal;
 
 use App\Components\Pdf\TaskPdf;
+use App\Jobs\Email\SendEmail;
 use App\Jobs\Pdf\CreatePdf;
 use App\Models\Deal;
 use App\Services\ServiceBase;
@@ -43,7 +44,10 @@ class DealService extends ServiceBase
      */
     public function sendEmail($contact = null, $subject = '', $body = '', $template = 'deal')
     {
-        return (new DealEmail($this->deal, $subject, $body))->execute();
+        $subject = !empty($subject) ? $subject : $this->deal->account->getSetting('email_subject_deal');
+        $body = !empty($body) ? $body : $this->deal->account->getSetting('email_template_deal');
+
+        SendEmail::dispatchNow($this->deal, $subject, $body, 'deal', $this->deal->customer->contacts->first());
     }
 
     /**

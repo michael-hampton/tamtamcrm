@@ -3,6 +3,8 @@
 namespace App\Services\Lead;
 
 use App\Components\Pdf\LeadPdf;
+use App\Events\Lead\LeadWasEmailed;
+use App\Jobs\Email\SendEmail;
 use App\Jobs\Pdf\CreatePdf;
 use App\Models\Lead;
 use App\Repositories\LeadRepository;
@@ -59,7 +61,12 @@ class LeadService extends ServiceBase
      */
     public function sendEmail($contact = null, $subject = '', $body = '', $template = 'lead')
     {
-        return (new LeadEmail($this->lead, $subject, $body))->execute();
+        $subject = !empty($subject) ? $subject : $this->lead->account->getSetting('email_subject_lead');
+        $body = !empty($body) ? $body : $this->lead->account->getSetting('email_template_lead');
+
+        SendEmail::dispatchNow($this->lead, $subject, $body, 'lead', $this->lead);
+
+        event(new LeadWasEmailed($this->lead));
     }
 
     /**
