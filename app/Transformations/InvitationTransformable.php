@@ -16,7 +16,7 @@ class InvitationTransformable
         return [
             'id'          => (int)$invitation->id,
             'contact_id'  => (int)$invitation->contact_id,
-            'customer_id' => (int)$invitation->customer_id,
+            'customer_id' => (int)$invitation->contact->customer_id,
             'key'         => $invitation->key,
             'sent_date'   => $invitation->sent_date ?: '',
             'viewed_date' => $invitation->viewed_date ?: '',

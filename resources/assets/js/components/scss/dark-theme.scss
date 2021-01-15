@@ -3045,6 +3045,24 @@ $color_iron_approx: #d6d6d6;
     color: $white !important;
   }
 
+  .dropdown {
+    //position: static;
+
+    .menu-button {
+      color: $dark_grey;
+      background-color: transparent !important;
+      border: none;
+    }
+
+    .dropdown-menu .dropdown-item {
+
+      i,
+      a {
+        color: $color_mystic_approx !important;
+      }
+    }
+  }
+
   .dark-info-alert {
     background-color: $black;
   }

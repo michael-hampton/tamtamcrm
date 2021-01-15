@@ -25,7 +25,8 @@ class CreateTaskStatusRequest extends BaseFormRequest
     public function rules()
     {
         return [
-            'name' => ['required', 'unique:task_statuses'],
+            'name'      => ['required', 'unique:task_statuses'],
+            'task_type' => 'required'
         ];
     }
 }

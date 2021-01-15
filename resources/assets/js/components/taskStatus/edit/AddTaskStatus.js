@@ -6,6 +6,7 @@ import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
 import TaskStatusModel from '../../models/TaskStatusModel'
 import ColorPickerNew from '../../common/ColorPickerNew'
+import { taskTypes } from "../../utils/_consts";
 
 class AddTaskStatus extends React.Component {
     constructor (props) {
@@ -51,7 +52,8 @@ class AddTaskStatus extends React.Component {
         this.taskStatusModel.save({
             name: this.state.name,
             description: this.state.description,
-            column_color: this.state.column_color
+            column_color: this.state.column_color,
+            task_type: this.state.task_type
         }).then(response => {
             if (!response) {
                 this.setState({ errors: this.taskStatusModel.errors, message: this.taskStatusModel.error_message })
@@ -78,7 +80,7 @@ class AddTaskStatus extends React.Component {
             <React.Fragment>
                 <AddButtons toggle={this.toggle}/>
                 <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
-                    <DefaultModalHeader toggle={this.toggle} title={translations.add_category}/>
+                    <DefaultModalHeader toggle={this.toggle} title={translations.add_task_status}/>
 
                     <ModalBody className={theme}>
                         <FormGroup>
@@ -89,12 +91,26 @@ class AddTaskStatus extends React.Component {
                         </FormGroup>
 
                         <FormGroup>
-                            <Label for="name">{translations.description} <span className="text-danger">*</span></Label>
+                            <Label for="description">{translations.description} <span className="text-danger">*</span></Label>
                             <Input className={this.hasErrorFor('description') ? 'is-invalid' : ''} type="text"
                                 name="description"
                                 id="name" placeholder={translations.description}
                                 onChange={this.handleInput.bind(this)}/>
                             {this.renderErrorFor('description')}
+                        </FormGroup>
+
+                        <FormGroup>
+                            <Label for="task_type">{translations.task_type}</Label>
+                            <Input className={this.hasErrorFor('task_type') ? 'is-invalid' : ''} type="select"
+                                name="task_type"
+                                id="task_type" placeholder={translations.task_type}
+                                onChange={this.handleInput.bind(this)}>
+                                <option value="">{translations.select_option}</option>
+                                <option value={taskTypes.deal}>{translations.deal}</option>
+                                <option value={taskTypes.lead}>{translations.lead}</option>
+                                <option value={taskTypes.task}>{translations.task}</option>
+                            </Input>
+                            {this.renderErrorFor('task_type')}
                         </FormGroup>
 
                         <ColorPickerNew color={this.state.column_color} onChange={(color) => {

@@ -55,13 +55,6 @@ class StatementPdf extends PdfBuilder
         return $this;
     }
 
-    public function buildStatementTables()
-    {
-        $columns = $this->entity->account->settings->pdf_variables->statement_columns;
-
-        return $this->buildTable($columns);
-    }
-
     private function buildTable($columns)
     {
         $tables = [];
@@ -77,6 +70,37 @@ class StatementPdf extends PdfBuilder
         $tables['payment'] = $objPaymentReport->buildStatement();
 
         return $tables;
+    }
+
+    public function getTable($design)
+    {
+        $columns = $this->entity->account->settings->pdf_variables->statement_columns;
+
+        $table_data = $this->buildTable($columns);
+
+        $statement_html = $design->statement_table;
+
+        $table_html = '';
+
+        foreach ($table_data as $key => $table_datum) {
+            $table_html .= '<h3 class="mt-3">' . trans('texts.' . $key) . '</h3>';
+
+            foreach ($table_datum as $table_type => $item) {
+                if (empty($item['header'])) {
+                    continue;
+                }
+
+                $table_html .= '<h3 class="mt-3">' . trans('texts.' . $table_type) . '</h3>';
+                $table_html .= str_replace(
+                    ['$statement_table_header', '$statement_table_body'],
+                    [$item['header'], $item['body']],
+                    $statement_html
+                );
+            }
+        }
+
+
+        return $table_html;
     }
 
     public function getTotals()

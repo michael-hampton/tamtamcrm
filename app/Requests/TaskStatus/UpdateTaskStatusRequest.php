@@ -26,7 +26,8 @@ class UpdateTaskStatusRequest extends BaseFormRequest
     public function rules()
     {
         return [
-            'name' => ['required']
+            'name'      => 'required',
+            'task_type' => 'required'
         ];
     }
 

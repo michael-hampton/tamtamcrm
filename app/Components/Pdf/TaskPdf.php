@@ -60,14 +60,14 @@ class TaskPdf extends PdfBuilder
         $labels = $this->getLabels();
         $values = $this->getValues();
 
-        $table = new stdClass();
+        $table = [];
 
-        $table->header = '<tr>';
-        $table->body = '';
+        $table['header'] = '<tr>';
+        $table['body'] = '';
         $table_row = '<tr>';
 
         foreach ($columns as $key => $column) {
-            $table->header .= '<td class="table_header_td_class">' . $column . '_label</td>';
+            $table['header'] .= '<td class="table_header_td_class">' . $column . '_label</td>';
             $table_row .= '<td class="table_header_td_class">' . $column . '</td>';
         }
 
@@ -105,11 +105,11 @@ class TaskPdf extends PdfBuilder
 
         $tmp = strtr($table_row, $item);
         $tmp = strtr($tmp, $values);
-        $table->body .= $tmp;
+        $table['body'] .= $tmp;
 
-        $table->header .= '</tr>';
+        $table['header'] .= '</tr>';
 
-        $table->header = strtr($table->header, $labels);
+        $table['header'] = strtr($table['header'], $labels);
 
         return $table;
     }
@@ -136,5 +136,38 @@ class TaskPdf extends PdfBuilder
         }
 
         return $budgeted_hours;
+    }
+
+    public function getTable($design, $entity_string, $entity)
+    {
+        $html = $design->task_table;
+
+        $entity_string = empty($entity_string) ? strtolower(
+            (new ReflectionClass($entity))->getShortName()
+        ) : $entity_string;
+
+        $task_columns = $this->getTableColumns($entity_string);
+
+        $table = $this->buildTable(
+            $task_columns
+        );
+
+        if (empty($table)) {
+            return true;
+        }
+
+        $table_html = str_replace(
+            ['$task_table_header', '$task_table_body'],
+            [$table['header'], $table['body']],
+            $html
+        );
+
+        return $table_html;
+    }
+
+    private function getTableColumns($entity_string)
+    {
+        $input_variables = json_decode(json_encode($this->entity->account->settings->pdf_variables), true);
+        return $entity_string === 'case' ? $input_variables['case_columns'] : $input_variables['task_columns'];
     }
 }

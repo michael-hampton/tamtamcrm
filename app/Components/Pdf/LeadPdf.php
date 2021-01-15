@@ -84,8 +84,95 @@ class LeadPdf extends PdfBuilder
         return $this;
     }
 
-    public function buildTable()
+    public function buildTable($columns)
     {
-        return '';
+        $labels = $this->getLabels();
+        $values = $this->getValues();
+
+        $table = [];
+
+        $table['header'] = '<tr>';
+        $table['body'] = '';
+        $table_row = '<tr>';
+
+        foreach ($columns as $key => $column) {
+            $table['header'] .= '<td class="table_header_td_class">' . $column . '_label</td>';
+            $table_row .= '<td class="table_header_td_class">' . $column . '</td>';
+        }
+
+        $table_row .= '</tr>';
+
+        $item['$task.name'] = $this->entity->name;
+        $item['$task.description'] = $this->entity->description;
+        $item['$task.hours'] = 0;
+        $item['$task.rate'] = 0;
+        $item['$task.cost'] = 0;
+
+        switch ($this->class) {
+            case 'task':
+                $budgeted_hours = $this->calculateBudgetedHours();
+
+                $task_rate = $this->entity->getTaskRate();
+
+                $cost = !empty($task_rate) && !empty($budgeted_hours) ? $task_rate * $budgeted_hours : 0;
+
+                $item['$task.hours'] = !empty($budgeted_hours) ? $budgeted_hours : 0;
+                $item['$task.rate'] = !empty($task_rate) ? $task_rate : 0;
+                $item['$task.cost'] = !empty($cost) ? $cost : 0;
+                break;
+            case 'cases':
+                $item['$task.name'] = $this->entity->subject;
+                $item['$task.description'] = $this->entity->message;
+                break;
+            case 'deal':
+                $item['$task.cost'] = $this->entity->valued_at;
+                break;
+            default:
+
+                break;
+        }
+
+        $tmp = strtr($table_row, $item);
+        $tmp = strtr($tmp, $values);
+        $table['body'] .= $tmp;
+
+        $table['header'] .= '</tr>';
+
+        $table['header'] = strtr($table['header'], $labels);
+
+        return $table;
+    }
+
+    public function getTable($design, $entity_string, $entity)
+    {
+        $html = $design->task_table;
+
+        $entity_string = empty($entity_string) ? strtolower(
+            (new ReflectionClass($entity))->getShortName()
+        ) : $entity_string;
+
+        $task_columns = $this->getTableColumns($entity_string);
+
+        $table = $this->buildTable(
+            $task_columns
+        );
+
+        if (empty($table)) {
+            return true;
+        }
+
+        $table_html = str_replace(
+            ['$task_table_header', '$task_table_body'],
+            [$table['header'], $table['body']],
+            $html
+        );
+
+        return $table_html;
+    }
+
+    private function getTableColumns($entity_string)
+    {
+        $input_variables = json_decode(json_encode($this->entity->account->settings->pdf_variables), true);
+        return $input_variables['task_columns'];
     }
 }

@@ -5,11 +5,11 @@ namespace App\Services\Task;
 use App\Events\Task\TaskWasEmailed;
 use App\Jobs\Email\SendEmail;
 use App\Models\task;
-use App\Traits\MakesInvoiceHtml;
+use App\Traits\GenerateHtml;
 
 class TaskEmail
 {
-    use MakesInvoiceHtml;
+    use GenerateHtml;
 
     /**
      * @var task

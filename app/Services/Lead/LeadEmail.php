@@ -5,11 +5,11 @@ namespace App\Services\Lead;
 use App\Events\Lead\LeadWasEmailed;
 use App\Jobs\Email\SendEmail;
 use App\Models\Lead;
-use App\Traits\MakesInvoiceHtml;
+use App\Traits\GenerateHtml;
 
 class LeadEmail
 {
-    use MakesInvoiceHtml;
+    use GenerateHtml;
 
     /**
      * @var Lead

@@ -34,14 +34,31 @@ class PdfBuilder
     protected $line_items;
 
     /**
-     * PdfData constructor.
+     * PdfBuilder constructor.
      * @param $entity
+     * @param string $entity_string
      * @throws ReflectionException
      */
-    public function __construct($entity)
+    public function __construct($entity, string $entity_string = '')
     {
         $this->entity = $entity;
-        $this->class = strtolower((new ReflectionClass($this->entity))->getShortName());
+        $this->class = !empty($entity_string)
+            ? $entity_string
+            : strtolower(
+                (new ReflectionClass($this->entity))->getShortName()
+            );
+
+        $this->setEntity();
+    }
+
+    public function setEntity()
+    {
+        $title = join(' ', preg_split('/(?=[A-Z])/', (new ReflectionClass($this->entity))->getShortName()));
+
+        $this->data['$entity_label'] = [
+            'value' => '',
+            'label' => $title
+        ];
     }
 
     public function buildContact($contact = null): self
@@ -455,11 +472,6 @@ class PdfBuilder
 
     public function setTotal($customer, $total): self
     {
-        $this->data['$entity_label'] = [
-            'value' => '',
-            'label' => $this->class
-        ];
-
         $this->data['$' . $this->class . '.total'] = [
             'value' => $this->entity->getFormattedTotal() ?: '&nbsp;',
             'label' => trans('texts.' . $this->class . '_amount')
@@ -522,7 +534,7 @@ class PdfBuilder
             'value' => $this->formatDatetime($this->entity, $datetime) ?: '&nbsp;',
             'label' => trans('texts.date_created')
         ];
-      
+
         return $this;
     }
 
@@ -742,7 +754,7 @@ class PdfBuilder
             'value' => $this->formatDate($this->entity, $due_date) ?: '&nbsp;',
             'label' => trans('texts.due_date')
         ];
-        $this->data['$due_date'] = &$this->data['$' . $this->class . '.due_date'];
+        $this->data['$due_date'] = $this->data['$' . $this->class . '.due_date'];
         $this->data['$quote.valid_until'] = [
             'value' => $this->formatDate($this->entity, $due_date),
             'label' => trans('texts.valid_until')

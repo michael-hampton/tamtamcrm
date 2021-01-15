@@ -198,6 +198,8 @@ export default class EditCase extends React.Component {
             color="primary">{translations.open_case}</Button>) : ((this.state.status_id === 2) ? (
             <Button onClick={this.closeCase} color="primary">{translations.close_case}</Button>) : null)
 
+        console.log('invitations', this.state.invitations)
+
         return (
             <React.Fragment>
                 <DropdownItem onClick={this.toggle}><i className={`fa ${icons.edit}`}/>{translations.edit_case}

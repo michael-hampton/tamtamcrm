@@ -2,9 +2,8 @@
 
 namespace App\Jobs\Pdf;
 
-use App\Designs\PdfColumns;
+use App\Components\Pdf\GenerateHtml;
 use App\Models\Design;
-use App\Traits\MakesInvoiceHtml;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -16,7 +15,7 @@ use ReflectionClass;
 
 class CreatePdf implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesInvoiceHtml;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $entity;
 
@@ -78,16 +77,7 @@ class CreatePdf implements ShouldQueue
 
         $design = Design::find($this->entity->getDesignId());
 
-        $entity = empty($this->entity_string) ? strtolower(
-            (new ReflectionClass($this->entity))->getShortName()
-        ) : $this->entity_string;
-
-        $this->designer =
-            new PdfColumns(
-                $this->objPdf, $this->entity, $design, $this->entity->account->settings->pdf_variables, $entity
-            );
-
-        $this->build();
+        $this->build($design);
 
         return $this->file_path;
     }
@@ -104,18 +94,17 @@ class CreatePdf implements ShouldQueue
         return false;
     }
 
-    private function build()
+    private function build($design)
     {
         //get invoice design
-        $html = $this->generateEntityHtml(
+        $html = (new GenerateHtml())->generateEntityHtml(
             $this->objPdf,
-            $this->designer,
+            $design,
             $this->entity,
             $this->contact,
             $this->entity_string
         );
 
-        //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory(dirname($this->file_path), 0755);
 
         //\Log::error($html);

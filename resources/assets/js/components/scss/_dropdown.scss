@@ -1,12 +1,6 @@
 .dropdown {
   //position: static;
 
-  .menu-button {
-    color: $dark_grey;
-    background-color: transparent !important;
-    border: none;
-  }
-
   .menu-button i {
     font-size: 24px;
     transform: rotate(-90deg);
@@ -19,11 +13,6 @@
     i {
       font-size: 18px !important;
       transform: rotate(90deg);
-    }
-
-    i,
-    a {
-      color: $color_mystic_approx !important;
     }
   }
 }

@@ -129,4 +129,42 @@ class PurchaseOrderPdf extends PdfBuilder
 
         return $table_structure;
     }
+
+    public function getTable($design)
+    {
+        $table_data = $this->buildTable($this->getTableColumns());
+
+        $invoice_html = $design->table;
+
+        $table_html = '';
+
+        $translations = [
+            Invoice::TASK_TYPE    => 'tasks',
+            Invoice::EXPENSE_TYPE => 'expenses',
+            Invoice::PRODUCT_TYPE => 'products'
+        ];
+
+        foreach ($table_data as $key => $item) {
+            if (empty($item['header'])) {
+                continue;
+            }
+
+            $table_html .= '<h3 class="mt-3">' . trans('texts.' . $translations[$key]) . '</h3>';
+
+
+            $table_html .= str_replace(
+                ['$product_table_header', '$product_table_body'],
+                [$item['header'], $item['body']],
+                $invoice_html
+            );
+        }
+
+        return $table_html;
+    }
+
+    private function getTableColumns()
+    {
+        $input_variables = json_decode(json_encode($this->entity->account->settings->pdf_variables), true);
+        return $input_variables['product_columns'];
+    }
 }

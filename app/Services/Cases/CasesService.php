@@ -13,8 +13,8 @@ use Illuminate\Http\Request;
 use ReflectionException;
 
 /**
- * Class TaskService
- * @package App\Services\Task
+ * Class CasesService
+ * @package App\Services\Cases
  */
 class CasesService extends ServiceBase
 {
@@ -43,11 +43,16 @@ class CasesService extends ServiceBase
      * @param string $subject
      * @param string $body
      * @param string $template
-     * @return bool
+     * @return Cases|null
+     * @throws ReflectionException
      */
     public function sendEmail($contact = null, $subject = '', $body = '', $template = 'case')
     {
-        return (new CaseEmail($this->case, $subject, $body))->execute();
+        if (!$this->sendInvitationEmails($subject, $body, $template, $contact)) {
+            return null;
+        }
+
+        return $this->case;
     }
 
     /**

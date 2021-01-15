@@ -111,17 +111,17 @@ class ServiceBase
      */
     protected function sendInvitationEmails(string $subject, string $body, string $template, $contact = null)
     {
+        if ($this->entity->invitations->count() === 0) {
+            return false;
+        }
+
         if ($contact !== null) {
-            $invitation = $this->entity->invitations->first();
+            $invitation = $this->entity->invitations->where('contact_id', '=', $contact->id)->first();
 
             $section = $invitation->getSection();
 
             $footer = ['link' => $invitation->getLink(), 'text' => trans('texts.view_' . $section)];
             return $this->dispatchEmail($contact, $subject, $body, $template, $footer, $invitation);
-        }
-
-        if ($this->entity->invitations->count() === 0) {
-            return false;
         }
 
         foreach ($this->entity->invitations as $invitation) {
@@ -157,9 +157,11 @@ class ServiceBase
         array $footer,
         $invitation = null
     ) {
-        if ($contact->send_email && $contact->email) {
-            SendEmail::dispatchNow($this->entity, $subject, $body, $template, $contact, $footer);
+        if (!$contact->send_email || !$contact->email) {
+            return false;
         }
+
+        SendEmail::dispatchNow($this->entity, $subject, $body, $template, $contact, $footer);
 
         $entity_class = (new ReflectionClass($this->entity))->getShortName();
         $event_class = "App\Events\\" . $entity_class . "\\" . $entity_class . "WasEmailed";

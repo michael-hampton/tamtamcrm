@@ -1322,7 +1322,7 @@ class BaseSettings
         'design'                               => [
             'required'         => false,
             'translated_value' => '',
-            'default_value'    => 'views/pdf/design1.blade.php',
+            'default_value'    => '',
             'type'             => 'string'
         ],
         'website'                              => [

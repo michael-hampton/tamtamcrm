@@ -308,6 +308,34 @@ body {
   //.MuiInput-underline:before {
   //  border-bottom: 1px solid #CCC;
   //}
+
+  .dropdown {
+    //position: static;
+
+    .menu-button {
+      color: $dark_grey;
+      background-color: transparent !important;
+      border: none;
+    }
+
+    .menu-button i {
+      font-size: 24px;
+      transform: rotate(-90deg);
+    }
+
+    .dropdown-menu .dropdown-item {
+      //padding: 0 24px !important;
+
+      i,
+      a {
+        color: #3d4849 !important;
+      }
+    }
+  }
+}
+
+.sidebar .form-group select {
+  color: $black;
 }
 
 .tab-content {

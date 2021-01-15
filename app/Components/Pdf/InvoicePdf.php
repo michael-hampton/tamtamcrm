@@ -14,15 +14,21 @@ class InvoicePdf extends PdfBuilder
     protected $entity;
 
     /**
+     * @var string
+     */
+    private string $entity_string = '';
+
+    /**
      * InvoicePdf constructor.
      * @param $entity
+     * @param string $entity_string
      * @throws ReflectionException
      */
-    public function __construct($entity)
+    public function __construct($entity, $entity_string = '')
     {
-        parent::__construct($entity);
+        parent::__construct($entity, $entity_string);
         $this->entity = $entity;
-        $this->class = strtolower((new ReflectionClass($this->entity))->getShortName());
+        $this->entity_string = $entity_string;
     }
 
     public function build($contact = null)
@@ -75,7 +81,7 @@ class InvoicePdf extends PdfBuilder
      * @param $columns
      * @return array|stdClass
      */
-    public function buildTable($columns)
+    private function buildTable($columns)
     {
         $header = [];
         $table_row = [];
@@ -137,8 +143,41 @@ class InvoicePdf extends PdfBuilder
         return $table_structure;
     }
 
-    protected function buildObject()
+    public function getTable($design, $entity_string, $entity)
     {
-        die('here');
+        $table_data = $this->buildTable($this->getTableColumns($entity_string));
+
+        $invoice_html = $design->table;
+
+        $table_html = '';
+
+        $translations = [
+            Invoice::TASK_TYPE    => 'tasks',
+            Invoice::EXPENSE_TYPE => 'expenses',
+            Invoice::PRODUCT_TYPE => 'products'
+        ];
+
+        foreach ($table_data as $key => $item) {
+            if (empty($item['header'])) {
+                continue;
+            }
+
+            $table_html .= '<h3 class="mt-3">' . trans('texts.' . $translations[$key]) . '</h3>';
+
+
+            $table_html .= str_replace(
+                ['$product_table_header', '$product_table_body'],
+                [$item['header'], $item['body']],
+                $invoice_html
+            );
+        }
+
+        return $table_html;
+    }
+
+    private function getTableColumns($entity_string)
+    {
+        $input_variables = json_decode(json_encode($this->entity->account->settings->pdf_variables), true);
+        return $entity_string === 'dispatch_note' ? $input_variables['dispatch_note_columns'] : $input_variables['product_columns'];
     }
 }

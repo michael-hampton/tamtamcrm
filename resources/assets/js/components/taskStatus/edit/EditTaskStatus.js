@@ -6,6 +6,7 @@ import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
 import TaskStatusModel from '../../models/TaskStatusModel'
 import ColorPickerNew from '../../common/ColorPickerNew'
+import { taskTypes } from '../../utils/_consts'
 
 class EditTaskStatus extends React.Component {
     constructor (props) {
@@ -51,7 +52,8 @@ class EditTaskStatus extends React.Component {
         return {
             name: this.state.name,
             description: this.state.description,
-            column_color: this.state.column_color
+            column_color: this.state.column_color,
+            task_type: this.state.task_type
         }
     }
 
@@ -110,6 +112,20 @@ class EditTaskStatus extends React.Component {
                                 id="description"
                                 placeholder={translations.description} onChange={this.handleInput.bind(this)}/>
                             {this.renderErrorFor('description')}
+                        </FormGroup>
+
+                        <FormGroup>
+                            <Label for="task_type">{translations.task_type}</Label>
+                            <Input className={this.hasErrorFor('task_type') ? 'is-invalid' : ''} type="select"
+                                name="task_type"
+                                id="task_type" placeholder={translations.task_type}
+                                onChange={this.handleInput.bind(this)}>
+                                <option value="">{translations.select_option}</option>
+                                <option value={taskTypes.deal}>{translations.deal}</option>
+                                <option value={taskTypes.lead}>{translations.lead}</option>
+                                <option value={taskTypes.task}>{translations.task}</option>
+                            </Input>
+                            {this.renderErrorFor('task_type')}
                         </FormGroup>
 
                         <ColorPickerNew color={this.state.column_color} onChange={(color) => {

@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
+use App\Components\Pdf\GenerateHtml;
 use App\Components\Pdf\InvoicePdf;
-use App\Designs\PdfColumns;
 use App\Factory\DesignFactory;
 use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Jobs\Quote\CreateQuotePdf;
@@ -112,17 +112,15 @@ class DesignTest extends TestCase
 
         $design = Design::find(3);
 
-        $designer = new PdfColumns(
+        $html = (new GenerateHtml())->generateEntityHtml(
             new InvoicePdf($this->quote),
-            $this->quote,
             $design,
-            $this->account->settings->pdf_variables,
+            $this->quote,
+            $this->contact,
             'quote'
         );
 
-        $html = $designer->buildDesign();
-
-        $this->assertTrue($html);
+        $this->assertStringContainsString('<body>', $html);
 
         $this->quote->uses_inclusive_taxes = false;
 
@@ -149,17 +147,15 @@ class DesignTest extends TestCase
 
         $design = Design::find(3);
 
-        $designer = new PdfColumns(
+        $html = (new GenerateHtml())->generateEntityHtml(
             new InvoicePdf($this->invoice),
-            $this->invoice,
             $design,
-            $this->account->settings->pdf_variables,
-            'invoice'
+            $this->invoice,
+            $this->contact,
+            'quote'
         );
 
-        $html = $designer->buildDesign();
-
-        $this->assertTrue($html);
+        $this->assertStringContainsString('<body>', $html);
 
         $this->invoice->uses_inclusive_taxes = false;
 

@@ -6,15 +6,16 @@ use App\Components\Pdf\InvoicePdf;
 use App\Components\Pdf\LeadPdf;
 use App\Components\Pdf\PurchaseOrderPdf;
 use App\Components\Pdf\TaskPdf;
-use App\Traits\MakesInvoiceHtml;
+use App\Traits\BuildVariables;
 use App\Utils\TemplateEngine;
 use Illuminate\Http\Response;
+use League\CommonMark\CommonMarkConverter;
 use ReflectionException;
 
 
 class TemplateController extends Controller
 {
-    use MakesInvoiceHtml;
+    use BuildVariables;
 
     public function __construct()
     {
@@ -52,10 +53,46 @@ class TemplateController extends Controller
                 $objPdfBuilder = new InvoicePdf($entity_object);
         }
 
-        $data = (new TemplateEngine(
-            $objPdfBuilder, $body, $subject, $entity, $entity_id, $template
-        ))->build();
+        $data = $this->build($objPdfBuilder, $template, $subject, $body);
+
+//        $data = (new TemplateEngine(
+//            $objPdfBuilder, $body, $subject, $entity, $entity_id, $template
+//        ))->build();
 
         return response()->json($data, 200);
+    }
+
+    private function build($objPdf, $template, $subject, $body)
+    {
+        $entity_obj = $objPdf->getEntity();
+
+        $subject_template = str_replace("template", "subject", $template);
+        $subject = strlen($subject) > 0 ? $subject : $entity_obj->account->settings->{$subject_template};
+        $body = strlen($body) > 0 ? $body : $entity_obj->account->settings->{$template};
+
+        $subject = $this->parseVariables($subject, $entity_obj);
+        $body = $this->parseVariables($body, $entity_obj);
+
+        $converter = new CommonMarkConverter(
+            [
+                'allow_unsafe_links' => false,
+            ]
+        );
+
+        $body = $converter->convertToHtml($body);
+
+        return $this->render($subject, $body, $entity_obj);
+    }
+
+    private function render($subject, $body, $entity_obj)
+    {
+        $email_style = $entity_obj->account->settings->email_style;
+        $wrapper = view('email.template.' . $email_style, ['body' => $body])->render();
+
+        return [
+            'subject' => $subject,
+            'body'    => $body,
+            'wrapper' => $wrapper
+        ];
     }
 }

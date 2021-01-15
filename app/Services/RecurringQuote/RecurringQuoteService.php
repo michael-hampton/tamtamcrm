@@ -38,7 +38,7 @@ class RecurringQuoteService extends ServiceBase
             $contact = $this->quote->customer->primary_contact()->first();
         }
 
-        return CreatePdf::dispatchNow((new InvoicePdf($this->quote)), $this->quote, $contact, $update, 'quote');
+        return CreatePdf::dispatchNow((new InvoicePdf($this->quote, 'quote')), $this->quote, $contact, $update, 'quote');
     }
 
     public function calculateInvoiceTotals(): RecurringQuote

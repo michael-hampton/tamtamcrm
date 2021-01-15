@@ -15,6 +15,7 @@ export default class TaskStatusModel extends BaseModel {
             name: '',
             description: '',
             column_color: '',
+            task_type: '',
             loading: false,
             errors: []
         }

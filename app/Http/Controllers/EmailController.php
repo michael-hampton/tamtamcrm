@@ -6,7 +6,6 @@ use App\Models\CustomerContact;
 use App\Repositories\Base\BaseRepository;
 use App\Repositories\EmailRepository;
 use App\Requests\Email\SendEmailRequest;
-use App\Traits\MakesInvoiceHtml;
 use App\Transformations\CaseTransformable;
 use App\Transformations\CreditTransformable;
 use App\Transformations\DealTransformable;
@@ -22,7 +21,6 @@ use ReflectionException;
 
 class EmailController extends Controller
 {
-    use MakesInvoiceHtml;
     use CreditTransformable;
     use OrderTransformable;
     use LeadTransformable;
@@ -57,6 +55,7 @@ class EmailController extends Controller
         } elseif (!in_array($entity, ['App\Models\Lead', 'App\Models\Deal', 'App\Models\Task', 'App\Models\Cases'])) {
             $contact = $entity_obj->invitations->first()->contact;
         }
+
         $entity_obj->service()->sendEmail($contact, $request->subject, $request->body);
 
         if (!in_array(

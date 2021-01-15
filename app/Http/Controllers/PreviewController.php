@@ -3,22 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Components\Pdf\InvoicePdf;
-use App\Designs\PdfColumns;
 use App\Jobs\Pdf\CreatePdf;
 use App\Models\Address;
 use App\Models\Customer;
 use App\Models\CustomerContact;
 use App\Models\Design;
 use App\Models\Invoice;
-use App\Traits\MakesInvoiceHtml;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 
 
 class PreviewController extends Controller
 {
-    use MakesInvoiceHtml;
-
     public function __construct()
     {
     }
@@ -105,13 +101,6 @@ class PreviewController extends Controller
         }
 
         $objPdf = new InvoicePdf($invoice);
-
-        $designer =
-            new PdfColumns(
-                $objPdf, $invoice, $design, $invoice->account->settings->pdf_variables, 'invoice'
-            );
-
-        $file_path = $invoice->getPdfFilename();
 
         $invoice->forceDelete();
         $contact->forceDelete();
