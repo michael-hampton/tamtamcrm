@@ -47,18 +47,4 @@ class PasswordResetRequest extends Notification
                                 ->action(__('passwords.email_password_reset_request_action'), url($url))
                                 ->line(__('passwords.email_password_reset_request_line2'));
     }
-
-    /**
-     * Get the array representation of the notification.
-     *
-     * @param mixed $notifiable
-     * @return array
-     */
-    public function toArray($notifiable)
-    {
-        return [/* 'id' => $this->file->id,
-             'message' => 'A new file has been uploaded',
-             'filename' => $this->file->filename */
-        ];
-    }
 }

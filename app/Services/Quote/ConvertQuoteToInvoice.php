@@ -9,7 +9,7 @@ use App\Repositories\InvoiceRepository;
 use ReflectionException;
 
 /**
- * Class ConvertQuote
+ * Class ConvertQuoteToInvoice
  * @package App\Services\Quote
  */
 class ConvertQuoteToInvoice
@@ -25,7 +25,7 @@ class ConvertQuoteToInvoice
     private InvoiceRepository $invoice_repo;
 
     /**
-     * ConvertQuote constructor.
+     * ConvertQuoteToInvoice constructor.
      * @param Quote $quote
      * @param InvoiceRepository $invoice_repo
      */

@@ -44,7 +44,7 @@ class ReverseInvoicePayment
     private string $note;
 
     /**
-     * HandleReversal constructor.
+     * ReverseInvoicePayment constructor.
      * @param Invoice $invoice
      * @param CreditRepository $credit_repo
      * @param PaymentRepository $payment_repo

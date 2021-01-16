@@ -10,9 +10,21 @@ use App\Repositories\PaymentRepository;
 
 class CreatePayment
 {
+    /**
+     * @var Invoice
+     */
     private Invoice $invoice;
+
+    /**
+     * @var PaymentRepository
+     */
     private PaymentRepository $payment_repo;
 
+    /**
+     * CreatePayment constructor.
+     * @param Invoice $invoice
+     * @param PaymentRepository $payment_repo
+     */
     public function __construct(Invoice $invoice, PaymentRepository $payment_repo)
     {
         $this->invoice = $invoice;

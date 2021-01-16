@@ -31,18 +31,25 @@ class ClientContactRequestCancellation extends Notification implements ShouldQue
      * @return void
      */
 
-    protected $recurring_invoice;
-    protected $client_contact;
+    /**
+     * @var RecurringInvoice 
+     */
+    protected RecurringInvoice $recurring_invoice;
+
+    /**
+     * @var CustomerContact 
+     */
+    protected CustomerContact $customer_contact;
 
     /**
      * ClientContactRequestCancellation constructor.
      * @param RecurringInvoice $recurring_invoice
-     * @param CustomerContact $client_contact
+     * @param CustomerContact $customer_contact
      */
-    public function __construct(RecurringInvoice $recurring_invoice, CustomerContact $client_contact)
+    public function __construct(RecurringInvoice $recurring_invoice, CustomerContact $customer_contact)
     {
         $this->recurring_invoice = $recurring_invoice;
-        $this->client_contact = $client_contact;
+        $this->customer_contact = $customer_contact;
     }
 
     /**
@@ -77,21 +84,21 @@ class ClientContactRequestCancellation extends Notification implements ShouldQue
     public function toMail($notifiable)
     {
         if (static::$toMailCallback) {
-            return call_user_func(static::$toMailCallback, $notifiable, $this->client_contact);
+            return call_user_func(static::$toMailCallback, $notifiable, $this->customer_contact);
         }
 
 
-        $client_contact_name = $this->client_contact->present()->name();
-        $client_name = $this->client_contact->customer->present()->name();
+        $customer_contact_name = $this->customer_contact->present()->name();
+        $customer_name = $this->customer_contact->customer->present()->name();
         $recurring_invoice_number = $this->recurring_invoice->number;
 
 
         return (new MailMessage)
-            ->subject('Request for recurring invoice cancellation from ' . $client_contact_name)
+            ->subject('Request for recurring invoice cancellation from ' . $customer_contact_name)
             ->markdown(
                 'email.support.cancellation',
                 [
-                    'message' => "Contact [{$client_contact_name}] from Client [{$client_name}] requested to cancel Recurring Invoice [#{$recurring_invoice_number}]",
+                    'message' => "Contact [{$customer_contact_name}] from Customer [{$customer_name}] requested to cancel Recurring Invoice [#{$recurring_invoice_number}]",
                 ]
             );
     }
@@ -111,17 +118,14 @@ class ClientContactRequestCancellation extends Notification implements ShouldQue
 
     public function toSlack($notifiable)
     {
-        $name = $this->client_contact->present()->name();
-        $client_name = $this->client_contact->client->present()->name();
+        $name = $this->customer_contact->present()->name();
+        $customer_name = $this->customer_contact->client->present()->name();
         $recurring_invoice_number = $this->recurring_invoice->number;
 
         return (new SlackMessage)
-            ->success()
-            ->to("#devv2")
             ->from("System")
-            ->image($this->recurring_invoice->account->present()->logo)
             ->content(
-                "Contact {$name} from client {$client_name} requested to cancel Recurring Invoice #{$recurring_invoice_number}"
+                "Contact {$name} from customer {$customer_name} requested to cancel Recurring Invoice #{$recurring_invoice_number}"
             );
     }
 }

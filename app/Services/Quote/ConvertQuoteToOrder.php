@@ -8,7 +8,7 @@ use App\Models\Quote;
 use App\Repositories\OrderRepository;
 
 /**
- * Class ConvertQuote
+ * Class ConvertQuoteToOrder
  * @package App\Services\Quote
  */
 class ConvertQuoteToOrder
