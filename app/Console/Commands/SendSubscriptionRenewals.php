@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Components\InvoiceCalculator\LineItem;
 use App\Factory\InvoiceFactory;
 use App\Mail\Account\SubscriptionInvoice;
+use App\Models\Account;
 use App\Models\Domain;
 use App\Models\Invoice;
 use App\Repositories\InvoiceRepository;
