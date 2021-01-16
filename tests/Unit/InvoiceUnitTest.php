@@ -34,6 +34,7 @@ use App\Settings\AccountSettings;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
+use phpDocumentor\Reflection\Types\Integer;
 use Tests\TestCase;
 
 /**
@@ -524,9 +525,9 @@ class InvoiceUnitTest extends TestCase
         $balance = $second_invoice->customer->fresh()->balance;
 
         $data = [
-            'customer_id' => $first_invoice->customer->id,
-            'type_id'     => 1,
-            'amount'      => $first_invoice->balance + $second_invoice->balance
+            'customer_id'       => $first_invoice->customer->id,
+            'payment_method_id' => 1,
+            'amount'            => $first_invoice->balance + $second_invoice->balance
         ];
 
         $data['invoices'][0]['invoice_id'] = $first_invoice->id;
@@ -549,7 +550,7 @@ class InvoiceUnitTest extends TestCase
         $first_invoice = $first_invoice->fresh();
 
         $this->assertEquals($data['customer_id'], $created->customer_id);
-        $this->assertEquals($data['type_id'], $created->type_id);
+        $this->assertEquals($data['payment_method_id'], $created->payment_method_id);
         $this->assertEquals($first_invoice->status_id, Invoice::STATUS_PAID);
 
         $first_invoice->deleteInvoice();

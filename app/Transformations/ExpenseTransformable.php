@@ -26,7 +26,7 @@ trait ExpenseTransformable
             'invoice_currency_id'  => (int)$expense->invoice_currency_id ?: '',
             'currency_id'          => (int)$expense->currency_id ?: '',
             'expense_category_id'  => (int)$expense->expense_category_id ?: '',
-            'payment_type_id'      => (int)$expense->payment_type_id ?: '',
+            'payment_method_id'    => (int)$expense->payment_method_id ?: '',
             'recurring_expense_id' => (int)$expense->recurring_expense_id ?: '',
             'is_deleted'           => (bool)$expense->is_deleted,
             'create_invoice'       => (bool)$expense->create_invoice,

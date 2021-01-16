@@ -17,7 +17,7 @@ export default function Overview (props) {
 
     const category = props.categories.length ? props.categories.filter(category => category.id === parseInt(props.entity.expense_category_id)) : []
     const customer = props.customers.filter(customer => customer.id === parseInt(props.entity.customer_id))
-    const payment_type = props.entity.payment_type_id && props.entity.payment_type_id.toString().length ? JSON.parse(localStorage.getItem('payment_types')).filter(payment_type => payment_type.id === parseInt(props.entity.payment_type_id)) : []
+    const payment_type = props.entity.payment_method_id && props.entity.payment_method_id.toString().length ? JSON.parse(localStorage.getItem('payment_types')).filter(payment_type => payment_type.id === parseInt(props.entity.payment_method_id)) : []
 
     console.log('model', props.model.fields)
 

@@ -9,7 +9,7 @@ class CustomerSettings extends BaseSettings
 {
     private $settings = [
         'payment_terms'           => ['required' => true, 'default_value' => -1, 'type' => 'integer'],
-        'payment_type_id'         => ['required' => false, 'default_value' => 0, 'type' => 'string'],
+        'payment_method_id'       => ['required' => false, 'default_value' => 0, 'type' => 'string'],
         'customer_number_counter' => ['required' => false, 'default_value' => 0, 'type' => 'string'],
         'customer_number_pattern' => ['required' => false, 'default_value' => '', 'type' => 'string'],
         'language_id'             => ['required' => false, 'default_value' => 1, 'type' => 'string']

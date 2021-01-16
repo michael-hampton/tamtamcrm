@@ -338,47 +338,7 @@ export default class Dashboard extends Component {
                 viewedId: null,
                 title: null
             },
-            viewId: null,
-            ignoredColumns: ['is_deleted', 'viewed', 'tax_rate', 'tax_rate_name', 'tax_2', 'tax_3', 'tax_rate_name_2', 'tax_rate_name_3', 'date_to_send', 'recurring_invoice_id', 'recurring', 'currency_id', 'exchange_rate', 'account_id', 'assigned_to', 'gateway_percentage', 'gateway_fee', 'files', 'audits', 'paymentables', 'customer_name', 'emails', 'transaction_fee', 'transaction_fee_tax', 'shipping_cost', 'shipping_cost_tax', 'design_id', 'invitations', 'id', 'user_id', 'status', 'company_id', 'custom_value1', 'custom_value2', 'custom_value3', 'custom_value4', 'updated_at', 'deleted_at', 'created_at', 'public_notes', 'private_notes', 'terms', 'footer', 'last_send_date', 'line_items', 'next_send_date', 'last_sent_date', 'first_name', 'last_name', 'tax_total', 'discount_total', 'sub_total', 'task_rate',
-                'timers',
-                'public_notes',
-                'private_notes',
-                'deleted_at',
-                'users',
-                'customer',
-                'contributors',
-                'users',
-                'comments',
-                'is_completed',
-                'task_status_id',
-                'reference_number',
-                'transaction_id',
-                'tax_rate',
-                'tax_rate_name',
-                'tax_2', 'tax_3',
-                'tax_rate_name_2',
-                'tax_rate_name_3',
-                'project_id',
-                'category',
-                'files',
-                'customer_name',
-                'user_id',
-                'company_id',
-                'invoice_currency_id',
-                'converted_amount',
-                'exchange_rate',
-                'deleted_at',
-                'recurring_expense_id',
-                'currency_id',
-                'type_id',
-                'invoice_id',
-                'assigned_to',
-                'bank_id',
-                'expense_category_id',
-                'create_invoice',
-                'include_documents'
-
-            ]
+            viewId: null
         }
 
         const account_id = JSON.parse(localStorage.getItem('appState')).user.account_id
@@ -1776,7 +1736,6 @@ export default class Dashboard extends Component {
             }} invoices={arrOverdueInvoices} force_mobile={true} show_list={true} users={[]}
             custom_fields={[]} customers={this.state.customers}
             viewId={this.state.viewId}
-            ignoredColumns={this.state.ignoredColumns}
             toggleViewedEntity={(id, title = null, edit = null) => {
                 this.toggleViewedEntity('Invoice', this.state.invoices, id, title, edit)
             }}
@@ -1790,7 +1749,6 @@ export default class Dashboard extends Component {
             }} invoices={arrRecentInvoices} force_mobile={true} show_list={true} users={[]}
             custom_fields={[]} customers={this.state.customers}
             viewId={this.state.viewId}
-            ignoredColumns={this.state.ignoredColumns}
             toggleViewedEntity={(id, title = null, edit = null) => {
                 this.toggleViewedEntity('Invoice', this.state.invoices, id, title, edit)
             }}
@@ -1803,7 +1761,6 @@ export default class Dashboard extends Component {
             }} tasks={arrRecentTasks} show_list={true} users={JSON.parse(localStorage.getItem('users'))}
             custom_fields={[]} customers={this.state.customers}
             viewId={this.state.viewId}
-            ignoredColumns={this.state.ignoredColumns}
             toggleViewedEntity={(id, title = null, edit = null) => {
                 this.toggleViewedEntity('Task', this.state.tasks, id, title, edit)
             }}
@@ -1817,7 +1774,6 @@ export default class Dashboard extends Component {
             users={JSON.parse(localStorage.getItem('users'))}
             custom_fields={[]} customers={this.state.customers}
             viewId={this.state.viewId}
-            ignoredColumns={this.state.ignoredColumns}
             toggleViewedEntity={(id, title = null, edit = null) => {
                 this.toggleViewedEntity('Task', this.state.tasks, id, title, edit)
             }}
@@ -1830,7 +1786,6 @@ export default class Dashboard extends Component {
             }} expenses={arrRecentExpenses} force_mobile={true} show_list={true} users={[]}
             custom_fields={[]} customers={this.state.customers}
             viewId={this.state.viewId}
-            ignoredColumns={this.state.ignoredColumns}
             toggleViewedEntity={(id, title = null, edit = null) => {
                 this.toggleViewedEntity('Expense', this.state.expenses, id, title, edit)
             }}
@@ -1843,7 +1798,6 @@ export default class Dashboard extends Component {
             }} quotes={arrOverdueQuotes} force_mobile={true} show_list={true} users={[]}
             custom_fields={[]} customers={this.state.customers}
             viewId={this.state.viewId}
-            ignoredColumns={this.state.ignoredColumns}
             toggleViewedEntity={(id, title = null, edit = null) => {
                 this.toggleViewedEntity('Quote', this.state.quotes, id, title, edit)
             }}
@@ -1856,7 +1810,6 @@ export default class Dashboard extends Component {
             }} quotes={arrRecentQuotes} force_mobile={true} show_list={true} users={[]}
             custom_fields={[]} customers={this.state.customers}
             viewId={this.state.viewId}
-            ignoredColumns={this.state.ignoredColumns}
             toggleViewedEntity={(id, title = null, edit = null) => {
                 this.toggleViewedEntity('Quote', this.state.quotes, id, title, edit)
             }}
@@ -1869,7 +1822,6 @@ export default class Dashboard extends Component {
             }} orders={arrOverdueOrders} force_mobile={true} show_list={true} users={[]}
             custom_fields={[]} customers={this.state.customers}
             viewId={this.state.viewId}
-            ignoredColumns={this.state.ignoredColumns}
             toggleViewedEntity={(id, title = null, edit = null) => {
                 this.toggleViewedEntity('Order', this.state.orders, id, title, edit)
             }}
@@ -1882,7 +1834,6 @@ export default class Dashboard extends Component {
             }} orders={arrRecentOrders} force_mobile={true} show_list={true} users={[]}
             custom_fields={[]} customers={this.state.customers}
             viewId={this.state.viewId}
-            ignoredColumns={this.state.ignoredColumns}
             toggleViewedEntity={(id, title = null, edit = null) => {
                 this.toggleViewedEntity('Order', this.state.orders, id, title, edit)
             }}
@@ -1897,7 +1848,6 @@ export default class Dashboard extends Component {
             users={[]}
             custom_fields={[]} customers={this.state.customers}
             viewId={this.state.viewId}
-            ignoredColumns={this.state.ignoredColumns}
             toggleViewedEntity={(id, title = null, edit = null) => {
                 this.toggleViewedEntity('Payment', this.state.payments, id, title, edit)
             }}

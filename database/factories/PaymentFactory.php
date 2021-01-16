@@ -27,15 +27,15 @@ class PaymentFactory extends Factory
         $user = User::factory()->create();
 
         return [
-            'user_id'          => $user->id,
-            'account_id'       => 1,
-            'is_deleted'       => false,
-            'amount'           => $this->faker->numberBetween(1, 10),
-            'date'             => $this->faker->date(),
-            'reference_number' => $this->faker->text(10),
-            'type_id'          => 1,
-            'status_id'        => Payment::STATUS_COMPLETED,
-            'customer_id'      => $customer->id,
+            'user_id'           => $user->id,
+            'account_id'        => 1,
+            'is_deleted'        => false,
+            'amount'            => $this->faker->numberBetween(1, 10),
+            'date'              => $this->faker->date(),
+            'reference_number'  => $this->faker->text(10),
+            'payment_method_id' => 1,
+            'status_id'         => Payment::STATUS_COMPLETED,
+            'customer_id'       => $customer->id,
         ];
     }
 }

@@ -56,7 +56,7 @@ trait ExportMapper
         //'category_id'         => 'getCategoryById',
         'expense_category_id' => 'getExpenseCategory',
         'company_id'          => 'getCompany',
-        'payment_type_id'     => 'getPaymentType',
+        'payment_method_id'     => 'getPaymentType',
         'project_id'          => 'getProject',
         'currency_id'         => 'getCurrency'
     ];

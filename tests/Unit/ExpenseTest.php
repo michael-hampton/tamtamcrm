@@ -111,7 +111,7 @@ class ExpenseTest extends TestCase
             'create_invoice'   => true,
             'payment_date'     => Carbon::now()->addDays(10)->format('Y-m-d'),
             'reference_number' => $this->faker->name,
-            'payment_type_id'  => 1
+            'payment_method_id'  => 1
         ];
 
         $expenseRepo = new ExpenseRepository(new Expense);
@@ -128,6 +128,6 @@ class ExpenseTest extends TestCase
 
         $this->assertEquals($payment->reference_number, $expense->reference_number);
         $this->assertEquals($payment->date, $expense->payment_date);
-        $this->assertEquals($payment->type_id, $expense->payment_type_id);
+        $this->assertEquals($payment->payment_method_id, $expense->payment_method_id);
     }
 }

@@ -35,7 +35,7 @@ export default class PaymentModel extends BaseModel {
             amount: 0,
             refunded: 0,
             applied: 0,
-            type_id: this.settings.payment_type_id || '',
+            payment_method_id: this.settings.payment_method_id || '',
             loading: false,
             custom_value1: '',
             custom_value2: '',

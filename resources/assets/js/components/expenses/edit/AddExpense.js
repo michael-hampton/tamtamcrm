@@ -138,7 +138,7 @@ class AddExpense extends React.Component {
             reference_number: this.state.reference_number,
             expense_category_id: this.state.expense_category_id,
             date: this.state.date,
-            payment_type_id: this.state.payment_type_id,
+            payment_method_id: this.state.payment_method_id,
             include_documents: this.state.include_documents,
             create_invoice: this.state.create_invoice,
             payment_date: this.state.payment_date,

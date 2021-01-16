@@ -86,9 +86,9 @@ export default class SettingsForm extends React.Component {
                 <Collapse style={{ borderBottom: '2px dotted #CCC' }} isOpen={this.state.paymentOpen}>
                     <FormGroup>
                         <Label for="exampleEmail">{translations.payment_type}</Label>
-                        <PaymentTypeDropdown payment_type={this.props.expense.payment_type_id}
+                        <PaymentTypeDropdown payment_type={this.props.expense.payment_method_id}
                             handleInputChanges={this.props.handleInput}
-                            name="payment_type_id"/>
+                            name="payment_method_id"/>
                     </FormGroup>
                     <FormGroup>
                         <Label for="examplePassword">{translations.date}</Label>

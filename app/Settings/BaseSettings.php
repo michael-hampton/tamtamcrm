@@ -1025,7 +1025,7 @@ class BaseSettings
             'default_value'    => 30,
             'type'             => 'integer'
         ],
-        'payment_type_id'                      => [
+        'payment_method_id'                      => [
             'required'         => false,
             'translated_value' => '',
             'default_value'    => 0,
@@ -1601,7 +1601,6 @@ class BaseSettings
         if (count($this->validationFailures) > 0) {
             echo '<pre>';
             print_r($this->validationFailures);
-            die;
             die('here');
             return false;
         }

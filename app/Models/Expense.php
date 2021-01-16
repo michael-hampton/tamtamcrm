@@ -45,7 +45,7 @@ class Expense extends Model
         'tax_rate_name_2',
         'tax_rate_name_3',
         'payment_date',
-        'payment_type_id',
+        'payment_method_id',
         'reference_number',
         'include_documents',
         'create_invoice',

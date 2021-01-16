@@ -39,7 +39,7 @@ class PaymentImporter extends BaseCsvImporter
         'date'             => 'date',
         'amount'           => 'amount',
         'reference number' => 'reference_number',
-        'payment type'     => 'payment_type_id',
+        'payment type'     => 'payment_method_id',
         'public notes'     => 'public_notes',
         'private notes'    => 'private_notes',
         'invoices'         => 'invoices'

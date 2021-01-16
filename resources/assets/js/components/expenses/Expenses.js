@@ -23,7 +23,7 @@ export default class Expenses extends Component {
             success_message: translations.success_message,
             per_page: 5,
             view: {
-                ignore: ['user_id', 'assigned_to', 'company_id', 'customer_id', 'invoice_id', 'bank_id', 'deleted_at', 'customer_id', 'invoice_currency_id', 'payment_type_id', 'currency_id', 'recurring_expense_id', 'updated_at', 'expense_category_id'],
+                ignore: [],
                 viewMode: false,
                 viewedId: null,
                 title: null

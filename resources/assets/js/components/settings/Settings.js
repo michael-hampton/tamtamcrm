@@ -310,11 +310,11 @@ class Settings extends Component {
         return [
             [
                 {
-                    name: 'payment_type_id',
+                    name: 'payment_method_id',
                     label: translations.payment_type,
                     type: 'payment_type',
                     placeholder: translations.payment_type,
-                    value: settings.payment_type_id,
+                    value: settings.payment_method_id,
                     group: 1
                 },
                 {

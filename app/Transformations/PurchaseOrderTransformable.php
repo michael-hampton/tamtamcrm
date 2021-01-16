@@ -75,7 +75,7 @@ trait PurchaseOrderTransformable
      */
     private function transformPurchaseOrderInvitations($invitations)
     {
-        if (empty($invitations)) {
+        if ($invitations->count() === 0) {
             return [];
         }
 

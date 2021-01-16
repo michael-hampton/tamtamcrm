@@ -38,6 +38,7 @@ class ProjectFactory extends Factory
             'budgeted_hours' => null,
             'task_rate'      => null,
             'due_date'       => null,
+            'start_date'     => null,
             'deleted_at'     => null,
             'is_deleted'     => 0,
             'custom_value1'  => $this->faker->numberBetween(1, 4),

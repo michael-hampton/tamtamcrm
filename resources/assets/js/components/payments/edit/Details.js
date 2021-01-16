@@ -70,12 +70,12 @@ export default class Details extends React.Component {
                 <Label>{translations.payment_type}</Label>
                 <PaymentTypeDropdown
                     errors={this.props.errors}
-                    name="type_id"
-                    payment_type={this.props.payment.type_id}
+                    name="payment_method_id"
+                    payment_type={this.props.payment.payment_method_id}
                     renderErrorFor={this.renderErrorFor}
                     handleInputChanges={this.props.handleInput}
                 />
-                {this.renderErrorFor('type_id')}
+                {this.renderErrorFor('payment_method_id')}
             </FormGroup>
 
             {this.props.hide_customer === false &&

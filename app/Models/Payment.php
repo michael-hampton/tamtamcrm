@@ -37,10 +37,9 @@ class Payment extends Model
      * @var array
      */
     protected $fillable = [
-        'type_id',
+        'payment_method_id',
         'date',
         'number',
-        'type_id',
         'amount',
         'customer_id',
         'assigned_to',
@@ -76,7 +75,7 @@ class Payment extends Model
      */
     public function payment_method()
     {
-        return $this->belongsTo(PaymentMethod::class, 'type_id');
+        return $this->belongsTo(PaymentMethod::class, 'payment_method_id');
     }
 
     public function paymentables()

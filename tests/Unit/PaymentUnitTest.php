@@ -5,7 +5,6 @@ namespace Tests\Unit;
 use App\Components\Currency\CurrencyConverter;
 use App\Components\InvoiceCalculator\LineItem;
 use App\Components\Payment\DeletePayment;
-use App\Components\Payment\Gateways\Stripe;
 use App\Components\Payment\Invoice\ReverseInvoicePayment;
 use App\Components\Payment\ProcessPayment;
 use App\Components\Refund\RefundFactory;
@@ -14,10 +13,8 @@ use App\Factory\CustomerFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\PaymentFactory;
 use App\Models\Account;
-use App\Models\CompanyGateway;
 use App\Models\Credit;
 use App\Models\Customer;
-use App\Models\CustomerGateway;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\User;
@@ -27,7 +24,6 @@ use App\Repositories\PaymentRepository;
 use App\Requests\SearchRequest;
 use App\Search\PaymentSearch;
 use App\Transformations\EventTransformable;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -68,10 +64,10 @@ class PaymentUnitTest extends TestCase
     public function it_can_list_all_the_payments()
     {
         $data = [
-            'customer_id' => $this->customer->id,
-            'user_id'     => $this->user->id,
-            'type_id'     => 1,
-            'amount'      => $this->faker->randomFloat()
+            'customer_id'       => $this->customer->id,
+            'user_id'           => $this->user->id,
+            'payment_method_id' => 1,
+            'amount'            => $this->faker->randomFloat()
         ];
 
         $factory = (new PaymentFactory())->create($this->customer, $this->user, $this->account);
@@ -98,9 +94,9 @@ class PaymentUnitTest extends TestCase
         $original_amount = $invoice->total;
 
         $data = [
-            'customer_id' => $this->customer->id,
-            'type_id'     => 1,
-            'amount'      => $invoice->total
+            'customer_id'       => $this->customer->id,
+            'payment_method_id' => 1,
+            'amount'            => $invoice->total
         ];
 
         $data['invoices'][0]['invoice_id'] = $invoice->id;
@@ -133,9 +129,9 @@ class PaymentUnitTest extends TestCase
         $original_amount = $invoice->total;
 
         $data = [
-            'customer_id' => $this->customer->id,
-            'type_id'     => 1,
-            'amount'      => $invoice->total
+            'customer_id'       => $this->customer->id,
+            'payment_method_id' => 1,
+            'amount'            => $invoice->total
         ];
 
         $data['invoices'][0]['invoice_id'] = $invoice->id;
@@ -162,9 +158,9 @@ class PaymentUnitTest extends TestCase
     public function it_can_get_the_payments()
     {
         $data = [
-            'customer_id' => $this->customer->id,
-            'type_id'     => 1,
-            'amount'      => $this->faker->randomFloat()
+            'customer_id'       => $this->customer->id,
+            'payment_method_id' => 1,
+            'amount'            => $this->faker->randomFloat()
         ];
 
         $paymentRepo = new PaymentRepository(new Payment);
@@ -213,9 +209,9 @@ class PaymentUnitTest extends TestCase
         $balance = $this->customer->balance;
 
         $data = [
-            'customer_id' => $this->customer->id,
-            'type_id'     => 1,
-            'amount'      => $this->faker->randomFloat()
+            'customer_id'       => $this->customer->id,
+            'payment_method_id' => 1,
+            'amount'            => $this->faker->randomFloat()
         ];
 
         $data['invoices'][0]['invoice_id'] = $invoice->id;
@@ -227,7 +223,7 @@ class PaymentUnitTest extends TestCase
         $this->assertEquals((float)$created->customer->balance, ($balance - $invoice->balance));
         $this->assertEquals($created->customer->paid_to_date, ($paid_to_date + $invoice->balance));
         $this->assertEquals($data['customer_id'], $created->customer_id);
-        $this->assertEquals($data['type_id'], $created->type_id);
+        $this->assertEquals($data['payment_method_id'], $created->payment_method_id);
     }
 
     /** @test */
@@ -247,9 +243,9 @@ class PaymentUnitTest extends TestCase
         $balance = $this->customer->balance;
 
         $data = [
-            'customer_id' => $this->customer->id,
-            'type_id'     => 1,
-            'amount'      => 800
+            'customer_id'       => $this->customer->id,
+            'payment_method_id' => 1,
+            'amount'            => 800
         ];
 
         $data['invoices'][0]['invoice_id'] = $invoice->id;
@@ -265,7 +261,7 @@ class PaymentUnitTest extends TestCase
         $this->assertEquals((float)$created->customer->balance, ($balance - $new_total));
         $this->assertEquals($created->customer->paid_to_date, ($paid_to_date + $new_total));
         $this->assertEquals($data['customer_id'], $created->customer_id);
-        $this->assertEquals($data['type_id'], $created->type_id);
+        $this->assertEquals($data['payment_method_id'], $created->payment_method_id);
 
         $invoice = $invoice->fresh();
 

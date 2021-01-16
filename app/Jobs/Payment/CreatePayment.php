@@ -96,7 +96,7 @@ class CreatePayment implements ShouldQueue
             'status_id'          => $complete_payment === true ? Payment::STATUS_COMPLETED : Payment::STATUS_PENDING,
             'date'               => Carbon::now(),
             'amount'             => $this->data['amount'],
-            'type_id'            => $this->data['payment_type'],
+            'payment_method_id'  => $this->data['payment_type'],
             'reference_number'   => $this->data['payment_method']
 
         ];

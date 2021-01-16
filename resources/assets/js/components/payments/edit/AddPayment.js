@@ -108,7 +108,7 @@ class AddPayment extends React.Component {
         const data = {
             account_id: this.state.account_id,
             date: this.state.date,
-            type_id: this.state.type_id,
+            payment_method_id: this.state.payment_method_id,
             invoices: this.state.payable_invoices,
             credits: this.state.payable_credits,
             customer_id: this.state.customer_id,

@@ -108,7 +108,7 @@ class EditPayment extends React.Component {
     getFormData () {
         return {
             account_id: this.state.account_id,
-            type_id: this.state.type_id,
+            payment_method_id: this.state.payment_method_id,
             invoice_id: this.state.invoice_id,
             customer_id: this.state.customer_id,
             amount: this.state.amount,

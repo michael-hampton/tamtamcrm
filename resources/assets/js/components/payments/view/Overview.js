@@ -80,8 +80,8 @@ export default function Overview (props) {
     if (props.entity.date.length) {
         fields.date = <FormatDate date={props.entity.date}/>
     }
-    if (props.entity.type_id.toString().length) {
-        const paymentType = JSON.parse(localStorage.getItem('payment_types')).filter(payment_type => payment_type.id === parseInt(props.entity.type_id))
+    if (props.entity.payment_method_id.toString().length) {
+        const paymentType = JSON.parse(localStorage.getItem('payment_types')).filter(payment_type => payment_type.id === parseInt(props.entity.payment_method_id))
         if (paymentType.length) {
             fields.payment_type = paymentType[0].name
         }
