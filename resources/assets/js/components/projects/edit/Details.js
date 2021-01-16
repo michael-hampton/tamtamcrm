@@ -1,5 +1,5 @@
 import React from 'react'
-import { FormGroup, Input, Label } from 'reactstrap'
+import { FormGroup, Input, Label, Row, Col } from 'reactstrap'
 import CustomerDropdown from '../../common/dropdowns/CustomerDropdown'
 import { translations } from '../../utils/_translations'
 import UserDropdown from '../../common/dropdowns/UserDropdown'
@@ -37,7 +37,7 @@ export default function Details (props) {
         }
 
         <FormGroup>
-            <Label for="postcode">{translations.assigned_user}:</Label>
+            <Label for="assigned_to">{translations.assigned_user}:</Label>
             <UserDropdown
                 user_id={props.project.assigned_to}
                 name="assigned_to"
@@ -46,35 +46,54 @@ export default function Details (props) {
             />
         </FormGroup>
 
-        <FormGroup>
-            <Label for="due_date">{translations.due_date}(*):</Label>
-            <Datepicker name="due_date" date={props.project.due_date}
-                handleInput={props.handleInput}
-                className={props.hasErrorFor('due_date') ? 'form-control is-invalid' : 'form-control'}/>
-            {props.renderErrorFor('due_date')}
-        </FormGroup>
+        <Row form>
+            <Col md={6}>
+                <FormGroup>
+                    <Label for="start_date">{translations.start_date}(*):</Label>
+                    <Datepicker name="start_date" date={props.project.start_date}
+                        handleInput={props.handleInput}
+                        className={props.hasErrorFor('start_date') ? 'form-control is-invalid' : 'form-control'}/>
+                    {props.renderErrorFor('start_date')}
+                </FormGroup>
+            </Col>
+            <Col md={6}>
+                <FormGroup>
+                    <Label for="due_date">{translations.due_date}(*):</Label>
+                    <Datepicker name="due_date" date={props.project.due_date}
+                        handleInput={props.handleInput}
+                        className={props.hasErrorFor('due_date') ? 'form-control is-invalid' : 'form-control'}/>
+                    {props.renderErrorFor('due_date')}
+                </FormGroup>
+            </Col>
+        </Row>
 
-        <FormGroup>
-            <Label for="postcode">{translations.budgeted_hours}:</Label>
-            <Input
-                type='number'
-                name="budgeted_hours"
-                value={props.project.budgeted_hours}
-                errors={props.errors}
-                onChange={props.handleInput}
-            />
-        </FormGroup>
+        <Row form>
+            <Col md={6}>
+                <FormGroup>
+                    <Label for="postcode">{translations.budgeted_hours}:</Label>
+                    <Input
+                        type='number'
+                        name="budgeted_hours"
+                        value={props.project.budgeted_hours}
+                        errors={props.errors}
+                        onChange={props.handleInput}
+                    />
+                </FormGroup>
+            </Col>
 
-        <FormGroup>
-            <Label for="postcode">{translations.task_rate}:</Label>
-            <Input
-                type='number'
-                name="task_rate"
-                value={props.project.task_rate}
-                errors={props.errors}
-                onChange={props.handleInput}
-            />
-        </FormGroup>
+            <Col md={6}>
+                <FormGroup>
+                    <Label for="postcode">{translations.task_rate}:</Label>
+                    <Input
+                        type='number'
+                        name="task_rate"
+                        value={props.project.task_rate}
+                        errors={props.errors}
+                        onChange={props.handleInput}
+                    />
+                </FormGroup>
+            </Col>
+        </Row>
 
         <ColorPickerNew color={props.project.column_color} onChange={(color) => {
             const e = {}

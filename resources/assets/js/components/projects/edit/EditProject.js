@@ -74,6 +74,7 @@ class EditProject extends React.Component {
             private_notes: this.state.private_notes,
             public_notes: this.state.public_notes,
             due_date: this.state.due_date,
+            start_date: this.state.start_date,
             assigned_to: this.state.assigned_to,
             budgeted_hours: this.state.budgeted_hours,
             task_rate: this.state.task_rate,

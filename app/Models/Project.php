@@ -30,6 +30,7 @@ class Project extends Model
         'private_notes',
         'public_notes',
         'due_date',
+        'start_date',
         'budgeted_hours',
         'task_rate',
         'column_color'

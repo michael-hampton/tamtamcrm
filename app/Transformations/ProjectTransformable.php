@@ -24,6 +24,7 @@ trait ProjectTransformable
             'description'    => $project->description,
             'is_completed'   => $project->is_completed,
             'due_date'       => $project->due_date,
+            'start_date'     => $project->due_date,
             'updated_at'     => (int)$project->updated_at,
             'deleted_at'     => $project->deleted_at,
             'created_at'     => $project->created_at,

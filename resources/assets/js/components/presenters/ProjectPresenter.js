@@ -27,6 +27,7 @@ export default function ProjectPresenter (props) {
         case 'is_completed':
             return <i className="fa fa-check"/>
         case 'due_date':
+        case 'start_date':
         case 'created_at':
             return <FormatDate field={field} date={entity[field]}/>
         case 'customer_id': {

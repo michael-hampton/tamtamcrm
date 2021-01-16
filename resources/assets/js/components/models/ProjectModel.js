@@ -23,6 +23,7 @@ export default class ProjectModel extends BaseModel {
             custom_value3: '',
             custom_value4: '',
             due_date: '',
+            start_date: '',
             assigned_to: '',
             budgeted_hours: '',
             task_rate: '',
