@@ -24,6 +24,11 @@ export default class BaseModel {
         this.settings = this.user_account[0].account.settings
         this.custom_fields = this.user_account[0].account.custom_fields
         this.tax_rates = JSON.parse(localStorage.getItem('tax_rates'))
+        this.customer_settings = {}
+    }
+
+    get merged_settings () {
+        return {...this.settings, ...this.customer_settings}
     }
 
     get account_currency () {
