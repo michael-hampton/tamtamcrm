@@ -41,7 +41,7 @@ export default class CompanyDropdown extends Component {
             target: {
                 id: name,
                 name: name,
-                value: value.id
+                value: value === null ? null : value.id
             }
         }
 
@@ -56,8 +56,6 @@ export default class CompanyDropdown extends Component {
             }
 
             this.setState({ companies: response }, () => {
-                console.log('companies', this.state.companies)
-
                 if (!this.props.multiple) {
                     this.state.companies.unshift({ id: '', name: 'Select Company' })
                 }
@@ -80,6 +78,8 @@ export default class CompanyDropdown extends Component {
                     getOptionLabel={option => option.name}
                     getOptionValue={option => option.id}
                     onChange={(value) => this.handleChange(value, name)}
+                    isClearable={true}
+                    isSearchable={true}
                 />
                 {this.renderErrorFor('company_id')}
             </React.Fragment>

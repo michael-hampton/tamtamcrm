@@ -3101,9 +3101,11 @@ $color_iron_approx: #d6d6d6;
       border: 1px solid #808080 !important;
     }
   }
+
+  .select__input input {
+    color: $white !important;
+  }
 }
 
-.select__input input {
-  color: $white !important;
-}
+
 

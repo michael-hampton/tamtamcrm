@@ -64,7 +64,7 @@ export default class UserDropdown extends Component {
             target: {
                 id: name,
                 name: name,
-                value: value.id
+                value: value === null ? null : value.id
             }
         }
 
@@ -83,6 +83,8 @@ export default class UserDropdown extends Component {
                 options={this.state.users} getOptionLabel={option => `${option.first_name} ${option.last_name}`}
                 getOptionValue={option => option.id}
                 onChange={(value) => this.handleChange(value, name)}
+                isClearable={true}
+                isSearchable={true}
             />
         )
     }

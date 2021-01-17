@@ -27,7 +27,7 @@ export default class TaskDropdown extends Component {
             target: {
                 id: name,
                 name: name,
-                value: value.id
+                value: value === null ? null : value.id
             }
         }
 
@@ -82,6 +82,8 @@ export default class TaskDropdown extends Component {
                     getOptionLabel={option => option.name}
                     getOptionValue={option => option.id}
                     onChange={(value) => this.handleChange(value, name)}
+                    isClearable={true}
+                    isSearchable={true}
                 />
             </FormGroup>
         )

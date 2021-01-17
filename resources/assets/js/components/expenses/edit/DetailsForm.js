@@ -135,6 +135,7 @@ export default class DetailsForm extends React.Component {
                 <FormGroup>
                     <Label for="date">{translations.currency}(*):</Label>
                     <CurrencyDropdown
+                        handleInputChanges={this.props.handleInput}
                         name="currency_id"
                         currency_id={this.props.expense.currency_id}
                     />

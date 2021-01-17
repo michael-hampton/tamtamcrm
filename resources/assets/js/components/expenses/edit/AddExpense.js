@@ -45,7 +45,7 @@ class AddExpense extends React.Component {
     }
 
     handleInput (e) {
-        if (e.target.name === 'currency_id' || e.target.name === 'invoice_currency_id') {
+        if ((e.target.name === 'currency_id' || e.target.name === 'invoice_currency_id') && e.target.value !== null) {
             // const exchange_rate = this.expenseModel.getExchangeRateForCurrency(e.target.value)
 
             const currencies = JSON.parse(localStorage.getItem('currencies'))

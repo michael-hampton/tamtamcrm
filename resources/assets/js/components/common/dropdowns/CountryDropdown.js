@@ -57,7 +57,7 @@ export default class CountryDropdown extends Component {
             target: {
                 id: name,
                 name: name,
-                value: value.id
+                value: value === null ? null : value.id
             }
         }
 
@@ -79,6 +79,8 @@ export default class CountryDropdown extends Component {
                     getOptionLabel={option => option.name}
                     getOptionValue={option => option.id}
                     onChange={(value) => this.handleChange(value, 'country_id')}
+                    isClearable={true}
+                    isSearchable={true}
                 />
                 {this.renderErrorFor('country_id')}
             </FormGroup>

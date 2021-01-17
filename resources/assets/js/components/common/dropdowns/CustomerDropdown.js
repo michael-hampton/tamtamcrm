@@ -56,7 +56,7 @@ export default class CustomerDropdown extends Component {
             target: {
                 id: name,
                 name: name,
-                value: value.id
+                value: value === null ? null : value.id
             }
         }
 

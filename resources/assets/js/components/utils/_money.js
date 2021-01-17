@@ -6,11 +6,12 @@ export function getExchangeRate (from_currency, to_currency) {
 }
 
 export function getExchangeRateWithMap (currencies, from_currency_id, to_currency_id) {
+    if (to_currency_id === null || from_currency_id === null) {
+        return 1
+    }
+
     const fromCurrency = currencies.filter(currency => currency.id === parseInt(from_currency_id))
     const toCurrency = currencies.filter(currency => currency.id === parseInt(to_currency_id))
-
-    console.log('from', fromCurrency)
-    console.log('to', toCurrency)
 
     if (parseInt(from_currency_id) === consts.currency_pound) {
         return toCurrency[0].exchange_rate
