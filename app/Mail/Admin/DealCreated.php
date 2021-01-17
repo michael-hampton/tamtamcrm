@@ -60,7 +60,7 @@ class DealCreated extends AdminMailer
         return [
             'title'       => $this->subject,
             'body'        => $this->message,
-            'url'         => config('taskmanager.site_url') . 'portal/deals/' . $this->deal->id,
+            'url'         => config('taskmanager.web_url') . '/#/deals?id=' . $this->deal->id,
             'button_text' => trans('texts.view_deal'),
             'signature'   => !empty($this->settings) ? $this->settings->email_signature : '',
             'logo'        => $this->deal->account->present()->logo(),

@@ -65,7 +65,7 @@ class LeadCreated extends AdminMailer
         return [
             'title'       => $this->subject,
             'body'        => $this->message,
-            'url'         => config('taskmanager.site_url') . '/portal/leads/' . $this->lead->id,
+            'url'         => config('taskmanager.web_url') . '/#/leads?id=' . $this->lead->id,
             'button_text' => trans('texts.view_deal'),
             'signature'   => isset($this->lead->account->settings->email_signature) ? $this->lead->account->settings->email_signature : '',
             'logo'        => $this->lead->account->present()->logo(),

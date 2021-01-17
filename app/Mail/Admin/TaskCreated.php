@@ -61,8 +61,8 @@ class TaskCreated extends AdminMailer
         return [
             'title'       => $this->subject,
             'body'        => $this->message,
-            'url'         => config('taskmanager.site_url') . 'portal/payments/' . $this->task->id,
-            'button_text' => trans('texts.view_deal'),
+            'url'         => $this->getUrl() . 'tasks/' . $this->task->id,
+            'button_text' => trans('texts.view_task'),
             'signature'   => !empty($this->settings) ? $this->settings->email_signature : '',
             'logo'        => $this->task->account->present()->logo(),
         ];

@@ -65,7 +65,7 @@ class PartialPaymentMade extends AdminMailer
         return [
             'title'       => $this->subject,
             'body'        => $this->message,
-            'url'         => config('taskmanager.site_url') . '/payments/' . $this->payment->id,
+            'url'         => $this->getUrl() . 'payments/' . $this->payment->id,
             'button_text' => trans('texts.view_payment'),
             'signature'   => isset($this->payment->account->settings->email_signature) ? $this->payment->account->settings->email_signature : '',
             'logo'        => $this->payment->account->present()->logo(),

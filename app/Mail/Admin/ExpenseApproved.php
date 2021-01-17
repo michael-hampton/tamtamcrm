@@ -63,7 +63,7 @@ class ExpenseApproved extends AdminMailer
         return [
             'title'       => $this->subject,
             'body'        => $this->message,
-            'url'         => $this->getUrl() . 'expenses/' . $this->expense->id,
+            'url'         => config('taskmanager.web_url') . '/#/expenses?id=' . $this->expense->id,
             'button_text' => trans('texts.view_expense'),
             'signature'   => !empty($this->settings) ? $this->settings->email_signature : '',
             'logo'        => $this->expense->account->present()->logo(),

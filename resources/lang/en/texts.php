@@ -60,6 +60,8 @@ return [
     'notification_partial_payment_paid'                    => 'A partial payment of :total was made by customer :customer towards :invoice',
     'invoice_number_abbreviated'                           => 'Invoice #',
     'view_deal'                                            => 'View Deal',
+    'view_task'                                            => 'View Task',
+    'view_lead'                                            => 'View Lead',
     'notification_lead_created_subject'                    => 'New Lead was created by :customer',
     'notification_order_created_subject'                   => 'New Order was created by :customer',
     'notification_order_backordered_subject'               => 'Order :order from :customer has been backordered',

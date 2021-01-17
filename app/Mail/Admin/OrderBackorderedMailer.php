@@ -59,7 +59,7 @@ class OrderBackorderedMailer extends AdminMailer
             'title'       => $this->subject,
             'body'        => $this->message,
             'url'         => $this->getUrl() . 'orders/' . $this->order->id,
-            'button_text' => trans('texts.view_invoice'),
+            'button_text' => trans('texts.view_order'),
             'signature'   => isset($this->order->account->settings->email_signature) ? $this->order->account->settings->email_signature : '',
             'logo'        => $this->order->account->present()->logo(),
         ];

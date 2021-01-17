@@ -63,7 +63,7 @@ class PurchaseOrderChangeRequested extends AdminMailer
         return [
             'title'       => $this->subject,
             'body'        => $this->message,
-            'url'         => $this->getUrl() . 'quotes/' . $this->purchase_order->id,
+            'url'         => $this->getUrl() . 'purchase_orders/' . $this->purchase_order->id,
             'button_text' => trans('texts.view_purchase_order'),
             'signature'   => !empty($this->settings) ? $this->settings->email_signature : '',
             'logo'        => $this->purchase_order->account->present()->logo(),
