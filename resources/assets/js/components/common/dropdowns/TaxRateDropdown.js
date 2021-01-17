@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import { FormGroup, Input } from 'reactstrap'
+import { FormGroup, Input, Label } from 'reactstrap'
+import { translations } from '../../utils/_translations'
 
 export default class TaxRateDropdown extends Component {
     constructor (props) {
@@ -7,13 +8,11 @@ export default class TaxRateDropdown extends Component {
         this.state = {
             taxRates: []
         }
-
-        this.getTaxRates = this.getTaxRates.bind(this)
     }
 
     componentDidMount () {
         if (!this.props.taxRates || !this.props.taxRates.length) {
-            this.getTaxRates()
+            this.setState({ taxRates: JSON.parse(localStorage.getItem('tax_rates')) })
         } else {
             this.setState({ taxRates: this.props.taxRates })
         }
@@ -33,20 +32,6 @@ export default class TaxRateDropdown extends Component {
         return this.props.errors && !!this.props.errors[field]
     }
 
-    getTaxRates () {
-        this.setState({ taxRates: JSON.parse(localStorage.getItem('tax_rates')) })
-        /* const taxRateRepository = new TaxRateRepository()
-        taxRateRepository.get().then(response => {
-            if (!response) {
-                alert('error')
-            }
-
-            this.setState({ taxRates: response }, () => {
-                console.log('taxRates', this.state.taxRates)
-            })
-        }) */
-    }
-
     render () {
         let taxRateList = null
         if (this.state.taxRates && !this.state.taxRates.length) {
@@ -64,6 +49,7 @@ export default class TaxRateDropdown extends Component {
 
         return (
             <FormGroup className={class_name}>
+                <Label>{this.props.label || translations.tax}</Label>
                 <Input data-line={lineId} value={this.props.taxRate} onChange={this.props.handleInputChanges}
                     type="select"
                     name={name} id={name}>

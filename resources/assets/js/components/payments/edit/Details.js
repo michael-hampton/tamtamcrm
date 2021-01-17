@@ -4,6 +4,7 @@ import Datepicker from '../../common/Datepicker'
 import PaymentTypeDropdown from '../../common/dropdowns/PaymentTypeDropdown'
 import CustomerDropdown from '../../common/dropdowns/CustomerDropdown'
 import { translations } from '../../utils/_translations'
+import AmountField from "../../common/AmountField";
 
 export default class Details extends React.Component {
     constructor (props) {
@@ -31,14 +32,9 @@ export default class Details extends React.Component {
         const customer_disabled = this.props.payment.payable_invoices.length > 0
         return (<React.Fragment>
             {!this.props.hide_amount &&
-                <FormGroup className="mb-3">
-                    <Label>{translations.amount}(*):</Label>
-                    <Input value={this.props.payment.amount}
-                        className={this.hasErrorFor('amount') ? 'is-invalid' : ''}
-                        type="text" name="amount"
-                        onChange={this.props.handleInput}/>
-                    {this.renderErrorFor('amount')}
-                </FormGroup>
+                <AmountField renderErrorFor={this.renderErrorFor}
+                    hasErrorFor={this.hasErrorFor} onChange={this.props.handleInput}
+                    name="amount" value={this.props.payment.amount} label={translations.amount}/>
             }
 
             <FormGroup className="mr-2">

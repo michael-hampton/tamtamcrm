@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card, CardBody, CardHeader, FormGroup, Input, Label } from 'reactstrap'
+import { Card, CardBody, CardHeader, FormGroup, Label } from 'reactstrap'
 import CompanyDropdown from '../../common/dropdowns/CompanyDropdown'
 import CustomerDropdown from '../../common/dropdowns/CustomerDropdown'
 import Datepicker from '../../common/Datepicker'
@@ -11,6 +11,7 @@ import ProjectDropdown from '../../common/dropdowns/ProjectDropdown'
 import CurrencyDropdown from '../../common/dropdowns/CurrencyDropdown'
 import TaxRateDropdown from '../../common/dropdowns/TaxRateDropdown'
 import TaxRateField from '../../common/TaxRateField'
+import AmountField from '../../common/AmountField'
 
 export default class DetailsForm extends React.Component {
     constructor (props) {
@@ -32,13 +33,11 @@ export default class DetailsForm extends React.Component {
                     onAmountChanged={(e) => this.props.handleInput(e)}
                 />)
             } else {
-                tax_form.push(<FormGroup>
-                    <Label>{translations.tax}</Label>
-                    <TaxRateDropdown
-                        name="tax_rate"
-                        handleInputChanges={this.props.handleInput}
-                    />
-                </FormGroup>)
+                tax_form.push(<TaxRateDropdown
+                    label={translations.tax}
+                    name="tax_rate"
+                    handleInputChanges={this.props.handleInput}
+                />)
             }
         }
 
@@ -51,13 +50,11 @@ export default class DetailsForm extends React.Component {
                     onAmountChanged={(e) => this.props.handleInput(e)}
                 />)
             } else {
-                tax_form.push(<FormGroup>
-                    <Label>{translations.tax}</Label>
-                    <TaxRateDropdown
-                        name="tax_2"
-                        handleInputChanges={this.props.handleInput}
-                    />
-                </FormGroup>)
+                tax_form.push(<TaxRateDropdown
+                    label={translations.tax}
+                    name="tax_2"
+                    handleInputChanges={this.props.handleInput}
+                />)
             }
         }
 
@@ -70,24 +67,17 @@ export default class DetailsForm extends React.Component {
                     onAmountChanged={(e) => this.props.handleInput(e)}
                 />)
             } else {
-                tax_form.push(<FormGroup>
-                    <Label>{translations.tax}</Label>
-                    <TaxRateDropdown
-                        name="tax_3"
-                        handleInputChanges={this.props.handleInput}
-                    />
-                </FormGroup>)
+                tax_form.push(<TaxRateDropdown
+                    label={translations.tax}
+                    name="tax_3"
+                    handleInputChanges={this.props.handleInput}
+                />)
             }
         }
 
-        const amount_field = <FormGroup className="mb-3">
-            <Label>{translations.amount}</Label>
-            <Input value={this.props.expense.amount}
-                className={this.props.hasErrorFor('amount') ? 'is-invalid' : ''}
-                type="text" name="amount"
-                onChange={this.props.handleInput}/>
-            {this.props.renderErrorFor('amount')}
-        </FormGroup>
+        const amount_field = <AmountField renderErrorFor={this.props.renderErrorFor}
+            hasErrorFor={this.props.hasErrorFor} onChange={this.props.handleInput}
+            name="amount" value={this.props.expense.amount} label={translations.amount}/>
 
         return (<Card>
             <CardHeader>{translations.settings}</CardHeader>

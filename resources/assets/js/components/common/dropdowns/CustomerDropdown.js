@@ -88,6 +88,8 @@ export default class CustomerDropdown extends Component {
                 getOptionLabel={option => option.name}
                 getOptionValue={option => option.id}
                 onChange={(value) => this.handleChange(value, name)}
+                isClearable={true}
+                isSearchable={true}
             />
 
         return (

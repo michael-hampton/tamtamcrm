@@ -175,7 +175,6 @@ class AddExpense extends React.Component {
             errors: []
         }, () => {
             if (!this.state.modal) {
-                alert('mike')
                 this.setState(this.initialState, () => localStorage.removeItem('expenseForm'))
             }
         })
