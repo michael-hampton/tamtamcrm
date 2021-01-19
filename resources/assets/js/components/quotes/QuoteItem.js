@@ -132,7 +132,7 @@ export default class QuoteItem extends Component {
                             <span className="col-2">
                                 <QuotePresenter customers={customers}
                                     toggleViewedEntity={this.props.toggleViewedEntity}
-                                    field={quote.balance > 0 ? 'balance' : 'total'} entity={quote}
+                                    field="total" entity={quote}
                                     edit={editButton}/>
                             </span>
                             <span className="col-2"><QuotePresenter field="status_field" entity={quote}
@@ -159,7 +159,7 @@ export default class QuoteItem extends Component {
                             <span>
                                 <QuotePresenter customers={customers}
                                     toggleViewedEntity={this.props.toggleViewedEntity}
-                                    field={quote.balance > 0 ? 'balance' : 'total'} entity={quote}
+                                    field="total" entity={quote}
                                     edit={editButton}/>
                             </span>
                         </div>
