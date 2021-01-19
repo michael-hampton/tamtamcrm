@@ -4,7 +4,7 @@ import ViewTask from '../tasks/ViewTask'
 import FormatDate from '../common/FormatDate'
 import { translations } from '../utils/_translations'
 import { frequencyOptions } from '../utils/_consts'
-import { contrast } from '../utils/_colors'
+import { contrast } from '../utils/_colors_converter'
 
 export function getDefaultTableFields () {
     return [

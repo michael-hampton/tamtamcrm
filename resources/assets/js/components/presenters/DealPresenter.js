@@ -2,7 +2,7 @@ import React from 'react'
 import FormatDate from '../common/FormatDate'
 import { Badge } from 'reactstrap'
 import { translations } from '../utils/_translations'
-import { contrast } from '../utils/_colors'
+import { contrast } from '../utils/_colors_converter'
 
 export function getDefaultTableFields () {
     return [

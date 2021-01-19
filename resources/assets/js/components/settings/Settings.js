@@ -29,6 +29,7 @@ class Settings extends Component {
         this.state = {
             id: this.props.match.params.add && this.props.match.params.add === 'true' ? null : localStorage.getItem('account_id'),
             loaded: false,
+            cached_settings: {},
             settings: {},
             company_logo: null,
             activeTab: '1',
@@ -66,7 +67,8 @@ class Settings extends Component {
 
             this.setState({
                 loaded: true,
-                settings: response.settings
+                settings: response.settings,
+                cached_settings: response.settings
             }, () => {
                 console.log(response)
             })
@@ -114,7 +116,7 @@ class Settings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true })
+                this.setState({ success: true, cached_settings: this.state.settings })
             })
             .catch((error) => {
                 console.error(error)
@@ -451,6 +453,10 @@ class Settings extends Component {
         return formFields
     }
 
+    handleCancel () {
+        this.setState({ settings: this.state.cached_settings })
+    }
+
     handleClose () {
         this.setState({ success: false })
     }
@@ -514,7 +520,8 @@ class Settings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={translations.settings_not_saved}/>
 
-                <Header title={translations.account_details} handleSubmit={this.handleSubmit}
+                <Header title={translations.account_details} handleCancel={this.handleCancel.bind(this)}
+                    handleSubmit={this.handleSubmit}
                     tabs={tabs}/>
 
                 <div className="settings-container settings-container-narrow fixed-margin-mobile">

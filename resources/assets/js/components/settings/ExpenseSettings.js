@@ -15,6 +15,7 @@ export default class ExpenseSettings extends Component {
 
         this.state = {
             id: localStorage.getItem('account_id'),
+            cached_settings: {},
             settings: {},
             activeTab: '1',
             success: false,
@@ -64,7 +65,8 @@ export default class ExpenseSettings extends Component {
 
             this.setState({
                 loaded: true,
-                settings: response.settings
+                settings: response.settings,
+                cached_settings: response.settings
             }, () => {
                 console.log(response)
             })
@@ -98,7 +100,7 @@ export default class ExpenseSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true })
+                this.setState({ success: true, cached_settings: this.state.settings })
             })
             .catch((error) => {
                 console.error(error)
@@ -203,6 +205,10 @@ export default class ExpenseSettings extends Component {
         return [fields]
     }
 
+    handleCancel () {
+        this.setState({ settings: this.state.cached_settings })
+    }
+
     handleClose () {
         this.setState({ success: false, error: false })
     }
@@ -216,7 +222,8 @@ export default class ExpenseSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={translations.settings_not_saved}/>
 
-                <Header title={translations.expense_settings} handleSubmit={this.handleSubmit}/>
+                <Header title={translations.expense_settings} handleCancel={this.handleCancel.bind(this)}
+                    handleSubmit={this.handleSubmit}/>
 
                 <div className="settings-container settings-container-narrow fixed-margin-extra">
                     <Card>

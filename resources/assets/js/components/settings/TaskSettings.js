@@ -14,6 +14,7 @@ export default class TaskSettings extends Component {
 
         this.state = {
             id: localStorage.getItem('account_id'),
+            cached_settings: {},
             settings: {},
             activeTab: '1',
             success: false,
@@ -63,7 +64,8 @@ export default class TaskSettings extends Component {
 
             this.setState({
                 loaded: true,
-                settings: response.settings
+                settings: response.settings,
+                cached_settings: response.settings
             }, () => {
                 console.log(response)
             })
@@ -97,7 +99,7 @@ export default class TaskSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true })
+                this.setState({ success: true, cached_settings: this.state.settings })
             })
             .catch((error) => {
                 console.error(error)
@@ -157,6 +159,10 @@ export default class TaskSettings extends Component {
         ]
     }
 
+    handleCancel () {
+        this.setState({ settings: this.state.cached_settings })
+    }
+
     handleClose () {
         this.setState({ success: false, error: false })
     }
@@ -170,7 +176,8 @@ export default class TaskSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={translations.settings_not_saved}/>
 
-                <Header title={translations.task_settings} handleSubmit={this.handleSubmit}/>
+                <Header title={translations.task_settings} handleCancel={this.handleCancel.bind(this)}
+                    handleSubmit={this.handleSubmit}/>
 
                 <div className="settings-container settings-container-narrow fixed-margin-extra">
                     <Card>

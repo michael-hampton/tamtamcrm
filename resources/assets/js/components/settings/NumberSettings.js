@@ -14,6 +14,7 @@ class NumberSettings extends Component {
         this.state = {
             activeTab: '1',
             id: localStorage.getItem('account_id'),
+            cached_settings: {},
             settings: {},
             success: false,
             error: false
@@ -63,7 +64,8 @@ class NumberSettings extends Component {
 
             this.setState({
                 loaded: true,
-                settings: response.settings
+                settings: response.settings,
+                cached_settings: response.settings
             }, () => {
                 console.log(response)
             })
@@ -97,7 +99,7 @@ class NumberSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true })
+                this.setState({ success: true, cached_settings: this.state.settings })
             })
             .catch((error) => {
                 console.error(error)
@@ -770,6 +772,10 @@ class NumberSettings extends Component {
         ]
     }
 
+    handleCancel () {
+        this.setState({ settings: this.state.cached_settings })
+    }
+
     handleClose () {
         this.setState({ success: false, error: false })
     }
@@ -960,7 +966,8 @@ class NumberSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={translations.settings_not_saved}/>
 
-                <Header title={translations.number_settings} handleSubmit={this.handleSubmit}
+                <Header title={translations.number_settings} handleCancel={this.handleCancel.bind(this)}
+                    handleSubmit={this.handleSubmit}
                     tabs={tabs}/>
 
                 <div className="settings-container settings-container-narrow fixed-margin-mobile">

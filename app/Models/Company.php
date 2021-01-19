@@ -131,4 +131,11 @@ class Company extends Model
         return true;
     }
 
+    public function getExchangeRate() {
+        $account_currency = $this->account->getCurrency();
+        $customer_currency = $this->currency;
+
+        return $account_currency->iso_code !== $customer_currency->iso_code ? $customer_currency->exchange_rate : 1;
+    }
+
 }

@@ -15,6 +15,7 @@ export default class DeviceSettings extends Component {
         this.state = {
             success_message: translations.settings_saved,
             id: localStorage.getItem('account_id'),
+            cached_settings: {},
             settings: {
                 dark_theme: !!(!Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true')),
                 number_of_rows: localStorage.getItem('number_of_rows') || 10
@@ -45,7 +46,8 @@ export default class DeviceSettings extends Component {
 
             this.setState({
                 loaded: true,
-                settings: response.settings
+                settings: response.settings,
+                cached_settings: response.settings
             }, () => {
                 console.log(response)
             })
@@ -208,7 +210,7 @@ export default class DeviceSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true })
+                this.setState({ success: true, cached_settings: this.state.settings })
             })
             .catch((error) => {
                 this.setState({ error: true })
@@ -217,6 +219,10 @@ export default class DeviceSettings extends Component {
 
     handleChange (event) {
         this.setState({ [event.target.name]: event.target.value })
+    }
+
+    handleCancel () {
+        this.setState({ settings: this.state.cached_settings })
     }
 
     handleClose () {

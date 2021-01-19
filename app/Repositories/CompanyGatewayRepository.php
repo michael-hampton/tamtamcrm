@@ -75,15 +75,15 @@ class CompanyGatewayRepository extends BaseRepository
         foreach ($fees as $fee) {
             $gateways[] = (new GatewayCalculator($company_gateway))
                 ->setFeeAmount($fee->fee_amount)
-                ->setFeePercent(isset($fee->fee_percent) ? $fee->fee_percent : 0)
+                ->setFeePercent(!empty($fee->fee_percent) ? $fee->fee_percent : 0)
                 ->setTaxRate('tax_rate', isset($fee->tax) ? $fee->tax : 0)
                 ->setTaxRate('tax_2', isset($fee->tax_2) ? $fee->tax_2 : 0)
                 ->setTaxRate('tax_3', isset($fee->tax_3) ? $fee->tax_3 : 0)
                 ->setTaxRateName('tax_rate_name', isset($fee->tax_rate_name) ? $fee->tax_rate_name : '')
                 ->setTaxRateName('tax_rate_name_2', isset($fee->tax_rate_name_2) ? $fee->tax_rate_name_2 : '')
                 ->setTaxRateName('tax_rate_name_3', isset($fee->tax_rate_name_3) ? $fee->tax_rate_name_3 : '')
-                ->setMinLimit(isset($fee->min_limit) ? $fee->min_limit : 0)
-                ->setMaxLimit(isset($fee->max_limit) ? $fee->max_limit : 0)
+                ->setMinLimit(!empty($fee->min_limit) ? $fee->min_limit : 0)
+                ->setMaxLimit(!empty($fee->max_limit) ? $fee->max_limit : 0)
                 ->toObject();
         }
 

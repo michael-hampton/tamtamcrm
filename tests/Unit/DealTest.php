@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Factory\DealFactory;
 use App\Models\Account;
+use App\Models\Cases;
 use App\Models\Customer;
 use App\Models\Deal;
 use App\Models\User;
@@ -37,6 +38,8 @@ class DealTest extends TestCase
     /** @test */
     public function it_can_show_all_the_tasks()
     {
+        Deal::factory()->create();
+
         $list = (new DealSearch(
             new DealRepository(
                 new Deal

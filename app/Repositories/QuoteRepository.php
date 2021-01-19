@@ -82,6 +82,7 @@ class QuoteRepository extends BaseRepository implements QuoteRepositoryInterface
         $quote = $this->formatNotes($quote);
         $quote = $quote->service()->calculateInvoiceTotals();
         $quote->setNumber();
+        $quote->setExchangeRate();
 
         $quote->save();
 

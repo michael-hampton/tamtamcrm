@@ -237,6 +237,12 @@ class Order extends Model
         return $this->number;
     }
 
+    public function setExchangeRate() {
+        $exchange_rate = $this->customer->getExchangeRate();
+        $this->exchange_rate = !empty($exchange_rate) ? $exchange_rate : null;
+        return true;
+    }
+
     public function getDesignId()
     {
         return !empty($this->design_id) ? $this->design_id : $this->customer->getSetting('order_design_id');

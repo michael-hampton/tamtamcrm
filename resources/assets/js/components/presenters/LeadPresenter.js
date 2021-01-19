@@ -2,7 +2,7 @@ import React from 'react'
 import { Badge } from 'reactstrap'
 import { translations } from '../utils/_translations'
 import FormatMoney from '../common/FormatMoney'
-import { contrast } from '../utils/_colors'
+import { contrast } from '../utils/_colors_converter'
 
 export function getDefaultTableFields () {
     return [

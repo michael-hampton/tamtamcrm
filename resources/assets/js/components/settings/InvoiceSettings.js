@@ -23,6 +23,7 @@ class InvoiceSettings extends Component {
 
         this.state = {
             id: localStorage.getItem('account_id'),
+            cached_settings: {},
             settings: {},
             activeTab: '1',
             success: false,
@@ -73,7 +74,8 @@ class InvoiceSettings extends Component {
 
             this.setState({
                 loaded: true,
-                settings: response.settings
+                settings: response.settings,
+                cached_settings: response.settings
             }, () => {
                 console.log(response)
             })
@@ -117,7 +119,7 @@ class InvoiceSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true })
+                this.setState({ success: true, cached_settings: this.state.settings })
             })
             .catch((error) => {
                 console.error(error)
@@ -370,6 +372,10 @@ class InvoiceSettings extends Component {
         return []
     }
 
+    handleCancel () {
+        this.setState({ settings: this.state.cached_settings })
+    }
+
     handleClose () {
         this.setState({ success: false, error: false })
     }
@@ -508,7 +514,8 @@ class InvoiceSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={translations.settings_not_saved}/>
 
-                <Header title={translations.invoice_settings} handleSubmit={this.handleSubmit}
+                <Header title={translations.invoice_settings} handleCancel={this.handleCancel.bind(this)}
+                    handleSubmit={this.handleSubmit}
                     tabs={tabs}/>
 
                 <div className="settings-container settings-container-narrow fixed-margin-mobile">

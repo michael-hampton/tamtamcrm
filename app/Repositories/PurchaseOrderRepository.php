@@ -77,6 +77,7 @@ class PurchaseOrderRepository extends BaseRepository implements PurchaseOrderRep
         $purchase_order = $purchase_order->service()->calculateInvoiceTotals();
 
         $purchase_order->setNumber();
+        $purchase_order->setExchangeRate();
 
         $purchase_order->save();
 

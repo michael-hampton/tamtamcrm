@@ -1,9 +1,11 @@
 import { Badge } from 'reactstrap'
 import React from 'react'
-import { caseLinkTypes, casePriorities, casePriorityColors, caseStatusColors, caseStatuses } from '../utils/_consts'
+import { caseLinkTypes, casePriorities } from '../utils/_consts'
 import { translations } from '../utils/_translations'
 import FormatDate from '../common/FormatDate'
-import { contrast } from '../utils/_colors'
+import { contrast } from '../utils/_colors_converter'
+import { casePriorityColors, caseStatusColors } from '../utils/_colors'
+import { caseStatuses } from '../utils/_statuses'
 
 export function getDefaultTableFields () {
     return [

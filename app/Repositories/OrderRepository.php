@@ -103,6 +103,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
         $order = $order->service()->calculateInvoiceTotals();
         $order->setNumber();
+        $order->setExchangeRate();
 
         $order->save();
 

@@ -5,6 +5,7 @@ import axios from 'axios'
 import { translations } from '../utils/_translations'
 import SnackbarMessage from '../common/SnackbarMessage'
 import Header from './Header'
+import AccountRepository from "../repositories/AccountRepository";
 
 class IntegrationSettings extends Component {
     constructor (props) {
@@ -13,6 +14,7 @@ class IntegrationSettings extends Component {
         this.state = {
             success_message: translations.settings_saved,
             id: localStorage.getItem('account_id'),
+            cached_settings: {},
             settings: {},
             success: false,
             error: false
@@ -29,16 +31,20 @@ class IntegrationSettings extends Component {
     }
 
     getAccount () {
-        axios.get(`api/accounts/${this.state.id}`)
-            .then((r) => {
-                this.setState({
-                    loaded: true,
-                    settings: r.data.settings
-                })
+        const accountRepository = new AccountRepository()
+        accountRepository.getById(this.state.id).then(response => {
+            if (!response) {
+                alert('error')
+            }
+
+            this.setState({
+                loaded: true,
+                settings: response.settings,
+                cached_settings: response.settings
+            }, () => {
+                console.log(response)
             })
-            .catch((e) => {
-                this.setState({ error: true })
-            })
+        })
     }
 
     handleChange (event) {
@@ -68,7 +74,7 @@ class IntegrationSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true })
+                this.setState({ success: true, cached_settings: this.state.settings })
             })
             .catch((error) => {
                 this.setState({ error: true })
@@ -99,6 +105,10 @@ class IntegrationSettings extends Component {
         ]
     }
 
+    handleCancel () {
+        this.setState({ settings: this.state.cached_settings })
+    }
+
     handleClose () {
         this.setState({ success: false, error: false })
     }
@@ -112,7 +122,8 @@ class IntegrationSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={this.state.settings_not_saved}/>
 
-                <Header title={translations.integration_settings} handleSubmit={this.handleSubmit}/>
+                <Header title={translations.integration_settings} handleCancel={this.handleCancel.bind(this)}
+                    handleSubmit={this.handleSubmit}/>
 
                 <div className="settings-container settings-container-narrow fixed-margin-extra">
                     <Card className="fixed-margin-extra">

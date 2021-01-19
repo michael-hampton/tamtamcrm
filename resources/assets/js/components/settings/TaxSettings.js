@@ -16,6 +16,7 @@ export default class TaxSettings extends Component {
         this.state = {
             id: localStorage.getItem('account_id'),
             activeTab: '1',
+            cached_settings: {},
             settings: {},
             success: false,
             error: false
@@ -47,7 +48,8 @@ export default class TaxSettings extends Component {
 
             this.setState({
                 loaded: true,
-                settings: response.settings
+                settings: response.settings,
+                cached_settings: response.settings
             }, () => {
                 console.log(response)
             })
@@ -81,7 +83,7 @@ export default class TaxSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true })
+                this.setState({ success: true, cached_settings: this.state.settings })
             })
             .catch((error) => {
                 this.setState({ error: true })
@@ -139,6 +141,10 @@ export default class TaxSettings extends Component {
         ]
     }
 
+    handleCancel () {
+        this.setState({ settings: this.state.cached_settings })
+    }
+
     handleClose () {
         this.setState({ success: false, error: false })
     }
@@ -158,7 +164,7 @@ export default class TaxSettings extends Component {
                     </Alert>
                 </Snackbar>
 
-                <Header title={translations.tax_settings}
+                <Header title={translations.tax_settings} handleCancel={this.handleCancel.bind(this)}
                     handleSubmit={this.handleSubmit.bind(this)}/>
 
                 <div className="settings-container settings-container-narrow fixed-margin-extra">

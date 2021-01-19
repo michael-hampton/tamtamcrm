@@ -67,6 +67,7 @@ class RecurringInvoiceRepository extends BaseRepository
         $invoice = $this->formatNotes($invoice);
         $invoice = $invoice->service()->calculateInvoiceTotals();
         $invoice->setNumber();
+        $invoice->setExchangeRate();
 
         $invoice->save();
 

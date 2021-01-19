@@ -60,20 +60,14 @@ export default class ErrorLogModel extends BaseModel {
     }
 
     get entity () {
-
-        if(this.fields.entity !== 'payment') {
+        if (this.fields.error_type !== 'payment') {
             return this.fields.entity
         }
 
-        switch (this.fields.entity) {
-            case this.ENTITY_PAYPAL:
-                return 'paypal'
-            case this.ENTITY_STRIPE:
-                return 'stripe'
-            case this.ENTITY_AUTHORIZE:
-                return 'authorize'
-        }
+        const gateways = JSON.parse(localStorage.getItem('gateways'))
 
-        return ''
+        const gateway = gateways.filter(gateway => gateway.key === this.fields.entity)
+
+        return gateway.length ? gateway[0].name : ''
     }
 }

@@ -18,6 +18,7 @@ export default class BaseModel {
     constructor () {
         this.errors = []
         this.error_message = ''
+        this.customer = null
 
         const account_id = JSON.parse(localStorage.getItem('appState')).user.account_id
         this.user_account = JSON.parse(localStorage.getItem('appState')).accounts.filter(account => account.account_id === parseInt(account_id))
@@ -28,7 +29,11 @@ export default class BaseModel {
     }
 
     get merged_settings () {
-        return {...this.settings, ...this.customer_settings}
+        if (!this.customer || !this.customer.settings) {
+            return this.settings
+        }
+        
+        return { ...this.settings, ...this.customer.settings }
     }
 
     get account_currency () {

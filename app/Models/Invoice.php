@@ -315,6 +315,12 @@ class Invoice extends Model
         return true;
     }
 
+    public function setExchangeRate() {
+        $exchange_rate = $this->customer->getExchangeRate();
+        $this->exchange_rate = !empty($exchange_rate) ? $exchange_rate : null;
+        return true;
+    }
+
     public function getNumber()
     {
         return $this->number;

@@ -17,9 +17,15 @@ export default function Header (props) {
                             </h4>
                         </div>
 
-                        {!!props.handleSubmit &&
-                        <a className="pull-right pr-3" onClick={props.handleSubmit}>{translations.save}</a>
-                        }
+                        <span>
+                            {!!props.handleSubmit &&
+                            <a className="pull-right pr-3" onClick={props.handleSubmit}>{translations.save}</a>
+                            }
+
+                            {!!props.handleCancel &&
+                            <a className="pull-right pr-3 mr-4" onClick={props.handleCancel}>{translations.cancel}</a>
+                            }
+                        </span>
 
                         {!!props.addButton &&
                         props.addButton

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\CaseCategory;
 use App\Models\Cases;
 use App\Models\Customer;
 use App\Models\Model;
@@ -27,6 +28,8 @@ class CasesFactory extends Factory
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
         $account = \App\Models\Account::first();
+        $category = CaseCategory::factory()->create();
+
         return [
             'status_id'     => \App\Models\Cases::STATUS_DRAFT,
             'subject'       => $this->faker->word,
@@ -35,7 +38,7 @@ class CasesFactory extends Factory
             'account_id'    => $account->id,
             'user_id'       => $user->id,
             'customer_id'   => $customer->id,
-            'category_id'   => 1,
+            'category_id'   => $category->id,
             'priority_id'   => 1,
             'due_date'      => \Carbon\Carbon::today()->addDays(5),
         ];

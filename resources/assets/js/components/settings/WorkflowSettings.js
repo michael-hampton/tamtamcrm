@@ -15,6 +15,7 @@ export default class WorkflowSettings extends Component {
 
         this.state = {
             id: localStorage.getItem('account_id'),
+            cached_settings: {},
             settings: {},
             activeTab: '1',
             success: false,
@@ -64,7 +65,8 @@ export default class WorkflowSettings extends Component {
 
             this.setState({
                 loaded: true,
-                settings: response.settings
+                settings: response.settings,
+                cached_settings: response.settings
             }, () => {
                 console.log(response)
             })
@@ -87,6 +89,10 @@ export default class WorkflowSettings extends Component {
         }))
     }
 
+    handleCancel () {
+        this.setState({ settings: this.state.cached_settings })
+    }
+
     handleSubmit (e) {
         const formData = new FormData()
         formData.append('settings', JSON.stringify(this.state.settings))
@@ -98,7 +104,7 @@ export default class WorkflowSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true })
+                this.setState({ success: true, cached_settings: this.state.settings })
             })
             .catch((error) => {
                 console.error(error)
@@ -491,7 +497,8 @@ export default class WorkflowSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={translations.settings_not_saved}/>
 
-                <Header title={translations.workflow_settings} handleSubmit={this.handleSubmit}
+                <Header title={translations.workflow_settings} handleCancel={this.handleCancel.bind(this)}
+                    handleSubmit={this.handleSubmit}
                     tabs={tabs}/>
 
                 <div className="settings-container settings-container-narrow fixed-margin-mobile">

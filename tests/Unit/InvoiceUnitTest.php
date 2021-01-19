@@ -656,7 +656,7 @@ class InvoiceUnitTest extends TestCase
         $original_customer_balance = $original_customer_balance < 0 ? $original_customer_balance + (1.50 * -1) : $original_customer_balance + 1.50;
         $expected_balance = $original_customer_balance < 0 ? ($original_customer_balance - ($invoice->total * -1)) : ($original_customer_balance - $invoice->total);
 
-        $this->assertEquals($customer->balance, $expected_balance);
+        $this->assertEquals($customer->balance, $expected_balance); //139.80
         $this->assertEquals($line_item_count + 1, count($invoice->line_items));
         $this->assertEquals($total + $invoice->gateway_fee, $invoice->total);
 

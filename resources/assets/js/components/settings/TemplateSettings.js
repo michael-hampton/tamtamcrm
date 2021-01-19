@@ -25,6 +25,7 @@ class TemplateSettings extends Component {
             template_type: 'email_template_invoice',
             template_name: 'Invoice',
             company_logo: null,
+            cached_settings: {},
             settings: {
                 email_template_payment: '',
                 email_subject_payment: '',
@@ -70,7 +71,8 @@ class TemplateSettings extends Component {
 
             this.setState({
                 loaded: true,
-                settings: response.settings
+                settings: response.settings,
+                cached_settings: response.settings
             }, () => {
                 console.log(response)
             })
@@ -153,7 +155,7 @@ class TemplateSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true })
+                this.setState({ success: true, cached_settings: this.state.settings })
             })
             .catch((error) => {
                 console.error(error)
@@ -161,6 +163,10 @@ class TemplateSettings extends Component {
                 //     errors: error.response.data.errors
                 // })
             })
+    }
+
+    handleCancel () {
+        this.setState({ settings: this.state.cached_settings })
     }
 
     handleClose () {
@@ -207,7 +213,8 @@ class TemplateSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={translations.settings_not_saved}/>
 
-                <Header title={translations.template_settings} handleSubmit={this.handleSubmit}
+                <Header title={translations.template_settings} handleCancel={this.handleCancel.bind(this)}
+                    handleSubmit={this.handleSubmit}
                     tabs={tabs}/>
 
                 <div className="settings-container settings-container-narrow fixed-margin-mobile">

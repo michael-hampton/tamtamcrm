@@ -18,6 +18,7 @@ class EmailSettings extends Component {
             success_message: translations.settings_saved,
             id: localStorage.getItem('account_id'),
             sigPad: {},
+            cached_settings: {},
             settings: {},
             success: false,
             error: false
@@ -43,7 +44,8 @@ class EmailSettings extends Component {
 
             this.setState({
                 loaded: true,
-                settings: response.settings
+                settings: response.settings,
+                cached_settings: response.settings
             }, () => {
                 console.log(response)
             })
@@ -83,7 +85,7 @@ class EmailSettings extends Component {
     handleSubmit (e) {
         this.trim().then(result => {
             axios.put(`/api/accounts/${this.state.id}`, { settings: JSON.stringify(this.state.settings) }, {}).then((response) => {
-                this.setState({ success: true })
+                this.setState({ success: true, cached_settings: this.state.settings })
             }).catch((error) => {
                 this.setState({ error: true })
             })
@@ -219,6 +221,10 @@ class EmailSettings extends Component {
         ]
     }
 
+    handleCancel () {
+        this.setState({ settings: this.state.cached_settings })
+    }
+
     handleClose () {
         this.setState({ success: false, error: false })
     }
@@ -232,7 +238,8 @@ class EmailSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={this.state.settings_not_saved}/>
 
-                <Header title={translations.email_settings} handleSubmit={this.handleSubmit}/>
+                <Header title={translations.email_settings} handleCancel={this.handleCancel.bind(this)}
+                    handleSubmit={this.handleSubmit}/>
 
                 <div className="settings-container fixed-margin-extra">
                     <Card>

@@ -13,7 +13,7 @@ class CompanyGateway extends Model
 
     protected $casts = [
         //'fields'          => 'object',
-        'charges'     => 'object',
+        'charges'    => 'object',
         'settings'   => 'object',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
@@ -49,8 +49,8 @@ class CompanyGateway extends Model
         return isset($this->config->mode) ? $this->config->mode : 'Production';
     }
 
-//    public function resolveRouteBinding($value)
-//    {
-//        return $this->where('id', $value)->firstOrFail();
-//    }
+    public function error_logs()
+    {
+        return ErrorLog::where('entity', '=', $this->gateway_key)->get();
+    }
 }

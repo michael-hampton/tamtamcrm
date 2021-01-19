@@ -857,12 +857,9 @@ if (Object.prototype.hasOwnProperty.call(localStorage, 'appState')) {
     const account_id = JSON.parse(localStorage.getItem('appState')).user.account_id
     const user_account = JSON.parse(localStorage.getItem('appState')).accounts.filter(account => account.account_id === parseInt(account_id))
     const settings = user_account[0].account.settings
-
-    console.log(localStorage.getItem('languages'))
-
     const languages = JSON.parse(localStorage.getItem('languages'))
     language = settings.language_id ? languages.filter(language => language.id === parseInt(settings.language_id)) : []
 }
 
 export const default_language = language.length ? language[0].locale : 'en'
-export const translations = _localizedValues[default_language]
+export const translations = _localizedValues[default_language] ? _localizedValues[default_language] : _localizedValues[en]

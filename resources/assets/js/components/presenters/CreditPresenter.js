@@ -2,8 +2,9 @@ import { Badge } from 'reactstrap'
 import React from 'react'
 import FormatMoney from '../common/FormatMoney'
 import FormatDate from '../common/FormatDate'
-import { creditStatusColors, creditStatuses } from '../utils/_consts'
 import { translations } from '../utils/_translations'
+import { creditStatusColors } from '../utils/_colors'
+import { creditStatuses } from '../utils/_statuses'
 
 export function getDefaultTableFields () {
     return [

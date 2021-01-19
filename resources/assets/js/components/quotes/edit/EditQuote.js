@@ -601,13 +601,13 @@ class EditInvoice extends Component {
         />
 
         const notes = !this.state.is_mobile
-            ? <NoteTabs
+            ? <NoteTabs model={this.quoteModel}
                 show_exchange={this.quoteModel.account_currency.exchange_rate !== this.state.exchange_rate}
                 invoice={this.state} private_notes={this.state.private_notes}
                 public_notes={this.state.public_notes}
                 terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}
                 handleInput={this.handleInput}/>
-            : <Notes private_notes={this.state.private_notes} public_notes={this.state.public_notes}
+            : <Notes model={this.quoteModel} private_notes={this.state.private_notes} public_notes={this.state.public_notes}
                 terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}
                 handleInput={this.handleInput}/>
 

@@ -108,8 +108,6 @@ export default class RecurringInvoiceModel extends BaseModel {
         this.sent = consts.invoice_status_sent
         this.partial = consts.invoice_status_partial
 
-        this.customer = null
-
         if (data !== null) {
             this._fields = { ...this.fields, ...data }
 
@@ -150,6 +148,24 @@ export default class RecurringInvoiceModel extends BaseModel {
 
     get id () {
         return this.fields.id
+    }
+
+    get default_notes () {
+        if (!this.customer) {
+            return ''
+        }
+
+        return this.customer.public_notes || ''
+    }
+
+    get default_terms () {
+        const merged_settings = this.merged_settings
+        return merged_settings.invoice_terms || ''
+    }
+
+    get default_footer () {
+        const merged_settings = this.merged_settings
+        return merged_settings.invoice_footer || ''
     }
 
     get fields () {

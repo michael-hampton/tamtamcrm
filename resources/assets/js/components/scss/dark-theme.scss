@@ -3105,6 +3105,11 @@ $color_iron_approx: #d6d6d6;
   .select__input input {
     color: $white !important;
   }
+
+  .pretty-json-container {
+    background-color: $white;
+    padding-top: 12px;
+  }
 }
 
 

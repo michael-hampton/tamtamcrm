@@ -101,6 +101,7 @@ export default class NoteTabs extends Component {
                             <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
                                 <Label>{translations.public_notes}</Label>
                                 <Input
+                                    placeholder={this.props.model && this.props.model.default_notes.length ? this.props.model.default_notes : ''}
                                     value={this.props.public_notes}
                                     type='textarea'
                                     name='public_notes'
@@ -128,6 +129,7 @@ export default class NoteTabs extends Component {
                             <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
                                 <Label>{translations.terms}</Label>
                                 <Input
+                                    placeholder={this.props.model && this.props.model.default_terms.length ? this.props.model.default_terms : ''}
                                     value={this.props.terms}
                                     type='textarea'
                                     name='terms'
@@ -141,6 +143,7 @@ export default class NoteTabs extends Component {
                             <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
                                 <Label>{translations.footer}</Label>
                                 <Input
+                                    placeholder={this.props.model && this.props.model.default_footer.length ? this.props.model.default_footer : ''}
                                     value={this.props.footer}
                                     type='textarea'
                                     name='footer'

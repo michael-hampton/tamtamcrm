@@ -14,7 +14,7 @@ export default function ErrorLog (props) {
             <ListGroupItem>
                 <a id="toggler" className="btn collapsed w-100" data-toggle="collapse" href="#collapseExample1">
                     <div className="d-flex w-100 justify-content-between">
-                        <h5 className="mb-1">{`${translations[errorLogModel.category]} › ${translations[errorLogModel.entity]}`}
+                        <h5 className="mb-1">{`${translations[errorLogModel.category]} › ${translations[errorLogModel.entity.toLowerCase()]}`}
                         </h5>
                         <span><i className={`fa ${icon}`}/></span>
                     </div>

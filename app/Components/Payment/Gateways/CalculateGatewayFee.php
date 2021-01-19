@@ -104,6 +104,7 @@ class CalculateGatewayFee
 
         if (!empty($charge)) {
             $amount += $charge;
+
             $this->addFeeToInvoice($charge, $add_fee_to_invoice);
         }
 

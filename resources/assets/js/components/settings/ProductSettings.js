@@ -13,6 +13,7 @@ class ProductSettings extends Component {
 
         this.state = {
             id: localStorage.getItem('account_id'),
+            cached_settings: {},
             settings: {},
             success: false,
             error: false
@@ -38,7 +39,8 @@ class ProductSettings extends Component {
 
             this.setState({
                 loaded: true,
-                settings: response.settings
+                settings: response.settings,
+                cached_settings: response.settings
             }, () => {
                 console.log(response)
             })
@@ -72,7 +74,7 @@ class ProductSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true })
+                this.setState({ success: true, cached_settings: this.state.settings })
             })
             .catch((error) => {
                 console.error(error)
@@ -206,6 +208,10 @@ class ProductSettings extends Component {
         }))
     }
 
+    handleCancel () {
+        this.setState({ settings: this.state.cached_settings })
+    }
+
     handleClose () {
         this.setState({ success: false, error: false })
     }
@@ -219,7 +225,8 @@ class ProductSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={translations.settings_not_saved}/>
 
-                <Header title={translations.product_settings} handleSubmit={this.handleSubmit}/>
+                <Header title={translations.product_settings} handleCancel={this.handleCancel.bind(this)}
+                    handleSubmit={this.handleSubmit}/>
 
                 <div className="settings-container settings-container-narrow fixed-margin-extra">
                     <Card>

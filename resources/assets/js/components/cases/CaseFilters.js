@@ -7,9 +7,10 @@ import CustomerDropdown from '../common/dropdowns/CustomerDropdown'
 import CaseCategoryDropdown from '../common/dropdowns/CaseCategoryDropdown'
 import CasePriorityDropdown from '../common/dropdowns/CasePriorityDropdown'
 import StatusDropdown from '../common/StatusDropdown'
-import { caseLinkTypes, casePriorities, caseStatuses, consts } from '../utils/_consts'
+import { caseLinkTypes, casePriorities, consts } from '../utils/_consts'
 import { translations } from '../utils/_translations'
 import CsvImporter from '../common/CsvImporter'
+import { caseStatuses } from "../utils/_statuses";
 
 export default class CaseFilters extends Component {
     constructor (props) {

@@ -2,8 +2,10 @@ import { Badge } from 'reactstrap'
 import React from 'react'
 import FormatMoney from '../common/FormatMoney'
 import FormatDate from '../common/FormatDate'
-import { frequencyOptions, recurringQuoteStatusColors, recurringQuoteStatuses } from '../utils/_consts'
+import { frequencyOptions } from '../utils/_consts'
 import { translations } from '../utils/_translations'
+import { recurringQuoteStatusColors } from '../utils/_colors'
+import { recurringQuoteStatuses } from '../utils/_statuses'
 
 export function getDefaultTableFields () {
     return [

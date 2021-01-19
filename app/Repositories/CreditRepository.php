@@ -64,6 +64,7 @@ class CreditRepository extends BaseRepository implements CreditRepositoryInterfa
         $credit = $this->formatNotes($credit);
         $credit = $credit->service()->calculateInvoiceTotals();
         $credit->setNumber();
+        $credit->setExchangeRate();
 
         $credit->save();
 

@@ -102,8 +102,6 @@ export default class InvoiceModel extends BaseModel {
         this.sent = consts.invoice_status_sent
         this.partial = consts.invoice_status_partial
 
-        this.customer = null
-
         if (data !== null) {
             this._fields = { ...this.fields, ...data }
 
@@ -149,6 +147,24 @@ export default class InvoiceModel extends BaseModel {
 
     set customer (customer) {
         this._customer = customer
+    }
+
+    get default_notes () {
+        if (!this.customer) {
+            return ''
+        }
+
+        return this.customer.public_notes || ''
+    }
+
+    get default_terms () {
+        const merged_settings = this.merged_settings
+        return merged_settings.invoice_terms || ''
+    }
+
+    get default_footer () {
+        const merged_settings = this.merged_settings
+        return merged_settings.invoice_footer || ''
     }
 
     get isViewed () {

@@ -19,8 +19,6 @@ export default class RecurringQuoteModel extends BaseModel {
 
         this._file_count = 0
 
-        this.customer = null
-
         if (data !== null && data.files) {
             this.fileCount = data.files
         }
@@ -150,6 +148,24 @@ export default class RecurringQuoteModel extends BaseModel {
 
     get id () {
         return this.fields.id
+    }
+
+    get default_notes () {
+        if (!this.customer) {
+            return ''
+        }
+
+        return this.customer.public_notes || ''
+    }
+
+    get default_terms () {
+        const merged_settings = this.merged_settings
+        return merged_settings.invoice_terms || ''
+    }
+
+    get default_footer () {
+        const merged_settings = this.merged_settings
+        return merged_settings.invoice_footer || ''
     }
 
     get url () {

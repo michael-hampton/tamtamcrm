@@ -3,8 +3,9 @@ import React from 'react'
 import FormatMoney from '../common/FormatMoney'
 import FormatDate from '../common/FormatDate'
 import PaymentModel from '../models/PaymentModel'
-import { paymentStatusColors, paymentStatuses } from '../utils/_consts'
 import { translations } from '../utils/_translations'
+import { paymentStatusColors } from '../utils/_colors'
+import { paymentStatuses } from '../utils/_statuses'
 
 export function getDefaultTableFields () {
     return [

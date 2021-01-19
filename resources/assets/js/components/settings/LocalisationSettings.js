@@ -6,6 +6,7 @@ import { translations } from '../utils/_translations'
 import FormBuilder from './FormBuilder'
 import SnackbarMessage from '../common/SnackbarMessage'
 import Header from './Header'
+import AccountRepository from '../repositories/AccountRepository'
 
 export default class LocalisationSettings extends Component {
     constructor (props) {
@@ -13,6 +14,7 @@ export default class LocalisationSettings extends Component {
 
         this.state = {
             id: localStorage.getItem('account_id'),
+            cached_settings: {},
             settings: {},
             first_month_of_year: null,
             first_day_of_week: null,
@@ -32,16 +34,20 @@ export default class LocalisationSettings extends Component {
     }
 
     getAccount () {
-        axios.get(`api/accounts/${this.state.id}`)
-            .then((r) => {
-                this.setState({
-                    loaded: true,
-                    settings: r.data.settings
-                })
+        const accountRepository = new AccountRepository()
+        accountRepository.getById(this.state.id).then(response => {
+            if (!response) {
+                alert('error')
+            }
+
+            this.setState({
+                loaded: true,
+                settings: response.settings,
+                cached_settings: response.settings
+            }, () => {
+                console.log(response)
             })
-            .catch((e) => {
-                this.setState({ error: true })
-            })
+        })
     }
 
     handleSettingsChange (event) {
@@ -55,12 +61,7 @@ export default class LocalisationSettings extends Component {
                     show_currency_code: value === 'code'
                 }
             }), () => {
-                const appState = JSON.parse(localStorage.getItem('appState'))
-                const account_id = appState.user.account_id
-                const index = appState.accounts.findIndex(account => account.account_id === parseInt(account_id))
-                appState.accounts[index].account.settings.show_currency_code = value === 'code'
-                localStorage.setItem('appState', JSON.stringify(appState))
-                console.log('user account', appState.accounts[index].account.settings.show_currency_code)
+                console.log('settings', this.state.settings)
             })
 
             return
@@ -72,14 +73,7 @@ export default class LocalisationSettings extends Component {
                 [name]: value
             }
         }), () => {
-            if (name === 'language_id') {
-                const appState = JSON.parse(localStorage.getItem('appState'))
-                const account_id = appState.user.account_id
-                const index = appState.accounts.findIndex(account => account.account_id === parseInt(account_id))
-                appState.accounts[index].account.settings.language_id = value
-                localStorage.setItem('appState', JSON.stringify(appState))
-                console.log('user account', appState.accounts[index].account.settings.language_id)
-            }
+            console.log('settings', this.state.settings)
         })
     }
 
@@ -147,7 +141,14 @@ export default class LocalisationSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true })
+                this.setState({ success: true, cached_settings: this.state.settings })
+                const appState = JSON.parse(localStorage.getItem('appState'))
+                const account_id = appState.user.account_id
+                const index = appState.accounts.findIndex(account => account.account_id === parseInt(account_id))
+                appState.accounts[index].account.settings.language_id = this.state.language_id
+                appState.accounts[index].account.settings.show_currency_code = this.state.currency_format === 'code'
+                localStorage.setItem('appState', JSON.stringify(appState))
+                console.log('user account', appState.accounts[index].account.settings.language_id)
             })
             .catch((error) => {
                 this.setState({ error: true })
@@ -156,6 +157,10 @@ export default class LocalisationSettings extends Component {
 
     handleChange (event) {
         this.setState({ [event.target.name]: event.target.value })
+    }
+
+    handleCancel () {
+        this.setState({ settings: this.state.cached_settings })
     }
 
     handleClose () {
@@ -190,7 +195,8 @@ export default class LocalisationSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={translations.settings_saved}/>
 
-                <Header title={translations.localisation_settings} handleSubmit={this.handleSubmit}/>
+                <Header title={translations.localisation_settings} handleCancel={this.handleCancel.bind(this)}
+                    handleSubmit={this.handleSubmit}/>
 
                 <div className="settings-container settings-container-narrow fixed-margin-extra">
                     <Card>

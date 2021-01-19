@@ -5,9 +5,10 @@ import TableSearch from '../common/TableSearch'
 import DateFilter from '../common/DateFilter'
 import CsvImporter from '../common/CsvImporter'
 import FilterTile from '../common/FilterTile'
-import { consts, invoiceStatuses } from '../utils/_consts'
+import { consts } from '../utils/_consts'
 import { translations } from '../utils/_translations'
 import StatusDropdown from '../common/StatusDropdown'
+import { invoiceStatuses } from "../utils/_statuses";
 
 export default class InvoiceFilters extends Component {
     constructor (props) {

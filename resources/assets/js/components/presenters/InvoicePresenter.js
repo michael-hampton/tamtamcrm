@@ -2,9 +2,11 @@ import { Badge } from 'reactstrap'
 import React from 'react'
 import FormatMoney from '../common/FormatMoney'
 import FormatDate from '../common/FormatDate'
-import { consts, invoiceStatusColors, invoiceStatuses } from '../utils/_consts'
+import { consts } from '../utils/_consts'
 import InvoiceModel from '../models/InvoiceModel'
 import { translations } from '../utils/_translations'
+import { invoiceStatuses } from '../utils/_statuses'
+import { invoiceStatusColors } from '../utils/_colors'
 
 export function getDefaultTableFields () {
     return [

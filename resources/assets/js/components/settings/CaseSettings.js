@@ -16,6 +16,7 @@ export default class CaseSettings extends Component {
         super(props)
 
         this.state = {
+            cached_settings: {},
             id: localStorage.getItem('account_id'),
             settings: {},
             activeTab: '1',
@@ -66,7 +67,8 @@ export default class CaseSettings extends Component {
 
             this.setState({
                 loaded: true,
-                settings: response.settings
+                settings: response.settings,
+                cached_settings: response.settings
             }, () => {
                 console.log(response)
             })
@@ -100,7 +102,7 @@ export default class CaseSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true })
+                this.setState({ success: true, cached_settings: this.state.settings })
             })
             .catch((error) => {
                 console.error(error)
@@ -165,6 +167,10 @@ export default class CaseSettings extends Component {
         return formFields
     }
 
+    handleCancel () {
+        this.setState({ settings: this.state.cached_settings })
+    }
+
     handleClose () {
         this.setState({ success: false, error: false })
     }
@@ -178,7 +184,7 @@ export default class CaseSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={translations.settings_not_saved}/>
 
-                <Header title={translations.case_settings} handleSubmit={this.handleSubmit}/>
+                <Header title={translations.case_settings} handleCancel={this.handleCancel.bind(this)} handleSubmit={this.handleSubmit}/>
 
                 <div className="settings-container settings-container-narrow fixed-margin-extra">
                     <Card>
