@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 
+import { icons } from 'utils/_icons'
+
 import {
     Button,
     Card,
@@ -24,6 +26,7 @@ class Login extends Component {
         console.log('props', props)
 
         this.state = {
+            loading: false,
             email: '',
             password: '',
             error: '',
@@ -47,6 +50,7 @@ class Login extends Component {
     onSocialClick (param, e) {
         window.location.assign(`auth/${param}`)
         this.setState({
+            loading: true,
             isLoading: true
         })
     }
@@ -61,6 +65,8 @@ class Login extends Component {
         if (!this.state.password) {
             return this.setState({ error: 'Password is required' })
         }
+
+        this.setState({loading: true})
 
         axios.post('/api/login', {
             email: this.state.email,
@@ -164,15 +170,19 @@ class Login extends Component {
                                             </InputGroup>
                                             <Row>
                                                 <Col xs="6">
-                                                    <Button type="submit" color="primary"
+                                                    <Button disabled={this.state.loading} type="submit" color="primary"
                                                         className="px-4">Login</Button>
+                                                    {this.state.loading &&
+                                                        <span style={{ fontSize: '36px' }} className={`fa ${icons.spinner}`}/>
+                                                    }
                                                 </Col>
                                                 <Col xs="6" className="text-right">
                                                     <Button color="link" className="px-0">Forgot password?</Button>
                                                 </Col>
                                             </Row>
-
-                                            <a onClick={this.onSocialClick.bind(this, 'google')}
+    
+                                            {!this.state.loading &&
+                                             <a onClick={this.onSocialClick.bind(this, 'google')}
                                                 style={{
                                                     marginTop: '0px !important',
                                                     background: 'green',
@@ -183,6 +193,7 @@ class Login extends Component {
                                                 className="ml-2 btn-google">
                                                 <strong>Login With Google</strong>
                                             </a>
+                                            }
                                         </Form>
                                     </CardBody>
                                 </Card>
