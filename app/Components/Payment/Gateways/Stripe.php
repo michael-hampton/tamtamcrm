@@ -142,6 +142,8 @@ class Stripe extends BasePaymentGateway
             $errors['param'] = $e->getError()->param;
             $errors['error_message'] = 'unexpected error';
         } catch (Exception $e) {
+            echo $e->getMessage();
+            die;
             // Something else happened, completely unrelated to Stripe
             $errors['error_status'] = $e->getHttpStatus();
             $errors['error_type'] = $e->getError()->type;

@@ -102,10 +102,10 @@ class BasePaymentGateway
      * @param array $errors
      * @return bool
      */
-    protected function triggerSuccess(User $user, array $errors): bool
+    protected function triggerSuccess(User $user, array $data): bool
     {
         $error_log = ErrorLogFactory::create($this->customer->account, $user, $this->customer);
-        $error_log->data = $errors['data'];
+        $error_log->data = $data;
         $error_log->error_type = ErrorLog::PAYMENT;
         $error_log->error_result = ErrorLog::SUCCESS;
         $error_log->entity = $this->company_gateway->gateway_key;
