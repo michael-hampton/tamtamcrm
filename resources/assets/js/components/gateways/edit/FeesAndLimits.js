@@ -14,7 +14,7 @@ export default class FeesAndLimits extends React.Component {
     }
 
     getSettingFieldsSectionOne () {
-        const settings = this.props.gateway.fees_and_limits.length ? this.props.gateway.fees_and_limits[0] : ''
+        const settings = this.props.gateway.charges.length ? this.props.gateway.charges[0] : ''
 
         return [
             [
@@ -39,7 +39,7 @@ export default class FeesAndLimits extends React.Component {
     }
 
     getSettingFieldsSectionTwo () {
-        const settings = this.props.gateway.fees_and_limits.length ? this.props.gateway.fees_and_limits[0] : ''
+        const settings = this.props.gateway.charges.length ? this.props.gateway.charges[0] : ''
 
         return [
             [

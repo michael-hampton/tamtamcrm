@@ -12,8 +12,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call(BankSeeder::class);
-        die;
+        //$this->call(BankSeeder::class);
         $this->call(PaymentTermsSeeder::class);
         $this->call(EventTypeSeeder::class);
         $this->call(SourceTypeSeeder::class);

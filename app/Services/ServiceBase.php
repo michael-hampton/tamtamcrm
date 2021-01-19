@@ -149,7 +149,7 @@ class ServiceBase
      * @return bool
      * @throws ReflectionException
      */
-    private function dispatchEmail(
+    protected function dispatchEmail(
         ContactInterface $contact,
         string $subject,
         string $body,

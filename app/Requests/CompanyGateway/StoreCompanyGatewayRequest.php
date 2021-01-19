@@ -30,12 +30,12 @@ class StoreCompanyGatewayRequest extends BaseFormRequest
     {
         $input = $this->all();
 
-        if (isset($input['config'])) {
-            $input['config'] = json_decode($input['config']);
+        if (isset($input['settings'])) {
+            $input['settings'] = json_decode($input['settings']);
         }
 
-        if (isset($input['fees_and_limits'])) {
-            $input['fees_and_limits'] = json_decode($input['fees_and_limits']);
+        if (isset($input['charges'])) {
+            $input['charges'] = json_decode($input['charges']);
         }
 
         $this->replace($input);

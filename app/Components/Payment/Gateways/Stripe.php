@@ -46,7 +46,7 @@ class Stripe extends BasePaymentGateway
 
     private function setupConfig()
     {
-        $config = $this->company_gateway->config;
+        $config = $this->company_gateway->settings;
 
         $this->stripe = new StripeClient(
             $config->apiKey
@@ -87,6 +87,8 @@ class Stripe extends BasePaymentGateway
                     'description'    => "{$invoice_label} Amount: {$amount} Customer: {$this->customer->name}",
                 ]
             );
+
+            $this->triggerSuccess($invoice->user, ['response' => $response]);
         } catch (CardException $e) {
             // Since it's a decline, \Stripe\Exception\CardException will be caught
             $errors['error_status'] = $e->getHttpStatus();
@@ -150,8 +152,6 @@ class Stripe extends BasePaymentGateway
         }
 
         if (!empty($errors)) {
-            echo '<pre>';
-            print_r($errors);
 
             $user = !empty($invoice) ? $invoice->user : $this->customer->user;
             $this->addErrorToLog($user, $errors);
@@ -228,6 +228,8 @@ class Stripe extends BasePaymentGateway
                 $payment->reference_number = $ref;
                 $payment->save();
 
+                $this->triggerSuccess($payment->user, ['response' => $response]);
+
                 return $payment->fresh();
             }
 
@@ -236,8 +238,6 @@ class Stripe extends BasePaymentGateway
                 []
             );
         } catch (Exception $e) {
-            echo $e->getMessage();
-            die;
             $errors['data']['error_message'] = $e->getMessage();
             $this->addErrorToLog($payment->user, $errors);
         }

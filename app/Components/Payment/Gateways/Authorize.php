@@ -66,6 +66,8 @@ class Authorize extends BasePaymentGateway
 
                 if ($tresponse != null && $tresponse->getMessages() != null) {
                     if ($invoice !== null) {
+                        $user = !empty($invoice) ? $invoice->user : $this->customer->user;
+                        $this->triggerSuccess($user, ['response' => $tresponse]);
                         return $this->completePayment($amount, $invoice, $tresponse->getTransId());
                     }
                 } else {
@@ -98,7 +100,7 @@ class Authorize extends BasePaymentGateway
 
     private function setupConfig()
     {
-        $gateway_config = $this->company_gateway->config;
+        $gateway_config = $this->company_gateway->settings;
 
         /* Create a merchantAuthenticationType object with authentication details
         retrieved from the constants file */
@@ -136,6 +138,7 @@ class Authorize extends BasePaymentGateway
                 $tresponse = $response->getTransactionResponse();
 
                 if ($tresponse != null && $tresponse->getMessages() != null) {
+                    $this->triggerSuccess($payment->user, ['response' => $tresponse]);
                     return $payment->fresh();
                 }
             }

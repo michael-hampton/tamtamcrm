@@ -24,7 +24,7 @@ class CreatePaymentsTable extends Migration
             $table->unsignedInteger('status_id');
             $table->decimal('amount', 16, 4)->default(0.0000);
             $table->decimal('refunded', 16, 4)->default(0.0000);
-            $table->date('date')->nullable()->default('CURRENT_TIMESTAMP');
+            $table->date('date')->nullable();
             $table->string('reference_number')->nullable();
             $table->timestamps();
             $table->softDeletes();

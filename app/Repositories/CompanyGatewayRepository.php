@@ -53,8 +53,8 @@ class CompanyGatewayRepository extends BaseRepository
      */
     public function save(CompanyGateway $company_gateway, array $data): ?CompanyGateway
     {
-        if (!empty($data['fees_and_limits'])) {
-            $data['fees_and_limits'] = $this->saveFees($company_gateway, $data['fees_and_limits']);
+        if (!empty($data['charges'])) {
+            $data['charges'] = $this->saveFees($company_gateway, $data['charges']);
         }
 
         $company_gateway->fill($data);

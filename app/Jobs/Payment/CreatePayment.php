@@ -85,6 +85,10 @@ class CreatePayment implements ShouldQueue
         $order->payment_id = $payment->id;
         $order->save();
 
+        if ($charge_point === 'on_creation') {
+            $payment->service()->sendEmail();
+        }
+
         return $payment;
     }
 

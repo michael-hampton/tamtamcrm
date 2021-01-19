@@ -57,6 +57,8 @@ class InvoicePayment extends BasePaymentProcessor
 
         $this->save();
 
+        $this->payment->service()->sendEmail();
+
         return $this->payment;
     }
 

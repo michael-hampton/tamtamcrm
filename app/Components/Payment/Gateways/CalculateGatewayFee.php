@@ -66,13 +66,13 @@ class CalculateGatewayFee
         foreach ($gateways as $gateway) {
             $company_gateway = $gateway->company_gateway;
 
-            if (empty($company_gateway->fees_and_limits)) {
+            if (empty($company_gateway->charges)) {
                 continue;
             }
 
-            $fees_and_limits = $company_gateway->fees_and_limits[0];
+            $charge = $company_gateway->charges[0];
 
-            if ((!empty($fees_and_limits->min_limit) && $amount < $fees_and_limits->min_limit) || (!empty($fees_and_limits->max_limit) && $amount > $fees_and_limits->max_limit)) {
+            if ((!empty($charge->min_limit) && $amount < $charge->min_limit) || (!empty($charge->max_limit) && $amount > $charge->max_limit)) {
                 continue;
             }
 
@@ -90,35 +90,35 @@ class CalculateGatewayFee
      */
     private function calculateFee(CompanyGateway $company_gateway, float $amount, bool $add_fee_to_invoice)
     {
-        $fee = $company_gateway->fees_and_limits[0];
+        $charge = $company_gateway->charges[0];
 
-        $fee = (new GatewayCalculator($company_gateway))
+        $charge = (new GatewayCalculator($company_gateway))
             ->setSubTotal($amount)
-            ->setFeeAmount($fee->fee_amount)
-            ->setFeePercent($fee->fee_percent)
-            ->setTaxRate('tax_rate', !empty($fee->tax) ? $fee->tax : 0)
-            ->setTaxRate('tax_2', !empty($fee->tax_2) ? $fee->tax_2 : 0)
-            ->setTaxRate('tax_3', !empty($fee->tax_3) ? $fee->tax_3 : 0)
+            ->setFeeAmount($charge->fee_amount)
+            ->setFeePercent($charge->fee_percent)
+            ->setTaxRate('tax_rate', !empty($charge->tax) ? $charge->tax : 0)
+            ->setTaxRate('tax_2', !empty($charge->tax_2) ? $charge->tax_2 : 0)
+            ->setTaxRate('tax_3', !empty($charge->tax_3) ? $charge->tax_3 : 0)
             ->build()
             ->getFeeTotal();
 
-        if (!empty($fee)) {
-            $amount += $fee;
-            $this->addFeeToInvoice($fee, $add_fee_to_invoice);
+        if (!empty($charge)) {
+            $amount += $charge;
+            $this->addFeeToInvoice($charge, $add_fee_to_invoice);
         }
 
         return $amount;
     }
 
-    private function addFeeToInvoice($fee, bool $add_fee_to_invoice)
+    private function addFeeToInvoice($charge, bool $add_fee_to_invoice)
     {
-        if (empty($fee) || !$add_fee_to_invoice) {
+        if (empty($charge) || !$add_fee_to_invoice) {
             return true;
         }
 
-        $this->invoice_repo->save(['gateway_fee' => $fee], $this->invoice);
+        $this->invoice_repo->save(['gateway_fee' => $charge], $this->invoice);
 
-        return $fee;
+        return $charge;
     }
 
     /**

@@ -228,4 +228,17 @@ class Payment extends Model
         $this->applied -= $amount;
         $this->save();
     }
+
+    public function getUrl()
+    {
+        $url = $this->account->subdomain;
+
+        if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
+            $url = "http://" . $url;
+        }
+
+        $url = rtrim($url, '/') . '/portal/payments/' . $this->id;
+
+        return $url;
+    }
 }

@@ -87,7 +87,7 @@ class GatewayRefund extends BaseRefund
     {
         $gateway = Omnipay::create($company_gateway->gateway->provider);
 
-        $gateway->initialize((array)$company_gateway->config);
+        $gateway->initialize((array)$company_gateway->settings);
 
         $response = $gateway
             ->refund(

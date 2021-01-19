@@ -47,6 +47,7 @@ class PaypalExpress extends BasePaymentGateway
         $response = $this->gateway->capture($data)->send();
 
         if ($response->isSuccessful()) {
+            $this->triggerSuccess($payment->user, ['response' => $response]);
             // success
         } else {
             // error, maybe you took too long to capture the transaction
@@ -59,7 +60,7 @@ class PaypalExpress extends BasePaymentGateway
     {
         $this->gateway = Omnipay::create('PayPal_Express');
 
-        $this->gateway->initialize((array)$this->company_gateway->config);
+        $this->gateway->initialize((array)$this->company_gateway->settings);
 
         return $this->gateway;
     }
@@ -151,6 +152,7 @@ class PaypalExpress extends BasePaymentGateway
 
         if ($response->isSuccessful()) {
             // success
+            $this->triggerSuccess($invoice->user, ['response' => $response]);
         } else {
             // error, maybe you took too long to capture the transaction
             $errors['data']['message'] = $response->getMessage();

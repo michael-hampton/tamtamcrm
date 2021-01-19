@@ -42,7 +42,7 @@ export default class Gateway extends Component {
 
         const allFields = []
 
-        this.props.entity.fees_and_limits.map((settings, index) => {
+        this.props.entity.charges.map((settings, index) => {
             const fields = {}
 
             if (settings.fee_amount && settings.fee_amount > 0) {

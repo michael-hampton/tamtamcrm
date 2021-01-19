@@ -53,6 +53,8 @@ class CompleteOrderPayment
 
         $payment = $objGateway->capturePayment($payment);
 
+        $payment->service()->sendEmail();
+
         return $payment;
     }
 

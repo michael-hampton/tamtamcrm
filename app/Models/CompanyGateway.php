@@ -13,11 +13,11 @@ class CompanyGateway extends Model
 
     protected $casts = [
         //'fields'          => 'object',
-        'fees_and_limits' => 'object',
-        'config'          => 'object',
-        'updated_at'      => 'timestamp',
-        'created_at'      => 'timestamp',
-        'deleted_at'      => 'timestamp',
+        'charges'     => 'object',
+        'settings'   => 'object',
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
     ];
     protected $fillable = [
         'name',
@@ -26,8 +26,8 @@ class CompanyGateway extends Model
         'accepted_credit_cards',
         'require_cvv',
         'fields',
-        'config',
-        'fees_and_limits',
+        'settings',
+        'charges',
         'custom_value1',
         'custom_value2',
         'custom_value3',

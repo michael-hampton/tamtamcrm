@@ -24,7 +24,13 @@ class PaymentService extends ServiceBase
 
     public function sendEmail()
     {
-        return (new PaymentEmail($this->payment))->execute();
+        $subject = $this->payment->customer->getSetting('email_subject_payment');
+        $body = $this->payment->customer->getSetting('email_template_payment');
+
+        foreach ($this->payment->customer->contacts as $contact) {
+            $footer = ['link' => $this->payment->getUrl(), 'text' => trans('texts.view_payment')];
+            $this->dispatchEmail($contact, $subject, $body, 'email_template_payment', $footer);
+        }
     }
 
     public function generatePdf()

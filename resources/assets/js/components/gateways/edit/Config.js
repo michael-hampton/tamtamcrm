@@ -18,7 +18,7 @@ export default class Config extends Component {
     }
 
     getAuthorizeConfig () {
-        const settings = this.props.gateway.config
+        const settings = this.props.gateway.settings
 
         const formFields = [
             [
@@ -74,7 +74,7 @@ export default class Config extends Component {
     }
 
     getPaypalConfig () {
-        const settings = this.props.gateway.config
+        const settings = this.props.gateway.settings
 
         const formFields = [
             [
@@ -136,7 +136,7 @@ export default class Config extends Component {
     }
 
     getStripeConfig () {
-        const settings = this.props.gateway.config
+        const settings = this.props.gateway.settings
 
         const formFields = [
             [

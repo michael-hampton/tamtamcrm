@@ -21,8 +21,8 @@ class CreateCompanyGatewaysTable extends Migration
             $table->string('accepted_credit_cards', 100);
             $table->tinyInteger('require_cvv')->default(1);
             $table->tinyInteger('update_details')->nullable()->default(0);
-            $table->text('config');
-            $table->text('fees_and_limits');
+            $table->text('settings');
+            $table->text('charges');
             $table->timestamps();
             $table->softDeletes();
             $table->tinyInteger('exclude_from_checkout')->default(0);

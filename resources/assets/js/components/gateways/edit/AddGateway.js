@@ -32,8 +32,8 @@ class AddGateway extends React.Component {
         const name = e.target.name
         const value = e.target.value
         this.setState({
-            config: {
-                ...this.state.config,
+            settings: {
+                ...this.state.settings,
                 [name]: value
             }
         })
@@ -57,8 +57,8 @@ class AddGateway extends React.Component {
         const name = e.target.name
         let value = e.target.value
 
-        const fees_and_limits = [...this.state.fees_and_limits]
-        const item = { ...fees_and_limits[0] }
+        const charges = [...this.state.charges]
+        const item = { ...charges[0] }
 
         if (e.target.name === 'tax' || e.target.name === 'tax_2' || e.target.name === 'tax_3') {
             const tax_name = e.target.options[e.target.selectedIndex].getAttribute('data-name')
@@ -69,9 +69,9 @@ class AddGateway extends React.Component {
         }
 
         item[name] = value
-        fees_and_limits[0] = item
-        this.setState({ fees_and_limits }, () => {
-            console.log('fees', this.state.fees_and_limits)
+        charges[0] = item
+        this.setState({ charges }, () => {
+            console.log('fees', this.state.charges)
         })
     }
 
@@ -115,8 +115,8 @@ class AddGateway extends React.Component {
 
         const formData = new FormData()
         formData.append('accepted_credit_cards', Array.from(this.state.accepted_cards.keys()).join(','))
-        formData.append('fees_and_limits', JSON.stringify(this.state.fees_and_limits))
-        formData.append('config', JSON.stringify(this.state.config))
+        formData.append('charges', JSON.stringify(this.state.charges))
+        formData.append('settings', JSON.stringify(this.state.settings))
         formData.append('update_details', this.state.update_details === true ? 1 : 0)
         formData.append('gateway_key', this.state.gateway_key)
         formData.append('customer_id', this.props.customer_id)

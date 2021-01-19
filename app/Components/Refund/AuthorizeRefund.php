@@ -72,7 +72,7 @@ class AuthorizeRefund
 
     private function setupConfig()
     {
-        $config = $this->company_gateway->config;
+        $config = $this->company_gateway->settings;
 
         /* Create a merchantAuthenticationType object with authentication details
         retrieved from the constants file */

@@ -90,7 +90,25 @@ class BasePaymentGateway
         $error_log->data = $errors['data'];
         $error_log->error_type = ErrorLog::PAYMENT;
         $error_log->error_result = ErrorLog::FAILURE;
-        $error_log->entity = $this->company_gateway->id;
+        $error_log->entity = $this->company_gateway->gateway_key;
+
+        $error_log->save();
+
+        return true;
+    }
+
+    /**
+     * @param User $user
+     * @param array $errors
+     * @return bool
+     */
+    protected function triggerSuccess(User $user, array $errors): bool
+    {
+        $error_log = ErrorLogFactory::create($this->customer->account, $user, $this->customer);
+        $error_log->data = $errors['data'];
+        $error_log->error_type = ErrorLog::PAYMENT;
+        $error_log->error_result = ErrorLog::SUCCESS;
+        $error_log->entity = $this->company_gateway->gateway_key;
 
         $error_log->save();
 

@@ -60,6 +60,11 @@ export default class ErrorLogModel extends BaseModel {
     }
 
     get entity () {
+
+        if(this.fields.entity !== 'payment') {
+            return this.fields.entity
+        }
+
         switch (this.fields.entity) {
             case this.ENTITY_PAYPAL:
                 return 'paypal'
