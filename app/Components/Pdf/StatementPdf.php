@@ -55,23 +55,6 @@ class StatementPdf extends PdfBuilder
         return $this;
     }
 
-    private function buildTable($columns)
-    {
-        $tables = [];
-
-        $objInvoiceReport = (new InvoiceReport($this->entity, $this, $columns));
-        $objPaymentReport = (new PaymentReport($this->entity, $this, $columns));
-
-        $tables['invoice'] = $objInvoiceReport->buildStatement();
-
-        $this->totals['invoice'] = $objInvoiceReport->getTotals();
-        $this->totals['payment'] = $objPaymentReport->getTotals();
-
-        $tables['payment'] = $objPaymentReport->buildStatement();
-
-        return $tables;
-    }
-
     public function getTable($design)
     {
         $columns = $this->entity->account->settings->pdf_variables->statement_columns;
@@ -101,6 +84,23 @@ class StatementPdf extends PdfBuilder
 
 
         return $table_html;
+    }
+
+    private function buildTable($columns)
+    {
+        $tables = [];
+
+        $objInvoiceReport = (new InvoiceReport($this->entity, $this, $columns));
+        $objPaymentReport = (new PaymentReport($this->entity, $this, $columns));
+
+        $tables['invoice'] = $objInvoiceReport->buildStatement();
+
+        $this->totals['invoice'] = $objInvoiceReport->getTotals();
+        $this->totals['payment'] = $objPaymentReport->getTotals();
+
+        $tables['payment'] = $objPaymentReport->buildStatement();
+
+        return $tables;
     }
 
     public function getTotals()

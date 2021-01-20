@@ -146,7 +146,8 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         }
 
         if (isset($data['company_user'])) {
-            $account_id = !empty(auth()->user()) ? auth()->user()->account_user()->account_id : $user->domain->default_account_id;
+            $account_id = !empty(auth()->user()) ? auth()->user()->account_user(
+            )->account_id : $user->domain->default_account_id;
             $account = Account::find($account_id);
 
             $cu = AccountUser::whereUserId($user->id)->whereAccountId($account->id)->withTrashed()->first();

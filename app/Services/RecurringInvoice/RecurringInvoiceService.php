@@ -35,7 +35,13 @@ class RecurringInvoiceService extends ServiceBase
             $contact = $this->invoice->customer->primary_contact()->first();
         }
 
-        return CreatePdf::dispatchNow((new InvoicePdf($this->invoice, 'invoice')), $this->invoice, $contact, $update, 'invoice');
+        return CreatePdf::dispatchNow(
+            (new InvoicePdf($this->invoice, 'invoice')),
+            $this->invoice,
+            $contact,
+            $update,
+            'invoice'
+        );
     }
 
     public function calculateInvoiceTotals(): RecurringInvoice

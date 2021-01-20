@@ -109,146 +109,6 @@ class GenerateHtml
     }
 
     /**
-     * @param $entity
-     * @param $entity_string
-     * @param $design
-     * @param $html
-     * @return string|string[]
-     */
-    private function addCostsToPdf($entity, $entity_string, $design, $html)
-    {
-        if (in_array(
-                get_class($entity),
-                ['App\Models\Customer', 'App\Models\Task', 'App\Models\Cases', 'App\Models\Deal', 'App\Models\Lead']
-            ) || $entity_string === 'dispatch_note') {
-            $html = str_replace('$costs', '', $html);
-        } else {
-            $html = str_replace('$costs', $this->getSection('totals', $design->design), $html);
-        }
-
-        return $html;
-    }
-
-    /**
-     * @param $entity
-     * @param $entity_string
-     * @param $html
-     * @return string|string[]
-     */
-    private function addBuyButtonsToPdf($entity, $entity_string, $html)
-    {
-        if (get_class($entity) === 'App\Models\Invoice' && $entity->customer->getSetting(
-                'buy_now_links_enabled'
-            ) === true && $entity_string !== 'dispatch_note') {
-            $footer = str_replace(
-                '$pay_now_link',
-                '<a target="_blank" class="btn btn-primary" href="http://' . config(
-                    'taskmanager.app_domain'
-                ) . '/pay_now/' . $entity->number . '">Pay Now</a>',
-                $html
-            );
-        } else {
-            $footer = str_replace('$pay_now_link', '', $html);
-        }
-
-        return $footer;
-    }
-
-    /**
-     * @param $entity
-     * @param $entity_string
-     * @param $contact
-     * @param $settings
-     * @param $html
-     * @return string|string[]
-     */
-    private function addSignaturesToPdf($entity, $entity_string, $contact, $settings, $html)
-    {
-        if ($entity_string === 'dispatch_note') {
-            $html = str_replace('$signature_here', '', $html);
-            $html = str_replace('$client_signature_here', '', $html);
-
-            return $html;
-        }
-
-        $client_signature = $this->getClientSignature($entity, $contact);
-
-        if (in_array(get_class($entity), ['App\Models\Lead', 'App\Models\PurchaseOrder', 'App\Models\Customer'])) {
-            $signature = !empty($settings->email_signature) && $entity->account->settings->show_signature_on_pdf === true ? '<span style="margin-bottom: 20px; margin-top:20px">Your Signature</span> <br><br><br><img style="display:block; width:100px;height:100px;" id="base64image" src="' . $settings->email_signature . '"/>' : '';
-
-            $client_signature = !empty($client_signature) && $entity->account->settings->show_signature_on_pdf === true ? '<span style="margin-bottom: 20px">Client Signature</span> <br><br><br><img style="display:block; width:100px;height:100px;" id="base64image" src="' . $client_signature . '"/>' : '';
-        } else {
-            $signature = !empty($settings->email_signature) && $entity->customer->getSetting(
-                'show_signature_on_pdf'
-            ) === true ? '<span style="margin-bottom: 20px; margin-top:20px">Your Signature</span> <br><br><br><img style="display:block; width:100px;height:100px;" id="base64image" src="' . $settings->email_signature . '"/>' : '';
-
-            $client_signature = !empty($client_signature) && $entity->customer->getSetting(
-                'show_signature_on_pdf'
-            ) === true ? '<span style="margin-bottom: 20px">Client Signature</span> <br><br><br><img style="display:block; width:100px;height:100px;" id="base64image" src="' . $client_signature . '"/>' : '';
-        }
-
-        $html = str_replace('$signature_here', $signature, $html);
-        $html = str_replace('$client_signature_here', $client_signature, $html);
-
-        return $html;
-    }
-
-
-    /**
-     * @param $entity
-     * @param $contact
-     * @return string|null
-     */
-    private function getClientSignature($entity, $contact = null): ?string
-    {
-        if (!in_array(get_class($entity), ['App\Models\Invoice', 'App\Models\Quote'])) {
-            return null;
-        }
-
-        $invitations = $entity->invitations;
-
-        $selected_invitation = null;
-
-        if (!empty($contact)) {
-            $selected_invitation = $entity->invitations->where('contact_id', '=', $contact->id);
-        } else {
-            foreach ($invitations as $invitation) {
-                if (!empty($invitation->client_signature)) {
-                    $selected_invitation = $invitation;
-                    break;
-                }
-            }
-        }
-
-        if (!empty($selected_invitation->client_signature)) {
-            return $selected_invitation->client_signature;
-        }
-
-        return null;
-    }
-
-    /**
-     * @param $settings
-     * @param $html
-     * @return string|string[]
-     */
-    private function generateCustomCSS($settings, $html)
-    {
-        if ($settings->all_pages_header && $settings->all_pages_footer) {
-            $html = str_replace('header_class', 'header', $html);
-            $html = str_replace('footer_class', 'footer', $html);
-            $html = str_replace('header-space', 'header-margin', $html);
-        } elseif ($settings->all_pages_header && !$settings->all_pages_footer) {
-            $html = str_replace('header_class', 'header', $html);
-            $html = str_replace('header-space', 'header-margin', $html);
-        } elseif (!$settings->all_pages_header && $settings->all_pages_footer) {
-            $html = str_replace('footer_class', 'footer', $html);
-        }
-
-        return $html;
-    }
-
-    /**
      * @param $entity_string
      * @param $entity
      * @return bool
@@ -322,5 +182,144 @@ class GenerateHtml
             array_values($this->exported_variables),
             $design->{$section}
         );
+    }
+
+    /**
+     * @param $entity
+     * @param $entity_string
+     * @param $contact
+     * @param $settings
+     * @param $html
+     * @return string|string[]
+     */
+    private function addSignaturesToPdf($entity, $entity_string, $contact, $settings, $html)
+    {
+        if ($entity_string === 'dispatch_note') {
+            $html = str_replace('$signature_here', '', $html);
+            $html = str_replace('$client_signature_here', '', $html);
+
+            return $html;
+        }
+
+        $client_signature = $this->getClientSignature($entity, $contact);
+
+        if (in_array(get_class($entity), ['App\Models\Lead', 'App\Models\PurchaseOrder', 'App\Models\Customer'])) {
+            $signature = !empty($settings->email_signature) && $entity->account->settings->show_signature_on_pdf === true ? '<span style="margin-bottom: 20px; margin-top:20px">Your Signature</span> <br><br><br><img style="display:block; width:100px;height:100px;" id="base64image" src="' . $settings->email_signature . '"/>' : '';
+
+            $client_signature = !empty($client_signature) && $entity->account->settings->show_signature_on_pdf === true ? '<span style="margin-bottom: 20px">Client Signature</span> <br><br><br><img style="display:block; width:100px;height:100px;" id="base64image" src="' . $client_signature . '"/>' : '';
+        } else {
+            $signature = !empty($settings->email_signature) && $entity->customer->getSetting(
+                'show_signature_on_pdf'
+            ) === true ? '<span style="margin-bottom: 20px; margin-top:20px">Your Signature</span> <br><br><br><img style="display:block; width:100px;height:100px;" id="base64image" src="' . $settings->email_signature . '"/>' : '';
+
+            $client_signature = !empty($client_signature) && $entity->customer->getSetting(
+                'show_signature_on_pdf'
+            ) === true ? '<span style="margin-bottom: 20px">Client Signature</span> <br><br><br><img style="display:block; width:100px;height:100px;" id="base64image" src="' . $client_signature . '"/>' : '';
+        }
+
+        $html = str_replace('$signature_here', $signature, $html);
+        $html = str_replace('$client_signature_here', $client_signature, $html);
+
+        return $html;
+    }
+
+    /**
+     * @param $entity
+     * @param $contact
+     * @return string|null
+     */
+    private function getClientSignature($entity, $contact = null): ?string
+    {
+        if (!in_array(get_class($entity), ['App\Models\Invoice', 'App\Models\Quote'])) {
+            return null;
+        }
+
+        $invitations = $entity->invitations;
+
+        $selected_invitation = null;
+
+        if (!empty($contact)) {
+            $selected_invitation = $entity->invitations->where('contact_id', '=', $contact->id);
+        } else {
+            foreach ($invitations as $invitation) {
+                if (!empty($invitation->client_signature)) {
+                    $selected_invitation = $invitation;
+                    break;
+                }
+            }
+        }
+
+        if (!empty($selected_invitation->client_signature)) {
+            return $selected_invitation->client_signature;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param $entity
+     * @param $entity_string
+     * @param $html
+     * @return string|string[]
+     */
+    private function addBuyButtonsToPdf($entity, $entity_string, $html)
+    {
+        if (get_class($entity) === 'App\Models\Invoice' && $entity->customer->getSetting(
+                'buy_now_links_enabled'
+            ) === true && $entity_string !== 'dispatch_note') {
+            $footer = str_replace(
+                '$pay_now_link',
+                '<a target="_blank" class="btn btn-primary" href="http://' . config(
+                    'taskmanager.app_domain'
+                ) . '/pay_now/' . $entity->number . '">Pay Now</a>',
+                $html
+            );
+        } else {
+            $footer = str_replace('$pay_now_link', '', $html);
+        }
+
+        return $footer;
+    }
+
+    /**
+     * @param $settings
+     * @param $html
+     * @return string|string[]
+     */
+    private function generateCustomCSS($settings, $html)
+    {
+        if ($settings->all_pages_header && $settings->all_pages_footer) {
+            $html = str_replace('header_class', 'header', $html);
+            $html = str_replace('footer_class', 'footer', $html);
+            $html = str_replace('header-space', 'header-margin', $html);
+        } elseif ($settings->all_pages_header && !$settings->all_pages_footer) {
+            $html = str_replace('header_class', 'header', $html);
+            $html = str_replace('header-space', 'header-margin', $html);
+        } elseif (!$settings->all_pages_header && $settings->all_pages_footer) {
+            $html = str_replace('footer_class', 'footer', $html);
+        }
+
+        return $html;
+    }
+
+    /**
+     * @param $entity
+     * @param $entity_string
+     * @param $design
+     * @param $html
+     * @return string|string[]
+     */
+    private function addCostsToPdf($entity, $entity_string, $design, $html)
+    {
+        if (in_array(
+                get_class($entity),
+                ['App\Models\Customer', 'App\Models\Task', 'App\Models\Cases', 'App\Models\Deal', 'App\Models\Lead']
+            ) || $entity_string === 'dispatch_note') {
+            $html = str_replace('$costs', '', $html);
+        } else {
+            $html = str_replace('$costs', $this->getSection('totals', $design->design), $html);
+        }
+
+        return $html;
     }
 }

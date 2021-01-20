@@ -22,7 +22,8 @@ export default class Customer extends Component {
         this.state = {
             activeTab: '1',
             show_success: false,
-            gateways: []
+            gateways: [],
+            file_count: this.props.entity.files.length || 0
         }
 
         this.customerModel = new CustomerModel(this.props.entity)
@@ -123,7 +124,7 @@ export default class Customer extends Component {
                                 this.toggleTab('4')
                             }}
                         >
-                            {translations.documents} ({this.customerModel.fileCount})
+                            {translations.documents} ({this.state.file_count})
                         </NavLink>
                     </NavItem>
 
@@ -159,8 +160,10 @@ export default class Customer extends Component {
                                 <Card>
                                     <CardHeader> {translations.documents} </CardHeader>
                                     <CardBody>
-                                        <FileUploads entity_type="Customer" entity={this.props.entity}
-                                            user_id={this.props.entity.user_id}/>
+                                        <FileUploads updateCount={(count) => {
+                                            this.setState({ file_count: count })
+                                        }} entity_type="Customer" entity={this.props.entity}
+                                        user_id={this.props.entity.user_id}/>
                                     </CardBody>
                                 </Card>
                             </Col>

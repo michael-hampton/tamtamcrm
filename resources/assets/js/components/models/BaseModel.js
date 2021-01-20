@@ -32,7 +32,7 @@ export default class BaseModel {
         if (!this.customer || !this.customer.settings) {
             return this.settings
         }
-        
+
         return { ...this.settings, ...this.customer.settings }
     }
 

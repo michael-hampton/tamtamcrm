@@ -112,9 +112,15 @@ class FileUpload extends Component {
         })
             .then(response => { // then print response status
                 if (response.data && response.data.length) {
-                    response.data.map((file, index) => (
+                    let count = 0
+                    response.data.map((file, index) => {
                         this.props.addFile(file)
-                    ))
+                        count++
+                    })
+
+                    if (this.props.updateCount) {
+                        this.props.updateCount(count)
+                    }
                 }
 
                 this.setState({ selectedFile: [] })
@@ -174,21 +180,23 @@ class FileUpload extends Component {
                             </h6>
                         </a>
 
-                        <div className="form-group">
-                            <ToastContainer/>
-                            <Progress max="100" color="success"
-                                value={this.state.loaded}>{Math.round(this.state.loaded, 2)}%</Progress>
-                        </div>
-
                         {!!this.state.selectedFile.length &&
-                        <button type="button" className="btn btn-success btn-block col-4 pull-right"
-                            onClick={this.onClickHandler.bind(this)}>{translations.upload}
-                        </button>
-                        }
+                        <React.Fragment>
+                            <div className="form-group">
+                                <ToastContainer/>
+                                <Progress max="100" color="success"
+                                    value={this.state.loaded}>{Math.round(this.state.loaded, 2)}%</Progress>
+                            </div>
 
-                        <div className="Files">
-                            {file_list}
-                        </div>
+                            <button type="button" className="btn btn-success btn-block col-4 pull-right"
+                                onClick={this.onClickHandler.bind(this)}>{translations.upload}
+                            </button>
+
+                            <div className="Files">
+                                {file_list}
+                            </div>
+                        </React.Fragment>
+                        }
 
                         <hr className="mt-2 mb-5"/>
                     </div>

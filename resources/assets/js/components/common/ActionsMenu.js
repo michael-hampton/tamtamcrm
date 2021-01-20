@@ -28,7 +28,8 @@ export default class ActionsMenu extends Component {
                 <Dropdown tag="a" isOpen={this.state.isOpen} toggle={this.toggle}>
                     <DropdownToggle tag="a" className="menu-button">
                         <i id="actionsTooltip" style={{ cursor: 'pointer' }}
-                            className={`fa ${icons.ellipsis} ${this.props.show_list ? 'ml-2 mt-2' : 'mt-2 ml-2'}`} aria-hidden="true"
+                            className={`fa ${icons.ellipsis} ${this.props.show_list ? 'ml-2 mt-2' : 'mt-2 ml-2'}`}
+                            aria-hidden="true"
                             type="ellipsis"/>
                     </DropdownToggle>
                     <DropdownMenu persist={true}>

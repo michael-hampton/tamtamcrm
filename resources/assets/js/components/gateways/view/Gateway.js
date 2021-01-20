@@ -7,7 +7,7 @@ import ViewEntityHeader from '../../common/entityContainers/ViewEntityHeader'
 import FormatMoney from '../../common/FormatMoney'
 import FieldGrid from '../../common/entityContainers/FieldGrid'
 import PaymentRepository from '../../repositories/PaymentRepository'
-import ErrorLog from "../../customers/view/ErrorLog";
+import ErrorLog from '../../customers/view/ErrorLog'
 
 export default class Gateway extends Component {
     constructor (props) {

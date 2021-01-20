@@ -154,7 +154,6 @@ class Stripe extends BasePaymentGateway
         }
 
         if (!empty($errors)) {
-
             $user = !empty($invoice) ? $invoice->user : $this->customer->user;
             $this->addErrorToLog($user, $errors);
             Log::emergency($errors);

@@ -8,7 +8,7 @@ import FilterTile from '../common/FilterTile'
 import { consts } from '../utils/_consts'
 import { translations } from '../utils/_translations'
 import StatusDropdown from '../common/StatusDropdown'
-import { invoiceStatuses } from "../utils/_statuses";
+import { invoiceStatuses } from '../utils/_statuses'
 
 export default class InvoiceFilters extends Component {
     constructor (props) {

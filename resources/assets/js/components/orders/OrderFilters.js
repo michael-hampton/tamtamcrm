@@ -8,7 +8,7 @@ import FilterTile from '../common/FilterTile'
 import { translations } from '../utils/_translations'
 import { consts } from '../utils/_consts'
 import StatusDropdown from '../common/StatusDropdown'
-import { orderStatuses } from "../utils/_statuses";
+import { orderStatuses } from '../utils/_statuses'
 
 export default class OrderFilters extends Component {
     constructor (props) {

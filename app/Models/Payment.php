@@ -231,7 +231,7 @@ class Payment extends Model
 
     public function getUrl()
     {
-        $url = $this->account->subdomain;
+        $url = $this->account->portal_domain;
 
         if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
             $url = "http://" . $url;

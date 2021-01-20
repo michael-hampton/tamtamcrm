@@ -24,7 +24,7 @@ class ExpenseImporter extends BaseCsvImporter
         'expense_category_id' => 'expense category name',
         'company_id'          => 'company name',
         'customer_id'         => 'customer name',
-        'payment_method_id'     => 'payment type',
+        'payment_method_id'   => 'payment type',
         'reference_number'    => 'reference number',
         'project_id'          => 'project name',
         'date'                => 'date',

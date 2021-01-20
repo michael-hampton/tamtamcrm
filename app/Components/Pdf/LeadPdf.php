@@ -84,6 +84,39 @@ class LeadPdf extends PdfBuilder
         return $this;
     }
 
+    public function getTable($design, $entity_string, $entity)
+    {
+        $html = $design->task_table;
+
+        $entity_string = empty($entity_string) ? strtolower(
+            (new ReflectionClass($entity))->getShortName()
+        ) : $entity_string;
+
+        $task_columns = $this->getTableColumns($entity_string);
+
+        $table = $this->buildTable(
+            $task_columns
+        );
+
+        if (empty($table)) {
+            return true;
+        }
+
+        $table_html = str_replace(
+            ['$task_table_header', '$task_table_body'],
+            [$table['header'], $table['body']],
+            $html
+        );
+
+        return $table_html;
+    }
+
+    private function getTableColumns($entity_string)
+    {
+        $input_variables = json_decode(json_encode($this->entity->account->settings->pdf_variables), true);
+        return $input_variables['task_columns'];
+    }
+
     public function buildTable($columns)
     {
         $labels = $this->getLabels();
@@ -141,38 +174,5 @@ class LeadPdf extends PdfBuilder
         $table['header'] = strtr($table['header'], $labels);
 
         return $table;
-    }
-
-    public function getTable($design, $entity_string, $entity)
-    {
-        $html = $design->task_table;
-
-        $entity_string = empty($entity_string) ? strtolower(
-            (new ReflectionClass($entity))->getShortName()
-        ) : $entity_string;
-
-        $task_columns = $this->getTableColumns($entity_string);
-
-        $table = $this->buildTable(
-            $task_columns
-        );
-
-        if (empty($table)) {
-            return true;
-        }
-
-        $table_html = str_replace(
-            ['$task_table_header', '$task_table_body'],
-            [$table['header'], $table['body']],
-            $html
-        );
-
-        return $table_html;
-    }
-
-    private function getTableColumns($entity_string)
-    {
-        $input_variables = json_decode(json_encode($this->entity->account->settings->pdf_variables), true);
-        return $input_variables['task_columns'];
     }
 }

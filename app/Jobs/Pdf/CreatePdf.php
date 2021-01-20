@@ -11,7 +11,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
-use ReflectionClass;
 
 class CreatePdf implements ShouldQueue
 {

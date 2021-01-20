@@ -5,7 +5,7 @@ import axios from 'axios'
 import { translations } from '../utils/_translations'
 import SnackbarMessage from '../common/SnackbarMessage'
 import Header from './Header'
-import AccountRepository from "../repositories/AccountRepository";
+import AccountRepository from '../repositories/AccountRepository'
 
 class IntegrationSettings extends Component {
     constructor (props) {

@@ -17,7 +17,8 @@ export default class RecurringQuote extends Component {
             entity: this.props.entity,
             activeTab: '1',
             obj_url: null,
-            show_success: false
+            show_success: false,
+            file_count: this.props.entity.files.length || 0
         }
 
         this.quoteModel = new RecurringQuoteModel(this.state.entity)
@@ -125,7 +126,7 @@ export default class RecurringQuote extends Component {
                                 this.toggleTab('4')
                             }}
                         >
-                            {translations.documents} ({this.quoteModel.fileCount})
+                            {translations.documents} ({this.state.file_count})
                         </NavLink>
                     </NavItem>
 
@@ -167,8 +168,10 @@ export default class RecurringQuote extends Component {
                                 <Card>
                                     <CardHeader> {translations.documents} </CardHeader>
                                     <CardBody>
-                                        <FileUploads entity_type="RecurringQuote" entity={this.state.entity}
-                                            user_id={this.state.entity.user_id}/>
+                                        <FileUploads updateCount={(count) => {
+                                            this.setState({ file_count: count })
+                                        }} entity_type="RecurringQuote" entity={this.state.entity}
+                                        user_id={this.state.entity.user_id}/>
                                     </CardBody>
                                 </Card>
                             </Col>

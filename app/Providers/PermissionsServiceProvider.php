@@ -26,7 +26,7 @@ class PermissionsServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Permission::get()->map(
+        /*Permission::get()->map(
             function ($permission) {
                 Gate::define(
                     $permission->name,
@@ -38,7 +38,7 @@ class PermissionsServiceProvider extends ServiceProvider
                     }
                 );
             }
-        );
+        ); */
     }
 
 }

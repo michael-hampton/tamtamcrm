@@ -3,6 +3,7 @@
 namespace App\Transformations;
 
 use App\Models\Invitation;
+use ReflectionClass;
 
 class InvitationTransformable
 {
@@ -13,7 +14,7 @@ class InvitationTransformable
      */
     public function transformInvitation(Invitation $invitation)
     {
-        $key = (new \ReflectionClass($invitation->inviteable))->getShortName(
+        $key = (new ReflectionClass($invitation->inviteable))->getShortName(
         ) === 'PurchaseOrder' ? 'company_id' : 'customer_id';
 
         return [

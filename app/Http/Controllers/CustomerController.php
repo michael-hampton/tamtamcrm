@@ -186,7 +186,7 @@ class CustomerController extends Controller
      */
     public function register(CustomerRegistrationRequest $request)
     {
-        $account = Account::where('subdomain', '=', $request->input('subdomain'))->firstOrFail();
+        $account = Account::where('portal_domain', '=', $request->input('portal_domain'))->firstOrFail();
         $token_sent = request()->bearerToken();
         $token = CompanyToken::whereToken($token_sent)->first();
         $user = $token->user;

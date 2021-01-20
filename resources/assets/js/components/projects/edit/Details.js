@@ -1,5 +1,5 @@
 import React from 'react'
-import { FormGroup, Input, Label, Row, Col } from 'reactstrap'
+import { Col, FormGroup, Input, Label, Row } from 'reactstrap'
 import CustomerDropdown from '../../common/dropdowns/CustomerDropdown'
 import { translations } from '../../utils/_translations'
 import UserDropdown from '../../common/dropdowns/UserDropdown'

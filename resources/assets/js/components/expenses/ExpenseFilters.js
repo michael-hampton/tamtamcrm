@@ -8,7 +8,7 @@ import CsvImporter from '../common/CsvImporter'
 import FilterTile from '../common/FilterTile'
 import ExpenseCategoryDropdown from '../common/dropdowns/ExpenseCategoryDropdown'
 import StatusDropdown from '../common/StatusDropdown'
-import { expenseStatuses } from "../utils/_statuses";
+import { expenseStatuses } from '../utils/_statuses'
 
 export default class ExpenseFilters extends Component {
     constructor (props) {

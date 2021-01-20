@@ -51,16 +51,6 @@ class PdfBuilder
         $this->setEntity();
     }
 
-    public function setEntity()
-    {
-        $title = join(' ', preg_split('/(?=[A-Z])/', (new ReflectionClass($this->entity))->getShortName()));
-
-        $this->data['$entity_label'] = [
-            'value' => '',
-            'label' => $title
-        ];
-    }
-
     public function buildContact($contact = null): self
     {
         if ($contact === null) {
@@ -805,6 +795,16 @@ class PdfBuilder
     public function getEntity()
     {
         return $this->entity;
+    }
+
+    public function setEntity()
+    {
+        $title = join(' ', preg_split('/(?=[A-Z])/', (new ReflectionClass($this->entity))->getShortName()));
+
+        $this->data['$entity_label'] = [
+            'value' => '',
+            'label' => $title
+        ];
     }
 
     protected function checkIfEmpty(array $line_items, $type = null): array

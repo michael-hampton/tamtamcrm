@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios'
-import { Collapse, Progress, Spinner, Table, ListGroup } from 'reactstrap'
+import { Collapse, ListGroup, Progress, Spinner, Table } from 'reactstrap'
 import PaginationBuilder from './PaginationBuilder'
 import TableSort from './TableSort'
 import ViewEntity from './ViewEntity'

@@ -15,7 +15,8 @@ export default class PurchaseOrder extends Component {
             entity: this.props.entity,
             activeTab: '1',
             obj_url: null,
-            show_success: false
+            show_success: false,
+            file_count: this.props.entity.files.length || 0
         }
 
         this.purchaseOrderModel = new PurchaseOrderModel(this.state.entity)
@@ -100,7 +101,7 @@ export default class PurchaseOrder extends Component {
                                 this.toggleTab('3')
                             }}
                         >
-                            {translations.documents} ({this.purchaseOrderModel.fileCount})
+                            {translations.documents} ({this.state.file_count})
                         </NavLink>
                     </NavItem>
 
@@ -136,8 +137,10 @@ export default class PurchaseOrder extends Component {
                                 <Card>
                                     <CardHeader> {translations.documents} </CardHeader>
                                     <CardBody>
-                                        <FileUploads entity_type="PurchaseOrder" entity={this.state.entity}
-                                            user_id={this.state.entity.user_id}/>
+                                        <FileUploads updateCount={(count) => {
+                                            this.setState({ file_count: count })
+                                        }} entity_type="PurchaseOrder" entity={this.state.entity}
+                                        user_id={this.state.entity.user_id}/>
                                     </CardBody>
                                 </Card>
                             </Col>

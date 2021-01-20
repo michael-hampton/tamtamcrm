@@ -12,6 +12,7 @@ export default class Case extends Component {
         this.state = {
             entity: this.props.entity,
             activeTab: '1',
+            file_count: this.props.entity.files.length || 0,
             obj_url: null,
             show_success: false
         }
@@ -85,7 +86,7 @@ export default class Case extends Component {
                                 this.toggleTab('2')
                             }}
                         >
-                            {translations.documents} ({this.caseModel.fileCount})
+                            {translations.documents} ({this.state.file_count})
                         </NavLink>
                     </NavItem>
                 </Nav>
@@ -101,8 +102,10 @@ export default class Case extends Component {
                                 <Card>
                                     <CardHeader>{translations.documents}</CardHeader>
                                     <CardBody>
-                                        <FileUploads entity_type="Cases" entity={this.state.entity}
-                                            user_id={this.state.entity.user_id}/>
+                                        <FileUploads updateCount={(count) => {
+                                            this.setState({ file_count: count })
+                                        }} entity_type="Cases" entity={this.state.entity}
+                                        user_id={this.state.entity.user_id}/>
                                     </CardBody>
                                 </Card>
                             </Col>

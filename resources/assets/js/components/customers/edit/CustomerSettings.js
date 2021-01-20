@@ -63,8 +63,7 @@ class CustomerSettings extends Component {
         }))
     }
 
-
-getCustomerPortalFields () {
+    getCustomerPortalFields () {
         const settings = this.state.settings
 
         return [

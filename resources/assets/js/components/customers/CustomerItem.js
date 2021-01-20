@@ -101,7 +101,7 @@ export default class CustomerItem extends Component {
                         }
                         {actionMenu}
                     </div>
-                    <ListGroupItem onClick={() => this.props.toggleViewedEntity(quote, quote.number, editButton)}
+                    <ListGroupItem onClick={() => this.props.toggleViewedEntity(customer, customer.name, editButton)}
                         key={index}
                         className={`border-top-0 list-group-item-action flex-column align-items-start ${list_class}`}>
                         <div className="d-flex w-100 justify-content-between">
@@ -125,7 +125,7 @@ export default class CustomerItem extends Component {
                         }
                         {actionMenu}
                     </div>
-                    <ListGroupItem onClick={() => this.props.toggleViewedEntity(quote, quote.number, editButton)}
+                    <ListGroupItem onClick={() => this.props.toggleViewedEntity(customer, customer.name, editButton)}
                         key={index}
                         className={`border-top-0 list-group-item-action flex-column align-items-start ${list_class}`}>
                         <div className="d-flex w-100 justify-content-between">

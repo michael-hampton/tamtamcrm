@@ -237,7 +237,8 @@ class Order extends Model
         return $this->number;
     }
 
-    public function setExchangeRate() {
+    public function setExchangeRate()
+    {
         $exchange_rate = $this->customer->getExchangeRate();
         $this->exchange_rate = !empty($exchange_rate) ? $exchange_rate : null;
         return true;

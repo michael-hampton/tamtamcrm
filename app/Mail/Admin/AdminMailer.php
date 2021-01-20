@@ -98,7 +98,7 @@ class AdminMailer extends Mailable
 
     protected function getUrl()
     {
-        $url = $this->entity->account->subdomain;
+        $url = $this->entity->account->portal_domain;
 
         if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
             $url = "http://" . $url;

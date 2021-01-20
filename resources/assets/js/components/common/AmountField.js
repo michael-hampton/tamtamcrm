@@ -12,7 +12,8 @@ export default class AmountField extends Component {
                 </InputGroupAddon>
                 }
 
-                <input className={`form-control w-100 ${this.props.hasErrorFor(this.props.name) ? 'is-invalid' : ''}`}
+                <input
+                    className={`form-control w-100 ${this.props.hasErrorFor(this.props.name) ? 'is-invalid' : ''}`}
                     name={this.props.name}
                     type="number" min="0.01" step="0.01" pattern="^\d*(\.\d{0,2})?$" onChange={this.props.onChange}
                     value={this.props.value}/>

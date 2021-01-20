@@ -131,7 +131,8 @@ class Company extends Model
         return true;
     }
 
-    public function getExchangeRate() {
+    public function getExchangeRate()
+    {
         $account_currency = $this->account->getCurrency();
         $customer_currency = $this->currency;
 

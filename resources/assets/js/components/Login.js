@@ -1,8 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 
-import { icons } from 'utils/_icons'
-
 import {
     Button,
     Card,
@@ -18,12 +16,11 @@ import {
     Row
 } from 'reactstrap'
 import queryString from 'query-string'
+import { icons } from './utils/_icons'
 
 class Login extends Component {
     constructor (props) {
         super(props)
-
-        console.log('props', props)
 
         this.state = {
             loading: false,
@@ -37,10 +34,6 @@ class Login extends Component {
         this.handleSubmit = this.handleSubmit.bind(this)
         this.onSocialClick = this.onSocialClick.bind(this)
         this.dismissError = this.dismissError.bind(this)
-    }
-
-    componentDidMount (props) {
-        console.log('property_id', props)
     }
 
     dismissError () {
@@ -66,7 +59,7 @@ class Login extends Component {
             return this.setState({ error: 'Password is required' })
         }
 
-        this.setState({loading: true})
+        this.setState({ loading: true })
 
         axios.post('/api/login', {
             email: this.state.email,
@@ -173,16 +166,17 @@ class Login extends Component {
                                                     <Button disabled={this.state.loading} type="submit" color="primary"
                                                         className="px-4">Login</Button>
                                                     {this.state.loading &&
-                                                        <span style={{ fontSize: '36px' }} className={`fa ${icons.spinner}`}/>
+                                                    <span style={{ fontSize: '36px' }}
+                                                        className={`fa ${icons.spinner}`}/>
                                                     }
                                                 </Col>
                                                 <Col xs="6" className="text-right">
                                                     <Button color="link" className="px-0">Forgot password?</Button>
                                                 </Col>
                                             </Row>
-    
+
                                             {!this.state.loading &&
-                                             <a onClick={this.onSocialClick.bind(this, 'google')}
+                                            <a onClick={this.onSocialClick.bind(this, 'google')}
                                                 style={{
                                                     marginTop: '0px !important',
                                                     background: 'green',

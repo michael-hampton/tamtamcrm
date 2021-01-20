@@ -35,6 +35,19 @@ trait CompanyGatewayTransformable
     }
 
     /**
+     * @param PaymentGateway $gateway
+     * @return array
+     */
+    public function transformGateway(PaymentGateway $gateway)
+    {
+        if (empty($gateway)) {
+            return [];
+        }
+
+        return (new GatewayTransformable)->transformGateway($gateway);
+    }
+
+    /**
      * @param $error_logs
      * @return array
      */
@@ -49,18 +62,5 @@ trait CompanyGatewayTransformable
                 return (new ErrorLogTransformable())->transformErrorLog($error_log);
             }
         )->all();
-    }
-
-    /**
-     * @param PaymentGateway $gateway
-     * @return array
-     */
-    public function transformGateway(PaymentGateway $gateway)
-    {
-        if (empty($gateway)) {
-            return [];
-        }
-
-        return (new GatewayTransformable)->transformGateway($gateway);
     }
 }

@@ -157,7 +157,7 @@ class ServiceBase
         array $footer,
         $invitation = null
     ) {
-        if (!$contact->send_email || !$contact->email) {
+        if (!$contact->email_notification_enabled || !$contact->email) {
             return false;
         }
 

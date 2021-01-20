@@ -12,7 +12,8 @@ export default class Menu extends Component {
                 <DropdownToggle tag="a" caret>
                     {translations.menu}
                 </DropdownToggle>
-                <DropdownMenu className="settings-menu" style={{ height: 'auto', maxHeight: '400px', overflowX: 'hidden' }}>
+                <DropdownMenu className="settings-menu"
+                    style={{ height: 'auto', maxHeight: '400px', overflowX: 'hidden' }}>
                     <DropdownItem header>{translations.basic_settings}</DropdownItem>
                     <MenuItem section="account-settings"/>
                     <MenuItem section="localisation-settings"/>

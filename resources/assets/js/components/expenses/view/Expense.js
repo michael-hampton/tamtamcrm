@@ -20,7 +20,8 @@ export default class Expense extends Component {
             categories: [],
             activeTab: '1',
             obj_url: null,
-            show_success: false
+            show_success: false,
+            file_count: this.props.entity.files.length || 0
         }
 
         this.expenseModel = new ExpenseModel(this.state.entity)
@@ -137,7 +138,7 @@ export default class Expense extends Component {
                                 this.toggleTab('2')
                             }}
                         >
-                            {translations.documents} ({this.expenseModel.fileCount})
+                            {translations.documents} ({this.state.file_count})
                         </NavLink>
                     </NavItem>
                 </Nav>
@@ -155,8 +156,10 @@ export default class Expense extends Component {
                                 <Card>
                                     <CardHeader>{translations.documents}</CardHeader>
                                     <CardBody>
-                                        <FileUploads entity_type="Expense" entity={this.state.entity}
-                                            user_id={this.state.entity.user_id}/>
+                                        <FileUploads updateCount={(count) => {
+                                            this.setState({ file_count: count })
+                                        }} entity_type="Expense" entity={this.state.entity}
+                                        user_id={this.state.entity.user_id}/>
                                     </CardBody>
                                 </Card>
                             </Col>

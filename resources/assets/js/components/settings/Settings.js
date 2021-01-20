@@ -29,6 +29,7 @@ class Settings extends Component {
         this.state = {
             id: this.props.match.params.add && this.props.match.params.add === 'true' ? null : localStorage.getItem('account_id'),
             loaded: false,
+            file_count: 0,
             cached_settings: {},
             settings: {},
             company_logo: null,
@@ -67,6 +68,7 @@ class Settings extends Component {
 
             this.setState({
                 loaded: true,
+                file_count: response.file_count,
                 settings: response.settings,
                 cached_settings: response.settings
             }, () => {
@@ -507,7 +509,7 @@ class Settings extends Component {
                     onClick={() => {
                         this.toggle('5')
                     }}>
-                    {translations.documents}
+                    {translations.documents} {this.state.file_count > 0 ? this.state.file_count : ''}
                 </NavLink>
             </NavItem>
         </Nav>
@@ -598,8 +600,10 @@ class Settings extends Component {
                             <Card>
                                 <CardHeader>{translations.default_documents}</CardHeader>
                                 <CardBody>
-                                    <FileUploads entity_type="Account" entity={this.state}
-                                        user_id={this.state.user_id}/>
+                                    <FileUploads updateCount={(count) => {
+                                        this.setState({ file_count: count })
+                                    }} entity_type="Account" entity={this.state}
+                                    user_id={this.state.user_id}/>
                                 </CardBody>
                             </Card>
                         </TabPane>

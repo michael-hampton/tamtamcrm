@@ -32,6 +32,7 @@ class CreateCompanyContactsTable extends Migration
             $table->string('custom_value4')->nullable();
             $table->unsignedInteger('customer_id');
             $table->string('password');
+            $table->tinyInteger('email_notification_enabled')->default(1);
         });
     }
 

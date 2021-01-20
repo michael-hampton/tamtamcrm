@@ -72,7 +72,7 @@ class Invitation extends Model
 
     public function getLink()
     {
-        return $this->account->subdomain . 'portal/' . $this->getSection() . '/' . $this->key;
+        return $this->account->portal_domain . 'portal/' . $this->getSection() . '/' . $this->key;
     }
 
     public function getSection($plural = false)

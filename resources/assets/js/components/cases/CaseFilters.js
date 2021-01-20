@@ -10,7 +10,7 @@ import StatusDropdown from '../common/StatusDropdown'
 import { caseLinkTypes, casePriorities, consts } from '../utils/_consts'
 import { translations } from '../utils/_translations'
 import CsvImporter from '../common/CsvImporter'
-import { caseStatuses } from "../utils/_statuses";
+import { caseStatuses } from '../utils/_statuses'
 
 export default class CaseFilters extends Component {
     constructor (props) {

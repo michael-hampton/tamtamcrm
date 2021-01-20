@@ -4,7 +4,7 @@ import Datepicker from '../../common/Datepicker'
 import PaymentTypeDropdown from '../../common/dropdowns/PaymentTypeDropdown'
 import CustomerDropdown from '../../common/dropdowns/CustomerDropdown'
 import { translations } from '../../utils/_translations'
-import AmountField from "../../common/AmountField";
+import AmountField from '../../common/AmountField'
 
 export default class Details extends React.Component {
     constructor (props) {

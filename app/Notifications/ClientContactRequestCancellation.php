@@ -32,12 +32,12 @@ class ClientContactRequestCancellation extends Notification implements ShouldQue
      */
 
     /**
-     * @var RecurringInvoice 
+     * @var RecurringInvoice
      */
     protected RecurringInvoice $recurring_invoice;
 
     /**
-     * @var CustomerContact 
+     * @var CustomerContact
      */
     protected CustomerContact $customer_contact;
 

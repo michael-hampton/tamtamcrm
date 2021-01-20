@@ -607,7 +607,8 @@ class EditInvoice extends Component {
                 public_notes={this.state.public_notes}
                 terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}
                 handleInput={this.handleInput}/>
-            : <Notes model={this.quoteModel} private_notes={this.state.private_notes} public_notes={this.state.public_notes}
+            : <Notes model={this.quoteModel} private_notes={this.state.private_notes}
+                public_notes={this.state.public_notes}
                 terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}
                 handleInput={this.handleInput}/>
 

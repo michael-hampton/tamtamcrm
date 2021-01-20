@@ -206,7 +206,8 @@ class PurchaseOrder extends Model
         return true;
     }
 
-    public function setExchangeRate() {
+    public function setExchangeRate()
+    {
         $exchange_rate = $this->company->getExchangeRate();
         $this->exchange_rate = !empty($exchange_rate) ? $exchange_rate : null;
         return true;

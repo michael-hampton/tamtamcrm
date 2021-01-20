@@ -13,7 +13,8 @@ export default class Deal extends Component {
             entity: this.props.entity,
             activeTab: '1',
             obj_url: null,
-            show_success: false
+            show_success: false,
+            file_count: this.props.entity.files.length || 0
         }
 
         this.dealModel = new DealModel(this.state.entity)
@@ -84,7 +85,7 @@ export default class Deal extends Component {
                                 this.toggleTab('2')
                             }}
                         >
-                            {translations.documents} ({this.dealModel.fileCount})
+                            {translations.documents} ({this.state.file_count})
                         </NavLink>
                     </NavItem>
                 </Nav>
@@ -101,8 +102,10 @@ export default class Deal extends Component {
                                 <Card>
                                     <CardHeader>{translations.documents}</CardHeader>
                                     <CardBody>
-                                        <FileUploads entity_type="Deal" entity={this.state.entity}
-                                            user_id={this.state.entity.user_id}/>
+                                        <FileUploads updateCount={(count) => {
+                                            this.setState({ file_count: count })
+                                        }} entity_type="Deal" entity={this.state.entity}
+                                        user_id={this.state.entity.user_id}/>
                                     </CardBody>
                                 </Card>
                             </Col>

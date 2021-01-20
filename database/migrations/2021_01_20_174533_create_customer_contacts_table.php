@@ -32,13 +32,8 @@ class CreateCustomerContactsTable extends Migration
             $table->tinyInteger('confirmed')->default(0);
             $table->dateTime('last_login')->nullable();
             $table->smallInteger('failed_logins')->nullable();
-            $table->string('accepted_terms_version')->nullable();
-            $table->string('avatar')->nullable();
-            $table->string('avatar_type')->nullable();
-            $table->string('avatar_size')->nullable();
             $table->string('password');
-            $table->tinyInteger('is_locked')->default(0);
-            $table->tinyInteger('send_email')->default(1);
+            $table->tinyInteger('email_notification_enabled')->default(1);
             $table->string('contact_key')->nullable();
             $table->rememberToken();
             $table->timestamps();

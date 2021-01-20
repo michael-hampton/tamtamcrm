@@ -6,7 +6,7 @@ import FilterTile from '../common/FilterTile'
 import DateFilter from '../common/DateFilter'
 import CsvImporter from '../common/CsvImporter'
 import StatusDropdown from '../common/StatusDropdown'
-import { recurringQuoteStatuses } from "../utils/_statuses";
+import { recurringQuoteStatuses } from '../utils/_statuses'
 
 export default class RecurringQuoteFilters extends Component {
     constructor (props) {

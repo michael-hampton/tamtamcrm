@@ -62,6 +62,7 @@ export default class FileUploads extends Component {
         return (
             <div className="col-12">
                 {<FileUploadForm
+                    updateCount={this.props.updateCount}
                     // entity={this.props.entity}
                     addFile={this.addFile}
                     hide_checkbox={this.props.hide_checkbox}

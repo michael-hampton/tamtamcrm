@@ -8,7 +8,7 @@ import CsvImporter from '../common/CsvImporter'
 import { translations } from '../utils/_translations'
 import { consts } from '../utils/_consts'
 import StatusDropdown from '../common/StatusDropdown'
-import { quoteStatuses } from "../utils/_statuses";
+import { quoteStatuses } from '../utils/_statuses'
 
 export default class QuoteFilters extends Component {
     constructor (props) {

@@ -184,7 +184,8 @@ export default class CaseSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={translations.settings_not_saved}/>
 
-                <Header title={translations.case_settings} handleCancel={this.handleCancel.bind(this)} handleSubmit={this.handleSubmit}/>
+                <Header title={translations.case_settings} handleCancel={this.handleCancel.bind(this)}
+                    handleSubmit={this.handleSubmit}/>
 
                 <div className="settings-container settings-container-narrow fixed-margin-extra">
                     <Card>

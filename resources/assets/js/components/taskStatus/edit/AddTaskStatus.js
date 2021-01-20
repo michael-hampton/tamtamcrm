@@ -6,7 +6,7 @@ import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
 import TaskStatusModel from '../../models/TaskStatusModel'
 import ColorPickerNew from '../../common/ColorPickerNew'
-import { taskTypes } from "../../utils/_consts";
+import { taskTypes } from '../../utils/_consts'
 
 class AddTaskStatus extends React.Component {
     constructor (props) {
@@ -91,7 +91,8 @@ class AddTaskStatus extends React.Component {
                         </FormGroup>
 
                         <FormGroup>
-                            <Label for="description">{translations.description} <span className="text-danger">*</span></Label>
+                            <Label for="description">{translations.description} <span
+                                className="text-danger">*</span></Label>
                             <Input className={this.hasErrorFor('description') ? 'is-invalid' : ''} type="text"
                                 name="description"
                                 id="name" placeholder={translations.description}

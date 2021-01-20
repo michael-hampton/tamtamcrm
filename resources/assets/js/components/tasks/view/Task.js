@@ -21,7 +21,8 @@ export default class Task extends Component {
             totalTime: 0,
             lastOn: false,
             lastStart: 0,
-            lastTime: 0
+            lastTime: 0,
+            file_count: this.props.entity.files.length || 0
         }
 
         this.taskModel = new TaskModel(this.state.entity)
@@ -179,7 +180,7 @@ export default class Task extends Component {
                                 this.toggleTab('2')
                             }}
                         >
-                            {translations.documents} ({this.taskModel.fileCount})
+                            {translations.documents} ({this.state.file_count})
                         </NavLink>
                     </NavItem>
                 </Nav>
@@ -198,8 +199,10 @@ export default class Task extends Component {
                                 <Card>
                                     <CardHeader>{translations.documents}</CardHeader>
                                     <CardBody>
-                                        <FileUploads entity_type="Task" entity={this.state.entity}
-                                            user_id={this.state.entity.user_id}/>
+                                        <FileUploads updateCount={(count) => {
+                                            this.setState({ file_count: count })
+                                        }} entity_type="Task" entity={this.state.entity}
+                                        user_id={this.state.entity.user_id}/>
                                     </CardBody>
                                 </Card>
                             </Col>

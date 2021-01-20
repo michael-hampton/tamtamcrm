@@ -156,7 +156,8 @@ class Customer extends Model implements HasLocalePreference
         );
     }
 
-    public function getExchangeRate() {
+    public function getExchangeRate()
+    {
         $account_currency = $this->account->getCurrency();
         $customer_currency = $this->currency;
 
