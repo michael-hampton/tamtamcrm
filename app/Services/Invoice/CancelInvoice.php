@@ -66,7 +66,7 @@ class CancelInvoice
         $this->invoice->transaction_service()->createTransaction(
             $old_balance,
             $this->invoice->customer->balance,
-            "Invoice cancellation"
+            "Invoice cancellation {$this->invoice->getNumber()}"
         );
 
         return $this->invoice;

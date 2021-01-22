@@ -28,7 +28,8 @@ class ReverseInvoicePayment
         $this->updateCustomer();
         $this->payment->transaction_service()->createTransaction(
             $this->payment->amount,
-            $this->payment->customer->balance
+            $this->payment->customer->balance,
+            "Payment Reversed {$this->payment->number}"
         );
         $this->payment->deletePayment();
 

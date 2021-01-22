@@ -119,7 +119,7 @@ class DeletePayment
         $invoice->transaction_service()->createTransaction(
             $invoice->total,
             $invoice->customer->balance,
-            'Payment Deletion'
+            "Payment Deletion {$invoice->getNumber()}"
         );
 
         return true;

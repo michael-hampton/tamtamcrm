@@ -30,6 +30,13 @@ export default function Contacts (props) {
                 </FormGroup>
                 }
 
+                {!props.hide_customer &&
+                <span>
+                    {this.props.customerName}
+                    <br/>{this.props.address}
+                </span>
+                }
+
                 {send_to}
             </CardBody>
         </Card>

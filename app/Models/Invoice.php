@@ -353,7 +353,11 @@ class Invoice extends Model
         $customer->save();
 
         if ($this->id) {
-            $this->transaction_service()->createTransaction($amount, $customer->balance);
+            $this->transaction_service()->createTransaction(
+                $amount,
+                $customer->balance,
+                "Customer Balance update for invoice {$this->getNumber()}"
+            );
         }
 
         return $customer;

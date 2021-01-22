@@ -148,7 +148,8 @@ class BasePaymentProcessor
 
         $this->payment->transaction_service()->createTransaction(
             $this->amount * -1,
-            $customer->balance
+            $customer->balance,
+            "Customer Payment {$this->payment->number}"
         );
 
         return $this;

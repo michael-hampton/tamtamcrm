@@ -90,7 +90,11 @@ class CreatePayment
         $customer->increasePaidToDateAmount($payment->amount);
         $customer->save();
 
-        $payment->transaction_service()->createTransaction($payment->amount * -1, $customer->balance);
+        $payment->transaction_service()->createTransaction(
+            $payment->amount * -1,
+            $customer->balance,
+            "Update customer balance {$this->invoice->getNumber()}"
+        );
 
         return $customer;
     }

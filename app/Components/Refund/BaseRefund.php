@@ -171,7 +171,11 @@ class BaseRefund
             $credit_note
         );
 
-        $credit_note->transaction_service()->createTransaction($this->amount, $credit_note->customer->balance);
+        $credit_note->transaction_service()->createTransaction(
+            $this->amount,
+            $credit_note->customer->balance,
+            "Credit Note refund for payment {$this->payment->number}"
+        );
 
         return $this;
     }
