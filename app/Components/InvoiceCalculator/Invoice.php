@@ -235,6 +235,16 @@ class Invoice extends BaseCalculator
     }
 
     /**
+     * @param float $balance
+     * @return $this
+     */
+    private function increaseAmountPaid(float $amount_paid): self
+    {
+        $this->amount_paid += $amount_paid;
+        return $this;
+    }
+
+    /**
      * @param float $total
      * @return $this
      */
