@@ -37,6 +37,7 @@ trait OrderTransformable
             'invitations'         => $this->transformOrderInvitations($order->invitations),
             'total'               => $order->total,
             'balance'             => (float)$order->balance,
+            'amount_paid'         => (float)$order->amount_paid,
             'sub_total'           => (float)$order->sub_total,
             'tax_total'           => (float)$order->tax_total,
             'status_id'           => (int)$order->status_id,
