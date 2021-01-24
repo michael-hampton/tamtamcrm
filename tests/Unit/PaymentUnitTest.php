@@ -115,6 +115,7 @@ class PaymentUnitTest extends TestCase
 
         $this->assertEquals($payment->customer->paid_to_date, ($original_paid_to_date - $original_amount));
         $this->assertEquals($invoice->balance, $original_amount);
+        $this->assertEquals($invoice->amount_paid, 0);
         $this->assertEquals($invoice->total, $original_amount);
         $this->assertEquals($invoice->status_id, Invoice::STATUS_SENT);
         $this->assertEquals($payment->status_id, Payment::STATUS_VOIDED);
@@ -145,6 +146,7 @@ class PaymentUnitTest extends TestCase
         $this->assertEquals($payment->customer->paid_to_date, ($customer_paid_to_date - $original_amount));
         $this->assertEquals($payment->customer->balance, ($customer_balance + $original_amount));
         $this->assertEquals($invoice->balance, $original_amount);
+        $this->assertEquals($invoice->amount_paid, 0);
     }
 
     public function it_can_archive_the_payment()
@@ -224,6 +226,7 @@ class PaymentUnitTest extends TestCase
         $this->assertEquals($created->customer->paid_to_date, ($paid_to_date + $invoice->balance));
         $this->assertEquals($data['customer_id'], $created->customer_id);
         $this->assertEquals($data['payment_method_id'], $created->payment_method_id);
+        $this->assertEquals($invoice->amount_paid, $created->amount);
     }
 
     /** @test */
@@ -266,6 +269,7 @@ class PaymentUnitTest extends TestCase
         $invoice = $invoice->fresh();
 
         $this->assertEquals($invoice->balance, 0);
+        $this->assertEquals($invoice->amount_paid, $created->amount);
     }
 
     /** @test */
@@ -308,6 +312,7 @@ class PaymentUnitTest extends TestCase
         $invoice = $payment->invoices()->first();
         $this->assertEquals($invoice->partial, 0);
         $this->assertEquals(($original_balance - 6), $invoice->balance);
+        $this->assertEquals($payment->amount, $invoice->amount_paid);
     }
 
     /** @test */
@@ -343,6 +348,7 @@ class PaymentUnitTest extends TestCase
 
         $this->assertNotNull($payment);
         $this->assertEquals(50, $payment->amount);
+        $this->assertEquals($credit->amount_paid, $payment->amount);
     }
 
     /** @test */
@@ -380,6 +386,7 @@ class PaymentUnitTest extends TestCase
 
         $invoice = $payment->invoices()->first();
         $this->assertEquals($invoice->partial, 3);
+        $this->assertEquals($invoice->amount_paid, $payment->amount);
         $this->assertEquals(($original_balance - 2), (float)$invoice->balance);
     }
 
@@ -499,6 +506,7 @@ class PaymentUnitTest extends TestCase
         );
 
         $this->assertEquals($invoice->balance, $invoice->total);
+        $this->assertEquals($invoice->amount_paid, ($invoice->amount_paid - $payment->refunded));
         $this->assertEquals($invoice->status_id, 2);
         $this->assertEquals($invoice->total, $payment->refunded);
         $this->assertEquals($original_customer_balance, $payment->customer->balance);
@@ -624,6 +632,7 @@ class PaymentUnitTest extends TestCase
         );
 
         $this->assertEquals($credit->balance, $credit->total);
+        $this->assertEquals($credit->amount_paid, ($credit->amount_paid - $payment->refunded));
         $this->assertEquals($credit->status_id, 2);
         $this->assertEquals($credit->total, $credit->pivot->refunded);
         $this->assertEquals(-$credit->total, $payment->refunded);
