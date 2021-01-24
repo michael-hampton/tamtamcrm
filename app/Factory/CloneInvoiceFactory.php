@@ -31,7 +31,7 @@ class CloneInvoiceFactory
         $clone_invoice->setNumber();
         $clone_invoice->setUser($user);
         $clone_invoice->setBalance($invoice->total);
-        $clone_invoice->amount_paid = 0;
+        $clone_invoice->setAmountPaid(0);
         $clone_invoice->setDueDate();
         $clone_invoice->gateway_fee = 0;
         $clone_invoice->gateway_fee_applied = 0;
