@@ -37,6 +37,7 @@ trait PurchaseOrderTransformable
             'invitations'         => $this->transformPurchaseOrderInvitations($po->invitations),
             'total'               => $po->total,
             'balance'             => (float)$po->balance,
+            'amount_paid'         => (float)$po->amount_paid,
             'sub_total'           => (float)$po->sub_total,
             'tax_total'           => (float)$po->tax_total,
             'status_id'           => (int)$po->status_id,
