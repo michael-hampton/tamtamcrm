@@ -35,6 +35,7 @@ trait RecurringQuoteTransformable
             'number_of_occurrances' => (int)$quote->number_of_occurrances,
             'is_never_ending'       => (bool)$quote->is_never_ending,
             'balance'               => (float)$quote->balance,
+            'amount_paid'           => (float)$quote->amount_paid,
             'total'                 => $quote->total,
             'sub_total'             => $quote->sub_total,
             'tax_total'             => $quote->tax_total,
