@@ -64,7 +64,7 @@ export default function Overview (props) {
     }
 
     return <React.Fragment>
-        <ViewEntityHeader heading_1={translations.paid_to_date} value_1={props.entity.paid_to_date}
+        <ViewEntityHeader heading_1={translations.amount_paid} value_1={props.entity.amount_paid}
             heading_2={translations.balance} value_2={props.entity.balance}/>
 
         {!!props.entity.private_notes.length &&

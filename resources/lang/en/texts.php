@@ -184,7 +184,7 @@ return [
     'credit_amount'                                        => 'Credit Amount',
     'balance_due'                                          => 'Balance Due',
     'customer_balance'                                     => 'Customer Balance',
-    'customer_paid_to_date'                                => 'Paid To Date',
+    'customer_amount_paid'                                => 'Paid To Date',
     'po_number'                                            => 'Po Number',
     'due_date'                                             => 'Due Date',
     'invoice_number'                                       => 'Invoice Number',

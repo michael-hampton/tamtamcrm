@@ -67,6 +67,11 @@ class ProcessReminders implements ShouldQueue
     {
         $message_sent = false;
 
+        if (!empty($invoice->late_fee_reminder) && $invoice->late_fee_reminder > 0) {
+            $this->processReminder($invoice, $invoice->late_fee_reminder);
+            return true;
+        }
+
         for ($counter = 1; $counter <= 3; $counter++) {
             $reminder_date = $invoice->date_to_send;
 
@@ -79,18 +84,25 @@ class ProcessReminders implements ShouldQueue
             }
 
             if (!$message_sent) {
-                $this->addCharge($invoice, $counter);
-
-                $this->sendEmail($invoice, "reminder{$counter}");
-
-                $this->updateNextReminderDate(
-                    $invoice,
-                    $invoice->customer->getSetting("scheduled_to_send_{$counter}"),
-                    $invoice->customer->getSetting("number_of_days_after_{$counter}")
-                );
+                $this->processReminder($invoice, $counter);
                 $message_sent = true;
             }
         }
+    }
+
+    private function processReminder(Invoice $invoice, $counter)
+    {
+        $this->addCharge($invoice, $counter);
+
+        $this->sendEmail($invoice, "reminder{$counter}");
+
+        $this->updateNextReminderDate(
+            $invoice,
+            $invoice->customer->getSetting("scheduled_to_send_{$counter}"),
+            $invoice->customer->getSetting("number_of_days_after_{$counter}")
+        );
+
+        return true;
     }
 
     /**

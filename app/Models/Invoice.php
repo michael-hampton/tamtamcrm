@@ -100,7 +100,6 @@ class Invoice extends Model
         'shipping_cost',
         'transaction_fee_tax',
         'shipping_cost_tax',
-        'previous_status',
         'design_id',
         'voucher_code',
         'commission_paid',
@@ -296,15 +295,41 @@ class Invoice extends Model
         $this->customer_id = (int)$customer->id;
     }
 
-    public function setPreviousStatus()
+    public function cacheData(): bool
     {
-        $this->previous_status = $this->status_id;
+        $cached_data = [
+            'balance'     => $this->balance,
+            'status_id'   => $this->status_id,
+            'amount_paid' => $this->amount_paid
+        ];
+
+        $this->cached_data = json_encode($cached_data);
+        $this->save();
+
+        return true;
     }
 
-    public function setPreviousBalance()
+    public function rewindCache(): bool
     {
-        $this->previous_balance = $this->balance;
+        $cached_data = json_decode($this->cached_data, true);
+
+        if (!empty($cached_data['balance'])) {
+            $this->updateCustomerBalance(floatval($cached_data['balance']));
+            $this->setBalance(floatval($cached_data['balance']));
+        }
+
+        $this->setStatus($cached_data['status_id']);
+
+        if (!empty($cached_data['amount_paid'])) {
+            $this->setAmountPaid($cached_data['amount_paid']);
+        }
+
+        $this->cached_data = null;
+        $this->save();
+
+        return true;
     }
+
 
     public function setNumber()
     {
@@ -349,7 +374,7 @@ class Invoice extends Model
      */
     public function updateCustomerBalance($amount): Customer
     {
-        $customer = $this->customer;
+        $customer = $this->customer->fresh();
         $customer->increaseBalance($amount);
         $customer->save();
 

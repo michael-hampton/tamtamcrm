@@ -51,7 +51,7 @@ class CompanyFactory extends Factory
             'deleted_at'       => null,
             'vat_number'       => null,
             'balance'          => null,
-            'paid_to_date'     => null,
+            'amount_paid'     => null,
             'number'           => null
         ];
     }

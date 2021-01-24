@@ -131,7 +131,7 @@ class DeletePayment
     private function updateCustomer(): bool
     {
         $customer = $this->payment->customer;
-        $customer->reducePaidToDateAmount($this->payment->amount);
+        $customer->reduceAmountPaid($this->payment->amount);
 
         return true;
     }

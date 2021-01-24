@@ -33,7 +33,7 @@ class CustomerFactory extends Factory
             'currency_id'   => 2,
             'private_notes' => $this->faker->text(200),
             'balance'       => 2020.22,
-            'paid_to_date'  => 0,
+            'amount_paid'  => 0,
             'custom_value1' => $this->faker->text(20),
             'custom_value2' => $this->faker->text(20),
             'custom_value3' => $this->faker->text(20),

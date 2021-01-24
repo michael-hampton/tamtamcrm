@@ -80,7 +80,7 @@ class CompleteOrderPayment
     private function updateCustomer(): Customer
     {
         $this->order->customer->reduceBalance($this->order->total);
-        $this->order->customer->increasePaidToDateAmount($this->order->total);
+        $this->order->customer->increaseAmountPaid($this->order->total);
         $this->order->customer->save();
 
         return $this->order->customer;

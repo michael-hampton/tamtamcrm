@@ -149,7 +149,7 @@ class BaseRefund
      */
     private function updateCustomer()
     {
-        $this->payment->customer->reducePaidToDateAmount($this->amount);
+        $this->payment->customer->reduceAmountPaid($this->amount);
         $this->payment->customer->increaseBalance($this->amount);
         $this->payment->customer->save();
         return $this;

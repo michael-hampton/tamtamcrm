@@ -4,6 +4,7 @@ namespace App\Jobs\Email;
 
 use App\Components\Pdf\InvoicePdf;
 use App\Components\Pdf\LeadPdf;
+use App\Components\Pdf\PurchaseOrderPdf;
 use App\Components\Pdf\TaskPdf;
 use App\Events\EmailFailedToSend;
 use App\Factory\EmailFactory;
@@ -71,6 +72,9 @@ class SendEmail implements ShouldQueue
                 break;
             case 'App\Models\Lead':
                 $objPdf = new LeadPdf($this->entity);
+                break;
+            case 'App\Models\PurchaseOrder':
+                $objPdf = new PurchaseOrderPdf($this->entity);
                 break;
             default:
                 $objPdf = new InvoicePdf($this->entity);

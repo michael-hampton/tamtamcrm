@@ -78,7 +78,7 @@ class ReverseInvoicePayment
     {
         $customer = $this->payment->customer;
         $customer->increaseBalance($this->payment->amount);
-        $customer->reducePaidToDateAmount($this->payment->amount);
+        $customer->reduceAmountPaid($this->payment->amount);
         $customer->save();
         return $customer;
     }

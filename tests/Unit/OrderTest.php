@@ -297,7 +297,8 @@ class OrderTest extends TestCase
         $order = $order->service()->cancelOrder();
         $this->assertInstanceOf(Order::class, $order);
         $this->assertEquals(Order::STATUS_CANCELLED, $order->status_id);
-        $this->assertEquals($original_status, $order->previous_status);
+        $cached_data = json_decode($order->cached_data, true);
+        $this->assertEquals($cached_data['status_id'], $original_status);
     }
 
     /** @test */
@@ -308,7 +309,7 @@ class OrderTest extends TestCase
         $order->customer_id = 5;
         $order->save();
         $original_customer_balance = $order->customer->balance;
-        $original_paid_to_date = $order->customer->paid_to_date;
+        $original_amount_paid = $order->customer->amount_paid;
 
         $account = $order->account;
         $settings = $account->settings;
@@ -342,7 +343,7 @@ class OrderTest extends TestCase
         $new_balance = $original_customer_balance < 0 ? ($original_customer_balance - ($order->total * -1)) : ($original_customer_balance - $order->total);
 
         $this->assertEquals($customer->balance, $new_balance);
-        $this->assertEquals($customer->paid_to_date, ($original_paid_to_date + $order->total));
+        $this->assertEquals($customer->amount_paid, ($original_amount_paid + $order->total));
         $this->assertEquals($payment->status_id, Payment::STATUS_COMPLETED);
         $this->assertEquals($invoice->status_id, Invoice::STATUS_PAID);
     }
@@ -354,7 +355,7 @@ class OrderTest extends TestCase
         $order->customer_id = 5;
         $order->save();
         $original_customer_balance = $order->customer->balance;
-        $original_paid_to_date = $order->customer->paid_to_date;
+        $original_amount_paid = $order->customer->amount_paid;
 
         $account = $order->account;
         $settings = $account->settings;
@@ -391,7 +392,7 @@ class OrderTest extends TestCase
         $this->assertEquals($order->total, $invoice->balance);
         $this->assertEquals($invoice->total, $order->total);
         $this->assertEquals($original_customer_balance, $customer->balance);
-        $this->assertEquals($original_paid_to_date, $customer->paid_to_date);
+        $this->assertEquals($original_amount_paid, $customer->amount_paid);
         $this->assertEquals($order->status_id, Order::STATUS_DRAFT);
         $this->assertEquals($invoice->status_id, Invoice::STATUS_SENT);
 
@@ -405,7 +406,7 @@ class OrderTest extends TestCase
 
         $this->assertEquals($payment->amount, $order->total);
         $this->assertEquals($customer->balance, $new_balance);
-        $this->assertEquals($customer->paid_to_date, ($original_paid_to_date + $order->total));
+        $this->assertEquals($customer->amount_paid, ($original_amount_paid + $order->total));
         $this->assertEquals($payment->status_id, Payment::STATUS_COMPLETED);
         $this->assertEquals($invoice->balance, 0);
         $this->assertEquals($invoice->status_id, Invoice::STATUS_PAID);

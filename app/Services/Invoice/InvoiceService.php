@@ -129,11 +129,9 @@ class InvoiceService extends ServiceBase
         }
 
         $this->invoice->date_cancelled = null;
+        $this->invoice->rewindCache();
 
-        parent::reverseStatus();
-        parent::reverseBalance();
-
-        return $this->invoice;
+        return $this->invoice->fresh();
     }
 
     /**

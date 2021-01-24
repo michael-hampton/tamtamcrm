@@ -83,7 +83,7 @@ class RecalculateInvoice
     private function updateInvoice(): Invoice
     {
         if ($this->payment_amount > $this->invoice->balance) {
-            return true;
+            return $this->invoice;
         }
 
         $balance_remaining = $this->invoice->balance - $this->payment_amount;

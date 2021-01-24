@@ -66,7 +66,7 @@ export default class CsvImporter extends Component {
             case 'discount_total':
             case 'tax_total':
             case 'sub_total':
-            case 'paid_to_date':
+            case 'amount_paid':
             case 'payment_date':
             case 'amount':
                 return formatMoney(value, data.customer_id || null, this.props.customers || [])

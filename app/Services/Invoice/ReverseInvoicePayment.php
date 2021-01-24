@@ -119,6 +119,7 @@ class ReverseInvoicePayment
 
             $payment->attachCredit($credit, $credit->total);
             $credit->reversePaymentsForCredit($total_paid);
+            $credit->reduceAmountPaid($total_paid);
         }
 
         return $credit;
@@ -131,8 +132,9 @@ class ReverseInvoicePayment
     private function updateCustomer(float $total_paid): bool
     {
         $customer = $this->invoice->customer;
+
         $customer->reduceBalance($this->balance);
-        $customer->reducePaidToDateAmount($total_paid);
+        $customer->reduceAmountPaid($total_paid);
         $customer->save();
 
         return true;
@@ -153,10 +155,10 @@ class ReverseInvoicePayment
     private function updateInvoice(): bool
     {
         $invoice = $this->invoice;
-        $this->invoice->setPreviousStatus();
-        $this->invoice->setPreviousBalance();
+        $this->invoice->cacheData();
         $this->invoice->setBalance(0);
         $this->invoice->setStatus(Invoice::STATUS_REVERSED);
+        $this->invoice->reduceAmountPaid($invoice->amount_paid);
         $this->invoice->save();
 
         event(new InvoiceWasReversed($invoice));

@@ -142,9 +142,9 @@ class CreatePayment implements ShouldQueue
 
             if ($complete_payment === true) {
                 $this->updateCustomer($payment, $amount);
-
                 $invoice->reduceBalance($amount);
                 $invoice->increaseAmountPaid($amount);
+                $invoice->save();
             }
 
             $payment->attachInvoice($invoice, $amount, true);
@@ -198,7 +198,7 @@ class CreatePayment implements ShouldQueue
     private function updateCustomer(Payment $payment, $amount)
     {
         $payment->customer->reduceBalance($amount);
-        $payment->customer->increasePaidToDateAmount($amount);
+        $payment->customer->increaseAmountPaid($amount);
         $payment->customer->save();
     }
 

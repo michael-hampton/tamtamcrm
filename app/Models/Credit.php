@@ -171,7 +171,6 @@ class Credit extends Model
     {
         $paymentable = $this->paymentables()->first();
         $paymentable->amount = $total_paid;
-        $paymentable->amount_paid += $total_paid;
         $paymentable->save();
 
         return true;
