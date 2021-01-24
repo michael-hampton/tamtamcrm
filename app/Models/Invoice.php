@@ -59,6 +59,7 @@ class Invoice extends Model
         'total',
         'order_id',
         'balance',
+        'amount_paid',
         'sub_total',
         'tax_total',
         'tax_rate',
