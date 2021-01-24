@@ -26,6 +26,7 @@ class RecurringQuoteToQuoteFactory
         $quote->setDueDate();
         $quote->setTotal($recurring_quote->total);
         $quote->setBalance($recurring_quote->total);
+        $quote->setAmountPaid(0);
         $quote->setUser($recurring_quote->user);
         $quote->setNumber();
 
