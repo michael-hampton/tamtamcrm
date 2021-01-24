@@ -66,6 +66,7 @@ class DeletePayment
             }
 
             $credit->increaseBalance($paymentable_credit->amount);
+            $credit->reduceAmountPaid($paymentable_credit->amount);
             $credit->setStatus($delete_status);
             $credit->save();
         }
@@ -100,8 +101,10 @@ class DeletePayment
             }
 
             $invoice->resetBalance($paymentable_invoice->amount);
+            $invoice->reduceAmountPaid($paymentable_invoice->amount);
             $invoice->customer->increaseBalance($paymentable_invoice->amount);
             $invoice->setStatus($delete_status);
+            $invoice->save();
 
             // create transaction
             $this->createTransaction($invoice);
