@@ -104,8 +104,8 @@ class PaymentUnitTest extends TestCase
 
         $paymentRepo = new PaymentRepository(new Payment);
         $payment = (new ProcessPayment())->process($data, $paymentRepo, $factory);
-        $original_paid_to_date = $payment->customer->paid_to_date;
-        $this->assertEquals($original_paid_to_date, $invoice->total);
+        $original_paid_to_date = $payment->customer->amount_paid;
+        $this->assertEquals($original_amount_paid, $invoice->total);
 
         $payment = $payment->fresh();
 
@@ -113,7 +113,7 @@ class PaymentUnitTest extends TestCase
 
         $invoice = $invoice->fresh();
 
-        $this->assertEquals($payment->customer->paid_to_date, ($original_paid_to_date - $original_amount));
+        $this->assertEquals($payment->customer->amount_paid, ($original_paid_to_date - $original_amount));
         $this->assertEquals($invoice->balance, $original_amount);
         $this->assertEquals($invoice->amount_paid, 0);
         $this->assertEquals($invoice->total, $original_amount);
@@ -141,9 +141,9 @@ class PaymentUnitTest extends TestCase
         $paymentRepo = new PaymentRepository(new Payment);
         $payment = (new ProcessPayment())->process($data, $paymentRepo, $factory);
         $customer_balance = $payment->customer->balance;
-        $customer_paid_to_date = $payment->customer->paid_to_date;
+        $customer_paid_to_date = $payment->customer->amount_paid;
         $payment = (new ReverseInvoicePayment($payment))->execute();
-        $this->assertEquals($payment->customer->paid_to_date, ($customer_paid_to_date - $original_amount));
+        $this->assertEquals($payment->customer->amount_paid, ($customer_paid_to_date - $original_amount));
         $this->assertEquals($payment->customer->balance, ($customer_balance + $original_amount));
         $this->assertEquals($invoice->balance, $original_amount);
         $this->assertEquals($invoice->amount_paid, 0);
@@ -207,7 +207,7 @@ class PaymentUnitTest extends TestCase
     {
         $invoice = Invoice::factory()->create();
         $factory = (new PaymentFactory())->create($this->customer, $this->user, $this->account);
-        $paid_to_date = $this->customer->paid_to_date;
+        $paid_to_date = $this->customer->amount_paid;
         $balance = $this->customer->balance;
 
         $data = [
@@ -223,7 +223,7 @@ class PaymentUnitTest extends TestCase
         $created = (new ProcessPayment())->process($data, $paymentRepo, $factory);
 
         $this->assertEquals((float)$created->customer->balance, ($balance - $invoice->balance));
-        $this->assertEquals($created->customer->paid_to_date, ($paid_to_date + $invoice->balance));
+        $this->assertEquals($created->customer->amount_paid, ($paid_to_date + $invoice->balance));
         $this->assertEquals($data['customer_id'], $created->customer_id);
         $this->assertEquals($data['payment_method_id'], $created->payment_method_id);
         $this->assertEquals($invoice->amount_paid, $created->amount);
@@ -262,7 +262,7 @@ class PaymentUnitTest extends TestCase
         $this->assertEquals($created->amount, $new_total);
 
         $this->assertEquals((float)$created->customer->balance, ($balance - $new_total));
-        $this->assertEquals($created->customer->paid_to_date, ($paid_to_date + $new_total));
+        $this->assertEquals($created->customer->amount_paid, ($paid_to_date + $new_total));
         $this->assertEquals($data['customer_id'], $created->customer_id);
         $this->assertEquals($data['payment_method_id'], $created->payment_method_id);
 
@@ -280,7 +280,7 @@ class PaymentUnitTest extends TestCase
         $invoice->partial = 5.0;
         $invoice->save();
 
-        $paid_to_date = $invoice->customer->paid_to_date;
+        $paid_to_date = $invoice->customer->amount_paid;
 
         (new InvoiceRepository(new Invoice))->markSent($invoice);
 
@@ -305,7 +305,7 @@ class PaymentUnitTest extends TestCase
         $payment = (new ProcessPayment())->process($data, $paymentRepo, $factory);
 
         $this->assertEquals($expected_balance, $payment->customer->balance);
-        $this->assertEquals($payment->customer->paid_to_date, (float)($paid_to_date + 6));
+        $this->assertEquals($payment->customer->amount_paid, (float)($paid_to_date + 6));
         $this->assertEquals($data['customer_id'], $payment->customer_id);
         $this->assertNotNull($payment->invoices());
         $this->assertEquals(1, $payment->invoices()->count());
@@ -465,7 +465,7 @@ class PaymentUnitTest extends TestCase
 
         (new InvoiceRepository(new Invoice))->markSent($invoice);
         $original_customer_balance = abs($invoice->customer->balance);
-        $original_paid_to_date = abs($invoice->customer->paid_to_date);
+        $original_paid_to_date = abs($invoice->customer->amount_paid);
 
         $account = $invoice->account;
         $settings = $account->settings;
@@ -511,14 +511,14 @@ class PaymentUnitTest extends TestCase
         $this->assertEquals($invoice->total, $payment->refunded);
         $this->assertEquals($original_customer_balance, $payment->customer->balance);
         $this->assertEquals(Payment::STATUS_REFUNDED, $payment->status_id);
-        $this->assertEquals($original_paid_to_date, $payment->customer->paid_to_date);
+        $this->assertEquals($original_paid_to_date, $payment->customer->amount_paid);
     }
 
     /** @test */
     public function testRefundClassWithoutInvoices()
     {
         $invoice = Invoice::factory()->create();
-        $original_paid_to_date = abs($invoice->customer->paid_to_date);
+        $original_paid_to_date = abs($invoice->customer->amount_paid);
 
         (new InvoiceRepository(new Invoice))->markSent($invoice);
         $original_customer_balance = $invoice->customer->balance;
@@ -558,7 +558,7 @@ class PaymentUnitTest extends TestCase
         $this->assertEquals($invoice->total, $payment->refunded);
         $this->assertEquals(Payment::STATUS_REFUNDED, $payment->status_id);
         $this->assertEquals($original_customer_balance, $payment->customer->balance);
-        $this->assertEquals($original_paid_to_date, $payment->customer->paid_to_date);
+        $this->assertEquals($original_paid_to_date, $payment->customer->amount_paid);
     }
 
     /** @test */
