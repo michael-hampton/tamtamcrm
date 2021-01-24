@@ -40,6 +40,7 @@ class InvoiceTransformable
             'invitations'          => $this->transformInvoiceInvitations($invoice->invitations),
             'total'                => $invoice->total,
             'balance'              => (float)$invoice->balance,
+            'amount_paid'          => (float)$invoice->amount_paid,
             'sub_total'            => (float)$invoice->sub_total,
             'tax_total'            => (float)$invoice->tax_total,
             'status_id'            => (int)$invoice->status_id,
