@@ -77,6 +77,7 @@ class CreatePayment implements ShouldQueue
 
         if ($charge_point === 'on_creation') {
             $order->reduceBalance($this->data['amount']);
+            $order->increaseAmountPaid($this->data['amount']);
             $order->payment_taken = true;
         }
 
@@ -143,6 +144,7 @@ class CreatePayment implements ShouldQueue
                 $this->updateCustomer($payment, $amount);
 
                 $invoice->reduceBalance($amount);
+                $invoice->increaseAmountPaid($amount);
             }
 
             $payment->attachInvoice($invoice, $amount, true);
@@ -235,6 +237,7 @@ class CreatePayment implements ShouldQueue
 
             $credit->reduceCreditBalance($credits_to_process[$credit->id]['amount']);
             $credit->reduceBalance($credits_to_process[$credit->id]['amount']);
+            $credit->increaseAmountPaid($credits_to_process[$credit->id]['amount']);
 
             $credit->setStatus(
                 (int)$credit->balance === 0 ? Credit::STATUS_APPLIED : Credit::STATUS_PARTIAL
