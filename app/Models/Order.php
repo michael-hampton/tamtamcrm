@@ -65,6 +65,7 @@ class Order extends Model
         'project_id',
         'total',
         'balance',
+        'amount_paid',
         'sub_total',
         'tax_total',
         'tax_rate',
