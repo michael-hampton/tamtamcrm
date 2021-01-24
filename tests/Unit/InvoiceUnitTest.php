@@ -144,6 +144,7 @@ class InvoiceUnitTest extends TestCase
         $invoice = $invoice->service()->createPayment($invoiceRepo, new PaymentRepository(new Payment));
 
         $this->assertEquals(0, $invoice->balance);
+        $this->assertEquals(200, $invoice->amount_paid);
 
         $this->assertEquals(1, count($invoice->payments));
         $payment = $invoice->payments->first();
@@ -408,6 +409,7 @@ class InvoiceUnitTest extends TestCase
 
         $this->assertEquals($invoice->customer->paid_to_date, ($client_paid_to_date + $invoice_balance));
         $this->assertEquals(0, $invoice->balance);
+        $this->assertEquals($invoice_total, $invoice->amount_paid);
         $this->assertEquals(Invoice::STATUS_PAID, $invoice->status_id);
 
         //$client_paid_to_date = $invoice->customer->paid_to_date;
@@ -419,6 +421,7 @@ class InvoiceUnitTest extends TestCase
 
         $this->assertEquals(Invoice::STATUS_REVERSED, $invoice->status_id);
         $this->assertEquals(0, $invoice->balance);
+        $this->assertEquals(0, $invoice->amount_paid);
 
         $new_customer_balance = $client_balance - ($invoice_total - $invoice_balance);
 
@@ -445,6 +448,7 @@ class InvoiceUnitTest extends TestCase
 
         $this->assertEquals(Invoice::STATUS_REVERSED, $invoice->status_id);
         $this->assertEquals(0, $invoice->balance);
+        $this->assertEquals(0, $invoice->amount_paid);
         $this->assertEquals($invoice->customer->paid_to_date, ($client_paid_to_date));
         $this->assertEquals($invoice->customer->balance, $client_balance);
     }
@@ -464,6 +468,7 @@ class InvoiceUnitTest extends TestCase
         $invoice = $invoice->service()->cancelInvoice();
 
         $this->assertEquals(0, $invoice->balance);
+        $this->assertEquals(0, $invoice->amount_paid);
         $this->assertEquals((float)$invoice->customer->fresh()->balance, (float)$client_balance);
         $this->assertEquals(Invoice::STATUS_CANCELLED, $invoice->status_id);
     }
@@ -498,6 +503,7 @@ class InvoiceUnitTest extends TestCase
 
         $this->assertEquals($invoice->customer->fresh()->paid_to_date, ($client_paid_to_date - $invoice_balance));
         $this->assertEquals(0, $invoice->balance);
+        $this->assertEquals(0, $invoice->amount_paid);
         $this->assertEquals($invoice->customer->fresh()->balance, 0);
         //$this->assertEquals(Invoice::STATUS_CANCELLED, $invoice->status_id);
         $this->assertTrue($invoice->trashed());
@@ -586,12 +592,14 @@ class InvoiceUnitTest extends TestCase
 
         $invoice->service()->cancelInvoice();
         $this->assertEquals(0, $invoice->balance);
+        $this->assertEquals(0, $invoice->amount_paid);
         $this->assertEquals(Invoice::STATUS_CANCELLED, $invoice->status_id);
         $this->assertEquals($customer_balance, $invoice->customer->fresh()->balance);
         $invoice->service()->reverseStatus();
 
         $this->assertEquals(Invoice::STATUS_SENT, $invoice->status_id);
         $this->assertEquals($previous_balance, $invoice->balance);
+        $this->assertEquals(0, $invoice->amount_paid);
         $this->assertNull($invoice->previous_status);
         $this->assertNull($invoice->previous_balance);
         $this->assertEquals($invoice->customer->fresh()->balance, $balance_with_invoice);
@@ -626,6 +634,7 @@ class InvoiceUnitTest extends TestCase
         $this->assertInstanceOf(Payment::class, $payment);
         $this->assertEquals((float)$payment->amount, $expected_amount);
         $this->assertEquals(0, $invoice->balance);
+        $this->assertEquals($expected_amount, $invoice->amount_paid);
     }
 
     /** @test */
@@ -666,6 +675,7 @@ class InvoiceUnitTest extends TestCase
         $this->assertNotNull($payment);
         $this->assertInstanceOf(Payment::class, $payment);
         $this->assertEquals((float)$payment->amount, $invoice->total);
+        $this->assertEquals((float)$payment->amount, $invoice->amount_paid);
         $this->assertEquals(0, $invoice->balance);
     }
 
