@@ -26,6 +26,7 @@ class CloneInvoiceToQuoteFactory
         $quote->setUser($invoice->user);
         $quote->setAccount($invoice->account);
         $quote->setTotal($invoice->total);
+        $quote->setAmountPaid(0);
         $quote->setStatus(Quote::STATUS_DRAFT);
         $quote->setNumber();
         $quote->setDueDate();
