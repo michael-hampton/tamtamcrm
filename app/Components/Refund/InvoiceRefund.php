@@ -50,6 +50,7 @@ class InvoiceRefund extends BaseRefund
             $this->createLineItem($payment_invoice['amount'], $invoice);
             $this->increaseRefundAmount($payment_invoice['amount']);
             $invoice->resetBalance($payment_invoice['amount']);
+            $invoice->reduceAmountPaid($payment_invoice['amount']);
         }
 
         $this->reduceCreditedAmount($objCreditRefund);
