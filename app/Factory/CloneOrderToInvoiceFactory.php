@@ -31,6 +31,7 @@ class CloneOrderToInvoiceFactory
         $invoice->setStatus(Invoice::STATUS_DRAFT);
         $invoice->setNumber();
         $invoice->setDueDate();
+        $invoice->setAmountPaid(0);
         $invoice->setBalance($order->total);
         $invoice->order_id = $order->id;
 
