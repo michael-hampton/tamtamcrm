@@ -69,6 +69,7 @@ class CreditRefund extends BaseRefund
     private function updateCreditNote($credit, $amount)
     {
         $credit->increaseBalance($amount);
+        $credit->reduceAmountPaid($amount);
         $credit->setStatus(Credit::STATUS_SENT);
         $credit->save();
 
