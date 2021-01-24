@@ -74,6 +74,7 @@ class CreatePayment
     private function updateInvoice(Payment $payment): Invoice
     {
         $this->invoice->reduceBalance($payment->amount);
+        $this->invoice->increaseAmountPaid($payment->amount);
         $this->invoice->setStatus(Invoice::STATUS_PAID);
         $this->invoice->save();
         return $this->invoice;
