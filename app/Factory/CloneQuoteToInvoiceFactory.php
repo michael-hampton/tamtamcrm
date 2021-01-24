@@ -31,6 +31,7 @@ class CloneQuoteToInvoiceFactory
         $invoice->setStatus(Invoice::STATUS_DRAFT);
         $invoice->setNumber();
         $invoice->setBalance($quote->total);
+        $invoice->setAmountPaid(0);
         $invoice->setDueDate();
 
         return $invoice;
