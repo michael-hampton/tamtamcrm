@@ -32,6 +32,7 @@ class CloneQuoteToOrderFactory
         $order->setNumber();
         $order->setDueDate();
         $order->setBalance($quote->total);
+        $order->setAmountPaid(0);
         $order->quote_id = $quote->id;
 
         return $order;
