@@ -60,7 +60,8 @@ class CreditPayment extends BasePaymentProcessor
         $status = $amount == $credit_balance ? Credit::STATUS_APPLIED : Credit::STATUS_PARTIAL;
         $credit->setStatus($status);
         $balance = floatval($amount * -1);
-        $credit->setBalance($credit_balance + $balance);
+        $credit->increaseBalance($balance);
+        $credit->increaseAmountPaid($balance);
         $credit->save();
 
         return true;
