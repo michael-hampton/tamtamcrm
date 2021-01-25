@@ -98,7 +98,6 @@ export default class InvoiceItem extends Component {
                     ? 'list-group-item-dark' : ''
 
                 if (!this.props.show_list) {
-                    alert(invoice.id)
                     return <tr className={selectedRow} key={index}>
                         <td>
                             {!!this.props.onChangeBulk &&

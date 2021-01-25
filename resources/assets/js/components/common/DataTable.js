@@ -421,7 +421,7 @@ export default class DataTable extends Component {
                 {table}
 
                 {this.props.view && <ViewEntity
-                    //updateState={this.props.updateState}
+                    updateState={this.props.updateState}
                     toggle={this.toggleViewedEntity}
                     title={this.state.view.title}
                     viewed={this.state.view.viewMode}

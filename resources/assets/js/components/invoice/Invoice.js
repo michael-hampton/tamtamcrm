@@ -66,10 +66,10 @@ export default class Invoice extends Component {
     }
 
     updateInvoice (invoices) {
-        // const cachedData = !this.state.cachedData.length ? invoices : this.state.cachedData
+        const cachedData = !this.state.cachedData.length ? invoices : this.state.cachedData
         this.setState({
-            invoices: invoices
-            // cachedData: cachedData
+            invoices: invoices,
+            cachedData: cachedData
         })
     }
 
