@@ -32,8 +32,7 @@ export default function Contacts (props) {
 
                 {!props.hide_customer &&
                 <span>
-                    {this.props.customerName}
-                    <br/>{this.props.address}
+                    {props.customerName}
                 </span>
                 }
 

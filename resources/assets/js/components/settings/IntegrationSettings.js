@@ -17,7 +17,8 @@ class IntegrationSettings extends Component {
             cached_settings: {},
             settings: {},
             success: false,
-            error: false
+            error: false,
+            changesMade: false
         }
 
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
@@ -27,7 +28,21 @@ class IntegrationSettings extends Component {
     }
 
     componentDidMount () {
+        window.addEventListener('beforeunload', this.beforeunload.bind(this))
         this.getAccount()
+    }
+
+    componentWillUnmount () {
+        window.removeEventListener('beforeunload', this.beforeunload.bind(this))
+    }
+
+    beforeunload (e) {
+        if (this.state.changesMade) {
+            if (!confirm(translations.changes_made_warning)) {
+                e.preventDefault()
+                return false
+            }
+        }
     }
 
     getAccount () {
@@ -56,6 +71,7 @@ class IntegrationSettings extends Component {
         const value = event.target.value
 
         this.setState(prevState => ({
+            changesMade: true,
             settings: {
                 ...prevState.settings,
                 [name]: value
@@ -74,7 +90,7 @@ class IntegrationSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true, cached_settings: this.state.settings })
+                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false })
             })
             .catch((error) => {
                 this.setState({ error: true })
@@ -106,7 +122,7 @@ class IntegrationSettings extends Component {
     }
 
     handleCancel () {
-        this.setState({ settings: this.state.cached_settings })
+        this.setState({ settings: this.state.cached_settings, changesMade: false })
     }
 
     handleClose () {
@@ -122,7 +138,8 @@ class IntegrationSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={this.state.settings_not_saved}/>
 
-                <Header title={translations.integration_settings} handleCancel={this.handleCancel.bind(this)}
+                <Header title={translations.integration_settings} cancelButtonDisabled={!this.state.changesMade}
+                    handleCancel={this.handleCancel.bind(this)}
                     handleSubmit={this.handleSubmit}/>
 
                 <div className="settings-container settings-container-narrow fixed-margin-extra">

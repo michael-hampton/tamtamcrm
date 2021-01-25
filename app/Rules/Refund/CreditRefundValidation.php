@@ -80,7 +80,7 @@ class CreditRefundValidation implements Rule
 
         // check allowed statuses here
         if (!$credit || $credit->is_deleted) {
-            $this->validationFailures[] = 'Invoice is not a valid invoice';
+            $this->validationFailures[] = trans('texts.invalid_invoice');
             return false;
         }
 
@@ -90,7 +90,7 @@ class CreditRefundValidation implements Rule
         }*/
 
         if (!in_array($credit->status_id, [Credit::STATUS_APPLIED])) {
-            $this->validationFailures[] = 'Credit is at the wrong status';
+            $this->validationFailures[] = trans('texts.invalid_credit_status');
             return false;
         }
 
@@ -108,7 +108,7 @@ class CreditRefundValidation implements Rule
         $allowed_credits = $this->payment->credits->pluck('id')->toArray();
 
         if (!in_array($arrCredit['credit_id'], $allowed_credits)) {
-            $this->validationFailures[] = 'Credit is invalid';
+            $this->validationFailures[] = trans('texts.invalid_payment_credit');
             return false;
         }
 
@@ -129,7 +129,7 @@ class CreditRefundValidation implements Rule
         }
 
         if ($this->customer->id !== $credit->customer->id) {
-            $this->validationFailures[] = 'Cannot create credit for different customers';
+            $this->validationFailures[] = trans('texts.invalid_refund_customer');
             return false;
         }
 

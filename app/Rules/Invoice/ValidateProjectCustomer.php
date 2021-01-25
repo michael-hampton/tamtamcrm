@@ -38,6 +38,6 @@ class ValidateProjectCustomer implements Rule
 
     public function message()
     {
-        return 'Invalid project used';
+        return trans('texts.invalid_project');
     }
 }

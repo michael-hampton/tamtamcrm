@@ -78,17 +78,17 @@ class CreditPaymentValidation implements Rule
 
         // check allowed statuses here
         if (!$credit || $credit->is_deleted) {
-            $this->validationFailures[] = 'Credit is not valid';
+            $this->validationFailures[] = trans('texts.invalid_payment_credit');
             return false;
         }
 
         if ($credit->balance <= 0 || $arrCredit['amount'] > $credit->balance) {
-            $this->validationFailures[] = 'Payment amount cannot be more that the invoice total';
+            $this->validationFailures[] = trans('texts.invalid_payment_amount');
             return false;
         }
 
         if (!in_array($credit->status_id, [Credit::STATUS_SENT, Credit::STATUS_PARTIAL])) {
-            $this->validationFailures[] = 'Credit is at the wrong status';
+            $this->validationFailures[] = trans('texts.invalid_credit_status');
             return false;
         }
 
@@ -103,7 +103,7 @@ class CreditPaymentValidation implements Rule
         }
 
         if ($this->customer->id !== $credit->customer->id) {
-            $this->validationFailures[] = 'Cannot create payment for different customers';
+            $this->validationFailures[] = trans('texts.invalid_payment_customer');
             return false;
         }
 

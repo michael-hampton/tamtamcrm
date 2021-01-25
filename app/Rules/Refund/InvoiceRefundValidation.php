@@ -80,7 +80,7 @@ class InvoiceRefundValidation implements Rule
 
         // check allowed statuses here
         if (!$invoice || $invoice->is_deleted) {
-            $this->validationFailures[] = 'Invoice is not a valid invoice';
+            $this->validationFailures[] = trans('texts.invalid_invoice');
             return false;
         }
 
@@ -90,7 +90,7 @@ class InvoiceRefundValidation implements Rule
         }*/
 
         if (!in_array($invoice->status_id, [Invoice::STATUS_PAID, Invoice::STATUS_PARTIAL])) {
-            $this->validationFailures[] = 'Invoice is at the wrong status';
+            $this->validationFailures[] = trans('texts.invalid_invoice_status');
             return false;
         }
 
@@ -108,7 +108,7 @@ class InvoiceRefundValidation implements Rule
         $allowed_invoices = $this->payment->invoices->pluck('id')->toArray();
 
         if (!in_array($arrInvoice['invoice_id'], $allowed_invoices)) {
-            $this->validationFailures[] = 'Invoice is invalid';
+            $this->validationFailures[] = trans('texts.invalid_invoice');
             return false;
         }
 
@@ -129,7 +129,7 @@ class InvoiceRefundValidation implements Rule
         }
 
         if ($this->customer->id !== $invoice->customer->id) {
-            $this->validationFailures[] = 'Cannot create invoice for different customers';
+            $this->validationFailures[] = trans('texts.invalid_refund_customer');
             return false;
         }
 

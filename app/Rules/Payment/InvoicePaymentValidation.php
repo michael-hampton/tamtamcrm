@@ -54,17 +54,17 @@ class InvoicePaymentValidation implements Rule
             $invoice = $this->validateInvoice($arrInvoice);
 
             if (!$invoice) {
-                $this->validationFailures[] = 'Invalid invoice';
+                $this->validationFailures[] = trans('texts.invalid_payment_invoice');
                 return false;
             }
 
             if (in_array($invoice->id, $arrAddedInvoices)) {
-                $this->validationFailures[] = 'Duplicate invoice found';
+                $this->validationFailures[] = trans('texts.duplicate_invoice');
                 return false;
             }
 
             if (!$this->validateCustomer($invoice)) {
-                $this->validationFailures[] = 'Invalid customer';
+                $this->validationFailures[] = trans('texts.invalid_customer');
                 return false;
             }
 
@@ -88,22 +88,22 @@ class InvoicePaymentValidation implements Rule
 
         // check allowed statuses here
         if (!$invoice || $invoice->is_deleted) {
-            $this->validationFailures[] = 'Invoice is not a valid invoice';
+            $this->validationFailures[] = trans('texts.invalid_invoice');
             return false;
         }
 
         if ($invoice->balance <= 0) {
-            $this->validationFailures[] = 'The invoice has already been paid';
+            $this->validationFailures[] = trans('texts.invoice_already_paid');
             return false;
         }
 
         if (!in_array($invoice->status_id, [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])) {
-            $this->validationFailures[] = 'Invoice is at the wrong status';
+            $this->validationFailures[] = trans('texts.invalid_invoice_status');
             return false;
         }
 
         if ($invoice->balance <= 0 || $arrInvoice['amount'] > $invoice->balance) {
-            $this->validationFailures[] = 'Payment amount cannot be more that the invoice total';
+            $this->validationFailures[] = trans('texts.payment_amount_more_than_invoice_total');
             return false;
         }
 
@@ -118,7 +118,7 @@ class InvoicePaymentValidation implements Rule
         }
 
         if ($this->customer->id !== $invoice->customer->id) {
-            $this->validationFailures[] = 'Cannot create invoice for different customers';
+            $this->validationFailures[] = trans('texts.invalid_payment_customer');
             return false;
         }
 

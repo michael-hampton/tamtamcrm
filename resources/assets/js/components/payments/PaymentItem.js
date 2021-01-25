@@ -55,7 +55,7 @@ export default class PaymentItem extends Component {
     render () {
         const { payments, custom_fields, invoices, customers, credits } = this.props
 
-        if (payments && payments.length && customers.length && invoices.length && credits.length) {
+        if (payments && payments.length && customers.length) {
             return payments.map((payment, index) => {
                 const paymentModel = new PaymentModel(invoices, payment, credits)
                 const paymentableInvoices = invoices && invoices.length ? paymentModel.paymentableInvoices : null
@@ -95,7 +95,7 @@ export default class PaymentItem extends Component {
                     </td>
                 })
 
-                const refundButton = paymentableInvoices.length && invoices.length
+                const refundButton = invoices && paymentableInvoices && paymentableInvoices.length && invoices.length
                     ? <Refund customers={customers} payment={payment}
                         modal={true}
                         allInvoices={paymentableInvoices}

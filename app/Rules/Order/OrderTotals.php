@@ -97,7 +97,7 @@ class OrderTotals implements Rule
         }
 
         if ($discount_amt > $this->sub_total) {
-            $this->arrErrors[] = 'The discount amount is more that the order total';
+            $this->arrErrors[] = trans('texts.invalid_discount_amount');
         }
 
         $this->sub_total -= $discount_amt;
@@ -135,7 +135,7 @@ class OrderTotals implements Rule
         $match = (float)$total === (float)$this->request['total'];
 
         if (!$match) {
-            $this->arrErrors[] = "Totals do not match";
+            $this->arrErrors[] = trans('texts.invalid_order_totals');
             return false;
         }
 
