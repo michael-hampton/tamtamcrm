@@ -55,6 +55,11 @@ class EditInvoice extends Component {
         this.initialState = this.invoiceModel.fields
         this.state = this.initialState
 
+        if (this.props.invoice) {
+            console.log('id', this.props.invoice.id)
+            console.log('invoice', this.props.invoice)
+        }
+
         this.updateData = this.updateData.bind(this)
         this.saveData = this.saveData.bind(this)
         this.setTotal = this.setTotal.bind(this)
@@ -668,7 +673,7 @@ class EditInvoice extends Component {
         const documents = this.state.id ? <Documents invoice={this.state}/> : null
 
         const dropdownMenu = this.state.id
-            ? <DropdownMenu reload={this.reload.bind(this)} invoices={this.props.invoices}
+            ? <DropdownMenu id={this.state.id} reload={this.reload.bind(this)} invoices={this.props.invoices}
                 formData={this.getFormData()}
                 task_id={this.state.task_id}
                 handleTaskChange={this.handleTaskChange}

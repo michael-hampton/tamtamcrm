@@ -31,10 +31,7 @@ export default function Contacts (props) {
                 }
 
                 {!props.hide_customer &&
-                <span>
-                    {this.props.customerName}
-                    <br/>{this.props.address}
-                </span>
+                <span>{props.customerName}</span>
                 }
 
                 {send_to}

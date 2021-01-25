@@ -255,6 +255,8 @@ export default class DataTable extends Component {
             this.cancel.cancel()
         }
 
+        this.props.updateState([])
+
         pageNumber = !pageNumber || typeof pageNumber === 'object' ? this.state.current_page : pageNumber
         order = !order ? this.state.order : order
         sorted_column = !sorted_column ? this.state.sorted_column : sorted_column
@@ -419,7 +421,7 @@ export default class DataTable extends Component {
                 {table}
 
                 {this.props.view && <ViewEntity
-                    updateState={this.props.updateState}
+                    //updateState={this.props.updateState}
                     toggle={this.toggleViewedEntity}
                     title={this.state.view.title}
                     viewed={this.state.view.viewMode}

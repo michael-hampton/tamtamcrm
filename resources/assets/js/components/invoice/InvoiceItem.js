@@ -82,7 +82,7 @@ export default class InvoiceItem extends Component {
                         onClick={() => this.props.toggleViewedEntity(invoice, invoice.number, editButton)}
                         data-label={key}><InvoicePresenter customers={customers}
                             toggleViewedEntity={this.props.toggleViewedEntity}
-                            field={key} entity={invoice} edit={editButton}/></td>
+                            field={key} entity={invoice}/></td>
                 })
 
                 const checkboxClass = this.props.showCheckboxes === true ? '' : 'd-none'
@@ -98,6 +98,7 @@ export default class InvoiceItem extends Component {
                     ? 'list-group-item-dark' : ''
 
                 if (!this.props.show_list) {
+                    alert(invoice.id)
                     return <tr className={selectedRow} key={index}>
                         <td>
                             {!!this.props.onChangeBulk &&
@@ -124,20 +125,16 @@ export default class InvoiceItem extends Component {
                         <div className="d-flex w-100 justify-content-between">
                             <h5 className="col-4"><InvoicePresenter customers={customers} field="customer_id"
                                 entity={invoice}
-                                toggleViewedEntity={this.props.toggleViewedEntity}
-                                edit={editButton}/></h5>
+                                toggleViewedEntity={this.props.toggleViewedEntity}/></h5>
                             <span className="col-4">{invoice.number} . <InvoicePresenter
                                 field={invoice.due_date.length ? 'due_date' : 'date'} entity={invoice}
-                                toggleViewedEntity={this.props.toggleViewedEntity}
-                                edit={editButton}/></span>
+                                toggleViewedEntity={this.props.toggleViewedEntity}/></span>
                             <span className="col-2">
                                 <InvoicePresenter customers={customers}
                                     toggleViewedEntity={this.props.toggleViewedEntity}
-                                    field={invoice.balance > 0 ? 'balance' : 'total'} entity={invoice}
-                                    edit={editButton}/>
+                                    field={invoice.balance > 0 ? 'balance' : 'total'} entity={invoice}/>
                             </span>
                             <span className="col-2"><InvoicePresenter field="status_field" entity={invoice}
-                                edit={editButton}
                                 toggleViewedEntity={this.props.toggleViewedEntity}/></span>
                         </div>
                     </ListGroupItem>
@@ -155,21 +152,18 @@ export default class InvoiceItem extends Component {
                         <div className="d-flex w-100 justify-content-between">
                             <h5 className="mb-1"><InvoicePresenter customers={customers} field="customer_id"
                                 entity={invoice}
-                                toggleViewedEntity={this.props.toggleViewedEntity}
-                                edit={editButton}/></h5>
+                                toggleViewedEntity={this.props.toggleViewedEntity}/></h5>
                             <span>
                                 <InvoicePresenter customers={customers}
                                     toggleViewedEntity={this.props.toggleViewedEntity}
-                                    field={invoice.balance > 0 ? 'balance' : 'total'} entity={invoice}
-                                    edit={editButton}/>
+                                    field={invoice.balance > 0 ? 'balance' : 'total'} entity={invoice}/>
                             </span>
                         </div>
                         <div className="d-flex w-100 justify-content-between">
                             <span className="mb-1 text-muted">{invoice.number} . <InvoicePresenter
                                 field={invoice.due_date.length ? 'due_date' : 'date'} entity={invoice}
-                                toggleViewedEntity={this.props.toggleViewedEntity}
-                                edit={editButton}/></span>
-                            <span><InvoicePresenter field="status_field" entity={invoice} edit={editButton}
+                                toggleViewedEntity={this.props.toggleViewedEntity}/></span>
+                            <span><InvoicePresenter field="status_field" entity={invoice}
                                 toggleViewedEntity={this.props.toggleViewedEntity}/></span>
                         </div>
                     </ListGroupItem>
