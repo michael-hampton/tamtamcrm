@@ -61,6 +61,7 @@ class RecurringInvoice extends Model
         'private_notes',
         'terms',
         'total',
+        'amount_paid',
         'partial',
         'frequency',
         'start_date',

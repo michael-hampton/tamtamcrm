@@ -19,7 +19,8 @@ export default class WorkflowSettings extends Component {
             settings: {},
             activeTab: '1',
             success: false,
-            error: false
+            error: false,
+            changesMade: false
         }
 
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
@@ -30,7 +31,21 @@ export default class WorkflowSettings extends Component {
     }
 
     componentDidMount () {
+        window.addEventListener('beforeunload', this.beforeunload.bind(this))
         this.getAccount()
+    }
+
+    componentWillUnmount () {
+        window.removeEventListener('beforeunload', this.beforeunload.bind(this))
+    }
+
+    beforeunload (e) {
+        if (this.state.changesMade) {
+            if (!confirm(translations.changes_made_warning)) {
+                e.preventDefault()
+                return false
+            }
+        }
     }
 
     toggle (tab, e) {
@@ -82,6 +97,7 @@ export default class WorkflowSettings extends Component {
         const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
 
         this.setState(prevState => ({
+            changesMade: true,
             settings: {
                 ...prevState.settings,
                 [name]: value
@@ -90,7 +106,7 @@ export default class WorkflowSettings extends Component {
     }
 
     handleCancel () {
-        this.setState({ settings: this.state.cached_settings })
+        this.setState({ settings: this.state.cached_settings, changesMade: false })
     }
 
     handleSubmit (e) {
@@ -104,7 +120,7 @@ export default class WorkflowSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true, cached_settings: this.state.settings })
+                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false })
             })
             .catch((error) => {
                 console.error(error)
@@ -115,7 +131,7 @@ export default class WorkflowSettings extends Component {
     getPurchaseOrderFields () {
         const settings = this.state.settings
 
-        const formFields = [
+        return [
             [
                 {
                     name: 'should_email_purchase_order',
@@ -135,14 +151,12 @@ export default class WorkflowSettings extends Component {
                 }
             ]
         ]
-
-        return formFields
     }
 
     getInvoiceFields () {
         const settings = this.state.settings
 
-        const formFields = [
+        return [
             [
                 {
                     name: 'should_lock_invoice',
@@ -182,14 +196,12 @@ export default class WorkflowSettings extends Component {
                 }
             ]
         ]
-
-        return formFields
     }
 
     getOrderFields () {
         const settings = this.state.settings
 
-        const formFields = [
+        return [
             [
                 {
                     name: 'should_email_order',
@@ -233,14 +245,12 @@ export default class WorkflowSettings extends Component {
                 }
             ]
         ]
-
-        return formFields
     }
 
     getLeadFields () {
         const settings = this.state.settings
 
-        const formFields = [
+        return [
             [
                 {
                     name: 'should_email_lead',
@@ -268,14 +278,12 @@ export default class WorkflowSettings extends Component {
                 }
             ]
         ]
-
-        return formFields
     }
 
     getQuoteFields () {
         const settings = this.state.settings
 
-        const formFields = [
+        return [
             [
                 {
                     name: 'should_email_quote',
@@ -303,14 +311,12 @@ export default class WorkflowSettings extends Component {
                 }
             ]
         ]
-
-        return formFields
     }
 
     getDealFields () {
         const settings = this.state.settings
 
-        const formFields = [
+        return [
             [
                 {
                     name: 'should_email_deal',
@@ -338,14 +344,12 @@ export default class WorkflowSettings extends Component {
                 }
             ]
         ]
-
-        return formFields
     }
 
     getPaymentFields () {
         const settings = this.state.settings
 
-        const formFields = [
+        return [
             [
                 {
                     name: 'invoice_payment_deleted_status',
@@ -393,8 +397,6 @@ export default class WorkflowSettings extends Component {
                 }
             ]
         ]
-
-        return formFields
     }
 
     handleClose () {
@@ -497,7 +499,8 @@ export default class WorkflowSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={translations.settings_not_saved}/>
 
-                <Header title={translations.workflow_settings} handleCancel={this.handleCancel.bind(this)}
+                <Header title={translations.workflow_settings} cancelButtonDisabled={!this.state.changesMade}
+                    handleCancel={this.handleCancel.bind(this)}
                     handleSubmit={this.handleSubmit}
                     tabs={tabs}/>
 

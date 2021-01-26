@@ -74,6 +74,7 @@ class CreatePayment
     private function updateInvoice(Payment $payment): Invoice
     {
         $this->invoice->reduceBalance($payment->amount);
+        $this->invoice->increaseAmountPaid($payment->amount);
         $this->invoice->setStatus(Invoice::STATUS_PAID);
         $this->invoice->save();
         return $this->invoice;
@@ -85,9 +86,9 @@ class CreatePayment
      */
     private function updateCustomer(Payment $payment): Customer
     {
-        $customer = $this->invoice->customer;
+        $customer = $this->invoice->customer->fresh();
         $customer->reduceBalance($payment->amount);
-        $customer->increasePaidToDateAmount($payment->amount);
+        $customer->increaseAmountPaid($payment->amount);
         $customer->save();
 
         $payment->transaction_service()->createTransaction(

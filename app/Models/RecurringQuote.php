@@ -43,6 +43,7 @@ class RecurringQuote extends Model
         'quote_number',
         'discount',
         'total',
+        'amount_paid',
         'sub_total',
         'tax_total',
         'tax_2',

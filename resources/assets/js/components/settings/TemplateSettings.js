@@ -26,6 +26,7 @@ class TemplateSettings extends Component {
             template_name: 'Invoice',
             company_logo: null,
             cached_settings: {},
+            changesMade: false,
             settings: {
                 email_template_payment: '',
                 email_subject_payment: '',
@@ -59,7 +60,21 @@ class TemplateSettings extends Component {
     }
 
     componentDidMount () {
+        window.addEventListener('beforeunload', this.beforeunload.bind(this))
         this.getAccount()
+    }
+
+    componentWillUnmount () {
+        window.removeEventListener('beforeunload', this.beforeunload.bind(this))
+    }
+
+    beforeunload (e) {
+        if (this.state.changesMade) {
+            if (!confirm(translations.changes_made_warning)) {
+                e.preventDefault()
+                return false
+            }
+        }
     }
 
     getAccount () {
@@ -93,6 +108,7 @@ class TemplateSettings extends Component {
         const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
 
         this.setState(prevState => ({
+            changesMade: true,
             settings: {
                 ...prevState.settings,
                 [name]: value
@@ -155,7 +171,7 @@ class TemplateSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true, cached_settings: this.state.settings })
+                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false })
             })
             .catch((error) => {
                 console.error(error)
@@ -166,7 +182,7 @@ class TemplateSettings extends Component {
     }
 
     handleCancel () {
-        this.setState({ settings: this.state.cached_settings })
+        this.setState({ settings: this.state.cached_settings, changesMade: false })
     }
 
     handleClose () {
@@ -213,7 +229,8 @@ class TemplateSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={translations.settings_not_saved}/>
 
-                <Header title={translations.template_settings} handleCancel={this.handleCancel.bind(this)}
+                <Header title={translations.template_settings} cancelButtonDisabled={!this.state.changesMade}
+                    handleCancel={this.handleCancel.bind(this)}
                     handleSubmit={this.handleSubmit}
                     tabs={tabs}/>
 

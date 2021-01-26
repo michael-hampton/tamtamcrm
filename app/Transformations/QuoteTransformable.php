@@ -38,6 +38,7 @@ class QuoteTransformable
             'invitations'         => $this->transformQuoteInvitations($quote->invitations),
             'total'               => $quote->total,
             'balance'             => (float)$quote->balance,
+            'amount_paid'         => (float)$quote->amount_paid,
             'sub_total'           => (float)$quote->sub_total,
             'tax_total'           => (float)$quote->tax_total,
             'status_id'           => (int)$quote->status_id,

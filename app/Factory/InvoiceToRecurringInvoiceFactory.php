@@ -22,6 +22,7 @@ class InvoiceToRecurringInvoiceFactory
         $recurring_invoice->user_id = $invoice->user_id;
         $recurring_invoice->account_id = $invoice->account_id;
         $recurring_invoice->frequency = 'MONTHLY';
+        $recurring_invoice->amount_paid = 0;
 
         return $recurring_invoice;
     }

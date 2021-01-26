@@ -61,40 +61,31 @@ export default function InvoiceSettings (props) {
 
                     {account_settings.show_tax_rate1 &&
                     <Col md={6}>
-                        <FormGroup>
-                            <Label>{translations.tax}</Label>
-                            <TaxRateDropdown
-                                name="tax"
-                                handleInputChanges={props.handleInput}
-                                errors={props.errors}
-                            />
-                        </FormGroup>
+                        <TaxRateDropdown
+                            name="tax"
+                            handleInputChanges={props.handleInput}
+                            errors={props.errors}
+                        />
                     </Col>
                     }
 
                     {account_settings.show_tax_rate2 &&
                     <Col md={6}>
-                        <FormGroup>
-                            <Label>{translations.tax}</Label>
-                            <TaxRateDropdown
-                                name="tax_2"
-                                handleInputChanges={props.handleInput}
-                                errors={props.errors}
-                            />
-                        </FormGroup>
+                        <TaxRateDropdown
+                            name="tax_2"
+                            handleInputChanges={props.handleInput}
+                            errors={props.errors}
+                        />
                     </Col>
                     }
 
                     {account_settings.show_tax_rate3 &&
                     <Col md={6}>
-                        <FormGroup>
-                            <Label>{translations.tax}</Label>
-                            <TaxRateDropdown
-                                name="tax_3"
-                                handleInputChanges={props.handleInput}
-                                errors={props.errors}
-                            />
-                        </FormGroup>
+                        <TaxRateDropdown
+                            name="tax_3"
+                            handleInputChanges={props.handleInput}
+                            errors={props.errors}
+                        />
                     </Col>
                     }
 

@@ -34,7 +34,6 @@ use App\Settings\AccountSettings;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
-use phpDocumentor\Reflection\Types\Integer;
 use Tests\TestCase;
 
 /**
@@ -144,6 +143,7 @@ class InvoiceUnitTest extends TestCase
         $invoice = $invoice->service()->createPayment($invoiceRepo, new PaymentRepository(new Payment));
 
         $this->assertEquals(0, $invoice->balance);
+        $this->assertEquals(200, $invoice->amount_paid);
 
         $this->assertEquals(1, count($invoice->payments));
         $payment = $invoice->payments->first();
@@ -362,8 +362,8 @@ class InvoiceUnitTest extends TestCase
         $invoice->status_id = Invoice::STATUS_REVERSED;
         $invoice->save();
 
-        /* Reduce client.paid_to_date by $total_paid amount */
-        $invoice->customer->paid_to_date -= $total_paid;
+        /* Reduce client.amount_paid by $total_paid amount */
+        $invoice->customer->amount_paid -= $total_paid;
 
         /* Reduce the client balance by $balance_remaining */
         $invoice->customer->balance -= $balance_remaining;
@@ -373,17 +373,18 @@ class InvoiceUnitTest extends TestCase
     }
 
     /** @test */
-    public function testReversalViaAPI()
+    public function testReversal()
     {
         $invoice = Invoice::factory()->create();
-        $invoice->customer->balance = $invoice->balance;
+        $invoice->customer->balance = 0;
         $invoice->customer->save();
 
-        $this->assertEquals($invoice->customer->balance, $invoice->balance);
+        $original_client_amount_paid = $invoice->customer->amount_paid;
+        $original_customer_balance = $invoice->customer->balance;
 
-        $client_paid_to_date = $invoice->customer->paid_to_date;
 
-        $client_balance = $invoice->customer->balance;
+        // 800 start
+
         $invoice_balance = $invoice->balance;
         $invoice_total = $invoice->total;
 
@@ -395,67 +396,81 @@ class InvoiceUnitTest extends TestCase
 
         (new InvoiceRepository(new Invoice()))->markSent($invoice);
 
+        $customer = $invoice->customer->fresh();
+        $invoice = $invoice->fresh();
+
+        $client_paid_to_date = $customer->amount_paid;
+        $client_balance = $customer->balance;
+        $invoice_balance = $invoice->balance;
+
         $this->assertEquals(Invoice::STATUS_SENT, $invoice->status_id);
 
-        $invoice = $invoice->service()->createPayment(
+        $invoice->service()->createPayment(
             new InvoiceRepository(new Invoice),
             new PaymentRepository(new Payment)
         );
 
-        $payment = $invoice->payments->first();
+        $invoice = $invoice->fresh();
 
-        $this->assertEquals($invoice->customer->balance, $client_balance);
-
-        $this->assertEquals($invoice->customer->paid_to_date, ($client_paid_to_date + $invoice_balance));
+        $customer = $customer->fresh();
+        $this->assertEquals($customer->balance, ($invoice->balance * -1));
+        $this->assertEquals($customer->amount_paid, ($client_paid_to_date + $invoice_balance));
         $this->assertEquals(0, $invoice->balance);
         $this->assertEquals(Invoice::STATUS_PAID, $invoice->status_id);
 
-        //$client_paid_to_date = $invoice->customer->paid_to_date;
-
-        $invoice = $invoice->service()->reverseInvoicePayment(
+        $invoice->service()->reverseInvoicePayment(
             new CreditRepository(new Credit),
             new PaymentRepository(new Payment)
         );
 
         $this->assertEquals(Invoice::STATUS_REVERSED, $invoice->status_id);
         $this->assertEquals(0, $invoice->balance);
-
-        $new_customer_balance = $client_balance - ($invoice_total - $invoice_balance);
-
-        $this->assertEquals($new_customer_balance, $invoice->customer->balance);
-        $this->assertEquals($invoice->customer->paid_to_date, $client_paid_to_date);
+        $this->assertEquals($customer->fresh()->amount_paid, ($client_paid_to_date));
+        $this->assertEquals($invoice->amount_paid, 0);
     }
 
     /** @test */
     public function testReversalNoPayment()
     {
         $invoice = Invoice::factory()->create();
-        $client_paid_to_date = $invoice->customer->paid_to_date;
-        $client_balance = $invoice->customer->balance;
-        $invoice_balance = $invoice->balance;
 
         (new InvoiceRepository(new Invoice()))->markSent($invoice);
 
+        $customer = $invoice->customer->fresh();
+
+        $client_paid_to_date = $customer->amount_paid;
+        $client_balance = $customer->balance; //2820
+        $invoice_balance = $invoice->balance;
+
         $this->assertEquals(Invoice::STATUS_SENT, $invoice->status_id);
 
-        $this->invoice = $invoice->service()->reverseInvoicePayment(
+        $invoice = $invoice->fresh();
+
+        $invoice->service()->reverseInvoicePayment(
             new CreditRepository(new Credit),
             new PaymentRepository(new Payment)
         )->save();
 
+        $customer = $invoice->customer->fresh(); //2020 original
+
         $this->assertEquals(Invoice::STATUS_REVERSED, $invoice->status_id);
         $this->assertEquals(0, $invoice->balance);
-        $this->assertEquals($invoice->customer->paid_to_date, ($client_paid_to_date));
-        $this->assertEquals($invoice->customer->balance, $client_balance);
+        $this->assertEquals($customer->amount_paid, ($client_paid_to_date));
+        $this->assertEquals($customer->balance, ($client_balance - $invoice_balance));
+        $this->assertEquals(0, $invoice->amount_paid);
     }
 
     /** @test */
     public function testCancelInvoice()
     {
         $invoice = Invoice::factory()->create();
-        $client_balance = $invoice->customer->balance;
 
         (new InvoiceRepository(new Invoice))->markSent($invoice);
+
+        $invoice = $invoice->fresh();
+
+        $client_balance = $invoice->customer->balance;
+        $invoice_balance = $invoice->balance;
 
         $this->assertTrue($invoice->isCancellable());
 
@@ -463,8 +478,11 @@ class InvoiceUnitTest extends TestCase
 
         $invoice = $invoice->service()->cancelInvoice();
 
+        $invoice = $invoice->fresh();
+
         $this->assertEquals(0, $invoice->balance);
-        $this->assertEquals((float)$invoice->customer->fresh()->balance, (float)$client_balance);
+        $this->assertEquals(0, $invoice->amount_paid);
+        $this->assertEquals((float)$invoice->customer->fresh()->balance, (float)($client_balance - $invoice_balance));
         $this->assertEquals(Invoice::STATUS_CANCELLED, $invoice->status_id);
     }
 
@@ -487,17 +505,17 @@ class InvoiceUnitTest extends TestCase
         )->save();
 
         $invoice = $invoice->fresh();
-
-        $client_paid_to_date = $invoice->customer->paid_to_date;
-        $client_balance = $invoice->customer->balance;
+        $amount_paid = $invoice->amount_paid;
+        $client_amount_paid = $invoice->customer->amount_paid;
 
         $invoice->deleteInvoice();
         $invoice = Invoice::where('id', '=', $invoice->id)->withTrashed()->first();
 
         $payment = $invoice->payments()->withTrashed()->first()->fresh();
 
-        $this->assertEquals($invoice->customer->fresh()->paid_to_date, ($client_paid_to_date - $invoice_balance));
+        $this->assertEquals($invoice->customer->fresh()->amount_paid, ($client_amount_paid - $invoice_balance));
         $this->assertEquals(0, $invoice->balance);
+        $this->assertEquals($amount_paid, $invoice->amount_paid);
         $this->assertEquals($invoice->customer->fresh()->balance, 0);
         //$this->assertEquals(Invoice::STATUS_CANCELLED, $invoice->status_id);
         $this->assertTrue($invoice->trashed());
@@ -521,7 +539,7 @@ class InvoiceUnitTest extends TestCase
         (new InvoiceRepository(new Invoice))->markSent($second_invoice);
 
         $factory = (new PaymentFactory())->create($this->customer, $this->user, $this->account);
-        $paid_to_date = $this->customer->paid_to_date;
+        $amount_paid = $this->customer->amount_paid;
         $balance = $second_invoice->customer->fresh()->balance;
 
         $data = [
@@ -543,8 +561,8 @@ class InvoiceUnitTest extends TestCase
             ($balance - ($first_invoice->balance + $second_invoice->balance))
         );
         $this->assertEquals(
-            $created->customer->paid_to_date,
-            ($paid_to_date + ($first_invoice->balance + $second_invoice->balance))
+            $created->customer->amount_paid,
+            ($amount_paid + ($first_invoice->balance + $second_invoice->balance))
         );
 
         $first_invoice = $first_invoice->fresh();
@@ -556,7 +574,7 @@ class InvoiceUnitTest extends TestCase
         $first_invoice->deleteInvoice();
         $invoice = Invoice::where('id', '=', $first_invoice->id)->withTrashed()->first();
 
-        $this->assertEquals($first_invoice->customer->fresh()->paid_to_date, ($data['amount'] - $invoice_balance));
+        $this->assertEquals($first_invoice->customer->fresh()->amount_paid, ($data['amount'] - $invoice_balance));
 
         $payment = $invoice->payments()->withTrashed()->first()->fresh();
 
@@ -576,25 +594,30 @@ class InvoiceUnitTest extends TestCase
         $invoice->customer->balance = 0;
         $invoice->customer->save();
 
-        $previous_balance = $invoice->balance;
-        $customer_balance = $invoice->customer->balance; //0
-
-        //800
-
         (new InvoiceRepository(new Invoice()))->markSent($invoice);
-        $balance_with_invoice = $invoice->customer->fresh()->balance; //800
 
-        $invoice->service()->cancelInvoice();
-        $this->assertEquals(0, $invoice->balance);
-        $this->assertEquals(Invoice::STATUS_CANCELLED, $invoice->status_id);
-        $this->assertEquals($customer_balance, $invoice->customer->fresh()->balance);
-        $invoice->service()->reverseStatus();
+        $customer = $invoice->customer->fresh();
+
+        $client_balance = $customer->balance;
+        $invoice_balance = $invoice->balance;
 
         $this->assertEquals(Invoice::STATUS_SENT, $invoice->status_id);
-        $this->assertEquals($previous_balance, $invoice->balance);
-        $this->assertNull($invoice->previous_status);
-        $this->assertNull($invoice->previous_balance);
-        $this->assertEquals($invoice->customer->fresh()->balance, $balance_with_invoice);
+
+        $invoice = $invoice->fresh();
+        $invoice->service()->cancelInvoice();
+        $customer = $customer->fresh();
+
+        $this->assertEquals(0, $invoice->balance);
+        $this->assertEquals($customer->balance, ($client_balance - $invoice_balance));
+        $this->assertEquals(Invoice::STATUS_CANCELLED, $invoice->status_id);
+
+        $invoice = $invoice->service()->reverseStatus();
+
+        $this->assertEquals(Invoice::STATUS_SENT, $invoice->status_id);
+        $this->assertEquals($invoice_balance, $invoice->balance);
+        $this->assertEquals(0, $invoice->amount_paid);
+        $this->assertNull($invoice->cached_data);
+        $this->assertEquals($invoice->customer->fresh()->balance, $client_balance);
     }
 
     /** @test */
@@ -626,6 +649,7 @@ class InvoiceUnitTest extends TestCase
         $this->assertInstanceOf(Payment::class, $payment);
         $this->assertEquals((float)$payment->amount, $expected_amount);
         $this->assertEquals(0, $invoice->balance);
+        $this->assertEquals($expected_amount, $invoice->amount_paid);
     }
 
     /** @test */
@@ -666,6 +690,7 @@ class InvoiceUnitTest extends TestCase
         $this->assertNotNull($payment);
         $this->assertInstanceOf(Payment::class, $payment);
         $this->assertEquals((float)$payment->amount, $invoice->total);
+        $this->assertEquals((float)$payment->amount, $invoice->amount_paid);
         $this->assertEquals(0, $invoice->balance);
     }
 
@@ -678,6 +703,48 @@ class InvoiceUnitTest extends TestCase
         $invoice->status_id = Invoice::STATUS_SENT;
         $invoice->account_id = $this->account->id;
         $invoice->date_to_send = Carbon::now();
+        $invoice->save();
+
+        $settings = $this->account->settings;
+        $settings->amount_to_charge_1 = 10;
+        $settings->reminder1_enabled = true;
+        $settings->number_of_days_after_1 = 1;
+        $settings->scheduled_to_send_1 = 'after_invoice_date';
+        $settings->inclusive_taxes = false;
+        $this->account->settings = $settings;
+        $this->account->save();
+
+        $invoiceRepo = new InvoiceRepository(new Invoice);
+
+        $original_customer_balance = $invoice->customer->balance;
+
+        $new_balance = $original_customer_balance < 0 ? $original_customer_balance + 10 * -1 : $original_customer_balance + 10;
+
+        ProcessReminders::dispatchNow($invoiceRepo);
+
+        $updated_invoice = $invoice->fresh();
+
+        $this->assertEquals(($invoice->total + 10), $updated_invoice->total);
+        $this->assertEquals(($invoice->balance + 10), $updated_invoice->balance);
+        $this->assertEquals($new_balance, $updated_invoice->customer->balance);
+
+        $date_to_send = Carbon::parse($invoice->date)->addDays($settings->number_of_days_after_1)->format('Y-m-d');
+
+        $this->assertEquals(count($invoice->line_items) + 1, count($updated_invoice->line_items));
+        $this->assertEquals(10, $updated_invoice->late_fee_charge);
+        $this->assertEquals($updated_invoice->date_to_send->format('Y-m-d'), $date_to_send);
+    }
+
+    /** @test */
+    public function test_reminder_from_invoice()
+    {
+        // create invoice
+        $invoice = Invoice::factory()->create();
+        $invoice->customer_id = 5;
+        $invoice->status_id = Invoice::STATUS_SENT;
+        $invoice->account_id = $this->account->id;
+        $invoice->date_to_send = Carbon::now();
+        $invoice->late_fee_reminder = 1;
         $invoice->save();
 
         $settings = $this->account->settings;

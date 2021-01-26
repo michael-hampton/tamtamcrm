@@ -539,7 +539,7 @@ export default class DropdownMenuBuilder extends Component {
                 </DropdownItem>
 
             case 'portal':
-                return <DropdownItem key={56} className="primary"
+                return <DropdownItem key={55} className="primary"
                     onClick={() => this.launchPortal()}>
                     <i className={`fa ${icons.portal} mr-2`}/>{translations.portal}
                 </DropdownItem>

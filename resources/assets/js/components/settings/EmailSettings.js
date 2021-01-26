@@ -21,7 +21,8 @@ class EmailSettings extends Component {
             cached_settings: {},
             settings: {},
             success: false,
-            error: false
+            error: false,
+            changesMade: false
         }
 
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
@@ -32,7 +33,21 @@ class EmailSettings extends Component {
     }
 
     componentDidMount () {
+        window.addEventListener('beforeunload', this.beforeunload.bind(this))
         this.getAccount()
+    }
+
+    componentWillUnmount () {
+        window.removeEventListener('beforeunload', this.beforeunload.bind(this))
+    }
+
+    beforeunload (e) {
+        if (this.state.changesMade) {
+            if (!confirm(translations.changes_made_warning)) {
+                e.preventDefault()
+                return false
+            }
+        }
     }
 
     getAccount () {
@@ -61,6 +76,7 @@ class EmailSettings extends Component {
         const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
 
         this.setState(prevState => ({
+            changesMade: true,
             settings: {
                 ...prevState.settings,
                 [name]: value
@@ -85,7 +101,7 @@ class EmailSettings extends Component {
     handleSubmit (e) {
         this.trim().then(result => {
             axios.put(`/api/accounts/${this.state.id}`, { settings: JSON.stringify(this.state.settings) }, {}).then((response) => {
-                this.setState({ success: true, cached_settings: this.state.settings })
+                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false })
             }).catch((error) => {
                 this.setState({ error: true })
             })
@@ -222,7 +238,7 @@ class EmailSettings extends Component {
     }
 
     handleCancel () {
-        this.setState({ settings: this.state.cached_settings })
+        this.setState({ settings: this.state.cached_settings, changesMade: false })
     }
 
     handleClose () {
@@ -238,7 +254,8 @@ class EmailSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={this.state.settings_not_saved}/>
 
-                <Header title={translations.email_settings} handleCancel={this.handleCancel.bind(this)}
+                <Header title={translations.email_settings} cancelButtonDisabled={!this.state.changesMade}
+                    handleCancel={this.handleCancel.bind(this)}
                     handleSubmit={this.handleSubmit}/>
 
                 <div className="settings-container fixed-margin-extra">

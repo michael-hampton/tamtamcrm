@@ -142,7 +142,7 @@ class BasePaymentProcessor
         $amount = $this->amount == 0 ? ($this->data['amount'] + $this->gateway_fee) : $this->amount;
         $customer = $this->payment->customer;
 
-        $customer->increasePaidToDateAmount($amount);
+        $customer->increaseAmountPaid($amount);
         $customer->reduceBalance($amount);
         $customer->save();
 

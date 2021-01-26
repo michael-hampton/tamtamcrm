@@ -217,22 +217,6 @@ class Customer extends Model implements HasLocalePreference
         return !empty($this->design_id) ? $this->design_id : $this->getSetting('invoice_design_id');
     }
 
-    /**
-     * @param float $amount
-     */
-    public function reducePaidToDateAmount(float $amount)
-    {
-        $this->paid_to_date -= $amount;
-    }
-
-    /**
-     * @param float $amount
-     */
-    public function increasePaidToDateAmount(float $amount)
-    {
-        $this->paid_to_date += $amount;
-    }
-
     public function getFormattedCustomerBalance()
     {
         return $this->formatCurrency($this->balance, $this);
@@ -240,7 +224,7 @@ class Customer extends Model implements HasLocalePreference
 
     public function getFormattedPaidToDate()
     {
-        return $this->formatCurrency($this->paid_to_date, $this);
+        return $this->formatCurrency($this->amount_paid, $this);
     }
 
     private function checkObjectEmpty($var)

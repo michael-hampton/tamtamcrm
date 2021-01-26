@@ -66,6 +66,7 @@ class DeletePayment
             }
 
             $credit->increaseBalance($paymentable_credit->amount);
+            $credit->reduceAmountPaid($paymentable_credit->amount);
             $credit->setStatus($delete_status);
             $credit->save();
         }
@@ -100,8 +101,10 @@ class DeletePayment
             }
 
             $invoice->resetBalance($paymentable_invoice->amount);
+            $invoice->reduceAmountPaid($paymentable_invoice->amount);
             $invoice->customer->increaseBalance($paymentable_invoice->amount);
             $invoice->setStatus($delete_status);
+            $invoice->save();
 
             // create transaction
             $this->createTransaction($invoice);
@@ -128,7 +131,7 @@ class DeletePayment
     private function updateCustomer(): bool
     {
         $customer = $this->payment->customer;
-        $customer->reducePaidToDateAmount($this->payment->amount);
+        $customer->reduceAmountPaid($this->payment->amount);
 
         return true;
     }

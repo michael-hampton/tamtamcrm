@@ -18,7 +18,8 @@ export default class CustomerPortalSettings extends Component {
             cached_settings: {},
             settings: {},
             success: false,
-            error: false
+            error: false,
+            changesMade: false
         }
 
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
@@ -29,7 +30,21 @@ export default class CustomerPortalSettings extends Component {
     }
 
     componentDidMount () {
+        window.addEventListener('beforeunload', this.beforeunload.bind(this))
         this.getAccount()
+    }
+
+    componentWillUnmount () {
+        window.removeEventListener('beforeunload', this.beforeunload.bind(this))
+    }
+
+    beforeunload (e) {
+        if (this.state.changesMade) {
+            if (!confirm(translations.changes_made_warning)) {
+                e.preventDefault()
+                return false
+            }
+        }
     }
 
     toggle (tab) {
@@ -64,6 +79,7 @@ export default class CustomerPortalSettings extends Component {
         const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
 
         this.setState(prevState => ({
+            changesMade: true,
             settings: {
                 ...prevState.settings,
                 [name]: value
@@ -82,7 +98,7 @@ export default class CustomerPortalSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true, cached_settings: this.state.settings })
+                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false })
             })
             .catch((error) => {
                 this.setState({ error: true })
@@ -253,7 +269,7 @@ export default class CustomerPortalSettings extends Component {
     }
 
     handleCancel () {
-        this.setState({ settings: this.state.cached_settings })
+        this.setState({ settings: this.state.cached_settings, changesMade: false })
     }
 
     handleClose () {
@@ -308,7 +324,8 @@ export default class CustomerPortalSettings extends Component {
                 </Snackbar>
 
                 <Header tabs={tabs} title={translations.customer_portal}
-                    handleSubmit={this.handleSubmit.bind(this)} handleCancel={this.handleCancel.bind(this)}/>
+                    handleSubmit={this.handleSubmit.bind(this)} cancelButtonDisabled={!this.state.changesMade}
+                    handleCancel={this.handleCancel.bind(this)}/>
 
                 <div className="settings-container settings-container-narrow fixed-margin-mobile">
                     <TabContent activeTab={this.state.activeTab}>

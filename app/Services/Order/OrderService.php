@@ -135,7 +135,7 @@ class OrderService extends ServiceBase
             return null;
         }
 
-        $this->order->setPreviousStatus($this->order->status_id);
+        $this->order->cacheData();
         $this->order->setStatus(Order::STATUS_CANCELLED);
         $this->order->setDateCancelled();
         $this->order->save();
@@ -157,7 +157,7 @@ class OrderService extends ServiceBase
             return null;
         }
 
-        $this->order->setPreviousStatus($this->order->status_id);
+        $this->order->cacheData();
         $this->order->setStatus(Order::STATUS_HELD);
         $this->order->save();
 
@@ -174,7 +174,9 @@ class OrderService extends ServiceBase
             return null;
         }
 
-        return $this->reverseStatus();
+        $this->order->rewindCache();
+
+        return $this->order->fresh();
     }
 
     public function fulfillOrder(OrderRepository $order_repo)

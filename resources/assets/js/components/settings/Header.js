@@ -19,11 +19,11 @@ export default function Header (props) {
 
                         <span>
                             {!!props.handleSubmit &&
-                            <a className="pull-right pr-3" onClick={props.handleSubmit}>{translations.save}</a>
+                            <a className="pull-right btn btn-link p-0 pr-3" onClick={props.handleSubmit}>{translations.save}</a>
                             }
 
                             {!!props.handleCancel &&
-                            <a className="pull-right pr-3 mr-4" onClick={props.handleCancel}>{translations.cancel}</a>
+                            <a className={`pull-right btn btn-link p-0 pr-3 mr-4 ${props.cancelButtonDisabled ? 'disabled' : ''}`} onClick={props.handleCancel}>{translations.cancel}</a>
                             }
                         </span>
 

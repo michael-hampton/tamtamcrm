@@ -34,7 +34,8 @@ class Settings extends Component {
             settings: {},
             company_logo: null,
             activeTab: '1',
-            success: false
+            success: false,
+            changesMade: false
         }
 
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
@@ -45,7 +46,22 @@ class Settings extends Component {
     }
 
     componentDidMount () {
+        window.addEventListener('beforeunload', this.beforeunload)
         this.getAccount()
+    }
+
+    componentWillUnmount () {
+        window.removeEventListener('beforeunload', this.beforeunload)
+    }
+
+    beforeunload (e) {
+        alert('here')
+        if (this.state.changesMade) {
+            if (!confirm(translations.changes_made_warning)) {
+                e.preventDefault()
+                return false
+            }
+        }
     }
 
     toggle (tab) {
@@ -88,6 +104,7 @@ class Settings extends Component {
         value = value === 'false' ? false : value
 
         this.setState(prevState => ({
+            changesMade: true,
             settings: {
                 ...prevState.settings,
                 [name]: value
@@ -118,7 +135,7 @@ class Settings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true, cached_settings: this.state.settings })
+                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false })
             })
             .catch((error) => {
                 console.error(error)
@@ -336,7 +353,7 @@ class Settings extends Component {
     getPaymentEmailFields () {
         const settings = this.state.settings
 
-        const formFields = [
+        return [
             [
                 {
                     name: 'should_send_email_for_manual_payment',
@@ -360,8 +377,6 @@ class Settings extends Component {
                 }
             ]
         ]
-
-        return formFields
     }
 
     getDefaultFields () {
@@ -456,7 +471,7 @@ class Settings extends Component {
     }
 
     handleCancel () {
-        this.setState({ settings: this.state.cached_settings })
+        this.setState({ settings: this.state.cached_settings, changesMade: false })
     }
 
     handleClose () {
@@ -522,7 +537,8 @@ class Settings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={translations.settings_not_saved}/>
 
-                <Header title={translations.account_details} handleCancel={this.handleCancel.bind(this)}
+                <Header title={translations.account_details} cancelButtonDisabled={!this.state.changesMade}
+                    handleCancel={this.handleCancel.bind(this)}
                     handleSubmit={this.handleSubmit}
                     tabs={tabs}/>
 

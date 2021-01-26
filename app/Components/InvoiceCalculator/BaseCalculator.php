@@ -93,9 +93,9 @@ class BaseCalculator
     protected function calculateBalance($total, $balance)
     {
         if ($total != $balance) {
-            $paid_to_date = $total - $balance;
+            $amount_paid = $total - $balance;
 
-            return round($total, $this->decimals) - $paid_to_date;
+            return round($total, $this->decimals) - $amount_paid;
         }
 
         return round($total, $this->decimals);

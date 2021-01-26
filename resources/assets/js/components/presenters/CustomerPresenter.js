@@ -11,7 +11,7 @@ export function getDefaultTableFields () {
         'email',
         'website',
         'balance',
-        'paid_to_date'
+        'amount_paid'
     ]
 }
 
@@ -30,7 +30,7 @@ export default function CustomerPresenter (props) {
             return <FormatMoney customer_id={entity.customer_id} className={text_color} customers={props.customers}
                 amount={entity[field]}/>
         }
-        case 'paid_to_date':
+        case 'amount_paid':
             return <FormatMoney customer_id={entity.id} customers={props.customers} amount={entity[field]}/>
         default:
             return entity[field]

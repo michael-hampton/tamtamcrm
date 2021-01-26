@@ -58,7 +58,7 @@ trait CustomerTransformable
             'size_id'                => (int)$customer->size_id ?: null,
             'currency_id'            => $customer->currency_id,
             'balance'                => (float)$customer->balance,
-            'paid_to_date'           => (float)$customer->paid_to_date,
+            'amount_paid'           => (float)$customer->amount_paid,
             'credit_balance'         => (float)$customer->credit_balance,
             'assigned_to'            => $customer->assigned_to,
             'settings'               => $customer->settings,

@@ -66,41 +66,6 @@ class ServiceBase
         return true;
     }
 
-    protected function reverseStatus()
-    {
-        $this->entity->setStatus($this->entity->previous_status);
-        $this->entity->previous_status = null;
-
-        $this->entity->save();
-        return $this->entity;
-    }
-
-    protected function reverseBalance()
-    {
-        if (!isset($this->entity->previous_balance) || empty($this->entity->previous_balance)) {
-            return $this->entity;
-        }
-
-        $previous_balance = $this->entity->previous_balance;
-        $customer = $this->entity->customer->fresh();
-
-        $customer->increaseBalance($previous_balance);
-
-        $customer->save();
-
-        $this->entity->transaction_service()->createTransaction(
-            $previous_balance,
-            $customer->balance,
-            "Reverse Balance"
-        );
-
-        $this->entity->setBalance($previous_balance);
-        $this->entity->previous_balance = null;
-
-        $this->entity->save();
-        return $this->entity;
-    }
-
     /**
      * @param string $subject
      * @param string $body

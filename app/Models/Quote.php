@@ -84,6 +84,7 @@ class Quote extends Model
         'partial_due_date',
         'date',
         'balance',
+        'amount_paid',
         'line_items',
         'company_id',
         'task_id',

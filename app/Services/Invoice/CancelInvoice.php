@@ -106,10 +106,10 @@ class CancelInvoice
      */
     private function updateCustomer(): Customer
     {
-        $customer = $this->invoice->customer->fresh();
+        $customer = $this->invoice->customer;
 
         if ($this->is_delete) {
-            $customer->reducePaidToDateAmount($this->balance);
+            $customer->reduceAmountPaid($this->balance);
         }
 
         if ($this->invoice->status_id !== Invoice::STATUS_PAID) {
@@ -128,8 +128,7 @@ class CancelInvoice
     {
         $invoice = $this->invoice;
 
-        $this->invoice->setPreviousStatus();
-        $this->invoice->setPreviousBalance();
+        $this->invoice->cacheData();
         $this->invoice->setBalance(0);
         $this->invoice->setStatus(Invoice::STATUS_CANCELLED);
         $this->invoice->setDateCancelled();

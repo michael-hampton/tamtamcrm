@@ -80,7 +80,7 @@ export default class ExpenseModel extends BaseModel {
 
         if (data !== null) {
             this._fields = { ...this.fields, ...data }
-            console.log('customer', this.customer)
+            this.updateCustomer()
             this.fields.currency_id = this.customer.length && this.customer.currency_id ? this.customer.currency_id : this.settings.currency_id
         }
     }
@@ -219,13 +219,21 @@ export default class ExpenseModel extends BaseModel {
         return null
     }
 
-    get customer () {
-        return this.customers &&
+    updateCustomer () {
+        this.customer = this.customers &&
         this.customers.length &&
         this.fields.customer_id &&
         this.fields.customer_id.toString().length
             ? this.customers.filter(customer => customer.id === parseInt(this.fields.customer_id))[0]
             : []
+    }
+
+    get customer () {
+        return this._customer || []
+    }
+
+    set customer (customer) {
+        this._customer = customer
     }
 
     get isConverted () {

@@ -49,7 +49,7 @@ class RefundValidation implements Rule
         $payment = Payment::whereId($this->request['id'])->first();
 
         if (!$payment) {
-            $this->validationFailures[] = 'Invalid payment';
+            $this->validationFailures[] = trans('texts.invalid_payment');
             return false;
         }
 
@@ -61,12 +61,12 @@ class RefundValidation implements Rule
         }
 
         if ($invoice_total > $payment->amount) {
-            $this->validationFailures[] = 'Refund amount is to high';
+            $this->validationFailures[] = trans('texts.invalid_refund_amount');
             return false;
         }
 
         if (!in_array($payment->status_id, [Payment::STATUS_COMPLETED, Payment::STATUS_PARTIALLY_REFUNDED])) {
-            $this->validationFailures[] = 'payment has not been completed';
+            $this->validationFailures[] = trans('texts.incomplete_payment');
             return false;
         }
 

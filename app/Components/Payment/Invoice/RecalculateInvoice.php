@@ -83,12 +83,13 @@ class RecalculateInvoice
     private function updateInvoice(): Invoice
     {
         if ($this->payment_amount > $this->invoice->balance) {
-            return true;
+            return $this->invoice;
         }
 
         $balance_remaining = $this->invoice->balance - $this->payment_amount;
 
         $this->invoice->reduceBalance($this->payment_amount);
+        $this->invoice->increaseAmountPaid($this->payment_amount);
 
         $status = $balance_remaining > 0 || ($this->invoice->partial && $this->invoice->partial > 0) ? Invoice::STATUS_PARTIAL : Invoice::STATUS_PAID;
         $this->invoice->setStatus($status);

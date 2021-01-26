@@ -83,9 +83,9 @@ class GenerateHtml
         $html = $objPdf->parseValues($values, $html);
         $html = $objPdf->removeEmptyValues(
             [
-                '$customer.paid_to_date_label:',
+                '$customer.amount_paid_label:',
                 '$customer.balance_label:',
-                '$customer.paid_to_date',
+                '$customer.amount_paid',
                 '$customer.balance'
             ],
             $html

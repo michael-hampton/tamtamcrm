@@ -44,6 +44,7 @@ trait CreditTransformable
             'invitations'         => $this->transformCreditInvitations($credit->invitations),
             'total'               => $credit->total,
             'balance'             => (float)$credit->balance,
+            'amount_paid'         => (float)$credit->amount_paid,
             'sub_total'           => (float)$credit->sub_total,
             'tax_total'           => (float)$credit->tax_total,
             'status_id'           => (int)$credit->status_id,

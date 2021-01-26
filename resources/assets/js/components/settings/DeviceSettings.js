@@ -21,7 +21,8 @@ export default class DeviceSettings extends Component {
                 number_of_rows: localStorage.getItem('number_of_rows') || 10
             },
             success: false,
-            error: false
+            error: false,
+            changesMade: false
         }
 
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
@@ -34,7 +35,21 @@ export default class DeviceSettings extends Component {
     }
 
     componentDidMount () {
+        window.addEventListener('beforeunload', this.beforeunload.bind(this))
         // this.getAccount()
+    }
+
+    componentWillUnmount () {
+        window.removeEventListener('beforeunload', this.beforeunload.bind(this))
+    }
+
+    beforeunload (e) {
+        if (this.state.changesMade) {
+            if (!confirm(translations.changes_made_warning)) {
+                e.preventDefault()
+                return false
+            }
+        }
     }
 
     getAccount () {
@@ -59,6 +74,7 @@ export default class DeviceSettings extends Component {
         const text = event.target.dataset.text
 
         this.setState(prevState => ({
+            changesMade: true,
             settings: {
                 ...prevState.settings,
                 header_background_color: value,
@@ -74,6 +90,7 @@ export default class DeviceSettings extends Component {
         const text = event.target.dataset.text
 
         this.setState(prevState => ({
+            changesMade: true,
             settings: {
                 ...prevState.settings,
                 footer_background_color: value,
@@ -137,6 +154,7 @@ export default class DeviceSettings extends Component {
         const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
 
         this.setState(prevState => ({
+            changesMade: true,
             settings: {
                 ...prevState.settings,
                 [name]: value
@@ -161,7 +179,7 @@ export default class DeviceSettings extends Component {
     getInventoryFields () {
         const settings = this.state.settings
 
-        const formFields = [
+        return [
             [
                 {
                     name: 'dark_theme',
@@ -193,8 +211,6 @@ export default class DeviceSettings extends Component {
                 }
             ]
         ]
-
-        return formFields
     }
 
     handleSubmit (e) {
@@ -210,7 +226,7 @@ export default class DeviceSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true, cached_settings: this.state.settings })
+                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false })
             })
             .catch((error) => {
                 this.setState({ error: true })
@@ -222,7 +238,7 @@ export default class DeviceSettings extends Component {
     }
 
     handleCancel () {
-        this.setState({ settings: this.state.cached_settings })
+        this.setState({ settings: this.state.cached_settings, changesMade: false })
     }
 
     handleClose () {

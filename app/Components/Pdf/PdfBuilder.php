@@ -165,10 +165,10 @@ class PdfBuilder
             ];
         }
 
-        if (isset($customer->paid_to_date)) {
-            $this->data['$customer.paid_to_date'] = [
+        if (isset($customer->amount_paid)) {
+            $this->data['$customer.amount_paid'] = [
                 'value' => $customer->getFormattedPaidToDate() ?: '&nbsp;',
-                'label' => trans('texts.customer_paid_to_date')
+                'label' => trans('texts.customer_amount_paid')
             ];
         }
 

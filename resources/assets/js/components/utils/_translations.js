@@ -289,7 +289,7 @@ _localizedValues.en = {
     tax: 'Tax',
     design: 'Design',
     total: 'Total',
-    paid_to_date: 'Paid To Date',
+    amount_paid: 'Paid To Date',
     balance: 'Balance',
     copy_shipping: 'Copy Shipping',
     copy_billing: 'Copy Billing',

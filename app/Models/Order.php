@@ -65,6 +65,7 @@ class Order extends Model
         'project_id',
         'total',
         'balance',
+        'amount_paid',
         'sub_total',
         'tax_total',
         'tax_rate',
@@ -101,7 +102,6 @@ class Order extends Model
         'design_id',
         'shipping_id',
         'shipping_label_url',
-        'previous_status',
         'voucher_code',
         'assigned_to'
     ];
@@ -193,12 +193,36 @@ class Order extends Model
         $this->customer_id = (int)$customer->id;
     }
 
-    /**
-     * @param int $status
-     */
-    public function setPreviousStatus(int $status)
+    public function cacheData()
     {
-        $this->previous_status = (int)$status;
+        $cached_data = [
+            'balance'     => $this->balance,
+            'status_id'   => $this->status_id,
+            'amount_paid' => $this->amount_paid
+        ];
+
+        $this->cached_data = json_encode($cached_data);
+        $this->save();
+    }
+
+    public function rewindCache(): bool
+    {
+        $cached_data = json_decode($this->cached_data, true);
+
+        if (!empty($cached_data['balance'])) {
+            $this->setBalance($cached_data['balance']);
+        }
+
+        $this->setStatus($cached_data['status_id']);
+
+        if (!empty($cached_data['amount_paid'])) {
+            $this->setAmountPaid($cached_data['amount_paid']);
+        }
+
+        $this->cached_data = null;
+        $this->save();
+
+        return true;
     }
 
     /**
