@@ -92,7 +92,8 @@ export default class InvoiceModel extends BaseModel {
             showErrorMessage: false,
             loading: false,
             changesMade: false,
-            viewed: false
+            viewed: false,
+            late_fee_reminder: null
         }
 
         this.approved = 4

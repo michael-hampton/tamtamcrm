@@ -483,7 +483,8 @@ class EditInvoice extends Component {
             shipping_cost_tax: this.state.shipping_cost_tax,
             invitations: this.state.invitations,
             gateway_fee: this.state.gateway_fee,
-            gateway_percentage: this.state.gateway_percentage
+            gateway_percentage: this.state.gateway_percentage,
+            late_fee_reminder: this.state.late_fee_reminder
         }
     }
 
@@ -632,10 +633,12 @@ class EditInvoice extends Component {
                 contacts={this.state.contacts}
                 invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
 
-        const settings = <InvoiceSettings is_mobile={this.state.is_mobile} handleSurcharge={this.handleSurcharge}
+        const settings = <InvoiceSettings entity="invoice" is_mobile={this.state.is_mobile}
+            handleSurcharge={this.handleSurcharge}
             settings={this.state}
             errors={this.state.errors} handleInput={this.handleInput}
             discount={this.state.discount}
+            late_fee_reminder={this.state.late_fee_reminder}
             is_amount_discount={this.state.is_amount_discount}
             design_id={this.state.design_id}/>
 
@@ -648,7 +651,6 @@ class EditInvoice extends Component {
 
         const notes = !this.state.is_mobile
             ? <NoteTabs model={this.invoiceModel}
-                show_exchange={this.invoiceModel.account_currency.exchange_rate !== this.state.exchange_rate}
                 projects={this.state.projects}
                 invoice={this.state} private_notes={this.state.private_notes}
                 public_notes={this.state.public_notes}

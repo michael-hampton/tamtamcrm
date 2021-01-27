@@ -1,5 +1,9 @@
 const _localizedValues = []
 _localizedValues.en = {
+    reminder: 'Late Fee Reminder',
+    reminder_1: 'Reminder 1',
+    reminder_2: 'Reminder 2',
+    reminder_3: 'Reminder 3',
     no_timers: 'Click play to add time',
     edit_bank_account: 'Edit Bank Account',
     add_bank_account: 'Add Bank Account',
@@ -692,6 +696,7 @@ _localizedValues.en = {
     min_limit: 'Min Limit',
     max_limit: 'Max Limit',
     fee_amount: 'Fee Amount',
+    percent: 'Percent',
     fee_percent: 'Fee Percent',
     fee_cap: 'Fee Cap',
     accepted_cards: 'Accepted Cards',

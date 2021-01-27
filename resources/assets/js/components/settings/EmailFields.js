@@ -502,7 +502,7 @@ class EmailFields extends Component {
                 ]
             },
             email_template_reminder1: {
-                name: 'Reminder 1',
+                name: translations.reminder_1,
                 is_reminder: true,
                 is_custom: false,
                 fields: [
@@ -585,7 +585,7 @@ class EmailFields extends Component {
                 ]
             },
             email_template_reminder2: {
-                name: 'Reminder 2',
+                name: translations.reminder_2,
                 is_reminder: true,
                 is_custom: false,
                 fields: [
@@ -668,7 +668,7 @@ class EmailFields extends Component {
                 ]
             },
             email_template_reminder3: {
-                name: 'Reminder 3',
+                name: translations.reminder_3,
                 is_reminder: true,
                 is_custom: false,
                 fields: [

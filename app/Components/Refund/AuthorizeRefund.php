@@ -18,18 +18,8 @@ use net\authorize\api\contract\v1\TransactionRequestType;
 use net\authorize\api\controller\CreateTransactionController;
 use net\authorize\api\controller\GetTransactionDetailsController;
 
-class AuthorizeRefund
+class AuthorizeRefund extends BaseRefund
 {
-    /**
-     * @var Payment
-     */
-    private Payment $payment;
-
-    /**
-     * @var CompanyGateway
-     */
-    private CompanyGateway $company_gateway;
-
     /**
      * @var array
      */
@@ -103,9 +93,11 @@ class AuthorizeRefund
             return $response->getTransaction();
         }
 
-        echo "ERROR :  Invalid response\n";
         $errorMessages = $response->getMessages()->getMessage();
-        echo "Response : " . $errorMessages[0]->getCode() . "  " . $errorMessages[0]->getText() . "\n";
+        $this->addErrorToLog(
+            $this->payment->user,
+            ['error' => $errorMessages[0]->getText(), 'code' => $errorMessages[0]->getCode()]
+        );
     }
 
     private function buildPaymentProfile($customer_payment_profile_id)
@@ -160,6 +152,8 @@ class AuthorizeRefund
 
     private function sendRequest()
     {
+        //https://developer.authorize.net/api/reference/index.html#payment-transactions-refund-a-transaction
+
         // Set the transaction's refId
         $refId = 'ref' . time();
 
@@ -170,8 +164,55 @@ class AuthorizeRefund
         $controller = new CreateTransactionController($request);
         $response = $controller->executeWithApiResponse(ANetEnvironment::SANDBOX);
 
-        if ($response != null && $response->getMessages()->getResultCode() == "Ok") {
-            return true;
+        if ($response != null) {
+            if ($response->getMessages()->getResultCode() == "Ok") {
+                $tresponse = $response->getTransactionResponse();
+
+                if ($tresponse != null && $tresponse->getMessages() != null) {
+                    $this->triggerSuccess(
+                        $this->payment->user,
+                        [
+                            'response_code'  => $tresponse->getResponseCode(),
+                            'transaction_id' => $tresponse->getTransId(),
+                            'code'           => $tresponse->getMessages()[0]->getCode(),
+                            'description'    => $tresponse->getMessages()[0]->getDescription()
+                        ]
+                    );
+
+                    return true;
+                }
+
+                if ($tresponse->getErrors() != null) {
+                    $errors = [
+                        'code'    => $tresponse->getErrors()[0]->getErrorCode(),
+                        'message' => $tresponse->getErrors()[0]->getErrorText()
+                    ];
+                }
+
+                $this->addErrorToLog($this->payment->user, $errors);
+                return false;
+            }
+
+            $tresponse = $response->getTransactionResponse();
+
+            if ($tresponse != null && $tresponse->getErrors() != null) {
+                $errors = [
+                    'code'    => $tresponse->getErrors()[0]->getErrorCode(),
+                    'message' => $tresponse->getErrors()[0]->getErrorText()
+                ];
+
+                $this->addErrorToLog($this->payment->user, $errors);
+                return false;
+            }
+
+
+            $errors = [
+                'code'    => $response->getMessages()->getMessage()[0]->getCode(),
+                'message' => $response->getMessages()->getMessage()[0]->getText()
+            ];
+
+            $this->addErrorToLog($this->payment->user, $errors);
+            return false;
         }
 
         return false;

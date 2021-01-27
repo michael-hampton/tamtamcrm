@@ -127,8 +127,8 @@ export default function InvoiceSettings (props) {
                                 id='is_amount_discount'
                                 onChange={props.handleInput}
                             >
-                                <option value="false">Percent</option>
-                                <option value="true">Amount</option>
+                                <option value="false">{translations.percent}</option>
+                                <option value="true">{translations.amount}</option>
                             </Input>
                         </FormGroup>
                     </Col>
@@ -138,6 +138,18 @@ export default function InvoiceSettings (props) {
                 <FormGroup>
                     <Label>{translations.design}</Label>
                     <DesignDropdown name="design_id" design={props.design_id} handleChange={props.handleInput}/>
+                </FormGroup>
+                }
+
+                {props.is_mobile && props.entity && props.entity === 'invoice' &&
+                <FormGroup>
+                    <Label>{translations.reminder}</Label>
+                    <Input type="select" name="reminder" value={props.late_fee_reminder} onChange={props.handleInput}>
+                        <option value="">{translations.select_option}</option>
+                        <option value="1">{translations.reminder_1} {account_settings.amount_to_charge_1} {account_settings.percent_to_charge_1}</option>
+                        <option value="2">{translations.reminder_2} {account_settings.amount_to_charge_2} {account_settings.percent_to_charge_2}</option>
+                        <option value="3">{translations.reminder_3} {account_settings.amount_to_charge_3} {account_settings.percent_to_charge_3}</option>
+                    </Input>
                 </FormGroup>
                 }
             </CardBody>

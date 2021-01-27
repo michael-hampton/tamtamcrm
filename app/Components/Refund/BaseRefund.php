@@ -4,10 +4,15 @@ namespace App\Components\Refund;
 
 use App\Components\InvoiceCalculator\LineItem;
 use App\Events\Payment\PaymentWasRefunded;
+use App\Events\Payment\RefundFailed;
 use App\Factory\CreditFactory;
+use App\Factory\ErrorLogFactory;
+use App\Models\CompanyGateway;
 use App\Models\Customer;
+use App\Models\ErrorLog;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\User;
 use App\Repositories\CreditRepository;
 
 class BaseRefund
@@ -39,7 +44,16 @@ class BaseRefund
      * @var bool
      */
     private bool $has_invoices = false;
+
+    /**
+     * @var CreditRepository
+     */
     private CreditRepository $credit_repo;
+
+    /**
+     * @var CompanyGateway
+     */
+    protected CompanyGateway $company_gateway;
 
     /**
      * BaseRefund constructor.
@@ -198,5 +212,47 @@ class BaseRefund
     private function reduceRefundTotal()
     {
         $this->payment->refunded -= $this->amount;
+    }
+
+    /**
+     * @param User $user
+     * @param array $errors
+     * @return bool
+     */
+    protected function addErrorToLog(User $user, array $errors): bool
+    {
+        $error_log = ErrorLogFactory::create($this->customer->account, $user, $this->customer);
+        $error_log->data = $errors['data'];
+        $error_log->error_type = ErrorLog::REFUND;
+        $error_log->error_result = ErrorLog::FAILURE;
+        $error_log->entity = $this->company_gateway->gateway_key;
+
+        $error_log->save();
+
+        event(new RefundFailed($this->payment));
+
+        return true;
+    }
+
+    /**
+     * @param User $user
+     * @param array $errors
+     * @return bool
+     */
+    protected function triggerSuccess(User $user, array $data): bool
+    {
+        $data['payment_id'] = $this->payment->id;
+
+        $error_log = ErrorLogFactory::create($this->customer->account, $user, $this->customer);
+        $error_log->data = $data;
+        $error_log->error_type = ErrorLog::REFUND;
+        $error_log->error_result = ErrorLog::SUCCESS;
+        $error_log->entity = $this->company_gateway->gateway_key;
+
+        $error_log->save();
+
+        event(new PaymentWasRefunded($this->payment, $data));
+
+        return true;
     }
 }

@@ -80,6 +80,8 @@ class GatewayRefund extends BaseRefund
             return true;
         }
 
+        $this->addErrorToLog($this->payment->user, ['error' => $response->failure_reason]);
+
         return false;
     }
 
@@ -102,6 +104,8 @@ class GatewayRefund extends BaseRefund
         if ($response->isSuccessful()) {
             return true;
         }
+
+        $this->addErrorToLog($this->payment->user, ['error' => 'failed to do paypal refund']);
 
         return false;
     }

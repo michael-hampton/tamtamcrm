@@ -29,7 +29,7 @@ class InvoiceTransformable
             'assigned_to'          => (int)$invoice->assigned_to,
             'company_id'           => (int)$invoice->company_id ?: null,
             'currency_id'          => (int)$invoice->currency_id ?: null,
-            'exchange_rate'        => (float)$invoice->exchange_rate,
+            'exchange_rate'        => (float)$invoice->exchange_rate ?: 1,
             'public_notes'         => $invoice->public_notes ?: '',
             'private_notes'        => $invoice->private_notes ?: '',
             'customer_id'          => (int)$invoice->customer_id,
@@ -74,6 +74,7 @@ class InvoiceTransformable
             'tax_rate_name_3'      => $invoice->tax_rate_name_3,
             'viewed'               => (bool)$invoice->viewed,
             'is_deleted'           => (bool)$invoice->is_deleted,
+            'late_fee_reminder'    => (int)$invoice->late_fee_reminder
         ];
     }
 

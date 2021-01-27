@@ -14,6 +14,7 @@ class ErrorLog extends Authenticatable
      * type
      */
     const PAYMENT = 'payment';
+    const REFUND = 'refund';
     const EMAIL = 'email';
     /**
      * result
