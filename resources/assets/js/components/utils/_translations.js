@@ -1,5 +1,6 @@
 const _localizedValues = []
 _localizedValues.en = {
+    portal_registration_url: 'Registration URL',
     reminder: 'Late Fee Reminder',
     reminder_1: 'Reminder 1',
     reminder_2: 'Reminder 2',

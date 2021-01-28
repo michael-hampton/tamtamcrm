@@ -29,3 +29,13 @@ export function zeroPad (num, places) {
 export function formatPercentage (number) {
     return parseFloat(number).toFixed(2) + '%'
 }
+
+export function formatSecondsToTime (seconds) {
+    return !seconds ? null : new Date(seconds * 1000).toISOString().substr(11, 8)
+}
+
+export function convertTimeToSeconds (time) {
+    const a = time.split(':') // split it at the colons
+
+    return (+a[0]) * 60 * 60 + (+a[1]) * 60 + (+a[2])
+}

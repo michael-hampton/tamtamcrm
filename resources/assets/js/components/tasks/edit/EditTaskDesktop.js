@@ -38,6 +38,8 @@ import UserDropdown from '../../common/dropdowns/UserDropdown'
 import TaskTimeDesktop from './TaskTimeDesktop'
 import AddButtons from '../../common/AddButtons'
 import ColorPickerNew from '../../common/ColorPickerNew'
+import LiveText from '../../common/LiveText'
+import { formatSecondsToTime } from '../../utils/_formatting'
 
 export default class EditTaskDesktop extends Component {
     constructor (props) {
@@ -415,23 +417,34 @@ export default class EditTaskDesktop extends Component {
                 </TabPane>
             </TabContent>
 
-            <Button onClick={(e) => {
-                this.taskModel.completeAction(this.state, button_action).then(response => {
-                    this.setState({ show_success: true }, () => {
-                        this.updateList(response, false)
-                    })
+            <div className="d-flex justify-content-between">
+                {!this.props.add &&
+                <span>
+                    {translations.duration + ' '}
+                    <LiveText
+                        duration={formatSecondsToTime(this.taskModel.getTotalDuration(this.taskModel.autoStartTask))} task_automation_enabled={this.taskModel.autoStartTask}/>
+                </span>
+                }
 
-                    toast.success(translations.times_updated, {
-                        position: 'top-center',
-                        autoClose: 5000,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-                        pauseOnHover: true,
-                        draggable: true,
-                        progress: undefined
+                <Button onClick={(e) => {
+                    this.taskModel.completeAction(this.state, button_action).then(response => {
+                        this.setState({ show_success: true }, () => {
+                            this.updateList(response, false)
+                        })
+
+                        toast.success(translations.times_updated, {
+                            position: 'top-center',
+                            autoClose: 5000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined
+                        })
                     })
-                })
-            }}>{button_text}</Button>
+                }}>{button_text}</Button>
+            </div>
+
         </React.Fragment>
 
         const button = this.props.add === true ? <AddButtons toggle={this.toggle}/>

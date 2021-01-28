@@ -121,13 +121,19 @@ export default class TaskModel extends BaseModel {
         return Math.round(duration, 3)
     }
 
-    getTotalDuration () {
+    getTotalDuration (task_automation_enabled = true) {
         let seconds = 0
         this.fields.timers.map(timer => {
-            seconds += this.calculateDuration(timer.start_time, timer.end_time, true)
+            if (this.isRunning || task_automation_enabled) {
+                seconds += this.calculateDuration(timer.start_time, timer.end_time, true)
+            }
         })
 
         return seconds
+    }
+
+    get autoStartTask () {
+        return this.settings.task_automation_enabled || false
     }
 
     calculateDuration (currentStartTime, currentEndTime, returnAsSeconds = false) {

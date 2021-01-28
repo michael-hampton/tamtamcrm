@@ -20,12 +20,28 @@ export default class BaseModel {
         this.error_message = ''
         this.customer = null
 
-        const account_id = JSON.parse(localStorage.getItem('appState')).user.account_id
-        this.user_account = JSON.parse(localStorage.getItem('appState')).accounts.filter(account => account.account_id === parseInt(account_id))
+        this.account_id = JSON.parse(localStorage.getItem('appState')).user.account_id
+        this.user_account = JSON.parse(localStorage.getItem('appState')).accounts.filter(account => account.account_id === parseInt(this.account_id))
         this.settings = this.user_account[0].account.settings
         this.custom_fields = this.user_account[0].account.custom_fields
         this.tax_rates = JSON.parse(localStorage.getItem('tax_rates'))
         this.customer_settings = {}
+    }
+
+    get portal_registration_url () {
+        let url = this.user_account[0].account.portal_domain
+        url = url.endsWith('/') ? url.slice(0, -1) : url
+
+
+        url += '/portal/register'
+
+        const accounts = JSON.parse(localStorage.getItem('appState')).accounts
+
+        if (accounts.length > 1) {
+            url += '/' + this.user_account[0].account.slug
+        }
+
+        return url
     }
 
     get merged_settings () {

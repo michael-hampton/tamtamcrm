@@ -7,6 +7,9 @@ import { icons } from '../utils/_icons'
 import Snackbar from '@material-ui/core/Snackbar'
 import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
+import SectionItem from '../common/entityContainers/SectionItem'
+import BaseModel from '../models/BaseModel'
+import { toast, ToastContainer } from 'react-toastify'
 
 export default class CustomerPortalSettings extends Component {
     constructor (props) {
@@ -27,6 +30,8 @@ export default class CustomerPortalSettings extends Component {
         this.handleSubmit = this.handleSubmit.bind(this)
         this.getAccount = this.getAccount.bind(this)
         this.toggle = this.toggle.bind(this)
+
+        this.model = new BaseModel()
     }
 
     componentDidMount () {
@@ -311,6 +316,7 @@ export default class CustomerPortalSettings extends Component {
 
         return this.state.loaded === true ? (
             <React.Fragment>
+                <ToastContainer/>
                 <Snackbar open={this.state.success} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
                     <Alert severity="success">
                         {translations.settings_saved}
@@ -336,6 +342,12 @@ export default class CustomerPortalSettings extends Component {
                                         handleChange={this.handleSettingsChange}
                                         formFieldsRows={this.getEnabledModuleFields()}
                                     />
+
+                                    <SectionItem className="mt-4 col-md-8" link={this.model.portal_registration_url} subtitle={this.model.portal_registration_url} onClick={(e) => {
+                                        this.model.copyToClipboard(this.model.portal_registration_url)
+                                        toast.success('upload success')
+                                        return false
+                                    }} title={translations.portal_registration_url} icon={icons.clone} />
                                 </CardBody>
                             </Card>
 
