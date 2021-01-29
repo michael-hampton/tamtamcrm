@@ -79,7 +79,7 @@ class TaskSearch extends BaseSearch
 
         $this->addAccount($account);
 
-        $this->checkPermissions('taskcontroller.index');
+        $this->checkPermissions('taskcontroller.index', 'tasks');
 
         $this->orderBy($orderBy, $orderDir);
 
