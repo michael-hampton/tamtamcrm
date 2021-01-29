@@ -65,6 +65,8 @@ class ProjectSearch extends BaseSearch
 
         $this->addAccount($account);
 
+        $this->checkPermissions('projectcontroller.index');
+
         $this->orderBy($orderBy, $orderDir);
 
         $projects = $this->transformList();

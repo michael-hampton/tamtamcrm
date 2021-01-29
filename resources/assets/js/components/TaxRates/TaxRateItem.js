@@ -69,7 +69,7 @@ export default class TaxRateItem extends Component {
                     : null
 
                 const columnList = Object.keys(taxRate).filter(key => {
-                    return ignoredColumns && !ignoredColumns.includes(key)
+                    return ignoredColumns.includes(key)
                 }).map(key => {
                     return <td key={key}
                         onClick={() => this.props.toggleViewedEntity(taxRate, taxRate.name, editButton)}

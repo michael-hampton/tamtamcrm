@@ -68,7 +68,7 @@ export default class UserItem extends Component {
                         action={this.props.addUserToState}/> : null
 
                 const columnList = Object.keys(user).filter(key => {
-                    return ignoredColumns && !ignoredColumns.includes(key)
+                    return ignoredColumns.includes(key)
                 }).map(key => {
                     return <td key={key}
                         onClick={() => this.props.toggleViewedEntity(user, user.name, editButton)}

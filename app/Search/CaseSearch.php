@@ -76,6 +76,8 @@ class CaseSearch extends BaseSearch
 
         $this->addAccount($account);
 
+        $this->checkPermissions('casecontroller.index');
+
         $this->orderBy($orderBy, $orderDir);
 
         $subscriptions = $this->transformList();

@@ -69,6 +69,8 @@ class CustomerSearch extends BaseSearch
 
         $this->addAccount($account);
 
+        $this->checkPermissions('customercontroller.index');
+
         $this->orderBy($orderBy, $orderDir);
 
         $customers = $this->transformList();

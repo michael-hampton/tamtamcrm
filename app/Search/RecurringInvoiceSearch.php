@@ -66,6 +66,8 @@ class RecurringInvoiceSearch extends BaseSearch
 
         $this->addAccount($account);
 
+        $this->checkPermissions('recurringinvoicecontroller.index');
+
         $this->orderBy($orderBy, $orderDir);
 
         $invoices = $this->transformList();

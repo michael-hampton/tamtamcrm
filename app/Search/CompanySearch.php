@@ -59,6 +59,8 @@ class CompanySearch extends BaseSearch
 
         $this->addAccount($account, 'companies');
 
+        $this->checkPermissions('companycontroller.index', 'companies');
+
         $this->orderBy($orderBy, $orderDir);
 
         $this->query->groupBy('companies.id');

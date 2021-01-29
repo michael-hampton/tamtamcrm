@@ -78,7 +78,7 @@ export default class Order extends Component {
             show_list={props.show_list}
             orders={orders} customers={customers}
             custom_fields={custom_fields}
-            ignoredColumns={props.ignoredColumns} updateOrder={this.updateOrder}
+            ignoredColumns={getDefaultTableFields()} updateOrder={this.updateOrder}
             viewId={props.viewId}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}

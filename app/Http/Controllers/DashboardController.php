@@ -62,6 +62,9 @@ class DashboardController extends Controller
 
     public function index()
     {
+        $search_request = new SearchRequest();
+        $search_request->replace(['column' => 'created_at', 'order' => 'desc', 'per_page' => 25]);
+
         $deal_repo = new DealRepository(new Deal);
         $arrSources = $this->taskRepository->getSourceTypeCounts(3, auth()->user()->account_user()->account_id);
         $arrStatuses = $this->taskRepository->getStatusCounts(auth()->user()->account_user()->account_id);
@@ -69,14 +72,14 @@ class DashboardController extends Controller
         $customersToday = $this->customerRepository->getRecentCustomers(3, auth()->user()->account_user()->account_id);
         $newDeals = $deal_repo->getNewDeals(3, auth()->user()->account_user()->account_id);
         $leads = (new LeadSearch(new LeadRepository(new Lead())))->filter(
-            new SearchRequest(),
+            $search_request,
             auth()->user()->account_user()->account
         );
         $totalEarnt = $deal_repo->getTotalEarnt(auth()->user()->account_user()->account_id);
 
         $arrOutput = [
             'customers'    => (new CustomerRepository(new Customer()))->getAll(
-                new SearchRequest(),
+                $search_request,
                 auth()->user()->account_user()->account
             ),
             'sources'      => $arrSources->toArray(),
@@ -88,31 +91,31 @@ class DashboardController extends Controller
             'newCustomers' => number_format($customersToday, 2),
             'deals'        => $leads,
             'invoices'     => (new InvoiceRepository(new Invoice()))->getAll(
-                new SearchRequest(),
+                $search_request,
                 auth()->user()->account_user()->account
             ),
             'quotes'       => (new QuoteRepository(new Quote()))->getAll(
-                new SearchRequest(),
+                $search_request,
                 auth()->user()->account_user()->account
             ),
             'credits'      => (new CreditRepository(new Credit()))->getAll(
-                new SearchRequest(),
+                $search_request,
                 auth()->user()->account_user()->account
             ),
             'payments'     => (new PaymentRepository(new Payment()))->getAll(
-                new SearchRequest(),
+                $search_request,
                 auth()->user()->account_user()->account
             ),
             'orders'       => (new OrderRepository(new Order()))->getAll(
-                new SearchRequest(),
+                $search_request,
                 auth()->user()->account_user()->account
             ),
             'expenses'     => (new ExpenseRepository(new Expense()))->getAll(
-                new SearchRequest(),
+                $search_request,
                 auth()->user()->account_user()->account
             ),
             'tasks'        => (new TaskRepository(new Task(), new ProjectRepository(new Project())))->getAll(
-                new SearchRequest(),
+                $search_request,
                 auth()->user()->account_user()->account
             )
         ];

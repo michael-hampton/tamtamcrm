@@ -112,7 +112,7 @@ export default class Expenses extends Component {
             viewId={props.viewId}
             companies={companies}
             custom_fields={custom_fields}
-            ignoredColumns={props.ignoredColumns} updateExpenses={this.updateExpenses}
+            ignoredColumns={getDefaultTableFields()} updateExpenses={this.updateExpenses}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>

@@ -77,6 +77,8 @@ class ExpenseSearch extends BaseSearch
 
         $this->addAccount($account);
 
+        $this->checkPermissions('expensecontroller.index');
+
         $this->orderBy($orderBy, $orderDir);
 
         $expenses = $this->transformList();

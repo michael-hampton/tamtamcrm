@@ -79,7 +79,7 @@ export default class Quotes extends Component {
             show_list={props.show_list}
             custom_fields={custom_fields}
             viewId={props.viewId}
-            ignoredColumns={props.ignoredColumns} updateInvoice={this.updateInvoice}
+            ignoredColumns={getDefaultTableFields()} updateInvoice={this.updateInvoice}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>

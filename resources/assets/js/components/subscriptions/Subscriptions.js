@@ -63,7 +63,7 @@ export default class Subscriptions extends Component {
         return <SubscriptionItem showCheckboxes={props.showCheckboxes} subscriptions={subscriptions}
             show_list={props.show_list}
             viewId={props.viewId}
-            ignoredColumns={props.ignoredColumns} addUserToState={this.addUserToState}
+            ignoredColumns={getDefaultTableFields()} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>

@@ -70,6 +70,8 @@ class CreditSearch extends BaseSearch
 
         $this->addAccount($account);
 
+        $this->checkPermissions('creditcontroller.index');
+
         $this->orderBy($orderBy, $orderDir);
 
         $companies = $this->transformList();

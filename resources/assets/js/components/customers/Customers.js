@@ -104,7 +104,7 @@ export default class Customers extends Component {
         return <CustomerItem viewId={props.viewId} showCheckboxes={props.showCheckboxes} customers={customers}
             show_list={props.show_list}
             custom_fields={custom_fields}
-            ignoredColumns={props.ignoredColumns} updateCustomers={this.updateCustomers}
+            ignoredColumns={getDefaultTableFields()} updateCustomers={this.updateCustomers}
             deleteCustomer={this.deleteCustomer} toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>

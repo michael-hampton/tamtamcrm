@@ -73,7 +73,7 @@ export default class LeadItem extends Component {
                 /> : null
 
                 const columnList = Object.keys(lead).filter(key => {
-                    return ignoredColumns && !ignoredColumns.includes(key)
+                    return ignoredColumns.includes(key)
                 }).map(key => {
                     return <td key={key}
                         onClick={() => this.props.toggleViewedEntity(lead, lead.first_name, editButton)}

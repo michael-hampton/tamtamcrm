@@ -58,6 +58,8 @@ class CompanyGatewaySearch extends BaseSearch
 
         $this->addAccount($account);
 
+        $this->checkPermissions('companygatewaycontroller.index');
+
         $this->orderBy($orderBy, $orderDir);
 
         $invoices = $this->transformList();

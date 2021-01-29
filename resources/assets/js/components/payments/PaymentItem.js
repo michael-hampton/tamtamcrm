@@ -83,7 +83,7 @@ export default class PaymentItem extends Component {
                 /> : null
 
                 const columnList = Object.keys(payment).filter(key => {
-                    return this.props.ignoredColumns && !this.props.ignoredColumns.includes(key)
+                    return this.props.ignoredColumns.includes(key)
                 }).map(key => {
                     return <td key={key}
                         onClick={() => this.props.toggleViewedEntity(payment, payment.number, editButton)}

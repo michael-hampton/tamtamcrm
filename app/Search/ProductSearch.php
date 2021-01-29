@@ -63,6 +63,8 @@ class ProductSearch extends BaseSearch
 
         $this->addAccount($account);
 
+        $this->checkPermissions('productcontroller.index');
+
         $this->orderBy($orderBy, $orderDir);
 
         $this->query->groupBy('products.id');

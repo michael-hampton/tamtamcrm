@@ -68,6 +68,8 @@ class InvoiceSearch extends BaseSearch
 
         $this->addAccount($account);
 
+        $this->checkPermissions('invoicecontroller.index');
+
         $this->orderBy($orderBy, $orderDir);
 
         $invoices = $this->transformList();

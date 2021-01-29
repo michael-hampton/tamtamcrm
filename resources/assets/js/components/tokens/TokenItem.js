@@ -65,7 +65,7 @@ export default class TokenItem extends Component {
                 /> : null
 
                 const columnList = Object.keys(token).filter(key => {
-                    return ignoredColumns && !ignoredColumns.includes(key)
+                    return ignoredColumns.includes(key)
                 }).map(key => {
                     return <td key={key}
                         onClick={() => this.props.toggleViewedEntity(token, token.name, editButton)}

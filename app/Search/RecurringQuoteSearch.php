@@ -66,6 +66,8 @@ class RecurringQuoteSearch extends BaseSearch
 
         $this->addAccount($account);
 
+        $this->checkPermissions('recurringquotecontroller.index');
+
         $this->orderBy($orderBy, $orderDir);
 
         $quotes = $this->transformList();

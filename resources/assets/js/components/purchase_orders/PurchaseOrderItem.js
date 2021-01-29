@@ -78,7 +78,7 @@ export default class PurchaseOrderItem extends Component {
                 /> : null
 
                 const columnList = Object.keys(purchase_order).filter(key => {
-                    return this.props.ignoredColumns && !this.props.ignoredColumns.includes(key)
+                    return this.props.ignoredColumns.includes(key)
                 }).map(key => {
                     return <td key={key}
                         onClick={() => this.props.toggleViewedEntity(purchase_order, purchase_order.number, editButton)}

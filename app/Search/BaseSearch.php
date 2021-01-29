@@ -9,6 +9,31 @@ use Carbon\Carbon;
 class BaseSearch
 {
 
+    protected function checkPermissions($permission, $table = '')
+    {
+        if (empty(auth()->user())) {
+            return true;
+        }
+
+        $user = auth()->user();
+
+//        if ($user->account_user()->is_admin || $user->account_user()->is_owner || $user->hasPermissionTo($permission)) {
+//            return true;
+//        }
+
+        $table = !empty($table) ? $table . '.' : '';
+
+        $this->query->where(
+            function ($query) use ($table) {
+                $query->where($table . 'user_id', auth()->user()->id)
+                      ->orWhere($table . 'assigned_to', auth()->user()->id);
+            }
+        );
+
+
+        return true;
+    }
+
     protected function filterDates($request)
     {
         $start = date("Y-m-d", strtotime($request->input('start_date')));

@@ -118,7 +118,7 @@ export default class Credits extends Component {
             show_list={props.show_list}
             custom_fields={custom_fields}
             viewId={props.viewId}
-            ignoredColumns={props.ignoredColumns} updateCustomers={this.updateCustomers}
+            ignoredColumns={getDefaultTableFields()} updateCustomers={this.updateCustomers}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>

@@ -61,6 +61,8 @@ class LeadSearch extends BaseSearch
 
         $this->addAccount($account);
 
+        $this->checkPermissions('leadcontroller.index');
+
         $this->orderBy($orderBy, $orderDir);
 
         $leads = $this->transformList();

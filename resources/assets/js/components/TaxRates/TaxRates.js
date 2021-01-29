@@ -66,7 +66,7 @@ export default class TaxRates extends Component {
         return <TaxRateItem showCheckboxes={props.showCheckboxes} taxRates={taxRates}
             show_list={props.show_list}
             viewId={props.viewId}
-            ignoredColumns={props.ignoredColumns} addUserToState={this.addUserToState}
+            ignoredColumns={getDefaultTableFields()} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>

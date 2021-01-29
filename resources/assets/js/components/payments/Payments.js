@@ -150,7 +150,7 @@ export default class Payments extends Component {
             viewId={props.viewId}
             credits={credits}
             invoices={invoices} custom_fields={custom_fields}
-            ignoredColumns={props.ignoredColumns} updateCustomers={this.updateCustomers}
+            ignoredColumns={getDefaultTableFields()} updateCustomers={this.updateCustomers}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>

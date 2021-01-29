@@ -31,6 +31,7 @@ class CreateCompanyGatewaysTable extends Migration
             $table->tinyInteger('should_store_card')->default(0);
             $table->text('fields')->nullable();
             $table->text('description')->nullable();
+            $table->integer('assigned_to')->nullable();
         });
     }
 

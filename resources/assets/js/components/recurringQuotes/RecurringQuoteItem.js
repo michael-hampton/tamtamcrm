@@ -76,7 +76,7 @@ export default class RecurringQuoteItem extends Component {
                 /> : null
 
                 const columnList = Object.keys(user).filter(key => {
-                    return this.props.ignoredColumns && !this.props.ignoredColumns.includes(key)
+                    return this.props.ignoredColumns.includes(key)
                 }).map(key => {
                     return <td key={key}
                         onClick={() => this.props.toggleViewedEntity(user, user.number, editButton)}

@@ -83,7 +83,7 @@ export default class TaskItem extends Component {
                 />
 
                 const columnList = Object.keys(task).filter(key => {
-                    return ignoredColumns && !ignoredColumns.includes(key)
+                    return ignoredColumns.includes(key)
                 }).map(key => {
                     return <td key={key} onClick={() => this.props.toggleViewedEntity(task, task.name, editButton)}
                         data-label={key}><TaskPresenter toggleViewedEntity={this.props.toggleViewedEntity}

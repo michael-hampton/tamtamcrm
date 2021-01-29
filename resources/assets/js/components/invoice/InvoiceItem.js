@@ -76,7 +76,7 @@ export default class InvoiceItem extends Component {
                 /> : null
 
                 const columnList = Object.keys(invoice).filter(key => {
-                    return this.props.ignoredColumns && !this.props.ignoredColumns.includes(key)
+                    return this.props.ignoredColumns.includes(key)
                 }).map(key => {
                     return <td key={key}
                         onClick={() => this.props.toggleViewedEntity(invoice, invoice.number, editButton)}

@@ -69,7 +69,7 @@ export default class Tokens extends Component {
         return <TokenItem showCheckboxes={props.showCheckboxes} tokens={tokens} users={users}
             viewId={props.viewId}
             show_list={props.show_list}
-            ignoredColumns={props.ignoredColumns} addUserToState={this.addUserToState}
+            ignoredColumns={getDefaultTableFields()} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>

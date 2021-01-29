@@ -65,7 +65,7 @@ export default class SubscriptionItem extends Component {
                 /> : null
 
                 const columnList = Object.keys(subscription).filter(key => {
-                    return ignoredColumns && !ignoredColumns.includes(key)
+                    return ignoredColumns.includes(key)
                 }).map(key => {
                     return <td key={key}
                         onClick={() => this.props.toggleViewedEntity(subscription, subscription.target_url, editButton)}

@@ -69,7 +69,7 @@ export default class DealItem extends Component {
                 /> : null
 
                 const columnList = Object.keys(deal).filter(key => {
-                    return ignoredColumns && !ignoredColumns.includes(key)
+                    return ignoredColumns.includes(key)
                 }).map(key => {
                     return <td key={key} onClick={() => this.props.toggleViewedEntity(deal, deal.number, editButton)}
                         data-label={key}><DealPresenter toggleViewedEntity={this.props.toggleViewedEntity}

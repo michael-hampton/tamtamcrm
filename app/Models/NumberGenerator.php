@@ -42,8 +42,10 @@ class NumberGenerator
         $this->entity_obj = $entity_obj;
         $resource = get_class($entity_obj);
 
-        $this->setType($entity_obj, $resource, $customer);
-        $this->setPrefix($customer);
+        $this->setType($entity_obj, $customer)->setCounterEntity($customer)->setCounter($customer)->setPattern(
+            $entity_obj,
+            $customer
+        )->setPrefix($customer);
 
         $padding = $customer !== null ? $customer->getSetting(
             'counter_padding'
@@ -58,19 +60,45 @@ class NumberGenerator
         return $number;
     }
 
-    /**
-     * @param $entity_object
-     * @param $resource
-     * @param Customer|null $customer
-     * @return bool
-     * @throws ReflectionException
-     */
-    private function setType($entity_object, $resource, Customer $customer = null)
+    private function setCounter(Customer $customer = null)
+    {
+        if ($this->counter_type === 'group' && $customer !== null) {
+            return !empty($customer->group_settings->{$this->counter_var}) ? $customer->group_settings->{$this->counter_var} : 1;
+        }
+
+        $this->counter = $customer !== null ? $customer->getSetting(
+            $this->counter_var
+        ) : $this->entity_obj->account->settings->{$this->counter_var};
+
+        if (empty($this->counter)) {
+            $this->counter = 1;
+        }
+
+        return $this;
+    }
+
+    private function setCounterEntity(Customer $customer = null)
+    {
+        if ($this->counter_type === 'group' && $customer !== null) {
+            $this->counter_entity = $customer->group_settings;
+            return $this;
+        }
+
+        if (empty($customer)) {
+            $this->counter_entity = $this->entity_obj->account;
+            return $this;
+        }
+
+        $this->counter_entity = $customer;
+
+        return $this;
+    }
+
+    private function setPattern($entity_object, Customer $customer = null)
     {
         $entity_id = strtolower((new ReflectionClass($entity_object))->getShortName());
+
         $pattern_entity = "{$entity_id}_number_prefix";
-        $this->counter_var = "{$entity_id}_number_counter";
-        $counter_type = "{$entity_id}_counter_type";
 
         $this->pattern = $customer !== null
             ? trim($customer->getSetting($pattern_entity))
@@ -78,29 +106,26 @@ class NumberGenerator
                 $this->entity_obj->account->settings->{$pattern_entity}
             );
 
-        $this->counter = $customer !== null ? $customer->getSetting(
-            $this->counter_var
-        ) : $this->entity_obj->account->settings->{$this->counter_var};
+        return $this;
+    }
+
+    /**
+     * @param $entity_object
+     * @param Customer|null $customer
+     * @return $this
+     * @throws ReflectionException
+     */
+    private function setType($entity_object, Customer $customer = null)
+    {
+        $entity_id = strtolower((new ReflectionClass($entity_object))->getShortName());
+        $this->counter_var = "{$entity_id}_number_counter";
+        $counter_type = "{$entity_id}_counter_type";
 
         $this->counter_type = $customer !== null ? $customer->getSetting(
             $counter_type
         ) : $this->entity_obj->account->settings->{$counter_type};
 
-        $this->counter_entity = $this->entity_obj->account;
-
-        if ($customer === null) {
-            return true;
-        }
-
-        if ($resource === Customer::class || $this->counter_type === 'customer') {
-            $this->counter = $customer->getSetting($this->counter_var);
-            $this->counter_entity = $customer;
-        } elseif ($this->counter_type === 'group') {
-            $this->counter = $customer->group_settings->{$this->counter_var};
-            $this->counter_entity = $customer->group_settings;
-        }
-
-        return true;
+        return $this;
     }
 
     private function setPrefix(Customer $customer = null)
@@ -108,6 +133,8 @@ class NumberGenerator
         $this->recurring_prefix = $customer !== null ? $customer->getSetting(
             'recurring_number_prefix'
         ) : $this->entity_obj->account->settings->recurring_number_prefix;
+
+        return $this;
     }
 
     private function checkEntityNumber($class, $customer, $counter, $padding)
@@ -121,8 +148,10 @@ class NumberGenerator
                 $number = $this->addPrefixToCounter($number, $class, $customer);
             }
 
-            $check = $class::whereAccountId($this->entity_obj->account->id)->whereNumber($number)->withTrashed()->first(
-            );
+            $check = $class::whereAccountId($this->entity_obj->account->id)
+                           ->whereNumber($number)
+                           ->withTrashed()
+                           ->first();
 
             $counter++;
         } while ($check);

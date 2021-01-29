@@ -62,6 +62,8 @@ class PaymentSearch extends BaseSearch
 
         $this->addAccount($account);
 
+        $this->checkPermissions('paymentcontroller.index');
+
         $this->orderBy($orderBy, $orderDir);
 
         $payments = $this->transformList();

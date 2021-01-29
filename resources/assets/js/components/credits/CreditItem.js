@@ -71,7 +71,7 @@ export default class CreditItem extends Component {
                     ? <DeleteModal archive={false} deleteFunction={this.deleteCredit} id={credit.id}/> : null
 
                 const columnList = Object.keys(credit).filter(key => {
-                    return ignoredColumns && !ignoredColumns.includes(key)
+                    return ignoredColumns.includes(key)
                 }).map(key => {
                     return <td key={key}
                         onClick={() => this.props.toggleViewedEntity(credit, credit.number, editButton)}

@@ -75,6 +75,8 @@ class DealSearch extends BaseSearch
 
         $this->addAccount($account);
 
+        $this->checkPermissions('dealcontroller.index');
+
         $this->orderBy($orderBy, $orderDir);
 
         $deals = $this->transformList();

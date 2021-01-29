@@ -80,7 +80,7 @@ export default class PurchaseOrders extends Component {
             companies={companies}
             custom_fields={custom_fields}
             viewId={props.viewId}
-            ignoredColumns={props.ignoredColumns} updateInvoice={this.updateInvoice}
+            ignoredColumns={getDefaultTableFields()} updateInvoice={this.updateInvoice}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>

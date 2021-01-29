@@ -74,7 +74,7 @@ export default class ProjectItem extends Component {
                 /> : null
 
                 const columnList = Object.keys(project).filter(key => {
-                    return ignoredColumns && !ignoredColumns.includes(key)
+                    return ignoredColumns.includes(key)
                 }).map(key => {
                     return <td key={key} onClick={() => this.props.toggleViewedEntity(task, task.name, editButton)}
                         data-label={key}><ProjectPresenter customers={this.props.customers} edit={editButton}

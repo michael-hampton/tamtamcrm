@@ -66,7 +66,7 @@ export default class CaseItem extends Component {
                 /> : null
 
                 const columnList = Object.keys(case_file).filter(key => {
-                    return ignoredColumns && !ignoredColumns.includes(key)
+                    return ignoredColumns.includes(key)
                 }).map(key => {
                     return <td key={key}
                         onClick={() => this.props.toggleViewedEntity(case_file, case_file.subject, editButton)}

@@ -69,7 +69,7 @@ export default class Companies extends Component {
         return <CompanyItem showCheckboxes={props.showCheckboxes} brands={brands} users={users}
             show_list={props.show_list}
             custom_fields={custom_fields}
-            ignoredColumns={props.ignoredColumns} addUserToState={this.addUserToState}
+            ignoredColumns={getDefaultTableFields()} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             viewId={props.viewId}
             bulk={props.bulk}

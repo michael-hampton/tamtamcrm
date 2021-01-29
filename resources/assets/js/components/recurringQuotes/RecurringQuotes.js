@@ -98,7 +98,7 @@ export default class RecurringQuotes extends Component {
             show_list={props.show_list}
             viewId={props.viewId}
             customers={customers} custom_fields={custom_fields}
-            ignoredColumns={props.ignoredColumns} updateInvoice={this.updateInvoice}
+            ignoredColumns={getDefaultTableFields()} updateInvoice={this.updateInvoice}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>

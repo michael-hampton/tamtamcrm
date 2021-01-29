@@ -72,6 +72,8 @@ class OrderSearch extends BaseSearch
 
         $this->addAccount($account);
 
+        $this->checkPermissions('ordercontroller.index');
+
         $this->orderBy($orderBy, $orderDir);
 
         $orders = $this->transformList();

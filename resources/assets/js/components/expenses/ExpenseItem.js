@@ -68,7 +68,7 @@ export default class ExpenseItem extends Component {
                 /> : null
 
                 const columnList = Object.keys(expense).filter(key => {
-                    return ignoredColumns && !ignoredColumns.includes(key)
+                    return ignoredColumns.includes(key)
                 }).map(key => {
                     return <td key={key}
                         onClick={() => this.props.toggleViewedEntity(expense, expense.number, editButton)}

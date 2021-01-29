@@ -70,6 +70,8 @@ class PurchaseOrderSearch extends BaseSearch
 
         $this->addAccount($account);
 
+        $this->checkPermissions('purchaseordercontroller.index');
+
         $this->orderBy($orderBy, $orderDir);
 
         $pos = $this->transformList();

@@ -85,7 +85,7 @@ export default class TaskList extends Component {
             show_list={props.show_list}
             custom_fields={custom_fields} customers={customers}
             viewId={props.viewId}
-            ignoredColumns={props.ignoredColumns} addUserToState={this.addUserToState}
+            ignoredColumns={getDefaultTableFields()} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>

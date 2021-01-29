@@ -68,6 +68,8 @@ class QuoteSearch extends BaseSearch
 
         $this->addAccount($account);
 
+        $this->checkPermissions('quotecontroller.index');
+
         $this->orderBy($orderBy, $orderDir);
 
         $quotes = $this->transformList();

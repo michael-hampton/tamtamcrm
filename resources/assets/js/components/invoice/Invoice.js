@@ -87,7 +87,7 @@ export default class Invoice extends Component {
             show_list={props.show_list}
             invoices={invoices} customers={customers}
             custom_fields={custom_fields}
-            ignoredColumns={props.ignoredColumns} updateInvoice={this.updateInvoice}
+            ignoredColumns={getDefaultTableFields()} updateInvoice={this.updateInvoice}
             viewId={props.viewId}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
