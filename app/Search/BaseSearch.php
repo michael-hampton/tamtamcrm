@@ -17,9 +17,9 @@ class BaseSearch
 
         $user = auth()->user();
 
-//        if ($user->account_user()->is_admin || $user->account_user()->is_owner || $user->hasPermissionTo($permission)) {
-//            return true;
-//        }
+        if ($user->account_user()->is_admin || $user->account_user()->is_owner || $user->hasPermissionTo($permission)) {
+            return true;
+        }
 
         $table = !empty($table) ? $table . '.' : '';
 
