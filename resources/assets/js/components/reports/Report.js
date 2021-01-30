@@ -21,16 +21,60 @@ export default class Report extends React.Component {
             show_success: false,
             error_message: translations.unexpected_error,
             success_message: translations.expenses_imported_successfully,
-            loading: false
+            loading: false,
+            currentPage: 1,
+            perPage,
+            totalPages: 1,
+            totalRows: 0,
+            orderByField: defaultOrderByField,
+            orderByDirection: defaultOrderByDirection,
+            disallowOrderingBy: [],
         }
 
         this.getReport = this.getReport.bind(this)
         this.buildSelectList = this.buildSelectList.bind(this)
         this.handleInputChanges = this.handleInputChanges.bind(this)
+        this.changePage = this.changePage.bind(this);
+        this.changeOrder = this.changeOrder.bind(this);
+        this.changePerPage = this.changePerPage.bind(this);
     }
 
-    componentDidMount () {
-       this.getReport()
+    componentDidMount() {
+        this.loadPage(1);
+    }
+
+    componentDidUpdate(prevProps) {
+        if (JSON.stringify(prevProps.params) !== JSON.stringify(this.props.params)) {
+            this.loadPage(1);
+        }
+    }
+
+    get loading() {
+        const { loading: state } = this.state;
+        const { loading: prop } = this.props;
+
+        return state || prop;
+    }
+
+    get disallowOrderingBy() {
+        const { disallowOrderingBy: state } = this.state;
+        const { disallowOrderingBy: prop } = this.props;
+
+        return [
+            ...state,
+            ...prop
+        ];
+    }
+
+    renderFooter(args) {
+        const { meta } = this.state;
+        const { footer } = this.props;
+
+        if (typeof footer === 'function') {
+            return footer({ meta, ...args })
+        }
+
+        return footer
     }
 
     getReport () {
@@ -113,7 +157,9 @@ export default class Report extends React.Component {
             show_success,
             error,
             error_message,
-            success_message
+            success_message,
+            reports,
+            currency_report
         } = this.state
 
         return (
@@ -175,40 +221,29 @@ export default class Report extends React.Component {
                         errors
                         }
 
-                        {!!fileInfos.length &&
+                        {!!reports.length &&
                         <div className="card mt-2">
                             <div
                                 className="card-header">{translations[this.state.report_type]}>
                             </div>
                             <div className="card-body">
                                 <div className="card-body">
-                                <ImportPreview
-                                    fieldsToExclude={['invitations', 'uniqueId', 'type']}
-                                    dataItemManipulator={(field, value) => {
-                                        return value
-                                    }}
-                                    disabledCheckboxes={[]}
-                                    renderMasterCheckbox={false}
-                                    rows={fileInfos}
-                                    totalRows={fileInfos.length}
-                                    currentPage={1}
-                                    perPage={50}
-                                    totalPages={1}
-                                    loading={loading}
-                                    noDataMessage={'No transactions found'}
-                                    allowOrderingBy={['date', 'name', 'amount', 'id']}
-                                    columnWidths={[]}
-                                    disallowOrderingBy={['userInitiatedDate', 'uniqueId']}
-                                    renderCheckboxes={false}
-                                    buttons={[]}
-                                    actions={[]}
-                                    // changePage={this.changePage}
-                                    // changeOrder={this.changeOrder}
-                                    // changePerPage={this.changePerPage}
-                                    // disallowOrderingBy={this.disallowOrderingBy}
-                                    // footer={footer ? this.renderFooter : undefined}
-                                    // {...props}
-                                />
+                                    <ImportPreview
+                                        rows={reports}
+                                        totalRows={totalRows}
+                                        currentPage={currentPage}
+                                        perPage={this.state.perPage}
+                                        totalPages={totalPages}
+                                        orderByField={orderByField}
+                                        orderByDirection={orderByDirection}
+                                        loading={this.loading}
+                                        changePage={this.changePage}
+                                        changeOrder={this.changeOrder}
+                                        changePerPage={this.changePerPage}
+                                        disallowOrderingBy={this.disallowOrderingBy}
+                                        footer={footer ? this.renderFooter : undefined}
+                                        {...props}
+                                    />
 
                               
                             </div>
