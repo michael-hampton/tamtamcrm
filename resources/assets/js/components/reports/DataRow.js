@@ -119,6 +119,18 @@ class DataRow extends Component {
         );
     }
 
+    formatValue (name, value) {
+        if(['amount', 'total', 'balance', 'amount_paid'].includes(name)) {
+            return <FormatMoney amount={value} />
+        }
+
+        if(['date', 'due_date'].includes(name)) {
+            return <FormatDate date={value} />
+        }
+
+        return value
+    }
+
     renderButtons(row) {
         const { buttons, actions } = this.props;
 
