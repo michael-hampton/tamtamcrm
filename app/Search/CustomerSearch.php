@@ -157,8 +157,17 @@ class CustomerSearch extends BaseSearch
                             $join->where('customer_contacts.is_primary', '=', 1);
                         }
                     )
-                    ->orderBy('customers.created_at')
-                    ->where('account_id', '=', $account->id);
+                    ->where('customers.account_id', '=', $account->id)
+                    ->orderBy('customers.'.$request->input('orderByField'), $request->input('orderByDirection'));
+        //$this->query->where('status', '<>', 1)
+
+        $rows = $this->query->get()->toArray();
+
+        if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {
+            return $this->customerRepository->paginateArrayResults($rows, $request->input('perPage'));
+        }
+
+        return $rows;
         //$this->query->where('status', '<>', 1)
 
     }
