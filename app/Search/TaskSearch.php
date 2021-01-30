@@ -136,10 +136,11 @@ class TaskSearch extends BaseSearch
 
     public function buildCurrencyReport (Request $request, Account $account)
     {
-        $this->query =!DB::table('invoices')
+        $this->query = DB::table('invoices')
              ->select(DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance'))
              ->join('currencies', 'currencies.id', '=', 'invoices.currency_id')
              ->where('currency_id', '<>', 0)
+             ->where('account_id', '=', $account->id)
              ->groupBy('currency_id');
     }
 
@@ -160,6 +161,7 @@ class TaskSearch extends BaseSearch
          ->join('task_statuses', 'task_statuses.id', '=', 'deals.task_status')
          ->leftJoin('users', 'users.id', '=', 'deals.assigned_to')
          ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
+         ->where('account_id', '=', $account->id)
          ->orderBy('tasks.created_at');
        
              //$this->query->where('status', '<>', 1)
