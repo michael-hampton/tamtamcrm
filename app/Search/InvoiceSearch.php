@@ -111,7 +111,7 @@ class InvoiceSearch extends BaseSearch
         return true;
     }
 
-    public function currencyReport (Request $request)
+    public function buildCurrencyReport (Request $request)
     {
         $this->query =!DB::table('invoices')
              ->select(DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance'))
@@ -120,7 +120,7 @@ class InvoiceSearch extends BaseSearch
              ->groupBy('currency_id');
     }
 
-    public function report (Request $request)
+    public function buildReport (Request $request)
     {
         $this->query = DB::table('invoices');
         
