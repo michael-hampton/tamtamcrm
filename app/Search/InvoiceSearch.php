@@ -117,6 +117,7 @@ class InvoiceSearch extends BaseSearch
              ->select(DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance'))
              ->join('currencies', 'currencies.id', '=', 'invoices.currency_id')
              ->where('currency_id', '<>', 0)
+             ->where('account_id', '=', $account->id)
              ->groupBy('currency_id');
     }
 
@@ -132,6 +133,7 @@ class InvoiceSearch extends BaseSearch
         }
 
          $this->query->join('customers', 'customers.id', '=', 'invoices.customer_id')
+         ->where('account_id', '=', $account->id)
          ->orderBy('invoices.created_at');
        
              //$this->query->where('status', '<>', 1)
