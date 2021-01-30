@@ -7,6 +7,7 @@ import FormatMoney from '../common/FormatMoney'
 import moment from 'moment'
 import axios from 'axios'
 import { icons } from '../utils/_icons'
+import DynamicDataTable from './DynamicDataTable';
 
 export default class Report extends React.Component {
     constructor (props) {
