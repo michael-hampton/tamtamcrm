@@ -101,7 +101,7 @@ class PaymentSearch extends BaseSearch
         return true;
     }
 
-    public function buildCurrencyReport (Request $request)
+    public function buildCurrencyReport (Request $request, Account $account)
     {
         $this->query =!DB::table('payments')
              ->select(DB::raw('count(*) as count, currencies.name, SUM(amount) as amount'))
@@ -110,7 +110,7 @@ class PaymentSearch extends BaseSearch
              ->groupBy('currency_id');
     }
 
-    public function buildReport (Request $request)
+    public function buildReport (Request $request, Account $account)
     {
         $this->query = DB::table('payments');
         
