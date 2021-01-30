@@ -135,8 +135,17 @@ class PurchaseOrderSearch extends BaseSearch
         }
 
         $this->query->join('companies', 'companies.id', '=', 'purchase_orders.company_id')
-                    ->orderBy('purchase_orders.created_at')
-                    ->where('account_id', '=', $account->id);
+                    ->where('purchase_orders.account_id', '=', $account->id)
+                    ->orderBy('purchase_orders.'.$request->input('orderByField'), $request->input('orderByDirection'));
+        //$this->query->where('status', '<>', 1)
+
+        $rows = $this->query->get()->toArray();
+
+        if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {
+            return $this->purchaseOrderRepository->paginateArrayResults($rows, $request->input('perPage'));
+        }
+
+        return $rows;
     }
 
     /**
