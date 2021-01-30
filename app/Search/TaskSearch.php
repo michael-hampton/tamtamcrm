@@ -149,10 +149,10 @@ class TaskSearch extends BaseSearch
         
          if(!empty($request->input('group_by')) {
              // assigned to, status, customer, project
-            $this->query->select(DB::raw('count(*) as count, customers.name, task_statuses.name, projects.name, CONCAT(users.first_name," ",users.last_name) as assigned_to'))
+            $this->query->select(DB::raw('count(*) as count, customers.name AS customer, task_statuses.name AS status, projects.name AS project, CONCAT(users.first_name," ",users.last_name) as assigned_to'))
             $this->query->groupBy($request->input('group_by'));
         } else {
-            $this->query->select('customers.name, task_statuses.name, projects.name, timers.started_at, timers.stopped_at, name, description, due_date', DB::raw('CONCAT(first_name," ",last_name) as assigned_to'));
+            $this->query->select('customers.name AS customer, task_statuses.name AS status, projects.name AS project, timers.started_at, timers.stopped_at, name, description, due_date', DB::raw('CONCAT(first_name," ",last_name) as assigned_to'));
         }
 
          $this->query->join('customers', 'customers.id', '=', 'deals.customer_id')
