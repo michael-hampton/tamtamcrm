@@ -111,6 +111,7 @@ class QuoteSearch extends BaseSearch
              ->select(DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance'))
              ->join('currencies', 'currencies.id', '=', 'quotes.currency_id')
              ->where('currency_id', '<>', 0)
+             ->where('account_id', '=', $account->id)
              ->groupBy('currency_id');
     }
 
@@ -126,6 +127,7 @@ class QuoteSearch extends BaseSearch
         }
 
          $this->query->join('customers', 'customers.id', '=', 'quotes.customer_id')
+         ->where('account_id', '=', $account->id)
          ->orderBy('quotes.created_at');
        
              //$this->query->where('status', '<>', 1)
