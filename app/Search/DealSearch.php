@@ -152,7 +152,16 @@ class DealSearch extends BaseSearch
                     ->join('task_statuses', 'task_statuses.id', '=', 'deals.task_status')
                     ->leftJoin('users', 'users.id', '=', 'deals.assigned_to')
                     ->where('account_id', '=', $account->id)
-                    ->orderBy('deals.created_at');
+                    ->orderBy('deals.'.$request->input('orderByField'), $request->input('orderByDirection'));
+        //$this->query->where('status', '<>', 1)
+
+        $rows = $this->query->get()->toArray();
+
+        if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {
+            return $this->dealRepository->paginateArrayResults($rows, $request->input('perPage'));
+        }
+
+        return $rows;
         //$this->query->where('status', '<>', 1)
 
     }
