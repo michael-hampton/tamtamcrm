@@ -119,6 +119,7 @@ class DealSearch extends BaseSearch
              ->select(DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance'))
              ->join('currencies', 'currencies.id', '=', 'invoices.currency_id')
              ->where('currency_id', '<>', 0)
+             ->where('account_id', '=', $account->id)
              ->groupBy('currency_id');
     }
 
@@ -139,6 +140,7 @@ class DealSearch extends BaseSearch
          ->leftJoin('projects', 'projects.id', '=', 'deals.project_id')
          ->join('task_statuses', 'task_statuses.id', '=', 'deals.task_status')
          ->leftJoin('users', 'users.id', '=', 'deals.assigned_to')
+         ->where('account_id', '=', $account->id)
          ->orderBy('deals.created_at');
        
              //$this->query->where('status', '<>', 1)
