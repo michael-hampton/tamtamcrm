@@ -134,7 +134,7 @@ class TaskSearch extends BaseSearch
         return $tasks;
     }
 
-    public function buildCurrencyReport (Request $request)
+    public function buildCurrencyReport (Request $request, Account $account)
     {
         $this->query =!DB::table('invoices')
              ->select(DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance'))
@@ -143,7 +143,7 @@ class TaskSearch extends BaseSearch
              ->groupBy('currency_id');
     }
 
-    public function buildReport (Request $request)
+    public function buildReport (Request $request, Account $account)
     {
         $this->query = DB::table('invoices');
         
