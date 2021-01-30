@@ -125,10 +125,10 @@ class InvoiceSearch extends BaseSearch
         $this->query = DB::table('invoices');
         
          if(!empty($request->input('group_by')) {
-            $this->query->select(DB::raw('count(*) as count, customers.name, SUM(total) as total, SUM(balance) AS balance'))
+            $this->query->select(DB::raw('count(*) as count, customers.name AS customer, SUM(total) as total, SUM(balance) AS balance'))
             $this->query->groupBy($request->input('group_by'));
         } else {
-            $this->query->select('customers.name, total, number, balance, date, due_date');
+            $this->query->select('customers.name AS customer, total, number, balance, date, due_date');
         }
 
          $this->query->join('customers', 'customers.id', '=', 'invoices.customer_id')
