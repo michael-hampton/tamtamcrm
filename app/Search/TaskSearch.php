@@ -172,8 +172,17 @@ class TaskSearch extends BaseSearch
                     ->join('task_statuses', 'task_statuses.id', '=', 'deals.task_status')
                     ->leftJoin('users', 'users.id', '=', 'deals.assigned_to')
                     ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
-                    ->where('account_id', '=', $account->id)
-                    ->orderBy('tasks.created_at');
+                    ->where('tasks.account_id', '=', $account->id)
+                    ->orderBy('tasks.'.$request->input('orderByField'), $request->input('orderByDirection'));
+        //$this->query->where('status', '<>', 1)
+
+        $rows = $this->query->get()->toArray();
+
+        if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {
+            return $this->taskRepository->paginateArrayResults($rows, $request->input('perPage'));
+        }
+
+        return $rows;
         //$this->query->where('status', '<>', 1)
 
     }
