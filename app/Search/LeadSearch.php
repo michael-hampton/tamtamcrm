@@ -98,7 +98,7 @@ class LeadSearch extends BaseSearch
 
     public function buildReport (Request $request)
     {
-        $this->query = DB::table('invoices');
+        $this->query = DB::table('leads');
         
          if(!empty($request->input('group_by')) {
              // assigned to, status, source_type
