@@ -93,6 +93,18 @@ class ReportController extends Controller
                 );
              break;
 
+            case 'purchase_order':
+                $report = (new PurchaseOrderSearch(new PurchaseOrderRepository(new PurchaseOrder())))->buildReport(
+                     $request,
+                     auth()->user()->account_user()->account
+                );
+
+                 $currency_report = (new InvoiceSearch(new InvoiceRepository(new Invoice())))->buildCurrencyReport(
+                     $request,
+                     auth()->user()->account_user()->account
+                );
+             break;
+
              case 'credit':
                  $report = (new CreditSearch(new CreditRepository(new Credit())))->buildReport(
                      $request,
