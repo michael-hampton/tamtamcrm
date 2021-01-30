@@ -153,6 +153,11 @@ class ReportController extends Controller
                      $request,
                      auth()->user()->account_user()->account
                 );
+
+                 $currency_report = (new CustomerSearch(new CustomerRepository(new Customer())))->buildCurrencyReport(
+                     $request,
+                     auth()->user()->account_user()->account
+                );
              break;
 
              case 'expense':
