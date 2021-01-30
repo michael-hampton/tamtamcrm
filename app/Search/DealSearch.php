@@ -113,6 +113,37 @@ class DealSearch extends BaseSearch
         return true;
     }
 
+    public function buildCurrencyReport (Request $request)
+    {
+        $this->query =!DB::table('invoices')
+             ->select(DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance'))
+             ->join('currencies', 'currencies.id', '=', 'invoices.currency_id')
+             ->where('currency_id', '<>', 0)
+             ->groupBy('currency_id');
+    }
+
+    public function buildReport (Request $request)
+    {
+        $this->query = DB::table('invoices');
+        
+         if(!empty($request->input('group_by')) {
+             // assigned to, status, source_type
+            $this->query->select(DB::raw('count(*) as count, customers.name, task_statuses.name, source_type.name, CONCAT('users.first_name', ' ', 'users.last_name') AS assigned_to, SUM(valued_at) as valued_at'))
+            $this->query->groupBy($request->input('group_by'));
+        } else {
+            $this->query->select(customers.name, task_statuses.name, source_type.name, valued_at, due_date, DB::raw("CONCAT('users.first_name', ' ', 'users.last_name') AS assigned_to)');
+        }
+
+         $this->query->join('customers', 'customers.id', '=', 'deals.customer_id')
+         ->join('source_type', 'source_type.id', '=', 'deals.source_type')
+         ->join('task_statuses', 'task_statuses.id', '=', 'deals.task_status')
+         ->leftJoin('users', 'users.id', '=', 'deals.assigned_to')
+         ->orderBy('invoices.date_created');
+       
+             //$this->query->where('status', '<>', 1)
+            
+    }
+
     /**
      * @return mixed
      */
