@@ -14,7 +14,7 @@ export default class Report extends React.Component {
         this.state = {
             report_type: 'invoice',
             group_by: '',
-            reports: [],
+            rows: [],
             currency_report: [],
             message: '',
             error: '',
@@ -150,6 +150,73 @@ export default class Report extends React.Component {
         })
     }
 
+    reload(page = 1) {
+        this.loadPage(page);
+    }
+
+    loadPage(page) {
+        const {perPage, orderByField, orderByDirection, report_type, group_by} = this.state;
+        const {onLoad, onError, params, axios} = this.props;
+
+        this.setState(
+            { loading: true },
+            () => {
+                axios.get(this.props.apiUrl, {
+
+                    params: { ...params, page, perPage, orderByField, orderByDirection, report_type, group_by }
+
+                }).then(({ data: response }) => {
+
+                    const { data: rows, total, current_page, last_page } = response.data;
+                    let disallow_ordering_by = [];
+                    let meta = {}
+
+                    if (response.meta) {
+                        ({ disallow_ordering_by, ...meta } = response.meta);
+                    }
+
+                    const newState = {
+                        rows,
+                        meta,
+                        disallowOrderingBy: disallow_ordering_by,
+                        totalRows: total,
+                        currentPage: current_page,
+                        totalPages:last_page,
+                        loading: false
+                    };
+
+                    this.setState(newState);
+                    onLoad(newState);
+
+                }).catch((e) => {
+
+                    this.setState({ loading: false });
+                    onError(e);
+
+                });
+            }
+        );
+    }
+
+    changePage(page) {
+        this.loadPage(page)
+    }
+
+    changePerPage(limit) {
+        this.setState(
+            { perPage: limit },
+            this.reload
+        )
+    }
+
+    changeOrder(field, direction) {
+        this.setState({ orderByField: field, orderByDirection: direction }, () => {
+
+            this.loadPage(1);
+
+        });
+    }
+
     render () {
         const {
             message,
@@ -158,7 +225,7 @@ export default class Report extends React.Component {
             error,
             error_message,
             success_message,
-            reports,
+            rows,
             currency_report
         } = this.state
 
@@ -229,7 +296,7 @@ export default class Report extends React.Component {
                             <div className="card-body">
                                 <div className="card-body">
                                     <ImportPreview
-                                        rows={reports}
+                                        rows={rows}
                                         totalRows={totalRows}
                                         currentPage={currentPage}
                                         perPage={this.state.perPage}
