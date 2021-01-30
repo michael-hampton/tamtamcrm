@@ -105,6 +105,33 @@ class QuoteSearch extends BaseSearch
         return true;
     }
 
+    public function buildCurrencyReport (Request $request, Account $account)
+    {
+        $this->query =!DB::table('quotes')
+             ->select(DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance'))
+             ->join('currencies', 'currencies.id', '=', 'quotes.currency_id')
+             ->where('currency_id', '<>', 0)
+             ->groupBy('currency_id');
+    }
+
+    public function buildReport (Request $request, Account $account)
+    {
+        $this->query = DB::table('quotes');
+        
+         if(!empty($request->input('group_by')) {
+            $this->query->select(DB::raw('count(*) as count, customers.name AS customer, SUM(total) as total, SUM(balance) AS balance'))
+            $this->query->groupBy($request->input('group_by'));
+        } else {
+            $this->query->select('customers.name AS customer, total, number, balance, date, due_date');
+        }
+
+         $this->query->join('customers', 'customers.id', '=', 'quotes.customer_id')
+         ->orderBy('quotes.created_at');
+       
+             //$this->query->where('status', '<>', 1)
+            
+    }
+
     /**
      * @return mixed
      */
