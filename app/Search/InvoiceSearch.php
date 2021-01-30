@@ -131,7 +131,8 @@ class InvoiceSearch extends BaseSearch
             $this->query->select(customers.name, total, number, balance, date, due_date');
         }
 
-         $this->query->join('customers', 'customers.id', '=', 'invoices.customer_id')->orderBy('invoices.date_created');
+         $this->query->join('customers', 'customers.id', '=', 'invoices.customer_id')
+         ->orderBy('invoices.created_at');
        
              //$this->query->where('status', '<>', 1)
             
