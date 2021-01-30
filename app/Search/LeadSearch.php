@@ -8,6 +8,7 @@ use App\Repositories\LeadRepository;
 use App\Transformations\LeadTransformable;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 class LeadSearch extends BaseSearch
 {
@@ -96,26 +97,33 @@ class LeadSearch extends BaseSearch
         return true;
     }
 
-    public function buildReport (Request $request, Account $account)
+    public function buildReport(Request $request, Account $account)
     {
         $this->query = DB::table('leads');
-        
-         if(!empty($request->input('group_by')) {
-             // assigned to, status, source_type
-            $this->query->select(DB::raw('count(*) as count, CONCAT(leads.first_name," ",leads.last_name) as lead_name, task_statuses.name AS status, source_type.name AS source_type, CONCAT(users.first_name," ",users.last_name) as assigned_to, SUM(valued_at) as valued_at'))
-            $this->query->groupBy($request->input('group_by'));
+
+        if (!empty($request->input('group_by'))) {
+            // assigned to, status, source_type
+            $this->query->select(
+                DB::raw(
+                    'count(*) as count, CONCAT(leads.first_name," ",leads.last_name) as lead_name, task_statuses.name AS status, source_type.name AS source_type, CONCAT(users.first_name," ",users.last_name) as assigned_to, SUM(valued_at) as valued_at'
+                )
+            )
+                        ->groupBy($request->input('group_by'));
         } else {
-            $this->query->select('task_statuses.name AS status, source_type.name AS source_type, valued_at, due_date', DB::raw('CONCAT(users.first_name," ",users.last_name) as assigned_to'), DB::raw('CONCAT(leads.first_name," ",leads.last_name) as lead_name'));
+            $this->query->select(
+                'task_statuses.name AS status, source_type.name AS source_type, valued_at, due_date',
+                DB::raw('CONCAT(users.first_name," ",users.last_name) as assigned_to'),
+                DB::raw('CONCAT(leads.first_name," ",leads.last_name) as lead_name')
+            );
         }
 
-         $this->query->join('source_type', 'source_type.id', '=', 'deals.source_type')
-         ->join('task_statuses', 'task_statuses.id', '=', 'deals.task_status')
-         ->leftJoin('users', 'users.id', '=', 'deals.assigned_to')
-         ->where('account_id', '=', $account->id)
-         ->orderBy('leads.created_at');
-       
-             //$this->query->where('status', '<>', 1)
-            
+        $this->query->join('source_type', 'source_type.id', '=', 'deals.source_type')
+                    ->join('task_statuses', 'task_statuses.id', '=', 'deals.task_status')
+                    ->leftJoin('users', 'users.id', '=', 'deals.assigned_to')
+                    ->where('account_id', '=', $account->id)
+                    ->orderBy('leads.created_at');
+        //$this->query->where('status', '<>', 1)
+
     }
 
     /**

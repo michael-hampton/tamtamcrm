@@ -7,7 +7,9 @@ use App\Models\Deal;
 use App\Repositories\DealRepository;
 use App\Requests\SearchRequest;
 use App\Transformations\DealTransformable;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 class DealSearch extends BaseSearch
 {
@@ -113,38 +115,46 @@ class DealSearch extends BaseSearch
         return true;
     }
 
-    public function buildCurrencyReport (Request $request, Account $account)
+    public function buildCurrencyReport(Request $request, Account $account)
     {
-        $this->query =!DB::table('invoices')
-             ->select(DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance'))
-             ->join('currencies', 'currencies.id', '=', 'invoices.currency_id')
-             ->where('currency_id', '<>', 0)
-             ->where('account_id', '=', $account->id)
-             ->groupBy('currency_id');
+        $this->query = DB::table('invoices')
+                         ->select(
+                             DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance')
+                         )
+                         ->join('currencies', 'currencies.id', '=', 'invoices.currency_id')
+                         ->where('currency_id', '<>', 0)
+                         ->where('account_id', '=', $account->id)
+                         ->groupBy('currency_id');
     }
 
-    public function buildReport (Request $request, Account $account)
+    public function buildReport(Request $request, Account $account)
     {
         $this->query = DB::table('deals');
-        
-         if(!empty($request->input('group_by')) {
-             // assigned to, status, source_type, customer, project
-            $this->query->select(DB::raw('count(*) as count, customers.name AS customer, task_statuses.name AS status, source_type.name AS source_type, projects.name AS project, CONCAT(users.first_name," ",users.last_name) as assigned_to, SUM(valued_at) AS valued_at'))
-            $this->query->groupBy($request->input('group_by'));
+
+        if (!empty($request->input('group_by'))) {
+            // assigned to, status, source_type, customer, project
+            $this->query->select(
+                DB::raw(
+                    'count(*) as count, customers.name AS customer, task_statuses.name AS status, source_type.name AS source_type, projects.name AS project, CONCAT(users.first_name," ",users.last_name) as assigned_to, SUM(valued_at) AS valued_at'
+                )
+            )
+                        ->groupBy($request->input('group_by'));
         } else {
-            $this->query->select('customers.name AS customer, task_statuses.name AS status, source_type.name AS source_type, projects.name AS project, valued_at, due_date', DB::raw('CONCAT(first_name," ",last_name) as assigned_to'));
+            $this->query->select(
+                'customers.name AS customer, task_statuses.name AS status, source_type.name AS source_type, projects.name AS project, valued_at, due_date',
+                DB::raw('CONCAT(first_name," ",last_name) as assigned_to')
+            );
         }
 
-         $this->query->join('customers', 'customers.id', '=', 'deals.customer_id')
-         ->join('source_type', 'source_type.id', '=', 'deals.source_type')
-         ->leftJoin('projects', 'projects.id', '=', 'deals.project_id')
-         ->join('task_statuses', 'task_statuses.id', '=', 'deals.task_status')
-         ->leftJoin('users', 'users.id', '=', 'deals.assigned_to')
-         ->where('account_id', '=', $account->id)
-         ->orderBy('deals.created_at');
-       
-             //$this->query->where('status', '<>', 1)
-            
+        $this->query->join('customers', 'customers.id', '=', 'deals.customer_id')
+                    ->join('source_type', 'source_type.id', '=', 'deals.source_type')
+                    ->leftJoin('projects', 'projects.id', '=', 'deals.project_id')
+                    ->join('task_statuses', 'task_statuses.id', '=', 'deals.task_status')
+                    ->leftJoin('users', 'users.id', '=', 'deals.assigned_to')
+                    ->where('account_id', '=', $account->id)
+                    ->orderBy('deals.created_at');
+        //$this->query->where('status', '<>', 1)
+
     }
 
     /**

@@ -7,7 +7,9 @@ use App\Models\Payment;
 use App\Repositories\PaymentRepository;
 use App\Requests\SearchRequest;
 use App\Transformations\PaymentTransformable;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 class PaymentSearch extends BaseSearch
 {
@@ -101,32 +103,31 @@ class PaymentSearch extends BaseSearch
         return true;
     }
 
-    public function buildCurrencyReport (Request $request, Account $account)
+    public function buildCurrencyReport(Request $request, Account $account)
     {
-        $this->query =!DB::table('payments')
-             ->select(DB::raw('count(*) as count, currencies.name, SUM(amount) as amount'))
-             ->join('currencies', 'currencies.id', '=', 'payments.currency_id')
-             ->where('currency_id', '<>', 0)
-             ->where('account_id', '=', $account->id)
-             ->groupBy('currency_id');
+        $this->query = DB::table('payments')
+                         ->select(DB::raw('count(*) as count, currencies.name, SUM(amount) as amount'))
+                         ->join('currencies', 'currencies.id', '=', 'payments.currency_id')
+                         ->where('currency_id', '<>', 0)
+                         ->where('account_id', '=', $account->id)
+                         ->groupBy('currency_id');
     }
 
-    public function buildReport (Request $request, Account $account)
+    public function buildReport(Request $request, Account $account)
     {
         $this->query = DB::table('payments');
-        
-         if(!empty($request->input('group_by')) {
+
+        if (!empty($request->input('group_by'))) {
             $this->query->select(DB::raw('count(*) as count, customers.name AS customer, SUM(amount) as amount'))
-            $this->query->groupBy($request->input('group_by'));
+                        ->groupBy($request->input('group_by'));
         } else {
             $this->query->select('customers.name AS customer, amount, number, date, reference_number');
         }
-         $this->query->join('customers', 'customers.id', '=', 'invoices.customer_id')
-         ->where('account_id', '=', $account->id)
-         ->orderBy('payments.created_at');
-       
-             //$this->query->where('status', '<>', 1)
-            
+        $this->query->join('customers', 'customers.id', '=', 'invoices.customer_id')
+                    ->where('account_id', '=', $account->id)
+                    ->orderBy('payments.created_at');
+        //$this->query->where('status', '<>', 1)
+
     }
 
     private function transformList()

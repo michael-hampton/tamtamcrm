@@ -7,7 +7,9 @@ use App\Models\PurchaseOrder;
 use App\Repositories\PurchaseOrderRepository;
 use App\Requests\SearchRequest;
 use App\Transformations\PurchaseOrderTransformable;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 class PurchaseOrderSearch extends BaseSearch
 {
@@ -107,31 +109,34 @@ class PurchaseOrderSearch extends BaseSearch
         return true;
     }
 
-    public function buildCurrencyReport (Request $request, Account $account)
+    public function buildCurrencyReport(Request $request, Account $account)
     {
-        $this->query =!DB::table('purchase_orders')
-             ->select(DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance'))
-             ->join('currencies', 'currencies.id', '=', 'purchase_orders.currency_id')
-             ->where('currency_id', '<>', 0)
-             ->where('account_id', '=', $account->id)
-             ->groupBy('currency_id');
+        $this->query = DB::table('purchase_orders')
+                         ->select(
+                             DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance')
+                         )
+                         ->join('currencies', 'currencies.id', '=', 'purchase_orders.currency_id')
+                         ->where('currency_id', '<>', 0)
+                         ->where('account_id', '=', $account->id)
+                         ->groupBy('currency_id');
     }
 
-    public function buildReport (Request $request, Account $account)
+    public function buildReport(Request $request, Account $account)
     {
         $this->query = DB::table('purchase_orders');
-        
-         if(!empty($request->input('group_by')) {
-            $this->query->select(DB::raw('count(*) as count, customers.name AS customer, SUM(total) as total, SUM(balance) AS balance'))
-            $this->query->groupBy($request->input('group_by'));
+
+        if (!empty($request->input('group_by'))) {
+            $this->query->select(
+                DB::raw('count(*) as count, customers.name AS customer, SUM(total) as total, SUM(balance) AS balance')
+            )
+                        ->groupBy($request->input('group_by'));
         } else {
             $this->query->select('customers.name AS customer, total, number, balance, date, due_date');
         }
 
-         $this->query->join('companies', 'companies.id', '=', 'purchase_orders.company_id')
-         ->orderBy('purchase_orders.created_at')
-         ->where('account_id', '=', $account->id);
-            
+        $this->query->join('companies', 'companies.id', '=', 'purchase_orders.company_id')
+                    ->orderBy('purchase_orders.created_at')
+                    ->where('account_id', '=', $account->id);
     }
 
     /**

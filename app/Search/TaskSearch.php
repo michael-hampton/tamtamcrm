@@ -7,7 +7,9 @@ use App\Models\Task;
 use App\Repositories\TaskRepository;
 use App\Requests\SearchRequest;
 use App\Transformations\TaskTransformable;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 class TaskSearch extends BaseSearch
 {
@@ -134,38 +136,46 @@ class TaskSearch extends BaseSearch
         return $tasks;
     }
 
-    public function buildCurrencyReport (Request $request, Account $account)
+    public function buildCurrencyReport(Request $request, Account $account)
     {
         $this->query = DB::table('invoices')
-             ->select(DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance'))
-             ->join('currencies', 'currencies.id', '=', 'invoices.currency_id')
-             ->where('currency_id', '<>', 0)
-             ->where('account_id', '=', $account->id)
-             ->groupBy('currency_id');
+                         ->select(
+                             DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance')
+                         )
+                         ->join('currencies', 'currencies.id', '=', 'invoices.currency_id')
+                         ->where('currency_id', '<>', 0)
+                         ->where('account_id', '=', $account->id)
+                         ->groupBy('currency_id');
     }
 
-    public function buildReport (Request $request, Account $account)
+    public function buildReport(Request $request, Account $account)
     {
         $this->query = DB::table('invoices');
-        
-         if(!empty($request->input('group_by')) {
-             // assigned to, status, customer, project
-            $this->query->select(DB::raw('count(*) as count, customers.name AS customer, task_statuses.name AS status, projects.name AS project, CONCAT(users.first_name," ",users.last_name) as assigned_to'))
-            $this->query->groupBy($request->input('group_by'));
+
+        if (!empty($request->input('group_by'))) {
+            // assigned to, status, customer, project
+            $this->query->select(
+                DB::raw(
+                    'count(*) as count, customers.name AS customer, task_statuses.name AS status, projects.name AS project, CONCAT(users.first_name," ",users.last_name) as assigned_to'
+                )
+            )
+                        ->groupBy($request->input('group_by'));
         } else {
-            $this->query->select('customers.name AS customer, task_statuses.name AS status, projects.name AS project, timers.started_at, timers.stopped_at, name, description, due_date', DB::raw('CONCAT(first_name," ",last_name) as assigned_to'));
+            $this->query->select(
+                'customers.name AS customer, task_statuses.name AS status, projects.name AS project, timers.started_at, timers.stopped_at, name, description, due_date',
+                DB::raw('CONCAT(first_name," ",last_name) as assigned_to')
+            );
         }
 
-         $this->query->join('customers', 'customers.id', '=', 'deals.customer_id')
-         ->join('timers', 'timers.task_id', '=', 'tasks.id')
-         ->join('task_statuses', 'task_statuses.id', '=', 'deals.task_status')
-         ->leftJoin('users', 'users.id', '=', 'deals.assigned_to')
-         ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
-         ->where('account_id', '=', $account->id)
-         ->orderBy('tasks.created_at');
-       
-             //$this->query->where('status', '<>', 1)
-            
+        $this->query->join('customers', 'customers.id', '=', 'deals.customer_id')
+                    ->join('timers', 'timers.task_id', '=', 'tasks.id')
+                    ->join('task_statuses', 'task_statuses.id', '=', 'deals.task_status')
+                    ->leftJoin('users', 'users.id', '=', 'deals.assigned_to')
+                    ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
+                    ->where('account_id', '=', $account->id)
+                    ->orderBy('tasks.created_at');
+        //$this->query->where('status', '<>', 1)
+
     }
 
     /**

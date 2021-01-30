@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Http\Controllers;
@@ -11,9 +10,8 @@ use App\Models\Invoice;
 use App\Models\Lead;
 use App\Models\Order;
 use App\Models\Payment;
-use App\Models\Project;
+use App\Models\PurchaseOrder;
 use App\Models\Quote;
-use App\Models\Task;
 use App\Repositories\CreditRepository;
 use App\Repositories\CustomerRepository;
 use App\Repositories\DealRepository;
@@ -24,12 +22,20 @@ use App\Repositories\InvoiceRepository;
 use App\Repositories\LeadRepository;
 use App\Repositories\OrderRepository;
 use App\Repositories\PaymentRepository;
-use App\Repositories\ProjectRepository;
+use App\Repositories\PurchaseOrderRepository;
 use App\Repositories\QuoteRepository;
-use App\Repositories\TaskRepository;
-use App\Requests\SearchRequest;
+use App\Search\CreditSearch;
+use App\Search\CustomerSearch;
+use App\Search\DealSearch;
+use App\Search\ExpenseSearch;
+use App\Search\InvoiceSearch;
 use App\Search\LeadSearch;
+use App\Search\OrderSearch;
+use App\Search\PaymentSearch;
+use App\Search\PurchaseOrderSearch;
+use App\Search\QuoteSearch;
 use App\Transformations\TaskTransformable;
+use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
@@ -63,126 +69,125 @@ class ReportController extends Controller
 
     public function index(Request $request)
     {
-
         $currency_report = [];
-        
-        switch($request->input('report_type')) {
-             case 'lead':
-                 $report = (new LeadSearch(new LeadRepository(new Lead())))->buildReport(
-                     $request,
-                     auth()->user()->account_user()->account
+
+        switch ($request->input('report_type')) {
+            case 'lead':
+                $report = (new LeadSearch(new LeadRepository(new Lead())))->buildReport(
+                    $request,
+                    auth()->user()->account_user()->account
                 );
-             break;
+                break;
 
             case 'deal':
-                 $report = (new DealSearch(new DealRepository(new Deal())))->buildReport(
-                     $request,
-                     auth()->user()->account_user()->account
+                $report = (new DealSearch(new DealRepository(new Deal())))->buildReport(
+                    $request,
+                    auth()->user()->account_user()->account
                 );
-             break;
+                break;
 
             case 'invoice':
                 $report = (new InvoiceSearch(new InvoiceRepository(new Invoice())))->buildReport(
-                     $request,
-                     auth()->user()->account_user()->account
+                    $request,
+                    auth()->user()->account_user()->account
                 );
 
-                 $currency_report = (new InvoiceSearch(new InvoiceRepository(new Invoice())))->buildCurrencyReport(
-                     $request,
-                     auth()->user()->account_user()->account
+                $currency_report = (new InvoiceSearch(new InvoiceRepository(new Invoice())))->buildCurrencyReport(
+                    $request,
+                    auth()->user()->account_user()->account
                 );
-             break;
+                break;
 
             case 'purchase_order':
                 $report = (new PurchaseOrderSearch(new PurchaseOrderRepository(new PurchaseOrder())))->buildReport(
-                     $request,
-                     auth()->user()->account_user()->account
+                    $request,
+                    auth()->user()->account_user()->account
                 );
 
-                 $currency_report = (new InvoiceSearch(new InvoiceRepository(new Invoice())))->buildCurrencyReport(
-                     $request,
-                     auth()->user()->account_user()->account
+                $currency_report = (new PurchaseOrderSearch(new PurchaseOrderRepository(new PurchaseOrder())))->buildCurrencyReport(
+                    $request,
+                    auth()->user()->account_user()->account
                 );
-             break;
+                break;
 
-             case 'credit':
-                 $report = (new CreditSearch(new CreditRepository(new Credit())))->buildReport(
-                     $request,
-                     auth()->user()->account_user()->account
+            case 'credit':
+                $report = (new CreditSearch(new CreditRepository(new Credit())))->buildReport(
+                    $request,
+                    auth()->user()->account_user()->account
                 );
 
-                 $currency_report = (new CreditSearch(new CreditRepository(new Credit())))->buildCurrencyReport(
-                     $request,
-                     auth()->user()->account_user()->account
+                $currency_report = (new CreditSearch(new CreditRepository(new Credit())))->buildCurrencyReport(
+                    $request,
+                    auth()->user()->account_user()->account
                 );
-             break;
+                break;
 
-             case 'quote':
-                 $report = (new QuoteSearch(new QuoteRepository(new Quote())))->buildReport(
-                     $request,
-                     auth()->user()->account_user()->account
+            case 'quote':
+                $report = (new QuoteSearch(new QuoteRepository(new Quote())))->buildReport(
+                    $request,
+                    auth()->user()->account_user()->account
                 );
 
                 $currency_report = (new QuoteSearch(new QuoteRepository(new Quote())))->buildCurrencyReport(
-                     $request,
-                     auth()->user()->account_user()->account
+                    $request,
+                    auth()->user()->account_user()->account
                 );
-             break;
+                break;
 
-             case 'order':
-                 $report = (new OrderSearch(new OrderRepository(new Order())))->buildReport(
-                     $request,
-                     auth()->user()->account_user()->account
+            case 'order':
+                $report = (new OrderSearch(new OrderRepository(new Order())))->buildReport(
+                    $request,
+                    auth()->user()->account_user()->account
                 );
 
                 $currency_report = (new OrderSearch(new OrderRepository(new Order())))->buildCurrencyReport(
-                     $request,
-                     auth()->user()->account_user()->account
+                    $request,
+                    auth()->user()->account_user()->account
                 );
-             break;
+                break;
 
-             case 'task':
-                 $report = (new LeadSearch(new LeadRepository(new Lead())))->buildReport(
-                     $request,
-                     auth()->user()->account_user()->account
+            case 'task':
+                $report = (new LeadSearch(new LeadRepository(new Lead())))->buildReport(
+                    $request,
+                    auth()->user()->account_user()->account
                 );
-             break;
+                break;
 
-             case 'customer':
-                 $report = (new CustomerSearch(new CustomerRepository(new Customer())))->buildReport(
-                     $request,
-                     auth()->user()->account_user()->account
+            case 'customer':
+                $report = (new CustomerSearch(new CustomerRepository(new Customer())))->buildReport(
+                    $request,
+                    auth()->user()->account_user()->account
                 );
 
-                 $currency_report = (new CustomerSearch(new CustomerRepository(new Customer())))->buildCurrencyReport(
-                     $request,
-                     auth()->user()->account_user()->account
+                $currency_report = (new CustomerSearch(new CustomerRepository(new Customer())))->buildCurrencyReport(
+                    $request,
+                    auth()->user()->account_user()->account
                 );
-             break;
+                break;
 
-             case 'expense':
-                 $report = (new ExpenseSearch(new ExpenseRepository(new Expense())))->buildReport(
-                     $request,
-                     auth()->user()->account_user()->account
+            case 'expense':
+                $report = (new ExpenseSearch(new ExpenseRepository(new Expense())))->buildReport(
+                    $request,
+                    auth()->user()->account_user()->account
                 );
 
                 $currency_report = (new ExpenseSearch(new ExpenseRepository(new Expense())))->buildCurrencyReport(
-                     $request,
-                     auth()->user()->account_user()->account
+                    $request,
+                    auth()->user()->account_user()->account
                 );
-             break;
+                break;
 
-             case 'payment':
-                 $report = (new PaymentSearch(new PaymentRepository(new Payment())))->buildReport(
-                     $request,
-                     auth()->user()->account_user()->account
+            case 'payment':
+                $report = (new PaymentSearch(new PaymentRepository(new Payment())))->buildReport(
+                    $request,
+                    auth()->user()->account_user()->account
                 );
 
                 $currency_report = (new PaymentSearch(new PaymentRepository(new Payment())))->buildCurrencyReport(
-                     $request,
-                     auth()->user()->account_user()->account
+                    $request,
+                    auth()->user()->account_user()->account
                 );
-             break;
+                break;
         }
 
         return response()->json(['report' => $report, 'currency_report' => $currency_report]);

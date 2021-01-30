@@ -7,7 +7,9 @@ use App\Models\Credit;
 use App\Repositories\CreditRepository;
 use App\Requests\SearchRequest;
 use App\Transformations\CreditTransformable;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 class CreditSearch extends BaseSearch
 {
@@ -109,7 +111,7 @@ class CreditSearch extends BaseSearch
 
     public function buildCurrencyReport (Request $request, Account $account)
     {
-        $this->query =!DB::table('credits')
+        $this->query = DB::table('credits')
              ->select(DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance'))
              ->join('currencies', 'currencies.id', '=', 'credits.currency_id')
              ->where('currency_id', '<>', 0)
@@ -121,9 +123,9 @@ class CreditSearch extends BaseSearch
     {
         $this->query = DB::table('credits');
         
-         if(!empty($request->input('group_by')) {
+         if(!empty($request->input('group_by'))) {
             $this->query->select(DB::raw('count(*) as count, customers.name AS customer, SUM(total) as total, SUM(balance) AS balance'))
-            $this->query->groupBy($request->input('group_by'));
+            ->groupBy($request->input('group_by'));
         } else {
             $this->query->select('customers.name AS customer, total, number, balance, date, due_date');
         }

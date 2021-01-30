@@ -6,6 +6,7 @@ import KanbanNew from './tasks/KanbanNew'
 import Calendar from './calendar/Calendars'
 import Variables from './settings/Variables'
 import Roles from './roles/Roles'
+import Reports from './reports/Report'
 import Invoice from './invoice/Invoice'
 import Order from './orders/Order'
 import Companies from './companies/Companies'
@@ -69,6 +70,11 @@ import Importer from './import/Importer'
 
 // https://github.com/ReactTraining/react-router/tree/master/packages/react-router-config
 const routes = [
+    {
+        path: '/reports',
+        name: 'Reports',
+        component: Reports
+    },
     {
         path: '/bank_accounts/import',
         name: 'Import',

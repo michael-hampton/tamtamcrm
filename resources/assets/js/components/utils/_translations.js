@@ -283,6 +283,7 @@ _localizedValues.en = {
     expired: 'Expired',
     payment_date: 'Payment Date',
     currency: 'Currency',
+    currencies: 'Currencies',
     exchange_rate: 'Exchange Rate',
     converted: 'Converted',
     pdf: 'PDF',

@@ -1,16 +1,15 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 
 class Pagination extends Component {
-
-    render() {
-        const pageLinks = [];
-        const props = this.props;
-        const currentPage = props.currentPage;
-        const totalPages = props.totalPages;
+    render () {
+        const pageLinks = []
+        const props = this.props
+        const currentPage = props.currentPage
+        const totalPages = props.totalPages
 
         if (totalPages <= 1) {
-            return null;
+            return null
         }
 
         this.getPagesToDisplay(currentPage, totalPages).forEach((page, index) => {
@@ -25,9 +24,9 @@ class Pagination extends Component {
                             }
                         }}
                     >{ page || '...' }</button>
-                </li>,
-            );
-        });
+                </li>
+            )
+        })
 
         return (
             <nav aria-label="Page navigation ml-auto">
@@ -41,57 +40,59 @@ class Pagination extends Component {
                     </li>
                 </ul>
             </nav>
-        );
+        )
     }
 
-    changePage(page) {
-        this.props.changePage(page);
+    changePage (page) {
+        this.props.changePage(page)
     }
 
-    previousPage() {
+    previousPage () {
         if (this.props.currentPage > 1) {
-            this.changePage(this.props.currentPage - 1);
+            this.changePage(this.props.currentPage - 1)
         }
     }
 
-    nextPage() {
+    nextPage () {
         if (this.props.currentPage < this.props.totalPages) {
-            this.changePage(this.props.currentPage + 1);
+            this.changePage(this.props.currentPage + 1)
         }
     }
 
-    getPagesToDisplay(currentPage, totalPages) {
-        const { paginationDelta } = this.props;
-        const pages = [];
-        
+    getPagesToDisplay (currentPage, totalPages) {
+        const { paginationDelta } = this.props
+        const pages = []
+
         for (let i = 1; i <= totalPages; i++) {
-            const isFirstPage = i === 1;
-            const isLastPage = i === totalPages;
-            const isWithinDelta = Math.abs(currentPage - i) <= paginationDelta;
-            
+            const isFirstPage = i === 1
+            const isLastPage = i === totalPages
+            const isWithinDelta = Math.abs(currentPage - i) <= paginationDelta
+
             if (isFirstPage || isLastPage || isWithinDelta) {
                 // If this element isn't directly sequential to the last, add a filler null element.
                 if (pages.length >= 1 && i !== pages[pages.length - 1] + 1) {
-                    pages.push(null);
+                    pages.push(null)
                 }
-                
-                pages.push(i);
+
+                pages.push(i)
             }
         }
-    
-        return pages;
+
+        console.log('pages', pages)
+
+        return pages
     }
 }
 
 Pagination.defaultProps = {
-    paginationDelta: 4,
-};
+    paginationDelta: 4
+}
 
 Pagination.propTypes = {
     currentPage: PropTypes.number,
     totalPages: PropTypes.number,
     changePage: PropTypes.func,
-    paginationDelta: PropTypes.number,
-};
+    paginationDelta: PropTypes.number
+}
 
-export default Pagination;
+export default Pagination

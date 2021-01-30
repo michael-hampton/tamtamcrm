@@ -1,81 +1,64 @@
-generateCsv(props, content) {
-    const encoding = props.encoding ? props.encoding : 'UTF-8';
-    const csvType = { encoding, type: `text/plain;charset=${encoding}` };
-    const filename = props.filename ? props.filename : 'logResults.csv';
-    
-    let csvContent = '';
-    const data = content;
-    const headers = [];
+export function generateCsv (content) {
+    // const encoding = props.encoding ? props.encoding : 'UTF-8'
+    // const csvType = { encoding, type: `text/plain;charset=${encoding}` }
+    // const filename = props.filename ? props.filename : 'logResults.csv'
+
+    let csvContent = ''
+    const data = content
+    const headers = []
 
     content.forEach((rowObj) => {
-      if (headers === undefined || headers.length === 0) {
-        for (const property in rowObj) {
-          if (rowObj.hasOwnProperty(property)) {
-            headers.push(property);
-          }
-        }
-      } else {
-        for (const property in rowObj) {
-          if (rowObj.hasOwnProperty(property)) {
-            if (headers.indexOf(property) == -1) {
-              headers.push(property);
+        if (headers === undefined || headers.length === 0) {
+            for (const property in rowObj) {
+                if (rowObj.hasOwnProperty(property)) {
+                    headers.push(property)
+                }
             }
-          }
-        }
-      }
-
-      const rowData = [];
-
-      for (const i in headers) {
-        let data = rowObj[headers[i]];
-        if (data && typeof data === 'string' && data.indexOf(',') >= 0) {
-          data = `"${data.replace(/"/g, '""')}"`;
+        } else {
+            for (const property in rowObj) {
+                if (rowObj.hasOwnProperty(property)) {
+                    if (headers.indexOf(property) == -1) {
+                        headers.push(property)
+                    }
+                }
+            }
         }
 
-        rowData.push(data);
+        const rowData = []
 
-      }
+        for (const i in headers) {
+            let data = rowObj[headers[i]]
+            if (data && typeof data === 'string' && data.indexOf(',') >= 0) {
+                data = `"${data.replace(/"/g, '""')}"`
+            }
 
-      const row = rowData.join(',');
-      csvContent += `${row}\r\n`;
-    });
+            rowData.push(data)
+        }
 
-    const row = headers.join(',');
-    csvContent = `${row}\r\n${csvContent}`;
-  }
+        const row = rowData.join(',')
+        csvContent += `${row}\r\n`
+    })
 
-download(props) {
-  const { content, type, name } = props;
+    const row = headers.join(',')
+    csvContent = `${row}\r\n${csvContent}`
 
-  const file = new Blob(['\ufeff', content], { type });
+    return csvContent
+}
 
-  const link = document.createElement('a');
+export function download (props) {
+    const { content, type, name } = props
 
-  link.id = `_export_datatable_${name}`;
-  link.download = name;
-  link.href = window.URL.createObjectURL(file);
+    const file = new Blob(['\ufeff', content], { type })
 
-  document.body.appendChild(link);
+    const link = document.createElement('a')
 
-  link.click();
+    link.id = `_export_datatable_${name}`
+    link.download = name
+    link.href = window.URL.createObjectURL(file)
 
-  document.getElementById(link.id).remove();
-};
+    document.body.appendChild(link)
 
-  renderDownload(props) {
-      const buttonStyle = props.downloadButtonStyle ? props.downloadButtonStyle : {};
-      
-      return (
-        <div className="csvFileDownloader">
-          <button
-            style={buttonStyle}
-            download={props.csvFileName}
-            onClick={props.export}
-          >
-            <i className="fa fa-download"
-            style={{width: '30px'}} />
-            {props.downloadName ? props.downloadName : 'Download Table Data'}
-          </button>
-        </div>
-      );
-  }
+    link.click()
+
+    document.getElementById(link.id).remove()
+}

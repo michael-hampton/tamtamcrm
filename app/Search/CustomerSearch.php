@@ -7,7 +7,9 @@ use App\Models\Customer;
 use App\Repositories\CustomerRepository;
 use App\Requests\SearchRequest;
 use App\Transformations\CustomerTransformable;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 class CustomerSearch extends BaseSearch
 {
@@ -115,39 +117,50 @@ class CustomerSearch extends BaseSearch
         return true;
     }
 
-    public function buildCurrencyReport (Request $request, Account $account)
+    public function buildCurrencyReport(Request $request, Account $account)
     {
-        $this->query =!DB::table('invoices')
-             ->select(DB::raw('count(*) as count, currencies.name, SUM(amount_paid) as amount_paid, SUM(balance) AS balance'))
-             ->join('currencies', 'currencies.id', '=', 'customers.currency_id')
-             ->where('currency_id', '<>', 0)
-             ->where('account_id', '=', $account->id)
-             ->groupBy('currency_id');
+        $this->query = DB::table('invoices')
+                         ->select(
+                             DB::raw(
+                                 'count(*) as count, currencies.name, SUM(amount_paid) as amount_paid, SUM(balance) AS balance'
+                             )
+                         )
+                         ->join('currencies', 'currencies.id', '=', 'customers.currency_id')
+                         ->where('currency_id', '<>', 0)
+                         ->where('account_id', '=', $account->id)
+                         ->groupBy('currency_id');
     }
 
-    public function buildReport (Request $request, Account $account)
+    public function buildReport(Request $request, Account $account)
     {
         $this->query = DB::table('customers');
-        
-         if(!empty($request->input('group_by')) {
-            $this->query->select(DB::raw('count(*) as count, name, currencies.name AS currency, SUM(amount_paid) AS amount_paid, SUM(balance) AS balance, CONCAT(first_name," ",last_name) as contact'))
-            $this->query->groupBy($request->input('group_by'));
+
+        if (!empty($request->input('group_by'))) {
+            $this->query->select(
+                DB::raw(
+                    'count(*) as count, name, currencies.name AS currency, SUM(amount_paid) AS amount_paid, SUM(balance) AS balance, CONCAT(first_name," ",last_name) as contact'
+                )
+            )
+                        ->groupBy($request->input('group_by'));
         } else {
-            $this->query->select(DB::raw('CONCAT(first_name," ",last_name) as contact'), 'currencies.name AS currency, number, balance, amount_paid');
+            $this->query->select(
+                DB::raw('CONCAT(first_name," ",last_name) as contact'),
+                'currencies.name AS currency, number, balance, amount_paid'
+            );
         }
 
-         $this->query->join('currencies', 'currencies.id', '=', 'customers.currency_id')
-         ->join('customer_contacts', function($join)
-         {
-             $join->on('customer_contacts.customer_id', '=', 'customers.id');
-             $join->where('customer_contacts.is_primary','=', 1);
-        })
-         ->orderBy('customers.created_at')
-         ->where('account_id', '=', $account->id);
-         
-       
-             //$this->query->where('status', '<>', 1)
-            
+        $this->query->join('currencies', 'currencies.id', '=', 'customers.currency_id')
+                    ->join(
+                        'customer_contacts',
+                        function ($join) {
+                            $join->on('customer_contacts.customer_id', '=', 'customers.id');
+                            $join->where('customer_contacts.is_primary', '=', 1);
+                        }
+                    )
+                    ->orderBy('customers.created_at')
+                    ->where('account_id', '=', $account->id);
+        //$this->query->where('status', '<>', 1)
+
     }
 
 
