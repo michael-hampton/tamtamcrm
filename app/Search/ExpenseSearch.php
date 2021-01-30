@@ -121,6 +121,7 @@ class ExpenseSearch extends BaseSearch
              ->select(DB::raw('count(*) as count, currencies.name, SUM(amount) as amount'))
              ->join('currencies', 'currencies.id', '=', 'expenses.expense_currency_id')
              ->where('currency_id', '<>', 0)
+             ->where('account_id', '=', $account->id)
              ->groupBy('currency_id');
     }
 
@@ -137,6 +138,7 @@ class ExpenseSearch extends BaseSearch
 
          $this->query->join('customers', 'customers.id', '=', 'expenses.customer_id')
          ->leftJoin('companies', 'companies.id', '=', 'expenses.company_id')
+         ->where('account_id', '=', $account->id)
          ->orderBy('expenses.created_at');
        
              //$this->query->where('status', '<>', 1)
