@@ -115,16 +115,16 @@ class ExpenseSearch extends BaseSearch
         return true;
     }
 
-    public function buildCurrencyReport (Request $request)
+    public function buildCurrencyReport (Request $request, Account $account)
     {
         $this->query =!DB::table('expenses')
              ->select(DB::raw('count(*) as count, currencies.name, SUM(amount) as amount'))
-             ->join('currencies', 'currencies.id', '=', 'expenses.currency_id')
+             ->join('currencies', 'currencies.id', '=', 'expenses.expense_currency_id')
              ->where('currency_id', '<>', 0)
              ->groupBy('currency_id');
     }
 
-    public function buildReport (Request $request)
+    public function buildReport (Request $request, Account $account)
     {
         $this->query = DB::table('expenses');
         
