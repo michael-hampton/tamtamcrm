@@ -111,32 +111,6 @@ class InvoiceSearch extends BaseSearch
         return true;
     }
 
-    public function currencyReport (Request $request)
-    {
-        $this->query =!DB::table('invoices')
-             ->select(DB::raw('count(*) as count, currencies.name'))
-             ->join('currencies', 'currencies.id', '=', 'invoices.currency_id')
-             ->where('currency_id', '<>', 0)
-             ->groupBy('currency_id');
-    }
-
-    public function report (Request $request)
-    {
-        $this->query = DB::table('invoices');
-        
-         if(!empty($request->input('group_by')) {
-            $this->query->select('customers.name, total, number, balance, date, due_date', DB::raw('count(*) as count));
-            $this->query->groupBy($request->input('group_by'));
-        } else {
-            $this->query->select(customers.name, total, number, balance, date, due_date');
-        }
-
-         $this->query->join('customers', 'customers.id', '=', 'invoices.customer_id')->orderBy('invoices.date_created');
-       
-             //$this->query->where('status', '<>', 1)
-            
-    }
-
     /**
      * @return mixed
      */
