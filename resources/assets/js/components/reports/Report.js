@@ -120,7 +120,7 @@ export default class Report extends React.Component {
 
     changeImportType (e) {
         this.setState({ [e.target.name]: e.target.value }, () => {
-            this.getReport()
+            this.reload()
         })
     }
 
@@ -147,7 +147,7 @@ export default class Report extends React.Component {
 
     handleInputChanges (e) {
         this.setState({ group_by: e.target.value }, () => {
-           this.getReport()
+           this.reload()
         })
     }
 
@@ -216,6 +216,52 @@ export default class Report extends React.Component {
             this.loadPage(1);
 
         });
+    }
+
+    isLast() {
+      // because for empty records page_number will still be 1
+      if (this.state.totalPages == 0) {
+        return true;
+      }
+
+      if (this.state.currentPage == this.state.totalPages) {
+        return true;
+      } 
+        
+      return false;
+      
+    }
+
+     isFirst() {
+      if (this.state.currentPage == 1) {
+        return true;
+      }
+       
+     return false;
+    }
+ 
+    firstPage(e) {
+      e.preventDefault();
+      if (this.isFirst()) return;
+      this.loadPage(1);
+    }
+    
+    lastPage(e) {
+      e.preventDefault();
+      if (this.isLast()) return;
+      this.loadPage(e, this.state.totalPages);
+    }
+  
+    previousPage(e) {
+      e.preventDefault();
+      if (this.isFirst()) return false;
+      this.loadPage(this.state.currentPage - 1);
+    }
+  
+    nextPage(e) {
+      e.preventDefault();
+      if (this.isLast()) return;
+      this.loadPage(parseInt(this.state.currentPage) + 1);
     }
 
     render () {
