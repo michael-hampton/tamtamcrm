@@ -162,7 +162,7 @@ class TaskSearch extends BaseSearch
                         ->groupBy($request->input('group_by'));
         } else {
             $this->query->select(
-                'customers.name AS customer, task_statuses.name AS status, projects.name AS project, timers.started_at, timers.stopped_at, name, description, due_date',
+                'customers.name AS customer', 'task_statuses.name AS status', 'projects.name AS project', 'timers.started_at', 'timers.stopped_at', 'name', 'description', 'due_date',
                 DB::raw('CONCAT(first_name," ",last_name) as assigned_to')
             );
         }
