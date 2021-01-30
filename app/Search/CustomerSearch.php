@@ -121,6 +121,7 @@ class CustomerSearch extends BaseSearch
              ->select(DB::raw('count(*) as count, currencies.name, SUM(amount_paid) as amount_paid, SUM(balance) AS balance'))
              ->join('currencies', 'currencies.id', '=', 'customers.currency_id')
              ->where('currency_id', '<>', 0)
+             ->where('account_id', '=', $account->id)
              ->groupBy('currency_id');
     }
 
@@ -141,7 +142,8 @@ class CustomerSearch extends BaseSearch
              $join->on('customer_contacts.customer_id', '=', 'customers.id');
              $join->where('customer_contacts.is_primary','=', 1);
         })
-         ->orderBy('customers.created_at');
+         ->orderBy('customers.created_at')
+         ->where('account_id', '=', $account->id);
          
        
              //$this->query->where('status', '<>', 1)
