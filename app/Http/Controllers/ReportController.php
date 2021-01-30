@@ -86,10 +86,20 @@ class ReportController extends Controller
                      $request,
                      auth()->user()->account_user()->account
                 );
+
+                 $currency_report = (new InvoiceSearch(new InvoiceRepository(new Invoice())))->buildCurrencyReport(
+                     $request,
+                     auth()->user()->account_user()->account
+                );
              break;
 
              case 'credit':
                  $report = (new CreditSearch(new CreditRepository(new Credit())))->buildReport(
+                     $request,
+                     auth()->user()->account_user()->account
+                );
+
+                 $currency_report = (new CreditSearch(new CreditRepository(new Credit())))->buildCurrencyReport(
                      $request,
                      auth()->user()->account_user()->account
                 );
@@ -100,10 +110,20 @@ class ReportController extends Controller
                      $request,
                      auth()->user()->account_user()->account
                 );
+
+                $currency_report = (new QuoteSearch(new QuoteRepository(new Quote())))->buildCurrencyReport(
+                     $request,
+                     auth()->user()->account_user()->account
+                );
              break;
 
              case 'order':
                  $report = (new OrderSearch(new OrderRepository(new Order())))->buildReport(
+                     $request,
+                     auth()->user()->account_user()->account
+                );
+
+                $currency_report = (new OrderSearch(new OrderRepository(new Order())))->buildCurrencyReport(
                      $request,
                      auth()->user()->account_user()->account
                 );
@@ -128,10 +148,20 @@ class ReportController extends Controller
                      $request,
                      auth()->user()->account_user()->account
                 );
+
+                $currency_report = (new ExpenseSearch(new ExpenseRepository(new Expense())))->buildCurrencyReport(
+                     $request,
+                     auth()->user()->account_user()->account
+                );
              break;
 
              case 'payment':
                  $report = (new PaymentSearch(new PaymentRepository(new Payment())))->buildReport(
+                     $request,
+                     auth()->user()->account_user()->account
+                );
+
+                $currency_report = (new PaymentSearch(new PaymentRepository(new Payment())))->buildCurrencyReport(
                      $request,
                      auth()->user()->account_user()->account
                 );
