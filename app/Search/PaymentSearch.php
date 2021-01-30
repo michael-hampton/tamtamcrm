@@ -101,6 +101,32 @@ class PaymentSearch extends BaseSearch
         return true;
     }
 
+    public function buildCurrencyReport (Request $request)
+    {
+        $this->query =!DB::table('payments')
+             ->select(DB::raw('count(*) as count, currencies.name, SUM(amount) as amount'))
+             ->join('currencies', 'currencies.id', '=', 'payments.currency_id')
+             ->where('currency_id', '<>', 0)
+             ->groupBy('currency_id');
+    }
+
+    public function buildReport (Request $request)
+    {
+        $this->query = DB::table('payments');
+        
+         if(!empty($request->input('group_by')) {
+            $this->query->select(DB::raw('count(*) as count, customers.name, SUM(amount) as amount'))
+            $this->query->groupBy($request->input('group_by'));
+        } else {
+            $this->query->select(customers.name, amount, number, date, reference_number');
+        }
+         $this->query->join('customers', 'customers.id', '=', 'invoices.customer_id')
+         ->orderBy('payments.created_at');
+       
+             //$this->query->where('status', '<>', 1)
+            
+    }
+
     private function transformList()
     {
         $list = $this->query->get();
