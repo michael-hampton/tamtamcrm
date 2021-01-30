@@ -124,7 +124,8 @@ class ExpenseSearch extends BaseSearch
                          ->join('currencies', 'currencies.id', '=', 'expenses.expense_currency_id')
                          ->where('currency_id', '<>', 0)
                          ->where('account_id', '=', $account->id)
-                         ->groupBy('currency_id');
+                         ->groupBy('currency_id')
+                         ->get();
     }
 
     public function buildReport(Request $request, Account $account)
@@ -139,7 +140,7 @@ class ExpenseSearch extends BaseSearch
             )
                         ->groupBy($request->input('group_by'));
         } else {
-            $this->query->select('customers.name AS customer, companies.name AS company, amount, number, date');
+            $this->query->select('customers.name AS customer', 'companies.name AS company', 'amount', 'number', 'date');
         }
 
         $this->query->join('customers', 'customers.id', '=', 'expenses.customer_id')
