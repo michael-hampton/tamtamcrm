@@ -113,6 +113,7 @@ class CreditSearch extends BaseSearch
              ->select(DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance'))
              ->join('currencies', 'currencies.id', '=', 'credits.currency_id')
              ->where('currency_id', '<>', 0)
+             ->where('account_id', '=', $account->id)
              ->groupBy('currency_id');
     }
 
@@ -128,7 +129,8 @@ class CreditSearch extends BaseSearch
         }
 
          $this->query->join('customers', 'customers.id', '=', 'credits.customer_id')
-         ->orderBy('credits.created_at');
+         ->orderBy('credits.created_at')
+         ->where('account_id', '=', $account->id);
        
              //$this->query->where('status', '<>', 1)
             
