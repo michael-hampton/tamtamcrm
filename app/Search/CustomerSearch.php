@@ -128,7 +128,8 @@ class CustomerSearch extends BaseSearch
                          ->join('currencies', 'currencies.id', '=', 'customers.currency_id')
                          ->where('currency_id', '<>', 0)
                          ->where('account_id', '=', $account->id)
-                         ->groupBy('currency_id');
+                         ->groupBy('currency_id')
+                         ->get();
     }
 
     public function buildReport(Request $request, Account $account)
@@ -145,7 +146,7 @@ class CustomerSearch extends BaseSearch
         } else {
             $this->query->select(
                 DB::raw('CONCAT(first_name," ",last_name) as contact'),
-                'currencies.name AS currency, number, balance, amount_paid'
+                'currencies.name AS currency', 'number', 'balance', 'amount_paid'
             );
         }
 
