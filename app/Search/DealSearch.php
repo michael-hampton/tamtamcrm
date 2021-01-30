@@ -127,7 +127,7 @@ class DealSearch extends BaseSearch
         $this->query = DB::table('invoices');
         
          if(!empty($request->input('group_by')) {
-             // assigned to, status, source_type
+             // assigned to, status, source_type, customer
             $this->query->select(DB::raw('count(*) as count, customers.name, task_statuses.name, source_type.name, CONCAT(users.first_name," ",users.last_name) as assigned_to, SUM(valued_at) as valued_at'))
             $this->query->groupBy($request->input('group_by'));
         } else {
@@ -138,7 +138,7 @@ class DealSearch extends BaseSearch
          ->join('source_type', 'source_type.id', '=', 'deals.source_type')
          ->join('task_statuses', 'task_statuses.id', '=', 'deals.task_status')
          ->leftJoin('users', 'users.id', '=', 'deals.assigned_to')
-         ->orderBy('invoices.date_created');
+         ->orderBy('deals.created_at');
        
              //$this->query->where('status', '<>', 1)
             
