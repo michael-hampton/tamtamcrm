@@ -128,10 +128,10 @@ class DealSearch extends BaseSearch
         
          if(!empty($request->input('group_by')) {
              // assigned to, status, source_type
-            $this->query->select(DB::raw('count(*) as count, customers.name, task_statuses.name, source_type.name, CONCAT('users.first_name', ' ', 'users.last_name') AS assigned_to, SUM(valued_at) as valued_at'))
+            $this->query->select(DB::raw('count(*) as count, customers.name, task_statuses.name, source_type.name, CONCAT(users.first_name," ",users.last_name) as assigned_to, SUM(valued_at) as valued_at'))
             $this->query->groupBy($request->input('group_by'));
         } else {
-            $this->query->select(customers.name, task_statuses.name, source_type.name, valued_at, due_date, DB::raw("CONCAT('users.first_name', ' ', 'users.last_name') AS assigned_to)');
+            $this->query->select('customers.name, task_statuses.name, source_type.name, valued_at, due_date', DB::raw('CONCAT(first_name," ",last_name) as assigned_to'));
         }
 
          $this->query->join('customers', 'customers.id', '=', 'deals.customer_id')
