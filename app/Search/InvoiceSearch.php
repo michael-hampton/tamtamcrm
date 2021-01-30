@@ -114,7 +114,7 @@ class InvoiceSearch extends BaseSearch
     public function currencyReport (Request $request)
     {
         $this->query =!DB::table('invoices')
-             ->select(DB::raw('count(*) as count, currencies.name'))
+             ->select(DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance'))
              ->join('currencies', 'currencies.id', '=', 'invoices.currency_id')
              ->where('currency_id', '<>', 0)
              ->groupBy('currency_id');
@@ -125,7 +125,7 @@ class InvoiceSearch extends BaseSearch
         $this->query = DB::table('invoices');
         
          if(!empty($request->input('group_by')) {
-            $this->query->select('customers.name, total, number, balance, date, due_date', DB::raw('count(*) as count));
+            $this->query->select(DB::raw('count(*) as count, customers.name, SUM(total) as total, SUM(balance) AS balance'))
             $this->query->groupBy($request->input('group_by'));
         } else {
             $this->query->select(customers.name, total, number, balance, date, due_date');
