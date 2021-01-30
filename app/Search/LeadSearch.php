@@ -102,16 +102,16 @@ class LeadSearch extends BaseSearch
         
          if(!empty($request->input('group_by')) {
              // assigned to, status, source_type
-            $this->query->select(DB::raw('count(*) as count, CONCAT(leads.first_name," ",leads.last_name) as lead_name, task_statuses.name, source_type.name, CONCAT(users.first_name," ",users.last_name) as assigned_to, SUM(valued_at) as valued_at'))
+            $this->query->select(DB::raw('count(*) as count, CONCAT(leads.first_name," ",leads.last_name) as lead_name, task_statuses.name AS status, source_type.name AS source_type, CONCAT(users.first_name," ",users.last_name) as assigned_to, SUM(valued_at) as valued_at'))
             $this->query->groupBy($request->input('group_by'));
         } else {
-            $this->query->select('task_statuses.name, source_type.name, valued_at, due_date', DB::raw('CONCAT(users.first_name," ",users.last_name) as assigned_to'), DB::raw('CONCAT(leads.first_name," ",leads.last_name) as lead_name'));
+            $this->query->select('task_statuses.name AS status, source_type.name AS source_type, valued_at, due_date', DB::raw('CONCAT(users.first_name," ",users.last_name) as assigned_to'), DB::raw('CONCAT(leads.first_name," ",leads.last_name) as lead_name'));
         }
 
          $this->query->join('source_type', 'source_type.id', '=', 'deals.source_type')
          ->join('task_statuses', 'task_statuses.id', '=', 'deals.task_status')
          ->leftJoin('users', 'users.id', '=', 'deals.assigned_to')
-         ->orderBy('invoices.created_at');
+         ->orderBy('leads.created_at');
        
              //$this->query->where('status', '<>', 1)
             
