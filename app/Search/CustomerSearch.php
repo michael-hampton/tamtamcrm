@@ -115,6 +115,38 @@ class CustomerSearch extends BaseSearch
         return true;
     }
 
+    public function buildCurrencyReport (Request $request)
+    {
+        $this->query =!DB::table('invoices')
+             ->select(DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance'))
+             ->join('currencies', 'currencies.id', '=', 'invoices.currency_id')
+             ->where('currency_id', '<>', 0)
+             ->groupBy('currency_id');
+    }
+
+    public function buildReport (Request $request)
+    {
+        $this->query = DB::table('customers');
+        
+         if(!empty($request->input('group_by')) {
+            $this->query->select(DB::raw('count(*) as count, name, currencies.name AS currency, SUM(amount_paid) AS amount_paid, SUM(balance) AS balance'))
+            $this->query->groupBy($request->input('group_by'));
+        } else {
+            $this->query->select('name, currencies.name AS currency, number, balance, amount_paid');
+        }
+
+         $this->query->join('currencies', 'currencies.id', '=', 'customers.currency_id')
+         ->join('customer_contacts', function($join)
+         {
+             $join->on('customer_contacts.customer_id', '=', 'customers.id');
+             $join->where('customer_contacts.is_primary','=', 1);
+        })
+         ->orderBy('customers.created_at');
+       
+             //$this->query->where('status', '<>', 1)
+            
+    }
+
 
     /**
      * @return mixed
