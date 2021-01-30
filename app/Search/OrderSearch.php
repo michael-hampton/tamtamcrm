@@ -139,8 +139,17 @@ class OrderSearch extends BaseSearch
         }
 
         $this->query->join('customers', 'customers.id', '=', 'orders.customer_id')
-                    ->where('account_id', '=', $account->id)
-                    ->orderBy('invoices.created_at');
+                    ->where('orders.account_id', '=', $account->id)
+                    ->orderBy('orders.'.$request->input('orderByField'), $request->input('orderByDirection'));
+        //$this->query->where('status', '<>', 1)
+
+        $rows = $this->query->get()->toArray();
+
+        if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {
+            return $this->orderRepository->paginateArrayResults($rows, $request->input('perPage'));
+        }
+
+        return $rows;
         //$this->query->where('status', '<>', 1)
 
     }
