@@ -131,8 +131,17 @@ class CreditSearch extends BaseSearch
         }
 
          $this->query->join('customers', 'customers.id', '=', 'credits.customer_id')
-         ->orderBy('credits.created_at')
-         ->where('account_id', '=', $account->id);
+         ->where('account_id', '=', $account->id)
+         ->orderBy('credits.'.$request->input('orderByField'), $request->input('orderByDirection'));
+        //$this->query->where('status', '<>', 1)
+
+        $rows = $this->query->get()->toArray();
+
+        if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {
+            return $this->creditRepository->paginateArrayResults($rows, $request->input('perPage'));
+        }
+
+        return $rows;
        
              //$this->query->where('status', '<>', 1)
             
