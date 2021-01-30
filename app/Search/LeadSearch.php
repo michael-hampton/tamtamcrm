@@ -96,7 +96,7 @@ class LeadSearch extends BaseSearch
         return true;
     }
 
-    public function buildReport (Request $request)
+    public function buildReport (Request $request, Account $account)
     {
         $this->query = DB::table('leads');
         
