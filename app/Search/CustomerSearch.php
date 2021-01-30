@@ -129,10 +129,10 @@ class CustomerSearch extends BaseSearch
         $this->query = DB::table('customers');
         
          if(!empty($request->input('group_by')) {
-            $this->query->select(DB::raw('count(*) as count, name, currencies.name AS currency, SUM(amount_paid) AS amount_paid, SUM(balance) AS balance'))
+            $this->query->select(DB::raw('count(*) as count, name, currencies.name AS currency, SUM(amount_paid) AS amount_paid, SUM(balance) AS balance, CONCAT(first_name," ",last_name) as contact'))
             $this->query->groupBy($request->input('group_by'));
         } else {
-            $this->query->select('name, currencies.name AS currency, number, balance, amount_paid');
+            $this->query->select(DB::raw('CONCAT(first_name," ",last_name) as contact'), 'currencies.name AS currency, number, balance, amount_paid');
         }
 
          $this->query->join('currencies', 'currencies.id', '=', 'customers.currency_id')
@@ -142,6 +142,7 @@ class CustomerSearch extends BaseSearch
              $join->where('customer_contacts.is_primary','=', 1);
         })
          ->orderBy('customers.created_at');
+         
        
              //$this->query->where('status', '<>', 1)
             
