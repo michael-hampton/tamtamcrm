@@ -1,4 +1,4 @@
-generateAndDownloadCSV(props, content) {
+generateCsv(props, content) {
     const encoding = props.encoding ? props.encoding : 'UTF-8';
     const csvType = { encoding, type: `text/plain;charset=${encoding}` };
     const filename = props.filename ? props.filename : 'logResults.csv';
@@ -43,6 +43,24 @@ generateAndDownloadCSV(props, content) {
     const row = headers.join(',');
     csvContent = `${row}\r\n${csvContent}`;
   }
+
+download(props) {
+  const { content, type, name } = props;
+
+  const file = new Blob(['\ufeff', content], { type });
+
+  const link = document.createElement('a');
+
+  link.id = `_export_datatable_${name}`;
+  link.download = name;
+  link.href = window.URL.createObjectURL(file);
+
+  document.body.appendChild(link);
+
+  link.click();
+
+  document.getElementById(link.id).remove();
+};
 
   renderDownload(props) {
       const buttonStyle = props.downloadButtonStyle ? props.downloadButtonStyle : {};
