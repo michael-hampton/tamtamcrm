@@ -295,7 +295,7 @@ export default class Report extends React.Component {
                             </div>
                             <div className="card-body">
                                 <div className="card-body">
-                                    <ImportPreview
+                                    <DynamicDataTable
                                         rows={rows}
                                         totalRows={totalRows}
                                         currentPage={currentPage}
