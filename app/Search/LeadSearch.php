@@ -111,7 +111,7 @@ class LeadSearch extends BaseSearch
                         ->groupBy($request->input('group_by'));
         } else {
             $this->query->select(
-                'task_statuses.name AS status, source_type.name AS source_type, valued_at, due_date',
+                'task_statuses.name AS status', 'source_type.name AS source_type', 'valued_at', 'due_date',
                 DB::raw('CONCAT(users.first_name," ",users.last_name) as assigned_to'),
                 DB::raw('CONCAT(leads.first_name," ",leads.last_name) as lead_name')
             );
