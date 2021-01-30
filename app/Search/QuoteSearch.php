@@ -133,8 +133,17 @@ class QuoteSearch extends BaseSearch
         }
 
         $this->query->join('customers', 'customers.id', '=', 'quotes.customer_id')
-                    ->where('account_id', '=', $account->id)
-                    ->orderBy('quotes.created_at');
+                    ->where('quotes.account_id', '=', $account->id)
+                    ->orderBy('quotes.'.$request->input('orderByField'), $request->input('orderByDirection'));
+        //$this->query->where('status', '<>', 1)
+
+        $rows = $this->query->get()->toArray();
+
+        if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {
+            return $this->quoteRepository->paginateArrayResults($rows, $request->input('perPage'));
+        }
+
+        return $rows;
         //$this->query->where('status', '<>', 1)
 
     }
