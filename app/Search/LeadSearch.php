@@ -111,6 +111,7 @@ class LeadSearch extends BaseSearch
          $this->query->join('source_type', 'source_type.id', '=', 'deals.source_type')
          ->join('task_statuses', 'task_statuses.id', '=', 'deals.task_status')
          ->leftJoin('users', 'users.id', '=', 'deals.assigned_to')
+         ->where('account_id', '=', $account->id)
          ->orderBy('leads.created_at');
        
              //$this->query->where('status', '<>', 1)
