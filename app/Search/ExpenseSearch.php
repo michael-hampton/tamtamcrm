@@ -144,8 +144,17 @@ class ExpenseSearch extends BaseSearch
 
         $this->query->join('customers', 'customers.id', '=', 'expenses.customer_id')
                     ->leftJoin('companies', 'companies.id', '=', 'expenses.company_id')
-                    ->where('account_id', '=', $account->id)
-                    ->orderBy('expenses.created_at');
+                    ->where('expenses.account_id', '=', $account->id)
+                    ->orderBy('expenses.'.$request->input('orderByField'), $request->input('orderByDirection'));
+        //$this->query->where('status', '<>', 1)
+
+        $rows = $this->query->get()->toArray();
+
+        if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {
+            return $this->expenseRepository->paginateArrayResults($rows, $request->input('perPage'));
+        }
+
+        return $rows;
         //$this->query->where('status', '<>', 1)
 
     }
