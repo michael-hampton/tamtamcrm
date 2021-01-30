@@ -124,7 +124,8 @@ class DealSearch extends BaseSearch
                          ->join('currencies', 'currencies.id', '=', 'invoices.currency_id')
                          ->where('currency_id', '<>', 0)
                          ->where('account_id', '=', $account->id)
-                         ->groupBy('currency_id');
+                         ->groupBy('currency_id')
+                         ->get();
     }
 
     public function buildReport(Request $request, Account $account)
@@ -141,7 +142,7 @@ class DealSearch extends BaseSearch
                         ->groupBy($request->input('group_by'));
         } else {
             $this->query->select(
-                'customers.name AS customer, task_statuses.name AS status, source_type.name AS source_type, projects.name AS project, valued_at, due_date',
+                'customers.name AS customer', 'task_statuses.name AS status', 'source_type.name AS source_type', 'projects.name AS project', 'valued_at', 'due_date',
                 DB::raw('CONCAT(first_name," ",last_name) as assigned_to')
             );
         }
