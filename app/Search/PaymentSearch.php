@@ -118,7 +118,7 @@ class PaymentSearch extends BaseSearch
             $this->query->select(DB::raw('count(*) as count, customers.name, SUM(amount) as amount'))
             $this->query->groupBy($request->input('group_by'));
         } else {
-            $this->query->select(customers.name, amount, number, date, reference_number');
+            $this->query->select('customers.name, amount, number, date, reference_number');
         }
          $this->query->join('customers', 'customers.id', '=', 'invoices.customer_id')
          ->orderBy('payments.created_at');
