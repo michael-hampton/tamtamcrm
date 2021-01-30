@@ -1,135 +1,63 @@
-import { render, unmountComponentAtNode } from 'react-dom';
+generateAndDownloadCSV(props, content) {
+    const encoding = props.encoding ? props.encoding : 'UTF-8';
+    const csvType = { encoding, type: `text/plain;charset=${encoding}` };
+    const filename = props.filename ? props.filename : 'logResults.csv';
+    
+    let csvContent = '';
+    const data = content;
+    const headers = [];
 
-const download = props => {
-  const { content, type, name } = props;
+    content.forEach((rowObj) => {
+      if (headers === undefined || headers.length === 0) {
+        for (const property in rowObj) {
+          if (rowObj.hasOwnProperty(property)) {
+            headers.push(property);
+          }
+        }
+      } else {
+        for (const property in rowObj) {
+          if (rowObj.hasOwnProperty(property)) {
+            if (headers.indexOf(property) == -1) {
+              headers.push(property);
+            }
+          }
+        }
+      }
 
-  const file = new Blob(['\ufeff', content], { type });
+      const rowData = [];
 
-  const link = document.createElement('a');
+      for (const i in headers) {
+        let data = rowObj[headers[i]];
+        if (data && typeof data === 'string' && data.indexOf(',') >= 0) {
+          data = `"${data.replace(/"/g, '""')}"`;
+        }
 
-  link.id = `_export_datatable_${name}`;
-  link.download = name;
-  link.href = window.URL.createObjectURL(file);
+        rowData.push(data);
 
-  document.body.appendChild(link);
+      }
 
-  link.click();
+      const row = rowData.join(',');
+      csvContent += `${row}\r\n`;
+    });
 
-  document.getElementById(link.id).remove();
-};
-
-const print = table => {
-  const printWindow = window.open();
-  printWindow.document.write(table);
-  printWindow.print();
-  printWindow.close();
-};
-
-const lower = value => (value.toString().toLowerCase());
-
-const objectValues = item => Object.values(item).map(obj => (typeof (obj) === 'object' && obj !== null ? objectValues(obj) : obj));
-
-const filter = (search, constant, data, filterHidden) => (constant.filter((item, index) => {
-  const value = (filterHidden ? objectValues(item) : Object.values(data[index])).join();
-  const searchSplit = search.split(' ').filter(filterItem => filterItem !== '');
-
-  return searchSplit.filter(filterItem => lower(value).indexOf(filterItem.trim()) !== -1).length === searchSplit.length;
-  // return (lower(value).indexOf(search.trim()) !== -1);
-  // const found = data[index].filter(f => (lower(f).indexOf(search) !== -1));
-  // return (found.length > 0);
-}));
-
-const getProperty = (row, selector, format) => {
-  if (typeof selector !== 'string') {
-    throw new Error('selector must be a . delimted string eg (my.property)');
+    const row = headers.join(',');
+    csvContent = `${row}\r\n${csvContent}`;
   }
 
-  if (format && typeof format === 'function') {
-    return format(row);
+  renderDownload(props) {
+      const buttonStyle = props.downloadButtonStyle ? props.downloadButtonStyle : {};
+      
+      return (
+        <div className="csvFileDownloader">
+          <button
+            style={buttonStyle}
+            download={props.csvFileName}
+            onClick={props.export}
+          >
+            <i className="fa fa-download"
+            style={{width: '30px'}} />
+            {props.downloadName ? props.downloadName : 'Download Table Data'}
+          </button>
+        </div>
+      );
   }
-
-  return selector.split('.').reduce((acc, part) => {
-    if (!acc) {
-      return null;
-    }
-
-    // O(n2) when querying for an array (e.g. items[0].name)
-    // Likely, the object depth will be reasonable enough that performance is not a concern
-    const arr = part.match(/[^\]\\[.]+/g);
-    if (arr.length > 1) {
-      // eslint-disable-next-line no-plusplus
-      for (let i = 0; i < arr.length; i++) {
-        return acc[arr[i]][arr[i + 1]];
-      }
-    }
-
-    return acc[part];
-  }, row);
-};
-
-const dataRender = (data, header) => {
-  const rawData = [];
-  // get and render data
-  data.forEach(element => {
-    const row = [];
-    header.forEach(head => {
-      // Export Cell
-      if (head.cellExport) {
-        const exportData = head.cellExport(element);
-        row.push(exportData);
-        // row.push(`<table><tbody>${Object.keys(exportData).map(key => `<tr><td>${key}</td><td>${exportData[key].toString()}</td></tr>`).join('')}</tbody></table>`);
-      } else if (head.cell) { // cell: render component and get innerText
-        const div = document.createElement('div');
-        render(head.cell(element), div);
-        row.push(div.innerText);
-        unmountComponentAtNode(div);
-      } else { // get property
-        row.push(getProperty(element, head.selector, head.format));
-      }
-    });
-
-    rawData.push(row);
-  });
-  return rawData;
-};
-
-const concat = {
-  csv: row => {
-    const items = [];
-
-    row.forEach(item => {
-      if (typeof item === 'object' && item !== null) {
-        items.push(Object.keys(item).map(key => `${key}: ${item[key]}`).join(';'));
-      } else {
-        items.push(item);
-      }
-    });
-
-    return items.join(';');
-  },
-  excel: row => {
-    const items = [];
-
-    row.forEach(item => {
-      if (typeof item === 'object' && item !== null) {
-        items.push(`<table><tbody>${Object.keys(item).map(key => `<tr><td>${key}</td><td>${item[key]}</td></tr>`).join('')}</tbody></table>`);
-      } else {
-        items.push(item);
-      }
-    });
-
-    return `<tr style="border-bottom:1px solid #000;"><td style="border-right:1px solid #000;">${items.join('</td><td style="border-right:1px solid #000;">')}</td></tr>`;
-  },
-};
-
-const Utilities = {
-  download,
-  print,
-  filter,
-  getProperty,
-  lower,
-  dataRender,
-  concat,
-};
-
-export default Utilities;
