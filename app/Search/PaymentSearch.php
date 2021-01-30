@@ -124,8 +124,17 @@ class PaymentSearch extends BaseSearch
             $this->query->select('customers.name AS customer, amount, number, date, reference_number');
         }
         $this->query->join('customers', 'customers.id', '=', 'invoices.customer_id')
-                    ->where('account_id', '=', $account->id)
-                    ->orderBy('payments.created_at');
+                    ->where('payments.account_id', '=', $account->id)
+                    ->orderBy('payments.'.$request->input('orderByField'), $request->input('orderByDirection'));
+        //$this->query->where('status', '<>', 1)
+
+        $rows = $this->query->get()->toArray();
+
+        if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {
+            return $this->paymentRepository->paginateArrayResults($rows, $request->input('perPage'));
+        }
+
+        return $rows;
         //$this->query->where('status', '<>', 1)
 
     }
