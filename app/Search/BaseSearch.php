@@ -42,7 +42,7 @@ class BaseSearch
     }
 
     protected function filterByDate($params) {
-        $params = explode('|', $request->input('date_format'));
+        $params = explode('|', $params);
 
         switch($params[0]) {
             case 'last_month':
