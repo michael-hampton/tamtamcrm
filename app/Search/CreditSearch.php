@@ -140,6 +140,10 @@ class CreditSearch extends BaseSearch
            $this->filterByDate($request->input('date_format'));
         }
 
+        if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
+            $this->filterDates($request);
+        }
+
         $rows = $this->query->get()->toArray();
 
         if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {
