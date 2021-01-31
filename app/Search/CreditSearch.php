@@ -137,7 +137,7 @@ class CreditSearch extends BaseSearch
         //$this->query->where('status', '<>', 1)
 
        if(!empty($request->input('date_format'))) {
-           $this->filterByDate();
+           $this->filterByDate($request->input('date_format'));
         }
 
         $rows = $this->query->get()->toArray();
