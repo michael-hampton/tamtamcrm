@@ -119,17 +119,17 @@ class CustomerSearch extends BaseSearch
 
     public function buildCurrencyReport(Request $request, Account $account)
     {
-        $this->query = DB::table('invoices')
-                         ->select(
-                             DB::raw(
-                                 'count(*) as count, currencies.name, SUM(amount_paid) as amount_paid, SUM(balance) AS balance'
-                             )
-                         )
-                         ->join('currencies', 'currencies.id', '=', 'customers.currency_id')
-                         ->where('currency_id', '<>', 0)
-                         ->where('account_id', '=', $account->id)
-                         ->groupBy('currency_id')
-                         ->get();
+        return DB::table('customers')
+                 ->select(
+                     DB::raw(
+                         'count(*) as count, currencies.name, SUM(amount_paid) as amount_paid, SUM(balance) AS balance'
+                     )
+                 )
+                 ->join('currencies', 'currencies.id', '=', 'customers.currency_id')
+                 ->where('currency_id', '<>', 0)
+                 ->where('account_id', '=', $account->id)
+                 ->groupBy('currency_id')
+                 ->get();
     }
 
     public function buildReport(Request $request, Account $account)
@@ -146,21 +146,33 @@ class CustomerSearch extends BaseSearch
         } else {
             $this->query->select(
                 DB::raw('CONCAT(first_name," ",last_name) as contact'),
-                'currencies.name AS currency', 'number', 'balance', 'amount_paid'
+                'currencies.name AS currency',
+                'number',
+                'balance',
+                'amount_paid'
             );
         }
 
         $this->query->join('currencies', 'currencies.id', '=', 'customers.currency_id')
-                    ->join(
+                    ->leftJoin(
                         'customer_contacts',
                         function ($join) {
                             $join->on('customer_contacts.customer_id', '=', 'customers.id');
                             $join->where('customer_contacts.is_primary', '=', 1);
                         }
                     )
-                    ->where('customers.account_id', '=', $account->id)
-                    ->orderBy('customers.'.$request->input('orderByField'), $request->input('orderByDirection'));
-        //$this->query->where('status', '<>', 1)
+                    ->where('customers.account_id', '=', $account->id);
+
+        $order = $request->input('orderByField');
+        $order_dir = $request->input('orderByDirection');
+
+        if ($order === 'contact') {
+            $this->query->orderByRaw('CONCAT(customer_contacts.first_name, " ", customer_contacts.last_name)' . $order_dir);
+        } elseif ($order === 'currency') {
+            $this->query->orderBy('currencies.name', $request->input('orderByDirection'));
+        } else {
+            $this->query->orderBy('customers.' . $order, $order_dir);
+        }
 
         $rows = $this->query->get()->toArray();
 

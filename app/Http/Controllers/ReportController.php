@@ -10,8 +10,10 @@ use App\Models\Invoice;
 use App\Models\Lead;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Models\Project;
 use App\Models\PurchaseOrder;
 use App\Models\Quote;
+use App\Models\Task;
 use App\Repositories\CreditRepository;
 use App\Repositories\CustomerRepository;
 use App\Repositories\DealRepository;
@@ -22,8 +24,10 @@ use App\Repositories\InvoiceRepository;
 use App\Repositories\LeadRepository;
 use App\Repositories\OrderRepository;
 use App\Repositories\PaymentRepository;
+use App\Repositories\ProjectRepository;
 use App\Repositories\PurchaseOrderRepository;
 use App\Repositories\QuoteRepository;
+use App\Repositories\TaskRepository;
 use App\Search\CreditSearch;
 use App\Search\CustomerSearch;
 use App\Search\DealSearch;
@@ -34,6 +38,7 @@ use App\Search\OrderSearch;
 use App\Search\PaymentSearch;
 use App\Search\PurchaseOrderSearch;
 use App\Search\QuoteSearch;
+use App\Search\TaskSearch;
 use App\Transformations\TaskTransformable;
 use Illuminate\Http\Request;
 
@@ -104,7 +109,9 @@ class ReportController extends Controller
                     auth()->user()->account_user()->account
                 );
 
-                $currency_report = (new PurchaseOrderSearch(new PurchaseOrderRepository(new PurchaseOrder())))->buildCurrencyReport(
+                $currency_report = (new PurchaseOrderSearch(
+                    new PurchaseOrderRepository(new PurchaseOrder())
+                ))->buildCurrencyReport(
                     $request,
                     auth()->user()->account_user()->account
                 );
@@ -147,7 +154,9 @@ class ReportController extends Controller
                 break;
 
             case 'task':
-                $report = (new LeadSearch(new LeadRepository(new Lead())))->buildReport(
+                $report = (new TaskSearch(
+                    new TaskRepository(new Task(), new ProjectRepository(new Project()))
+                ))->buildReport(
                     $request,
                     auth()->user()->account_user()->account
                 );

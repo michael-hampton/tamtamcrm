@@ -105,12 +105,13 @@ class PaymentSearch extends BaseSearch
 
     public function buildCurrencyReport(Request $request, Account $account)
     {
-        $this->query = DB::table('payments')
-                         ->select(DB::raw('count(*) as count, currencies.name, SUM(amount) as amount'))
-                         ->join('currencies', 'currencies.id', '=', 'payments.currency_id')
-                         ->where('currency_id', '<>', 0)
-                         ->where('account_id', '=', $account->id)
-                         ->groupBy('currency_id');
+        return DB::table('payments')
+                 ->select(DB::raw('count(*) as count, currencies.name, SUM(amount) as amount'))
+                 ->join('currencies', 'currencies.id', '=', 'payments.currency_id')
+                 ->where('currency_id', '<>', 0)
+                 ->where('account_id', '=', $account->id)
+                 ->groupBy('currency_id')
+                 ->get();
     }
 
     public function buildReport(Request $request, Account $account)
@@ -121,15 +122,21 @@ class PaymentSearch extends BaseSearch
             $this->query->select(DB::raw('count(*) as count, customers.name AS customer, SUM(amount) as amount'))
                         ->groupBy($request->input('group_by'));
         } else {
-            $this->query->select('customers.name AS customer, amount, number, date, reference_number');
+            $this->query->select('customers.name AS customer', 'amount', 'number', 'date', 'reference_number');
         }
-        $this->query->join('customers', 'customers.id', '=', 'invoices.customer_id')
-                    ->where('payments.account_id', '=', $account->id)
-                    ->orderBy('payments.'.$request->input('orderByField'), $request->input('orderByDirection'));
-        //$this->query->where('status', '<>', 1)
+        $this->query->join('customers', 'customers.id', '=', 'payments.customer_id')
+                    ->where('payments.account_id', '=', $account->id);
 
-        if(!empty($request->input('date_format'))) {
-           $this->filterByDate($request->input('date_format'));
+        $order_by = $request->input('orderByField');
+
+        if ($order_by === 'customer') {
+            $this->query->orderBy('customers.name', $request->input('orderByDirection'));
+        } else {
+            $this->query->orderBy('payments.' . $order_by, $request->input('orderByDirection'));
+        }
+
+        if (!empty($request->input('date_format'))) {
+            $this->filterByDate($request->input('date_format'));
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {

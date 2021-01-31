@@ -151,7 +151,7 @@ class TaskSearch extends BaseSearch
 
     public function buildReport(Request $request, Account $account)
     {
-        $this->query = DB::table('invoices');
+        $this->query = DB::table('tasks');
 
         if (!empty($request->input('group_by'))) {
             // assigned to, status, customer, project
@@ -163,22 +163,36 @@ class TaskSearch extends BaseSearch
                         ->groupBy($request->input('group_by'));
         } else {
             $this->query->select(
-                'customers.name AS customer', 'task_statuses.name AS status', 'projects.name AS project', 'timers.started_at', 'timers.stopped_at', 'name', 'description', 'due_date',
+                'customers.name AS customer', 'task_statuses.name AS status', 'projects.name AS project', 'timers.started_at', 'timers.stopped_at', 'tasks.name', 'tasks.description', 'tasks.due_date',
                 DB::raw('CONCAT(first_name," ",last_name) as assigned_to')
             );
         }
 
-        $this->query->join('customers', 'customers.id', '=', 'deals.customer_id')
-                    ->join('timers', 'timers.task_id', '=', 'tasks.id')
-                    ->join('task_statuses', 'task_statuses.id', '=', 'tasks.task_status')
+        $this->query->join('customers', 'customers.id', '=', 'tasks.customer_id')
+                    ->leftJoin('timers', 'timers.task_id', '=', 'tasks.id')
+                    ->join('task_statuses', 'task_statuses.id', '=', 'tasks.task_status_id')
                     ->leftJoin('users', 'users.id', '=', 'tasks.assigned_to')
                     ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
-                    ->where('tasks.account_id', '=', $account->id)
-                    ->orderBy('tasks.'.$request->input('orderByField'), $request->input('orderByDirection'));
-        //$this->query->where('status', '<>', 1)
+                    ->where('tasks.account_id', '=', $account->id);
+
+        $order = $request->input('orderByField');
+
+        if ($order === 'status') {
+            $this->query->orderBy('task_statuses.name', $request->input('orderByDirection'));
+        } elseif ($order === 'project') {
+            $this->query->orderBy('projects.name', $request->input('orderByDirection'));
+        } elseif ($order === 'customer') {
+            $this->query->orderBy('customers.name', $request->input('orderByDirection'));
+        } elseif($order === 'started_at') {
+            $this->query->orderBy('timers.started_at', $request->input('orderByDirection'));
+        } elseif($order === 'stopped_at') {
+            $this->query->orderBy('timers.stopped_at', $request->input('orderByDirection'));
+        } else {
+            $this->query->orderBy('tasks.' . $order, $request->input('orderByDirection'));
+        }
 
         if(!empty($request->input('date_format'))) {
-           $this->filterByDate($request->input('date_format'));
+           $this->filterByDate($request->input('date_format'), 'tasks');
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {

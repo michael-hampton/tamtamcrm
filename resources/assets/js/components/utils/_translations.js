@@ -855,7 +855,8 @@ _localizedValues.en = {
     portal_dashboard_enabled: 'Dashboard',
     portal_tasks_enabled: 'Tasks',
     portal_cases_enabled: 'Cases',
-    portal_documents_enabled_help_text: 'Allow customers to upload documents in portal'
+    portal_documents_enabled_help_text: 'Allow customers to upload documents in portal',
+    source_type: 'Source Type'
 }
 
 let language = []

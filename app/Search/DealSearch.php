@@ -117,7 +117,7 @@ class DealSearch extends BaseSearch
 
     public function buildCurrencyReport(Request $request, Account $account)
     {
-        $this->query = DB::table('invoices')
+        return DB::table('invoices')
                          ->select(
                              DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance')
                          )
@@ -142,22 +142,34 @@ class DealSearch extends BaseSearch
                         ->groupBy($request->input('group_by'));
         } else {
             $this->query->select(
-                'customers.name AS customer', 'task_statuses.name AS status', 'source_type.name AS source_type', 'projects.name AS project', 'valued_at', 'due_date',
+                'customers.name AS customer', 'task_statuses.name AS status', 'source_type.name AS source_type', 'projects.name AS project', 'valued_at', 'deals.due_date',
                 DB::raw('CONCAT(first_name," ",last_name) as assigned_to')
             );
         }
 
         $this->query->join('customers', 'customers.id', '=', 'deals.customer_id')
-                    ->join('source_type', 'source_type.id', '=', 'deals.source_type')
+                    ->leftJoin('source_type', 'source_type.id', '=', 'deals.source_type')
                     ->leftJoin('projects', 'projects.id', '=', 'deals.project_id')
-                    ->join('task_statuses', 'task_statuses.id', '=', 'deals.task_status')
+                    ->join('task_statuses', 'task_statuses.id', '=', 'deals.task_status_id')
                     ->leftJoin('users', 'users.id', '=', 'deals.assigned_to')
-                    ->where('account_id', '=', $account->id)
-                    ->orderBy('deals.'.$request->input('orderByField'), $request->input('orderByDirection'));
-        //$this->query->where('status', '<>', 1)
+                    ->where('deals.account_id', '=', $account->id);
+
+        $order = $request->input('orderByField');
+
+        if ($order === 'status') {
+            $this->query->orderBy('task_statuses.name', $request->input('orderByDirection'));
+        } elseif ($order === 'project') {
+            $this->query->orderBy('projects.name', $request->input('orderByDirection'));
+        } elseif ($order === 'source_type') {
+            $this->query->orderBy('source_type.name', $request->input('orderByDirection'));
+        } elseif ($order === 'customer') {
+            $this->query->orderBy('customers.name', $request->input('orderByDirection'));
+        } else {
+            $this->query->orderBy('deals.' . $order, $request->input('orderByDirection'));
+        }
 
         if(!empty($request->input('date_format'))) {
-           $this->filterByDate($request->input('date_format'));
+           $this->filterByDate($request->input('date_format'), 'deals');
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {

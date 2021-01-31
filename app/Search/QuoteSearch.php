@@ -109,14 +109,15 @@ class QuoteSearch extends BaseSearch
 
     public function buildCurrencyReport(Request $request, Account $account)
     {
-        $this->query = DB::table('quotes')
-                         ->select(
-                             DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance')
-                         )
-                         ->join('currencies', 'currencies.id', '=', 'quotes.currency_id')
-                         ->where('currency_id', '<>', 0)
-                         ->where('account_id', '=', $account->id)
-                         ->groupBy('currency_id');
+        return DB::table('quotes')
+                 ->select(
+                     DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance')
+                 )
+                 ->join('currencies', 'currencies.id', '=', 'quotes.currency_id')
+                 ->where('currency_id', '<>', 0)
+                 ->where('account_id', '=', $account->id)
+                 ->groupBy('currency_id')
+                 ->get();
     }
 
     public function buildReport(Request $request, Account $account)
@@ -129,16 +130,22 @@ class QuoteSearch extends BaseSearch
             )
                         ->groupBy($request->input('group_by'));
         } else {
-            $this->query->select('customers.name AS customer, total, number, balance, date, due_date');
+            $this->query->select('customers.name AS customer', 'total', 'number', 'balance', 'date', 'due_date AS expiry_date');
         }
 
         $this->query->join('customers', 'customers.id', '=', 'quotes.customer_id')
-                    ->where('quotes.account_id', '=', $account->id)
-                    ->orderBy('quotes.'.$request->input('orderByField'), $request->input('orderByDirection'));
-        //$this->query->where('status', '<>', 1)
+                    ->where('quotes.account_id', '=', $account->id);
 
-        if(!empty($request->input('date_format'))) {
-           $this->filterByDate($request->input('date_format'));
+        $order_by = $request->input('orderByField');
+
+        if ($order_by === 'customer') {
+            $this->query->orderBy('customers.name', $request->input('orderByDirection'));
+        } else {
+            $this->query->orderBy('quotes.' . $order_by, $request->input('orderByDirection'));
+        }
+
+        if (!empty($request->input('date_format'))) {
+            $this->filterByDate($request->input('date_format'));
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {

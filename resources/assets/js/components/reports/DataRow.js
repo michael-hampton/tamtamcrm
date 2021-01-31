@@ -4,19 +4,18 @@ import FormatMoney from '../common/FormatMoney'
 import FormatDate from '../common/FormatDate'
 
 class DataRow extends Component {
-
-    static noop() {
-        return null;
+    static noop () {
+        return null
     }
 
-    shouldDangerouslyRenderField(field) {
-        const { dangerouslyRenderFields } = this.props;
+    shouldDangerouslyRenderField (field) {
+        const { dangerouslyRenderFields } = this.props
 
-        return dangerouslyRenderFields.includes(field);
+        return dangerouslyRenderFields.includes(field)
     }
 
-    render() {
-        const { row, fields, onClick, onMouseUp, onMouseDown, onContextMenu } = this.props;
+    render () {
+        const { row, fields, onClick, onMouseUp, onMouseDown, onContextMenu } = this.props
 
         return (
             <tr
@@ -29,14 +28,14 @@ class DataRow extends Component {
                 { fields.map(field => this.renderCell(field, row)) }
                 { this.renderButtons(row) }
             </tr>
-        );
+        )
     }
 
-    renderCheckboxCell() {
-        const { row, renderCheckboxes, disableCheckbox } = this.props;
+    renderCheckboxCell () {
+        const { row, renderCheckboxes, disableCheckbox } = this.props
 
         if (!renderCheckboxes) {
-            return;
+            return
         }
 
         const checkbox = (
@@ -50,35 +49,35 @@ class DataRow extends Component {
                     disabled={disableCheckbox}
                 />
             </div>
-        );
+        )
 
         return (
             <td>{ checkbox }</td>
-        );
+        )
     }
 
-    renderCell(field, row) {
-        const { editableColumns, index } = this.props;
+    renderCell (field, row) {
+        const { editableColumns, index } = this.props
 
-        let value = row[field.name];
+        let value = row[field.name]
 
-        value = this.props.dataItemManipulator(field.name, value, row);
+        value = this.props.dataItemManipulator(field.name, value, row)
 
-        const key = `${row.id}_${field.name}`;
+        const key = `${row.id}_${field.name}`
 
-        let columnIndex = editableColumns.findIndex(column => column.name === field.name);
+        const columnIndex = editableColumns.findIndex(column => column.name === field.name)
         if (columnIndex !== -1) {
-            let column = editableColumns[columnIndex];
+            const column = editableColumns[columnIndex]
 
-            if(column.type === 'select') {
+            if (column.type === 'select') {
                 return (
                     <td key={key}>
                         <select
                             defaultValue={value}
                             value={column.controlled ? value : undefined}
                             onChange={event => {
-                                event.stopPropagation();
-                                column.onChange(event, field.name, row, index);
+                                event.stopPropagation()
+                                column.onChange(event, field.name, row, index)
                             }}>
                             {column.optionsForRow(row, field.name).map(option => (
                                 <option value={option.value}>{option.label}</option>
@@ -93,7 +92,7 @@ class DataRow extends Component {
             return (
                 <td key={key}>
                     <input type={column.type} defaultValue={value} value={column.controlled ? value : undefined} onChange={event => {
-                        event.stopPropagation();
+                        event.stopPropagation()
                         column.onChange(event, field.name, row, index)
                     }} />
                 </td>
@@ -102,53 +101,53 @@ class DataRow extends Component {
 
         if (React.isValidElement(value)) {
             return (
-                <td key={key}>{value}</td>
-            );
+                <td key={key}>{this.formatValue(field.name, value)}</td>
+            )
         }
 
         if (this.shouldDangerouslyRenderField(field.name)) {
             return (
-                <td key={key} dangerouslySetInnerHTML={{__html: value}}/>
-            );
+                <td key={key} dangerouslySetInnerHTML={{ __html: value }}/>
+            )
         }
 
         if (typeof value === 'object' || typeof value === 'array') {
-            value = JSON.stringify(value);
+            value = JSON.stringify(value)
         }
 
         return (
-            <td key={key}>{ value }</td>
-        );
+            <td key={key}>{ this.formatValue(field.name, value) }</td>
+        )
     }
 
     formatValue (name, value) {
-        if(['amount', 'total', 'balance', 'amount_paid'].includes(name)) {
+        if (['amount', 'total', 'balance', 'amount_paid'].includes(name)) {
             return <FormatMoney amount={value} />
         }
 
-        if(['date', 'due_date'].includes(name)) {
+        if (['date', 'due_date'].includes(name)) {
             return <FormatDate date={value} />
         }
 
         return value
     }
 
-    renderButtons(row) {
-        const { buttons, actions } = this.props;
+    renderButtons (row) {
+        const { buttons, actions } = this.props
 
         if (typeof buttons === 'function') {
-            return buttons(row);
+            return buttons(row)
         }
 
         if (!buttons.length && !actions.length) {
-            return null;
+            return null
         } else if (!buttons.length) {
-            return <td />;
+            return <td />
         }
 
-        const button = buttons[0];
+        const button = buttons[0]
 
-        if (buttons.length===1) {
+        if (buttons.length === 1) {
             return (
                 <td className="rddt-action-cell">
                     {this.renderFirstButton(button, row)}
@@ -164,7 +163,7 @@ class DataRow extends Component {
                 >
                     {this.renderFirstButton(button, row)}
                     <button type="button" className="btn btn-primary dropdown-toggle dropdown-toggle-split"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <span className="sr-only">Toggle Dropdown</span>
                     </button>
                     <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -172,15 +171,15 @@ class DataRow extends Component {
                     </div>
                 </div>
             </td>
-        );
+        )
     }
 
-    renderFirstButton(button, row) {
+    renderFirstButton (button, row) {
         if (typeof button.render === 'function') {
             return button.render(row)
         }
 
-       return (
+        return (
             <button
                 type="button"
                 className="btn btn-primary"
@@ -188,19 +187,18 @@ class DataRow extends Component {
             >
                 {button.name}
             </button>
-       )
+        )
     }
 
-    renderButton(button, index, row) {
-
-        if (index===0) {
-            return;
+    renderButton (button, index, row) {
+        if (index === 0) {
+            return
         }
 
         if (typeof button.render === 'function') {
             return (
                 <div
-                    style={{cursor: 'pointer'}}
+                    style={{ cursor: 'pointer' }}
                     key={`button_${button.name}`}
                     className="dropdown-item">
                     {button.render(row)}
@@ -210,7 +208,7 @@ class DataRow extends Component {
 
         return (
             <div
-                style={{cursor: 'pointer'}}
+                style={{ cursor: 'pointer' }}
                 key={`button_${button.name}`}
                 className="dropdown-item"
                 onClick={e => button.callback(e, row)}>
@@ -218,7 +216,6 @@ class DataRow extends Component {
             </div>
         )
     }
-
 }
 
 DataRow.defaultProps = {
@@ -228,13 +225,13 @@ DataRow.defaultProps = {
     onContextMenu: DataRow.noop,
     dangerouslyRenderFields: [],
     actions: [],
-    editableColumns: [],
-};
+    editableColumns: []
+}
 
 DataRow.propTypes = {
     row: PropTypes.object,
     buttons: PropTypes.oneOfType([
-        PropTypes.array, PropTypes.func,
+        PropTypes.array, PropTypes.func
     ]),
     actions: PropTypes.array,
     checkboxIsChecked: PropTypes.func,
@@ -247,7 +244,7 @@ DataRow.propTypes = {
     onMouseDown: PropTypes.func,
     onContextMenu: PropTypes.func,
     dangerouslyRenderFields: PropTypes.array,
-    index: PropTypes.number.isRequired,
-};
+    index: PropTypes.number.isRequired
+}
 
-export default DataRow;
+export default DataRow

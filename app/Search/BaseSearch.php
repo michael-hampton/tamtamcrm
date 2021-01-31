@@ -41,21 +41,23 @@ class BaseSearch
         $this->query->whereBetween('created_at', [$start, $end]);
     }
 
-    protected function filterByDate($params) {
+    protected function filterByDate($params, $column = '')
+    {
         $params = explode('|', $params);
+        $field = !empty($column) ? $column.'.'.$params[0] : $params['0'];
 
-        switch($params[0]) {
+        switch ($params[1]) {
             case 'last_month':
-                $this->query->whereDate($params[0], '>', Carbon::now()->subMonth(1));
-            break;
+                $this->query->whereDate($field, '>', Carbon::now()->subMonth());
+                break;
 
             case 'last_year':
-                $this->query->whereDate($params[0], '>', Carbon::now()->subYear(1));
-            break;
+                $this->query->whereDate($field, '>', Carbon::now()->subYear());
+                break;
 
             default:
-                $this->query->whereDate($params[0], '>', Carbon::now()->subDays($params[1]));
-            break;
+                $this->query->whereDate($field, '>', Carbon::now()->subDays($params[1]));
+                break;
         }
     }
 

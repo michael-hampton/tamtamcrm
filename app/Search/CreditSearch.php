@@ -109,35 +109,54 @@ class CreditSearch extends BaseSearch
         return true;
     }
 
-    public function buildCurrencyReport (Request $request, Account $account)
+    public function buildCurrencyReport(Request $request, Account $account)
     {
-        $this->query = DB::table('credits')
-             ->select(DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance'))
-             ->join('currencies', 'currencies.id', '=', 'credits.currency_id')
-             ->where('currency_id', '<>', 0)
-             ->where('account_id', '=', $account->id)
-             ->groupBy('currency_id')
-             ->get();
+        return DB::table('credits')
+                         ->select(
+                             DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance')
+                         )
+                         ->join('currencies', 'currencies.id', '=', 'credits.currency_id')
+                         ->where('currency_id', '<>', 0)
+                         ->where('account_id', '=', $account->id)
+                         ->groupBy('currency_id')
+                         ->get();
     }
 
-    public function buildReport (Request $request, Account $account)
+    public function buildReport(Request $request, Account $account)
     {
         $this->query = DB::table('credits');
-        
-         if(!empty($request->input('group_by'))) {
-            $this->query->select(DB::raw('count(*) as count, customers.name AS customer, SUM(total) as total, SUM(balance) AS balance'))
-            ->groupBy($request->input('group_by'));
+
+        if (!empty($request->input('group_by'))) {
+            $this->query->select(
+                DB::raw(
+                    'count(*) as count, customers.name AS customer, SUM(total) as total, SUM(credits.balance) AS balance'
+                )
+            )
+                        ->groupBy($request->input('group_by'));
         } else {
-            $this->query->select('customers.name AS customer', 'total', 'number', 'balance', 'date', 'due_date');
+            $this->query->select(
+                'customers.name AS customer',
+                'total',
+                'credits.number',
+                'credits.balance',
+                'date',
+                'due_date'
+            );
         }
 
-         $this->query->join('customers', 'customers.id', '=', 'credits.customer_id')
-         ->where('account_id', '=', $account->id)
-         ->orderBy('credits.'.$request->input('orderByField'), $request->input('orderByDirection'));
-        //$this->query->where('status', '<>', 1)
+        $this->query->join('customers', 'customers.id', '=', 'credits.customer_id')
+                    ->where('credits.account_id', '=', $account->id);
 
-       if(!empty($request->input('date_format'))) {
-           $this->filterByDate($request->input('date_format'));
+        $order_by = $request->input('orderByField');
+
+        if ($order_by === 'customer') {
+            $this->query->orderBy('customers.name', $request->input('orderByDirection'));
+        } else {
+            $this->query->orderBy('credits.' . $order_by, $request->input('orderByDirection'));
+        }
+
+        if (!empty($request->input('date_format'))) {
+            $this->filterByDate($request->input('date_format'));
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
@@ -147,13 +166,12 @@ class CreditSearch extends BaseSearch
         $rows = $this->query->get()->toArray();
 
         if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {
-            return $this->creditRepository->paginateArrayResults($rows, $request->input('perPage'));
+            return $this->credit_repo->paginateArrayResults($rows, $request->input('perPage'));
         }
 
         return $rows;
-       
-             //$this->query->where('status', '<>', 1)
-            
+        //$this->query->where('status', '<>', 1)
+
     }
 
     /**

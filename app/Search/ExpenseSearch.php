@@ -119,9 +119,9 @@ class ExpenseSearch extends BaseSearch
 
     public function buildCurrencyReport(Request $request, Account $account)
     {
-        $this->query = DB::table('expenses')
+        return DB::table('expenses')
                          ->select(DB::raw('count(*) as count, currencies.name, SUM(amount) as amount'))
-                         ->join('currencies', 'currencies.id', '=', 'expenses.expense_currency_id')
+                         ->join('currencies', 'currencies.id', '=', 'expenses.currency_id')
                          ->where('currency_id', '<>', 0)
                          ->where('account_id', '=', $account->id)
                          ->groupBy('currency_id')
@@ -135,19 +135,27 @@ class ExpenseSearch extends BaseSearch
         if (!empty($request->input('group_by'))) {
             $this->query->select(
                 DB::raw(
-                    'count(*) as count, customers.name AS customer, companies.name AS company,?SUM(amount) as amount'
+                    'count(*) as count, customers.name AS customer, companies.name AS company, SUM(amount) as amount'
                 )
             )
                         ->groupBy($request->input('group_by'));
         } else {
-            $this->query->select('customers.name AS customer', 'companies.name AS company', 'amount', 'number', 'date');
+            $this->query->select('customers.name AS customer', 'companies.name AS company', 'amount', 'expenses.number', 'date');
         }
 
         $this->query->join('customers', 'customers.id', '=', 'expenses.customer_id')
                     ->leftJoin('companies', 'companies.id', '=', 'expenses.company_id')
-                    ->where('expenses.account_id', '=', $account->id)
-                    ->orderBy('expenses.'.$request->input('orderByField'), $request->input('orderByDirection'));
-        //$this->query->where('status', '<>', 1)
+                    ->where('expenses.account_id', '=', $account->id);
+
+        $order_by = $request->input('orderByField');
+
+        if ($order_by === 'customer') {
+            $this->query->orderBy('customers.name', $request->input('orderByDirection'));
+        }elseif ($order_by === 'company') {
+            $this->query->orderBy('companies.name', $request->input('orderByDirection'));
+        } else {
+            $this->query->orderBy('expenses.' . $order_by, $request->input('orderByDirection'));
+        }
 
         if(!empty($request->input('date_format'))) {
            $this->filterByDate($request->input('date_format'));
@@ -160,7 +168,7 @@ class ExpenseSearch extends BaseSearch
         $rows = $this->query->get()->toArray();
 
         if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {
-            return $this->expenseRepository->paginateArrayResults($rows, $request->input('perPage'));
+            return $this->expense_repo->paginateArrayResults($rows, $request->input('perPage'));
         }
 
         return $rows;
