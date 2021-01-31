@@ -128,6 +128,20 @@ export default class PurchaseOrderModel extends BaseModel {
         this.updateCustomer()
     }
 
+    get default_notes () {
+        return ''
+    }
+
+    get default_terms () {
+        const merged_settings = this.settings
+        return merged_settings.purchase_order_terms || ''
+    }
+
+    get default_footer () {
+        const merged_settings = this.settings
+        return merged_settings.purchase_order_footer || ''
+    }
+
     get isNew () {
         return !this.fields.id || !this.fields.id.toString().length || parseInt(this.fields.id) <= 0
     }

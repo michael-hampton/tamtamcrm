@@ -45,8 +45,8 @@ class CreateProductTaskTable extends Migration
             $table->dateTime('due_date')->nullable();
             $table->decimal('transaction_fee', 16, 4)->nullable();
             $table->decimal('shipping_cost', 16, 4)->nullable();
-            $table->tinyInteger('transaction_fee_tax')->default(0);
-            $table->tinyInteger('shipping_cost_tax')->default(0);
+            $table->tinyInteger('transaction_fee_tax')->nullable()->default(0);
+            $table->tinyInteger('shipping_cost_tax')->nullable()->default(0);
             $table->string('number')->nullable();
             $table->softDeletes();
             $table->unsignedInteger('quote_id')->nullable();
@@ -56,7 +56,7 @@ class CreateProductTaskTable extends Migration
             $table->string('shipping_id', 100)->nullable();
             $table->string('shipping_label_url')->nullable();
             $table->string('voucher_code')->nullable();
-            $table->decimal('gateway_fee', 16, 4)->default(0.0000);
+            $table->decimal('gateway_fee', 16, 4)->nullable()->default(0.0000);
             $table->dateTime('date_cancelled')->nullable();
             $table->tinyInteger('gateway_percentage')->default(0);
             $table->unsignedInteger('assigned_to')->nullable();

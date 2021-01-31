@@ -5,6 +5,7 @@ import classNames from 'classnames'
 import DataRow from './DataRow'
 import Pagination from './Pagination'
 import PerPage from './PerPage'
+import { translations } from "../utils/_translations";
 
 class DynamicDataTable extends Component {
     static noop () {
@@ -105,7 +106,8 @@ class DynamicDataTable extends Component {
                 }
 
                 if (!exists) {
-                    const label = rowFieldName
+                    console.log('translation', translations[rowFieldName])
+                    const label = translations[rowFieldName] ? translations[rowFieldName] : rowFieldName
                         .replace(new RegExp('_', 'g'), ' ')
                         .replace(/^(.)|\s+(.)/g, function ($1) {
                             return $1.toUpperCase()
@@ -120,16 +122,11 @@ class DynamicDataTable extends Component {
             }
         }
 
-        console.log('all fields', fields)
-
         // const regExpsToExclude = fieldsToExclude && fieldsToExclude.length ? fieldsToExclude.filter(field => field.constructor && field.constructor === RegExp) : []
 
         for (let i = 0; i < fields.length; i++) {
             const field = fields[i]
             let shouldExclude = false
-
-            console.log('name', field.name)
-            console.log('to exclude', fieldsToExclude)
 
             // Field exclusion
             if (fieldsToExclude && fieldsToExclude.size && fieldsToExclude.get(field.name) !== true) {
@@ -153,6 +150,7 @@ class DynamicDataTable extends Component {
 
             // Field mapping
             if (fieldMap.hasOwnProperty(field.name)) {
+                console.log('field name', field.name)
                 fields[i].label = fieldMap[field.name]
             }
         }

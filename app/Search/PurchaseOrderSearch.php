@@ -128,11 +128,11 @@ class PurchaseOrderSearch extends BaseSearch
 
         if (!empty($request->input('group_by'))) {
             $this->query->select(
-                DB::raw('count(*) as count, customers.name AS customer, SUM(total) as total, SUM(balance) AS balance')
+                DB::raw('count(*) as count, companies.name AS company, SUM(total) as total, SUM(purchase_orders.balance) AS balance')
             )
                         ->groupBy($request->input('group_by'));
         } else {
-            $this->query->select('customers.name AS customer', 'total', 'purchase_orders.number', 'purchase_orders.balance', 'date', 'due_date');
+            $this->query->select('companies.name AS company', 'total', 'purchase_orders.number', 'purchase_orders.balance', 'date', 'due_date');
         }
 
         $this->query->join('companies', 'companies.id', '=', 'purchase_orders.company_id')
@@ -151,7 +151,7 @@ class PurchaseOrderSearch extends BaseSearch
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
-            $this->filterDates($request);
+            $this->filterDates($request, 'purchase_orders', 'date');
         }
 
         $rows = $this->query->get()->toArray();

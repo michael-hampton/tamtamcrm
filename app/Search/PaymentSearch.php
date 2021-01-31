@@ -122,7 +122,7 @@ class PaymentSearch extends BaseSearch
             $this->query->select(DB::raw('count(*) as count, customers.name AS customer, SUM(amount) as amount'))
                         ->groupBy($request->input('group_by'));
         } else {
-            $this->query->select('customers.name AS customer', 'amount', 'number', 'date', 'reference_number');
+            $this->query->select('customers.name AS customer', 'amount', 'payments.number', 'date', 'reference_number');
         }
         $this->query->join('customers', 'customers.id', '=', 'payments.customer_id')
                     ->where('payments.account_id', '=', $account->id);
@@ -140,7 +140,7 @@ class PaymentSearch extends BaseSearch
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
-            $this->filterDates($request);
+            $this->filterDates($request, 'payments', 'date');
         }
 
         $rows = $this->query->get()->toArray();

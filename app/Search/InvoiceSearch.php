@@ -144,7 +144,9 @@ class InvoiceSearch extends BaseSearch
                 'invoices.number',
                 'invoices.balance',
                 'date',
-                'due_date'
+                'due_date',
+                DB::raw('DATEDIFF(CURDATE(), DATE(invoices.due_date)) AS age')
+
             );
         }
 
@@ -164,7 +166,7 @@ class InvoiceSearch extends BaseSearch
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
-            $this->filterDates($request);
+            $this->filterDates($request, 'invoices', 'date');
         }
 
         $rows = $this->query->get()->toArray();

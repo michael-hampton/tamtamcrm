@@ -196,7 +196,7 @@ class TaskSearch extends BaseSearch
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
-            $this->filterDates($request);
+            $this->filterDates($request, 'tasks', 'due_date');
         }
 
         $rows = $this->query->get()->toArray();

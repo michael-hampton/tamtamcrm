@@ -1,7 +1,7 @@
 import React from 'react'
 import { translations } from '../utils/_translations'
 import Snackbar from '@material-ui/core/Snackbar'
-import { Alert, Button, Collapse, Modal, ModalBody, ModalFooter } from 'reactstrap'
+import { Alert, Button, Card, CardBody, Collapse, Modal, ModalBody, ModalFooter } from 'reactstrap'
 import axios from 'axios'
 import { icons } from '../utils/_icons'
 import DynamicDataTable from './DynamicDataTable'
@@ -12,6 +12,7 @@ export default class Report extends React.Component {
     constructor (props) {
         super(props)
         this.state = {
+            width: window.innerWidth,
             show: false,
             date_format: '',
             start_date: '',
@@ -85,6 +86,11 @@ export default class Report extends React.Component {
         this.handleColumnChange = this.handleColumnChange.bind(this)
         this.export = this.export.bind(this)
         this.toggle = this.toggle.bind(this)
+        this.handleWindowSizeChange = this.handleWindowSizeChange.bind(this)
+    }
+
+    componentWillMount () {
+        window.addEventListener('resize', this.handleWindowSizeChange)
     }
 
     componentDidMount () {
@@ -95,6 +101,14 @@ export default class Report extends React.Component {
         if (JSON.stringify(prevProps.params) !== JSON.stringify(this.props.params)) {
             this.loadPage(1)
         }
+    }
+
+    componentWillUnmount () {
+        window.removeEventListener('resize', this.handleWindowSizeChange)
+    }
+
+    handleWindowSizeChange () {
+        this.setState({ width: window.innerWidth })
     }
 
     get loading () {
@@ -171,7 +185,7 @@ export default class Report extends React.Component {
         }
 
         return (
-            <select className="form-control form-control-inline" onChange={this.handleInputChanges}
+            <select className="form-control w-100" onChange={this.handleInputChanges}
                 name="report_type" id="report_type">
                 <option value="">{translations.select_option}</option>
                 {columns}
@@ -197,7 +211,7 @@ export default class Report extends React.Component {
         }
 
         return (
-            <select className="form-control form-control-inline" onChange={(e) => {
+            <select className="form-control w-100" onChange={(e) => {
                 this.setState({ date_format: e.target.value }, () => {
                     this.loadPage(1)
                 })
@@ -380,72 +394,180 @@ export default class Report extends React.Component {
             </div>
         }) : null
 
-        return (
-            <React.Fragment>
-                <div className="row">
-                    <div className="col-12">
+        const is_mobile = this.state.width <= 768
+
+        const filters = is_mobile ? <div className="row">
+            <div className="col-12">
+                <div className="card mt-2">
+                    <div className="card-body">
+                        <div>
+                            <div className="row">
+                                <div className="col-md-3 col-sm-12 mt-2">
+                                    <select name="report_type" id="report_type" className="form-control"
+                                        value={this.state.report_type}
+                                        onChange={this.changeImportType.bind(this)}>
+                                        <option value="">{translations.select_option}</option>
+                                        <option value="invoice">{translations.invoice}</option>
+                                        <option value="customer">{translations.customer}</option>
+                                        <option value="lead">{translations.lead}</option>
+                                        <option value="deal">{translations.deal}</option>
+                                        <option value="task">{translations.task}</option>
+                                        <option value="expense">{translations.expense}</option>
+                                        <option value="order">{translations.order}</option>
+                                        <option value="credit">{translations.credit}</option>
+                                        <option value="quote">{translations.quote}</option>
+                                        <option value="purchase_order">{translations.purchase_order}</option>
+                                        <option value="payment">{translations.payment}</option>
+                                    </select>
+                                </div>
+
+                                <div className="col-md-3 col-sm-12 mt-2">
+                                    {this.buildSelectList()}
+                                </div>
+
+                                {!this.state.date_container_open &&
+                                <div className="col-md-3 col-sm-12 mt-2">
+                                    {this.buildDateOptions()}
+                                    <a onClick={this.toggleDateContainer.bind(this)}
+                                        style={{ marginBottom: '1rem' }}>Manual</a>
+                                </div>
+                                }
+
+                                <Collapse isOpen={this.state.date_container_open}>
+                                    <DateFilter onChange={this.filterDates.bind(this)}/>
+                                </Collapse>
+
+                                <div className="d-flex align-items-center">
+                                    <Button color="primary" className="mr-2"
+                                        disabled={!this.state.report_type}
+                                        onClick={this.export}
+                                    >
+                                        {translations.export}
+                                    </Button>
+
+                                    <Button color="primary" onClick={(e) => {
+                                        this.setState({ show: !this.state.show })
+                                    }}>Columns
+                                    </Button>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        {!!message &&
+                        <div className="alert alert-danger mt-2" role="alert">
+                            {message}
+                        </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+            : <div className="row mt-5">
+                <div className="col-12 p-0">
+                    <div className="col-md-4">
                         <div className="card mt-2">
                             <div className="card-body">
-                                <div>
-                                    <div className="row">
-                                        <div className="col">
-                                            <select name="report_type" id="report_type" className="form-control"
-                                                value={this.state.report_type}
-                                                onChange={this.changeImportType.bind(this)}>
-                                                <option value="">{translations.select_option}</option>
-                                                <option value="invoice">{translations.invoice}</option>
-                                                <option value="customer">{translations.customer}</option>
-                                                <option value="lead">{translations.lead}</option>
-                                                <option value="deal">{translations.deal}</option>
-                                                <option value="task">{translations.task}</option>
-                                                <option value="expense">{translations.expense}</option>
-                                                <option value="order">{translations.order}</option>
-                                                <option value="credit">{translations.credit}</option>
-                                                <option value="quote">{translations.quote}</option>
-                                                <option value="purchase_order">{translations.purchase_order}</option>
-                                                <option value="payment">{translations.payment}</option>
-                                            </select>
-                                        </div>
+                                <label>{translations.report_type}</label>
+                                <select name="report_type" id="report_type" className="form-control"
+                                    value={this.state.report_type}
+                                    onChange={this.changeImportType.bind(this)}>
+                                    <option value="">{translations.select_option}</option>
+                                    <option value="invoice">{translations.invoice}</option>
+                                    <option value="customer">{translations.customer}</option>
+                                    <option value="lead">{translations.lead}</option>
+                                    <option value="deal">{translations.deal}</option>
+                                    <option value="task">{translations.task}</option>
+                                    <option value="expense">{translations.expense}</option>
+                                    <option value="order">{translations.order}</option>
+                                    <option value="credit">{translations.credit}</option>
+                                    <option value="quote">{translations.quote}</option>
+                                    <option value="purchase_order">{translations.purchase_order}</option>
+                                    <option value="payment">{translations.payment}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
 
-                                        <div className="col">
-                                            {this.buildSelectList()}
-                                        </div>
+                    <div className="col-md-4">
+                        <div className="card mt-2">
+                            <div className="card-body">
+                                <label>{translations.group}</label>
+                                {this.buildSelectList()}
+                            </div>
+                        </div>
+                    </div>
 
-                                        {!this.state.date_container_open &&
-                                        <div className="col">
+                    <div className="col-md-4">
+                        <div className="card mt-2">
+                            <div className="card-body">
+                                {!this.state.date_container_open &&
+                                        <React.Fragment>
+                                            <label className="d-flex items justify-content-between">
+                                                {translations.filter_date}
+                                                <a onClick={this.toggleDateContainer.bind(this)}>Manual</a>
+                                            </label>
                                             {this.buildDateOptions()}
-                                            <a onClick={this.toggleDateContainer.bind(this)}
-                                                style={{ marginBottom: '1rem' }}>Manual</a>
-                                        </div>
-                                        }
+                                        </React.Fragment>
 
+                                }
+
+                                {!!this.state.date_container_open &&
+                                    <React.Fragment>
+                                        <label className="d-flex items justify-content-between">
+                                            {translations.filter_date}
+                                            <a onClick={this.toggleDateContainer.bind(this)}>{translations.close}</a>
+                                        </label>
                                         <Collapse isOpen={this.state.date_container_open}>
                                             <DateFilter onChange={this.filterDates.bind(this)}/>
                                         </Collapse>
+                                    </React.Fragment>
 
-                                        <Button color="primary" className="mr-2"
-                                            disabled={!this.state.report_type}
-                                            onClick={this.export}
-                                        >
-                                            {translations.export}
-                                        </Button>
-
-                                        <Button color="primary" onClick={(e) => {
-                                            this.setState({ show: !this.state.show })
-                                        }}>Columns
-                                        </Button>
-                                    </div>
-                                </div>
-
-                                {!!message &&
-                                <div className="alert alert-danger mt-2" role="alert">
-                                    {message}
-                                </div>
                                 }
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+
+        return (
+            <React.Fragment>
+
+                {!is_mobile &&
+                <div className="topbar">
+                    <Card className="m-0">
+                        <CardBody className="p-0">
+                            <div className="d-flex justify-content-between align-items-center">
+                                <div className="d-inline-flex">
+
+                                    <h4 className="pl-3 pt-2">
+                                        {translations.reports}
+                                    </h4>
+                                </div>
+
+                                <span>
+                                    <Button color="link" className="mr-2 pull-right"
+                                        disabled={!this.state.report_type}
+                                        onClick={this.export}
+                                    >
+                                        {translations.export}
+                                    </Button>
+
+                                    <Button color="link" className="pull-right" onClick={(e) => {
+                                        this.setState({ show: !this.state.show })
+                                    }}>Columns
+                                    </Button>
+                                </span>
+
+                            </div>
+
+                        </CardBody>
+                    </Card>
+                </div>
+
+                }
+
+                {filters}
 
                 <div className="row">
                     <div className="col-12">
