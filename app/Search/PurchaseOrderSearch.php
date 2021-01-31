@@ -132,7 +132,7 @@ class PurchaseOrderSearch extends BaseSearch
             )
                         ->groupBy($request->input('group_by'));
         } else {
-            $this->query->select('customers.name AS customer', 'total', 'number', 'balance', 'date', 'due_date');
+            $this->query->select('customers.name AS customer', 'total', 'purchase_orders.number', 'purchase_orders.balance', 'date', 'due_date');
         }
 
         $this->query->join('companies', 'companies.id', '=', 'purchase_orders.company_id')
@@ -143,7 +143,7 @@ class PurchaseOrderSearch extends BaseSearch
         if ($order_by === 'company') {
             $this->query->orderBy('companies.name', $request->input('orderByDirection'));
         } else {
-            $this->query->orderBy('invoices.' . $order_by, $request->input('orderByDirection'));
+            $this->query->orderBy('purchase_orders.' . $order_by, $request->input('orderByDirection'));
         }
 
         if (!empty($request->input('date_format'))) {
@@ -157,7 +157,7 @@ class PurchaseOrderSearch extends BaseSearch
         $rows = $this->query->get()->toArray();
 
         if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {
-            return $this->purchaseOrderRepository->paginateArrayResults($rows, $request->input('perPage'));
+            return $this->poRepository->paginateArrayResults($rows, $request->input('perPage'));
         }
 
         return $rows;
