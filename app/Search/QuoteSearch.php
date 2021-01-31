@@ -126,11 +126,11 @@ class QuoteSearch extends BaseSearch
 
         if (!empty($request->input('group_by'))) {
             $this->query->select(
-                DB::raw('count(*) as count, customers.name AS customer, SUM(total) as total, SUM(balance) AS balance')
+                DB::raw('count(*) as count, customers.name AS customer, SUM(total) as total, SUM(quotes.balance) AS balance')
             )
                         ->groupBy($request->input('group_by'));
         } else {
-            $this->query->select('customers.name AS customer', 'total', 'number', 'balance', 'date', 'due_date AS expiry_date');
+            $this->query->select('customers.name AS customer', 'total', 'quotes.number', 'quotes.balance', 'date', 'due_date AS expiry_date');
         }
 
         $this->query->join('customers', 'customers.id', '=', 'quotes.customer_id')
