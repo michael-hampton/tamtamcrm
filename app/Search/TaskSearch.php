@@ -170,7 +170,7 @@ class TaskSearch extends BaseSearch
 
         $this->query->join('customers', 'customers.id', '=', 'deals.customer_id')
                     ->join('timers', 'timers.task_id', '=', 'tasks.id')
-                    ->join('task_statuses', 'task_statuses.id', '=', 'deals.task_status')
+                    ->join('task_statuses', 'task_statuses.id', '=', 'tasks.task_status')
                     ->leftJoin('users', 'users.id', '=', 'deals.assigned_to')
                     ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
                     ->where('tasks.account_id', '=', $account->id)
