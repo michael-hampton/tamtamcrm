@@ -178,15 +178,7 @@ class TaskSearch extends BaseSearch
         //$this->query->where('status', '<>', 1)
 
         if(!empty($request->input('date_format'))) {
-            $params = explode('|', $request->input('date_format'));
-      
-            if($params[0] === 'last_month') {
-                $this->query->whereDate($params[0], '>', Carbon::now()->subMonth($params[1]));
-            } elseif($params[0] === 'last_year') {
-                $this->query->whereDate($params[0], '>', Carbon::now()->subYear($params[1]));
-            } else {
-                $this->query->whereDate($params[0], '>', Carbon::now()->subDays($params[1]));
-            }
+           $this->filterByDate($request->input('date_format'));
         }
 
         $rows = $this->query->get()->toArray();
