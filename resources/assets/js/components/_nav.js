@@ -17,7 +17,11 @@ const items = [
         url: '/dashboard',
         icon: 'fa fa-dashboard'
     },
-
+    {
+        name: translations.reports,
+        url: '/reports',
+        icon: 'fa fa-dashboard'
+    },
     {
         icon: 'fa fa-cog',
         name: 'Settings',

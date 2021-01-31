@@ -7,7 +7,9 @@ use App\Models\Payment;
 use App\Repositories\PaymentRepository;
 use App\Requests\SearchRequest;
 use App\Transformations\PaymentTransformable;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 class PaymentSearch extends BaseSearch
 {
@@ -99,6 +101,57 @@ class PaymentSearch extends BaseSearch
         );
 
         return true;
+    }
+
+    public function buildCurrencyReport(Request $request, Account $account)
+    {
+        return DB::table('payments')
+                 ->select(DB::raw('count(*) as count, currencies.name, SUM(amount) as amount'))
+                 ->join('currencies', 'currencies.id', '=', 'payments.currency_id')
+                 ->where('currency_id', '<>', 0)
+                 ->where('account_id', '=', $account->id)
+                 ->groupBy('currency_id')
+                 ->get();
+    }
+
+    public function buildReport(Request $request, Account $account)
+    {
+        $this->query = DB::table('payments');
+
+        if (!empty($request->input('group_by'))) {
+            $this->query->select(DB::raw('count(*) as count, customers.name AS customer, SUM(amount) as amount'))
+                        ->groupBy($request->input('group_by'));
+        } else {
+            $this->query->select('customers.name AS customer', 'amount', 'payments.number', 'date', 'reference_number');
+        }
+        $this->query->join('customers', 'customers.id', '=', 'payments.customer_id')
+                    ->where('payments.account_id', '=', $account->id);
+
+        $order_by = $request->input('orderByField');
+
+        if ($order_by === 'customer') {
+            $this->query->orderBy('customers.name', $request->input('orderByDirection'));
+        } else {
+            $this->query->orderBy('payments.' . $order_by, $request->input('orderByDirection'));
+        }
+
+        if (!empty($request->input('date_format'))) {
+            $this->filterByDate($request->input('date_format'));
+        }
+
+        if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
+            $this->filterDates($request, 'payments', 'date');
+        }
+
+        $rows = $this->query->get()->toArray();
+
+        if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {
+            return $this->paymentRepository->paginateArrayResults($rows, $request->input('perPage'));
+        }
+
+        return $rows;
+        //$this->query->where('status', '<>', 1)
+
     }
 
     private function transformList()

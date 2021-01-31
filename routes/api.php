@@ -17,6 +17,7 @@ Route::group(
     function () {
         Route::get('status/{task_type}', 'TaskStatusController@index');
         Route::get('dashboard', 'DashboardController@index');
+        Route::get('reports', 'ReportController@index');
         Route::get('activity', 'ActivityController@index');
 
         //support

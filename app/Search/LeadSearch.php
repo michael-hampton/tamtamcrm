@@ -8,6 +8,7 @@ use App\Repositories\LeadRepository;
 use App\Transformations\LeadTransformable;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 class LeadSearch extends BaseSearch
 {
@@ -94,6 +95,60 @@ class LeadSearch extends BaseSearch
         );
 
         return true;
+    }
+
+    public function buildReport(Request $request, Account $account)
+    {
+        $this->query = DB::table('leads');
+
+        if (!empty($request->input('group_by'))) {
+            // assigned to, status, source_type
+            $this->query->select(
+                DB::raw(
+                    'count(*) as count, CONCAT(leads.first_name," ",leads.last_name) as lead_name, task_statuses.name AS status, source_type.name AS source_type, CONCAT(users.first_name," ",users.last_name) as assigned_to, SUM(valued_at) as valued_at'
+                )
+            )
+                        ->groupBy($request->input('group_by'));
+        } else {
+            $this->query->select(
+                'task_statuses.name AS status',
+                'source_type.name AS source_type',
+                'valued_at',
+                'due_date',
+                DB::raw('CONCAT(users.first_name," ",users.last_name) as assigned_to'),
+                DB::raw('CONCAT(leads.first_name," ",leads.last_name) as lead_name')
+            );
+        }
+
+        $order = $request->input('orderByField');
+
+        $this->query->leftJoin('source_type', 'source_type.id', '=', 'leads.source_type')
+                    ->join('task_statuses', 'task_statuses.id', '=', 'leads.task_status_id')
+                    ->leftJoin('users', 'users.id', '=', 'leads.assigned_to')
+                    ->where('leads.account_id', '=', $account->id);
+
+        if ($order === 'status') {
+            $this->query->orderBy('task_statuses.name', $request->input('orderByDirection'));
+        } elseif ($order === 'lead_name') {
+            $this->query->orderByRaw(
+                'CONCAT(leads.first_name, " ", leads.last_name)' . $request->input('orderByDirection')
+            );
+        } elseif ($order === 'source_type') {
+            $this->query->orderBy('source_type.name', $request->input('orderByDirection'));
+        } else {
+            $this->query->orderBy('leads.' . $order, $request->input('orderByDirection'));
+        }
+        //$this->query->where('status', '<>', 1)
+
+        $rows = $this->query->get()->toArray();
+
+        if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {
+            return $this->lead_repo->paginateArrayResults($rows, $request->input('perPage'));
+        }
+
+        return $rows;
+        //$this->query->where('status', '<>', 1)
+
     }
 
     /**

@@ -598,7 +598,7 @@ class EditPurchaseOrder extends Component {
         />
 
         const notes = !this.state.is_mobile
-            ? <NoteTabs
+            ? <NoteTabs model={this.purchaseOrderModel}
                 show_exchange={this.purchaseOrderModel.account_currency.exchange_rate !== this.state.exchange_rate}
                 invoice={this.state} private_notes={this.state.private_notes}
                 public_notes={this.state.public_notes}

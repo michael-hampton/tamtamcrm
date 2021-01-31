@@ -34,11 +34,34 @@ class BaseSearch
         return true;
     }
 
-    protected function filterDates($request)
+    protected function filterDates($request, $column = '', $field = '')
     {
+        $column = $column !== '' ? $column . '.' : '';
+        $field = $field !== '' ? $column . $field : $column . 'created_at';
+
         $start = date("Y-m-d", strtotime($request->input('start_date')));
         $end = date("Y-m-d", strtotime($request->input('end_date')));
-        $this->query->whereBetween('created_at', [$start, $end]);
+        $this->query->whereBetween($field, [$start, $end]);
+    }
+
+    protected function filterByDate($params, $column = '')
+    {
+        $params = explode('|', $params);
+        $field = !empty($column) ? $column.'.'.$params[0] : $params['0'];
+
+        switch ($params[1]) {
+            case 'last_month':
+                $this->query->whereDate($field, '>', Carbon::now()->subMonth());
+                break;
+
+            case 'last_year':
+                $this->query->whereDate($field, '>', Carbon::now()->subYear());
+                break;
+
+            default:
+                $this->query->whereDate($field, '>', Carbon::now()->subDays($params[1]));
+                break;
+        }
     }
 
     protected function orderBy($orderBy, $orderDir)
