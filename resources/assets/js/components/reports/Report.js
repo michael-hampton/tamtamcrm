@@ -1,7 +1,7 @@
 import React from 'react'
 import { translations } from '../utils/_translations'
 import Snackbar from '@material-ui/core/Snackbar'
-import { Alert, Modal, ModalBody, ModalFooter } from 'reactstrap'
+import { Alert, Modal, ModalBody, ModalFooter, Collapse } from 'reactstrap'
 import axios from 'axios'
 import { icons } from '../utils/_icons'
 import DynamicDataTable from './DynamicDataTable'
@@ -13,6 +13,8 @@ export default class Report extends React.Component {
         this.state = {
             show: false,
             date_format: '',
+            start_date: '',
+            end_date: '',
             report_type: 'invoice',
             group_by: '',
             rows: [],
@@ -31,10 +33,11 @@ export default class Report extends React.Component {
             orderByDirection: 'desc',
             disallowOrderingBy: [],
             checkedItems: new Map(),
-            groups: { invoice: ['customer_id'], credit: ['customer_id'], quote: ['customer_id'], purchase_order: ['company_id'], order: ['customer_id'], lead: ['source_type', 'task_status', 'assigned_to'], deal: ['customer_id' 'source_type', 'task_status', 'assigned_to'], task: ['customer_id', 'task_status', 'project_id', 'assigned_to'], expense: ['customer_id', 'company_id'], payment: ['customer_id']},
-            date_fields: { invoice: ['date', 'due_date'], credit: ['date', 'due_date'], quote: ['date', 'due_date'], purchase_order: ['date', 'due_date'], order: ['date', 'due_date'], lead: [], deal: ['due_date'], task: ['due_date'], expense: ['date'], payment: ['date']}
+            groups: { customer: ['currency_id', 'country_id'], invoice: ['customer_id'], credit: ['customer_id'], quote: ['customer_id'], purchase_order: ['company_id'], order: ['customer_id'], lead: ['source_type', 'task_status', 'assigned_to'], deal: ['customer_id' 'source_type', 'task_status', 'assigned_to'], task: ['customer_id', 'task_status', 'project_id', 'assigned_to'], expense: ['customer_id', 'company_id'], payment: ['customer_id']},
+            date_fields: { customer: [], invoice: ['date', 'due_date'], credit: ['date', 'due_date'], quote: ['date', 'due_date'], purchase_order: ['date', 'due_date'], order: ['date', 'due_date'], lead: [], deal: ['due_date'], task: ['due_date'], expense: ['date'], payment: ['date']}
             all_columns: [],
-            apiUrl: '/api/reports'
+            apiUrl: '/api/reports',
+            date_container_open: false 
         }
 
         this.getReport = this.getReport.bind(this)
@@ -199,7 +202,7 @@ export default class Report extends React.Component {
     }
 
     loadPage (page) {
-        const { perPage, orderByField, orderByDirection, report_type, group_by } = this.state
+        const { perPage, orderByField, orderByDirection, report_type, group_by, start_date, end_date, date_format } = this.state
 
         this.setState(
             { loading: true },
@@ -325,6 +328,12 @@ export default class Report extends React.Component {
         })
     }
 
+    toggleDateContainer () {
+        this.setState({
+            date_container_open: !this.state.date_container_open
+        })
+    }
+
     render () {
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
         const { rows, currency_report, message, success_message, error_message, error, show_success, totalRows, currentPage, totalPages, orderByField, orderByDirection, disallowOrderingBy, footer, perPage } = this.state
@@ -371,20 +380,27 @@ export default class Report extends React.Component {
                                             {this.buildSelectList()}
                                         </div>
 
+                                        {!this.state.date_container_open && 
                                         <div className="col">
                                             {this.buildDateOptions()}
+                                            <Button color="primary" onClick={toggleDateContainer.bind(this)} style={{ marginBottom: '1rem' }}>Manual</Button>
                                         </div>
+                                        }
 
-                                        <button className="btn btn-success ml-2"
+                                        <Collapse isOpen={this.state.date_container_open}>
+       
+                                        </Collapse>
+
+                                        <button className="btn btn-primary ml-2"
                                             disabled={!this.state.report_type}
                                             onClick={this.export}
                                         >
                                             {translations.export}
                                         </button>
 
-                                        <a onClick={(e) => {
+                                        <button className="btn btn-primary" onClick={(e) => {
                                             this.setState({ show: !this.state.show })
-                                        }}><i className={`fa ${icons.columns}`} style={{ fontSize: '20px' }}/> </a>
+                                        }}>Columns</button>
                                     </div>
                                 </div>
 
