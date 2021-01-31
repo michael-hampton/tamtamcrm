@@ -6,6 +6,7 @@ import axios from 'axios'
 import { icons } from '../utils/_icons'
 import DynamicDataTable from './DynamicDataTable'
 import { download, generateCsv } from './_utilities'
+import DateFilter from '../common/DateFilter'
 
 export default class Report extends React.Component {
     constructor (props) {
@@ -334,6 +335,10 @@ export default class Report extends React.Component {
         })
     }
 
+    filterDates (event) {
+        this.setState(start_date: event.start_date, end_date: event.end_date}), () => this.loadPage(1))
+    }
+
     render () {
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
         const { rows, currency_report, message, success_message, error_message, error, show_success, totalRows, currentPage, totalPages, orderByField, orderByDirection, disallowOrderingBy, footer, perPage } = this.state
@@ -388,7 +393,7 @@ export default class Report extends React.Component {
                                         }
 
                                         <Collapse isOpen={this.state.date_container_open}>
-       
+                                            <DateFilter onChange={this.filterDates.bind(this)}/>
                                         </Collapse>
 
                                         <button className="btn btn-primary ml-2"
