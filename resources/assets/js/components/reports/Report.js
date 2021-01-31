@@ -12,6 +12,7 @@ export default class Report extends React.Component {
         super(props)
         this.state = {
             show: false,
+            date_format: '',
             report_type: 'invoice',
             group_by: '',
             rows: [],
@@ -30,7 +31,8 @@ export default class Report extends React.Component {
             orderByDirection: 'desc',
             disallowOrderingBy: [],
             checkedItems: new Map(),
-            groups: { invoice: ['customer_id'] },
+            groups: { invoice: ['customer_id'], credit: ['customer_id'], quote: ['customer_id'], purchase_order: ['company_id'], order: ['customer_id'], lead: ['source_type', 'task_status', 'assigned_to'], deal: ['customer_id' 'source_type', 'task_status', 'assigned_to'], task: ['customer_id', 'task_status', 'project_id', 'assigned_to'], expense: ['customer_id', 'company_id'], payment: ['customer_id']},
+            date_fields: { invoice: ['date', 'due_date'], credit: ['date', 'due_date'], quote: ['date', 'due_date'], purchase_order: ['date', 'due_date'], order: ['date', 'due_date'], lead: [], deal: ['due_date'], task: ['due_date'], expense: ['date'], payment: ['date']}
             all_columns: [],
             apiUrl: '/api/reports'
         }
@@ -138,7 +140,7 @@ export default class Report extends React.Component {
         })
     }
 
-    buildSelectList (header) {
+    buildSelectList () {
         let columns = null
         if (!this.state.report_type.length) {
             columns = <option value="">Loading...</option>
@@ -152,6 +154,33 @@ export default class Report extends React.Component {
 
         return (
             <select className="form-control form-control-inline" onChange={this.handleInputChanges}
+                name="report_type" id="report_type">
+                <option value="">{translations.select_option}</option>
+                {columns}
+            </select>
+        )
+    }
+
+    buildDateOptions (header) {
+        let columns = null
+        if (!this.state.date_format.length || !this.state.date_fields[this.state.report_type].length) {
+            columns = <option value="">Loading...</option>
+        } else {
+            columns = this.state.date_fields[this.state.report_type].map((column, index) => {
+                //const formatted_column = column.replace(/ /g, '_').toLowerCase()
+                //const value = translations[formatted_column] ? translations[formatted_column] : column
+                return <option key={index} value={column}>{value}</option>
+                    <option key={index} value={column+'|7'}>{column} 7 days</option>
+                    <option key={index} value={column+'|30'}>{column} 30 days</option>
+                    <option key={index} value={column+'|last_month'}>{column} Last Month</option>
+                    <option key={index} value={column+'|last_year'}>{column} Last Year</option>
+            })
+        }
+
+        return (
+            <select className="form-control form-control-inline" onChange={(e) => {
+                this.setState({date_format: e.target.value})
+                })}
                 name={header} id={header}>
                 <option value="">{translations.select_option}</option>
                 {columns}
@@ -340,6 +369,10 @@ export default class Report extends React.Component {
 
                                         <div className="col">
                                             {this.buildSelectList()}
+                                        </div>
+
+                                        <div className="col">
+                                            {this.buildDateOptions()}
                                         </div>
 
                                         <button className="btn btn-success ml-2"
