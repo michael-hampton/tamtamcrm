@@ -171,7 +171,7 @@ class TaskSearch extends BaseSearch
         $this->query->join('customers', 'customers.id', '=', 'deals.customer_id')
                     ->join('timers', 'timers.task_id', '=', 'tasks.id')
                     ->join('task_statuses', 'task_statuses.id', '=', 'tasks.task_status')
-                    ->leftJoin('users', 'users.id', '=', 'deals.assigned_to')
+                    ->leftJoin('users', 'users.id', '=', 'tasks.assigned_to')
                     ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
                     ->where('tasks.account_id', '=', $account->id)
                     ->orderBy('tasks.'.$request->input('orderByField'), $request->input('orderByDirection'));
