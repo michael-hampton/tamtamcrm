@@ -418,7 +418,7 @@ class DynamicDataTable extends Component {
     }
 
     renderHeader (field) {
-        const { orderByField, orderByDirection, orderByAscIcon, orderByDescIcon, prependOrderByIcon = false, allowOrderingBy, disallowOrderingBy, changeOrder, columnWidths } = this.props
+        const { orderByField, orderByDirection, orderByAscIcon, orderByDescIcon, prependOrderByIcon = false, allowOrderingBy, disallowOrderingBy, changeOrder, columnWidths, filterable } = this.props
         let { orderByIcon = '' } = this.props
 
         if (orderByField === field.name) {
@@ -464,7 +464,23 @@ class DynamicDataTable extends Component {
                 { field.label }
                 &nbsp;
                 {canOrderBy && !prependOrderByIcon ? orderByIcon : ''}
+                {filterable ? this.renderColumnFilter(field.name) : ''
             </th>
+        )
+    }
+
+    renderColumnFilter (column) {
+        return (
+            <div className="input-group">
+                <input className="form-control py-2 border-right-0 border" type="search" value={this.props.filterValue || ''}
+                    onChange={e => {
+                        this.props.handleColumnFilter(e.target.value || '', column) // Set undefined to remove the filter entirely
+                    }}
+                    placeholder={`Search ${this.props.rows.length} records...`} />
+                <span className="input-group-append">
+                    <div className="input-group-text bg-transparent"><i onClick={this.props.clearSearch} className="fa fa-times"></i></div>
+                </span>
+            </div>
         )
     }
 
