@@ -135,23 +135,29 @@ class ExpenseSearch extends BaseSearch
         if (!empty($request->input('group_by'))) {
             $this->query->select(
                 DB::raw(
-                    'count(*) as count, customers.name AS customer, companies.name AS company, SUM(amount) as amount'
+                    'count(*) as count, customers.name AS customer, companies.name AS company, expense_categories.name AS category, SUM(amount) as amount'
                 )
             )
                         ->groupBy($request->input('group_by'));
         } else {
-            $this->query->select('customers.name AS customer', 'companies.name AS company', 'amount', 'expenses.number', 'date');
+            $this->query->select('customers.name AS customer', 'companies.name AS company', 'expense_categories.name AS category', 'invoices.number AS invoice', 'amount', 'expenses.number', 'expenses.date');
         }
 
         $this->query->join('customers', 'customers.id', '=', 'expenses.customer_id')
                     ->leftJoin('companies', 'companies.id', '=', 'expenses.company_id')
+                    ->leftJoin('expense_categories', 'expense_categories.id', '=', 'expenses.expense_category_id')
+                    ->leftJoin('invoices', 'invoices.id', '=', 'expenses.invoice_id')
                     ->where('expenses.account_id', '=', $account->id);
 
         $order_by = $request->input('orderByField');
 
         if ($order_by === 'customer') {
             $this->query->orderBy('customers.name', $request->input('orderByDirection'));
-        }elseif ($order_by === 'company') {
+        } elseif($order_by === 'category') {
+            $this->query->orderBy('expense_categories.name', $request->input('orderByDirection'));
+        } elseif($order_by === 'invoice') {
+            $this->query->orderBy('invoices.number', $request->input('orderByDirection'));
+        } elseif ($order_by === 'company') {
             $this->query->orderBy('companies.name', $request->input('orderByDirection'));
         } else {
             $this->query->orderBy('expenses.' . $order_by, $request->input('orderByDirection'));
