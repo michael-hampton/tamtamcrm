@@ -20,7 +20,7 @@ export default class Report extends React.Component {
             report_type: 'invoice',
             group_by: '',
             rows: [],
-            filtered_value: '',
+            filtered_value: {},
             cached_data: [],
             currency_report: [],
             message: '',
@@ -156,14 +156,18 @@ export default class Report extends React.Component {
 
     handleColumnFilter (value, column) {
        if(value.trim() === '') {
-           this.setState({ filtered_value: '', rows: this.state.cached_data, cached_data: [] })
+           this.setState({ filtered_value[column]: '', rows: this.state.cached_data, cached_data: [] })
            return true
        }
 
        const cached_data = !this.state.cached_data.length ? this.state.rows : this.state.cached_data
        const rows = this.state.rows.filter(row => row[column].toLowerCase().trim() === value.toLowerCase().trim())
 
-       this.setState({ filtered_value: value, rows: rows || [], cached_data: cached_data })
+       this.setState({ filtered_value[column]: value, rows: rows || [], cached_data: cached_data })
+
+    }
+
+    clearSearch () {
 
     }
 
@@ -658,7 +662,9 @@ export default class Report extends React.Component {
                                         prependOrderByIcon={true}
                                         hoverable={true}
                                         filterable={true}
-                                        handleColumnFilter={this.handleColumnFilter}
+                                        handleColumnFilter={this.handleColumnFilter.bind(this)}
+                                        clearSearch={this.clearSearch.bind(this)}
+                                        search_filters={this.state.filtered_value}
                                     />
 
                                 </div>
