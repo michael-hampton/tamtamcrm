@@ -126,11 +126,11 @@ class QuoteSearch extends BaseSearch
 
         if (!empty($request->input('group_by'))) {
             $this->query->select(
-                DB::raw('count(*) as count, customers.name AS customer, SUM(total) as total, SUM(quotes.balance) AS balance')
+                DB::raw('count(*) as count, customers.name AS customer, SUM(total) as total, SUM(quotes.balance) AS balance, quotes.status_id AS status')
             )
                         ->groupBy($request->input('group_by'));
         } else {
-            $this->query->select('customers.name AS customer', 'total', 'quotes.number', 'quotes.balance', 'date', 'due_date AS expiry_date');
+            $this->query->select('customers.name AS customer', 'total', 'quotes.number', 'quotes.balance', 'date', 'due_date AS expiry_date', 'quotes.status_id AS status');
         }
 
         $this->query->join('customers', 'customers.id', '=', 'quotes.customer_id')
@@ -140,7 +140,7 @@ class QuoteSearch extends BaseSearch
 
         if ($order_by === 'customer') {
             $this->query->orderBy('customers.name', $request->input('orderByDirection'));
-        } else {
+        } elseif ($order_by !== 'status') {
             $this->query->orderBy('quotes.' . $order_by, $request->input('orderByDirection'));
         }
 
@@ -153,6 +153,15 @@ class QuoteSearch extends BaseSearch
         }
 
         $rows = $this->query->get()->toArray();
+
+        foreach ($rows as $key => $row) {
+            $rows[$key]->status = $this->getStatus($this->model, $row->status);
+        }
+
+        if($order_by === 'status') {
+            $collection = collect($rows);
+            $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby('status')->toArray() : $collection->sortByDesc('status')->toArray();
+        }
 
         if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {
             return $this->quoteRepository->paginateArrayResults($rows, $request->input('perPage'));

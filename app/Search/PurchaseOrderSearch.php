@@ -128,11 +128,11 @@ class PurchaseOrderSearch extends BaseSearch
 
         if (!empty($request->input('group_by'))) {
             $this->query->select(
-                DB::raw('count(*) as count, companies.name AS company, SUM(total) as total, SUM(purchase_orders.balance) AS balance')
+                DB::raw('count(*) as count, companies.name AS company, SUM(total) as total, SUM(purchase_orders.balance) AS balance, purchase_orders.status_id AS status')
             )
                         ->groupBy($request->input('group_by'));
         } else {
-            $this->query->select('companies.name AS company', 'total', 'purchase_orders.number', 'purchase_orders.balance', 'date', 'due_date');
+            $this->query->select('companies.name AS company', 'total', 'purchase_orders.number', 'purchase_orders.balance', 'date', 'due_date', 'purchase_orders.status_id AS status');
         }
 
         $this->query->join('companies', 'companies.id', '=', 'purchase_orders.company_id')
@@ -142,7 +142,7 @@ class PurchaseOrderSearch extends BaseSearch
 
         if ($order_by === 'company') {
             $this->query->orderBy('companies.name', $request->input('orderByDirection'));
-        } else {
+        } elseif ($order_by !== 'status') {
             $this->query->orderBy('purchase_orders.' . $order_by, $request->input('orderByDirection'));
         }
 
@@ -155,6 +155,15 @@ class PurchaseOrderSearch extends BaseSearch
         }
 
         $rows = $this->query->get()->toArray();
+
+        foreach ($rows as $key => $row) {
+            $rows[$key]->status = $this->getStatus($this->model, $row->status);
+        }
+
+        if($order_by === 'status') {
+            $collection = collect($rows);
+            $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby('status')->toArray() : $collection->sortByDesc('status')->toArray();
+        }
 
         if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {
             return $this->poRepository->paginateArrayResults($rows, $request->input('perPage'));

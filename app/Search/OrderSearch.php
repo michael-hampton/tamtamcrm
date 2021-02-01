@@ -132,11 +132,11 @@ class OrderSearch extends BaseSearch
 
         if (!empty($request->input('group_by'))) {
             $this->query->select(
-                DB::raw('count(*) as count, customers.name AS customer, SUM(total) as total, SUM(product_task.balance) AS balance')
+                DB::raw('count(*) as count, customers.name AS customer, SUM(total) as total, SUM(product_task.balance) AS balance, product_task.status_id AS status')
             )
                         ->groupBy($request->input('group_by'));
         } else {
-            $this->query->select('customers.name AS customer', 'total', 'product_task.number', 'product_task.balance', 'date', 'due_date');
+            $this->query->select('customers.name AS customer', 'total', 'product_task.number', 'product_task.balance', 'date', 'due_date', 'product_task.status_id AS status');
         }
 
         $this->query->join('customers', 'customers.id', '=', 'product_task.customer_id')
@@ -146,7 +146,7 @@ class OrderSearch extends BaseSearch
 
         if ($order_by === 'customer') {
             $this->query->orderBy('customers.name', $request->input('orderByDirection'));
-        } else {
+        } elseif ($order_by !== 'status') {
             $this->query->orderBy('product_task.' . $order_by, $request->input('orderByDirection'));
         }
 
@@ -159,6 +159,15 @@ class OrderSearch extends BaseSearch
         }
 
         $rows = $this->query->get()->toArray();
+
+        foreach ($rows as $key => $row) {
+            $rows[$key]->status = $this->getStatus($this->model, $row->status);
+        }
+
+        if($order_by === 'status') {
+            $collection = collect($rows);
+            $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby('status')->toArray() : $collection->sortByDesc('status')->toArray();
+        }
 
         if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {
             return $this->orderRepository->paginateArrayResults($rows, $request->input('perPage'));

@@ -8,7 +8,16 @@ use Carbon\Carbon;
 
 class BaseSearch
 {
+    /**
+     * @var array
+     */
+    private array $statuses = [];
 
+    /**
+     * @param $permission
+     * @param string $table
+     * @return bool
+     */
     protected function checkPermissions($permission, $table = '')
     {
         if (empty(auth()->user())) {
@@ -47,7 +56,7 @@ class BaseSearch
     protected function filterByDate($params, $column = '')
     {
         $params = explode('|', $params);
-        $field = !empty($column) ? $column.'.'.$params[0] : $params['0'];
+        $field = !empty($column) ? $column . '.' . $params[0] : $params['0'];
 
         switch ($params[1]) {
             case 'last_month':
@@ -155,5 +164,25 @@ class BaseSearch
                 }
             )->toArray()
         );
+    }
+
+    protected function getStatus($model, int $status)
+    {
+        $refl = new \ReflectionClass($model);
+        $consts = $refl->getConstants();
+
+        if (empty($this->statuses)) {
+            $this->statuses = [];
+
+            foreach ($consts as $key => $const) {
+                if (strpos($key, 'STATUS') !== false) {
+                    $this->statuses[$const] = !empty(trans('texts.' . strtolower($key))) ? trans(
+                        'texts.' . strtolower($key)
+                    ) : $key;
+                }
+            }
+        }
+
+        return !empty($this->statuses[$status]) ? $this->statuses[$status] : null;
     }
 }

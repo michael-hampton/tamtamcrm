@@ -119,10 +119,10 @@ class PaymentSearch extends BaseSearch
         $this->query = DB::table('payments');
 
         if (!empty($request->input('group_by'))) {
-            $this->query->select(DB::raw('count(*) as count, customers.name AS customer, SUM(amount) as amount'))
+            $this->query->select(DB::raw('count(*) as count, customers.name AS customer, SUM(amount) as amount, status_id AS status'))
                         ->groupBy($request->input('group_by'));
         } else {
-            $this->query->select('customers.name AS customer', 'amount', 'payments.number', 'date', 'reference_number');
+            $this->query->select('customers.name AS customer', 'amount', 'payments.number', 'date', 'reference_number', 'status_id AS status');
         }
         $this->query->join('customers', 'customers.id', '=', 'payments.customer_id')
                     ->where('payments.account_id', '=', $account->id);
@@ -131,7 +131,7 @@ class PaymentSearch extends BaseSearch
 
         if ($order_by === 'customer') {
             $this->query->orderBy('customers.name', $request->input('orderByDirection'));
-        } else {
+        } elseif ($order_by !== 'status') {
             $this->query->orderBy('payments.' . $order_by, $request->input('orderByDirection'));
         }
 
@@ -144,6 +144,15 @@ class PaymentSearch extends BaseSearch
         }
 
         $rows = $this->query->get()->toArray();
+
+        foreach ($rows as $key => $row) {
+            $rows[$key]->status = $this->getStatus($this->model, $row->status);
+        }
+
+        if($order_by === 'status') {
+            $collection = collect($rows);
+            $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby('status')->toArray() : $collection->sortByDesc('status')->toArray();
+        }
 
         if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {
             return $this->paymentRepository->paginateArrayResults($rows, $request->input('perPage'));

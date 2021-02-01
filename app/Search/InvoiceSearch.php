@@ -133,7 +133,7 @@ class InvoiceSearch extends BaseSearch
         if (!empty($request->input('group_by'))) {
             $this->query->select(
                 DB::raw(
-                    'count(*) as count, customers.name AS customer, SUM(total) as total, SUM(invoices.balance) AS balance'
+                    'count(*) as count, customers.name AS customer, SUM(total) as total, SUM(invoices.balance) AS balance, invoices.status_id AS status'
                 )
             )
                         ->groupBy($request->input('group_by'));
@@ -145,6 +145,7 @@ class InvoiceSearch extends BaseSearch
                 'invoices.balance',
                 'date',
                 'due_date',
+                'invoices.status_id AS status',
                 DB::raw('DATEDIFF(CURDATE(), DATE(invoices.due_date)) AS age')
 
             );
@@ -157,7 +158,7 @@ class InvoiceSearch extends BaseSearch
 
         if ($order_by === 'customer') {
             $this->query->orderBy('customers.name', $request->input('orderByDirection'));
-        } else {
+        } elseif ($order_by !== 'status') {
             $this->query->orderBy('invoices.' . $order_by, $request->input('orderByDirection'));
         }
 
@@ -170,6 +171,15 @@ class InvoiceSearch extends BaseSearch
         }
 
         $rows = $this->query->get()->toArray();
+
+        foreach ($rows as $key => $row) {
+            $rows[$key]->status = $this->getStatus($this->model, $row->status);
+        }
+
+        if($order_by === 'status') {
+            $collection = collect($rows);
+            $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby('status')->toArray() : $collection->sortByDesc('status')->toArray();
+        }
 
         if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {
             return $this->invoiceRepository->paginateArrayResults($rows, $request->input('perPage'));

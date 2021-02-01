@@ -37,11 +37,11 @@ export default class Report extends React.Component {
             checkedItems: new Map(),
             groups: {
                 customer: [{ field: 'currency_id', label: 'currency' }, { field: 'country_id', label: 'country' }],
-                invoice: [{ field: 'customer_id', label: 'customer' }, { field: 'status_id', label: 'status' }],
-                credit: [{ field: 'customer_id', label: 'customer' }, { field: 'status_id', label: 'status' }],
-                quote: [{ field: 'customer_id', label: 'customer' }, { field: 'status_id', label: 'status' }],
-                purchase_order: [{ field: 'company_id', label: 'company' }, { field: 'status_id', label: 'status' }],
-                order: [{ field: 'customer_id', label: 'customer' }, { field: 'status_id', label: 'status' }],
+                invoice: [{ field: 'customer_id', label: 'customer' }, { field: 'invoices.status_id', label: 'status' }],
+                credit: [{ field: 'customer_id', label: 'customer' }, { field: 'credits.status_id', label: 'status' }],
+                quote: [{ field: 'customer_id', label: 'customer' }, { field: 'quotes.status_id', label: 'status' }],
+                purchase_order: [{ field: 'company_id', label: 'company' }, { field: 'purchase_orders.status_id', label: 'status' }],
+                order: [{ field: 'customer_id', label: 'customer' }, { field: 'product_task.status_id', label: 'status' }],
                 lead: [{ field: 'source_type', label: 'source_type' }, {
                     field: 'task_status_id',
                     label: 'status'
@@ -57,11 +57,16 @@ export default class Report extends React.Component {
                     field: 'task_status_id',
                     label: 'status'
                 }, { field: 'assigned_to', label: 'assigned_user' }, { field: 'project_id', label: 'project' }],
-                expense: [{ field: 'customer_id', label: 'customer' }, { field: 'expenses.company_id', label: 'company' }, { field: 'expense_category_id', label: 'category' }, { field: 'status_id', label: 'status' }],
-                payment: [{ field: 'customer_id', label: 'customer' }, { field: 'status_id', label: 'status' }]
+                expense: [{ field: 'customer_id', label: 'customer' }, {
+                    field: 'expenses.company_id',
+                    label: 'company'
+                }, { field: 'expense_category_id', label: 'category' }, { field: 'expenses.status_id', label: 'status' }],
+                payment: [{ field: 'customer_id', label: 'customer' }, { field: 'status_id', label: 'status' }],
+                line_item: [{ field: 'product', label: 'product' }, { field: 'invoice', label: 'invoice' }]
             },
             date_fields: {
                 customer: [],
+                line_item: [],
                 invoice: ['date', 'due_date'],
                 credit: ['date', 'due_date'],
                 quote: ['date', 'due_date'],
@@ -167,7 +172,7 @@ export default class Report extends React.Component {
     }
 
     changeImportType (e) {
-        this.setState({ [e.target.name]: e.target.value }, () => {
+        this.setState({ [e.target.name]: e.target.value, group_by: '', date_format: '' }, () => {
             this.reload()
         })
     }
@@ -418,6 +423,7 @@ export default class Report extends React.Component {
                                         <option value="quote">{translations.quote}</option>
                                         <option value="purchase_order">{translations.purchase_order}</option>
                                         <option value="payment">{translations.payment}</option>
+                                        <option value="line_item">{translations.line_items}</option>
                                     </select>
                                 </div>
 
@@ -426,11 +432,11 @@ export default class Report extends React.Component {
                                 </div>
 
                                 {!this.state.date_container_open &&
-                                <div className="col-md-3 col-sm-12 mt-2">
-                                    {this.buildDateOptions()}
-                                    <a onClick={this.toggleDateContainer.bind(this)}
-                                        style={{ marginBottom: '1rem' }}>Manual</a>
-                                </div>
+                                    <div className="col-md-3 col-sm-12 mt-2">
+                                        {this.buildDateOptions()}
+                                        <a onClick={this.toggleDateContainer.bind(this)}
+                                            style={{ marginBottom: '1rem' }}>Manual</a>
+                                    </div>
                                 }
 
                                 <Collapse isOpen={this.state.date_container_open}>
@@ -455,9 +461,9 @@ export default class Report extends React.Component {
                         </div>
 
                         {!!message &&
-                        <div className="alert alert-danger mt-2" role="alert">
-                            {message}
-                        </div>
+                            <div className="alert alert-danger mt-2" role="alert">
+                                {message}
+                            </div>
                         }
                     </div>
                 </div>
@@ -484,6 +490,7 @@ export default class Report extends React.Component {
                                     <option value="quote">{translations.quote}</option>
                                     <option value="purchase_order">{translations.purchase_order}</option>
                                     <option value="payment">{translations.payment}</option>
+                                    <option value="line_item">{translations.line_items}</option>
                                 </select>
                             </div>
                         </div>
@@ -502,26 +509,26 @@ export default class Report extends React.Component {
                         <div className="card mt-2">
                             <div className="card-body">
                                 {!this.state.date_container_open &&
-                                        <React.Fragment>
-                                            <label className="d-flex items justify-content-between">
-                                                {translations.filter_date}
-                                                <a onClick={this.toggleDateContainer.bind(this)}>Manual</a>
-                                            </label>
-                                            {this.buildDateOptions()}
-                                        </React.Fragment>
+                                <React.Fragment>
+                                    <label className="d-flex items justify-content-between">
+                                        {translations.filter_date}
+                                        <a onClick={this.toggleDateContainer.bind(this)}>Manual</a>
+                                    </label>
+                                    {this.buildDateOptions()}
+                                </React.Fragment>
 
                                 }
 
                                 {!!this.state.date_container_open &&
-                                    <React.Fragment>
-                                        <label className="d-flex items justify-content-between">
-                                            {translations.filter_date}
-                                            <a onClick={this.toggleDateContainer.bind(this)}>{translations.close}</a>
-                                        </label>
-                                        <Collapse isOpen={this.state.date_container_open}>
-                                            <DateFilter onChange={this.filterDates.bind(this)}/>
-                                        </Collapse>
-                                    </React.Fragment>
+                                <React.Fragment>
+                                    <label className="d-flex items justify-content-between">
+                                        {translations.filter_date}
+                                        <a onClick={this.toggleDateContainer.bind(this)}>{translations.close}</a>
+                                    </label>
+                                    <Collapse isOpen={this.state.date_container_open}>
+                                        <DateFilter onChange={this.filterDates.bind(this)}/>
+                                    </Collapse>
+                                </React.Fragment>
 
                                 }
                             </div>
