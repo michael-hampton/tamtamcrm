@@ -472,13 +472,15 @@ class DynamicDataTable extends Component {
     renderColumnFilter (column) {
         return (
             <div className="input-group">
-                <input className="form-control py-2 border-right-0 border" type="search" value={this.props.filterValue || ''}
+                <input className="form-control py-2 border-right-0 border" type="search" value={this.props.search_filters[column] || ''}
                     onChange={e => {
                         this.props.handleColumnFilter(e.target.value || '', column) // Set undefined to remove the filter entirely
                     }}
                     placeholder={`Search ${this.props.rows.length} records...`} />
                 <span className="input-group-append">
-                    <div className="input-group-text bg-transparent"><i onClick={this.props.clearSearch} className="fa fa-times"></i></div>
+                    <div className="input-group-text bg-transparent"><i onChange={e => {
+                        this.props.clearSearch(column) // Set undefined to remove the filter entirely
+                    }} className="fa fa-times"></i></div>
                 </span>
             </div>
         )
