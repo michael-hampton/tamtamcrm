@@ -37,11 +37,11 @@ export default class Report extends React.Component {
             checkedItems: new Map(),
             groups: {
                 customer: [{ field: 'currency_id', label: 'currency' }, { field: 'country_id', label: 'country' }],
-                invoice: [{ field: 'customer_id', label: 'customer' }],
-                credit: [{ field: 'customer_id', label: 'customer' }],
-                quote: [{ field: 'customer_id', label: 'customer' }],
-                purchase_order: [{ field: 'company_id', label: 'company' }],
-                order: [{ field: 'customer_id', label: 'customer' }],
+                invoice: [{ field: 'customer_id', label: 'customer' }, { field: 'status_id', label: 'status' }],
+                credit: [{ field: 'customer_id', label: 'customer' }, { field: 'status_id', label: 'status' }],
+                quote: [{ field: 'customer_id', label: 'customer' }, { field: 'status_id', label: 'status' }],
+                purchase_order: [{ field: 'company_id', label: 'company' }, { field: 'status_id', label: 'status' }],
+                order: [{ field: 'customer_id', label: 'customer' }, { field: 'status_id', label: 'status' }],
                 lead: [{ field: 'source_type', label: 'source_type' }, {
                     field: 'task_status_id',
                     label: 'status'
@@ -57,8 +57,8 @@ export default class Report extends React.Component {
                     field: 'task_status_id',
                     label: 'status'
                 }, { field: 'assigned_to', label: 'assigned_user' }, { field: 'project_id', label: 'project' }],
-                expense: [{ field: 'customer_id', label: 'customer' }, { field: 'expenses.company_id', label: 'company' }],
-                payment: [{ field: 'customer_id', label: 'customer' }]
+                expense: [{ field: 'customer_id', label: 'customer' }, { field: 'expenses.company_id', label: 'company' }, { field: 'expense_category_id', label: 'category' }, { field: 'status_id', label: 'status' }],
+                payment: [{ field: 'customer_id', label: 'customer' }, { field: 'status_id', label: 'status' }]
             },
             date_fields: {
                 customer: [],
