@@ -280,4 +280,74 @@ class ReportController extends Controller
         ];
     }
 
+    private function taxRateReport(Request $request)
+    {
+        $invoices = Invoice::where('account_id', auth()->user()->account_user()->account_id)->get();
+        $credits = Credit::where('account_id', auth()->user()->account_user()->account_id)->get();
+        $tax_rates = TaxRate::where('account_id', auth()->user()->account_user()->account_id)->get()->keyBy('id');
+        $currencies = Currency::get()->keyBy('id');
+
+        $groups = [];
+        $reports = [];
+        $currency_report = [];
+
+        foreach ($invoices as $invoice) {
+            $reports[] = [
+                    'number'  => $invoice->number,
+                    'date'    => $invoice->date,
+                    'total'   => $invoice->total,
+                    'tax_name'  => $tax_rates[$invoice->tax_rate]->name,
+                    'tax_rate'  => $tax_rates[$invoice->tax_rate]->rate,
+                    'tax_paid' => $invoice->tax_total,
+                    'price'    => $line_item->unit_price,
+                    'total'    => $line_item->unit_price * $line_item->quantity
+                ];
+
+                if (!isset($currency_report[$currencies[$invoice->currency_id]->id])) {
+                    $currency_report[$currencies[$invoice->currency_id]->id] = [
+                        'name'  => $currencies[$invoice->currency_id]->name,
+                        'total' => 0,
+                        'count' => 0
+                    ];
+                }
+
+                $currency_report[$currencies[$invoice->currency_id]->id]['total'] += $line_item->unit_price * $line_item->quantity;
+                $currency_report[$currencies[$invoice->currency_id]->id]['count']++;
+            }
+        }
+
+        if (!empty($request->input('group_by'))) {
+            $group_by = $request->input('group_by');
+            $groups = collect($reports)->groupBy($group_by);
+
+            $grouped_report = $groups->mapWithKeys(
+                function ($group, $key) use ($group_by) {
+                    return [
+                        $key =>
+                            [
+                                'invoice'  => $group_by === 'invoice' ? $key : null,
+                                'product'  => $group_by === 'product' ? $key : null,
+                                // $key is what we grouped by, it'll be constant by each  group of rows
+                                'quantity' => $group->sum('quantity'),
+                                'price'    => $group->sum('price'),
+                                'total'    => $group->sum('total'),
+                                'count'    => $group->count(),
+                            ]
+                    ];
+                }
+            );
+        }
+
+        $report = !empty($request->input('group_by')) ? $grouped_report->toArray() : $reports;
+
+        if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {
+            $report = (new InvoiceRepository(new Invoice()))->paginateArrayResults($report, $request->input('perPage'));
+        }
+
+        return [
+            'currency_report' => array_values($currency_report),
+            'report'          => $report,
+        ];
+    }
+
 }
