@@ -161,9 +161,9 @@ export default class Report extends React.Component {
        }
 
        const cached_data = !this.state.cached_data.length ? this.state.rows : this.state.cached_data
-       const rows = []
+       const rows = this.state.rows.filter(row => row[column].toLowerCase().trim() === value.toLowerCase().trim())
 
-       this.setState({ filtered_value: value, rows: rows, cached_data: cached_data })
+       this.setState({ filtered_value: value, rows: rows || [], cached_data: cached_data })
 
     }
 
@@ -658,10 +658,7 @@ export default class Report extends React.Component {
                                         prependOrderByIcon={true}
                                         hoverable={true}
                                         filterable={true}
-                                        filtered={this.state.filtered}
-                                        onFilteredChange={(filtered, column, value) => {
-                                            this.onFilteredChangeCustom(value, column.id || column.accessor);
-                                        }}
+                                        handleColumnFilter={this.handleColumnFilter}
                                     />
 
                                 </div>
