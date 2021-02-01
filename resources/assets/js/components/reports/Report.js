@@ -167,8 +167,8 @@ export default class Report extends React.Component {
 
     }
 
-    clearSearch () {
-
+    clearSearch (column) {
+        this.setState({ filtered_value[column]: '', cached_data: [], rows: this.state.cached_data })
     }
 
     setFilterOpen (isOpen) {
