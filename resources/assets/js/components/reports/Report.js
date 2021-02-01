@@ -20,7 +20,8 @@ export default class Report extends React.Component {
             report_type: 'invoice',
             group_by: '',
             rows: [],
-            filtered: [],
+            filtered_value: '',
+            cached_data: [],
             currency_report: [],
             message: '',
             error: '',
@@ -153,26 +154,17 @@ export default class Report extends React.Component {
         return footer
     }
 
-    onFilteredChangeCustom (value, accessor) {
-        let filtered = this.state.filtered
-        let insertNewFilter = 1
+    handleColumnFilter (value, column) {
+       if(value.trim() === '') {
+           this.setState({ filtered_value: '', rows: this.state.cached_data, cached_data: [] })
+           return true
+       }
 
-        if (filtered.length) {
-            filtered.forEach((filter, i) => {
-                if (filter["id"] === accessor) {
-                    if (value === "" || !value.length) filtered.splice(i, 1);
-                    else filter["value"] = value;
+       const cached_data = !this.state.cached_data.length ? this.state.rows : this.state.cached_data
+       const rows = []
 
-                    insertNewFilter = 0;
-               }
-            });
-        }
+       this.setState({ filtered_value: value, rows: rows, cached_data: cached_data })
 
-        if (insertNewFilter) {
-            filtered.push({ id: accessor, value: value });
-        }
-
-        this.setState({ filtered: filtered });
     }
 
     setFilterOpen (isOpen) {
