@@ -64,11 +64,13 @@ export default class Report extends React.Component {
                     label: 'company'
                 }, { field: 'expense_category_id', label: 'category' }, { field: 'expenses.status_id', label: 'status' }],
                 payment: [{ field: 'customer_id', label: 'customer' }, { field: 'status_id', label: 'status' }],
-                line_item: [{ field: 'product', label: 'product' }, { field: 'invoice', label: 'invoice' }]
+                line_item: [{ field: 'product', label: 'product' }, { field: 'invoice', label: 'invoice' }],
+                tax_rate: [{ field: 'number', label: 'number' }, { field: 'tax_name', label: 'name' }]
             },
             date_fields: {
                 customer: [],
-                line_item: [],
+                line_item: ['date'],
+                tax_rate['date']
                 invoice: ['date', 'due_date'],
                 credit: ['date', 'due_date'],
                 quote: ['date', 'due_date'],
@@ -443,6 +445,7 @@ export default class Report extends React.Component {
                                         <option value="purchase_order">{translations.purchase_order}</option>
                                         <option value="payment">{translations.payment}</option>
                                         <option value="line_item">{translations.line_items}</option>
+                                        <option value="tax_rate">{translations.tax_rate}</option>
                                     </select>
                                 </div>
 
@@ -510,6 +513,7 @@ export default class Report extends React.Component {
                                     <option value="purchase_order">{translations.purchase_order}</option>
                                     <option value="payment">{translations.payment}</option>
                                     <option value="line_item">{translations.line_items}</option>
+                                    <option value="tax_rate">{translations.tax_rate}</option>
                                 </select>
                             </div>
                         </div>
