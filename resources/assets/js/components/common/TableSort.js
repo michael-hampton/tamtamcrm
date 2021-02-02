@@ -41,9 +41,9 @@ export default class TableSort extends Component {
 
     sortByColumn (column) {
         if (column === this.props.sorted_column) {
-            this.props.order === 'asc' ? this.props.fetchEntities(1, 'desc') : this.props.fetchEntities(1, 'asc')
+            this.props.order === 'asc' ? this.props.sortBy(column, 'desc') : this.props.fetchEntities(column, 'asc')
         } else {
-            this.props.fetchEntities(1, 'asc', column)
+            this.props.fetchEntities(column, 'asc')
         }
     }
 
