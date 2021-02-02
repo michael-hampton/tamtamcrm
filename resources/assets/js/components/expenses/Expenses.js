@@ -214,6 +214,7 @@ export default class Expenses extends Component {
                                     default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
                                     setError={this.setError.bind(this)}
+                                    companies={companies}
                                     customers={customers}
                                     dropdownButtonActions={this.state.dropdownButtonActions}
                                     entity_type="Expense"
