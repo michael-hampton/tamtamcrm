@@ -250,6 +250,14 @@ export default class DataTable extends Component {
         }, {})
     }
 
+    sortBy (order, column) {
+        const sorted = this.state.data.sort((a, b) => b[column] - a[column])
+        this.setState({order: order, data: sorted, sorted_column: column }, () => {
+            this.props.updateState(data)
+            this.buildColumnList()
+        })
+    }
+
     fetchEntities (pageNumber = false, order = false, sorted_column = false) {
         if (this.cancel) {
             this.cancel.cancel()
@@ -364,7 +372,7 @@ export default class DataTable extends Component {
                 default_columns={this.props.default_columns}/> : null
 
         const table_class = 'mt-2 data-table'
-        const tableSort = !isMobile ? <TableSort fetchEntities={this.fetchEntities}
+        const tableSort = !isMobile ? <TableSort sortBy={this.sortBy.bind(this)} fetchEntities={this.fetchEntities}
             columnMapping={this.props.columnMapping}
             columns={this.props.order ? this.props.order : this.state.columns}
             default_columns={this.props.default_columns}
