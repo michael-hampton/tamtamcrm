@@ -5,7 +5,8 @@ import classNames from 'classnames'
 import DataRow from './DataRow'
 import Pagination from './Pagination'
 import PerPage from './PerPage'
-import { translations } from "../utils/_translations";
+import { translations } from '../utils/_translations'
+import Typeahead from 'react-bootstrap-typeahead/lib/components/AsyncTypeahead'
 
 class DynamicDataTable extends Component {
     static noop () {
@@ -318,7 +319,7 @@ class DynamicDataTable extends Component {
     }
 
     render () {
-        const { errorMessage, loading, rows, footer } = this.props
+        const { errorMessage, loading, rows, footer, filterable } = this.props
         const fields = this.getFields()
 
         if (errorMessage) {
@@ -343,6 +344,12 @@ class DynamicDataTable extends Component {
                                 {fields.map(field => this.renderHeader(field))}
                                 {this.renderActionsCell()}
                             </tr>
+
+                            {filterable &&
+                            <tr>
+                                {fields.map(field => this.renderColumnFilter(field.name))}
+                            </tr>
+                            }
                         </thead>
                         <tbody>
                             {rows.map((row, index) => this.renderRow(row, index))}
@@ -418,7 +425,7 @@ class DynamicDataTable extends Component {
     }
 
     renderHeader (field) {
-        const { orderByField, orderByDirection, orderByAscIcon, orderByDescIcon, prependOrderByIcon = false, allowOrderingBy, disallowOrderingBy, changeOrder, columnWidths, filterable } = this.props
+        const { orderByField, orderByDirection, orderByAscIcon, orderByDescIcon, prependOrderByIcon = false, allowOrderingBy, disallowOrderingBy, changeOrder, columnWidths } = this.props
         let { orderByIcon = '' } = this.props
 
         if (orderByField === field.name) {
@@ -464,26 +471,51 @@ class DynamicDataTable extends Component {
                 { field.label }
                 &nbsp;
                 {canOrderBy && !prependOrderByIcon ? orderByIcon : ''}
-                {filterable ? this.renderColumnFilter(field.name) : ''
             </th>
         )
     }
 
-    renderColumnFilter (column) {
+    buildDateOptions (field) {
+        const options = <React.Fragment>
+            <option value="manual">Manual</option>
+            <option value={`${field}|7`}>7 days</option>
+            <option value={`${field}|30`}>30 days</option>
+            <option value={`${field}|last_month`}>Last Month</option>
+            <option value={`${field}|last_year`}>Last Year</option>
+        </React.Fragment>
+
         return (
-            <div className="input-group">
-                <input className="form-control py-2 border-right-0 border" type="search" value={this.props.search_filters[column] || ''}
-                    onChange={e => {
-                        this.props.handleColumnFilter(e.target.value || '', column) // Set undefined to remove the filter entirely
-                    }}
-                    placeholder={`Search ${this.props.rows.length} records...`} />
-                <span className="input-group-append">
-                    <div className="input-group-text bg-transparent"><i onChange={e => {
-                        this.props.clearSearch(column) // Set undefined to remove the filter entirely
-                    }} className="fa fa-times"></i></div>
-                </span>
-            </div>
+            <select value={this.props.date_format} className="form-control w-100" onChange={(e) => {
+                this.props.setDateFormat(e.target.value, field)
+            }}
+            name="date_format" id="date_format">
+                <option value="">{translations.select_option}</option>
+                {options}
+            </select>
         )
+    }
+
+    renderColumnFilter (column) {
+        const column_values = [...new Set(this.props.rows.map(row => row[column]))]
+
+        const date_fields = ['date', 'due_date']
+
+        if (date_fields.includes(column)) {
+            return <th>{this.buildDateOptions(column)}</th>
+        }
+
+        return <th>
+            <Typeahead
+                onChange={(selected) => {
+                    const value = selected.join()
+                    this.props.handleColumnFilter(value || '', column)
+                }}
+                onSearch={(test) => {
+                    console.log('test', test)
+                }}
+                options={Array.from(column_values)}
+            />
+        </th>
     }
 
     renderActionsCell () {

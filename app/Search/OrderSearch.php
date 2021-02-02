@@ -155,7 +155,8 @@ class OrderSearch extends BaseSearch
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
-            $this->filterDates($request, 'product_task', 'date');
+            $date_field = !empty($request->input('manual_date_field')) ? $request->input('manual_date_field') : 'date';
+            $this->filterDates($request, 'product_task', $date_field);
         }
 
         $rows = $this->query->get()->toArray();

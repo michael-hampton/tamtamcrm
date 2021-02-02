@@ -7,6 +7,7 @@ use App\Services\Transaction\TransactionService;
 use App\Traits\Archiveable;
 use App\Traits\Balancer;
 use App\Traits\Money;
+use App\Traits\Taxable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -22,6 +23,7 @@ class Credit extends Model
     use Balancer;
     use HasFactory;
     use Archiveable;
+    use Taxable;
 
     const STATUS_DRAFT = 1;
     const STATUS_SENT = 2;

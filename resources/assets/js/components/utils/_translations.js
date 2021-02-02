@@ -861,7 +861,9 @@ _localizedValues.en = {
     report_type: 'Report Type',
     filter_date: 'Filter Date',
     line_items: 'Line Items',
-    line_item: 'Line Item'
+    line_item: 'Line Item',
+    age: 'Age',
+    tax_rate: 'Tax Rate'
 }
 
 let language = []

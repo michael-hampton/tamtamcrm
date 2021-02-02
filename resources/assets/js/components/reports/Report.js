@@ -1,18 +1,19 @@
 import React from 'react'
 import { translations } from '../utils/_translations'
 import Snackbar from '@material-ui/core/Snackbar'
-import { Alert, Button, Card, CardBody, Collapse, Modal, ModalBody, ModalFooter } from 'reactstrap'
+import { Alert, Button, Card, CardBody, Collapse, FormGroup, Label, Modal, ModalBody, ModalFooter } from 'reactstrap'
 import axios from 'axios'
 import { icons } from '../utils/_icons'
 import DynamicDataTable from './DynamicDataTable'
 import { download, generateCsv } from './_utilities'
-import DateFilter from '../common/DateFilter'
+import Datepicker from '../common/Datepicker'
 
 export default class Report extends React.Component {
     constructor (props) {
         super(props)
         this.state = {
             width: window.innerWidth,
+            manual_date_field: '',
             show: false,
             date_format: '',
             start_date: '',
@@ -70,7 +71,7 @@ export default class Report extends React.Component {
             date_fields: {
                 customer: [],
                 line_item: ['date'],
-                tax_rate['date']
+                tax_rate: ['date'],
                 invoice: ['date', 'due_date'],
                 credit: ['date', 'due_date'],
                 quote: ['date', 'due_date'],
@@ -95,6 +96,7 @@ export default class Report extends React.Component {
         this.handleColumnChange = this.handleColumnChange.bind(this)
         this.export = this.export.bind(this)
         this.toggle = this.toggle.bind(this)
+        this.filterDates = this.filterDates.bind(this)
         this.handleWindowSizeChange = this.handleWindowSizeChange.bind(this)
     }
 
@@ -157,20 +159,32 @@ export default class Report extends React.Component {
     }
 
     handleColumnFilter (value, column) {
-       if(value.trim() === '') {
-           this.setState({ filtered_value[column]: '', rows: this.state.cached_data, cached_data: [] })
-           return true
-       }
+        const filtered_value = this.state.filtered_value
 
-       const cached_data = !this.state.cached_data.length ? this.state.rows : this.state.cached_data
-       const rows = this.state.rows.filter(row => row[column].toLowerCase().trim() === value.toLowerCase().trim())
+        if (value.trim() === '') {
+            filtered_value[column] = ''
+            this.setState({ filtered_value: filtered_value, rows: this.state.cached_data, cached_data: [] })
+            return true
+        }
 
-       this.setState({ filtered_value[column]: value, rows: rows || [], cached_data: cached_data })
+        const cached_data = !this.state.cached_data.length ? this.state.rows : this.state.cached_data
+        const rows = this.state.rows.filter(row => row[column].toString().toLowerCase().trim().includes(value.toLowerCase().trim()))
 
+        if (!rows.length) {
+            alert('No search results')
+            return false
+        }
+
+        filtered_value[column] = value
+
+        this.setState({ filtered_value: filtered_value, rows: rows || [], cached_data: cached_data })
     }
 
     clearSearch (column) {
-        this.setState({ filtered_value[column]: '', cached_data: [], rows: this.state.cached_data })
+        const filtered_value = this.state.filtered_value
+        filtered_value[column] = ''
+        const rows = this.state.cached_data.length ? this.state.cached_data : this.state.rows
+        this.setState({ filtered_value: filtered_value, cached_data: [], rows: rows })
     }
 
     setFilterOpen (isOpen) {
@@ -260,7 +274,7 @@ export default class Report extends React.Component {
     }
 
     loadPage (page) {
-        const { perPage, orderByField, orderByDirection, report_type, group_by, start_date, end_date, date_format } = this.state
+        const { perPage, orderByField, orderByDirection, report_type, group_by, start_date, end_date, date_format, manual_date_field } = this.state
 
         this.setState(
             { loading: true },
@@ -276,7 +290,8 @@ export default class Report extends React.Component {
                         group_by,
                         start_date,
                         end_date,
-                        date_format
+                        date_format,
+                        manual_date_field
                     }
 
                 }).then(({ data: response }) => {
@@ -322,6 +337,19 @@ export default class Report extends React.Component {
 
     changePage (page) {
         this.loadPage(page)
+    }
+
+    setDateFormat (date_format, column = null) {
+        if (date_format === 'manual') {
+            this.setState({ manual_date_field: column })
+            this.toggleDateContainer()
+            return false
+        }
+
+        this.setState({ date_format: date_format, manual_date_field: '' }, () => {
+            this.toggleDateContainer()
+            this.loadPage(1)
+        })
     }
 
     changePerPage (limit) {
@@ -400,8 +428,12 @@ export default class Report extends React.Component {
         })
     }
 
-    filterDates (event) {
-        this.setState({ start_date: event.start_date, end_date: event.end_date }, () => this.loadPage(1))
+    filterDates (e) {
+        this.setState({ [e.target.name]: e.target.value }, () => {
+            if (this.state.start_date.length && this.state.end_date.length) {
+                this.loadPage(1)
+            }
+        })
     }
 
     render () {
@@ -453,16 +485,18 @@ export default class Report extends React.Component {
                                     {this.buildSelectList()}
                                 </div>
 
-                                {!this.state.date_container_open &&
-                                    <div className="col-md-3 col-sm-12 mt-2">
-                                        {this.buildDateOptions()}
-                                        <a onClick={this.toggleDateContainer.bind(this)}
-                                            style={{ marginBottom: '1rem' }}>Manual</a>
-                                    </div>
-                                }
-
                                 <Collapse isOpen={this.state.date_container_open}>
-                                    <DateFilter onChange={this.filterDates.bind(this)}/>
+                                    <FormGroup>
+                                        <Label for="due_date">{translations.start_date}</Label>
+                                        <Datepicker name="start_date" date={this.state.start_date}
+                                            handleInput={this.filterDates}/>
+                                    </FormGroup>
+
+                                    <FormGroup>
+                                        <Label for="due_date">{translations.due_date}(*):</Label>
+                                        <Datepicker name="end_date" date={this.state.end_date}
+                                            handleInput={this.filterDates}/>
+                                    </FormGroup>
                                 </Collapse>
 
                                 <div className="d-flex align-items-center">
@@ -532,14 +566,7 @@ export default class Report extends React.Component {
                         <div className="card mt-2">
                             <div className="card-body">
                                 {!this.state.date_container_open &&
-                                <React.Fragment>
-                                    <label className="d-flex items justify-content-between">
-                                        {translations.filter_date}
-                                        <a onClick={this.toggleDateContainer.bind(this)}>Manual</a>
-                                    </label>
-                                    {this.buildDateOptions()}
-                                </React.Fragment>
-
+                                <span>charts</span>
                                 }
 
                                 {!!this.state.date_container_open &&
@@ -549,7 +576,17 @@ export default class Report extends React.Component {
                                         <a onClick={this.toggleDateContainer.bind(this)}>{translations.close}</a>
                                     </label>
                                     <Collapse isOpen={this.state.date_container_open}>
-                                        <DateFilter onChange={this.filterDates.bind(this)}/>
+                                        <FormGroup>
+                                            <Label for="due_date">{translations.start_date}</Label>
+                                            <Datepicker name="start_date" date={this.state.start_date}
+                                                handleInput={this.filterDates}/>
+                                        </FormGroup>
+
+                                        <FormGroup>
+                                            <Label for="due_date">{translations.due_date}(*):</Label>
+                                            <Datepicker name="end_date" date={this.state.end_date}
+                                                handleInput={this.filterDates}/>
+                                        </FormGroup>
                                     </Collapse>
                                 </React.Fragment>
 
@@ -638,7 +675,6 @@ export default class Report extends React.Component {
                 <div className="row">
                     <div className="col-12">
 
-                        {!!rows.length &&
                         <div className="card mt-2">
                             <div
                                 className="card-header">{translations[this.state.report_type]}
@@ -669,13 +705,14 @@ export default class Report extends React.Component {
                                         handleColumnFilter={this.handleColumnFilter.bind(this)}
                                         clearSearch={this.clearSearch.bind(this)}
                                         search_filters={this.state.filtered_value}
+                                        setDateFormat={this.setDateFormat.bind(this)}
+                                        date_format={this.state.date_format}
                                     />
 
                                 </div>
 
                             </div>
                         </div>
-                        }
                     </div>
                 </div>
 

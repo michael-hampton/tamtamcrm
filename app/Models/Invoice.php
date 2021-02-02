@@ -7,6 +7,7 @@ use App\Services\Transaction\TransactionService;
 use App\Traits\Archiveable;
 use App\Traits\Balancer;
 use App\Traits\Money;
+use App\Traits\Taxable;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,7 +18,7 @@ use Laracasts\Presenter\PresentableTrait;
 class Invoice extends Model
 {
 
-    use PresentableTrait, SoftDeletes, Money, Balancer, HasFactory, Archiveable;
+    use PresentableTrait, SoftDeletes, Money, Balancer, HasFactory, Archiveable, Taxable;
 
     const STATUS_DRAFT = 1;
     const STATUS_SENT = 2;

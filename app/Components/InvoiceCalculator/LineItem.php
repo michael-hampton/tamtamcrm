@@ -407,8 +407,12 @@ class LineItem extends BaseCalculator
      * @return LineItem
      * @return LineItem
      */
-    public function setProductId(string $product_id): self
+    public function setProductId(string $product_id = null): self
     {
+        if ($product_id === null) {
+            return $this;
+        }
+
         $this->product_id = $product_id;
         return $this;
     }

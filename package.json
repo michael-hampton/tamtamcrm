@@ -58,6 +58,7 @@
     "react-addons-update": "^15.6.2",
     "react-app-polyfill": "^1.0.6",
     "react-beautiful-dnd": "^13.0.0",
+    "react-bootstrap-typeahead": "^5.1.4",
     "react-chartjs-2": "^2.9.0",
     "react-ckeditor-component": "^1.1.0",
     "react-color": "^2.19.3",
