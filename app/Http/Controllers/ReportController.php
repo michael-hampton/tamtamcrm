@@ -283,6 +283,7 @@ class ReportController extends Controller
     private function taxRateReport(Request $request)
     {
         $invoices = Invoice::where('account_id', auth()->user()->account_user()->account_id)->get();
+       
         $credits = Credit::where('account_id', auth()->user()->account_user()->account_id)->get();
         $tax_rates = TaxRate::where('account_id', auth()->user()->account_user()->account_id)->get()->keyBy('id');
         $currencies = Currency::get()->keyBy('id');
@@ -292,27 +293,92 @@ class ReportController extends Controller
         $currency_report = [];
 
         foreach ($invoices as $invoice) {
-            $reports[] = [
-                    'number'  => $invoice->number,
+             $amount_paid = $invoice->total - $invoice->balance;
+             $customer = $invoice->customer;
+             $precision = $currencies[$customer->currency_id]->precision;
+             $taxes = $invoice->getTaxes($precision);
+
+             foreach ($taxes as $tax) {
+                 $row = [];
+                 $name = $tax['name'];
+                 $rate = $tax['rate'];
+
+                 if (empty($rate)) {
+                     continue;
+                 }
+
+                 $reports[] = [
+                    'customer' => $customer->name,
+                    'invoice'  => $invoice->number,
                     'date'    => $invoice->date,
                     'total'   => $invoice->total,
-                    'tax_name'  => $tax_rates[$invoice->tax_rate]->name,
-                    'tax_rate'  => $tax_rates[$invoice->tax_rate]->rate,
-                    'tax_paid' => $invoice->tax_total,
-                    'price'    => $line_item->unit_price,
-                    'total'    => $line_item->unit_price * $line_item->quantity
+                    'tax_name'  => $name,
+                    'tax_rate'  => $rate,
+                    'tax_amount' => $tax['amount'] ?? 0.0
+                    'tax_paid' => $tax['paid'] ?? 0.0,
+                    'amount_paid' => $amount_paid,
+                    'currency' => $currencies[$customer->currency_id]->name
                 ];
-
-                if (!isset($currency_report[$currencies[$invoice->currency_id]->id])) {
-                    $currency_report[$currencies[$invoice->currency_id]->id] = [
-                        'name'  => $currencies[$invoice->currency_id]->name,
+           
+                if (!isset($currency_report[$currencies[$customer->currency_id]->id])) {
+                    $currency_report[$currencies[$customer->currency_id]->id] = [
+                        'name'  => $currencies[$customer->currency_id]->name,
                         'total' => 0,
+                        'tax_amount' => 0,
+                        'tax_paid' => 0,
                         'count' => 0
                     ];
                 }
 
-                $currency_report[$currencies[$invoice->currency_id]->id]['total'] += $line_item->unit_price * $line_item->quantity;
-                $currency_report[$currencies[$invoice->currency_id]->id]['count']++;
+                $currency_report[$currencies[$customer->currency_id]->id]['total'] += $invoice->total;
+                $currency_report[$currencies[$customer->currency_id]->id]['tax_amount'] += $tax['amount'];
+                $currency_report[$currencies[$customer->currency_id]->id]['tax_paid'] += $tax['paid'];
+                $currency_report[$currencies[$customer->currency_id]->id]['count']++;
+            }
+        }
+
+        foreach ($credits as $credit) {
+             $amount_paid = $credit->total - $credit->balance;
+             $customer = $credit->customer;
+             $precision = $currencies[$customer->currency_id]->precision;
+             $taxes = $credit->getTaxes($precision);
+
+             foreach ($taxes as $tax) {
+                 $row = [];
+                 $name = $tax['name'];
+                 $rate = $tax['rate'];
+
+                 if (empty($rate)) {
+                     continue;
+                 }
+
+                 $reports[] = [
+                    'customer' => $customer->name,
+                    'invoice'  => $credit->number,
+                    'date'    => $credit->date,
+                    'total'   => $credit->total,
+                    'tax_name'  => $name,
+                    'tax_rate'  => $rate,
+                    'tax_amount' => $tax['amount'] ?? 0.0
+                    'tax_paid' => $tax['paid'] ?? 0.0,
+                    'amount_paid' => $amount_paid,
+                    'currency' => $currencies[$customer->currency_id]->name
+                ];
+           
+                if (!isset($currency_report[$currencies[$customer->currency_id]->id])) {
+                    $currency_report[$currencies[$customer->currency_id]->id] = [
+                        'name'  => $currencies[$customer->currency_id]->name,
+                        'total' => 0,
+                        'tax_amount' => 0,
+                        'tax_paid' => 0,
+                        'count' => 0
+                    ];
+                }
+
+                $currency_report[$currencies[$customer->currency_id]->id]['total'] += $credit->total;
+                $currency_report[$currencies[$customer->currency_id]->id]['tax_amount'] += $tax['amount'];
+                $currency_report[$currencies[$customer->currency_id]->id]['tax_paid'] += $tax['paid'];
+                $currency_report[$currencies[$customer->currency_id]->id]['count']++;
             }
         }
 
@@ -325,12 +391,12 @@ class ReportController extends Controller
                     return [
                         $key =>
                             [
+                                'tax_name'  => $group_by === 'tax_name' ? $key : null,
                                 'invoice'  => $group_by === 'invoice' ? $key : null,
-                                'product'  => $group_by === 'product' ? $key : null,
                                 // $key is what we grouped by, it'll be constant by each  group of rows
-                                'quantity' => $group->sum('quantity'),
-                                'price'    => $group->sum('price'),
-                                'total'    => $group->sum('total'),
+                                'tax_amount' => $group->sum('tax_amount'),
+                                'tax_paid' => $group->sum('tax_paid'),
+                                'amount_paid' => $group->sum('amount_paid'),
                                 'count'    => $group->count(),
                             ]
                     ];
