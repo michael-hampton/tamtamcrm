@@ -251,11 +251,37 @@ export default class DataTable extends Component {
     }
 
     sortBy (order, column) {
-        const sorted = this.state.data.sort((a, b) => b[column] - a[column])
+        if(column === 'customer_id' && this.props.customers) {
+            const sorted = this.sortArray(this.props.customers, 'name', this.state.data, 'customer_id')
+        } else {
+            const sorted = this.state.data.sort((a, b) => b[column] - a[column])
+        }
+       
         this.setState({order: order, data: sorted, sorted_column: column }, () => {
             this.props.updateState(data)
             this.buildColumnList()
         })
+    }
+
+    sortArray (sorted_array, key_to_sort, array_to_sort, filter_key) {
+        sorted_array.sort((a, b) => a[key_to_sort].localeCompare(b[key_to_sort]))
+
+        console.log(sorted_array)
+
+        const mapped = sorted_array.map(item => { return item.id })
+
+        console.log(mapped);
+ 
+        const arrayMap = array_to_sort.reduce(
+            (accumulator, currentValue) => ({
+                ...accumulator,
+                [currentValue[filter_key]]: currentValue,
+            }),
+            {}
+        )
+
+       return mapped.map(key => arrayMap[key])
+
     }
 
     fetchEntities (pageNumber = false, order = false, sorted_column = false) {
