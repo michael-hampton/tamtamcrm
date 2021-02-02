@@ -1,6 +1,29 @@
 <?php
 trait Taxable {
 
+    public function getTaxes (int $precision)
+    {
+       $taxes = [];
+       $taxable = $this->calculateTaxes(
+        $usesInclusiveTaxes, $precision);
+
+    if ($this->tax_rate > 0) {
+      $invoiceTaxAmount = $taxable[$this->tax_rate_name];
+      $invoicePaidAmount = ($this->total * $invoiceTaxAmount != 0)
+          ? ($this->getAmountPaid() / $this->total * $invoiceTaxAmount)
+          : 0.0;
+      $this->calculateTax(
+          $taxes, $this->tax_rate_name, $this->tax_rate, $invoiceTaxAmount, $invoicePaidAmount);
+    }
+
+    return taxes;
+    }
+
+    private function getAmountPaid()
+    {
+        return $this->total - $this->balance;
+    }
+
  private function calculateTaxAmount(float $amount, float $rate, bool $useInclusiveTaxes) {
     $taxAmount = 0;
 
