@@ -1,11 +1,13 @@
 <?php
 trait Taxable {
 
+    private array $map = [];
+
     public function getTaxes (int $precision)
     {
        $taxes = [];
-       $taxable = $this->calculateTaxes(
-        $usesInclusiveTaxes, $precision);
+       $taxable = $this->calculateTaxes($usesInclusiveTaxes, $precision);
+       $paidAmount = $this->total - $this->balance;
 
     if ($this->tax_rate > 0) {
       $invoiceTaxAmount = $taxable[$this->tax_rate_name];
@@ -34,6 +36,42 @@ trait Taxable {
           $taxes, $this->tax_rate_name_3, $this->tax_rate, $invoiceTaxAmount, $invoicePaidAmount);
     }
 
+    foreach ($this->line_items as $item) {
+      if ($item->tax_rate > 0) {
+        $itemTaxAmount = $taxable[item->tax_rate_name];
+        $itemPaidAmount = !empty($this->total) &&
+                !empty($itemTaxAmount) &&
+                $this->total * $itemTaxAmount > 0
+            ? ($paidAmount / $this->total * $itemTaxAmount)
+            : 0.0;
+        $this->calculateTax(
+            $taxes, $item->tax_rate_name, $item->tax_rate, $itemTaxAmount, $itemPaidAmount);
+      }
+  
+      if ($item->tax_2 > 0) {
+        $itemTaxAmount = $taxable[item->tax_rate_name_2];
+        $itemPaidAmount = !empty($this->total) &&
+                !empty($itemTaxAmount) &&
+                $this->total * $itemTaxAmount > 0
+            ? ($paidAmount / $this->total * $itemTaxAmount)
+            : 0.0;
+        $this->calculateTax(
+            $taxes, $item->tax_rate_name_2, $item->tax_2, $itemTaxAmount, $itemPaidAmount);
+      }
+
+      if ($item->tax_3 > 0) {
+        $itemTaxAmount = $taxable[item->tax_rate_name_3];
+        $itemPaidAmount = !empty($this->total) &&
+                !empty($itemTaxAmount) &&
+                $this->total * $itemTaxAmount > 0
+            ? ($paidAmount / $this->total * $itemTaxAmount)
+            : 0.0;
+        $this->calculateTax(
+            $taxes, $item->tax_rate_name_3, $item->tax_3, $itemTaxAmount, $itemPaidAmount);
+      }
+     
+    }
+
     return taxes;
     }
 
@@ -44,12 +82,19 @@ trait Taxable {
 
     $key = $rate . ' ' . $name;
 
-  }
-
-    private function getAmountPaid()
-    {
-        return $this->total - $this->balance;
+    if(!isset($this->map[$key])) {
+        $this->map[$key] = [
+              'name' => $name,
+              'rate' => $rate,
+              'amount' => 0,
+              'paid' => 0
+            ];
     }
+
+    $this->map[$key]['amount'] += $amount;
+    $this->map[$key]['paid'] += $paid;
+
+  }
 
  private function calculateTaxAmount(float $amount, float $rate, bool $useInclusiveTaxes) {
     $taxAmount = 0;
