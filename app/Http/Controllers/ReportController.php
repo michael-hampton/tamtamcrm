@@ -212,6 +212,13 @@ class ReportController extends Controller
     private function lineItemReport(Request $request)
     {
         $invoices = Invoice::where('account_id', auth()->user()->account_user()->account_id)->get();
+       
+        if(!empty($request->input('start_date')) && ! empty($request->input('end_date'))) {
+             $start = date("Y-m-d", strtotime($request->input('start_date')));
+            $end = date("Y-m-d", strtotime($request->input('end_date')));
+            $invoices = $invoices->whereBetween('date', [$start, $end]);
+        }
+
         $products = Product::where('account_id', auth()->user()->account_user()->account_id)->get()->keyBy('id');
         $currencies = Currency::get()->keyBy('id');
 
@@ -283,10 +290,16 @@ class ReportController extends Controller
     private function taxRateReport(Request $request)
     {
         $invoices = Invoice::where('account_id', auth()->user()->account_user()->account_id)->get();
-       
         $credits = Credit::where('account_id', auth()->user()->account_user()->account_id)->get();
         $tax_rates = TaxRate::where('account_id', auth()->user()->account_user()->account_id)->get()->keyBy('id');
         $currencies = Currency::get()->keyBy('id');
+
+        if(!empty($request->input('start_date')) && ! empty($request->input('end_date'))) {
+             $start = date("Y-m-d", strtotime($request->input('start_date')));
+            $end = date("Y-m-d", strtotime($request->input('end_date')));
+            $invoices = $invoices->whereBetween('date', [$start, $end]);
+            $credits = $credits->whereBetween('date', [$start, $end]);
+        }
 
         $groups = [];
         $reports = [];
