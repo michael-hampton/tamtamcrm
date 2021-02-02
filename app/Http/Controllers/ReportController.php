@@ -204,6 +204,11 @@ class ReportController extends Controller
                 $report = $line_item_report['report'];
                 $currency_report = $line_item_report['currency_report'];
                 break;
+            case 'tax_rate':
+                $line_item_report = $this->lineItemReport($request);
+                $report = $line_item_report['report'];
+                $currency_report = $line_item_report['currency_report'];
+                break;
         }
 
         return response()->json(['report' => $report, 'currency_report' => $currency_report]);
@@ -251,6 +256,13 @@ class ReportController extends Controller
                 $currency_report[$currencies[$invoice->currency_id]->id]['total'] += $line_item->unit_price * $line_item->quantity;
                 $currency_report[$currencies[$invoice->currency_id]->id]['count']++;
             }
+        }
+
+        $order_by = $request->input('orderByField');
+
+        if(!empty($order_by)) {
+            $collection = collect($reports);
+            $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby($order_by)->toArray() : $collection->sortByDesc($order_by)>toArray();
         }
 
         if (!empty($request->input('group_by'))) {
@@ -322,7 +334,7 @@ class ReportController extends Controller
 
                  $reports[] = [
                     'customer' => $customer->name,
-                    'invoice'  => $invoice->number,
+                    'number'  => $invoice->number,
                     'date'    => $invoice->date,
                     'total'   => $invoice->total,
                     'tax_name'  => $name,
@@ -367,7 +379,7 @@ class ReportController extends Controller
 
                  $reports[] = [
                     'customer' => $customer->name,
-                    'invoice'  => $credit->number,
+                    'number'  => $credit->number,
                     'date'    => $credit->date,
                     'total'   => $credit->total,
                     'tax_name'  => $name,
@@ -395,6 +407,13 @@ class ReportController extends Controller
             }
         }
 
+        $order_by = $request->input('orderByField');
+
+        if(!empty($order_by)) {
+            $collection = collect($reports);
+            $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby($order_by)->toArray() : $collection->sortByDesc($order_by)>toArray();
+        }
+
         if (!empty($request->input('group_by'))) {
             $group_by = $request->input('group_by');
             $groups = collect($reports)->groupBy($group_by);
@@ -405,7 +424,7 @@ class ReportController extends Controller
                         $key =>
                             [
                                 'tax_name'  => $group_by === 'tax_name' ? $key : null,
-                                'invoice'  => $group_by === 'invoice' ? $key : null,
+                                'number'  => $group_by === 'number' ? $key : null,
                                 // $key is what we grouped by, it'll be constant by each  group of rows
                                 'tax_amount' => $group->sum('tax_amount'),
                                 'tax_paid' => $group->sum('tax_paid'),
