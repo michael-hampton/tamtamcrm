@@ -48,7 +48,7 @@ trait Taxable {
             $taxes, $item->tax_rate_name, $item->tax_rate, $itemTaxAmount, $itemPaidAmount);
       }
   
-      if ($item->tax_2 > 0) {
+      if (!empty($item->tax_2)) {
         $itemTaxAmount = $taxable[item->tax_rate_name_2];
         $itemPaidAmount = !empty($this->total) &&
                 !empty($itemTaxAmount) &&
@@ -59,7 +59,7 @@ trait Taxable {
             $taxes, $item->tax_rate_name_2, $item->tax_2, $itemTaxAmount, $itemPaidAmount);
       }
 
-      if ($item->tax_3 > 0) {
+      if (!empty($item->tax_3)) {
         $itemTaxAmount = $taxable[item->tax_rate_name_3];
         $itemPaidAmount = !empty($this->total) &&
                 !empty($itemTaxAmount) &&
@@ -122,13 +122,13 @@ trait Taxable {
             $map[$item->tax_rate_name] = !isset($map[$item->tax_rate_name]) ? $taxAmount : $map[$item->tax_rate_name] += $taxAmount;
       }
 
-      if ($item->tax_2 > 0) {
+      if (!empty($item->tax_2)) {
         $taxAmount = $this->calculateTaxAmount(
             $lineTotal, $item->tax_2, $this->uses_inclusive_taxes);
         $map[$item->tax_rate_name_2] = !isset($map[$item->tax_rate_name_2]) ? $taxAmount : $map[$item->tax_rate_name_2] += $taxAmount;
       }
 
-      if ($item->tax_3 != 0) {
+      if (!empty($item->tax_3)) {
         $taxAmount = $this->calculateTaxAmount(
             $lineTotal, $item->tax_3, $this->uses_inclusive_taxes);
         $map[$item->tax_rate_name_3] = !isset($map[$item->tax_rate_name_3]) ? $taxAmount : $map[$item->tax_rate_name_3] += $taxAmount;
@@ -221,7 +221,7 @@ private function calculateTotal() {
       if ($tax_rate > 0) {
         $itemTax += $lineTotal * $tax_rate / 100;
       }
-      if ($tax_2 > 0) {
+      if (!empty($tax_2)) {
         $itemTax += $lineTotal * $tax_2 / 100;
       }
     }
