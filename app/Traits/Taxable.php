@@ -37,6 +37,15 @@ trait Taxable {
     return taxes;
     }
 
+    private function calculateTax(array $map, string $name, float $rate, float $amount, float $paid) {
+    if (empty($amount)) {
+      return false;
+    }
+
+    $key = $rate . ' ' . $name;
+
+  }
+
     private function getAmountPaid()
     {
         return $this->total - $this->balance;
