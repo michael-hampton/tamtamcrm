@@ -16,6 +16,24 @@ trait Taxable {
           $taxes, $this->tax_rate_name, $this->tax_rate, $invoiceTaxAmount, $invoicePaidAmount);
     }
 
+    if ($this->tax_2 > 0) {
+      $invoiceTaxAmount = $taxable[$this->tax_rate_name_2];
+      $invoicePaidAmount = ($this->total * $invoiceTaxAmount != 0)
+          ? ($this->getAmountPaid() / $this->total * $invoiceTaxAmount)
+          : 0.0;
+      $this->calculateTax(
+          $taxes, $this->tax_rate_name_2, $this->tax_rate, $invoiceTaxAmount, $invoicePaidAmount);
+    }
+
+    if ($this->tax_3 > 0) {
+      $invoiceTaxAmount = $taxable[$this->tax_rate_name_3];
+      $invoicePaidAmount = ($this->total * $invoiceTaxAmount != 0)
+          ? ($this->getAmountPaid() / $this->total * $invoiceTaxAmount)
+          : 0.0;
+      $this->calculateTax(
+          $taxes, $this->tax_rate_name_3, $this->tax_rate, $invoiceTaxAmount, $invoicePaidAmount);
+    }
+
     return taxes;
     }
 
