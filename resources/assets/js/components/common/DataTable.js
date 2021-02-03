@@ -257,7 +257,7 @@ export default class DataTable extends Component {
             sorted = this.sortArray(this.props.customers, 'name', this.state.data, 'customer_id', order)
         } else {
             sorted = order === 'asc' ? this.state.data.sort((a, b) => a[column] - b[column]) : this.state.data.sort((a, b) => b[column] - a[column])
-        }git add
+        }
 
         this.setState({ order: order, data: sorted, entities: sorted, sorted_column: column }, () => {
             this.props.updateState(sorted)
