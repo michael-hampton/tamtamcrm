@@ -12,6 +12,7 @@ export default class Report extends React.Component {
     constructor (props) {
         super(props)
         this.state = {
+            group_by_frequency: '',
             width: window.innerWidth,
             manual_date_field: '',
             show: false,
@@ -41,11 +42,11 @@ export default class Report extends React.Component {
             groups: {
                 income: [{ field: 'company_id', label: 'company' }, { field: 'customer_id', label: 'customer' }],
                 customer: [{ field: 'currency_id', label: 'currency' }, { field: 'country_id', label: 'country' }],
-                invoice: [{ field: 'customer_id', label: 'customer' }, { field: 'invoices.status_id', label: 'status' }],
-                credit: [{ field: 'customer_id', label: 'customer' }, { field: 'credits.status_id', label: 'status' }],
-                quote: [{ field: 'customer_id', label: 'customer' }, { field: 'quotes.status_id', label: 'status' }],
-                purchase_order: [{ field: 'company_id', label: 'company' }, { field: 'purchase_orders.status_id', label: 'status' }],
-                order: [{ field: 'customer_id', label: 'customer' }, { field: 'product_task.status_id', label: 'status' }],
+                invoice: [{ field: 'customer_id', label: 'customer' }, { field: 'date', label: 'date' }, { field: 'due_date', label: 'due_date' }, { field: 'invoices.status_id', label: 'status' }],
+                credit: [{ field: 'customer_id', label: 'customer' }, { field: 'date', label: 'date' }, { field: 'due_date', label: 'due_date' }, { field: 'credits.status_id', label: 'status' }],
+                quote: [{ field: 'customer_id', label: 'customer' }, { field: 'date', label: 'date' }, { field: 'due_date', label: 'due_date' }, { field: 'quotes.status_id', label: 'status' }],
+                purchase_order: [{ field: 'company_id', label: 'company' }, { field: 'date', label: 'date' }, { field: 'due_date', label: 'due_date' }, { field: 'purchase_orders.status_id', label: 'status' }],
+                order: [{ field: 'customer_id', label: 'customer' }, { field: 'date', label: 'date' }, { field: 'due_date', label: 'due_date' }, { field: 'product_task.status_id', label: 'status' }],
                 lead: [{ field: 'source_type', label: 'source_type' }, {
                     field: 'task_status_id',
                     label: 'status'
@@ -61,11 +62,11 @@ export default class Report extends React.Component {
                     field: 'task_status_id',
                     label: 'status'
                 }, { field: 'assigned_to', label: 'assigned_user' }, { field: 'project_id', label: 'project' }],
-                expense: [{ field: 'customer_id', label: 'customer' }, {
+                expense: [{ field: 'customer_id', label: 'customer' }, { field: 'date', label: 'date' }, {
                     field: 'expenses.company_id',
                     label: 'company'
                 }, { field: 'expense_category_id', label: 'category' }, { field: 'expenses.status_id', label: 'status' }],
-                payment: [{ field: 'customer_id', label: 'customer' }, { field: 'status_id', label: 'status' }],
+                payment: [{ field: 'customer_id', label: 'customer' }, { field: 'date', label: 'date' }, { field: 'status_id', label: 'status' }],
                 line_item: [{ field: 'product', label: 'product' }, { field: 'invoice', label: 'invoice' }],
                 tax_rate: [{ field: 'number', label: 'number' }, { field: 'tax_name', label: 'name' }]
             },
@@ -78,6 +79,7 @@ export default class Report extends React.Component {
         }
 
         this.buildSelectList = this.buildSelectList.bind(this)
+        this.buildFrequencyList = this.buildFrequencyList.bind(this)
         this.handleInputChanges = this.handleInputChanges.bind(this)
         this.changePage = this.changePage.bind(this)
         this.changeOrder = this.changeOrder.bind(this)
@@ -200,6 +202,22 @@ export default class Report extends React.Component {
             this.reload()
         })
     }
+ 
+    buildFrequencyList () {
+        return (
+            <select className="form-control w-100" onChange={(e) => {
+                this.setState({ group_by_frequency: e.target.value })
+                this.reload()
+             }}
+                name="group_by_frequency" id="group_by_frequency">
+                <option value="">{translations.select_option}</option>
+                <option value="year">{translations.year}</option>
+                <option value="month">{translations.month}</option>
+                <option value="day">{translations.day}</option>
+                {columns}
+            </select>
+        )
+    }
 
     buildSelectList () {
         let columns = null
@@ -223,7 +241,11 @@ export default class Report extends React.Component {
     }
 
     handleInputChanges (e) {
-        this.setState({ group_by: e.target.value }, () => {
+        this.setState({ group_by: e.target.value, group_by_frequency: '' }, () => {
+            if((this.state.group_by === 'date' || this.state.group_by === 'due_date') && !this.state.group_by_frequency.length) {
+                return true 
+            }
+
             this.reload()
         })
     }
@@ -233,7 +255,7 @@ export default class Report extends React.Component {
     }
 
     loadPage (page) {
-        const { perPage, orderByField, orderByDirection, report_type, group_by, start_date, end_date, date_format, manual_date_field } = this.state
+        const { perPage, orderByField, orderByDirection, report_type, group_by, start_date, end_date, date_format, manual_date_field, group_by_frequency } = this.state
 
         this.setState(
             { loading: true },
@@ -250,7 +272,8 @@ export default class Report extends React.Component {
                         start_date,
                         end_date,
                         date_format,
-                        manual_date_field
+                        manual_date_field,
+                        group_by_frequency,
                     }
 
                 }).then(({ data: response }) => {
@@ -447,6 +470,12 @@ export default class Report extends React.Component {
                                     {this.buildSelectList()}
                                 </div>
 
+                                {this.state.group_by === 'date' || this.state.group_by === 'due_date' &&
+                                <div className="col-md-3 col-sm-12 mt-2">
+                                    {this.buildFrequencyList()}
+                                </div>
+                                }
+
                                 <Collapse isOpen={this.state.date_container_open}>
                                     <FormGroup>
                                         <Label for="due_date">{translations.start_date}</Label>
@@ -521,6 +550,11 @@ export default class Report extends React.Component {
                             <div className="card-body">
                                 <label>{translations.group}</label>
                                 {this.buildSelectList()}
+
+                                {this.state.group_by === 'date' || this.state.group_by === 'due_date' &&
+                                <label>{translations.frequency}</label>
+                                {this.buildFrequencyList()}
+                                }
                             </div>
                         </div>
                     </div>
