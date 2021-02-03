@@ -35,15 +35,14 @@ export default class TableSort extends Component {
     }
 
     columnHead (value) {
-        const formattedValue = this.props.columnMapping && this.props.columnMapping[value] !== undefined ? this.props.columnMapping[value] : value.split('_').join(' ').toUpperCase()
-        return formattedValue
+        return this.props.columnMapping && this.props.columnMapping[value] !== undefined ? this.props.columnMapping[value] : value.split('_').join(' ').toUpperCase()
     }
 
     sortByColumn (column) {
         if (column === this.props.sorted_column) {
-            this.props.order === 'asc' ? this.props.sortBy(column, 'desc') : this.props.fetchEntities(column, 'asc')
+            this.props.order === 'asc' ? this.props.sortBy(column, 'desc') : this.props.sortBy(column, 'asc')
         } else {
-            this.props.fetchEntities(column, 'asc')
+            this.props.sortBy(column, 'asc')
         }
     }
 

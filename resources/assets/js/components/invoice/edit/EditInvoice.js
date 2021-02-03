@@ -314,38 +314,42 @@ class EditInvoice extends Component {
             modalOpen: !this.state.modalOpen,
             errors: []
         }, () => {
-            if (!this.state.modalOpen && !this.state.id) {
-                this.setState({
-                    changesMade: false,
-                    public_notes: '',
-                    tax: null,
-                    tax_rate_name: '',
-                    tax_rate_name_2: '',
-                    tax_rate_name_3: '',
-                    tax_2: null,
-                    tax_3: null,
-                    private_notes: '',
-                    transaction_fee: null,
-                    shipping_cost: null,
-                    gateway_fee: null,
-                    gateway_percentage: false,
-                    transaction_fee_tax: null,
-                    shipping_cost_tax: null,
-                    custom_value1: '',
-                    custom_value2: '',
-                    custom_value3: '',
-                    custom_value4: '',
-                    terms: '',
-                    footer: '',
-                    partial: 0,
-                    partial_due_date: null,
-                    invoice_id: null,
-                    customer_id: null,
-                    company_id: null,
-                    status_id: null,
-                    line_items: [],
-                    invitations: []
-                }, () => localStorage.removeItem('invoiceForm'))
+            if (!this.state.modalOpen) {
+                if (!this.state.id) {
+                    this.setState({
+                        changesMade: false,
+                        public_notes: '',
+                        tax: null,
+                        tax_rate_name: '',
+                        tax_rate_name_2: '',
+                        tax_rate_name_3: '',
+                        tax_2: null,
+                        tax_3: null,
+                        private_notes: '',
+                        transaction_fee: null,
+                        shipping_cost: null,
+                        gateway_fee: null,
+                        gateway_percentage: false,
+                        transaction_fee_tax: null,
+                        shipping_cost_tax: null,
+                        custom_value1: '',
+                        custom_value2: '',
+                        custom_value3: '',
+                        custom_value4: '',
+                        terms: '',
+                        footer: '',
+                        partial: 0,
+                        partial_due_date: null,
+                        invoice_id: null,
+                        customer_id: null,
+                        company_id: null,
+                        status_id: null,
+                        line_items: [],
+                        invitations: []
+                    })
+                }
+
+                localStorage.removeItem('invoiceForm')
             }
         })
     }

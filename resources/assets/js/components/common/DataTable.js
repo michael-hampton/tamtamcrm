@@ -250,38 +250,42 @@ export default class DataTable extends Component {
         }, {})
     }
 
-    sortBy (order, column) {
-        if(column === 'customer_id' && this.props.customers) {
-            const sorted = this.sortArray(this.props.customers, 'name', this.state.data, 'customer_id')
+    sortBy (column, order) {
+        let sorted = []
+
+        if (column === 'customer_id' && this.props.customers) {
+            sorted = this.sortArray(this.props.customers, 'name', this.state.data, 'customer_id', order)
         } else {
-            const sorted = this.state.data.sort((a, b) => b[column] - a[column])
-        }
-       
-        this.setState({order: order, data: sorted, sorted_column: column }, () => {
-            this.props.updateState(data)
+            sorted = order === 'asc' ? this.state.data.sort((a, b) => a[column] - b[column]) : this.state.data.sort((a, b) => b[column] - a[column])
+        }git add
+
+        this.setState({ order: order, data: sorted, entities: sorted, sorted_column: column }, () => {
+            this.props.updateState(sorted)
             this.buildColumnList()
         })
     }
 
-    sortArray (sorted_array, key_to_sort, array_to_sort, filter_key) {
-        sorted_array.sort((a, b) => a[key_to_sort].localeCompare(b[key_to_sort]))
+    sortArray (sorted_array, key_to_sort, array_to_sort, filter_key, order = 'asc') {
+        if (order === 'asc') {
+            sorted_array.sort((a, b) => a[key_to_sort].localeCompare(b[key_to_sort]))
+        } else {
+            sorted_array.sort((a, b) => b[key_to_sort].localeCompare(a[key_to_sort]))
+        }
 
-        console.log(sorted_array)
+        const mapped = sorted_array.map(item => {
+            return item.id
+        })
 
-        const mapped = sorted_array.map(item => { return item.id })
+        return array_to_sort.sort(function (a, b) {
+            var A = a[filter_key]
+            var B = b[filter_key]
 
-        console.log(mapped);
- 
-        const arrayMap = array_to_sort.reduce(
-            (accumulator, currentValue) => ({
-                ...accumulator,
-                [currentValue[filter_key]]: currentValue,
-            }),
-            {}
-        )
-
-       return mapped.map(key => arrayMap[key])
-
+            if (mapped.indexOf(A) > mapped.indexOf(B)) {
+                return 1
+            } else {
+                return -1
+            }
+        })
     }
 
     fetchEntities (pageNumber = false, order = false, sorted_column = false) {

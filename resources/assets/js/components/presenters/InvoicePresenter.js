@@ -23,8 +23,6 @@ export function getDefaultTableFields () {
 export default function InvoicePresenter (props) {
     const { field, entity } = props
 
-    console.log('entity', entity)
-
     const objInvoiceModel = new InvoiceModel(entity, props.customers)
     const is_late = objInvoiceModel.isLate()
     const is_viewed = objInvoiceModel.isViewed
