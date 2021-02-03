@@ -73,6 +73,35 @@ class BaseSearch
         }
     }
 
+    protected function addGroupBy($request)
+    {
+        $group_by = $request->input('group_by');
+        $frequency = $request->input('group_by_frequency');
+
+        if(empty($frequency)) {
+            $this->query->groupBy($group_by);
+            return true;
+        }
+         
+        switch($frequency) {
+                case 'year':
+                    $this->query->groupBy(DB::raw("YEAR(created_at)"));
+                break;
+
+                case 'month'
+                    $this->query->groupBy(DB::raw("MONTH(created_at)"));
+                break;
+
+                case 'day'
+                    $this->query->groupBy($field));
+                break;
+  
+                default:
+                    $this->query->groupBy($group_by);
+                break:
+            }
+    }
+
     protected function orderBy($orderBy, $orderDir)
     {
         $this->query->orderBy($orderBy, $orderDir);
