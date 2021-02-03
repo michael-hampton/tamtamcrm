@@ -506,12 +506,16 @@ class DynamicDataTable extends Component {
 
         return <th>
             <Typeahead
+                minLength={0}
+                clearButton={true}
+                delay={1000}
                 onChange={(selected) => {
                     const value = selected.join()
+                    alert('mike')
                     this.props.handleColumnFilter(value || '', column)
                 }}
-                onSearch={(test) => {
-                    console.log('test', test)
+                onSearch={(value) => {
+                    this.props.handleColumnFilter(value || '', column)
                 }}
                 options={Array.from(column_values)}
             />

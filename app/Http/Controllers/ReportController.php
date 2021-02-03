@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Components\Reports\IncomeReport;
 use App\Components\Reports\LineItemReport;
 use App\Components\Reports\TaxReport;
 use App\Models\Credit;
@@ -200,12 +201,17 @@ class ReportController extends Controller
                 );
                 break;
             case 'line_item':
-                $line_item_report = (new LineItemReport())->build($request);
+                $line_item_report = (new LineItemReport())->build($request, auth()->user()->account_user()->account);
                 $report = $line_item_report['report'];
                 $currency_report = $line_item_report['currency_report'];
                 break;
             case 'tax_rate':
-                $line_item_report = (new TaxReport())->build($request);
+                $line_item_report = (new TaxReport())->build($request, auth()->user()->account_user()->account);
+                $report = $line_item_report['report'];
+                $currency_report = $line_item_report['currency_report'];
+                break;
+            case 'income':
+                $line_item_report = (new IncomeReport())->build($request, auth()->user()->account_user()->account);
                 $report = $line_item_report['report'];
                 $currency_report = $line_item_report['currency_report'];
                 break;

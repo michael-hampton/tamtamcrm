@@ -863,7 +863,11 @@ _localizedValues.en = {
     line_items: 'Line Items',
     line_item: 'Line Item',
     age: 'Age',
-    tax_rate: 'Tax Rate'
+    tax_rate: 'Tax Rate',
+    income: 'Profit & Loss',
+    shipping_address1: 'Shipping Address 1',
+    shipping_address2: 'Shipping Address 2',
+    company_country: 'Company Country'
 }
 
 let language = []

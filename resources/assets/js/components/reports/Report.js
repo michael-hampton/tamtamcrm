@@ -39,6 +39,7 @@ export default class Report extends React.Component {
             disallowOrderingBy: [],
             checkedItems: new Map(),
             groups: {
+                income: [{ field: 'company_id', label: 'company' }, { field: 'customer_id', label: 'customer' }],
                 customer: [{ field: 'currency_id', label: 'currency' }, { field: 'country_id', label: 'country' }],
                 invoice: [{ field: 'customer_id', label: 'customer' }, { field: 'invoices.status_id', label: 'status' }],
                 credit: [{ field: 'customer_id', label: 'customer' }, { field: 'credits.status_id', label: 'status' }],
@@ -68,20 +69,8 @@ export default class Report extends React.Component {
                 line_item: [{ field: 'product', label: 'product' }, { field: 'invoice', label: 'invoice' }],
                 tax_rate: [{ field: 'number', label: 'number' }, { field: 'tax_name', label: 'name' }]
             },
-            date_fields: {
-                customer: [],
-                line_item: ['date'],
-                tax_rate: ['date'],
-                invoice: ['date', 'due_date'],
-                credit: ['date', 'due_date'],
-                quote: ['date', 'due_date'],
-                purchase_order: ['date', 'due_date'],
-                order: ['date', 'due_date'],
-                lead: [],
-                deal: ['due_date'],
-                task: ['due_date'],
-                expense: ['date'],
-                payment: ['date']
+            ignored_columns: {
+                income: ['address_1', 'address_2', 'shipping_address1', 'shipping_address2', 'town', 'city', 'company_country']
             },
             all_columns: [],
             apiUrl: '/api/reports',
@@ -168,7 +157,7 @@ export default class Report extends React.Component {
         }
 
         const cached_data = !this.state.cached_data.length ? this.state.rows : this.state.cached_data
-        const rows = this.state.rows.filter(row => row[column].toString().toLowerCase().trim().includes(value.toLowerCase().trim()))
+        const rows = cached_data.filter(row => row[column].toString().toLowerCase().trim().includes(value.toLowerCase().trim()))
 
         if (!rows.length) {
             alert('No search results')
@@ -233,36 +222,6 @@ export default class Report extends React.Component {
         )
     }
 
-    buildDateOptions (header) {
-        let columns = null
-        if (!this.state.report_type.length || !this.state.date_fields[this.state.report_type].length) {
-            columns = <option value="">Loading...</option>
-        } else {
-            columns = this.state.date_fields[this.state.report_type].map((column, index) => {
-                const formatted_column = column.replace(/ /g, '_').toLowerCase()
-                const value = translations[formatted_column] ? translations[formatted_column] : column
-                return <React.Fragment>
-                    <option key={index} value={`${column}|7`}>{value} 7 days</option>
-                    <option key={index} value={`${column}|30`}>{value} 30 days</option>
-                    <option key={index} value={`${column}|last_month`}>{value} Last Month</option>
-                    <option key={index} value={`${column}|last_year`}>{value} Last Year</option>
-                </React.Fragment>
-            })
-        }
-
-        return (
-            <select className="form-control w-100" onChange={(e) => {
-                this.setState({ date_format: e.target.value }, () => {
-                    this.loadPage(1)
-                })
-            }}
-            name={header} id={header}>
-                <option value="">{translations.select_option}</option>
-                {columns}
-            </select>
-        )
-    }
-
     handleInputChanges (e) {
         this.setState({ group_by: e.target.value }, () => {
             this.reload()
@@ -306,7 +265,9 @@ export default class Report extends React.Component {
                     var map = new Map()
 
                     if (report.data.length) {
-                        Object.keys(report.data[0]).map((column, index) => {
+                        Object.keys(report.data[0]).filter((column) => {
+                            return !this.state.ignored_columns[report_type] || !this.state.ignored_columns[report_type].includes(column)
+                        }).map((column, index) => {
                             map.set(column, true)
                         })
                         console.log('new map', map)
@@ -478,6 +439,7 @@ export default class Report extends React.Component {
                                         <option value="payment">{translations.payment}</option>
                                         <option value="line_item">{translations.line_items}</option>
                                         <option value="tax_rate">{translations.tax_rate}</option>
+                                        <option value="income">{translations.income}</option>
                                     </select>
                                 </div>
 
@@ -548,6 +510,7 @@ export default class Report extends React.Component {
                                     <option value="payment">{translations.payment}</option>
                                     <option value="line_item">{translations.line_items}</option>
                                     <option value="tax_rate">{translations.tax_rate}</option>
+                                    <option value="income">{translations.income}</option>
                                 </select>
                             </div>
                         </div>
@@ -706,7 +669,7 @@ export default class Report extends React.Component {
                                         clearSearch={this.clearSearch.bind(this)}
                                         search_filters={this.state.filtered_value}
                                         setDateFormat={this.setDateFormat.bind(this)}
-                                        date_format={this.state.date_format}
+                                        date_format={this.state.manual_date_field.length ? 'manual' : this.state.date_format}
                                     />
 
                                 </div>

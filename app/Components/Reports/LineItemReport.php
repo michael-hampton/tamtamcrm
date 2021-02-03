@@ -4,6 +4,7 @@
 namespace App\Components\Reports;
 
 
+use App\Models\Account;
 use App\Models\Currency;
 use App\Models\Invoice;
 use App\Models\Product;
@@ -12,9 +13,9 @@ use Illuminate\Http\Request;
 
 class LineItemReport
 {
-    public function build(Request $request)
+    public function build(Request $request, Account $account)
     {
-        $invoices = Invoice::where('account_id', auth()->user()->account_user()->account_id)->get();
+        $invoices = Invoice::where('account_id', $account->id)->get();
 
         if (!empty($request->input('start_date')) && !empty($request->input('end_date'))) {
             $start = date("Y-m-d", strtotime($request->input('start_date')));
@@ -22,7 +23,7 @@ class LineItemReport
             $invoices = $invoices->whereBetween('date', [$start, $end]);
         }
 
-        $products = Product::where('account_id', auth()->user()->account_user()->account_id)->get()->keyBy('id');
+        $products = Product::where('account_id', $account->id)->get()->keyBy('id');
         $currencies = Currency::get()->keyBy('id');
 
         $groups = [];
