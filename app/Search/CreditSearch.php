@@ -131,8 +131,10 @@ class CreditSearch extends BaseSearch
                 DB::raw(
                     'count(*) as count, customers.name AS customer, SUM(total) as total, SUM(credits.balance) AS balance, credits.status_id AS status'
                 )
-            )
-                        ->groupBy($request->input('group_by'));
+            );
+
+           $this->addGroupBy($request);
+                   
         } else {
             $this->query->select(
                 'customers.name AS customer',
