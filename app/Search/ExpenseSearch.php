@@ -137,8 +137,9 @@ class ExpenseSearch extends BaseSearch
                 DB::raw(
                     'count(*) as count, customers.name AS customer, companies.name AS company, expense_categories.name AS category, SUM(amount) as amount, expenses.status_id AS status'
                 )
-            )
-                        ->groupBy($request->input('group_by'));
+            );
+            
+            $this->addGroupBy($request);
         } else {
             $this->query->select('customers.name AS customer', 'companies.name AS company', 'expense_categories.name AS category', 'invoices.number AS invoice', 'amount', 'expenses.number', 'expenses.date', 'expenses.status_id AS status');
         }
