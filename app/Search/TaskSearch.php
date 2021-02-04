@@ -164,7 +164,12 @@ class TaskSearch extends BaseSearch
         } else {
             $this->query->select(
                 'customers.name AS customer', 'task_statuses.name AS status', 'projects.name AS project', 'timers.started_at', 'timers.stopped_at', 'tasks.name', 'tasks.description', 'tasks.due_date',
-                DB::raw('CONCAT(first_name," ",last_name) as assigned_to')
+                DB::raw('CONCAT(first_name," ",last_name) as assigned_to'),
+                DB::raw('CONCAT(LPad(FLOOR(TIMESTAMPDIFF(SECOND, timers.started_at, timers.stopped_at) / 86400), 2, 0), " days ",
+                         LPad(FLOOR((TIMESTAMPDIFF(SECOND, timers.started_at, timers.stopped_at) % 86400)/3600),  2, 0), " hours ",
+                         LPad(FLOOR((TIMESTAMPDIFF(SECOND, timers.started_at, timers.stopped_at) % 3600)/60),  2, 0), " minutes ",
+                         LPad(TIMESTAMPDIFF(SECOND, timers.started_at, timers.stopped_at) % 60),  2, 0), " seconds"
+                         ) AS duration')
             );
         }
 
