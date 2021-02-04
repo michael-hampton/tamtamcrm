@@ -41,7 +41,8 @@ class IncomeReport
                 'countries.name AS company_country',
                 DB::raw("CONCAT('-', expenses.amount) AS amount"),
                 'expenses.date',
-                //DB::raw("'expense' as type")
+                'expense_categories.name AS category',
+                DB::raw("'expense' as type")
             );
         }
 
@@ -50,6 +51,7 @@ class IncomeReport
                       ->leftJoin('addresses AS shipping', 'shipping.customer_id', '=', 'customers.id')
                       ->leftJoin('companies', 'expenses.company_id', '=', 'companies.id')
                       ->leftJoin('countries', 'companies.country_id', '=', 'countries.id')
+                      ->leftJoin('expense_categories', 'expense_categories.id', '=', 'expenses.expense_category_id')
                       ->where('billing.address_type', '=', 1)
                       ->where('shipping.address_type', '=', 2)
                       ->where('expenses.account_id', '=', $account->id);
@@ -79,7 +81,8 @@ class IncomeReport
                 'countries.name AS company_country',
                 'payments.amount',
                 'payments.date',
-                //DB::raw("'payment' as type")
+                DB::raw("'' as category")
+                DB::raw("'payment' as type")
             );
         }
 
