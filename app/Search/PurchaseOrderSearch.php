@@ -127,12 +127,31 @@ class PurchaseOrderSearch extends BaseSearch
         $this->query = DB::table('purchase_orders');
 
         if (!empty($request->input('group_by'))) {
-            $this->query->select(
-                DB::raw('count(*) as count, companies.name AS company, SUM(total) as total, SUM(purchase_orders.balance) AS balance, purchase_orders.status_id AS status')
-            )
-                        ->groupBy($request->input('group_by'));
+            if (in_array($request->input('group_by'), ['date', 'due_date']) && !empty(
+                $request->input(
+                    'group_by_frequency'
+                )
+                )) {
+                $this->addMonthYearToSelect('purchase_orders', $request->input('group_by'));
+            }
+
+            $this->query->addSelect(
+                DB::raw(
+                    'count(*) as count, companies.name AS company, SUM(total) as total, SUM(purchase_orders.balance) AS balance, purchase_orders.status_id AS status'
+                )
+            );
+
+            $this->addGroupBy('purchase_orders', $request->input('group_by'), $request->input('group_by_frequency'));
         } else {
-            $this->query->select('companies.name AS company', 'total', 'purchase_orders.number', 'purchase_orders.balance', 'date', 'due_date', 'purchase_orders.status_id AS status');
+            $this->query->select(
+                'companies.name AS company',
+                'total',
+                'purchase_orders.number',
+                'purchase_orders.balance',
+                'date',
+                'due_date',
+                'purchase_orders.status_id AS status'
+            );
         }
 
         $this->query->join('companies', 'companies.id', '=', 'purchase_orders.company_id')
@@ -161,9 +180,10 @@ class PurchaseOrderSearch extends BaseSearch
             $rows[$key]->status = $this->getStatus($this->model, $row->status);
         }
 
-        if($order_by === 'status') {
+        if ($order_by === 'status') {
             $collection = collect($rows);
-            $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby('status')->toArray() : $collection->sortByDesc('status')->toArray();
+            $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby('status')->toArray(
+            ) : $collection->sortByDesc('status')->toArray();
         }
 
         if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {

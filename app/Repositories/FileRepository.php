@@ -24,6 +24,11 @@ class FileRepository extends BaseRepository implements FileRepositoryInterface
         $this->model = $file;
     }
 
+    public function getModel()
+    {
+        return $this->model;
+    }
+
     /**
      * @param array $data
      *

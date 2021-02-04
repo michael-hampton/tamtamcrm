@@ -131,13 +131,23 @@ class InvoiceSearch extends BaseSearch
         $this->query = DB::table('invoices');
 
         if (!empty($request->input('group_by'))) {
-            $this->query->select(
+
+            if (in_array($request->input('group_by'), ['date', 'due_date']) && !empty(
+                $request->input(
+                    'group_by_frequency'
+                )
+                )) {
+
+                $this->addMonthYearToSelect('invoices', $request->input('group_by'));
+            }
+
+            $this->query->addSelect(
                 DB::raw(
                     'count(*) as count, customers.name AS customer, SUM(total) as total, SUM(invoices.balance) AS balance, invoices.status_id AS status'
                 )
             );
-            
-            $this->addGroupBy($request);
+
+            $this->addGroupBy('invoices', $request->input('group_by'), $request->input('group_by_frequency'));
         } else {
             $this->query->select(
                 'customers.name AS customer',
@@ -178,9 +188,10 @@ class InvoiceSearch extends BaseSearch
             $rows[$key]->status = $this->getStatus($this->model, $row->status);
         }
 
-        if($order_by === 'status') {
+        if ($order_by === 'status') {
             $collection = collect($rows);
-            $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby('status')->toArray() : $collection->sortByDesc('status')->toArray();
+            $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby('status')->toArray(
+            ) : $collection->sortByDesc('status')->toArray();
         }
 
         if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {

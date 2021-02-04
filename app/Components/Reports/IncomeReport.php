@@ -81,7 +81,7 @@ class IncomeReport
                 'countries.name AS company_country',
                 'payments.amount',
                 'payments.date',
-                DB::raw("'' as category")
+                DB::raw("'' as category"),
                 DB::raw("'payment' as type")
             );
         }

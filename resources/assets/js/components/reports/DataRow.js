@@ -125,8 +125,12 @@ class DataRow extends Component {
             return <FormatMoney amount={value} />
         }
 
-        if (['date', 'due_date'].includes(name)) {
+        if (['date', 'due_date', 'created_at'].includes(name)) {
             return <FormatDate date={value} />
+        }
+
+        if (name === 'record_type') {
+            return value.replace('App\\Models\\', '')
         }
 
         return value

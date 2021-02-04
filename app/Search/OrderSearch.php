@@ -131,10 +131,21 @@ class OrderSearch extends BaseSearch
         $this->query = DB::table('product_task');
 
         if (!empty($request->input('group_by'))) {
-            $this->query->select(
+
+            if (in_array($request->input('group_by'), ['date', 'due_date']) && !empty(
+                $request->input(
+                    'group_by_frequency'
+                )
+                )) {
+
+                $this->addMonthYearToSelect('product_task', $request->input('group_by'));
+            }
+
+            $this->query->addSelect(
                 DB::raw('count(*) as count, customers.name AS customer, SUM(total) as total, SUM(product_task.balance) AS balance, product_task.status_id AS status')
-            )
-                        ->groupBy($request->input('group_by'));
+            );
+
+            $this->addGroupBy('product_task', $request->input('group_by'), $request->input('group_by_frequency'));
         } else {
             $this->query->select('customers.name AS customer', 'total', 'product_task.number', 'product_task.balance', 'date', 'due_date', 'product_task.status_id AS status');
         }

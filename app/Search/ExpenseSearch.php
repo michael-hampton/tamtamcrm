@@ -133,13 +133,23 @@ class ExpenseSearch extends BaseSearch
         $this->query = DB::table('expenses');
 
         if (!empty($request->input('group_by'))) {
-            $this->query->select(
+
+            if (in_array($request->input('group_by'), ['date', 'due_date']) && !empty(
+                $request->input(
+                    'group_by_frequency'
+                )
+                )) {
+
+                $this->addMonthYearToSelect('expenses', $request->input('group_by'));
+            }
+
+            $this->query->addSelect(
                 DB::raw(
                     'count(*) as count, customers.name AS customer, companies.name AS company, expense_categories.name AS category, SUM(amount) as amount, expenses.status_id AS status'
                 )
             );
-            
-            $this->addGroupBy($request);
+
+            $this->addGroupBy('expenses', $request->input('group_by'), $request->input('group_by_frequency'));
         } else {
             $this->query->select('customers.name AS customer', 'companies.name AS company', 'expense_categories.name AS category', 'invoices.number AS invoice', 'amount', 'expenses.number', 'expenses.date', 'expenses.status_id AS status');
         }
@@ -189,7 +199,6 @@ class ExpenseSearch extends BaseSearch
         }
 
         return $rows;
-        //$this->query->where('status', '<>', 1)
 
     }
 

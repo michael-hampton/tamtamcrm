@@ -42,11 +42,26 @@ export default class Report extends React.Component {
             groups: {
                 income: [{ field: 'company_id', label: 'company' }, { field: 'customer_id', label: 'customer' }],
                 customer: [{ field: 'currency_id', label: 'currency' }, { field: 'country_id', label: 'country' }],
-                invoice: [{ field: 'customer_id', label: 'customer' }, { field: 'date', label: 'date' }, { field: 'due_date', label: 'due_date' }, { field: 'invoices.status_id', label: 'status' }],
-                credit: [{ field: 'customer_id', label: 'customer' }, { field: 'date', label: 'date' }, { field: 'due_date', label: 'due_date' }, { field: 'credits.status_id', label: 'status' }],
-                quote: [{ field: 'customer_id', label: 'customer' }, { field: 'date', label: 'date' }, { field: 'due_date', label: 'due_date' }, { field: 'quotes.status_id', label: 'status' }],
-                purchase_order: [{ field: 'company_id', label: 'company' }, { field: 'date', label: 'date' }, { field: 'due_date', label: 'due_date' }, { field: 'purchase_orders.status_id', label: 'status' }],
-                order: [{ field: 'customer_id', label: 'customer' }, { field: 'date', label: 'date' }, { field: 'due_date', label: 'due_date' }, { field: 'product_task.status_id', label: 'status' }],
+                invoice: [{ field: 'customer_id', label: 'customer' }, {
+                    field: 'date',
+                    label: 'date'
+                }, { field: 'due_date', label: 'due_date' }, { field: 'invoices.status_id', label: 'status' }],
+                credit: [{ field: 'customer_id', label: 'customer' }, {
+                    field: 'date',
+                    label: 'date'
+                }, { field: 'due_date', label: 'due_date' }, { field: 'credits.status_id', label: 'status' }],
+                quote: [{ field: 'customer_id', label: 'customer' }, {
+                    field: 'date',
+                    label: 'date'
+                }, { field: 'due_date', label: 'due_date' }, { field: 'quotes.status_id', label: 'status' }],
+                purchase_order: [{ field: 'company_id', label: 'company' }, {
+                    field: 'date',
+                    label: 'date'
+                }, { field: 'due_date', label: 'due_date' }, { field: 'purchase_orders.status_id', label: 'status' }],
+                order: [{ field: 'customer_id', label: 'customer' }, {
+                    field: 'date',
+                    label: 'date'
+                }, { field: 'due_date', label: 'due_date' }, { field: 'product_task.status_id', label: 'status' }],
                 lead: [{ field: 'source_type', label: 'source_type' }, {
                     field: 'task_status_id',
                     label: 'status'
@@ -65,13 +80,21 @@ export default class Report extends React.Component {
                 expense: [{ field: 'customer_id', label: 'customer' }, { field: 'date', label: 'date' }, {
                     field: 'expenses.company_id',
                     label: 'company'
-                }, { field: 'expense_category_id', label: 'category' }, { field: 'expenses.status_id', label: 'status' }],
-                payment: [{ field: 'customer_id', label: 'customer' }, { field: 'date', label: 'date' }, { field: 'status_id', label: 'status' }],
+                }, { field: 'expense_category_id', label: 'category' }, {
+                    field: 'expenses.status_id',
+                    label: 'status'
+                }],
+                payment: [{ field: 'customer_id', label: 'customer' }, {
+                    field: 'date',
+                    label: 'date'
+                }, { field: 'status_id', label: 'status' }],
                 line_item: [{ field: 'product', label: 'product' }, { field: 'invoice', label: 'invoice' }],
-                tax_rate: [{ field: 'number', label: 'number' }, { field: 'tax_name', label: 'name' }]
+                tax_rate: [{ field: 'number', label: 'number' }, { field: 'tax_name', label: 'name' }],
+                document: [{ field: 'files.type', label: 'file_type' }, { field: 'files.fileable_type', label: 'record_type' }]
             },
             ignored_columns: {
-                income: ['address_1', 'address_2', 'shipping_address1', 'shipping_address2', 'town', 'city', 'company_country']
+                income: ['address_1', 'address_2', 'shipping_address1', 'shipping_address2', 'town', 'city', 'company_country'],
+                document: ['size', 'width', 'height']
             },
             all_columns: [],
             apiUrl: '/api/reports',
@@ -198,23 +221,28 @@ export default class Report extends React.Component {
     }
 
     changeImportType (e) {
-        this.setState({ [e.target.name]: e.target.value, group_by: '', date_format: '' }, () => {
+        this.setState({
+            [e.target.name]: e.target.value,
+            group_by: '',
+            date_format: '',
+            group_by_frequency: ''
+        }, () => {
             this.reload()
         })
     }
- 
+
     buildFrequencyList () {
         return (
             <select className="form-control w-100" onChange={(e) => {
-                this.setState({ group_by_frequency: e.target.value })
-                this.reload()
-             }}
-                name="group_by_frequency" id="group_by_frequency">
+                this.setState({ group_by_frequency: e.target.value }, () => {
+                    this.reload()
+                })
+            }}
+            name="group_by_frequency" id="group_by_frequency">
                 <option value="">{translations.select_option}</option>
                 <option value="year">{translations.year}</option>
                 <option value="month">{translations.month}</option>
                 <option value="day">{translations.day}</option>
-                {columns}
             </select>
         )
     }
@@ -233,7 +261,7 @@ export default class Report extends React.Component {
 
         return (
             <select className="form-control w-100" onChange={this.handleInputChanges}
-                name="report_type" id="report_type">
+                name="group_by" id="group_by" value={this.state.group_by}>
                 <option value="">{translations.select_option}</option>
                 {columns}
             </select>
@@ -242,8 +270,8 @@ export default class Report extends React.Component {
 
     handleInputChanges (e) {
         this.setState({ group_by: e.target.value, group_by_frequency: '' }, () => {
-            if((this.state.group_by === 'date' || this.state.group_by === 'due_date') && !this.state.group_by_frequency.length) {
-                return true 
+            if ((this.state.group_by === 'date' || this.state.group_by === 'due_date') && !this.state.group_by_frequency.length) {
+                return true
             }
 
             this.reload()
@@ -273,7 +301,7 @@ export default class Report extends React.Component {
                         end_date,
                         date_format,
                         manual_date_field,
-                        group_by_frequency,
+                        group_by_frequency
                     }
 
                 }).then(({ data: response }) => {
@@ -420,6 +448,10 @@ export default class Report extends React.Component {
         })
     }
 
+    isDateField (field) {
+        return ['due_date', 'date'].includes(field)
+    }
+
     render () {
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
         const { rows, currency_report, message, success_message, error_message, error, show_success, totalRows, currentPage, totalPages, orderByField, orderByDirection, disallowOrderingBy, footer, perPage } = this.state
@@ -438,6 +470,27 @@ export default class Report extends React.Component {
 
         const is_mobile = this.state.width <= 768
 
+        const report_selector = <select name="report_type" id="report_type" className="form-control"
+            value={this.state.report_type}
+            onChange={this.changeImportType.bind(this)}>
+            <option value="">{translations.select_option}</option>
+            <option value="invoice">{translations.invoice}</option>
+            <option value="customer">{translations.customer}</option>
+            <option value="lead">{translations.lead}</option>
+            <option value="deal">{translations.deal}</option>
+            <option value="task">{translations.task}</option>
+            <option value="expense">{translations.expense}</option>
+            <option value="order">{translations.order}</option>
+            <option value="credit">{translations.credit}</option>
+            <option value="quote">{translations.quote}</option>
+            <option value="purchase_order">{translations.purchase_order}</option>
+            <option value="payment">{translations.payment}</option>
+            <option value="line_item">{translations.line_items}</option>
+            <option value="tax_rate">{translations.tax_rate}</option>
+            <option value="income">{translations.income}</option>
+            <option value="document">{translations.document}</option>
+        </select>
+
         const filters = is_mobile ? <div className="row">
             <div className="col-12">
                 <div className="card mt-2">
@@ -445,35 +498,17 @@ export default class Report extends React.Component {
                         <div>
                             <div className="row">
                                 <div className="col-md-3 col-sm-12 mt-2">
-                                    <select name="report_type" id="report_type" className="form-control"
-                                        value={this.state.report_type}
-                                        onChange={this.changeImportType.bind(this)}>
-                                        <option value="">{translations.select_option}</option>
-                                        <option value="invoice">{translations.invoice}</option>
-                                        <option value="customer">{translations.customer}</option>
-                                        <option value="lead">{translations.lead}</option>
-                                        <option value="deal">{translations.deal}</option>
-                                        <option value="task">{translations.task}</option>
-                                        <option value="expense">{translations.expense}</option>
-                                        <option value="order">{translations.order}</option>
-                                        <option value="credit">{translations.credit}</option>
-                                        <option value="quote">{translations.quote}</option>
-                                        <option value="purchase_order">{translations.purchase_order}</option>
-                                        <option value="payment">{translations.payment}</option>
-                                        <option value="line_item">{translations.line_items}</option>
-                                        <option value="tax_rate">{translations.tax_rate}</option>
-                                        <option value="income">{translations.income}</option>
-                                    </select>
+                                    {report_selector}
                                 </div>
 
                                 <div className="col-md-3 col-sm-12 mt-2">
                                     {this.buildSelectList()}
                                 </div>
 
-                                {this.state.group_by === 'date' || this.state.group_by === 'due_date' &&
-                                <div className="col-md-3 col-sm-12 mt-2">
-                                    {this.buildFrequencyList()}
-                                </div>
+                                {!!this.isDateField(this.state.group_by) &&
+                                    <div className="col-md-3 col-sm-12 mt-2">
+                                        {this.buildFrequencyList()}
+                                    </div>
                                 }
 
                                 <Collapse isOpen={this.state.date_container_open}>
@@ -522,25 +557,7 @@ export default class Report extends React.Component {
                         <div className="card mt-2">
                             <div className="card-body">
                                 <label>{translations.report_type}</label>
-                                <select name="report_type" id="report_type" className="form-control"
-                                    value={this.state.report_type}
-                                    onChange={this.changeImportType.bind(this)}>
-                                    <option value="">{translations.select_option}</option>
-                                    <option value="invoice">{translations.invoice}</option>
-                                    <option value="customer">{translations.customer}</option>
-                                    <option value="lead">{translations.lead}</option>
-                                    <option value="deal">{translations.deal}</option>
-                                    <option value="task">{translations.task}</option>
-                                    <option value="expense">{translations.expense}</option>
-                                    <option value="order">{translations.order}</option>
-                                    <option value="credit">{translations.credit}</option>
-                                    <option value="quote">{translations.quote}</option>
-                                    <option value="purchase_order">{translations.purchase_order}</option>
-                                    <option value="payment">{translations.payment}</option>
-                                    <option value="line_item">{translations.line_items}</option>
-                                    <option value="tax_rate">{translations.tax_rate}</option>
-                                    <option value="income">{translations.income}</option>
-                                </select>
+                                {report_selector}
                             </div>
                         </div>
                     </div>
@@ -548,12 +565,17 @@ export default class Report extends React.Component {
                     <div className="col-md-4">
                         <div className="card mt-2">
                             <div className="card-body">
-                                <label>{translations.group}</label>
-                                {this.buildSelectList()}
+                                <FormGroup>
+                                    <label>{translations.group}</label>
+                                    {this.buildSelectList()}
+                                </FormGroup>
 
-                                {this.state.group_by === 'date' || this.state.group_by === 'due_date' &&
-                                <label>{translations.frequency}</label>
-                                {this.buildFrequencyList()}
+                                {!!this.isDateField(this.state.group_by) &&
+                                <FormGroup>
+                                    <Label>{translations.frequency}</Label>
+                                    {this.buildFrequencyList()}
+                                </FormGroup>
+
                                 }
                             </div>
                         </div>

@@ -411,6 +411,7 @@ _localizedValues.en = {
     add_payment: 'Add Payment',
     default_documents: 'Default Documents',
     documents: 'Documents',
+    document: 'Document',
     settings: 'Settings',
     notes: 'Notes',
     items: 'Items',
@@ -867,7 +868,12 @@ _localizedValues.en = {
     income: 'Profit & Loss',
     shipping_address1: 'Shipping Address 1',
     shipping_address2: 'Shipping Address 2',
-    company_country: 'Company Country'
+    company_country: 'Company Country',
+    day: 'Day',
+    month: 'Month',
+    year: 'Year',
+    file_type: 'File Type',
+    record_type: 'Record Type'
 }
 
 let language = []

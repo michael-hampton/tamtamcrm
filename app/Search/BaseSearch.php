@@ -5,6 +5,7 @@ namespace App\Search;
 use App\Models\Account;
 use App\Models\Invoice;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class BaseSearch
 {
@@ -73,33 +74,42 @@ class BaseSearch
         }
     }
 
-    protected function addGroupBy($request)
+    protected function addMonthYearToSelect($table, $field)
     {
-        $group_by = $request->input('group_by');
-        $frequency = $request->input('group_by_frequency');
+        $column = $table . '.' . $field;
+        $this->query->addSelect(
+            DB::raw(
+                "CONCAT (MONTHNAME(" . $column . "), ' ', YEAR(" . $column . ")) AS " . $field
+            )
+        );
+    }
 
-        if(empty($frequency)) {
-            $this->query->groupBy($group_by);
+    protected function addGroupBy($table, $group_by, $frequency)
+    {
+        $column = $table . '.' . $group_by;
+
+        if (empty($frequency)) {
+            $this->query->groupBy($column);
             return true;
         }
-         
-        switch($frequency) {
-                case 'year':
-                    $this->query->groupBy(DB::raw("YEAR(created_at)"));
+
+        switch ($frequency) {
+            case 'year':
+                $this->query->groupBy(DB::raw("YEAR(" . $column . ")"));
                 break;
 
-                case 'month'
-                    $this->query->groupBy(DB::raw("MONTH(created_at)"));
+            case 'month':
+                $this->query->groupBy(DB::raw("MONTH(" . $column . ")"));
                 break;
 
-                case 'day'
-                    $this->query->groupBy($field));
+            case 'day':
+                $this->query->groupBy($column);
                 break;
-  
-                default:
-                    $this->query->groupBy($group_by);
-                break:
-            }
+
+            default:
+                $this->query->groupBy($column);
+                break;
+        }
     }
 
     protected function orderBy($orderBy, $orderDir)

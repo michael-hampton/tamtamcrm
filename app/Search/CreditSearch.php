@@ -112,14 +112,14 @@ class CreditSearch extends BaseSearch
     public function buildCurrencyReport(Request $request, Account $account)
     {
         return DB::table('credits')
-                         ->select(
-                             DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance')
-                         )
-                         ->join('currencies', 'currencies.id', '=', 'credits.currency_id')
-                         ->where('currency_id', '<>', 0)
-                         ->where('account_id', '=', $account->id)
-                         ->groupBy('currency_id')
-                         ->get();
+                 ->select(
+                     DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance')
+                 )
+                 ->join('currencies', 'currencies.id', '=', 'credits.currency_id')
+                 ->where('currency_id', '<>', 0)
+                 ->where('account_id', '=', $account->id)
+                 ->groupBy('currency_id')
+                 ->get();
     }
 
     public function buildReport(Request $request, Account $account)
@@ -127,14 +127,21 @@ class CreditSearch extends BaseSearch
         $this->query = DB::table('credits');
 
         if (!empty($request->input('group_by'))) {
-            $this->query->select(
+            if (in_array($request->input('group_by'), ['date', 'due_date']) && !empty(
+                $request->input(
+                    'group_by_frequency'
+                )
+                )) {
+                $this->addMonthYearToSelect('credits', $request->input('group_by'));
+            }
+
+            $this->query->addSelect(
                 DB::raw(
                     'count(*) as count, customers.name AS customer, SUM(total) as total, SUM(credits.balance) AS balance, credits.status_id AS status'
                 )
             );
 
-           $this->addGroupBy($request);
-                   
+            $this->addGroupBy('credits', $request->input('group_by'), $request->input('group_by_frequency'));
         } else {
             $this->query->select(
                 'customers.name AS customer',
@@ -173,9 +180,10 @@ class CreditSearch extends BaseSearch
             $rows[$key]->status = $this->getStatus($this->model, $row->status);
         }
 
-        if($order_by === 'status') {
+        if ($order_by === 'status') {
             $collection = collect($rows);
-            $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby('status')->toArray() : $collection->sortByDesc('status')->toArray();
+            $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby('status')->toArray(
+            ) : $collection->sortByDesc('status')->toArray();
         }
 
         if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {

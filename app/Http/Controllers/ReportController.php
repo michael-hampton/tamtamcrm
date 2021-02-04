@@ -9,6 +9,7 @@ use App\Models\Credit;
 use App\Models\Customer;
 use App\Models\Deal;
 use App\Models\Expense;
+use App\Models\File;
 use App\Models\Invoice;
 use App\Models\Lead;
 use App\Models\Order;
@@ -21,6 +22,7 @@ use App\Repositories\CreditRepository;
 use App\Repositories\CustomerRepository;
 use App\Repositories\DealRepository;
 use App\Repositories\ExpenseRepository;
+use App\Repositories\FileRepository;
 use App\Repositories\Interfaces\CustomerRepositoryInterface;
 use App\Repositories\Interfaces\TaskRepositoryInterface;
 use App\Repositories\InvoiceRepository;
@@ -34,6 +36,7 @@ use App\Repositories\TaskRepository;
 use App\Search\CreditSearch;
 use App\Search\CustomerSearch;
 use App\Search\DealSearch;
+use App\Search\DocumentSearch;
 use App\Search\ExpenseSearch;
 use App\Search\InvoiceSearch;
 use App\Search\LeadSearch;
@@ -151,6 +154,13 @@ class ReportController extends Controller
                 );
 
                 $currency_report = (new OrderSearch(new OrderRepository(new Order())))->buildCurrencyReport(
+                    $request,
+                    auth()->user()->account_user()->account
+                );
+                break;
+
+            case 'document':
+                $report = (new DocumentSearch(new FileRepository(new File())))->buildReport(
                     $request,
                     auth()->user()->account_user()->account
                 );
