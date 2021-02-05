@@ -496,6 +496,12 @@ export default class Report extends React.Component {
         return ['due_date', 'date'].includes(field)
     }
 
+    arrayColumn(array, columnName) {
+        return array.map(function(value,index) {
+            return value[columnName];
+        })
+    }
+
     render () {
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
         const { rows, currency_report, message, success_message, error_message, error, show_success, totalRows, currentPage, totalPages, orderByField, orderByDirection, disallowOrderingBy, footer, perPage } = this.state
@@ -513,7 +519,10 @@ export default class Report extends React.Component {
         }) : null
 
         let chart = null
-        if(this.state.chart_type.length && this.state.group_by.length) {
+        if(this.state.chart_type.length && this.state.group_by.length && this.state.rows.length) {
+            const labels = this.arrayColumn(this.state.rows, this.state.group_by)
+            const chart_values = this.arrayColumn(this.state.rows, this.state.chart_type)
+
             const chart_data = {
                 labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
                 datasets: [
@@ -528,7 +537,7 @@ export default class Report extends React.Component {
                     }
                 ]
             };
-
+ 
             chart =  <Bar
                 data={data}
                 width={100}
