@@ -873,7 +873,8 @@ _localizedValues.en = {
     month: 'Month',
     year: 'Year',
     file_type: 'File Type',
-    record_type: 'Record Type'
+    record_type: 'Record Type',
+    chart: 'Chart'
 }
 
 let language = []

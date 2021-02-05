@@ -57,7 +57,7 @@ class BaseSearch
     protected function filterByDate($params, $column = '')
     {
         $params = explode('|', $params);
-        $field = !empty($column) ? $column . '.' . $params[0] : $params['0'];
+        $field = !empty($column) ? $column . '.' . $params[0] : $params[0];
 
         switch ($params[1]) {
             case 'last_month':

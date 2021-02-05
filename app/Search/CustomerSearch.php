@@ -139,7 +139,7 @@ class CustomerSearch extends BaseSearch
         if (!empty($request->input('group_by'))) {
             $this->query->select(
                 DB::raw(
-                    'count(*) as count, name, currencies.name AS currency, SUM(amount_paid) AS amount_paid, SUM(balance) AS balance, CONCAT(first_name," ",last_name) as contact'
+                    'count(*) as count, customers.name, currencies.name AS currency, SUM(amount_paid) AS amount_paid, SUM(balance) AS balance, CONCAT(first_name," ",last_name) as contact'
                 )
             )
                         ->groupBy($request->input('group_by'));

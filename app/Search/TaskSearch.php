@@ -159,8 +159,63 @@ class TaskSearch extends BaseSearch
                 DB::raw(
                     'count(*) as count, customers.name AS customer, task_statuses.name AS status, projects.name AS project, CONCAT(users.first_name," ",users.last_name) as assigned_to'
                 )
-            )
-                        ->groupBy($request->input('group_by'));
+            );
+
+            $this->query->addSelect(
+                DB::raw(
+                    "    CONCAT(
+        LPAD(
+            HOUR(
+                SEC_TO_TIME(
+                    SUM(
+                        TIMESTAMPDIFF(
+                            SECOND,
+                            timers.started_at,
+                            timers.stopped_at
+                        )
+                    )
+                )
+            ),
+            2,
+            0
+        ),
+        ':',
+        LPAD(
+            MINUTE(
+                SEC_TO_TIME(
+                    SUM(
+                        TIMESTAMPDIFF(
+                            SECOND,
+                            timers.started_at,
+                            timers.stopped_at
+                        )
+                    )
+                )
+            ),
+            2,
+            0
+        ),
+        ':',
+        LPAD(
+            SECOND(
+                SEC_TO_TIME(
+                    SUM(
+                        TIMESTAMPDIFF(
+                            SECOND,
+                            timers.started_at,
+                            timers.stopped_at
+                        )
+                    )
+                )
+            ),
+            2,
+            0
+        )
+    ) AS duration"
+                )
+            );
+
+            $this->query->groupBy($request->input('group_by'));
         } else {
             $this->query->select(
                 'customers.name AS customer',
@@ -240,13 +295,20 @@ class TaskSearch extends BaseSearch
         } elseif ($order === 'stopped_at') {
             $this->query->orderBy('timers.stopped_at', $request->input('orderByDirection'));
         } elseif ($order === 'duration') {
-            $this->query->orderByRaw('FLOOR(TIMESTAMPDIFF(MINUTE, timers.started_at, timers.stopped_at)/60) ' . $request->input('orderByDirection'));
+            $this->query->orderByRaw(
+                'FLOOR(TIMESTAMPDIFF(MINUTE, timers.started_at, timers.stopped_at)/60) ' . $request->input(
+                    'orderByDirection'
+                )
+            );
         } else {
             $this->query->orderBy('tasks.' . $order, $request->input('orderByDirection'));
         }
 
         if (!empty($request->input('date_format'))) {
-            $this->filterByDate($request->input('date_format'), 'tasks');
+            $params = explode('|', $request->input('date_format'));
+            $table = in_array($params[0], ['started_at', 'stopped_at']) ? 'timers' : 'tasks';
+
+            $this->filterByDate($request->input('date_format'), $table);
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {

@@ -498,7 +498,7 @@ class DynamicDataTable extends Component {
     renderColumnFilter (column) {
         const column_values = [...new Set(this.props.rows.map(row => row[column]))]
 
-        const date_fields = ['date', 'due_date']
+        const date_fields = ['date', 'due_date', 'started_at', 'stopped_at']
 
         if (date_fields.includes(column)) {
             return <th>{this.buildDateOptions(column)}</th>

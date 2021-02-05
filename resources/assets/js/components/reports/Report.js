@@ -7,7 +7,14 @@ import { icons } from '../utils/_icons'
 import DynamicDataTable from './DynamicDataTable'
 import { download, generateCsv } from './_utilities'
 import Datepicker from '../common/Datepicker'
-import {Bar} from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2'
+import { getStyle, hexToRgba } from '@coreui/coreui/dist/js/coreui-utilities'
+
+const brandPrimary = getStyle('--primary')
+const brandSuccess = getStyle('--success')
+const brandInfo = getStyle('--info')
+const brandWarning = getStyle('--warning')
+const brandDanger = getStyle('--danger')
 
 export default class Report extends React.Component {
     constructor (props) {
@@ -47,23 +54,23 @@ export default class Report extends React.Component {
                 invoice: [{ field: 'customer_id', label: 'customer' }, {
                     field: 'date',
                     label: 'date'
-                }, { field: 'due_date', label: 'due_date' }, { field: 'invoices.status_id', label: 'status' }],
+                }, { field: 'due_date', label: 'due_date' }, { field: 'status_id', label: 'status' }],
                 credit: [{ field: 'customer_id', label: 'customer' }, {
                     field: 'date',
                     label: 'date'
-                }, { field: 'due_date', label: 'due_date' }, { field: 'credits.status_id', label: 'status' }],
+                }, { field: 'due_date', label: 'due_date' }, { field: 'status_id', label: 'status' }],
                 quote: [{ field: 'customer_id', label: 'customer' }, {
                     field: 'date',
                     label: 'date'
-                }, { field: 'due_date', label: 'due_date' }, { field: 'quotes.status_id', label: 'status' }],
+                }, { field: 'due_date', label: 'due_date' }, { field: 'status_id', label: 'status' }],
                 purchase_order: [{ field: 'company_id', label: 'company' }, {
                     field: 'date',
                     label: 'date'
-                }, { field: 'due_date', label: 'due_date' }, { field: 'purchase_orders.status_id', label: 'status' }],
+                }, { field: 'due_date', label: 'due_date' }, { field: 'status_id', label: 'status' }],
                 order: [{ field: 'customer_id', label: 'customer' }, {
                     field: 'date',
                     label: 'date'
-                }, { field: 'due_date', label: 'due_date' }, { field: 'product_task.status_id', label: 'status' }],
+                }, { field: 'due_date', label: 'due_date' }, { field: 'status_id', label: 'status' }],
                 lead: [{ field: 'source_type', label: 'source_type' }, {
                     field: 'task_status_id',
                     label: 'status'
@@ -83,7 +90,7 @@ export default class Report extends React.Component {
                     field: 'expenses.company_id',
                     label: 'company'
                 }, { field: 'expense_category_id', label: 'category' }, {
-                    field: 'expenses.status_id',
+                    field: 'status_id',
                     label: 'status'
                 }],
                 payment: [{ field: 'customer_id', label: 'customer' }, {
@@ -107,8 +114,8 @@ export default class Report extends React.Component {
                 task: ['duration'],
                 expense: ['amount'],
                 payment: ['amount'],
-                line_item: [],
-                tax_rate: [],
+                line_item: ['total', 'price'],
+                tax_rate: ['tax_amount', 'tax_paid'],
                 document: []
             },
             ignored_columns: {
@@ -293,19 +300,19 @@ export default class Report extends React.Component {
             columns = <option value="">Loading...</option>
         } else {
             columns = this.state.charts[this.state.report_type].map((column, index) => {
-                const formatted_column = column.label.replace(/ /g, '_').toLowerCase()
-                const value = translations[formatted_column] ? translations[formatted_column] : column.label
-                return <option key={index} value={column.field}>{value}</option>
+                const formatted_column = column.replace(/ /g, '_').toLowerCase()
+                const value = translations[formatted_column] ? translations[formatted_column] : column
+                return <option key={index} value={column}>{value}</option>
             })
         }
 
         return (
             <select className="form-control w-100" onChange={(e) => {
-                this.setState({chart_type: e.target.value }, () => {
+                this.setState({ chart_type: e.target.value }, () => {
 
                 })
-                }}
-                name="chart_type" id="chart_type" value={this.state.chart_type}>
+            }}
+            name="chart_type" id="chart_type" value={this.state.chart_type}>
                 <option value="">{translations.select_option}</option>
                 {columns}
             </select>
@@ -313,7 +320,7 @@ export default class Report extends React.Component {
     }
 
     handleInputChanges (e) {
-        this.setState({ group_by: e.target.value, group_by_frequency: '' }, () => {
+        this.setState({ group_by: e.target.value, group_by_frequency: '', chart_type: '' }, () => {
             if ((this.state.group_by === 'date' || this.state.group_by === 'due_date') && !this.state.group_by_frequency.length) {
                 return true
             }
@@ -493,12 +500,17 @@ export default class Report extends React.Component {
     }
 
     isDateField (field) {
-        return ['due_date', 'date'].includes(field)
+        return ['due_date', 'date', 'started_at', 'stopped_at'].includes(field)
     }
 
-    arrayColumn(array, columnName) {
-        return array.map(function(value,index) {
-            return value[columnName];
+    formatDuration (duration) {
+        const parts = duration.split(':')
+        return `${parts[0]}.${parts[1]}`
+    }
+
+    arrayColumn (array, columnName) {
+        return array.map((value, index) => {
+            return columnName === 'duration' ? this.formatDuration(value[columnName].replace(/^0+/, '')) : value[columnName]
         })
     }
 
@@ -519,30 +531,55 @@ export default class Report extends React.Component {
         }) : null
 
         let chart = null
-        if(this.state.chart_type.length && this.state.group_by.length && this.state.rows.length) {
-            const labels = this.arrayColumn(this.state.rows, this.state.group_by)
+        if (this.state.chart_type.length && this.state.group_by.length && this.state.rows.length) {
+            const group = this.state.groups[this.state.report_type].filter(row => row.field === this.state.group_by)
+            const labels = this.arrayColumn(this.state.rows, group[0].label)
             const chart_values = this.arrayColumn(this.state.rows, this.state.chart_type)
 
             const chart_data = {
-                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                labels: labels,
                 datasets: [
                     {
-                        label: 'My First dataset',
-                        backgroundColor: 'rgba(255,99,132,0.2)',
-                        borderColor: 'rgba(255,99,132,1)',
-                        borderWidth: 1,
+                        label: translations[this.state.chart_type],
+                        backgroundColor: hexToRgba(brandPrimary, 10),
+                        borderColor: brandPrimary,
+                        borderWidth: 2,
                         hoverBackgroundColor: 'rgba(255,99,132,0.4)',
                         hoverBorderColor: 'rgba(255,99,132,1)',
-                        data: [65, 59, 80, 81, 56, 55, 40]
+                        data: chart_values
                     }
                 ]
-            };
- 
-            chart =  <Bar
-                data={data}
-                width={100}
-                height={50}
+            }
+
+            chart = <Bar
+                data={chart_data}
+                width={600}
+                height={400}
                 options={{
+                    legend: {
+                        labels: {
+                            fontColor: 'white',
+                            fontSize: 14
+                        }
+                    },
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                fontColor: 'white',
+                                fontSize: 14
+                                // stepSize: 1,
+                                // beginAtZero: true
+                            }
+                        }],
+                        xAxes: [{
+                            ticks: {
+                                fontColor: 'white',
+                                fontSize: 14
+                                // stepSize: 1,
+                                // beginAtZero: true
+                            }
+                        }]
+                    },
                     maintainAspectRatio: false
                 }}
             />
@@ -584,7 +621,7 @@ export default class Report extends React.Component {
                                 <div className="col-md-3 col-sm-12 mt-2">
                                     {this.buildSelectList()}
 
-                                    {this.state.group_by.length && 
+                                    {!!this.state.group_by.length &&
                                     this.buildChartOptions()
                                     }
                                 </div>
@@ -654,13 +691,6 @@ export default class Report extends React.Component {
                                     {this.buildSelectList()}
                                 </FormGroup>
 
-                                {this.state.group_by.length && 
-                                    <FormGroup>
-                                    <label>{translations.chart}</label>
-                                    {this.buildChartOptions()}
-                                </FormGroup>
-                                }
-
                                 {!!this.isDateField(this.state.group_by) &&
                                 <FormGroup>
                                     <Label>{translations.frequency}</Label>
@@ -675,10 +705,13 @@ export default class Report extends React.Component {
                     <div className="col-md-4">
                         <div className="card mt-2">
                             <div className="card-body">
-                                {!this.state.date_container_open &&
-                                <span>charts</span>
-                                {chart}
-                                }
+                                <FormGroup>
+                                    <label>{translations.chart}</label>
+                                    {!this.state.date_container_open && this.state.group_by.length &&
+                                            this.buildChartOptions()
+                                    }
+
+                                </FormGroup>
 
                                 {!!this.state.date_container_open &&
                                 <React.Fragment>
@@ -747,6 +780,18 @@ export default class Report extends React.Component {
 
                 {filters}
 
+                {chart &&
+                <div className="row">
+                    <div className="col-12">
+                        <div className="card mt-2">
+                            <div className="card-body">
+                                {chart}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                }
+
                 <div className="row">
                     <div className="col-12">
 
@@ -756,27 +801,23 @@ export default class Report extends React.Component {
                                 className="card-header">{translations.currencies}
                             </div>
                             <div className="card-body">
-                                <div className="card-body">
-                                    <DynamicDataTable
-                                        rows={currency_report}
-                                        totalRows={totalRows}
-                                        currentPage={currentPage}
-                                        perPage={this.state.perPage}
-                                        totalPages={totalPages}
-                                        orderByField={orderByField}
-                                        orderByDirection={orderByDirection}
-                                        loading={this.loading}
-                                        fieldsToExclude={[]}
-                                        // changePage={this.changePage}
-                                        // changeOrder={this.changeOrder}
-                                        // changePerPage={this.changePerPage}
-                                        disallowOrderingBy={[]}
-                                        footer={footer ? this.renderFooter : undefined}
-                                        hoverable={true}
-                                    />
-
-                                </div>
-
+                                <DynamicDataTable
+                                    rows={currency_report}
+                                    totalRows={totalRows}
+                                    currentPage={currentPage}
+                                    perPage={this.state.perPage}
+                                    totalPages={totalPages}
+                                    orderByField={orderByField}
+                                    orderByDirection={orderByDirection}
+                                    loading={this.loading}
+                                    fieldsToExclude={[]}
+                                    // changePage={this.changePage}
+                                    // changeOrder={this.changeOrder}
+                                    // changePerPage={this.changePerPage}
+                                    disallowOrderingBy={[]}
+                                    footer={footer ? this.renderFooter : undefined}
+                                    hoverable={true}
+                                />
                             </div>
                         </div>
                         }
@@ -791,36 +832,33 @@ export default class Report extends React.Component {
                                 className="card-header">{translations[this.state.report_type]}
                             </div>
                             <div className="card-body">
-                                <div className="card-body">
-                                    <DynamicDataTable
-                                        perPageOptions={[10, this.state.perPage, 50]}
-                                        fieldsToExclude={this.state.checkedItems}
-                                        rows={rows}
-                                        totalRows={totalRows}
-                                        currentPage={currentPage}
-                                        perPage={perPage}
-                                        totalPages={totalPages}
-                                        orderByField={orderByField}
-                                        orderByDirection={orderByDirection}
-                                        loading={this.loading}
-                                        changePage={this.changePage}
-                                        changeOrder={this.changeOrder}
-                                        changePerPage={this.changePerPage}
-                                        disallowOrderingBy={disallowOrderingBy}
-                                        orderByAscIcon={<i className={`fa ${icons.down} mr-2`}/>}
-                                        orderByDescIcon={<i className={`fa ${icons.up} mr-2`}/>}
-                                        footer={footer ? this.renderFooter : undefined}
-                                        prependOrderByIcon={true}
-                                        hoverable={true}
-                                        filterable={true}
-                                        handleColumnFilter={this.handleColumnFilter.bind(this)}
-                                        clearSearch={this.clearSearch.bind(this)}
-                                        search_filters={this.state.filtered_value}
-                                        setDateFormat={this.setDateFormat.bind(this)}
-                                        date_format={this.state.manual_date_field.length ? 'manual' : this.state.date_format}
-                                    />
-
-                                </div>
+                                <DynamicDataTable
+                                    perPageOptions={[10, this.state.perPage, 50]}
+                                    fieldsToExclude={this.state.checkedItems}
+                                    rows={rows}
+                                    totalRows={totalRows}
+                                    currentPage={currentPage}
+                                    perPage={perPage}
+                                    totalPages={totalPages}
+                                    orderByField={orderByField}
+                                    orderByDirection={orderByDirection}
+                                    loading={this.loading}
+                                    changePage={this.changePage}
+                                    changeOrder={this.changeOrder}
+                                    changePerPage={this.changePerPage}
+                                    disallowOrderingBy={disallowOrderingBy}
+                                    orderByAscIcon={<i className={`fa ${icons.down} mr-2`}/>}
+                                    orderByDescIcon={<i className={`fa ${icons.up} mr-2`}/>}
+                                    footer={footer ? this.renderFooter : undefined}
+                                    prependOrderByIcon={true}
+                                    hoverable={true}
+                                    filterable={true}
+                                    handleColumnFilter={this.handleColumnFilter.bind(this)}
+                                    clearSearch={this.clearSearch.bind(this)}
+                                    search_filters={this.state.filtered_value}
+                                    setDateFormat={this.setDateFormat.bind(this)}
+                                    date_format={this.state.manual_date_field.length ? 'manual' : this.state.date_format}
+                                />
 
                             </div>
                         </div>
