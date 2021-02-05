@@ -12,6 +12,7 @@ export default class Report extends React.Component {
     constructor (props) {
         super(props)
         this.state = {
+            chart_type: '',
             group_by_frequency: '',
             width: window.innerWidth,
             manual_date_field: '',
@@ -91,6 +92,23 @@ export default class Report extends React.Component {
                 line_item: [{ field: 'product', label: 'product' }, { field: 'invoice', label: 'invoice' }],
                 tax_rate: [{ field: 'number', label: 'number' }, { field: 'tax_name', label: 'name' }],
                 document: [{ field: 'files.type', label: 'file_type' }, { field: 'files.fileable_type', label: 'record_type' }]
+            },
+            charts: {
+                income: ['amount'],
+                customer: ['balance', 'amount_paid'],
+                invoice: ['total', 'balance'],
+                credit: ['total', 'balance'],
+                quote: ['total', 'balance'],
+                purchase_order: ['total', 'balance'],
+                order: ['total', 'balance'],
+                lead: ['source_type'],
+                deal: ['source_type'],
+                task: ['duration'],
+                expense: ['amount'],
+                payment: ['amount'],
+                line_item: [],
+                tax_rate: [],
+                document: []
             },
             ignored_columns: {
                 income: ['address_1', 'address_2', 'shipping_address1', 'shipping_address2', 'town', 'city', 'company_country'],
@@ -262,6 +280,31 @@ export default class Report extends React.Component {
         return (
             <select className="form-control w-100" onChange={this.handleInputChanges}
                 name="group_by" id="group_by" value={this.state.group_by}>
+                <option value="">{translations.select_option}</option>
+                {columns}
+            </select>
+        )
+    }
+
+    buildChartOptions () {
+        let columns = null
+        if (!this.state.report_type.length) {
+            columns = <option value="">Loading...</option>
+        } else {
+            columns = this.state.charts[this.state.report_type].map((column, index) => {
+                const formatted_column = column.label.replace(/ /g, '_').toLowerCase()
+                const value = translations[formatted_column] ? translations[formatted_column] : column.label
+                return <option key={index} value={column.field}>{value}</option>
+            })
+        }
+
+        return (
+            <select className="form-control w-100" onChange={(e) => {
+                this.setState({chart_type: e.target.value }, () => {
+
+                })
+                }}
+                name="chart_type" id="chart_type" value={this.state.chart_type}>
                 <option value="">{translations.select_option}</option>
                 {columns}
             </select>
@@ -503,6 +546,10 @@ export default class Report extends React.Component {
 
                                 <div className="col-md-3 col-sm-12 mt-2">
                                     {this.buildSelectList()}
+
+                                    {this.state.group_by.length && 
+                                    this.buildChartOptions()
+                                    }
                                 </div>
 
                                 {!!this.isDateField(this.state.group_by) &&
@@ -569,6 +616,13 @@ export default class Report extends React.Component {
                                     <label>{translations.group}</label>
                                     {this.buildSelectList()}
                                 </FormGroup>
+
+                                {this.state.group_by.length && 
+                                    <FormGroup>
+                                    <label>{translations.chart}</label>
+                                    {this.buildChartOptions()}
+                                </FormGroup>
+                                }
 
                                 {!!this.isDateField(this.state.group_by) &&
                                 <FormGroup>
