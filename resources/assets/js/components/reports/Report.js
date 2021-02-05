@@ -7,6 +7,7 @@ import { icons } from '../utils/_icons'
 import DynamicDataTable from './DynamicDataTable'
 import { download, generateCsv } from './_utilities'
 import Datepicker from '../common/Datepicker'
+import {Bar} from 'react-chartjs-2';
 
 export default class Report extends React.Component {
     constructor (props) {
@@ -511,6 +512,33 @@ export default class Report extends React.Component {
             </div>
         }) : null
 
+        let chart = null
+        if(this.state.chart_type.length && this.state.group_by.length) {
+            const chart_data = {
+                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                datasets: [
+                    {
+                        label: 'My First dataset',
+                        backgroundColor: 'rgba(255,99,132,0.2)',
+                        borderColor: 'rgba(255,99,132,1)',
+                        borderWidth: 1,
+                        hoverBackgroundColor: 'rgba(255,99,132,0.4)',
+                        hoverBorderColor: 'rgba(255,99,132,1)',
+                        data: [65, 59, 80, 81, 56, 55, 40]
+                    }
+                ]
+            };
+
+            chart =  <Bar
+                data={data}
+                width={100}
+                height={50}
+                options={{
+                    maintainAspectRatio: false
+                }}
+            />
+        }
+
         const is_mobile = this.state.width <= 768
 
         const report_selector = <select name="report_type" id="report_type" className="form-control"
@@ -640,6 +668,7 @@ export default class Report extends React.Component {
                             <div className="card-body">
                                 {!this.state.date_container_open &&
                                 <span>charts</span>
+                                {chart}
                                 }
 
                                 {!!this.state.date_container_open &&
