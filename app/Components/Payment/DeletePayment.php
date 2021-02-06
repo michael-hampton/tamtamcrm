@@ -2,6 +2,7 @@
 
 namespace App\Components\Payment;
 
+use App\Actions\Transaction\TriggerTransaction;
 use App\Events\Payment\PaymentWasDeleted;
 use App\Models\Credit;
 use App\Models\Invoice;
@@ -119,7 +120,7 @@ class DeletePayment
      */
     private function createTransaction(Invoice $invoice): bool
     {
-        $invoice->transaction_service()->createTransaction(
+        (new TriggerTransaction($invoice))->execute(
             $invoice->total,
             $invoice->customer->balance,
             "Payment Deletion {$invoice->getNumber()}"

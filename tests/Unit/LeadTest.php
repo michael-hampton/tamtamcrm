@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Actions\Lead\ConvertLead;
 use App\Events\Lead\LeadWasCreated;
 use App\Factory\LeadFactory;
 use App\Mail\TestMail;
@@ -114,7 +115,7 @@ class LeadTest extends TestCase
     public function it_can_convert_a_lead()
     {
         $lead = Lead::factory()->create();
-        $lead = $lead->service()->convertLead();
+        $lead = (new ConvertLead($lead))->execute();
         $this->assertInstanceOf(Lead::class, $lead);
     }
 

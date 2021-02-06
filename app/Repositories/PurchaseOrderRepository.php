@@ -54,11 +54,6 @@ class PurchaseOrderRepository extends BaseRepository implements PurchaseOrderRep
     {
         $purchase_order = $this->save($data, $purchase_order);
 
-        if (!empty($data['recurring'])) {
-            $recurring = json_decode($data['recurring'], true);
-            $purchase_order->service()->createRecurringPurchaseOrder($recurring);
-        }
-
 
         event(new PurchaseOrderWasCreated($purchase_order));
 
@@ -74,7 +69,7 @@ class PurchaseOrderRepository extends BaseRepository implements PurchaseOrderRep
     {
         $purchase_order->fill($data);
 
-        $purchase_order = $purchase_order->service()->calculateInvoiceTotals();
+        $purchase_order = $this->calculateTotals($purchase_order);
 
         $purchase_order->setNumber();
         $purchase_order->setExchangeRate();

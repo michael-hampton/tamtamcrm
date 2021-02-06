@@ -2,6 +2,9 @@
 
 namespace App\Jobs\Payment;
 
+use App\Actions\Email\SendPaymentEmail;
+use App\Actions\Order\DispatchOrder;
+use App\Actions\Transaction\TriggerTransaction;
 use App\Components\InvoiceCalculator\LineItem;
 use App\Factory\PaymentFactory;
 use App\Models\Credit;
@@ -69,7 +72,7 @@ class CreatePayment implements ShouldQueue
         $order = Order::where('id', '=', $this->data['order_id'])->first();
         $this->customer = $order->customer;
         $charge_point = $this->customer->getSetting('order_charge_point');
-        $order = $order->service()->dispatch(new InvoiceRepository(new Invoice), new OrderRepository(new Order), true);
+        $order = (new DispatchOrder($order))->execute(new InvoiceRepository(new Invoice), new OrderRepository(new Order), true);
         $this->ids = $order->invoice_id;
         $this->customer = $order->customer;
         $payment = $this->createPayment($charge_point === 'on_creation');
@@ -87,7 +90,7 @@ class CreatePayment implements ShouldQueue
         $order->save();
 
         if ($charge_point === 'on_creation') {
-            $payment->service()->sendEmail();
+            (new SendPaymentEmail($payment))->execute();
         }
 
         return $payment;
@@ -229,7 +232,7 @@ class CreatePayment implements ShouldQueue
             );
 
             // need to check this
-            $credit->transaction_service()->createTransaction(
+            (new TriggerTransaction($credit))->execute(
                 $credit->balance * -1,
                 $credit->customer->balance,
                 'PAYMENT FOR ' . $invoice->number

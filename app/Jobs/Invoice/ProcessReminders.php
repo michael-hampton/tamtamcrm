@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Invoice;
 
+use App\Actions\Email\DispatchEmail;
 use App\Components\InvoiceCalculator\InvoiceCalculator;
 use App\Jobs\Subscription\SendSubscription;
 use App\Models\Invoice;
@@ -163,7 +164,8 @@ class ProcessReminders implements ShouldQueue
     {
         $subject = $invoice->customer->getSetting($template . '_subject');
         $body = $invoice->customer->getSetting($template . '_message');
-        $invoice->service()->sendEmail(null, $subject, $body, $template);
+
+        (new DispatchEmail($invoice))->execute(null, $subject, $body, $template);
     }
 
     /**

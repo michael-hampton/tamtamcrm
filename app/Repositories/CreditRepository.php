@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Actions\Transaction\TriggerTransaction;
 use App\Events\Credit\CreditWasCreated;
 use App\Events\Credit\CreditWasUpdated;
 use App\Jobs\Inventory\ReverseInventory;
@@ -62,7 +63,7 @@ class CreditRepository extends BaseRepository implements CreditRepositoryInterfa
         $credit->fill($data);
         $credit = $this->populateDefaults($credit);
         $credit = $this->formatNotes($credit);
-        $credit = $credit->service()->calculateInvoiceTotals();
+        $credit = $this->calculateTotals($credit);
         $credit->setNumber();
         $credit->setExchangeRate();
 
@@ -73,7 +74,7 @@ class CreditRepository extends BaseRepository implements CreditRepositoryInterfa
         $updated_amount = $credit->total - $original_amount;
 
         if ($credit->status_id !== Credit::STATUS_DRAFT && $original_amount !== $credit->total) {
-            $credit->transaction_service()->createTransaction($updated_amount, $credit->customer->balance);
+            (new TriggerTransaction($credit))->execute($updated_amount, $credit->customer->balance);
         }
 
         return $credit->fresh();

@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
+use App\Actions\Transaction\TriggerTransaction;
 use App\Events\Payment\PaymentWasDeleted;
-use App\Services\Payment\PaymentService;
-use App\Services\Transaction\TransactionService;
 use App\Traits\Archiveable;
 use App\Traits\Money;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -101,16 +100,6 @@ class Payment extends Model
         return $this->belongsTo(CompanyGateway::class, 'company_gateway_id');
     }
 
-    public function service(): PaymentService
-    {
-        return new PaymentService($this);
-    }
-
-    public function transaction_service()
-    {
-        return new TransactionService($this);
-    }
-
     public function transactions()
     {
         return $this->morphMany(Transaction::class, 'transactionable');
@@ -142,7 +131,7 @@ class Payment extends Model
         );
 
         if ($send_transaction && $amount !== null) {
-            $invoice->transaction_service()->createTransaction($amount * -1, $invoice->customer->balance);
+            (new TriggerTransaction($invoice))->execute($amount * -1, $invoice->customer->balance);
         }
 
         return $this;

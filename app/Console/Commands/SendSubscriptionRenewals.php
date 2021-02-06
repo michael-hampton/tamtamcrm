@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Actions\Account\ConvertAccount;
 use App\Components\InvoiceCalculator\LineItem;
 use App\Factory\InvoiceFactory;
 use App\Mail\Account\SubscriptionInvoice;
@@ -75,7 +76,7 @@ class SendSubscriptionRenewals extends Command
     private function createInvoice(Account $account, float $total_to_pay, $due_date): Invoice
     {
         if (empty($account->domains) || empty($account->domains->user_id)) {
-            $account = $account->service()->convertAccount();
+            $account = (new ConvertAccount($account))->execute();
         }
 
         $customer = $account->domains->customer;

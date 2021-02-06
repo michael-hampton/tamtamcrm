@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Actions\Email\DispatchEmail;
 use App\Factory\CreditFactory;
 use App\Models\Account;
 use App\Models\Credit;
@@ -117,7 +118,7 @@ class CreditTest extends TestCase
         $template = strtolower('credit');
         $subject = $credit->customer->getSetting('email_subject_' . $template);
         $body = $credit->customer->getSetting('email_template_' . $template);
-        $result = $credit->service()->sendEmail(null, $subject, $body);
+        $result = (new DispatchEmail($credit))->execute(null, $subject, $body);
         $this->assertInstanceOf(Credit::class, $result);
     }
 }

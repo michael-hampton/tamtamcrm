@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Actions\Account\ConvertAccount;
 use App\Components\InvoiceCalculator\LineItem;
 use App\Factory\InvoiceFactory;
 use App\Models\Account;
@@ -138,7 +139,7 @@ class CalculateCommission extends Command
     private function createInvoice(Account $account, Invoice $invoice, float $total_paid): Invoice
     {
         if (empty($account->domains) || empty($account->domains->user_id)) {
-            $account = $account->service()->convertAccount();
+            $account = (new ConvertAccount($account))->execute();
         }
 
         $customer = $account->domains->customer;

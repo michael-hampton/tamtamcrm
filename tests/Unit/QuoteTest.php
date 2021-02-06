@@ -8,6 +8,9 @@
 
 namespace Tests\Unit;
 
+use App\Actions\Quote\Approve;
+use App\Actions\Quote\ConvertQuoteToOrder;
+use App\Actions\Quote\GenerateRecurringQuote;
 use App\Factory\InvoiceFactory;
 use App\Factory\QuoteFactory;
 use App\Models\Account;
@@ -141,7 +144,7 @@ class QuoteTest extends TestCase
         $arrRecurring['end_date'] = date('Y-m-d', strtotime('+1 year'));
         $arrRecurring['frequency'] = 30;
         $arrRecurring['recurring_due_date'] = date('Y-m-d', strtotime('+1 month'));
-        $recurring_invoice = $quote->service()->createRecurringQuote($arrRecurring);
+        $recurring_invoice = (new GenerateRecurringQuote($quote))->execute($arrRecurring);
         $this->assertInstanceOf(RecurringQuote::class, $recurring_invoice);
     }
 
@@ -192,7 +195,7 @@ class QuoteTest extends TestCase
         $account->settings = $settings;
         $account->save();
 
-        $quote = $quote->service()->approve(new InvoiceRepository(new Invoice), new QuoteRepository(new Quote));
+        $quote = (new Approve($quote))->execute(new InvoiceRepository(new Invoice), new QuoteRepository(new Quote));
 
         $this->assertNotNull($quote->deleted_at);
         $this->assertNotNull($quote->invoice_id);
@@ -214,7 +217,7 @@ class QuoteTest extends TestCase
         $account->settings = $settings;
         $account->save();
 
-        $order = $quote->service()->convertQuoteToOrder(new OrderRepository(new Order));
+        $order = (new ConvertQuoteToOrder($quote, new OrderRepository(new Order)))->execute();
         $this->assertNotNull($quote->order_id);
         $this->assertInstanceOf(Order::class, $order);
         $this->assertEquals($order->id, $quote->order_id);

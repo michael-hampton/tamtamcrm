@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Pdf\GeneratePdf;
+use App\Actions\Task\SaveTimers;
 use App\Factory\CloneTaskToDealFactory;
 use App\Factory\TaskFactory;
 use App\Factory\TimerFactory;
@@ -92,7 +94,7 @@ class TaskController extends Controller
         );
 
         if (!empty($request->input('timers'))) {
-            $task->service()->saveTimers($request->input('timers'), $task, new TimerRepository(new Timer()));
+            (new SaveTimers($task))->execute($request->input('timers'), $task, new TimerRepository(new Timer()));
         }
 
         if ($task->customer->getSetting('task_automation_enabled') === true && empty($request->input('timers'))) {
@@ -160,7 +162,7 @@ class TaskController extends Controller
         $task = $this->task_repo->updateTask($request->all(), $task);
 
         if (!empty($request->input('timers'))) {
-            $task->service()->saveTimers($request->input('timers'), $task, (new TimerRepository(new Timer())));
+            (new SaveTimers($task))->execute($request->input('timers'), $task, (new TimerRepository(new Timer())));
         }
 
         //$task = SaveTaskTimes::dispatchNow($request->all(), $task);
@@ -351,7 +353,7 @@ class TaskController extends Controller
 
             case 'download': //done
                 $disk = config('filesystems.default');
-                $content = Storage::disk($disk)->get($task->service()->generatePdf(null));
+                $content = Storage::disk($disk)->get((new GeneratePdf($task))->execute(null));
                 $response = ['data' => base64_encode($content)];
                 return response()->json($response);
                 break;

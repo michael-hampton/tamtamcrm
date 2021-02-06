@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Task;
 
+use App\Actions\Pdf\GeneratePdf;
 use App\Factory\NotificationFactory;
 use App\Repositories\NotificationRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -46,6 +47,6 @@ class TaskUpdated implements ShouldQueue
         $this->notification_repo->save($notification, $fields);
 
         // regenerate pdf
-        $event->task->service()->generatePdf(null, true);
+        (new GeneratePdf($event->task))->execute(null, true);
     }
 }

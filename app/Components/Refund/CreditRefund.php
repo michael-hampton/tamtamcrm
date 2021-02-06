@@ -4,6 +4,7 @@
 namespace App\Components\Refund;
 
 
+use App\Actions\Transaction\TriggerTransaction;
 use App\Models\Credit;
 use App\Models\Payment;
 use App\Repositories\CreditRepository;
@@ -73,7 +74,7 @@ class CreditRefund extends BaseRefund
         $credit->setStatus(Credit::STATUS_SENT);
         $credit->save();
 
-        $credit->transaction_service()->createTransaction($amount, $credit->customer->balance);
+        (new TriggerTransaction($credit))->execute($amount, $credit->customer->balance);
         return true;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Expense\Approve;
 use App\Factory\ExpenseFactory;
 use App\Jobs\Expense\GenerateInvoice;
 use App\Models\Expense;
@@ -136,7 +137,7 @@ class ExpenseController extends Controller
     public function action(Request $request, Expense $expense, $action)
     {
         if ($action === 'approve') {
-            $expense->service()->approve(new ExpenseRepository(new Expense()));
+            (new Approve($expense))->execute(new ExpenseRepository(new Expense()));
 
             return response()->json(['message' => 'The expenses have been approved successfully!'], 200);
         }
@@ -156,7 +157,7 @@ class ExpenseController extends Controller
 
         if ($action === 'approve') {
             foreach ($expenses as $expense) {
-                $expense->service()->approve(new ExpenseRepository(new Expense()));
+                (new Approve($expense))->execute(new ExpenseRepository(new Expense()));
             }
 
             return response()->json(['message' => 'The expenses have been approved successfully!'], 200);

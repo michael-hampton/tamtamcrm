@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Order;
 
+use App\Actions\Email\DispatchEmail;
 use App\Factory\CustomerFactory;
 use App\Factory\OrderFactory;
 use App\Factory\TaskFactory;
@@ -343,7 +344,7 @@ class CreateOrder implements ShouldQueue
             $subject = $this->order->customer->getSetting('email_subject_order_received');
             $body = $this->order->customer->getSetting('email_template_order_received');
 
-            $this->order->service()->sendEmail(null, $subject, $body);
+            (new DispatchEmail($this->order))->execute(null, $subject, $body);
 
             return $this->order;
         } catch (Exception $e) {

@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Quote;
 
+use App\Actions\Email\DispatchEmail;
 use App\Factory\RecurringQuoteToQuoteFactory;
 use App\Models\Quote;
 use App\Models\RecurringQuote;
@@ -66,7 +67,7 @@ class SendRecurringQuote implements ShouldQueue
             $quote = RecurringQuoteToQuoteFactory::create($recurring_quote, $recurring_quote->customer);
             $quote = $this->quote_repo->save(['recurring_quote_id' => $recurring_quote->id], $quote);
             $this->quote_repo->markSent($quote);
-            $quote->service()->sendEmail(
+            (new DispatchEmail($quote))->execute(
                 null,
                 $quote->customer->getSetting('email_subject_quote'),
                 $quote->customer->getSetting('email_template_quote')

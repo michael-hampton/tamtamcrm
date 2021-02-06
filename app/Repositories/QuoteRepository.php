@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Actions\Quote\GenerateRecurringQuote;
 use App\Events\Quote\QuoteWasCreated;
 use App\Events\Quote\QuoteWasUpdated;
 use App\Jobs\Order\QuoteOrders;
@@ -61,7 +62,7 @@ class QuoteRepository extends BaseRepository implements QuoteRepositoryInterface
 
         if (!empty($data['recurring'])) {
             $recurring = json_decode($data['recurring'], true);
-            $quote->service()->createRecurringQuote($recurring);
+            (new GenerateRecurringQuote($quote))->execute($recurring);
         }
 
         QuoteOrders::dispatchNow($quote);
@@ -80,7 +81,7 @@ class QuoteRepository extends BaseRepository implements QuoteRepositoryInterface
         $quote->fill($data);
         $quote = $this->populateDefaults($quote);
         $quote = $this->formatNotes($quote);
-        $quote = $quote->service()->calculateInvoiceTotals();
+        $quote = $this->calculateTotals($quote);
         $quote->setNumber();
         $quote->setExchangeRate();
 

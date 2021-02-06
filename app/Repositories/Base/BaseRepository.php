@@ -2,7 +2,9 @@
 
 namespace App\Repositories\Base;
 
+use App\Actions\Order\SendOrder;
 use App\Components\Invitations;
+use App\Components\InvoiceCalculator\InvoiceCalculator;
 use App\Models\Invitation;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
@@ -133,10 +135,8 @@ class BaseRepository implements BaseRepositoryInterface
         $entity->setStatus($entity::STATUS_SENT);
         $entity->save();
 
-        $service = $entity->service();
-
-        if (method_exists($service, 'send')) {
-            $service->send();
+        if (get_class($entity) === 'App\Models\Order') {
+            (new SendOrder($entity))->execute();
         }
 
         if (get_class($entity) === 'App\Models\Invoice') {
@@ -266,6 +266,17 @@ class BaseRepository implements BaseRepositoryInterface
         }
 
         return str_replace(array_keys($variables), array_values($variables), $content);
+    }
+
+    public function calculateTotals($entity)
+    {
+        if (empty($entity->line_items)) {
+            return $entity;
+        }
+
+        $objInvoice = (new InvoiceCalculator($entity))->build();
+
+        return $objInvoice->rebuildEntity();
     }
 
 }

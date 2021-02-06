@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Actions\Transaction\TriggerTransaction;
 use App\Components\Currency\CurrencyConverter;
 use App\Events\Payment\PaymentWasCreated;
 use App\Models\Account;
@@ -84,7 +85,7 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
         $payment->save();
 
         if ($create_transaction) {
-            $payment->transaction_service()->createTransaction(
+            (new TriggerTransaction($payment))->execute(
                 $payment->amount * -1,
                 $payment->customer->balance,
                 "New Payment {$payment->number}"

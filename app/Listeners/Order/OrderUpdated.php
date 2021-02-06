@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Order;
 
+use App\Actions\Pdf\GeneratePdf;
 use App\Factory\NotificationFactory;
 use App\Repositories\NotificationRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -43,6 +44,6 @@ class OrderUpdated implements ShouldQueue
         $this->notification_repo->save($notification, $fields);
 
         // regenerate pdf
-        $event->order->service()->generatePdf(null, true);
+        (new GeneratePdf($event->order))->execute(null, true);
     }
 }

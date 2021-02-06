@@ -2,6 +2,7 @@
 
 namespace App\Listeners\RecurringInvoice;
 
+use App\Actions\Pdf\GeneratePdf;
 use App\Factory\NotificationFactory;
 use App\Repositories\NotificationRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -49,6 +50,6 @@ class RecurringInvoiceUpdated implements ShouldQueue
         $this->notification_repo->save($notification, $fields);
 
         // regenerate pdf
-        $event->recurringInvoice->service()->generatePdf(null, true);
+        (new GeneratePdf($event->recurringInvoice))->execute(null, true);
     }
 }

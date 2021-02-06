@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Pdf\GeneratePdf;
 use App\Factory\CloneDealToLeadFactory;
 use App\Factory\DealFactory;
 use App\Factory\Lead\CloneLeadToTaskFactory;
@@ -166,7 +167,7 @@ class DealController extends Controller
                 break;
             case 'download': //done
                 $disk = config('filesystems.default');
-                $content = Storage::disk($disk)->get($deal->service()->generatePdf(null));
+                $content = Storage::disk($disk)->get((new GeneratePdf($deal))->execute(null));
                 $response = ['data' => base64_encode($content)];
                 return response()->json($response);
                 break;

@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Actions\Invoice\GenerateRecurringInvoice;
 use App\Events\Invoice\InvoiceWasCreated;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Jobs\Order\InvoiceOrders;
@@ -97,7 +98,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
     {
         $original_amount = $invoice->total;
         $invoice->fill($data);
-        $invoice = $invoice->service()->calculateInvoiceTotals();
+        $invoice = $this->calculateTotals($invoice);
         $invoice = $this->populateDefaults($invoice);
         $invoice = $this->formatNotes($invoice);
         $invoice->setNumber();
@@ -194,7 +195,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
 
         if (!empty($data['recurring'])) {
             $recurring = json_decode($data['recurring'], true);
-            $invoice->service()->createRecurringInvoice($recurring);
+            (new GenerateRecurringInvoice($invoice))->execute($recurring);
         }
 
         event(new InvoiceWasCreated($invoice));

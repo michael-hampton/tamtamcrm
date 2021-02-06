@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Credit;
 
+use App\Actions\Pdf\GeneratePdf;
 use App\Factory\NotificationFactory;
 use App\Repositories\NotificationRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -43,6 +44,6 @@ class CreditUpdated implements ShouldQueue
         $this->notification_repo->save($notification, $fields);
 
         // regenerate pdf
-        $event->credit->service()->generatePdf(null, true);
+        (new GeneratePdf($event->credit))->execute(null, true);
     }
 }

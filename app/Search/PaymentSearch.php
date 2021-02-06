@@ -106,11 +106,12 @@ class PaymentSearch extends BaseSearch
     public function buildCurrencyReport(Request $request, Account $account)
     {
         return DB::table('payments')
-                 ->select(DB::raw('count(*) as count, currencies.name, SUM(amount) as amount'))
-                 ->join('currencies', 'currencies.id', '=', 'payments.currency_id')
-                 ->where('currency_id', '<>', 0)
-                 ->where('account_id', '=', $account->id)
-                 ->groupBy('currency_id')
+                 ->select(DB::raw('count(*) as count, currencies.name, SUM(payments.amount) as amount'))
+                 ->join('customers', 'customers.id', '=', 'payments.customer_id')
+                 ->join('currencies', 'currencies.id', '=', 'customers.currency_id')
+                 ->where('customers.currency_id', '<>', 0)
+                 ->where('payments.account_id', '=', $account->id)
+                 ->groupBy('customers.currency_id')
                  ->get();
     }
 

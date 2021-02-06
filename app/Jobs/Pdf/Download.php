@@ -3,6 +3,7 @@
 
 namespace App\Jobs\Pdf;
 
+use App\Actions\Pdf\GeneratePdf;
 use App\Mail\InvoiceWithAttachment;
 use App\Models\Account;
 use Illuminate\Bus\Queueable;
@@ -55,7 +56,7 @@ class Download implements ShouldQueue
 
         if ($zip->open($path, ZipArchive::CREATE) === true) {
             foreach ($this->invoices as $invoice) {
-                $file = $invoice->service()->generatePdf();
+                $file = (new GeneratePdf($invoice))->execute();
 
                 $relativeNameInZipFile = basename($file);
 

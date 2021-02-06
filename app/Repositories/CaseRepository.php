@@ -4,6 +4,7 @@
 namespace App\Repositories;
 
 
+use App\Actions\Email\DispatchEmail;
 use App\Events\Cases\CaseWasCreated;
 use App\Events\Cases\CaseWasUpdated;
 use App\Events\Cases\RecurringQuoteWasUpdated;
@@ -100,7 +101,7 @@ class CaseRepository extends BaseRepository implements CaseRepositoryInterface
         $template = CaseTemplate::where('id', '=', $template_id)->first();
 
         if (!empty($template)) {
-            $case->service()->sendEmail(
+            (new DispatchEmail($case))->execute(
                 null,
                 $template->name,
                 $this->parseTemplateVariables($template->description, $case)

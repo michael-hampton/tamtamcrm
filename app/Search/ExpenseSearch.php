@@ -120,12 +120,13 @@ class ExpenseSearch extends BaseSearch
     public function buildCurrencyReport(Request $request, Account $account)
     {
         return DB::table('expenses')
-                         ->select(DB::raw('count(*) as count, currencies.name, SUM(amount) as amount'))
-                         ->join('currencies', 'currencies.id', '=', 'expenses.currency_id')
-                         ->where('currency_id', '<>', 0)
-                         ->where('account_id', '=', $account->id)
-                         ->groupBy('currency_id')
-                         ->get();
+                 ->select(DB::raw('count(*) as count, currencies.name, SUM(expenses.amount) as amount'))
+                 ->join('customers', 'customers.id', '=', 'expenses.customer_id')
+                 ->join('currencies', 'currencies.id', '=', 'customers.currency_id')
+                 ->where('customers.currency_id', '<>', 0)
+                 ->where('expenses.account_id', '=', $account->id)
+                 ->groupBy('customers.currency_id')
+                 ->get();
     }
 
     public function buildReport(Request $request, Account $account)
@@ -133,13 +134,11 @@ class ExpenseSearch extends BaseSearch
         $this->query = DB::table('expenses');
 
         if (!empty($request->input('group_by'))) {
-
             if (in_array($request->input('group_by'), ['date', 'due_date']) && !empty(
                 $request->input(
                     'group_by_frequency'
                 )
                 )) {
-
                 $this->addMonthYearToSelect('expenses', $request->input('group_by'));
             }
 
@@ -151,7 +150,16 @@ class ExpenseSearch extends BaseSearch
 
             $this->addGroupBy('expenses', $request->input('group_by'), $request->input('group_by_frequency'));
         } else {
-            $this->query->select('customers.name AS customer', 'companies.name AS company', 'expense_categories.name AS category', 'invoices.number AS invoice', 'amount', 'expenses.number', 'expenses.date', 'expenses.status_id AS status');
+            $this->query->select(
+                'customers.name AS customer',
+                'companies.name AS company',
+                'expense_categories.name AS category',
+                'invoices.number AS invoice',
+                'amount',
+                'expenses.number',
+                'expenses.date',
+                'expenses.status_id AS status'
+            );
         }
 
         $this->query->join('customers', 'customers.id', '=', 'expenses.customer_id')
@@ -164,9 +172,9 @@ class ExpenseSearch extends BaseSearch
 
         if ($order_by === 'customer') {
             $this->query->orderBy('customers.name', $request->input('orderByDirection'));
-        } elseif($order_by === 'category') {
+        } elseif ($order_by === 'category') {
             $this->query->orderBy('expense_categories.name', $request->input('orderByDirection'));
-        } elseif($order_by === 'invoice') {
+        } elseif ($order_by === 'invoice') {
             $this->query->orderBy('invoices.number', $request->input('orderByDirection'));
         } elseif ($order_by === 'company') {
             $this->query->orderBy('companies.name', $request->input('orderByDirection'));
@@ -174,8 +182,8 @@ class ExpenseSearch extends BaseSearch
             $this->query->orderBy('expenses.' . $order_by, $request->input('orderByDirection'));
         }
 
-        if(!empty($request->input('date_format'))) {
-           $this->filterByDate($request->input('date_format'));
+        if (!empty($request->input('date_format'))) {
+            $this->filterByDate($request->input('date_format'));
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
@@ -189,9 +197,10 @@ class ExpenseSearch extends BaseSearch
             $rows[$key]->status = $this->getStatus($this->model, $row->status);
         }
 
-        if($order_by === 'status') {
+        if ($order_by === 'status') {
             $collection = collect($rows);
-            $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby('status')->toArray() : $collection->sortByDesc('status')->toArray();
+            $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby('status')->toArray(
+            ) : $collection->sortByDesc('status')->toArray();
         }
 
         if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {
@@ -199,7 +208,6 @@ class ExpenseSearch extends BaseSearch
         }
 
         return $rows;
-
     }
 
     /**

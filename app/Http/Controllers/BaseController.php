@@ -4,6 +4,21 @@
 namespace App\Http\Controllers;
 
 
+use App\Actions\Email\DispatchEmail;
+use App\Actions\Invoice\CancelInvoice;
+use App\Actions\Invoice\CreatePayment;
+use App\Actions\Invoice\ReverseInvoicePayment;
+use App\Actions\Order\CancelOrder;
+use App\Actions\Order\DispatchOrder;
+use App\Actions\Order\HoldOrder;
+use App\Actions\Order\ReverseStatus;
+use App\Actions\Pdf\GeneratePdf;
+use App\Actions\Pdf\GeneratePurchaseOrderPdf;
+use App\Actions\PurchaseOrder\Approve;
+use App\Actions\PurchaseOrder\Reject;
+use App\Actions\PurchaseOrder\RequestChange;
+use App\Actions\Quote\ConvertQuoteToInvoice;
+use App\Actions\Quote\ConvertQuoteToOrder;
 use App\Events\Misc\InvitationWasViewed;
 use App\Factory\CloneCreditFactory;
 use App\Factory\CloneCreditToQuoteFactory;
@@ -182,7 +197,7 @@ class BaseController extends Controller
                 break;
 
             case 'hold_order':
-                $order = $entity->service()->holdOrder();
+                $order = (new HoldOrder($entity))->execute();
 
                 if (!$order) {
                     $response = false;
@@ -199,7 +214,7 @@ class BaseController extends Controller
                 $response = ['data' => base64_encode($content)];
                 break;
             case 'reverse_status':
-                $order = $entity->service()->reverseStatus();
+                $order = (new ReverseStatus($entity))->execute();
 
                 if (!$order) {
                     $response = false;
@@ -222,7 +237,10 @@ class BaseController extends Controller
                     $message = 'Unable to approve this order as it has expired.';
                     $response = false;
                 } else {
-                    $response = $entity->service()->dispatch($this->invoice_repo, (new OrderRepository(new Order)));
+                    $response = (new DispatchOrder($entity))->execute(
+                        $this->invoice_repo,
+                        (new OrderRepository(new Order))
+                    );
                     $response = $this->transformEntity($response);
                 }
 
@@ -230,7 +248,7 @@ class BaseController extends Controller
 
             //quote
             case 'clone_quote_to_invoice': // done
-                $invoice = $entity->service()->convertQuoteToInvoice($this->invoice_repo);
+                $invoice = (new ConvertQuoteToInvoice($entity, $this->invoice_repo))->execute();
 
                 if (!$invoice) {
                     $response = false;
@@ -240,7 +258,7 @@ class BaseController extends Controller
 
                 break;
             case 'clone_to_order':
-                $order = $entity->service()->convertQuoteToOrder((new OrderRepository(new Order())));
+                $order = (new ConvertQuoteToOrder($entity, new OrderRepository(new Order())))->execute();
 
                 if (!$order) {
                     $response = false;
@@ -275,9 +293,9 @@ class BaseController extends Controller
                 break;
 
             case 'approve': //done
-                $quote = $this->entity_string === 'PurchaseOrder' ? $entity->service()->approve(
+                $quote = $this->entity_string === 'PurchaseOrder' ? (new Approve($entity))->execute(
                     new PurchaseOrderRepository($entity)
-                ) : $entity->service()->approve($this->invoice_repo, $this->quote_repo);
+                ) : (new \App\Actions\Quote\Approve($entity))->execute($this->invoice_repo, $this->quote_repo);
 
                 if (!$quote) {
                     $message = 'Unable to approve this quote as it has expired.';
@@ -291,10 +309,16 @@ class BaseController extends Controller
                 break;
 
             case 'reject': //done
-                $quote = $this->entity_string === 'PurchaseOrder' ? $entity->service()->reject(
-                    new PurchaseOrderRepository($entity),
-                    $request->all()
-                ) : $entity->service()->reject($this->invoice_repo, $this->quote_repo, $request->all());
+                $quote = $this->entity_string === 'PurchaseOrder'
+                    ? (new Reject($entity))->execute(
+                        new PurchaseOrderRepository($entity),
+                        $request->all()
+                    )
+                    : (new \App\Actions\Quote\Reject($entity))->execute(
+                        $this->invoice_repo,
+                        $this->quote_repo,
+                        $request->all()
+                    );
 
                 if (!$quote) {
                     $message = 'Unable to reject this quote as it has expired.';
@@ -307,10 +331,16 @@ class BaseController extends Controller
 
                 break;
             case 'change_requested': //done
-                $quote = $this->entity_string === 'PurchaseOrder' ? $entity->service()->requestChange(
-                    new PurchaseOrderRepository($entity),
-                    $request->all()
-                ) : $entity->service()->requestChange($this->invoice_repo, $this->quote_repo, $request->all());
+                $quote = $this->entity_string === 'PurchaseOrder'
+                    ? (new RequestChange($entity))->execute(
+                        new PurchaseOrderRepository($entity),
+                        $request->all()
+                    )
+                    : (new \App\Actions\Quote\RequestChange($entity))->execute(
+                        $this->invoice_repo,
+                        $this->quote_repo,
+                        $request->all()
+                    );
 
                 if (!$quote) {
                     $message = 'Unable to update the quote as it has expired.';
@@ -324,8 +354,10 @@ class BaseController extends Controller
                 break;
 
             case 'download': //done
+                $pdf = $this->entity_string === 'PurchaseOrder' ? (new GeneratePurchaseOrderPdf($entity))->execute(
+                ) : (new GeneratePdf($entity))->execute();
                 $disk = config('filesystems.default');
-                $content = Storage::disk($disk)->get($entity->service()->generatePdf(null));
+                $content = Storage::disk($disk)->get($pdf);
                 $response = ['data' => base64_encode($content)];
                 break;
             case 'archive': //done
@@ -340,7 +372,7 @@ class BaseController extends Controller
                 $template = strtolower($this->entity_string);
                 $subject = $entity->customer->getSetting('email_subject_' . $template);
                 $body = $entity->customer->getSetting('email_template_' . $template);
-                $entity->service()->sendEmail(null, $subject, $body);
+                (new DispatchEmail($entity))->execute(null, $subject, $body);
                 $response = $this->transformEntity($entity);
                 break;
             case 'clone_to_invoice': // done
@@ -360,7 +392,9 @@ class BaseController extends Controller
                 $response = (new QuoteTransformable())->transformQuote($quote);
                 break;
             case 'create_payment': // done
-                $invoice = $entity->service()->createPayment($this->invoice_repo, new PaymentRepository(new Payment));
+                $invoice = (new CreatePayment(
+                    $entity, $this->invoice_repo, new PaymentRepository(new Payment)
+                ))->execute();
 
                 if (!$invoice) {
                     $response = false;
@@ -403,10 +437,11 @@ class BaseController extends Controller
                 $response = (new InvoiceTransformable())->transformInvoice($invoice);
                 break;
             case 'reverse': // done
-                $invoice = $entity->service()->reverseInvoicePayment(
+                $invoice = (new ReverseInvoicePayment(
+                    $entity,
                     new CreditRepository(new Credit),
                     new PaymentRepository(new Payment)
-                );
+                ))->execute();
 
                 if (!$invoice) {
                     $response = false;
@@ -418,8 +453,8 @@ class BaseController extends Controller
                 break;
 
             case 'cancel': //done
-                $method = "cancel{$this->entity_string}";
-                $entity = $entity->service()->{$method}();
+                $entity = strtolower($this->entity_string) === 'invoice' ? (new CancelInvoice($entity))->execute(
+                ) : (new CancelOrder($entity))->execute();
                 $response = $this->transformEntity($entity);
 
                 break;
@@ -512,7 +547,9 @@ class BaseController extends Controller
         $pdfs = [];
 
         foreach ($entities as $entity) {
-            $content = Storage::disk($disk)->get($entity->service()->generatePdf(null));
+            $pdf = $this->entity_string === 'PurchaseOrder' ? (new GeneratePurchaseOrderPdf($entity))->execute(
+            ) : (new GeneratePdf($entity))->execute();
+            $content = Storage::disk($disk)->get($pdf);
             $pdfs[$entity->number] = base64_encode($content);
         }
 
@@ -532,7 +569,10 @@ class BaseController extends Controller
         $entity = $invitation->inviteable;
 
         $disk = config('filesystems.default');
-        $content = Storage::disk($disk)->get($entity->service()->generatePdf($contact));
+        $pdf = $this->entity_string === 'PurchaseOrder' ? (new GeneratePurchaseOrderPdf($entity))->execute(
+        ) : (new GeneratePdf($entity))->execute();
+
+        $content = Storage::disk($disk)->get($pdf);
 
         if (request()->has('markRead') && request()->boolean('markRead')) {
             $invitation->markViewed();

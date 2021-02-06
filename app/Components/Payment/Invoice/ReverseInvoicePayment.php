@@ -2,6 +2,7 @@
 
 namespace App\Components\Payment\Invoice;
 
+use App\Actions\Transaction\TriggerTransaction;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -26,7 +27,7 @@ class ReverseInvoicePayment
     {
         $this->reversePayment();
         $this->updateCustomer();
-        $this->payment->transaction_service()->createTransaction(
+        (new TriggerTransaction($this->payment))->execute(
             $this->payment->amount,
             $this->payment->customer->balance,
             "Payment Reversed {$this->payment->number}"

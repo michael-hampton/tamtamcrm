@@ -329,7 +329,7 @@ class PaymentUnitTest extends TestCase
         $credit = CreditFactory::create($this->account, $this->user, $client);//stub the company and user_id
         $credit->customer_id = $client->id;
         $credit->status_id = Invoice::STATUS_SENT;
-        $credit = $credit->service()->calculateInvoiceTotals();
+        $credit = (new CreditRepository(new Credit()))->calculateTotals($credit);
         $credit->total = 50;
         $credit->save();
 
@@ -407,7 +407,7 @@ class PaymentUnitTest extends TestCase
         //$invoice->uses_inclusive_Taxes = false;
         $invoice->save();
 
-        $invoice = $invoice->service()->calculateInvoiceTotals();
+        $invoice = (new InvoiceRepository($invoice))->calculateTotals($invoice);
         $invoice->save();
 
         $data = [

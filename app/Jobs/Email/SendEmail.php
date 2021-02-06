@@ -2,10 +2,8 @@
 
 namespace App\Jobs\Email;
 
-use App\Components\Pdf\InvoicePdf;
-use App\Components\Pdf\LeadPdf;
-use App\Components\Pdf\PurchaseOrderPdf;
-use App\Components\Pdf\TaskPdf;
+use App\Actions\Pdf\GeneratePdf;
+use App\Components\Pdf\PdfFactory;
 use App\Events\EmailFailedToSend;
 use App\Factory\EmailFactory;
 use App\Factory\ErrorLogFactory;
@@ -66,19 +64,7 @@ class SendEmail implements ShouldQueue
     {
         $settings = $this->entity->account->settings;
 
-        switch (get_class($this->entity)) {
-            case in_array(get_class($this->entity), ['App\Models\Cases', 'App\Models\Task', 'App\Models\Deal']):
-                $objPdf = new TaskPdf($this->entity);
-                break;
-            case 'App\Models\Lead':
-                $objPdf = new LeadPdf($this->entity);
-                break;
-            case 'App\Models\PurchaseOrder':
-                $objPdf = new PurchaseOrderPdf($this->entity);
-                break;
-            default:
-                $objPdf = new InvoicePdf($this->entity);
-        }
+        $objPdf = (new PdfFactory())->create($this->entity);
 
         $objPdf->build();
         $labels = $objPdf->getLabels();
@@ -110,8 +96,8 @@ class SendEmail implements ShouldQueue
             $message->setBcc($settings->bcc_email);
         }
 
-        if ($settings->pdf_email_attachment) {
-            $message->setAttachments(public_path($this->entity->service()->generatePdf($this->contact)));
+        if ($settings->pdf_email_attachment && (new \ReflectionClass($this->entity))->getShortName() !== 'Payment') {
+            $message->setAttachments(public_path((new GeneratePdf($this->entity))->execute($this->contact)));
         }
 
         foreach ($this->entity->files as $file) {

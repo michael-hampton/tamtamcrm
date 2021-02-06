@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Task;
 
+use App\Actions\Email\SendTaskEmail;
 use App\Models\Task;
 use App\Repositories\TaskRepository;
 use App\Traits\CalculateRecurring;
@@ -62,7 +63,7 @@ class SendRecurringTask implements ShouldQueue
             $task = $recurring_task->replicate();
             $task = $this->task_repo->save(['recurring_task_id' => $recurring_task->id], $task);
 
-            $task->service()->sendEmail(null, trans('texts.quote_subject'), trans('texts.quote_body'));
+            (new SendTaskEmail($task))->execute(null, trans('texts.quote_subject'), trans('texts.quote_body'));
 
             $recurring_task->last_sent_date = Carbon::today();
             $recurring_task->next_send_date = $this->calculateDate($recurring_task->frequency);

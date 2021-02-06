@@ -8,6 +8,8 @@
 
 namespace Tests\Unit;
 
+use App\Actions\Email\DispatchEmail;
+use App\Actions\PurchaseOrder\Approve;
 use App\Factory\OrderFactory;
 use App\Factory\PurchaseOrderFactory;
 use App\Models\Account;
@@ -160,7 +162,7 @@ class PurchaseOrderTest extends TestCase
         $account->settings = $settings;
         $account->save();
 
-        $purchase_order = $purchase_order->service()->approve(new PurchaseOrderRepository(new PurchaseOrder()));
+        $purchase_order = (new Approve($purchase_order))->execute(new PurchaseOrderRepository(new PurchaseOrder()));
 
         $this->assertNotNull($purchase_order->deleted_at);
         $this->assertEquals($purchase_order->date_approved->toDateString(), Carbon::now()->toDateString());
@@ -175,7 +177,7 @@ class PurchaseOrderTest extends TestCase
         $template = strtolower('purchase_order');
         $subject = $order->account->settings->{'email_subject_' . $template};
         $body = $order->account->settings->{'email_template_' . $template};
-        $result = $order->service()->sendEmail(null, $subject, $body);
+        $result = (new DispatchEmail($order))->execute(null, $subject, $body);
         $this->assertInstanceOf(PurchaseOrder::class, $result);
     }
 }

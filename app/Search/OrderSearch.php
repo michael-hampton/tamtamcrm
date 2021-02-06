@@ -117,12 +117,15 @@ class OrderSearch extends BaseSearch
     {
         return DB::table('product_task')
                  ->select(
-                     DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance')
+                     DB::raw(
+                         'count(*) as count, currencies.name, SUM(product_task.total) as total, SUM(product_task.balance) AS balance'
+                     )
                  )
-                 ->join('currencies', 'currencies.id', '=', 'product_task.currency_id')
-                 ->where('currency_id', '<>', 0)
-                 ->where('account_id', '=', $account->id)
-                 ->groupBy('currency_id')
+                 ->join('customers', 'customers.id', '=', 'product_task.customer_id')
+                 ->join('currencies', 'currencies.id', '=', 'customers.currency_id')
+                 ->where('customers.currency_id', '<>', 0)
+                 ->where('product_task.account_id', '=', $account->id)
+                 ->groupBy('customers.currency_id')
                  ->get();
     }
 
@@ -131,23 +134,31 @@ class OrderSearch extends BaseSearch
         $this->query = DB::table('product_task');
 
         if (!empty($request->input('group_by'))) {
-
             if (in_array($request->input('group_by'), ['date', 'due_date']) && !empty(
                 $request->input(
                     'group_by_frequency'
                 )
                 )) {
-
                 $this->addMonthYearToSelect('product_task', $request->input('group_by'));
             }
 
             $this->query->addSelect(
-                DB::raw('count(*) as count, customers.name AS customer, SUM(total) as total, SUM(product_task.balance) AS balance, product_task.status_id AS status')
+                DB::raw(
+                    'count(*) as count, customers.name AS customer, SUM(total) as total, SUM(product_task.balance) AS balance, product_task.status_id AS status'
+                )
             );
 
             $this->addGroupBy('product_task', $request->input('group_by'), $request->input('group_by_frequency'));
         } else {
-            $this->query->select('customers.name AS customer', 'total', 'product_task.number', 'product_task.balance', 'date', 'due_date', 'product_task.status_id AS status');
+            $this->query->select(
+                'customers.name AS customer',
+                'total',
+                'product_task.number',
+                'product_task.balance',
+                'date',
+                'due_date',
+                'product_task.status_id AS status'
+            );
         }
 
         $this->query->join('customers', 'customers.id', '=', 'product_task.customer_id')
@@ -176,9 +187,10 @@ class OrderSearch extends BaseSearch
             $rows[$key]->status = $this->getStatus($this->model, $row->status);
         }
 
-        if($order_by === 'status') {
+        if ($order_by === 'status') {
             $collection = collect($rows);
-            $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby('status')->toArray() : $collection->sortByDesc('status')->toArray();
+            $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby('status')->toArray(
+            ) : $collection->sortByDesc('status')->toArray();
         }
 
         if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {

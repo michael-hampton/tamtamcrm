@@ -157,8 +157,6 @@ class InvoiceController extends BaseController
         $invoice = $this->invoice_repo->findInvoiceById($id);
 
         $this->authorize('delete', $invoice);
-
-        //$invoice->service()->cancelInvoice();
         $invoice->deleteInvoice();
         return response()->json([], 200);
     }

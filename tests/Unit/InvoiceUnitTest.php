@@ -8,6 +8,12 @@
 
 namespace Tests\Unit;
 
+use App\Actions\Invoice\CancelInvoice;
+use App\Actions\Invoice\CreatePayment;
+use App\Actions\Invoice\GenerateRecurringInvoice;
+use App\Actions\Invoice\ReverseInvoicePayment;
+use App\Actions\Invoice\ReverseStatus;
+use App\Actions\Transaction\TriggerTransaction;
 use App\Components\InvoiceCalculator\LineItem;
 use App\Components\Payment\ProcessPayment;
 use App\Factory\CreditFactory;
@@ -140,7 +146,9 @@ class InvoiceUnitTest extends TestCase
         $invoice_balance = $invoice->balance;
         $client = $invoice->customer;
         $client_balance = $client->balance;
-        $invoice = $invoice->service()->createPayment($invoiceRepo, new PaymentRepository(new Payment));
+        $invoice = (new CreatePayment(
+            $invoice, new InvoiceRepository(new Invoice()), new PaymentRepository(new Payment)
+        ))->execute();
 
         $this->assertEquals(0, $invoice->balance);
         $this->assertEquals(200, $invoice->amount_paid);
@@ -215,7 +223,7 @@ class InvoiceUnitTest extends TestCase
         $arrRecurring['frequency'] = 30;
         $arrRecurring['grace_period'] = 0;
         $arrRecurring['due_date'] = date('Y-m-d', strtotime('+1 month'));
-        $recurring_invoice = $invoice->service()->createRecurringInvoice($arrRecurring);
+        $recurring_invoice = (new GenerateRecurringInvoice($invoice))->execute($arrRecurring);
         $this->assertInstanceOf(RecurringInvoice::class, $recurring_invoice);
     }
 
@@ -309,10 +317,12 @@ class InvoiceUnitTest extends TestCase
         $account->settings = $settings;
         $account->save();
 
-        $invoice->service()->createPayment(
-            new InvoiceRepository(new Invoice),
-            new PaymentRepository(new Payment)
-        )->save();
+        $invoice = (new CreatePayment(
+            $invoice,
+            new InvoiceRepository(new Invoice()),
+            new PaymentRepository(new Payment())
+        ))->execute();
+        $invoice->save();
 
         $first_payment = $invoice->payments->first();
 
@@ -351,12 +361,12 @@ class InvoiceUnitTest extends TestCase
 
         $credit->save();
 
-        $credit = $credit->service()->calculateInvoiceTotals();
+        $credit = (new CreditRepository($credit))->calculateTotals($credit);
 
         (new CreditRepository(new Credit))->markSent($credit);
 
         /* Set invoice balance to 0 */
-        $invoice->transaction_service()->createTransaction($balance_remaining * -1, $item->getNotes())->save();
+        (new TriggerTransaction($invoice))->execute($balance_remaining * -1, $item->getNotes())->save();
 
         /* Set invoice status to reversed... somehow*/
         $invoice->status_id = Invoice::STATUS_REVERSED;
@@ -405,10 +415,11 @@ class InvoiceUnitTest extends TestCase
 
         $this->assertEquals(Invoice::STATUS_SENT, $invoice->status_id);
 
-        $invoice->service()->createPayment(
+        (new CreatePayment(
+            $invoice,
             new InvoiceRepository(new Invoice),
             new PaymentRepository(new Payment)
-        );
+        ))->execute();
 
         $invoice = $invoice->fresh();
 
@@ -418,10 +429,9 @@ class InvoiceUnitTest extends TestCase
         $this->assertEquals(0, $invoice->balance);
         $this->assertEquals(Invoice::STATUS_PAID, $invoice->status_id);
 
-        $invoice->service()->reverseInvoicePayment(
-            new CreditRepository(new Credit),
+        (new ReverseInvoicePayment($invoice, new CreditRepository(new Credit),
             new PaymentRepository(new Payment)
-        );
+        ))->execute();
 
         $this->assertEquals(Invoice::STATUS_REVERSED, $invoice->status_id);
         $this->assertEquals(0, $invoice->balance);
@@ -446,10 +456,9 @@ class InvoiceUnitTest extends TestCase
 
         $invoice = $invoice->fresh();
 
-        $invoice->service()->reverseInvoicePayment(
-            new CreditRepository(new Credit),
+        (new ReverseInvoicePayment($invoice, new CreditRepository(new Credit),
             new PaymentRepository(new Payment)
-        )->save();
+        ))->execute(); // need save?
 
         $customer = $invoice->customer->fresh(); //2020 original
 
@@ -476,7 +485,7 @@ class InvoiceUnitTest extends TestCase
 
         $this->assertEquals(Invoice::STATUS_SENT, $invoice->status_id);
 
-        $invoice = $invoice->service()->cancelInvoice();
+        $invoice = (new CancelInvoice($invoice))->execute();
 
         $invoice = $invoice->fresh();
 
@@ -499,10 +508,12 @@ class InvoiceUnitTest extends TestCase
         (new InvoiceRepository(new Invoice()))->markSent($invoice);
         $this->assertEquals(Invoice::STATUS_SENT, $invoice->status_id);
 
-        $invoice->service()->createPayment(
-            new InvoiceRepository(new Invoice),
-            new PaymentRepository(new Payment)
-        )->save();
+        $invoice = (new CreatePayment(
+            $invoice,
+            new InvoiceRepository(new Invoice()),
+            new PaymentRepository(new Payment())
+        ))->execute();
+        $invoice->save();
 
         $invoice = $invoice->fresh();
         $amount_paid = $invoice->amount_paid;
@@ -604,14 +615,16 @@ class InvoiceUnitTest extends TestCase
         $this->assertEquals(Invoice::STATUS_SENT, $invoice->status_id);
 
         $invoice = $invoice->fresh();
-        $invoice->service()->cancelInvoice();
+
+        (new CancelInvoice($invoice))->execute();
+
         $customer = $customer->fresh();
 
         $this->assertEquals(0, $invoice->balance);
         $this->assertEquals($customer->balance, ($client_balance - $invoice_balance));
         $this->assertEquals(Invoice::STATUS_CANCELLED, $invoice->status_id);
 
-        $invoice = $invoice->service()->reverseStatus();
+        $invoice = (new ReverseStatus($invoice))->execute();
 
         $this->assertEquals(Invoice::STATUS_SENT, $invoice->status_id);
         $this->assertEquals($invoice_balance, $invoice->balance);

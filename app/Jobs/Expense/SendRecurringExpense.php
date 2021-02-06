@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Expense;
 
+use App\Actions\Email\DispatchEmail;
 use App\Models\Expense;
 use App\Repositories\ExpenseRepository;
 use App\Traits\CalculateRecurring;
@@ -68,7 +69,7 @@ class SendRecurringExpense implements ShouldQueue
             $expense = $recurring_expense->replicate();
             $expense = $this->expense_repo->save(['recurring_expense_id' => $recurring_expense->id], $expense);
 
-            $expense->service()->sendEmail(null, trans('texts.quote_subject'), trans('texts.quote_body'));
+            (new DispatchEmail($expense))->execute(null, trans('texts.quote_subject'), trans('texts.quote_body'));
 
             $recurring_expense->last_sent_date = Carbon::today();
             $recurring_expense->next_send_date = $this->calculateDate($recurring_expense->frequency);

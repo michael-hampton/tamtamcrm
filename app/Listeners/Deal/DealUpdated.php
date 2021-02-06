@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Deal;
 
+use App\Actions\Pdf\GeneratePdf;
 use App\Factory\NotificationFactory;
 use App\Repositories\NotificationRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -46,6 +47,6 @@ class DealUpdated implements ShouldQueue
         $this->notification_repo->save($notification, $fields);
 
         // regenerate pdf
-        $event->deal->service()->generatePdf(null, true);
+        (new GeneratePdf($event->deal))->execute(null, true);
     }
 }

@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\Services\Invoice\InvoiceService;
-use App\Services\Transaction\TransactionService;
+use App\Actions\Invoice\CancelInvoice;
+use App\Actions\Transaction\TriggerTransaction;
 use App\Traits\Archiveable;
 use App\Traits\Balancer;
 use App\Traits\Money;
@@ -120,15 +120,10 @@ class Invoice extends Model
      */
     public function deleteInvoice(): bool
     {
-        $this->service()->deleteInvoice();
+        (new CancelInvoice($this, true))->execute();
         $this->deleteEntity();
 
         return true;
-    }
-
-    public function service(): InvoiceService
-    {
-        return new InvoiceService($this);
     }
 
     public function account()
@@ -381,7 +376,7 @@ class Invoice extends Model
         $customer->save();
 
         if ($this->id) {
-            $this->transaction_service()->createTransaction(
+            (new TriggerTransaction($this))->execute(
                 $amount,
                 $customer->balance,
                 "Customer Balance update for invoice {$this->getNumber()}"
@@ -389,10 +384,5 @@ class Invoice extends Model
         }
 
         return $customer;
-    }
-
-    public function transaction_service()
-    {
-        return new TransactionService($this);
     }
 }

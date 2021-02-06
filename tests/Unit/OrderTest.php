@@ -2,6 +2,10 @@
 
 namespace Tests\Unit;
 
+use App\Actions\Email\DispatchEmail;
+use App\Actions\Order\CancelOrder;
+use App\Actions\Order\DispatchOrder;
+use App\Actions\Order\SendOrder;
 use App\Components\Payment\Gateways\Stripe;
 use App\Factory\CreditFactory;
 use App\Factory\OrderFactory;
@@ -238,7 +242,7 @@ class OrderTest extends TestCase
         $account->settings = $settings;
         $account->save();
 
-        $order = $order->service()->dispatch(new InvoiceRepository(new Invoice), new OrderRepository(new Order));
+        $order = (new DispatchOrder($order))->execute(new InvoiceRepository(new Invoice), new OrderRepository(new Order));
         $this->assertInstanceOf(Order::class, $order);
         //$this->assertEquals($order->status_id, Order::STATUS_COMPLETE);
 
@@ -261,7 +265,7 @@ class OrderTest extends TestCase
         $account->settings = $settings;
         $account->save();
 
-        $order->service()->dispatch(new InvoiceRepository(new Invoice), $orderRepo);
+        (new DispatchOrder($order))->execute(new InvoiceRepository(new Invoice), $orderRepo);
         $order = $orderRepo->markSent($order);
         $this->assertInstanceOf(Order::class, $order);
 
@@ -294,7 +298,7 @@ class OrderTest extends TestCase
         $order->customer_id = 5;
         $order->save();
         $original_status = $order->status_id;
-        $order = $order->service()->cancelOrder();
+        $order = (new CancelOrder($order))->execute();
         $this->assertInstanceOf(Order::class, $order);
         $this->assertEquals(Order::STATUS_CANCELLED, $order->status_id);
         $cached_data = json_decode($order->cached_data, true);
@@ -396,7 +400,7 @@ class OrderTest extends TestCase
         $this->assertEquals($order->status_id, Order::STATUS_DRAFT);
         $this->assertEquals($invoice->status_id, Invoice::STATUS_SENT);
 
-        $order->service()->send();
+        (new SendOrder($order))->execute();
         $order = $order->fresh();
         $customer = $customer->fresh();
         $invoice = $invoice->fresh();
@@ -422,7 +426,7 @@ class OrderTest extends TestCase
         $template = strtolower('order');
         $subject = $order->customer->getSetting('email_subject_' . $template);
         $body = $order->customer->getSetting('email_template_' . $template);
-        $result = $order->service()->sendEmail(null, $subject, $body);
+        $result = (new DispatchEmail($order))->execute(null, $subject, $body);
         $this->assertInstanceOf(Order::class, $result);
     }
 

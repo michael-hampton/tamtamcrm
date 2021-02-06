@@ -2,6 +2,7 @@
 
 namespace App\Components\Refund;
 
+use App\Actions\Transaction\TriggerTransaction;
 use App\Components\InvoiceCalculator\LineItem;
 use App\Events\Payment\PaymentWasRefunded;
 use App\Events\Payment\RefundFailed;
@@ -185,7 +186,7 @@ class BaseRefund
             $credit_note
         );
 
-        $credit_note->transaction_service()->createTransaction(
+        (new TriggerTransaction($credit_note))->execute(
             $this->amount,
             $credit_note->customer->balance,
             "Credit Note refund for payment {$this->payment->number}"

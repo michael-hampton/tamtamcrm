@@ -66,7 +66,7 @@ class RecurringQuoteRepository extends BaseRepository
         $quote->fill($data);
         $quote = $this->populateDefaults($quote);
         $quote = $this->formatNotes($quote);
-        $quote = $quote->service()->calculateInvoiceTotals();
+        $quote = $this->calculateTotals($quote);
         $quote->setNumber();
         $quote->setExchangeRate();
 

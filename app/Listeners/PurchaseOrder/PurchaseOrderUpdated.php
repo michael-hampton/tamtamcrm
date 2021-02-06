@@ -2,6 +2,8 @@
 
 namespace App\Listeners\PurchaseOrder;
 
+use App\Actions\Pdf\GeneratePdf;
+use App\Actions\Pdf\GeneratePurchaseOrderPdf;
 use App\Factory\NotificationFactory;
 use App\Repositories\NotificationRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -49,6 +51,6 @@ class PurchaseOrderUpdated implements ShouldQueue
         $this->notification_repo->save($notification, $fields);
 
         // regenerate pdf
-        $event->purchase_order->service()->generatePdf(null, true);
+        (new GeneratePurchaseOrderPdf($event->purchase_order))->execute(null, true);
     }
 }

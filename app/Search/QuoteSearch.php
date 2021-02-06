@@ -111,12 +111,15 @@ class QuoteSearch extends BaseSearch
     {
         return DB::table('quotes')
                  ->select(
-                     DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance')
+                     DB::raw(
+                         'count(*) as count, currencies.name, SUM(quotes.total) as total, SUM(quotes.balance) AS balance'
+                     )
                  )
-                 ->join('currencies', 'currencies.id', '=', 'quotes.currency_id')
-                 ->where('currency_id', '<>', 0)
-                 ->where('account_id', '=', $account->id)
-                 ->groupBy('currency_id')
+                 ->join('customers', 'customers.id', '=', 'quotes.customer_id')
+                 ->join('currencies', 'currencies.id', '=', 'customers.currency_id')
+                 ->where('customers.currency_id', '<>', 0)
+                 ->where('customers.account_id', '=', $account->id)
+                 ->groupBy('customers.currency_id')
                  ->get();
     }
 

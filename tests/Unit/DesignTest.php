@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Actions\Pdf\GeneratePdf;
 use App\Components\Pdf\GenerateHtml;
 use App\Components\Pdf\InvoicePdf;
 use App\Factory\DesignFactory;
@@ -130,7 +131,7 @@ class DesignTest extends TestCase
         $this->customer->settings = $settings;
         $this->customer->save();
 
-        $this->quote->service()->generatePdf();
+        (new GeneratePdf($this->quote))->execute();
     }
 
     public function testInvoiceDesignExists()
@@ -165,6 +166,6 @@ class DesignTest extends TestCase
         $this->customer->settings = $settings;
         $this->customer->save();
 
-        $this->invoice->service()->generatePdf();
+        (new GeneratePdf($this->invoice))->execute();
     }
 }

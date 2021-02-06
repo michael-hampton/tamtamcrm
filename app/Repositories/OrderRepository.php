@@ -8,6 +8,8 @@
 
 namespace App\Repositories;
 
+use App\Actions\Order\FulfilOrder;
+use App\Actions\Order\HoldStock;
 use App\Events\Order\OrderWasBackordered;
 use App\Events\Order\OrderWasCreated;
 use App\Events\Order\OrderWasUpdated;
@@ -101,7 +103,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         $order = $this->populateDefaults($order);
         $order = $this->formatNotes($order);
 
-        $order = $order->service()->calculateInvoiceTotals();
+        $order = $this->calculateTotals($order);
         $order->setNumber();
         $order->setExchangeRate();
 
@@ -162,12 +164,12 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         $order->fill($data);
 
         if ($order->customer->getSetting('inventory_enabled') === true) {
-            $order = $order->service()->fulfillOrder($this);
+            $order = (new FulfilOrder($order))->execute();
 
             /************** hold stock ***************************/
             // if the order hasnt been failed at this point then reserve stock
             if ($order->status_id !== Order::STATUS_ORDER_FAILED) {
-                $order->service()->holdStock();
+                (new HoldStock($order))->execute();
             }
         }
 

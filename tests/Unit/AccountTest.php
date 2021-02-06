@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Actions\Account\ConvertAccount;
 use App\Models\Account;
 use App\Models\Customer;
 use App\Models\User;
@@ -24,7 +25,7 @@ class AccountTest extends TestCase
     public function it_can_convert_the_account()
     {
         $account = Account::factory()->create();
-        $account = $account->service()->convertAccount();
+        $account = (new ConvertAccount($account))->execute();
         $this->assertInstanceOf(Account::class, $account);
         $this->assertInstanceOf(Customer::class, $account->domains->customer);
         $this->assertInstanceOf(User::class, $account->domains->user);

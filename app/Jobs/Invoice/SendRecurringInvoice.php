@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Invoice;
 
+use App\Actions\Email\DispatchEmail;
 use App\Factory\RecurringInvoiceToInvoiceFactory;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
@@ -62,7 +63,8 @@ class SendRecurringInvoice implements ShouldQueue
             $invoice = RecurringInvoiceToInvoiceFactory::create($recurring_invoice, $recurring_invoice->customer);
             $invoice = $this->invoice_repo->save(['recurring_invoice_id' => $recurring_invoice->id], $invoice);
             $this->invoice_repo->markSent($invoice);
-            $invoice->service()->sendEmail(
+            
+            (new DispatchEmail($invoice))->execute(
                 null,
                 $invoice->customer->getSetting('email_subject_invoice'),
                 $invoice->customer->getSetting('email_template_invoice')

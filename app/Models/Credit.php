@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use App\Services\Credit\CreditService;
-use App\Services\Transaction\TransactionService;
 use App\Traits\Archiveable;
 use App\Traits\Balancer;
 use App\Traits\Money;
@@ -104,11 +102,6 @@ class Credit extends Model
         return $this->belongsTo('App\Models\Account');
     }
 
-    public function transaction_service()
-    {
-        return new TransactionService($this);
-    }
-
     public function transactions()
     {
         return $this->morphMany(Transaction::class, 'transactionable');
@@ -125,11 +118,6 @@ class Credit extends Model
     public function project()
     {
         return $this->belongsTo(Project::class);
-    }
-
-    public function service(): CreditService
-    {
-        return new CreditService($this);
     }
 
     public function invitations()

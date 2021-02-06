@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Cases;
 
+use App\Actions\Pdf\GeneratePdf;
 use App\Factory\NotificationFactory;
 use App\Repositories\NotificationRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -46,6 +47,6 @@ class CaseUpdated implements ShouldQueue
         $this->notification_repo->save($notification, $fields);
 
         // regenerate pdf
-        $event->case->service()->generatePdf(null, true);
+        (new GeneratePdf($event->case))->execute(null, true);
     }
 }

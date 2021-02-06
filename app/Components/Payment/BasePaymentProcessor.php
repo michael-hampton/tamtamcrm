@@ -2,6 +2,7 @@
 
 namespace App\Components\Payment;
 
+use App\Actions\Transaction\TriggerTransaction;
 use App\Models\Payment;
 use App\Repositories\PaymentRepository;
 
@@ -146,7 +147,7 @@ class BasePaymentProcessor
         $customer->reduceBalance($amount);
         $customer->save();
 
-        $this->payment->transaction_service()->createTransaction(
+        (new TriggerTransaction($this->payment))->execute(
             $this->amount * -1,
             $customer->balance,
             "Customer Payment {$this->payment->number}"

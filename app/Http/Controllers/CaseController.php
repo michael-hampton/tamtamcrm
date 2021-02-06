@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 
+use App\Actions\Cases\MergeCase;
+use App\Actions\Pdf\GeneratePdf;
 use App\Factory\CaseFactory;
 use App\Factory\CloneCaseToProjectFactory;
 use App\Jobs\Utils\UploadFile;
@@ -172,12 +174,12 @@ class CaseController extends Controller
                 if (empty($request->input('parent_id'))) {
                     return response()->json('You must select a parent');
                 }
-                $case = $case->service()->mergeCase($request, auth()->user());
+                $case = (new MergeCase($case))->execute($request, auth()->user());
                 return response()->json($case);
                 break;
             case 'download': //done
                 $disk = config('filesystems.default');
-                $content = Storage::disk($disk)->get($case->service()->generatePdf(null));
+                $content = Storage::disk($disk)->get((new GeneratePdf($case))->execute(null));
                 $response = ['data' => base64_encode($content)];
                 return response()->json($response);
                 break;

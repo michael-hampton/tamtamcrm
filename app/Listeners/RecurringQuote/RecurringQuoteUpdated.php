@@ -2,6 +2,7 @@
 
 namespace App\Listeners\RecurringQuote;
 
+use App\Actions\Pdf\GeneratePdf;
 use App\Factory\NotificationFactory;
 use App\Repositories\NotificationRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -49,6 +50,6 @@ class RecurringQuoteUpdated implements ShouldQueue
         $this->notification_repo->save($notification, $fields);
 
         // regenerate pdf
-        $event->recurringQuote->service()->generatePdf(null, true);
+        (new GeneratePdf($event->recurringQuote))->execute(null, true);
     }
 }
