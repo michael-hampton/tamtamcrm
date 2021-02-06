@@ -35,6 +35,10 @@ class Approve
         $body = trans('texts.purchase_order_approved_body');
         (new DispatchEmail($this->purchase_order))->execute(null, $subject, $body);
 
+        if (!empty($this->purchase_order->account->settings->should_archive_purchase_order)) {
+            $this->purchase_order->archive();
+        }
+
         return $this->purchase_order;
     }
 }

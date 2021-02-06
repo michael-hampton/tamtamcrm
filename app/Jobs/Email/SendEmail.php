@@ -3,6 +3,7 @@
 namespace App\Jobs\Email;
 
 use App\Actions\Pdf\GeneratePdf;
+use App\Actions\Pdf\GeneratePurchaseOrderPdf;
 use App\Components\Pdf\PdfFactory;
 use App\Events\EmailFailedToSend;
 use App\Factory\EmailFactory;
@@ -97,7 +98,8 @@ class SendEmail implements ShouldQueue
         }
 
         if ($settings->pdf_email_attachment && (new \ReflectionClass($this->entity))->getShortName() !== 'Payment') {
-            $message->setAttachments(public_path((new GeneratePdf($this->entity))->execute($this->contact)));
+            $pdf = (new \ReflectionClass($this->entity))->getShortName() === 'PurchaseOrder' ? (new GeneratePurchaseOrderPdf($this->entity)) : (new GeneratePdf($this->entity));
+            $message->setAttachments(public_path($pdf->execute($this->contact)));
         }
 
         foreach ($this->entity->files as $file) {

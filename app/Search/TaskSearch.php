@@ -140,12 +140,13 @@ class TaskSearch extends BaseSearch
     {
         $this->query = DB::table('tasks')
                          ->select(
-                             DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance')
+                             DB::raw('count(*) as count, currencies.name, SUM(tasks.total) as total, SUM(tasks.balance) AS balance')
                          )
-                         ->join('currencies', 'currencies.id', '=', 'invoices.currency_id')
-                         ->where('currency_id', '<>', 0)
-                         ->where('account_id', '=', $account->id)
-                         ->groupBy('currency_id')
+                         ->join('customers', 'customers.id', '=', 'tasks.customer_id')
+                         ->join('currencies', 'currencies.id', '=', 'customers.currency_id')
+                         ->where('customers.currency_id', '<>', 0)
+                         ->where('tasks.account_id', '=', $account->id)
+                         ->groupBy('customers.currency_id')
                          ->get();
     }
 
