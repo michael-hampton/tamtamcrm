@@ -44,7 +44,8 @@ To run then php ./vendor/phpunit/phpunit/phpunit
 
 * Laravel 6.0 - The backend web framework used
 * React - Frontend JavaScript framework
-* reference - https://laravel-taiwan.github.io/php-the-right-way/pages/Design-Patterns.html
+* reference - https://laravel-taiwan.github.io/php-the-right-way/pages/Design-Patterns.html - factory pattern
+* reference - https://freek.dev/1371-refactoring-to-actions - actions
 
 ## Contributing
 
