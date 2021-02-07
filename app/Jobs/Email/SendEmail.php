@@ -3,7 +3,6 @@
 namespace App\Jobs\Email;
 
 use App\Actions\Pdf\GeneratePdf;
-use App\Actions\Pdf\GeneratePurchaseOrderPdf;
 use App\Components\Pdf\PdfFactory;
 use App\Events\EmailFailedToSend;
 use App\Factory\EmailFactory;
@@ -98,8 +97,7 @@ class SendEmail implements ShouldQueue
         }
 
         if ($settings->pdf_email_attachment && (new \ReflectionClass($this->entity))->getShortName() !== 'Payment') {
-            $pdf = (new \ReflectionClass($this->entity))->getShortName() === 'PurchaseOrder' ? (new GeneratePurchaseOrderPdf($this->entity)) : (new GeneratePdf($this->entity));
-            $message->setAttachments(public_path($pdf->execute($this->contact)));
+            $message->setAttachments(public_path((new GeneratePdf($this->entity))->execute($this->contact)));
         }
 
         foreach ($this->entity->files as $file) {
@@ -177,11 +175,13 @@ class SendEmail implements ShouldQueue
 
         $entity = get_class($this->entity);
 
+        $contact = $entity === 'App\Models\Lead' ? $this->entity : $this->contact;
+
         // check if already sent
         $email = Email::whereSubject($subject)
                       ->whereEntity($entity)
                       ->whereEntityId($this->entity->id)
-                      ->whereRecipientEmail($this->contact->present()->email)
+                      ->whereRecipientEmail($contact->present()->email)
                       ->whereFailedToSend(1)
                       ->first();
 
@@ -199,8 +199,8 @@ class SendEmail implements ShouldQueue
                 'body'            => $body,
                 'entity'          => $entity,
                 'entity_id'       => $this->entity->id,
-                'recipient'       => $this->contact->present()->name,
-                'recipient_email' => $this->contact->present()->email,
+                'recipient'       => $contact->present()->name,
+                'recipient_email' => $contact->present()->email,
                 'template'        => $this->template,
                 'sent_at'         => Carbon::now(),
                 'failed_to_send'  => $sent_successfully === false,

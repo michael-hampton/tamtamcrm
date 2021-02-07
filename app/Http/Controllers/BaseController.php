@@ -7,13 +7,13 @@ namespace App\Http\Controllers;
 use App\Actions\Email\DispatchEmail;
 use App\Actions\Invoice\CancelInvoice;
 use App\Actions\Invoice\CreatePayment;
+use App\Actions\Invoice\GenerateDispatchNote;
 use App\Actions\Invoice\ReverseInvoicePayment;
 use App\Actions\Order\CancelOrder;
 use App\Actions\Order\DispatchOrder;
 use App\Actions\Order\HoldOrder;
 use App\Actions\Order\ReverseStatus;
 use App\Actions\Pdf\GeneratePdf;
-use App\Actions\Pdf\GeneratePurchaseOrderPdf;
 use App\Actions\PurchaseOrder\Approve;
 use App\Actions\PurchaseOrder\Reject;
 use App\Actions\PurchaseOrder\RequestChange;
@@ -210,7 +210,7 @@ class BaseController extends Controller
 
             case 'dispatch_note':
                 $disk = config('filesystems.default');
-                $content = Storage::disk($disk)->get($entity->service()->generateDispatchNote(null));
+                $content = Storage::disk($disk)->get((new GenerateDispatchNote($entity))->execute(null));
                 $response = ['data' => base64_encode($content)];
                 break;
             case 'reverse_status':
@@ -354,10 +354,8 @@ class BaseController extends Controller
                 break;
 
             case 'download': //done
-                $pdf = $this->entity_string === 'PurchaseOrder' ? (new GeneratePurchaseOrderPdf($entity))->execute(
-                ) : (new GeneratePdf($entity))->execute();
                 $disk = config('filesystems.default');
-                $content = Storage::disk($disk)->get($pdf);
+                $content = Storage::disk($disk)->get((new GeneratePdf($entity))->execute());
                 $response = ['data' => base64_encode($content)];
                 break;
             case 'archive': //done
@@ -370,8 +368,16 @@ class BaseController extends Controller
                 break;
             case 'email': //done
                 $template = strtolower($this->entity_string);
-                $subject = $entity->customer->getSetting('email_subject_' . $template);
-                $body = $entity->customer->getSetting('email_template_' . $template);
+                $subject = $this->entity_string === 'PurchaseOrder'
+                    ? $entity->account->settings->email_subject_purchase_order
+                    : $entity->customer->getSetting(
+                        'email_subject_' . $template
+                    );
+                $body = $this->entity_string === 'PurchaseOrder'
+                    ? $entity->account->settings->email_template_purchase_order
+                    : $entity->customer->getSetting(
+                        'email_template_' . $template
+                    );
                 (new DispatchEmail($entity))->execute(null, $subject, $body);
                 $response = $this->transformEntity($entity);
                 break;
@@ -547,9 +553,7 @@ class BaseController extends Controller
         $pdfs = [];
 
         foreach ($entities as $entity) {
-            $pdf = $this->entity_string === 'PurchaseOrder' ? (new GeneratePurchaseOrderPdf($entity))->execute(
-            ) : (new GeneratePdf($entity))->execute();
-            $content = Storage::disk($disk)->get($pdf);
+            $content = Storage::disk($disk)->get((new GeneratePdf($entity))->execute());
             $pdfs[$entity->number] = base64_encode($content);
         }
 
@@ -569,10 +573,8 @@ class BaseController extends Controller
         $entity = $invitation->inviteable;
 
         $disk = config('filesystems.default');
-        $pdf = $this->entity_string === 'PurchaseOrder' ? (new GeneratePurchaseOrderPdf($entity))->execute(
-        ) : (new GeneratePdf($entity))->execute();
 
-        $content = Storage::disk($disk)->get($pdf);
+        $content = Storage::disk($disk)->get((new GeneratePdf($entity))->execute($contact));
 
         if (request()->has('markRead') && request()->boolean('markRead')) {
             $invitation->markViewed();

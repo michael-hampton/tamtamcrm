@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Actions\Email\DispatchEmail;
 use App\Models\CustomerContact;
 use App\Models\Email;
 use Illuminate\Console\Command;
@@ -68,7 +69,7 @@ class EmailFailures extends Command
                 )->first();
             $contact = empty($contact) ? null : $contact;
 
-            $entity->service()->sendEmail($contact, $failed_email->subject, $failed_email->body);
+            (new DispatchEmail($entity))->execute($contact, $failed_email->subject, $failed_email->body);
             $failed_email->sent_at = Carbon::now();
             $failed_email->save();
         }

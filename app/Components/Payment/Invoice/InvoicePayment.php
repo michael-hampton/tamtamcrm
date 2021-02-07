@@ -2,7 +2,7 @@
 
 namespace App\Components\Payment\Invoice;
 
-use App\Actions\Email\SendPaymentEmail;
+use App\Actions\Email\DispatchEmail;
 use App\Actions\Invoice\RecalculateInvoice;
 use App\Components\Payment\BasePaymentProcessor;
 use App\Models\Invoice;
@@ -59,7 +59,7 @@ class InvoicePayment extends BasePaymentProcessor
 
         $this->save();
 
-        (new SendPaymentEmail($this->payment))->execute();
+        (new DispatchEmail($this->payment))->execute();
 
         return $this->payment;
     }

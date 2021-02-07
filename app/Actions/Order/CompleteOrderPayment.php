@@ -2,7 +2,7 @@
 
 namespace App\Actions\Order;
 
-use App\Actions\Email\SendPaymentEmail;
+use App\Actions\Email\DispatchEmail;
 use App\Components\Payment\Gateways\GatewayFactory;
 use App\Models\Customer;
 use App\Models\CustomerGateway;
@@ -54,7 +54,7 @@ class CompleteOrderPayment
 
         $payment = $objGateway->capturePayment($payment);
 
-        (new SendPaymentEmail($payment))->execute();
+        (new DispatchEmail($payment))->execute();
 
         return $payment;
     }

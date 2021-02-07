@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Email\DispatchEmail;
 use App\Models\CustomerContact;
 use App\Repositories\Base\BaseRepository;
 use App\Repositories\EmailRepository;
@@ -52,11 +53,15 @@ class EmailController extends Controller
 
         if (!empty($to)) {
             $contact = CustomerContact::where('id', '=', $to)->first();
-        } elseif (!in_array($entity, ['App\Models\Lead', 'App\Models\Deal', 'App\Models\Task', 'App\Models\Cases'])) {
+        } elseif (in_array($entity, ['App\Models\Deal', 'App\Models\Task', 'App\Models\Cases'])) {
+            $contact = $entity_obj->customer->primary_contact()->first();
+        } elseif ($entity === 'App\Models\Lead') {
+            $contact = $entity_obj;
+        } else {
             $contact = $entity_obj->invitations->first()->contact;
         }
 
-        $entity_obj->service()->sendEmail($contact, $request->subject, $request->body);
+        (new DispatchEmail($entity_obj))->execute($contact, $request->subject, $request->body);
 
         if (!in_array(
                 $entity,

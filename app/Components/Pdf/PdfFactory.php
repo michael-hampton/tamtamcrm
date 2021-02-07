@@ -10,11 +10,11 @@ class PdfFactory
     public function create($entity)
     {
         switch (get_class($entity)) {
-            case in_array(get_class($entity), ['App\Models\Cases', 'App\Models\Task', 'App\Models\Deal']):
+            case in_array(get_class($entity), ['App\Models\Task', 'App\Models\Deal']):
                 return new TaskPdf($entity);
                 break;
             case 'App\Models\Cases':
-                return new InvoicePdf($entity, 'case');
+                return new TaskPdf($entity, 'case');
             break;
             case 'App\Models\RecurringInvoice':
                 return new InvoicePdf($entity, 'invoice');

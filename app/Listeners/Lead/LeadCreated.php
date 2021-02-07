@@ -2,7 +2,7 @@
 
 namespace App\Listeners\Lead;
 
-use App\Actions\Email\SendLeadEmail;
+use App\Actions\Email\DispatchEmail;
 use App\Factory\NotificationFactory;
 use App\Repositories\NotificationRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -42,6 +42,10 @@ class LeadCreated implements ShouldQueue
         $notification->entity_id = $event->lead->id;
         $this->notification_repo->save($notification, $fields);
 
-        (new SendLeadEmail($event->lead))->execute();
+        (new DispatchEmail($event->lead))->execute(
+            null,
+            $event->lead->account->getSetting('email_subject_lead'),
+            $event->lead->account->getSetting('email_template_lead')
+        );
     }
 }

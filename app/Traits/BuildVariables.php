@@ -4,10 +4,7 @@
 namespace App\Traits;
 
 
-use App\Components\Pdf\InvoicePdf;
-use App\Components\Pdf\LeadPdf;
-use App\Components\Pdf\PurchaseOrderPdf;
-use App\Components\Pdf\TaskPdf;
+use App\Components\Pdf\PdfFactory;
 use ReflectionException;
 
 trait BuildVariables
@@ -33,20 +30,7 @@ trait BuildVariables
      */
     public function parseVariables($content, $entity)
     {
-        switch (get_class($entity)) {
-            case in_array(get_class($entity), ['App\Models\Cases', 'App\Models\Task', 'App\Models\Deal']):
-                $objPdf = new TaskPdf($entity);
-                break;
-            case 'App\Models\Lead':
-                $objPdf = new LeadPdf($entity);
-                break;
-            case 'App\Models\PurchaseOrder':
-                $objPdf = new PurchaseOrderPdf($entity);
-                break;
-            default:
-                $objPdf = new InvoicePdf($entity);
-                break;
-        }
+        $objPdf = (new PdfFactory())->create($entity);
 
         $objPdf->build();
         $labels = $objPdf->getLabels();

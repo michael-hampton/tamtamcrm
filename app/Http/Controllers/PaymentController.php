@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Email\DispatchEmail;
 use App\Components\Payment\DeletePayment;
 use App\Components\Payment\ProcessPayment;
 use App\Components\Refund\RefundFactory;
@@ -26,7 +27,6 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use App\Actions\Email\SendPaymentEmail;
 
 class PaymentController extends Controller
 {
@@ -74,7 +74,7 @@ class PaymentController extends Controller
         $payment = (new ProcessPayment())->process($request->all(), $this->payment_repo, $payment);
 
         if ($request->input('send_email') === true) {
-            (new SendPaymentEmail($payment))->execute();
+            (new DispatchEmail($payment))->execute();
         }
 
         event(new PaymentWasCreated($payment));
@@ -147,7 +147,7 @@ class PaymentController extends Controller
         }
 
         if ($action === 'email') {
-            $payment->service()->sendEmail();
+            (new DispatchEmail($payment))->execute();
             return response()->json(['email sent']);
         }
 

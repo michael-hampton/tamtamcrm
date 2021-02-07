@@ -16,7 +16,7 @@ class GenerateDispatchNote
         $this->invoice = $invoice;
     }
 
-    public function generateDispatchNote($contact = null, $update = false)
+    public function execute($contact = null, $update = false)
     {
         if (!$contact) {
             $contact = $this->entity->customer->primary_contact()->first();

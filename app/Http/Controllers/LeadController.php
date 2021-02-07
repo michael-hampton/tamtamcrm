@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Lead\ConvertLead;
-use App\Actions\Pdf\GenerateLeadPdf;
+use App\Actions\Pdf\GeneratePdf;
 use App\Events\Lead\LeadWasCreated;
 use App\Factory\Lead\CloneLeadToDealFactory;
 use App\Factory\Lead\CloneLeadToTaskFactory;
@@ -157,7 +157,7 @@ class LeadController extends Controller
                 break;
             case 'download': //done
                 $disk = config('filesystems.default');
-                $content = Storage::disk($disk)->get((new GenerateLeadPdf($lead))->execute(null));
+                $content = Storage::disk($disk)->get((new GeneratePdf($lead))->execute(null));
                 $response = ['data' => base64_encode($content)];
 
                 return response()->json($response);

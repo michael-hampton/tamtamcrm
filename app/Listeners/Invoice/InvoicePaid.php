@@ -2,7 +2,7 @@
 
 namespace App\Listeners\Invoice;
 
-use App\Actions\Email\SendPaymentEmail;
+use App\Actions\Email\DispatchEmail;
 use App\Factory\NotificationFactory;
 use App\Repositories\NotificationRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -44,6 +44,6 @@ class InvoicePaid implements ShouldQueue
         $notification->entity_id = $event->invoice->id;
         $this->notification_repo->save($notification, $fields);
 
-        (new SendPaymentEmail($event->payment))->execute();
+        (new DispatchEmail($event->payment))->execute();
     }
 }

@@ -5,6 +5,7 @@ namespace App\Components\Pdf;
 
 
 use App\Models\Lead;
+use App\Models\Project;
 use Laracasts\Presenter\Exceptions\PresenterException;
 use ReflectionClass;
 use ReflectionException;
@@ -34,7 +35,8 @@ class LeadPdf extends PdfBuilder
     {
         $this->buildClientForLead($this->entity)
              ->buildAddress($this->entity, $this->entity)
-             ->buildAccount($this->entity->account);
+             ->buildAccount($this->entity->account)
+             ->buildTask();
 
         foreach ($this->data as $key => $value) {
             if (isset($value['label'])) {
@@ -146,29 +148,15 @@ class LeadPdf extends PdfBuilder
         $item['$task.rate'] = 0;
         $item['$task.cost'] = 0;
 
-        switch ($this->class) {
-            case 'task':
-                $budgeted_hours = $this->calculateBudgetedHours();
+        $budgeted_hours = $this->calculateBudgetedHours();
 
-                $task_rate = $this->entity->getTaskRate();
+        $task_rate = $this->entity->getTaskRate();
 
-                $cost = !empty($task_rate) && !empty($budgeted_hours) ? $task_rate * $budgeted_hours : 0;
+        $cost = !empty($task_rate) && !empty($budgeted_hours) ? $task_rate * $budgeted_hours : 0;
 
-                $item['$task.hours'] = !empty($budgeted_hours) ? $budgeted_hours : 0;
-                $item['$task.rate'] = !empty($task_rate) ? $task_rate : 0;
-                $item['$task.cost'] = !empty($cost) ? $cost : 0;
-                break;
-            case 'cases':
-                $item['$task.name'] = $this->entity->subject;
-                $item['$task.description'] = $this->entity->message;
-                break;
-            case 'deal':
-                $item['$task.cost'] = $this->entity->valued_at;
-                break;
-            default:
-
-                break;
-        }
+        $item['$task.hours'] = !empty($budgeted_hours) ? $budgeted_hours : 0;
+        $item['$task.rate'] = !empty($task_rate) ? $task_rate : 0;
+        $item['$task.cost'] = !empty($cost) ? $cost : 0;
 
         $tmp = strtr($table_row, $item);
         $tmp = strtr($tmp, $values);
@@ -179,5 +167,22 @@ class LeadPdf extends PdfBuilder
         $table['header'] = strtr($table['header'], $labels);
 
         return $table;
+    }
+
+    private function calculateBudgetedHours()
+    {
+        $project = !empty($this->entity->project_id) ? Project::where(
+            'id',
+            '=',
+            $this->entity->project_id
+        )->first() : false;
+
+        $budgeted_hours = 0;
+
+        if (!empty($project)) {
+            $budgeted_hours = $budgeted_hours === 0 ? $project->budgeted_hours : $budgeted_hours;
+        }
+
+        return $budgeted_hours;
     }
 }

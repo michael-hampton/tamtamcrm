@@ -2,7 +2,7 @@
 
 namespace App\Listeners\Lead;
 
-use App\Actions\Pdf\GenerateLeadPdf;
+use App\Actions\Pdf\GeneratePdf;
 use App\Factory\NotificationFactory;
 use App\Repositories\NotificationRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -47,6 +47,6 @@ class LeadUpdated implements ShouldQueue
         $this->notification_repo->save($notification, $fields);
 
         // regenerate pdf
-        (new GenerateLeadPdf($event->lead))->execute(null, true);
+        (new GeneratePdf($event->lead))->execute(null, true);
     }
 }

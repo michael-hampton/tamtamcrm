@@ -2,7 +2,7 @@
 
 namespace App\Jobs\Payment;
 
-use App\Actions\Email\SendPaymentEmail;
+use App\Actions\Email\DispatchEmail;
 use App\Actions\Order\DispatchOrder;
 use App\Actions\Transaction\TriggerTransaction;
 use App\Components\InvoiceCalculator\LineItem;
@@ -90,7 +90,7 @@ class CreatePayment implements ShouldQueue
         $order->save();
 
         if ($charge_point === 'on_creation') {
-            (new SendPaymentEmail($payment))->execute();
+            (new DispatchEmail($payment))->execute();
         }
 
         return $payment;

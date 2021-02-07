@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Pdf\GeneratePdf;
 use App\Components\Pdf\InvoicePdf;
 use App\Jobs\Pdf\CreatePdf;
 use App\Models\Address;
@@ -46,7 +47,7 @@ class PreviewController extends Controller
                 return $this->blankEntity();
             }
 
-            $file_path = $entity_obj->service()->generatePdf();
+            $file_path = (new GeneratePdf($entity_obj))->execute();
 
             return response()->json(['data' => base64_encode(file_get_contents($file_path))]);
         }

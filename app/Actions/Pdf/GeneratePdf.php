@@ -18,18 +18,25 @@ class GeneratePdf
 
     public function execute($contact = null, $update = false)
     {
-        if (!$contact) {
-            $contact = $this->entity->customer->primary_contact()->first();
-        }
-
-        $label = '';
-
         return CreatePdf::dispatchNow(
             (new PdfFactory)->create($this->entity),
             $this->entity,
-            $contact,
-            $update,
-            $label
+            $contact === null ? $this->getContact($this->entity) : $contact,
+            $update
         );
+    }
+
+    private function getContact($entity)
+    {
+        switch (get_class($entity)) {
+            case 'App\Models\Lead':
+                return null;
+                break;
+            case 'App\Models\PurchaseOrder':
+                return $entity->company->primary_contact()->first();
+                break;
+            default:
+                return $entity->customer->primary_contact()->first();
+        }
     }
 }

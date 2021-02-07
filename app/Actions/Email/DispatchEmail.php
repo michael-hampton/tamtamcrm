@@ -3,7 +3,7 @@
 namespace App\Actions\Email;
 
 
-use App\Models\Invoice;
+use App\Jobs\Email\SendEmail;
 
 class DispatchEmail extends BaseEmailActions
 {
@@ -17,14 +17,65 @@ class DispatchEmail extends BaseEmailActions
      * @param string $subject
      * @param string $body
      * @param string $template
-     * @return Invoice|null
+     * @return void|null
+     * @throws \ReflectionException
      */
-    public function execute($contact = null, $subject, $body, $template = 'invoice')
+    public function execute($contact = null, $subject = '', $body = '', $template = 'invoice')
     {
+        $entity_string = (new \ReflectionClass($this->entity))->getShortName();
+
+        if (in_array($entity_string, ['Lead', 'Task', 'Deal'])) {
+            return $this->dispatch($subject, $body, $contact, strtolower($entity_string));
+        }
+
+        if ($entity_string === 'Payment') {
+            return $this->sendPaymentEmails();
+        }
+
         if (!$this->sendInvitationEmails($subject, $body, $template, $contact)) {
             return null;
         }
 
         return $this->entity;
+    }
+
+    public function sendPaymentEmails()
+    {
+        $subject = $this->entity->customer->getSetting('email_subject_payment');
+        $body = $this->entity->customer->getSetting('email_template_payment');
+
+        foreach ($this->entity->customer->contacts as $contact) {
+            $footer = ['link' => $this->entity->getUrl(), 'text' => trans('texts.view_payment')];
+            $this->dispatchEmail($contact, $subject, $body, 'email_template_payment', $footer);
+        }
+
+        $this->triggerEvent();
+    }
+
+    private function dispatch($subject, $body, $contact, $entity_string)
+    {
+        if(empty($contact) && $entity_string === 'Task') {
+            $contact = $this->entity->customer->primary_contact()->first();
+        }
+
+        if (empty($subject) || empty($body)) {
+            throw new \Exception('Subject was empty');
+        }
+
+        SendEmail::dispatchNow($this->entity, $subject, $body, $entity_string, $contact);
+
+        $this->triggerEvent();
+    }
+
+    private function triggerEvent()
+    {
+        $entity_class = (new \ReflectionClass($this->entity))->getShortName();
+        $event_class = "App\Events\\" . $entity_class . "\\" . $entity_class . "WasEmailed";
+
+        if (class_exists($event_class)) {
+            event(new $event_class($this->entity));
+        }
+
+        return true;
     }
 }
