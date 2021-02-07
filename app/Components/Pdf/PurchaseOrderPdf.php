@@ -13,6 +13,8 @@ class PurchaseOrderPdf extends PdfBuilder
 {
     protected $entity;
 
+    private $entity_string = 'purchase_order';
+
     /**
      * InvoicePdf constructor.
      * @param $entity
@@ -23,6 +25,11 @@ class PurchaseOrderPdf extends PdfBuilder
         parent::__construct($entity);
         $this->entity = $entity;
         $this->class = strtolower((new ReflectionClass($this->entity))->getShortName());
+    }
+
+    public function getEntityString()
+    {
+        return $this->entity_string;
     }
 
     public function build($contact = null)
