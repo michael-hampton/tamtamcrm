@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Models;
-use App\Services\Task\TaskService;
 use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -132,11 +131,6 @@ class Task extends Model
     public function files()
     {
         return $this->morphMany(File::class, 'fileable');
-    }
-
-    public function service(): TaskService
-    {
-        return new TaskService($this);
     }
 
     public function getDesignId()
