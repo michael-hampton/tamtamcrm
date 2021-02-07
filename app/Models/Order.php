@@ -8,8 +8,6 @@
 
 namespace App\Models;
 
-
-use App\Services\Order\OrderService;
 use App\Traits\Archiveable;
 use App\Traits\Balancer;
 use App\Traits\Money;
@@ -107,11 +105,6 @@ class Order extends Model
     ];
 
     protected $table = 'product_task';
-
-    public function service(): OrderService
-    {
-        return new OrderService($this);
-    }
 
     public function task()
     {
