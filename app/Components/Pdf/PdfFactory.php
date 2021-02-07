@@ -13,6 +13,15 @@ class PdfFactory
             case in_array(get_class($entity), ['App\Models\Cases', 'App\Models\Task', 'App\Models\Deal']):
                 return new TaskPdf($entity);
                 break;
+            case 'App\Models\Cases':
+                return new InvoicePdf($entity, 'case');
+            break;
+            case 'App\Models\RecurringInvoice':
+                return new InvoicePdf($entity, 'invoice');
+            break;
+            case 'App\Models\RecurringQuote':
+                return new InvoicePdf($entity, 'quote');
+            break;
             case 'App\Models\Lead':
                 return new LeadPdf($entity);
                 break;
