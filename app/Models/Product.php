@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Services\Product\ProductService;
 use App\Traits\Archiveable;
 use App\Traits\ManageStock;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
