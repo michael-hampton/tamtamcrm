@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Services\RecurringQuote\RecurringQuoteService;
 use App\Traits\Archiveable;
 use App\Traits\Balancer;
 use App\Traits\CalculateRecurringDateRanges;
@@ -124,11 +123,6 @@ class RecurringQuote extends Model
     public function invitations()
     {
         return $this->morphMany(Invitation::class, 'inviteable')->orderBy('contact_id');
-    }
-
-    public function service(): RecurringQuoteService
-    {
-        return new RecurringQuoteService($this);
     }
 
     public function files()
