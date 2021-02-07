@@ -26,6 +26,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\Actions\Email\SendPaymentEmail;
 
 class PaymentController extends Controller
 {
@@ -73,7 +74,7 @@ class PaymentController extends Controller
         $payment = (new ProcessPayment())->process($request->all(), $this->payment_repo, $payment);
 
         if ($request->input('send_email') === true) {
-            $payment->service()->sendEmail();
+            (new SendPaymentEmail($payment))->execute();
         }
 
         event(new PaymentWasCreated($payment));
