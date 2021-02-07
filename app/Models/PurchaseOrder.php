@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Services\PurchaseOrder\PurchaseOrderService;
 use App\Traits\Archiveable;
 use App\Traits\Balancer;
 use App\Traits\MoneyVendor;
@@ -144,11 +143,6 @@ class PurchaseOrder extends Model
     public function user()
     {
         return $this->belongsTo(User::class)->withTrashed();
-    }
-
-    public function service(): PurchaseOrderService
-    {
-        return new PurchaseOrderService($this);
     }
 
     public function files()
