@@ -5,6 +5,7 @@ namespace App\Actions\Invoice;
 
 use App\Models\Invoice;
 use App\Components\Pdf\InvoicePdf;
+use App\Jobs\Pdf\CreatePdf;
 
 class GenerateDispatchNote
 {
