@@ -30,6 +30,11 @@ class InvoicePdf extends PdfBuilder
         $this->entity_string = $entity_string;
     }
 
+    public function getEntityString()
+    {
+        return $this->entity_string;
+    }
+
     public function build($contact = null)
     {
         $contact = $contact === null ? $this->entity->customer->contacts->first() : $contact;
