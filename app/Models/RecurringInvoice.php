@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Models;
-use App\Services\RecurringInvoice\RecurringInvoiceService;
 use App\Traits\Archiveable;
 use App\Traits\Balancer;
 use App\Traits\CalculateRecurringDateRanges;
@@ -122,11 +121,6 @@ class RecurringInvoice extends Model
     public function invitations()
     {
         return $this->morphMany(Invitation::class, 'inviteable')->orderBy('contact_id');
-    }
-
-    public function service(): RecurringInvoiceService
-    {
-        return new RecurringInvoiceService($this);
     }
 
     public function account()
