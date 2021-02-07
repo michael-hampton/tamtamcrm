@@ -25,6 +25,11 @@ class LeadPdf extends PdfBuilder
         $this->class = strtolower((new ReflectionClass($this->entity))->getShortName());
     }
 
+    public function getEntityString()
+    {
+        return 'lead';
+    }
+
     public function build($contact = null)
     {
         $this->buildClientForLead($this->entity)
