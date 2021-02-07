@@ -8,8 +8,6 @@
 
 namespace App\Models;
 
-
-use App\Services\Lead\LeadService;
 use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -68,11 +66,6 @@ class Lead extends Model
         }
 
         return true;
-    }
-
-    public function service(): LeadService
-    {
-        return new LeadService($this);
     }
 
     public function account()
