@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Services\Quote\QuoteService;
 use App\Traits\Archiveable;
 use App\Traits\Balancer;
 use App\Traits\Money;
@@ -150,11 +149,6 @@ class Quote extends Model
     public function user()
     {
         return $this->belongsTo(User::class)->withTrashed();
-    }
-
-    public function service(): QuoteService
-    {
-        return new QuoteService($this);
     }
 
     public function files()
