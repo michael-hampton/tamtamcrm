@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Models;
-use App\Services\Expense\ExpenseService;
 use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -70,12 +69,6 @@ class Expense extends Model
         'updated_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];
-
-    public function service(): ExpenseService
-    {
-        return new ExpenseService($this);
-    }
-
 
     public function files()
     {
