@@ -3,8 +3,6 @@
 
 namespace App\Models;
 
-
-use App\Services\Cases\CasesService;
 use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -87,11 +85,6 @@ class Cases extends Model
     public function category()
     {
         return $this->belongsTo(CaseCategory::class)->withTrashed();
-    }
-
-    public function service(): CasesService
-    {
-        return new CasesService($this);
     }
 
     /**
