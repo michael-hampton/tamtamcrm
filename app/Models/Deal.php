@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Services\Deal\DealService;
 use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -61,11 +60,6 @@ class Deal extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class, 'customer_id');
-    }
-
-    public function service(): DealService
-    {
-        return new DealService($this);
     }
 
     public function files()
