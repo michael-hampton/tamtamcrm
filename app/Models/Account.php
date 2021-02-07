@@ -10,7 +10,6 @@ namespace App\Models;
 
 
 use App\Events\Account\AccountWasDeleted;
-use App\Services\Account\AccountService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -218,11 +217,6 @@ class Account extends Model
         $c = $this->account_users->where('is_owner', true)->first();
 
         return User::find($c->user_id);
-    }
-
-    public function service(): AccountService
-    {
-        return new AccountService($this);
     }
 
     public function getNumberOfAllowedUsers()
