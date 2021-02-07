@@ -55,7 +55,7 @@ class CreatePdf implements ShouldQueue
         $this->contact = $contact;
         $this->disk = $disk ?? config('filesystems.default');
         $this->update = $update;
-        $this->entity_string = $entity_string;
+        $this->entity_string = $objPdf->getEntityString();
     }
 
     public function handle()
