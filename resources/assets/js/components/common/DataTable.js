@@ -253,7 +253,31 @@ export default class DataTable extends Component {
     sortBy (column, order) {
         let sorted = []
 
-        if (column === 'company_id' && this.props.companies) {
+        if (column === 'currency_id') {
+            const currencies = JSON.parse(localStorage.getItem('currencies'))
+            sorted = this.sortArray(currencies, 'name', this.state.data, 'currency_id', order)
+        } else if (column === 'language_id') {
+            const languages = JSON.parse( localStorage.getItem('languages'))
+            sorted = this.sortArray(languages, 'name', this.state.data, 'language_id', order)
+        } else if (column === 'country_id') {
+            const countries = JSON.parse(localStorage.getItem('countries'))
+            sorted = this.sortArray(countries, 'name', this.state.data, 'country_id', order)
+        } else if (column === 'payment_method_id') {
+            const payment_types = JSON.parse( localStorage.getItem('payment_types'))
+            sorted = this.sortArray(payment_types, 'name', this.state.data, 'payment_method_id', order)
+        } else if (column === 'gateway_id') {
+            const gateways = JSON.parse( localStorage.getItem('gateways'))
+            sorted = this.sortArray(gateways, 'name', this.state.data, 'gateway_id', order)
+        } else if (column === 'assigned_to') {
+           const users = JSON.parse( localStorage.getItem('users')) 
+           sorted = this.sortArray(users, 'first_name', this.state.data, 'assigned_to', order)
+       } else if (column === 'user_id') {
+           const users = JSON.parse( localStorage.getItem('users'))
+           sorted = this.sortArray(users, 'first_name', this.state.data, 'user_id', order)
+       } else if (column === 'tax_rate_id') {
+           const tax_rates = JSON.parse( localStorage.getItem('tax_rates'))
+           sorted = this.sortArray(tax_rates, 'name', this.state.data, 'tax_rate_id', order)
+       } else if (column === 'company_id' && this.props.companies) {
             sorted = this.sortArray(this.props.companies, 'name', this.state.data, 'company_id', order)
         } else if (column === 'customer_id' && this.props.customers) {
             sorted = this.sortArray(this.props.customers, 'name', this.state.data, 'customer_id', order)
