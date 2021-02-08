@@ -171,7 +171,7 @@ class PaymentSearch extends BaseSearch
 
         if (!empty($order_by)) {
             if (!empty($this->field_mapping[$order])) {
-                $order = str_replace('$table', 'customers', $this->field_mapping[$order]);
+                $order = str_replace('$table', 'payments', $this->field_mapping[$order]);
                 $this->query->orderBy($order, $request->input('orderByDirection'));
             } elseif ($order_by !== 'status') {
                 $this->query->orderBy('payments.' . $order_by, $request->input('orderByDirection'));
