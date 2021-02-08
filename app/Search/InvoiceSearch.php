@@ -200,6 +200,9 @@ class InvoiceSearch extends BaseSearch
         if (!empty($order_by)) {
             if ($order_by === 'customer') {
                 $this->query->orderBy('customers.name', $request->input('orderByDirection'));
+            } elseif (!empty($this->field_mapping[$order)) {
+                $order = str_replace('$table', 'invoices', $this->field_mapping[$order);
+                $this->query->orderBy($order, $request->input('orderByDirection'));
             } elseif ($order_by !== 'status') {
                 $this->query->orderBy('invoices.' . $order_by, $request->input('orderByDirection'));
             }
