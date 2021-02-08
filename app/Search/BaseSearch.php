@@ -37,7 +37,8 @@ class BaseSearch
             'language' => 'languages.name',
             'customer' => 'customers.name',
             'currency' => 'currencies.name',
-            'balance' => '$table.balance'
+            'balance' => '$table.balance',
+            'customer_balance' => 'customers.balance'
         ];
 
     /**
