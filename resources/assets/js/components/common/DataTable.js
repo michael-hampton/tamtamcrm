@@ -253,7 +253,9 @@ export default class DataTable extends Component {
     sortBy (column, order) {
         let sorted = []
 
-        if (column === 'customer_id' && this.props.customers) {
+        if (column === 'company_id' && this.props.companies) {
+            sorted = this.sortArray(this.props.companies, 'name', this.state.data, 'company_id', order)
+        } else if (column === 'customer_id' && this.props.customers) {
             sorted = this.sortArray(this.props.customers, 'name', this.state.data, 'customer_id', order)
         } else {
             sorted = order === 'asc' ? this.state.data.sort((a, b) => a[column] - b[column]) : this.state.data.sort((a, b) => b[column] - a[column])
