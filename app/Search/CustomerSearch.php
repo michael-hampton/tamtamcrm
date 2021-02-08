@@ -221,8 +221,8 @@ class CustomerSearch extends BaseSearch
                 $this->query->orderByRaw(
                     'CONCAT(customer_contacts.first_name, " ", customer_contacts.last_name)' . $order_dir
                 );
-            } elseif (!empty($this->field_mapping[$order'])) {
-                $order = str_replace('$table', 'customers', $this->field_mapping[$order']);
+            } elseif (!empty($this->field_mapping[$order])) {
+                $order = str_replace('$table', 'customers', $this->field_mapping[$order]);
                 $this->query->orderBy($order, $request->input('orderByDirection'));
             } else {
                 $this->query->orderBy('customers.' . $order, $order_dir);
