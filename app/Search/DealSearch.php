@@ -191,6 +191,9 @@ class DealSearch extends BaseSearch
                 $this->query->orderBy('source_type.name', $request->input('orderByDirection'));
             } elseif ($order === 'customer') {
                 $this->query->orderBy('customers.name', $request->input('orderByDirection'));
+            } elseif (!empty($this->field_mapping[$order])) {
+                $order = str_replace('$table', 'deals', $this->field_mapping[$order]);
+                $this->query->orderBy($order, $request->input('orderByDirection'));
             } else {
                 $this->query->orderBy('deals.' . $order, $request->input('orderByDirection'));
             }
