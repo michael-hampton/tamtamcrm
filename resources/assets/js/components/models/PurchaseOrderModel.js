@@ -234,7 +234,7 @@ export default class PurchaseOrderModel extends BaseModel {
             actions.push('getProducts')
         }
 
-        if (!this.isSent) {
+        if (this.isSent) {
             actions.push('approve')
             actions.push('reject')
         }

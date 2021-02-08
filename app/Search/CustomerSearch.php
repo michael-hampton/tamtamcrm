@@ -145,15 +145,63 @@ class CustomerSearch extends BaseSearch
                         ->groupBy($request->input('group_by'));
         } else {
             $this->query->select(
-                DB::raw('CONCAT(first_name," ",last_name) as contact'),
+                'customers.name AS name',
+                'customers.website AS website',
                 'currencies.name AS currency',
+                'languages.name AS language',
+                'customers.private_notes',
+                'customers.public_notes',
+                'industries.name AS industry',
+                'customers.custom_value1 AS custom1',
+                'customers.custom_value2 AS custom2',
+                'customers.custom_value3 AS custom3',
+                'customers.custom_value4 AS custom4',
+                'billing.address_1',
+                'billing.address_2',
+                'billing.city',
+                'billing.state_code AS state',
+                'billing.zip',
+                'billing_country.name AS country',
+                'shipping.address_1 AS shipping_address_1',
+                'shipping.address_2 AS shipping_address_2',
+                'shipping.city AS shipping_city',
+                'shipping.state_code AS shipping_town',
+                'shipping.zip AS shipping_zip',
+                'shipping_country.name AS shipping_country',
+                'customers.phone',
+                'customers.vat_number',
                 'number',
-                'balance',
-                'amount_paid'
+                DB::raw('CONCAT(assigned_user.first_name," ", assigned_user.last_name) as assigned_to'),
+                DB::raw('CONCAT(users.first_name," ", users.last_name) as user'),
+                DB::raw('CONCAT(customer_contacts.first_name," ", customer_contacts.last_name) as contact'),
+                'customer_contacts.email AS contact_email',
+                'customer_contacts.phone AS contact_phone',
+                DB::raw('(balance + amount_paid) AS total'),
+                DB::raw('ROUND(balance, 2) AS balance'),
+                DB::raw('ROUND(amount_paid, 2) AS amount_paid'),
+                DB::raw('ROUND(credit_balance, 2) AS credit_balance'),
+                DB::raw('(ROUND(balance / IF(account_currency.exchange_rate = 0.00, 1, account_currency.exchange_rate), 2)) AS converted_balance'),
+                DB::raw('(ROUND(amount_paid / IF(account_currency.exchange_rate = 0.00, 1, account_currency.exchange_rate), 2)) AS converted_amount_paid'),
+                DB::raw('(ROUND(credit_balance / IF(account_currency.exchange_rate = 0.00, 1, account_currency.exchange_rate), 2)) AS converted_credit_balance'),
             );
         }
 
         $this->query->join('currencies', 'currencies.id', '=', 'customers.currency_id')
+                    ->leftJoin('accounts', 'accounts.id', '=', 'customers.account_id')
+                    ->leftJoin(
+                        'currencies AS account_currency',
+                        'account_currency.id',
+                        '=',
+                        'accounts.settings->currency_id'
+                    )
+                    ->leftJoin('languages', 'languages.id', '=', 'customers.settings->language_id')
+                    ->leftJoin('industries', 'industries.id', '=', 'customers.industry_id')
+                    ->leftJoin('addresses AS billing', 'billing.customer_id', '=', 'customers.id')
+                    ->leftJoin('addresses AS shipping', 'shipping.customer_id', '=', 'customers.id')
+                    ->leftJoin('countries AS billing_country', 'billing_country.id', '=', 'billing.country_id')
+                    ->leftJoin('countries AS shipping_country', 'shipping_country.id', '=', 'shipping.country_id')
+                    ->leftJoin('users AS assigned_user', 'assigned_user.id', '=', 'customers.assigned_to')
+                    ->leftJoin('users', 'users.id', '=', 'customers.user_id')
                     ->leftJoin(
                         'customer_contacts',
                         function ($join) {
@@ -161,17 +209,23 @@ class CustomerSearch extends BaseSearch
                             $join->where('customer_contacts.is_primary', '=', 1);
                         }
                     )
-                    ->where('customers.account_id', '=', $account->id);
+                    ->where('customers.account_id', '=', $account->id)
+                    ->where('shipping.address_type', '=', 2)
+                    ->where('billing.address_type', '=', 1);
 
         $order = $request->input('orderByField');
         $order_dir = $request->input('orderByDirection');
 
-        if ($order === 'contact') {
-            $this->query->orderByRaw('CONCAT(customer_contacts.first_name, " ", customer_contacts.last_name)' . $order_dir);
-        } elseif ($order === 'currency') {
-            $this->query->orderBy('currencies.name', $request->input('orderByDirection'));
-        } else {
-            $this->query->orderBy('customers.' . $order, $order_dir);
+        if (!empty($order) && !empty($order_dir)) {
+            if ($order === 'contact') {
+                $this->query->orderByRaw(
+                    'CONCAT(customer_contacts.first_name, " ", customer_contacts.last_name)' . $order_dir
+                );
+            } elseif ($order === 'currency') {
+                $this->query->orderBy('currencies.name', $request->input('orderByDirection'));
+            } else {
+                $this->query->orderBy('customers.' . $order, $order_dir);
+            }
         }
 
         $rows = $this->query->get()->toArray();

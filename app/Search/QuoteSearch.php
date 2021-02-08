@@ -145,25 +145,56 @@ class QuoteSearch extends BaseSearch
             $this->addGroupBy('quotes', $request->input('group_by'), $request->input('group_by_frequency'));
         } else {
             $this->query->select(
-                'customers.name AS customer',
                 'total',
-                'quotes.number',
                 'quotes.balance',
+                DB::raw('(quotes.total * 1 / quotes.exchange_rate) AS converted_amount'),
+                DB::raw('(quotes.balance * 1 / quotes.balance) AS converted_balance'),
+                'customers.name AS customer',
+                'customers.balance AS customer_balance',
+                'billing.address_1',
+                'billing.address_2',
+                'billing.city',
+                'billing.state_code AS state',
+                'billing.zip',
+                'billing_country.name AS country',
+                'shipping.address_1 AS shipping_address_1',
+                'shipping.address_2 AS shipping_address_2',
+                'shipping.city AS shipping_city',
+                'shipping.state_code AS shipping_town',
+                'shipping.zip AS shipping_zip',
+                'shipping_country.name AS shipping_country',
+                'quotes.number',
+                'discount_total',
+                'po_number',
                 'date',
                 'due_date AS expiry_date',
+                'partial',
+                'partial_due_date',
+                'quotes.custom_value1 AS custom1',
+                'quotes.custom_value2 AS custom2',
+                'quotes.custom_value3 AS custom3',
+                'quotes.custom_value4 AS custom4',
+                'shipping_cost',
+                'tax_total',
                 'quotes.status_id AS status'
             );
         }
 
         $this->query->join('customers', 'customers.id', '=', 'quotes.customer_id')
+                    ->leftJoin('addresses AS billing', 'billing.customer_id', '=', 'customers.id')
+                    ->leftJoin('addresses AS shipping', 'shipping.customer_id', '=', 'customers.id')
+                    ->leftJoin('countries AS billing_country', 'billing_country.id', '=', 'billing.country_id')
+                    ->leftJoin('countries AS shipping_country', 'shipping_country.id', '=', 'shipping.country_id')
                     ->where('quotes.account_id', '=', $account->id);
 
         $order_by = $request->input('orderByField');
 
-        if ($order_by === 'customer') {
-            $this->query->orderBy('customers.name', $request->input('orderByDirection'));
-        } elseif ($order_by !== 'status') {
-            $this->query->orderBy('quotes.' . $order_by, $request->input('orderByDirection'));
+        if (!empty($order_by)) {
+            if ($order_by === 'customer') {
+                $this->query->orderBy('customers.name', $request->input('orderByDirection'));
+            } elseif ($order_by !== 'status') {
+                $this->query->orderBy('quotes.' . $order_by, $request->input('orderByDirection'));
+            }
         }
 
         if (!empty($request->input('date_format'))) {

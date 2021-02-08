@@ -20,7 +20,7 @@ class PurchaseOrderSearch extends BaseSearch
     private PurchaseOrder $model;
 
     /**
-     * QuoteSearch constructor.
+     * purchase_ordersearch constructor.
      * @param PurchaseOrderRepository $poRepository
      */
     public function __construct(PurchaseOrderRepository $poRepository)
@@ -144,12 +144,29 @@ class PurchaseOrderSearch extends BaseSearch
             $this->addGroupBy('purchase_orders', $request->input('group_by'), $request->input('group_by_frequency'));
         } else {
             $this->query->select(
-                'companies.name AS company',
                 'total',
-                'purchase_orders.number',
                 'purchase_orders.balance',
+                DB::raw('(purchase_orders.total * 1 / purchase_orders.exchange_rate) AS converted_amount'),
+                DB::raw('(purchase_orders.balance * 1 / purchase_orders.balance) AS converted_balance'),
+                'companies.name AS company',
+                'companies.address_1',
+                'companies.address_2',
+                'companies.city',
+                'companies.town',
+                'companies.postcode',
+                'purchase_orders.number',
+                'discount_total',
+                'po_number',
                 'date',
-                'due_date',
+                'due_date AS expiry_date',
+                'partial',
+                'partial_due_date',
+                'purchase_orders.custom_value1 AS custom1',
+                'purchase_orders.custom_value2 AS custom2',
+                'purchase_orders.custom_value3 AS custom3',
+                'purchase_orders.custom_value4 AS custom4',
+                'shipping_cost',
+                'tax_total',
                 'purchase_orders.status_id AS status'
             );
         }

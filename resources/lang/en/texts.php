@@ -95,6 +95,7 @@ return [
     'order_message'                                        => 'We have received your order. To view your order click the link below.',
     'order_subject'                                        => 'Order Confirmation',
     'status'                                               => 'Status',
+    'status_approved'                                      => 'Approved',
     'status_cancelled'                                     => 'Cancelled',
     'status_reversed'                                      => 'Reversed',
     'status_completed'                                     => 'Completed',

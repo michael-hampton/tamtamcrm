@@ -140,7 +140,9 @@ class TaskSearch extends BaseSearch
     {
         $this->query = DB::table('tasks')
                          ->select(
-                             DB::raw('count(*) as count, currencies.name, SUM(tasks.total) as total, SUM(tasks.balance) AS balance')
+                             DB::raw(
+                                 'count(*) as count, currencies.name, SUM(tasks.total) as total, SUM(tasks.balance) AS balance'
+                             )
                          )
                          ->join('customers', 'customers.id', '=', 'tasks.customer_id')
                          ->join('currencies', 'currencies.id', '=', 'customers.currency_id')
@@ -220,6 +222,19 @@ class TaskSearch extends BaseSearch
         } else {
             $this->query->select(
                 'customers.name AS customer',
+                'customers.balance AS customer_balance',
+                'billing.address_1',
+                'billing.address_2',
+                'billing.city',
+                'billing.state_code AS state',
+                'billing.zip',
+                'billing_country.name AS country',
+                'shipping.address_1 AS shipping_address_1',
+                'shipping.address_2 AS shipping_address_2',
+                'shipping.city AS shipping_city',
+                'shipping.state_code AS shipping_town',
+                'shipping.zip AS shipping_zip',
+                'shipping_country.name AS shipping_country',
                 'task_statuses.name AS status',
                 'projects.name AS project',
                 'timers.started_at',
@@ -272,11 +287,19 @@ class TaskSearch extends BaseSearch
                                     0
                                 )
                             ) AS duration"
-                )
+                ),
+                'tasks.custom_value1 AS custom1',
+                'tasks.custom_value2 AS custom2',
+                'tasks.custom_value3 AS custom3',
+                'tasks.custom_value4 AS custom4',
             );
         }
 
         $this->query->join('customers', 'customers.id', '=', 'tasks.customer_id')
+                    ->leftJoin('addresses AS billing', 'billing.customer_id', '=', 'customers.id')
+                    ->leftJoin('addresses AS shipping', 'shipping.customer_id', '=', 'customers.id')
+                    ->leftJoin('countries AS billing_country', 'billing_country.id', '=', 'billing.country_id')
+                    ->leftJoin('countries AS shipping_country', 'shipping_country.id', '=', 'shipping.country_id')
                     ->leftJoin('timers', 'timers.task_id', '=', 'tasks.id')
                     ->join('task_statuses', 'task_statuses.id', '=', 'tasks.task_status_id')
                     ->leftJoin('users', 'users.id', '=', 'tasks.assigned_to')
@@ -285,25 +308,28 @@ class TaskSearch extends BaseSearch
 
         $order = $request->input('orderByField');
 
-        if ($order === 'status') {
-            $this->query->orderBy('task_statuses.name', $request->input('orderByDirection'));
-        } elseif ($order === 'project') {
-            $this->query->orderBy('projects.name', $request->input('orderByDirection'));
-        } elseif ($order === 'customer') {
-            $this->query->orderBy('customers.name', $request->input('orderByDirection'));
-        } elseif ($order === 'started_at') {
-            $this->query->orderBy('timers.started_at', $request->input('orderByDirection'));
-        } elseif ($order === 'stopped_at') {
-            $this->query->orderBy('timers.stopped_at', $request->input('orderByDirection'));
-        } elseif ($order === 'duration') {
-            $this->query->orderByRaw(
-                'FLOOR(TIMESTAMPDIFF(MINUTE, timers.started_at, timers.stopped_at)/60) ' . $request->input(
-                    'orderByDirection'
-                )
-            );
-        } else {
-            $this->query->orderBy('tasks.' . $order, $request->input('orderByDirection'));
+        if (!empty($order)) {
+            if ($order === 'status') {
+                $this->query->orderBy('task_statuses.name', $request->input('orderByDirection'));
+            } elseif ($order === 'project') {
+                $this->query->orderBy('projects.name', $request->input('orderByDirection'));
+            } elseif ($order === 'customer') {
+                $this->query->orderBy('customers.name', $request->input('orderByDirection'));
+            } elseif ($order === 'started_at') {
+                $this->query->orderBy('timers.started_at', $request->input('orderByDirection'));
+            } elseif ($order === 'stopped_at') {
+                $this->query->orderBy('timers.stopped_at', $request->input('orderByDirection'));
+            } elseif ($order === 'duration') {
+                $this->query->orderByRaw(
+                    'FLOOR(TIMESTAMPDIFF(MINUTE, timers.started_at, timers.stopped_at)/60) ' . $request->input(
+                        'orderByDirection'
+                    )
+                );
+            } else {
+                $this->query->orderBy('tasks.' . $order, $request->input('orderByDirection'));
+            }
         }
+
 
         if (!empty($request->input('date_format'))) {
             $params = explode('|', $request->input('date_format'));

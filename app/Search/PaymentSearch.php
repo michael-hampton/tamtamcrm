@@ -135,24 +135,48 @@ class PaymentSearch extends BaseSearch
             $this->addGroupBy('payments', $request->input('group_by'), $request->input('group_by_frequency'));
         } else {
             $this->query->select(
-                'customers.name AS customer',
-                'amount',
                 'payments.number',
-                'date',
+                'payments.amount',
+                'customers.name AS customer',
+                'customers.balance AS customer_balance',
+                'billing.address_1',
+                'billing.address_2',
+                'billing.city',
+                'billing.state_code AS state',
+                'billing.zip',
+                'billing_country.name AS country',
+                'shipping.address_1 AS shipping_address_1',
+                'shipping.address_2 AS shipping_address_2',
+                'shipping.city AS shipping_city',
+                'shipping.state_code AS shipping_town',
+                'shipping.zip AS shipping_zip',
+                'shipping_country.name AS shipping_country',
+                'payments.date',
                 'reference_number',
+                'payments.custom_value1 AS custom1',
+                'payments.custom_value2 AS custom2',
+                'payments.custom_value3 AS custom3',
+                'payments.custom_value4 AS custom4',
                 'status_id AS status'
             );
         }
         $this->query->join('customers', 'customers.id', '=', 'payments.customer_id')
+                    ->leftJoin('addresses AS billing', 'billing.customer_id', '=', 'customers.id')
+                    ->leftJoin('addresses AS shipping', 'shipping.customer_id', '=', 'customers.id')
+                    ->leftJoin('countries AS billing_country', 'billing_country.id', '=', 'billing.country_id')
+                    ->leftJoin('countries AS shipping_country', 'shipping_country.id', '=', 'shipping.country_id')
                     ->where('payments.account_id', '=', $account->id);
 
         $order_by = $request->input('orderByField');
 
-        if ($order_by === 'customer') {
-            $this->query->orderBy('customers.name', $request->input('orderByDirection'));
-        } elseif ($order_by !== 'status') {
-            $this->query->orderBy('payments.' . $order_by, $request->input('orderByDirection'));
+        if (!empty($order_by)) {
+            if ($order_by === 'customer') {
+                $this->query->orderBy('customers.name', $request->input('orderByDirection'));
+            } elseif ($order_by !== 'status') {
+                $this->query->orderBy('payments.' . $order_by, $request->input('orderByDirection'));
+            }
         }
+
 
         if (!empty($request->input('date_format'))) {
             $this->filterByDate($request->input('date_format'));

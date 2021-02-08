@@ -118,9 +118,19 @@ export default class Report extends React.Component {
                 tax_rate: ['tax_amount', 'tax_paid'],
                 document: []
             },
-            ignored_columns: {
-                income: ['address_1', 'address_2', 'shipping_address1', 'shipping_address2', 'town', 'city', 'company_country'],
-                document: ['size', 'width', 'height']
+            default_columns: {
+                income: ['customer', 'company', 'amount', 'date', 'category', 'type'],
+                document: ['name', 'file_type', 'record_type'],
+                credit: ['number', 'total', 'balance', 'date', 'due_date', 'customer', 'status'],
+                purchase_order: ['number', 'total', 'balance', 'date', 'due_date', 'customer', 'status'],
+                invoice: ['number', 'total', 'balance', 'date', 'due_date', 'customer', 'status'],
+                quote: ['number', 'total', 'balance', 'date', 'due_date', 'customer', 'status'],
+                order: ['number', 'total', 'balance', 'date', 'due_date', 'customer', 'status'],
+                expense: ['number', 'amount', 'reference_number', 'invoice', 'company', 'category', 'customer', 'status'],
+                payment: ['number', 'amount', 'reference_number', 'date', 'customer', 'status'],
+                task: ['started_at', 'stopped_at', 'duration', 'name', 'description', 'project', 'status', 'customer'],
+                deal: ['project', 'valued_at', 'due_date', 'status', 'source_type', 'assigned_to', 'customer'],
+                customer: ['name', 'contact_email', 'number', 'vat_number', 'currency', 'balance', 'amount_paid', 'country']
             },
             all_columns: [],
             apiUrl: '/api/reports',
@@ -368,7 +378,7 @@ export default class Report extends React.Component {
 
                     if (report.data.length) {
                         Object.keys(report.data[0]).filter((column) => {
-                            return !this.state.ignored_columns[report_type] || !this.state.ignored_columns[report_type].includes(column)
+                            return !this.state.default_columns[report_type] || this.state.default_columns[report_type].includes(column)
                         }).map((column, index) => {
                             map.set(column, true)
                         })
@@ -817,6 +827,7 @@ export default class Report extends React.Component {
                                     disallowOrderingBy={[]}
                                     footer={footer ? this.renderFooter : undefined}
                                     hoverable={true}
+                                    hide_pagination={true}
                                 />
                             </div>
                         </div>

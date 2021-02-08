@@ -674,6 +674,10 @@ class DynamicDataTable extends Component {
     renderPagination () {
         const props = this.props
 
+        if (props.hide_pagination && props.hide_pagination === true) {
+            return null
+        }
+
         return (
             <Pagination
                 currentPage={props.currentPage}
