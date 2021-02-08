@@ -200,7 +200,7 @@ class CustomerSearch extends BaseSearch
             'customers.custom_value2 AS custom2',
             'customers.custom_value3 AS custom3',
             'customers.custom_value4 AS custom4',
-            'address_1 => 'billing.address_1',
+            'address_1' => 'billing.address_1',
             'address_2' => 'billing.address_2',
             'city' => 'billing.city',
             'state' => 'billing.state_code',
