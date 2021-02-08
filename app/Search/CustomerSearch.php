@@ -186,6 +186,34 @@ class CustomerSearch extends BaseSearch
             );
         }
 
+        $mapping = [
+            'custom1' => 'customers.custom_value1',
+            'custom2' => 'customers.custom_value2',
+            'custom3' => 'customers.custom_value3',
+            'custom4' => 'customers.custom_value4',
+            'currencies.name AS currency',
+            'languages.name AS language',
+            //'customers.private_notes',
+            //'customers.public_notes',
+            'industry' => 'industries.name',
+            'customers.custom_value1 AS custom1',
+            'customers.custom_value2 AS custom2',
+            'customers.custom_value3 AS custom3',
+            'customers.custom_value4 AS custom4',
+            'address_1 => 'billing.address_1',
+            'address_2' => 'billing.address_2',
+            'city' => 'billing.city',
+            'state' => 'billing.state_code',
+            'zip' => 'billing.zip',
+            'country' => 'billing_country.name AS country',
+            'shipping_address_1' => 'shipping.address_1',
+            'shipping_address_2' => 'shipping.address_2',
+            'shipping_city' => 'shipping.city',
+            'shipping_town' => 'shipping.state_code',
+            'shipping_zip' => 'shipping.zip',
+            'shipping_country' => 'shipping_country.name',
+        ];
+
         $this->query->join('currencies', 'currencies.id', '=', 'customers.currency_id')
                     ->leftJoin('accounts', 'accounts.id', '=', 'customers.account_id')
                     ->leftJoin(
