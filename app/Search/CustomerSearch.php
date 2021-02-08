@@ -186,32 +186,29 @@ class CustomerSearch extends BaseSearch
             );
         }
 
-        $mapping = [
-            'custom1' => 'customers.custom_value1',
-            'custom2' => 'customers.custom_value2',
-            'custom3' => 'customers.custom_value3',
-            'custom4' => 'customers.custom_value4',
-            'currencies.name AS currency',
-            'languages.name AS language',
-            //'customers.private_notes',
-            //'customers.public_notes',
+        $field_mapping = [
+            'private_notes' => '$table.private_notes',
+            'public_notes' => '$table.public_notes',
             'industry' => 'industries.name',
-            'customers.custom_value1 AS custom1',
-            'customers.custom_value2 AS custom2',
-            'customers.custom_value3 AS custom3',
-            'customers.custom_value4 AS custom4',
+            'custom1' => '$table.custom_value1',
+            'custom2' => '$table.custom_value2',
+            'custom3' => '$table.custom_value3',
+            'custom4' => '$table.custom_value4',
             'address_1' => 'billing.address_1',
             'address_2' => 'billing.address_2',
             'city' => 'billing.city',
             'state' => 'billing.state_code',
             'zip' => 'billing.zip',
-            'country' => 'billing_country.name AS country',
+            'country' => 'billing_country.name',
             'shipping_address_1' => 'shipping.address_1',
             'shipping_address_2' => 'shipping.address_2',
             'shipping_city' => 'shipping.city',
             'shipping_town' => 'shipping.state_code',
             'shipping_zip' => 'shipping.zip',
             'shipping_country' => 'shipping_country.name',
+            'language' => 'languages.name',
+            'customer' => 'customers.name',
+            'currency' => 'currencies.name'
         ];
 
         $this->query->join('currencies', 'currencies.id', '=', 'customers.currency_id')
@@ -249,8 +246,9 @@ class CustomerSearch extends BaseSearch
                 $this->query->orderByRaw(
                     'CONCAT(customer_contacts.first_name, " ", customer_contacts.last_name)' . $order_dir
                 );
-            } elseif ($order === 'currency') {
-                $this->query->orderBy('currencies.name', $request->input('orderByDirection'));
+            } elseif (!empty($this->field_mapping[$order'])) {
+                $order = str_replace('$table', 'customers', $this->field_mapping[$order']);
+                $this->query->orderBy($order, $request->input('orderByDirection'));
             } else {
                 $this->query->orderBy('customers.' . $order, $order_dir);
             }
