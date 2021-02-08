@@ -36,7 +36,8 @@ class BaseSearch
             'shipping_country' => 'shipping_country.name',
             'language' => 'languages.name',
             'customer' => 'customers.name',
-            'currency' => 'currencies.name'
+            'currency' => 'currencies.name',
+            'balance' => '$table.balance'
         ];
 
     /**
