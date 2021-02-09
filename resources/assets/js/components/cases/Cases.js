@@ -163,9 +163,10 @@ export default class Cases extends Component {
                         <Card>
                             <CardBody>
                                 <CaseFilters
-                                    cachedData={this.state.cachedData}
-                                    updateList={this.addUserToState}
-                                    setFilterOpen={this.setFilterOpen.bind(this)} cases={cases}
+                                    pageLimit={pageLimit}
+                                     cachedData={this.state.cachedData}
+                                     updateList={this.onPageChanged.bind(this)}
+                                     setFilterOpen={this.setFilterOpen.bind(this)} cases={cases}
                                     customers={customers}
                                     filters={this.state.filters} filter={this.filterCases}
                                     saveBulk={this.saveBulk}/>
