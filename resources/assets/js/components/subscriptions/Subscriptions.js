@@ -14,7 +14,11 @@ export default class Subscriptions extends Component {
     constructor (props) {
         super(props)
 
-        this.state = {
+        this.state = { 
+            currentPage: 1,
+             totalPages: null,
+             pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+             currentInvoices: [],
             isOpen: window.innerWidth > 670,
             error: '',
             show_success: false,
