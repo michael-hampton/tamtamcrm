@@ -14,6 +14,10 @@ export default class TaxRates extends Component {
         super(props)
 
         this.state = {
+            currentPage: 1,
+             totalPages: null,
+             pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+             currentInvoices: [],
             isOpen: window.innerWidth > 670,
             taxRates: [],
             cachedData: [],
