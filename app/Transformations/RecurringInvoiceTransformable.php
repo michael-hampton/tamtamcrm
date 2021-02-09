@@ -22,6 +22,7 @@ trait RecurringInvoiceTransformable
             'id'                    => (int)$invoice->id,
             'number'                => $invoice->number,
             'customer_id'           => $invoice->customer_id,
+            'customer_name'         => $invoice->customer->name ?: '',
             'project_id'            => (int)$invoice->project_id,
             'date'                  => $invoice->date,
             'due_date'              => $invoice->due_date,

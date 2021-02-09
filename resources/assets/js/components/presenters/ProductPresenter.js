@@ -36,6 +36,6 @@ export default function ProductPresenter (props) {
             return <i className={`fa ${icon} ${icon_class}`}/>
         }
         default:
-            return entity[field]
+            return typeof entity[field] === 'object' ? JSON.stringify(entity[field]) : entity[field]
     }
 }

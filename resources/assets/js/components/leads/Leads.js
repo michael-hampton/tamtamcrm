@@ -9,6 +9,7 @@ import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import UserRepository from '../repositories/UserRepository'
 import { getDefaultTableFields } from '../presenters/LeadPresenter'
+import CreditFilters from "../credits/CreditFilters";
 
 export default class Leads extends Component {
     constructor (props) {
@@ -75,7 +76,7 @@ export default class Leads extends Component {
         return <LeadItem showCheckboxes={props.showCheckboxes} leads={leads} users={users} custom_fields={custom_fields}
             show_list={props.show_list}
             viewId={props.viewId}
-            ignoredColumns={getDefaultTableFields()} addUserToState={this.addUserToState}
+            ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -150,7 +151,10 @@ export default class Leads extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <LeadFilters setFilterOpen={this.setFilterOpen.bind(this)} leads={leads}
+                                <LeadFilters
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.addUserToState}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} leads={leads}
                                     filters={this.state.filters} filter={this.filterLeads}
                                     saveBulk={this.saveBulk}/>
                                 <AddLead users={users} leads={leads} action={this.addUserToState}

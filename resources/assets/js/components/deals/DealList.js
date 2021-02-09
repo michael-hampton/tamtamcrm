@@ -10,6 +10,7 @@ import { translations } from '../utils/_translations'
 import CustomerRepository from '../repositories/CustomerRepository'
 import UserRepository from '../repositories/UserRepository'
 import { getDefaultTableFields } from '../presenters/DealPresenter'
+import CreditFilters from "../credits/CreditFilters";
 
 export default class DealList extends Component {
     constructor (props) {
@@ -19,6 +20,7 @@ export default class DealList extends Component {
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             dropdownButtonActions: ['download'],
+            cachedData: [],
             deals: [],
             users: [],
             customers: [],
@@ -63,7 +65,8 @@ export default class DealList extends Component {
     }
 
     addUserToState (deals) {
-        this.setState({ deals: deals })
+        const cachedData = !this.state.cachedData.length ? deals : this.state.cachedData
+        this.setState({ deals: deals, cachedData:cachedData })
     }
 
     handleClose () {
@@ -83,7 +86,7 @@ export default class DealList extends Component {
             show_list={props.show_list}
             custom_fields={custom_fields} customers={customers}
             viewId={props.viewId}
-            ignoredColumns={getDefaultTableFields()} addUserToState={this.addUserToState}
+            ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -182,7 +185,10 @@ export default class DealList extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <DealFilters setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
+                                <DealFilters
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.addUserToState}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
                                     users={users}
                                     deals={deals}
                                     filters={this.state.filters} filter={this.filterDeals}

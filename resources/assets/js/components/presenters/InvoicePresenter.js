@@ -11,7 +11,7 @@ import { invoiceStatusColors } from '../utils/_colors'
 export function getDefaultTableFields () {
     return [
         'number',
-        'customer_id',
+        'customer_name',
         'date',
         'due_date',
         'total',
@@ -22,8 +22,6 @@ export function getDefaultTableFields () {
 
 export default function InvoicePresenter (props) {
     const { field, entity } = props
-
-    console.log('entity', entity)
 
     const objInvoiceModel = new InvoiceModel(entity, props.customers)
     const is_late = objInvoiceModel.isLate()

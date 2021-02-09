@@ -8,6 +8,7 @@ import SubscriptionItem from './SubscriptionItem'
 import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import { getDefaultTableFields } from '../presenters/TokenPresenter'
+import CreditFilters from "../credits/CreditFilters";
 
 export default class Subscriptions extends Component {
     constructor (props) {
@@ -63,7 +64,7 @@ export default class Subscriptions extends Component {
         return <SubscriptionItem showCheckboxes={props.showCheckboxes} subscriptions={subscriptions}
             show_list={props.show_list}
             viewId={props.viewId}
-            ignoredColumns={getDefaultTableFields()} addUserToState={this.addUserToState}
+            ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -117,7 +118,10 @@ export default class Subscriptions extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <SubscriptionFilters setFilterOpen={this.setFilterOpen.bind(this)}
+                                <SubscriptionFilters
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.addUserToState}
+                                    setFilterOpen={this.setFilterOpen.bind(this)}
                                     subscriptions={subscriptions}
                                     updateIgnoredColumns={this.updateIgnoredColumns}
                                     filters={this.state.filters} filter={this.filterSubscriptions}

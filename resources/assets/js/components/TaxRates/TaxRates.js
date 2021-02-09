@@ -7,6 +7,7 @@ import TaxRateItem from './TaxRateItem'
 import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import { getDefaultTableFields } from '../presenters/TaxRatePresenter'
+import SubscriptionFilters from '../subscriptions/SubscriptionFilters'
 
 export default class TaxRates extends Component {
     constructor (props) {
@@ -66,7 +67,7 @@ export default class TaxRates extends Component {
         return <TaxRateItem showCheckboxes={props.showCheckboxes} taxRates={taxRates}
             show_list={props.show_list}
             viewId={props.viewId}
-            ignoredColumns={getDefaultTableFields()} addUserToState={this.addUserToState}
+            ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -106,7 +107,10 @@ export default class TaxRates extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <TaxRateFilters setFilterOpen={this.setFilterOpen.bind(this)} taxRates={taxRates}
+                                <TaxRateFilters
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.addUserToState}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} taxRates={taxRates}
                                     filters={filters} filter={this.filterTaxRates}
                                     saveBulk={this.saveBulk}/>
                                 {addButton}

@@ -7,6 +7,7 @@ import PaymentTermFilters from './PaymentTermFilters'
 import PaymentTermItem from './PaymentTermItem'
 import { translations } from '../utils/_translations'
 import Snackbar from '@material-ui/core/Snackbar'
+import CreditFilters from "../credits/CreditFilters";
 
 export default class PaymentTerms extends Component {
     constructor (props) {
@@ -65,7 +66,7 @@ export default class PaymentTerms extends Component {
         const { paymentTerms } = this.state
         return <PaymentTermItem showCheckboxes={props.showCheckboxes} paymentTerms={paymentTerms}
             show_list={props.show_list}
-            ignoredColumns={props.ignoredColumns} addUserToState={this.addUserToState}
+            ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             viewId={props.viewId}
             bulk={props.bulk}
@@ -116,7 +117,10 @@ export default class PaymentTerms extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <PaymentTermFilters setFilterOpen={this.setFilterOpen.bind(this)}
+                                <PaymentTermFilters
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.addUserToState}
+                                    setFilterOpen={this.setFilterOpen.bind(this)}
                                     paymentTerms={paymentTerms}
                                     filters={this.state.filters} filter={this.filterPaymentTerms}
                                     saveBulk={this.saveBulk}/>

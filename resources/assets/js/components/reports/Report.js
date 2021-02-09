@@ -155,7 +155,7 @@ export default class Report extends React.Component {
     }
 
     componentDidMount () {
-        this.loadPage(1)
+        this.loadPage(1, true)
     }
 
     componentDidUpdate (prevProps) {
@@ -263,7 +263,7 @@ export default class Report extends React.Component {
             date_format: '',
             group_by_frequency: ''
         }, () => {
-            this.reload()
+            this.reload(1, true)
         })
     }
 
@@ -339,11 +339,11 @@ export default class Report extends React.Component {
         })
     }
 
-    reload (page = 1) {
+    reload (page = 1, buildColumns = false) {
         this.loadPage(page)
     }
 
-    loadPage (page) {
+    loadPage (page, buildColumns = false) {
         const { perPage, orderByField, orderByDirection, report_type, group_by, start_date, end_date, date_format, manual_date_field, group_by_frequency } = this.state
 
         this.setState(
@@ -374,19 +374,21 @@ export default class Report extends React.Component {
                         ({ disallow_ordering_by, ...meta } = response.meta)
                     }
 
-                    var map = new Map()
+                    if (buildColumns) {
+                        var map = new Map()
 
-                    if (report.data.length) {
-                        Object.keys(report.data[0]).filter((column) => {
-                            return !this.state.default_columns[report_type] || this.state.default_columns[report_type].includes(column)
-                        }).map((column, index) => {
-                            map.set(column, true)
-                        })
-                        console.log('new map', map)
+                        if (report.data.length) {
+                            Object.keys(report.data[0]).filter((column) => {
+                                return !this.state.default_columns[report_type] || this.state.default_columns[report_type].includes(column)
+                            }).map((column, index) => {
+                                map.set(column, true)
+                            })
+                            console.log('new map', map)
+                        }
                     }
 
                     const newState = {
-                        checkedItems: map,
+                        checkedItems: map ? map : this.state.checkedItems,
                         all_columns: report.data.length ? Object.keys(report.data[0]) : [],
                         rows: report.data,
                         currency_report: currency_report || [],

@@ -190,8 +190,8 @@ class QuoteSearch extends BaseSearch
         $order_by = $request->input('orderByField');
 
         if (!empty($order_by)) {
-            if (!empty($this->field_mapping[$order)) {
-                $order = str_replace('$table', 'quotes', $this->field_mapping[$order);
+            if (!empty($this->field_mapping[$order_by])) {
+                $order = str_replace('$table', 'quotes', $this->field_mapping[$order_by]);
                 $this->query->orderBy($order, $request->input('orderByDirection'));
             } elseif ($order_by !== 'status') {
                 $this->query->orderBy('quotes.' . $order_by, $request->input('orderByDirection'));

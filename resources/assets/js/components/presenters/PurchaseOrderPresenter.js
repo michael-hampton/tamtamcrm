@@ -10,7 +10,7 @@ import { purchaseOrderStatuses } from '../utils/_statuses'
 export function getDefaultTableFields () {
     return [
         'number',
-        'customer_id',
+        'company_name',
         'date',
         'due_date',
         'total',
@@ -70,6 +70,6 @@ export default function PurchaseOrderPresenter (props) {
         }
 
         default:
-            return entity[field]
+            return typeof entity[field] === 'object' ? JSON.stringify(entity[field]) : entity[field]
     }
 }

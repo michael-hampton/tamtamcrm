@@ -178,8 +178,8 @@ class PurchaseOrderSearch extends BaseSearch
 
         if ($order_by === 'company') {
             $this->query->orderBy('companies.name', $request->input('orderByDirection'));
-        } elseif (!empty($this->field_mapping[$order)) {
-            $order = str_replace('$table', 'purchase_orders', $this->field_mapping[$order);
+        } elseif (!empty($this->field_mapping[$order_by])) {
+            $order = str_replace('$table', 'purchase_orders', $this->field_mapping[$order_by]);
             $this->query->orderBy($order, $request->input('orderByDirection'));
         } elseif ($order_by !== 'status') {
             $this->query->orderBy('purchase_orders.' . $order_by, $request->input('orderByDirection'));

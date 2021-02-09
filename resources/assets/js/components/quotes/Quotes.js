@@ -9,6 +9,7 @@ import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import queryString from 'query-string'
 import { getDefaultTableFields } from '../presenters/QuotePresenter'
+import CreditFilters from "../credits/CreditFilters";
 
 export default class Quotes extends Component {
     constructor (props) {
@@ -79,7 +80,7 @@ export default class Quotes extends Component {
             show_list={props.show_list}
             custom_fields={custom_fields}
             viewId={props.viewId}
-            ignoredColumns={getDefaultTableFields()} updateInvoice={this.updateInvoice}
+            ignoredColumns={props.default_columns} updateInvoice={this.updateInvoice}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -166,7 +167,10 @@ export default class Quotes extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <QuoteFilters setFilterOpen={this.setFilterOpen.bind(this)} quotes={quotes}
+                                <QuoteFilters
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.updateInvoice}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} quotes={quotes}
                                     customers={customers}
                                     filters={filters} filter={this.filterInvoices}
                                     saveBulk={this.saveBulk}/>

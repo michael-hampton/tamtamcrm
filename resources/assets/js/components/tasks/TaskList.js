@@ -11,6 +11,7 @@ import CustomerRepository from '../repositories/CustomerRepository'
 import UserRepository from '../repositories/UserRepository'
 import EditTaskDesktop from './edit/EditTaskDesktop'
 import { getDefaultTableFields } from '../presenters/TaskPresenter'
+import SubscriptionFilters from "../subscriptions/SubscriptionFilters";
 
 export default class TaskList extends Component {
     constructor (props) {
@@ -20,6 +21,7 @@ export default class TaskList extends Component {
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             dropdownButtonActions: ['download', 'mark_in_progress', 'create_invoice'],
+            cachedData: [],
             tasks: [],
             users: [],
             customers: [],
@@ -64,7 +66,8 @@ export default class TaskList extends Component {
     }
 
     addUserToState (tasks) {
-        this.setState({ tasks: tasks })
+        const cachedData = !this.state.cachedData.length ? tasks : this.state.cachedData
+        this.setState({ tasks: tasks, cachedData: cachedData })
     }
 
     handleClose () {
@@ -85,7 +88,7 @@ export default class TaskList extends Component {
             show_list={props.show_list}
             custom_fields={custom_fields} customers={customers}
             viewId={props.viewId}
-            ignoredColumns={getDefaultTableFields()} addUserToState={this.addUserToState}
+            ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -195,7 +198,10 @@ export default class TaskList extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <TaskFilters customers={customers} setFilterOpen={this.setFilterOpen.bind(this)}
+                                <TaskFilters
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.addUserToState}
+                                    customers={customers} setFilterOpen={this.setFilterOpen.bind(this)}
                                     users={users}
                                     tasks={tasks}
                                     filters={this.state.filters} filter={this.filterTasks}

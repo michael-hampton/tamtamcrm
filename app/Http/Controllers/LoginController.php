@@ -6,6 +6,7 @@ use App\Models\AccountUser;
 use App\Models\CompanyToken;
 use App\Models\Country;
 use App\Models\Currency;
+use App\Models\Industry;
 use App\Models\Language;
 use App\Models\PaymentGateway;
 use App\Models\PaymentMethod;
@@ -75,6 +76,7 @@ class LoginController extends Controller
                     'number_of_accounts' => $user->accounts->count(),
                     'currencies'         => Currency::all()->toArray(),
                     'languages'          => Language::all()->toArray(),
+                    'industries'         => Industry::all()->toArray(),
                     'countries'          => Country::all()->toArray(),
                     'payment_types'      => PaymentMethod::all()->toArray(),
                     'gateways'           => PaymentGateway::all()->toArray(),

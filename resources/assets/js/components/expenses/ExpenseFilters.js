@@ -72,7 +72,11 @@ export default class ExpenseFilters extends Component {
         return (
             <Row form>
                 <Col md={2}>
-                    <TableSearch onChange={this.filterExpenses}/>
+                    <TableSearch onChange={(e) => {
+                        const value = typeof e.target.value === 'string' ? e.target.value.toLowerCase() : e.target.value
+                        const search_results = this.props.cachedData.filter(obj => Object.keys(obj).some(key => obj[key] && obj[key].length ? obj[key].toString().toLowerCase().includes(value) : false))
+                        this.props.updateList(search_results)
+                    }}/>
                 </Col>
 
                 <Col md={3}>

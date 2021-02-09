@@ -31,6 +31,7 @@ class QuoteTransformable
             'public_notes'        => $quote->public_notes ?: '',
             'private_notes'       => $quote->private_notes ?: '',
             'customer_id'         => (int)$quote->customer_id,
+            'customer_name'       => $quote->customer->name ?: '',
             'invoice_id'          => (int)$quote->invoice_id,
             'date'                => $quote->date ?: '',
             'due_date'            => $quote->due_date ?: '',

@@ -10,6 +10,7 @@ import { translations } from '../utils/_translations'
 import CustomerRepository from '../repositories/CustomerRepository'
 import CompanyRepository from '../repositories/CompanyRepository'
 import { getDefaultTableFields } from '../presenters/ExpensePresenter'
+import CreditFilters from "../credits/CreditFilters";
 
 export default class Expenses extends Component {
     constructor (props) {
@@ -112,7 +113,7 @@ export default class Expenses extends Component {
             viewId={props.viewId}
             companies={companies}
             custom_fields={custom_fields}
-            ignoredColumns={getDefaultTableFields()} updateExpenses={this.updateExpenses}
+            ignoredColumns={props.default_columns} updateExpenses={this.updateExpenses}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -182,7 +183,10 @@ export default class Expenses extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <ExpenseFilters setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
+                                <ExpenseFilters
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.updateExpenses}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
                                     expenses={expenses} companies={companies}
                                     filters={this.state.filters} filter={this.filterExpenses}
                                     saveBulk={this.saveBulk}/>
@@ -214,6 +218,7 @@ export default class Expenses extends Component {
                                     default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
                                     setError={this.setError.bind(this)}
+                                    companies={companies}
                                     customers={customers}
                                     dropdownButtonActions={this.state.dropdownButtonActions}
                                     entity_type="Expense"

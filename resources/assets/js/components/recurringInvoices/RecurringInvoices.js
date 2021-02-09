@@ -10,6 +10,7 @@ import InvoiceRepository from '../repositories/InvoiceRepository'
 import queryString from 'query-string'
 import UpdateRecurringInvoice from './edit/UpdateRecurringInvoice'
 import { getDefaultTableFields } from '../presenters/RecurringInvoicePresenter'
+import CreditFilters from "../credits/CreditFilters";
 
 export default class RecurringInvoices extends Component {
     constructor (props) {
@@ -98,7 +99,7 @@ export default class RecurringInvoices extends Component {
             show_list={props.show_list}
             viewId={props.viewId}
             customers={customers} custom_fields={custom_fields}
-            ignoredColumns={getDefaultTableFields()} updateInvoice={this.updateInvoice}
+            ignoredColumns={props.default_columns} updateInvoice={this.updateInvoice}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -184,7 +185,10 @@ export default class RecurringInvoices extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <RecurringInvoiceFilters customers={customers}
+                                <RecurringInvoiceFilters
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.updateInvoice}
+                                    customers={customers}
                                     setFilterOpen={this.setFilterOpen.bind(this)}
                                     invoices={invoices}
                                     filters={filters} filter={this.filterInvoices}

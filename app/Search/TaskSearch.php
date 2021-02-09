@@ -313,8 +313,9 @@ class TaskSearch extends BaseSearch
                 $this->query->orderBy('task_statuses.name', $request->input('orderByDirection'));
             } elseif ($order === 'project') {
                 $this->query->orderBy('projects.name', $request->input('orderByDirection'));
-            } elseif ($order === 'customer') {
-                $this->query->orderBy('customers.name', $request->input('orderByDirection'));
+            } elseif (!empty($this->field_mapping[$order])) {
+                $order = str_replace('$table', 'tasks', $this->field_mapping[$order]);
+                $this->query->orderBy($order, $request->input('orderByDirection'));
             } elseif ($order === 'started_at') {
                 $this->query->orderBy('timers.started_at', $request->input('orderByDirection'));
             } elseif ($order === 'stopped_at') {

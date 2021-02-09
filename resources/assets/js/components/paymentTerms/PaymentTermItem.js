@@ -64,7 +64,7 @@ export default class PaymentTermItem extends Component {
                 /> : null
 
                 const columnList = Object.keys(payment_term).filter(key => {
-                    return ignoredColumns && !ignoredColumns.includes(key)
+                    return ignoredColumns && ignoredColumns.includes(key)
                 }).map(key => {
                     return <td onClick={() => this.props.toggleViewedEntity(payment_term, payment_term.name)}
                         data-label={key}

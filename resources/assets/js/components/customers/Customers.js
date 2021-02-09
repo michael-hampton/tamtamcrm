@@ -100,11 +100,12 @@ export default class Customers extends Component {
     }
 
     customerList (props) {
+        console.log('default', props.default_columns)
         const { customers, custom_fields } = this.state
         return <CustomerItem viewId={props.viewId} showCheckboxes={props.showCheckboxes} customers={customers}
             show_list={props.show_list}
             custom_fields={custom_fields}
-            ignoredColumns={getDefaultTableFields()} updateCustomers={this.updateCustomers}
+            ignoredColumns={props.default_columns} updateCustomers={this.updateCustomers}
             deleteCustomer={this.deleteCustomer} toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -146,6 +147,8 @@ export default class Customers extends Component {
                         <Card>
                             <CardBody>
                                 <CustomerFilters setFilterOpen={this.setFilterOpen.bind(this)} companies={companies}
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.updateCustomers}
                                     customers={customers}
                                     filters={filters} filter={this.filterCustomers}
                                     saveBulk={this.saveBulk}/>

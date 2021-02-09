@@ -8,6 +8,7 @@ import UserFilters from './UserFilters'
 import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import { getDefaultTableFields } from '../presenters/UserPresenter'
+import SubscriptionFilters from "../subscriptions/SubscriptionFilters";
 
 export default class UserList extends Component {
     constructor (props) {
@@ -142,7 +143,7 @@ export default class UserList extends Component {
             show_list={props.show_list}
             viewId={props.viewId}
             users={users} custom_fields={custom_fields}
-            ignoredColumns={getDefaultTableFields()} addUserToState={this.addUserToState}
+            ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -181,7 +182,10 @@ export default class UserList extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <UserFilters setFilterOpen={this.setFilterOpen.bind(this)} users={users}
+                                <UserFilters
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.addUserToState}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} users={users}
                                     departments={departments}
                                     filters={filters} filter={this.filterUsers}
                                     saveBulk={this.saveBulk}/>

@@ -26,6 +26,7 @@ trait PurchaseOrderTransformable
             'project_id'          => (int)$po->project_id,
             'assigned_to'         => (int)$po->assigned_to,
             'company_id'          => (int)$po->company_id ?: null,
+            'company_name'        => $po->company->name ?: '',
             'currency_id'         => (int)$po->currency_id ?: null,
             'exchange_rate'       => (float)$po->exchange_rate,
             'public_notes'        => $po->public_notes ?: '',

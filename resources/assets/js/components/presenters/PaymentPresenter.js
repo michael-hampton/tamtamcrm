@@ -10,7 +10,7 @@ import { paymentStatuses } from '../utils/_statuses'
 export function getDefaultTableFields () {
     return [
         'number',
-        'customer_id',
+        'customer_name',
         'date',
         'amount',
         'reference_number',
@@ -75,6 +75,6 @@ export default function PaymentPresenter (props) {
         }
 
         default:
-            return entity[field]
+            return typeof entity[field] === 'object' ? JSON.stringify(entity[field]) : entity[field]
     }
 }

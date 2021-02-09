@@ -33,6 +33,7 @@ class InvoiceTransformable
             'public_notes'         => $invoice->public_notes ?: '',
             'private_notes'        => $invoice->private_notes ?: '',
             'customer_id'          => (int)$invoice->customer_id,
+            'customer_name'        => $invoice->customer->name ?: '',
             'date'                 => $invoice->date ?: '',
             'due_date'             => $invoice->due_date ?: '',
             'date_to_send'         => $invoice->date ?: '',

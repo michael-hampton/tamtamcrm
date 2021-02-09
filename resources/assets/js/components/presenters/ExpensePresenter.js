@@ -14,7 +14,7 @@ export function getDefaultTableFields () {
         'number',
         'status_id',
         'company_id',
-        'customer_id',
+        'customer_name',
         'date',
         'amount'
     ]
@@ -97,6 +97,6 @@ export default function ExpensePresenter (props) {
             return paymentInvoices
 
         default:
-            return entity[field]
+            return typeof entity[field] === 'object' ? JSON.stringify(entity[field]) : entity[field]
     }
 }

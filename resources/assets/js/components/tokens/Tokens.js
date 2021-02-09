@@ -8,6 +8,7 @@ import TokenItem from './TokenItem'
 import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import { getDefaultTableFields } from '../presenters/TokenPresenter'
+import SubscriptionFilters from "../subscriptions/SubscriptionFilters";
 
 export default class Tokens extends Component {
     constructor (props) {
@@ -69,7 +70,7 @@ export default class Tokens extends Component {
         return <TokenItem showCheckboxes={props.showCheckboxes} tokens={tokens} users={users}
             viewId={props.viewId}
             show_list={props.show_list}
-            ignoredColumns={getDefaultTableFields()} addUserToState={this.addUserToState}
+            ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -123,7 +124,10 @@ export default class Tokens extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <TokenFilters setFilterOpen={this.setFilterOpen.bind(this)} tokens={tokens}
+                                <TokenFilters
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.addUserToState}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} tokens={tokens}
                                     updateIgnoredColumns={this.updateIgnoredColumns}
                                     filters={this.state.filters} filter={this.filterTokens}
                                     saveBulk={this.saveBulk} ignoredColumns={this.state.ignoredColumns}/>

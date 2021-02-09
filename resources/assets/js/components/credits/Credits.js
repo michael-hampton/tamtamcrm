@@ -9,6 +9,7 @@ import { translations } from '../utils/_translations'
 import CustomerRepository from '../repositories/CustomerRepository'
 import queryString from 'query-string'
 import { getDefaultTableFields } from '../presenters/CreditPresenter'
+import CompanyFilters from "../companies/CompanyFilters";
 
 export default class Credits extends Component {
     constructor (props) {
@@ -118,7 +119,7 @@ export default class Credits extends Component {
             show_list={props.show_list}
             custom_fields={custom_fields}
             viewId={props.viewId}
-            ignoredColumns={getDefaultTableFields()} updateCustomers={this.updateCustomers}
+            ignoredColumns={props.default_columns} updateCustomers={this.updateCustomers}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -162,7 +163,10 @@ export default class Credits extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <CreditFilters setFilterOpen={this.setFilterOpen.bind(this)} credits={credits}
+                                <CreditFilters
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.updateCustomers}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} credits={credits}
                                     customers={customers}
                                     filters={filters} filter={this.filterCredits}
                                     saveBulk={this.saveBulk}/>

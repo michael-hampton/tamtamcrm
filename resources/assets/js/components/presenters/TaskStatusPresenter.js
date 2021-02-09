@@ -13,6 +13,6 @@ export default function TaskStatusPresenter (props) {
 
     switch (field) {
         default:
-            return entity[field]
+            return typeof entity[field] === 'object' ? JSON.stringify(entity[field]) : entity[field]
     }
 }

@@ -11,6 +11,7 @@ import CustomerRepository from '../repositories/CustomerRepository'
 import CreditRepository from '../repositories/CreditRepository'
 import InvoiceRepository from '../repositories/InvoiceRepository'
 import { getDefaultTableFields } from '../presenters/PaymentPresenter'
+import CreditFilters from "../credits/CreditFilters";
 
 export default class Payments extends Component {
     constructor (props) {
@@ -150,7 +151,7 @@ export default class Payments extends Component {
             viewId={props.viewId}
             credits={credits}
             invoices={invoices} custom_fields={custom_fields}
-            ignoredColumns={getDefaultTableFields()} updateCustomers={this.updateCustomers}
+            ignoredColumns={props.default_columns} updateCustomers={this.updateCustomers}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -191,7 +192,10 @@ export default class Payments extends Component {
                 <div className="topbar">
                     <Card>
                         <CardBody>
-                            <PaymentFilters setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
+                            <PaymentFilters
+                                cachedData={this.state.cachedData}
+                                updateList={this.updateCustomers}
+                                setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
                                 payments={payments} invoices={invoices}
                                 filters={filters} filter={this.filterPayments}
                                 saveBulk={this.saveBulk}/>

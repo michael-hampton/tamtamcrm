@@ -8,6 +8,7 @@ import TaskStatusItem from './TaskStatusItem'
 import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import { getDefaultTableFields } from '../presenters/TaskStatusPresenter'
+import SubscriptionFilters from "../subscriptions/SubscriptionFilters";
 
 export default class Categories extends Component {
     constructor (props) {
@@ -87,7 +88,7 @@ export default class Categories extends Component {
         return <TaskStatusItem showCheckboxes={props.showCheckboxes} customers={customers} statuses={statuses}
             show_list={props.show_list}
             viewId={props.viewId}
-            ignoredColumns={getDefaultTableFields()} addUserToState={this.addUserToState}
+            ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -137,7 +138,10 @@ export default class Categories extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <TaskStatusFilters setFilterOpen={this.setFilterOpen.bind(this)}
+                                <TaskStatusFilters
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.addUserToState}
+                                    setFilterOpen={this.setFilterOpen.bind(this)}
                                     statuses={statuses}
                                     customers={customers}
                                     filters={this.state.filters} filter={this.filterCategories}

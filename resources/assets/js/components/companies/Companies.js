@@ -8,6 +8,7 @@ import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import UserRepository from '../repositories/UserRepository'
 import { getDefaultTableFields } from '../presenters/CompanyPresenter'
+import CustomerFilters from "../customers/CustomerFilters";
 
 export default class Companies extends Component {
     constructor (props) {
@@ -53,7 +54,8 @@ export default class Companies extends Component {
     }
 
     addUserToState (brands) {
-        this.setState({ brands: brands })
+        const cachedData = !this.state.cachedData.length ? brands : this.state.cachedData
+        this.setState({ brands: brands, cachedData:cachedData })
     }
 
     handleClose () {
@@ -69,7 +71,7 @@ export default class Companies extends Component {
         return <CompanyItem showCheckboxes={props.showCheckboxes} brands={brands} users={users}
             show_list={props.show_list}
             custom_fields={custom_fields}
-            ignoredColumns={getDefaultTableFields()} addUserToState={this.addUserToState}
+            ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             viewId={props.viewId}
             bulk={props.bulk}
@@ -147,7 +149,10 @@ export default class Companies extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <CompanyFilters setFilterOpen={this.setFilterOpen.bind(this)} brands={brands}
+                                <CompanyFilters
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.addUserToState}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} brands={brands}
                                     filters={this.state.filters} filter={this.filterCompanies}
                                     saveBulk={this.saveBulk}/>
                                 {addButton}

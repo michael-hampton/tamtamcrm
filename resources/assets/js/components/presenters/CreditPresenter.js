@@ -10,7 +10,7 @@ export function getDefaultTableFields () {
     return [
         'status_id',
         'number',
-        'customer_id',
+        'customer_name',
         'amount',
         'date',
         'balance'
@@ -60,6 +60,6 @@ export default function CreditPresenter (props) {
             return currency.length ? currency[0].iso_code : ''
         }
         default:
-            return entity[field]
+            return typeof entity[field] === 'object' ? JSON.stringify(entity[field]) : entity[field]
     }
 }

@@ -9,6 +9,7 @@ import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import CustomerRepository from '../repositories/CustomerRepository'
 import { getDefaultTableFields } from '../presenters/ProjectPresenter'
+import CreditFilters from "../credits/CreditFilters";
 
 export default class ProjectList extends Component {
     constructor (props) {
@@ -77,7 +78,7 @@ export default class ProjectList extends Component {
             show_list={props.show_list}
             custom_fields={custom_fields}
             viewId={props.viewId}
-            ignoredColumns={getDefaultTableFields()} addUserToState={this.addUserToState}
+            ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -153,7 +154,10 @@ export default class ProjectList extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <ProjectFilters customers={customers} setFilterOpen={this.setFilterOpen.bind(this)}
+                                <ProjectFilters
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.addUserToState}
+                                    customers={customers} setFilterOpen={this.setFilterOpen.bind(this)}
                                     projects={projects}
                                     filters={this.state.filters} filter={this.filterProjects}
                                     saveBulk={this.saveBulk}/>

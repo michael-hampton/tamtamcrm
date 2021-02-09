@@ -10,6 +10,7 @@ import QuoteRepository from '../repositories/QuoteRepository'
 import queryString from 'query-string'
 import UpdateRecurringQuote from './edit/UpdateRecurringQuote'
 import { getDefaultTableFields } from '../presenters/RecurringQuotePresenter'
+import CreditFilters from "../credits/CreditFilters";
 
 export default class RecurringQuotes extends Component {
     constructor (props) {
@@ -98,7 +99,7 @@ export default class RecurringQuotes extends Component {
             show_list={props.show_list}
             viewId={props.viewId}
             customers={customers} custom_fields={custom_fields}
-            ignoredColumns={getDefaultTableFields()} updateInvoice={this.updateInvoice}
+            ignoredColumns={props.default_columns} updateInvoice={this.updateInvoice}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -188,7 +189,10 @@ export default class RecurringQuotes extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <RecurringQuoteFilters customers={customers}
+                                <RecurringQuoteFilters
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.updateInvoice}
+                                    customers={customers}
                                     setFilterOpen={this.setFilterOpen.bind(this)}
                                     invoices={invoices}
                                     filters={filters} filter={this.filterInvoices}

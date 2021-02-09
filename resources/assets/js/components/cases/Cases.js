@@ -9,6 +9,7 @@ import queryString from 'query-string'
 import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import { getDefaultTableFields } from '../presenters/CasePresenter'
+import CustomerFilters from "../customers/CustomerFilters";
 
 export default class Cases extends Component {
     constructor (props) {
@@ -93,7 +94,7 @@ export default class Cases extends Component {
         return <CaseItem showCheckboxes={props.showCheckboxes} customers={customers} cases={cases}
             show_list={props.show_list}
             viewId={props.viewId}
-            ignoredColumns={getDefaultTableFields()} addUserToState={this.addUserToState}
+            ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -143,7 +144,10 @@ export default class Cases extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <CaseFilters setFilterOpen={this.setFilterOpen.bind(this)} cases={cases}
+                                <CaseFilters
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.addUserToState}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} cases={cases}
                                     customers={customers}
                                     filters={this.state.filters} filter={this.filterCases}
                                     saveBulk={this.saveBulk}/>

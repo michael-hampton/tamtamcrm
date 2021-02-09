@@ -9,6 +9,7 @@ import { translations } from '../utils/_translations'
 import CompanyRepository from '../repositories/CompanyRepository'
 import queryString from 'query-string'
 import { getDefaultTableFields } from '../presenters/PurchaseOrderPresenter'
+import CreditFilters from "../credits/CreditFilters";
 
 export default class PurchaseOrders extends Component {
     constructor (props) {
@@ -80,7 +81,7 @@ export default class PurchaseOrders extends Component {
             companies={companies}
             custom_fields={custom_fields}
             viewId={props.viewId}
-            ignoredColumns={getDefaultTableFields()} updateInvoice={this.updateInvoice}
+            ignoredColumns={props.default_columns} updateInvoice={this.updateInvoice}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -165,7 +166,10 @@ export default class PurchaseOrders extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <PurchaseOrderFilters setFilterOpen={this.setFilterOpen.bind(this)}
+                                <PurchaseOrderFilters
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.updateInvoice}
+                                    setFilterOpen={this.setFilterOpen.bind(this)}
                                     purchase_orders={purchase_orders}
                                     companies={companies}
                                     filters={filters} filter={this.filterInvoices}

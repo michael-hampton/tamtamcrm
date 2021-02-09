@@ -14,6 +14,7 @@ import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import CustomerRepository from '../repositories/CustomerRepository'
 import { getDefaultTableFields } from '../presenters/InvoicePresenter'
+import CreditFilters from "../credits/CreditFilters";
 
 export default class Invoice extends Component {
     constructor (props) {
@@ -87,7 +88,7 @@ export default class Invoice extends Component {
             show_list={props.show_list}
             invoices={invoices} customers={customers}
             custom_fields={custom_fields}
-            ignoredColumns={getDefaultTableFields()} updateInvoice={this.updateInvoice}
+            ignoredColumns={props.default_columns} updateInvoice={this.updateInvoice}
             viewId={props.viewId}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
@@ -177,7 +178,10 @@ export default class Invoice extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <InvoiceFilters setFilterOpen={this.setFilterOpen.bind(this)} invoices={invoices}
+                                <InvoiceFilters
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.updateInvoice}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} invoices={invoices}
                                     customers={customers}
                                     filters={filters} filter={this.filterInvoices}
                                     saveBulk={this.saveBulk}/>

@@ -9,7 +9,7 @@ import { contrast } from '../utils/_colors_converter'
 export function getDefaultTableFields () {
     return [
         'number',
-        'customer_id',
+        'customer_name',
         'due_date',
         'name',
         'description',
@@ -69,6 +69,6 @@ export default function TaskPresenter (props) {
         case 'project':
             return props.entity.project && props.entity.project.name ? props.entity.project.name : ''
         default:
-            return entity[field]
+            return typeof entity[field] === 'object' ? JSON.stringify(entity[field]) : entity[field]
     }
 }

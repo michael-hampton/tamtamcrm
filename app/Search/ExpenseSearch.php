@@ -205,8 +205,8 @@ class ExpenseSearch extends BaseSearch
                 $this->query->orderBy('invoices.number', $request->input('orderByDirection'));
             } elseif ($order_by === 'company') {
                 $this->query->orderBy('companies.name', $request->input('orderByDirection'));
-            } elseif (!empty($this->field_mapping[$order])) {
-                $order = str_replace('$table', 'expenses', $this->field_mapping[$order]);
+            } elseif (!empty($this->field_mapping[$order_by])) {
+                $order = str_replace('$table', 'expenses', $this->field_mapping[$order_by]);
                 $this->query->orderBy($order, $request->input('orderByDirection'));
             } elseif ($order_by !== 'status') {
                 $this->query->orderBy('expenses.' . $order_by, $request->input('orderByDirection'));

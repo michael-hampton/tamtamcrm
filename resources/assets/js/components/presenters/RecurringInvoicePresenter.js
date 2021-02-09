@@ -10,7 +10,7 @@ import { recurringInvoiceStatuses } from '../utils/_statuses'
 export function getDefaultTableFields () {
     return [
         'number',
-        'customer_id',
+        'customer_name',
         'date',
         'due_date',
         'total',
@@ -88,6 +88,6 @@ export default function RecurringInvoicePresenter (props) {
         }
 
         default:
-            return entity[field] || ''
+            return typeof entity[field] === 'object' ? JSON.stringify(entity[field]) : entity[field]
     }
 }

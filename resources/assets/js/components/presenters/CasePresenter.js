@@ -10,7 +10,7 @@ import { caseStatuses } from '../utils/_statuses'
 export function getDefaultTableFields () {
     return [
         'number',
-        'customer_id',
+        'customer_name',
         'subject',
         'due_date',
         'priority_id',
@@ -67,6 +67,6 @@ export default function CasePresenter (props) {
         case 'created_at':
             return <FormatDate field={field} date={entity[field]}/>
         default:
-            return entity[field]
+            return typeof entity[field] === 'object' ? JSON.stringify(entity[field]) : entity[field]
     }
 }

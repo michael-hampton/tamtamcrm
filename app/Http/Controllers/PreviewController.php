@@ -68,11 +68,11 @@ class PreviewController extends Controller
 
         $contact = CustomerContact::factory()->create(
             [
-                'user_id'     => auth()->user()->id,
-                'account_id'  => auth()->user()->account_user()->account_id,
-                'customer_id' => $customer->id,
-                'is_primary'  => 1,
-                'send_email'  => true,
+                'user_id'                    => auth()->user()->id,
+                'account_id'                 => auth()->user()->account_user()->account_id,
+                'customer_id'                => $customer->id,
+                'is_primary'                 => 1,
+                'email_notification_enabled' => true,
             ]
         );
 
