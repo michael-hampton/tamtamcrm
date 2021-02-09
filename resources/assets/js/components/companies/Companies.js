@@ -168,9 +168,10 @@ export default class Companies extends Component {
                         <Card>
                             <CardBody>
                                 <CompanyFilters
-                                    cachedData={this.state.cachedData}
-                                    updateList={this.addUserToState}
-                                    setFilterOpen={this.setFilterOpen.bind(this)} brands={brands}
+                                    pageLimit={pageLimit}
+                                     cachedData={this.state.cachedData}
+                                     updateList={this.onPageChanged.bind(this)}
+                                     setFilterOpen={this.setFilterOpen.bind(this)} brands={brands}
                                     filters={this.state.filters} filter={this.filterCompanies}
                                     saveBulk={this.saveBulk}/>
                                 {addButton}
