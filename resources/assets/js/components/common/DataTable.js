@@ -355,8 +355,11 @@ export default class DataTable extends Component {
         sorted_column = !sorted_column ? this.state.sorted_column : sorted_column
         const noPerPage = !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows')
         this.cancel = axios.CancelToken.source()
-        const fetchUrl = `${this.props.fetchUrl}${this.props.fetchUrl.includes('?') ? '&' : '?'}page=${pageNumber}&column=${sorted_column}&order=${order}&per_page=${noPerPage}`
+        let fetchUrl = `${this.props.fetchUrl}${this.props.fetchUrl.includes('?') ? '&' : '?'}&column=${sorted_column}&order=${order}`
 
+        if(!this.props.hide_pagination) {
+            fetchUrl += `&page=${pageNumber}&per_page=${noPerPage}`
+        }
         axios.get(fetchUrl, {})
             .then(response => {
                 let data = response.data.data && Object.keys(response.data.data).length ? response.data.data : []
@@ -527,12 +530,14 @@ export default class DataTable extends Component {
                     entity_type={this.props.entity_type}
                 />}
 
+                {!this.props.hide_pagination &&
                 <PaginationBuilder last_page={this.state.entities.last_page} page={this.state.entities.page}
                     current_page={this.state.entities.current_page}
                     from={this.state.entities.from}
                     offset={this.state.offset}
                     to={this.state.entities.to} fetchEntities={this.fetchEntities}
                     recordCount={this.state.entities.total} perPage={this.state.perPage}/>
+                }
             </React.Fragment>
         )
     }
