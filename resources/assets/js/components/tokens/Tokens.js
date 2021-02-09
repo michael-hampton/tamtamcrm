@@ -61,6 +61,20 @@ export default class Tokens extends Component {
         })
     }
 
+    onPageChanged(data) {
+         let { tokens, pageLimit } = this.state
+         const { currentPage, totalPages } = data
+
+         if (data.invoices) {
+             tokens = data.invoices
+         }
+
+         const offset = (currentPage - 1) * pageLimit
+         const currentInvoices = tokens.slice(offset, offset + pageLimit)
+
+         this.setState({ currentPage, currentInvoices, totalPages })
+     }
+
     filterTokens (filters) {
         this.setState({ filters: filters })
     }
