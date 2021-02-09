@@ -62,6 +62,20 @@ export default class Companies extends Component {
         this.setState({ brands: brands, cachedData:cachedData })
     }
 
+    onPageChanged(data) {
+         let { brands, pageLimit } = this.state
+         const { currentPage, totalPages } = data
+
+         if (data.invoices) {
+             brands = data.invoices
+         }
+
+         const offset = (currentPage - 1) * pageLimit
+         const currentInvoices = brands.slice(offset, offset + pageLimit)
+
+         this.setState({ currentPage, currentInvoices, totalPages })
+     }
+
     handleClose () {
         this.setState({ error: '', show_success: false })
     }
