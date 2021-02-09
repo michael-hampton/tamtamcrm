@@ -68,6 +68,20 @@ export default class ProjectList extends Component {
         })
     }
 
+    onPageChanged(data) {
+         let { projects, pageLimit } = this.state
+         const { currentPage, totalPages } = data
+
+         if (data.invoices) {
+             projects = data.invoices
+         }
+
+         const offset = (currentPage - 1) * pageLimit
+         const currentInvoices = projects.slice(offset, offset + pageLimit)
+
+         this.setState({ currentPage, currentInvoices, totalPages })
+     }
+
     handleClose () {
         this.setState({ error: '', show_success: false })
     }
