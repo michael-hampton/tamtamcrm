@@ -60,6 +60,20 @@ export default class Categories extends Component {
         })
     }
 
+    onPageChanged(data) {
+         let { statuses, pageLimit } = this.state
+         const { currentPage, totalPages } = data
+
+         if (data.invoices) {
+             statuses = data.invoices
+         }
+
+         const offset = (currentPage - 1) * pageLimit
+         const currentInvoices = statuses.slice(offset, offset + pageLimit)
+
+         this.setState({ currentPage, currentInvoices, totalPages })
+     }
+
     handleClose () {
         this.setState({ error: '', show_success: false })
     }
