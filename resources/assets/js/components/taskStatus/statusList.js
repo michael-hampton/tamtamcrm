@@ -15,6 +15,10 @@ export default class Categories extends Component {
         super(props)
 
         this.state = {
+            currentPage: 1,
+             totalPages: null,
+             pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+             currentInvoices: [],
             isOpen: window.innerWidth > 670,
             error: '',
             show_success: false,
