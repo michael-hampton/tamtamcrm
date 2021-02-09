@@ -76,6 +76,20 @@ export default class RecurringQuotes extends Component {
         })
     }
 
+    onPageChanged(data) {
+         let { invoices, pageLimit } = this.state
+         const { currentPage, totalPages } = data
+
+         if (data.invoices) {
+             invoices = data.invoices
+         }
+
+         const offset = (currentPage - 1) * pageLimit
+         const currentInvoices = invoices.slice(offset, offset + pageLimit)
+
+         this.setState({ currentPage, currentInvoices, totalPages })
+     }
+
     getQuotes () {
         const quoteRepository = new QuoteRepository()
         quoteRepository.get().then(response => {
