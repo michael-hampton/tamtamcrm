@@ -102,6 +102,20 @@ export default class Excuspenses extends Component {
         })
     }
 
+    onPageChanged(data) {
+         let { expenses, pageLimit } = this.state
+         const { currentPage, totalPages } = data
+
+         if (data.invoices) {
+             expenses = data.invoices
+         }
+
+         const offset = (currentPage - 1) * pageLimit
+         const currentInvoices = expenses.slice(offset, offset + pageLimit)
+
+         this.setState({ currentPage, currentInvoices, totalPages })
+     }
+
     updateExpenses (expenses) {
         const cachedData = !this.state.cachedData.length ? expenses : this.state.cachedData
         this.setState({
