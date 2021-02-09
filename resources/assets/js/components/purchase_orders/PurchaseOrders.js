@@ -70,6 +70,20 @@ export default class PurchaseOrders extends Component {
         })
     }
 
+    onPageChanged(data) {
+         let { purchase_orders, pageLimit } = this.state
+         const { currentPage, totalPages } = data
+
+         if (data.invoices) {
+             purchase_orders = data.invoices
+         }
+
+         const offset = (currentPage - 1) * pageLimit
+         const currentInvoices = purchase_orders.slice(offset, offset + pageLimit)
+
+         this.setState({ currentPage, currentInvoices, totalPages })
+     }
+
     filterInvoices (filters) {
         this.setState({ filters: filters })
     }
