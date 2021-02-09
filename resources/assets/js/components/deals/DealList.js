@@ -73,6 +73,20 @@ export default class DealList extends Component {
         this.setState({ deals: deals, cachedData:cachedData })
     }
 
+    onPageChanged(data) {
+         let { deals, pageLimit } = this.state
+         const { currentPage, totalPages } = data
+
+         if (data.invoices) {
+             deals = data.invoices
+         }
+
+         const offset = (currentPage - 1) * pageLimit
+         const currentInvoices = deals.slice(offset, offset + pageLimit)
+
+         this.setState({ currentPage, currentInvoices, totalPages })
+     }
+
     handleClose () {
         this.setState({ error: '', show_success: false })
     }
