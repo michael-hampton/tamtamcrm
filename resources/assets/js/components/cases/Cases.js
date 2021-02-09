@@ -58,6 +58,20 @@ export default class Cases extends Component {
         this.getCustomers()
     }
 
+    onPageChanged(data) {
+         let { cases, pageLimit } = this.state
+         const { currentPage, totalPages } = data
+
+         if (data.invoices) {
+             cases = data.invoices
+         }
+
+         const offset = (currentPage - 1) * pageLimit
+         const currentInvoices = cases.slice(offset, offset + pageLimit)
+
+         this.setState({ currentPage, currentInvoices, totalPages })
+     }
+
     addUserToState (cases) {
         const cachedData = !this.state.cachedData.length ? cases : this.state.cachedData
         this.setState({
