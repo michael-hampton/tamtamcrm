@@ -98,10 +98,10 @@ export default class Invoice extends Component {
     }
 
     userList (props) {
-        const { invoices, customers, custom_fields } = this.state
+        const { invoices, customers, custom_fields, currentInvoices } = this.state
         return <InvoiceItem showCheckboxes={props.showCheckboxes}
             show_list={props.show_list}
-            invoices={invoices} customers={customers}
+            invoices={currentInvoices} customers={customers}
             custom_fields={custom_fields}
             ignoredColumns={props.default_columns} updateInvoice={this.updateInvoice}
             viewId={props.viewId}
