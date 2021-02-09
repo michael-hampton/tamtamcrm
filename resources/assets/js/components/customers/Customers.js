@@ -15,6 +15,10 @@ export default class Customers extends Component {
     constructor (props) {
         super(props)
         this.state = {
+            currentPage: 1,
+             totalPages: null,
+             pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             per_page: 5,
@@ -54,6 +58,20 @@ export default class Customers extends Component {
         this.getCompanies()
         this.getCustomFields()
     }
+
+    onPageChanged(data) {
+         let { customers, pageLimit } = this.state
+         const { currentPage, totalPages } = data
+
+         if (data.invoices) {
+             customers = data.invoices
+         }
+
+         const offset = (currentPage - 1) * pageLimit
+         const currentInvoices = customers.slice(offset, offset + pageLimit)
+
+         this.setState({ currentPage, currentInvoices, totalPages })
+     }
 
     updateCustomers (customers) {
         const cachedData = !this.state.cachedData.length ? customers : this.state.cachedData
