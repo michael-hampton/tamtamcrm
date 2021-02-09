@@ -233,6 +233,7 @@ export default class Invoice extends Component {
                         <Card>
                             <CardBody>
                                 <DataTable
+                                    pageLimit={pageLimit}
                                     onPageChanged={this.onPageChanged.bind(this)}
                                     currentData={currentInvoices}
                                     hide_pagination={true}
