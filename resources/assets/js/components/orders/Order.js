@@ -61,6 +61,20 @@ export default class Order extends Component {
         this.getCustomFields()
     }
 
+    onPageChanged(data) {
+         let { orders, pageLimit } = this.state
+         const { currentPage, totalPages } = data
+
+         if (data.invoices) {
+             orders = data.invoices
+         }
+
+         const offset = (currentPage - 1) * pageLimit
+         const currentInvoices = orders.slice(offset, offset + pageLimit)
+
+         this.setState({ currentPage, currentInvoices, totalPages })
+     }
+
     updateOrder (orders) {
         const cachedData = !this.state.cachedData.length ? orders : this.state.cachedData
         this.setState({
