@@ -70,6 +70,20 @@ export default class Quotes extends Component {
         })
     }
 
+    onPageChanged(data) {
+         let { quotes, pageLimit } = this.state
+         const { currentPage, totalPages } = data
+
+         if (data.invoices) {
+             quotes = data.invoices
+         }
+
+         const offset = (currentPage - 1) * pageLimit
+         const currentInvoices = quotes.slice(offset, offset + pageLimit)
+
+         this.setState({ currentPage, currentInvoices, totalPages })
+     }
+
     filterInvoices (filters) {
         this.setState({ filters: filters })
     }
