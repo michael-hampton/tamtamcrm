@@ -126,9 +126,10 @@ export default class TaxRates extends Component {
                         <Card>
                             <CardBody>
                                 <TaxRateFilters
-                                    cachedData={this.state.cachedData}
-                                    updateList={this.addUserToState}
-                                    setFilterOpen={this.setFilterOpen.bind(this)} taxRates={taxRates}
+                                    pageLimit={pageLimit}
+                                     cachedData={this.state.cachedData}
+                                     updateList={this.onPageChanged.bind(this)}
+                                     setFilterOpen={this.setFilterOpen.bind(this)} taxRates={taxRates}
                                     filters={filters} filter={this.filterTaxRates}
                                     saveBulk={this.saveBulk}/>
                                 {addButton}
