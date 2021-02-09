@@ -63,6 +63,20 @@ export default class Subscriptions extends Component {
         this.props.reset()
     }
 
+    onPageChanged(data) {
+         let { subscriptions, pageLimit } = this.state
+         const { currentPage, totalPages } = data
+
+         if (data.invoices) {
+             subscriptions = data.invoices
+         }
+
+         const offset = (currentPage - 1) * pageLimit
+         const currentInvoices = subscriptions.slice(offset, offset + pageLimit)
+
+         this.setState({ currentPage, currentInvoices, totalPages })
+     }
+
     userList (props) {
         const { subscriptions } = this.state
         return <SubscriptionItem showCheckboxes={props.showCheckboxes} subscriptions={subscriptions}
