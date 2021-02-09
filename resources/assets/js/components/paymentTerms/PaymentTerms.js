@@ -50,6 +50,20 @@ export default class PaymentTerms extends Component {
         })
     }
 
+    onPageChanged(data) {
+         let { paymentTerms, pageLimit } = this.state
+         const { currentPage, totalPages } = data
+
+         if (data.invoices) {
+             paymentTerms = data.invoices
+         }
+
+         const offset = (currentPage - 1) * pageLimit
+         const currentInvoices = paymentTerms.slice(offset, offset + pageLimit)
+
+         this.setState({ currentPage, currentInvoices, totalPages })
+     }
+
     filterPaymentTerms (filters) {
         this.setState({ filters: filters })
     }
