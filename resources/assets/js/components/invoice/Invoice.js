@@ -24,7 +24,7 @@ export default class Invoice extends Component {
         this.state = {
             currentPage: 1,
             totalPages: null,
-            pageLimit: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             error: '',
@@ -233,6 +233,7 @@ export default class Invoice extends Component {
                         <Card>
                             <CardBody>
                                 <DataTable
+                                    onPageChanged={this.onPageChanged.bind(this)}
                                     currentData={currentInvoices}
                                     hide_pagination={true}
                                     default_columns={getDefaultTableFields()}
