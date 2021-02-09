@@ -81,6 +81,20 @@ export default class RecurringInvoices extends Component {
         })
     }
 
+    onPageChanged(data) {
+         let { invoices, pageLimit } = this.state
+         const { currentPage, totalPages } = data
+
+         if (data.invoices) {
+             invoices = data.invoices
+         }
+
+         const offset = (currentPage - 1) * pageLimit
+         const currentInvoices = invoices.slice(offset, offset + pageLimit)
+
+         this.setState({ currentPage, currentInvoices, totalPages })
+     }
+
     updateInvoice (invoices) {
         const cachedData = !this.state.cachedData.length ? invoices : this.state.cachedData
         this.setState({
