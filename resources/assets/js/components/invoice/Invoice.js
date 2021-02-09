@@ -174,7 +174,7 @@ export default class Invoice extends Component {
     }
 
     render () {
-        const { invoices, customers, custom_fields, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages } = this.state
+        const { invoices, customers, custom_fields, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const total = invoices.length
 
         const { status_id, customer_id, searchText, start_date, end_date, project_id, user_id, id } = this.state.filters
@@ -201,6 +201,7 @@ export default class Invoice extends Component {
                         <Card>
                             <CardBody>
                                 <InvoiceFilters
+                                    pageLimit={pageLimit}
                                     cachedData={this.state.cachedData}
                                     updateList={this.onPageChanged.bind(this)}
                                     setFilterOpen={this.setFilterOpen.bind(this)} invoices={invoices}
