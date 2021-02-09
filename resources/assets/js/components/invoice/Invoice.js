@@ -80,13 +80,17 @@ export default class Invoice extends Component {
     }
 
     onPageChanged(data) {
-        const { invoices } = this.state;
-        const { currentPage, totalPages, pageLimit } = data;
+        let { invoices, pageLimit } = this.state
+        const { currentPage, totalPages } = data
 
-        const offset = (currentPage - 1) * pageLimit;
-        const currentInvoices = invoices.slice(offset, offset + pageLimit);
+        if (data.invoices) {
+            invoices = data.invoices
+        }
 
-        this.setState({ currentPage, currentInvoices, totalPages });
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = invoices.slice(offset, offset + pageLimit)
+
+        this.setState({ currentPage, currentInvoices, totalPages })
     }
 
     filterInvoices (filters) {
@@ -100,6 +104,7 @@ export default class Invoice extends Component {
     userList (props) {
         const { invoices, customers, custom_fields, currentInvoices } = this.state
         return <InvoiceItem showCheckboxes={props.showCheckboxes}
+            onPageChanged={this.onPageChanged.bind(this)}
             show_list={props.show_list}
             invoices={currentInvoices} customers={customers}
             custom_fields={custom_fields}
@@ -197,7 +202,7 @@ export default class Invoice extends Component {
                             <CardBody>
                                 <InvoiceFilters
                                     cachedData={this.state.cachedData}
-                                    updateList={this.updateInvoice}
+                                    updateList={this.onPageChanged.bind(this)}
                                     setFilterOpen={this.setFilterOpen.bind(this)} invoices={invoices}
                                     customers={customers}
                                     filters={filters} filter={this.filterInvoices}
