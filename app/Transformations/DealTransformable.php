@@ -30,7 +30,6 @@ trait DealTransformable
             'project'        => $deal->project,
             'deleted_at'     => $deal->deleted_at,
             'rating'         => $deal->rating,
-            'customer_name'  => $deal->customer->name ?: '',
             'customer_id'    => $deal->customer_id,
             'valued_at'      => $deal->valued_at,
             'source_type'    => $deal->source_type,

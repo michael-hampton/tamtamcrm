@@ -22,7 +22,6 @@ trait RecurringQuoteTransformable
             'id'                    => (int)$quote->id,
             'number'                => $quote->number,
             'customer_id'           => $quote->customer_id,
-            'customer_name'         => $quote->customer->name ?: '',
             'project_id'            => (int)$quote->project_id,
             'date'                  => $quote->date,
             'due_date'              => $quote->due_date,

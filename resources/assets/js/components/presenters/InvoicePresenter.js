@@ -11,7 +11,7 @@ import { invoiceStatusColors } from '../utils/_colors'
 export function getDefaultTableFields () {
     return [
         'number',
-        'customer_name',
+        'customer_id',
         'date',
         'due_date',
         'total',

@@ -10,7 +10,7 @@ export function getDefaultTableFields () {
     return [
         'status_id',
         'number',
-        'customer_name',
+        'customer_id',
         'amount',
         'date',
         'balance'

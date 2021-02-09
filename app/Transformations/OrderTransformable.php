@@ -31,7 +31,6 @@ trait OrderTransformable
             'public_notes'        => $order->public_notes ?: '',
             'private_notes'       => $order->private_notes ?: '',
             'customer_id'         => (int)$order->customer_id,
-            'customer_name'       => $order->customer->name ?: '',
             'date'                => $order->date ?: '',
             'due_date'            => $order->due_date ?: '',
             'design_id'           => (int)$order->design_id,

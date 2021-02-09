@@ -22,7 +22,6 @@ trait PaymentTransformable
             'created_at'           => $payment->created_at,
             'assigned_to'          => (int)$payment->assigned_to,
             'customer_id'          => (int)$payment->customer_id,
-            'customer_name'        => $payment->customer->name ?: '',
             'date'                 => $payment->date ?: '',
             'amount'               => (float)$payment->amount,
             'reference_number'     => $payment->reference_number ?: '',

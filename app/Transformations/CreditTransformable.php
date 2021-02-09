@@ -38,7 +38,6 @@ trait CreditTransformable
             'public_notes'        => $credit->public_notes ?: '',
             'private_notes'       => $credit->private_notes ?: '',
             'customer_id'         => (int)$credit->customer_id,
-            'customer_name'       => $credit->customer->name ?: '',
             'date'                => $credit->date ?: '',
             'due_date'            => $credit->due_date ?: '',
             'design_id'           => (int)$credit->design_id,

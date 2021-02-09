@@ -29,7 +29,6 @@ trait CaseTransformable
             'account_id'         => (int)$cases->account_id,
             'customer_id'        => (int)$cases->customer_id,
             'contact_id'         => (int)$cases->contact_id,
-            'customer_name'      => $customer->name,
             'user_id'            => (int)$cases->user_id,
             'assigned_to'        => (int)$cases->assigned_to,
             'parent_id'          => (int)$cases->parent_id,

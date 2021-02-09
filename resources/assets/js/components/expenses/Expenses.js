@@ -12,7 +12,7 @@ import CompanyRepository from '../repositories/CompanyRepository'
 import { getDefaultTableFields } from '../presenters/ExpensePresenter'
 import CreditFilters from "../credits/CreditFilters";
 
-export default class Expenses extends Component {
+export default class Excuspenses extends Component {
     constructor (props) {
         super(props)
         this.state = {

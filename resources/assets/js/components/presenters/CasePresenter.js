@@ -10,7 +10,7 @@ import { caseStatuses } from '../utils/_statuses'
 export function getDefaultTableFields () {
     return [
         'number',
-        'customer_name',
+        'customer_id',
         'subject',
         'due_date',
         'priority_id',

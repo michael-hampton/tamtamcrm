@@ -10,7 +10,7 @@ import { paymentStatuses } from '../utils/_statuses'
 export function getDefaultTableFields () {
     return [
         'number',
-        'customer_name',
+        'customer_id',
         'date',
         'amount',
         'reference_number',

@@ -14,7 +14,7 @@ export function getDefaultTableFields () {
         'number',
         'status_id',
         'company_id',
-        'customer_name',
+        'customer_id',
         'date',
         'amount'
     ]

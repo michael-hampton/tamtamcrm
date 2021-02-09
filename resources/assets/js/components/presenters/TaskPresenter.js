@@ -9,7 +9,7 @@ import { contrast } from '../utils/_colors_converter'
 export function getDefaultTableFields () {
     return [
         'number',
-        'customer_name',
+        'customer_id',
         'due_date',
         'name',
         'description',

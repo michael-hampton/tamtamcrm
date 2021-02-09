@@ -7,6 +7,7 @@ import DateFilter from '../common/DateFilter'
 import CsvImporter from '../common/CsvImporter'
 import StatusDropdown from '../common/StatusDropdown'
 import { recurringQuoteStatuses } from '../utils/_statuses'
+import filterSearchResults from "../utils/_search";
 
 export default class RecurringQuoteFilters extends Component {
     constructor (props) {
@@ -71,9 +72,9 @@ export default class RecurringQuoteFilters extends Component {
             <Row form>
                 <Col md={3}>
                     <TableSearch onChange={(e) => {
-                        const value = typeof e.target.value === 'string' ? e.target.value.toLowerCase() : e.target.value
-                        const search_results = this.props.cachedData.filter(obj => Object.keys(obj).some(key => obj[key] && obj[key].length ? obj[key].toString().toLowerCase().includes(value) : false))
-                        this.props.updateList(search_results)
+                        const myArrayFiltered = filterSearchResults(e.target.value, this.props.cachedData, this.props.customers)
+
+                        this.props.updateList(myArrayFiltered)
                     }}/>
                 </Col>
 
