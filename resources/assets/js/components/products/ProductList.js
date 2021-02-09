@@ -62,6 +62,20 @@ export default class ProductList extends Component {
         this.getCustomFields()
     }
 
+    onPageChanged(data) {
+         let { products, pageLimit } = this.state
+         const { currentPage, totalPages } = data
+
+         if (data.invoices) {
+             products = data.invoices
+         }
+
+         const offset = (currentPage - 1) * pageLimit
+         const currentInvoices = products.slice(offset, offset + pageLimit)
+
+         this.setState({ currentPage, currentInvoices, totalPages })
+     }
+
     addProductToState (products) {
         const cachedData = !this.state.cachedData.length ? products : this.state.cachedData
         this.setState({
