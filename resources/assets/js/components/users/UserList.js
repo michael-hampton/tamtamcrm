@@ -62,6 +62,20 @@ export default class UserList extends Component {
         this.getCustomFields()
     }
 
+    onPageChanged(data) {
+         let { users, pageLimit } = this.state
+         const { currentPage, totalPages } = data
+
+         if (data.invoices) {
+             users = data.invoices
+         }
+
+         const offset = (currentPage - 1) * pageLimit
+         const currentInvoices = users.slice(offset, offset + pageLimit)
+
+         this.setState({ currentPage, currentInvoices, totalPages })
+     }
+
     filterUsers (filters) {
         this.setState({ filters: filters })
     }
