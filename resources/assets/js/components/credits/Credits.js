@@ -183,9 +183,10 @@ export default class Credits extends Component {
                         <Card>
                             <CardBody>
                                 <CreditFilters
-                                    cachedData={this.state.cachedData}
-                                    updateList={this.updateCustomers}
-                                    setFilterOpen={this.setFilterOpen.bind(this)} credits={credits}
+                                    pageLimit={pageLimit}
+                                     cachedData={this.state.cachedData}
+                                     updateList={this.onPageChanged.bind(this)}
+                                     setFilterOpen={this.setFilterOpen.bind(this)} credits={credits}
                                     customers={customers}
                                     filters={filters} filter={this.filterCredits}
                                     saveBulk={this.saveBulk}/>
