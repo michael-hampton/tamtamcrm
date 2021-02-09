@@ -106,6 +106,10 @@ export default class InvoiceFilters extends Component {
                 <Col md={3}>
                     <TableSearch onChange={(e) => {
                         const value = typeof e.target.value === 'string' ? e.target.value.toLowerCase() : e.target.value
+                        const myArrayFiltered = this.props.cachedData.filter((el) => {
+                            return this.props.customers.some((f) => {
+                                return f.id === el.customer_id && f.name.includes(value);
+  });
                         const search_results = this.props.cachedData.filter(obj => Object.keys(obj).some(key => obj[key] && obj[key].length ? obj[key].toString().toLowerCase().includes(value) : false))
                         this.props.updateList(search_results)
                     }}/>
