@@ -3,6 +3,7 @@ import queryString from 'query-string'
 import EditInvoice from './edit/EditInvoice'
 import { Alert, Card, CardBody, Row } from 'reactstrap'
 import DataTable from '../common/DataTable'
+import PaginationNew from '../common/PaginationNew'
 import InvoiceItem from './InvoiceItem'
 import InvoiceFilters from './InvoiceFilters'
 import Drawer from '@material-ui/core/Drawer'
@@ -21,6 +22,9 @@ export default class Invoice extends Component {
         super(props)
 
         this.state = {
+            currentPage: 1,
+            totalPages: null,
+            pageLimit: null,
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             error: '',
@@ -34,6 +38,7 @@ export default class Invoice extends Component {
                 viewedId: null,
                 title: null
             },
+            currentInvoices: [],
             invoices: [],
             cachedData: [],
             customers: [],
@@ -72,6 +77,16 @@ export default class Invoice extends Component {
             invoices: invoices,
             cachedData: cachedData
         })
+    }
+
+    onPageChanged(data) {
+        const { invoices } = this.state;
+        const { currentPage, totalPages, pageLimit } = data;
+
+        const offset = (currentPage - 1) * pageLimit;
+        const currentInvoices = invoices.slice(offset, offset + pageLimit);
+
+        this.setState({ currentPage, currentInvoices, totalPages });
     }
 
     filterInvoices (filters) {
@@ -154,7 +169,9 @@ export default class Invoice extends Component {
     }
 
     render () {
-        const { invoices, customers, custom_fields, view, filters, error, isOpen, error_message, success_message, show_success } = this.state
+        const { invoices, customers, custom_fields, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages } = this.state
+        const total = invoices.length
+
         const { status_id, customer_id, searchText, start_date, end_date, project_id, user_id, id } = this.state.filters
         const fetchUrl = `/api/invoice?search_term=${searchText}&status=${status_id}&user_id=${user_id}&id=${id}&customer_id=${customer_id}&project_id=${project_id}&start_date=${start_date}&end_date=${end_date}`
         const addButton = this.state.customers.length ? <EditInvoice
@@ -210,6 +227,8 @@ export default class Invoice extends Component {
                         <Card>
                             <CardBody>
                                 <DataTable
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
                                     default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
                                     setError={this.setError.bind(this)}
@@ -229,6 +248,10 @@ export default class Invoice extends Component {
                             </CardBody>
                         </Card>
                     </div>
+
+                   <div className="d-flex flex-row py-4 align-items-center">
+                       <PaginationNew totalRecords={total} pageLimit={18} pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)} />
+                   </div>
 
                     <Button onClick={this.toggleDrawer.bind(this)}>bottom</Button>
                     <Drawer anchor="bottom" open={this.state.bottom_drawer_open}
