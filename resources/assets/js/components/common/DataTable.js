@@ -311,7 +311,13 @@ export default class DataTable extends Component {
         console.log('sorted', sorted)
 
         this.setState({ order: order, data: sorted, entities: sorted, sorted_column: column }, () => {
-            this.props.updateState(sorted)
+            if (this.props.onPageChanged) {
+                const totalPages = Math.ceil(sorted / this.props.pageLimit)
+                 this.props.onPageChanged({invoices: sorted, currentPage: 1, totalPages: totalPages })
+            } else {
+                this.props.updateState(sorted)
+            }
+           
             this.buildColumnList()
         })
     }
