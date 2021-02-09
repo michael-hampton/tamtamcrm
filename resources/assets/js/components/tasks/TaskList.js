@@ -85,6 +85,20 @@ export default class TaskList extends Component {
         return true
     }
 
+    onPageChanged(data) {
+         let { tasks, pageLimit } = this.state
+         const { currentPage, totalPages } = data
+
+         if (data.invoices) {
+             tasks = data.invoices
+         }
+
+         const offset = (currentPage - 1) * pageLimit
+         const currentInvoices = tasks.slice(offset, offset + pageLimit)
+
+         this.setState({ currentPage, currentInvoices, totalPages })
+     }
+
     userList (props) {
         const { tasks, custom_fields, users, customers } = this.state
 
