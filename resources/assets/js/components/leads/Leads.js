@@ -67,6 +67,20 @@ export default class Leads extends Component {
         })
     }
 
+    onPageChanged(data) {
+         let { leads, pageLimit } = this.state
+         const { currentPage, totalPages } = data
+
+         if (data.invoices) {
+             leads = data.invoices
+         }
+
+         const offset = (currentPage - 1) * pageLimit
+         const currentInvoices = leads.slice(offset, offset + pageLimit)
+
+         this.setState({ currentPage, currentInvoices, totalPages })
+     }
+
     filterLeads (filters) {
         this.setState({ filters: filters })
     }
