@@ -54,6 +54,20 @@ export default class TaxRates extends Component {
         })
     }
 
+    onPageChanged(data) {
+         let { taxRates, pageLimit } = this.state
+         const { currentPage, totalPages } = data
+
+         if (data.invoices) {
+             taxRates = data.invoices
+         }
+
+         const offset = (currentPage - 1) * pageLimit
+         const currentInvoices = taxRates.slice(offset, offset + pageLimit)
+
+         this.setState({ currentPage, currentInvoices, totalPages })
+     }
+
     filterTaxRates (filters) {
         this.setState({ filters: filters })
     }
