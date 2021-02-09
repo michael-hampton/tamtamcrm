@@ -67,6 +67,20 @@ export default class Payments extends Component {
         this.getCustomFields()
     }
 
+    onPageChanged(data) {
+         let { payments, pageLimit } = this.state
+         const { currentPage, totalPages } = data
+
+         if (data.invoices) {
+             payments = data.invoices
+         }
+
+         const offset = (currentPage - 1) * pageLimit
+         const currentInvoices = payments.slice(offset, offset + pageLimit)
+
+         this.setState({ currentPage, currentInvoices, totalPages })
+     }
+
     handleClose () {
         this.setState({ error: '', show_success: false })
     }
