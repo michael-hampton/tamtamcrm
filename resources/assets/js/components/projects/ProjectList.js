@@ -157,7 +157,7 @@ export default class ProjectList extends Component {
     }
 
     render () {
-        const { projects, customers, custom_fields, view, error, isOpen, error_message, success_message, show_success } = this.state
+        const { projects, customers, custom_fields, view, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const { status_id, customer_id, searchText, start_date, end_date, user_id } = this.state.filters
         const fetchUrl = `/api/projects?search_term=${searchText}&user_id=${user_id}&status=${status_id}&customer_id=${customer_id}&start_date=${start_date}&end_date=${end_date}`
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
