@@ -123,7 +123,7 @@ export default class PaymentTerms extends Component {
 
     render () {
         const { searchText, status, start_date, end_date } = this.state.filters
-        const { view, paymentTerms, error, isOpen, error_message, success_message, show_success } = this.state
+        const { view, paymentTerms, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const fetchUrl = `/api/payment_terms?search_term=${searchText}&status=${status}&start_date=${start_date}&end_date=${end_date} `
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
