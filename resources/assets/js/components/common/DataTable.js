@@ -391,7 +391,6 @@ export default class DataTable extends Component {
                     columns: columns
                     // progress: 0
                 }, () => {
-                    alert('mike')
                     this.props.updateState(data)
                     this.buildColumnList()
                 })
