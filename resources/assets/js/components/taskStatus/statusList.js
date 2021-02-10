@@ -157,9 +157,10 @@ export default class Categories extends Component {
                         <Card>
                             <CardBody>
                                 <TaskStatusFilters
-                                    cachedData={this.state.cachedData}
-                                    updateList={this.addUserToState}
-                                    setFilterOpen={this.setFilterOpen.bind(this)}
+                                    pageLimit={pageLimit}
+                                     cachedData={this.state.cachedData}
+                                     updateList={this.onPageChanged.bind(this)}
+                                     setFilterOpen={this.setFilterOpen.bind(this)}
                                     statuses={statuses}
                                     customers={customers}
                                     filters={this.state.filters} filter={this.filterCategories}
