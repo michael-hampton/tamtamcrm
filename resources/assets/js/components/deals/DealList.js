@@ -178,7 +178,7 @@ export default class DealList extends Component {
     }
 
     render () {
-        const { deals, users, customers, custom_fields, isOpen, error_message, success_message, show_success } = this.state
+        const { deals, users, customers, custom_fields, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const { task_status, customer_id, user_id, searchText, start_date, end_date } = this.state.filters
         const fetchUrl = `/api/deals?search_term=${searchText}&task_status=${task_status}&customer_id=${customer_id}&user_id=${user_id}&start_date=${start_date}&end_date=${end_date}`
         const { error, view } = this.state
