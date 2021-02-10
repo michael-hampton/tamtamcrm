@@ -313,11 +313,11 @@ export default class DataTable extends Component {
         this.setState({ order: order, data: sorted, entities: sorted, sorted_column: column }, () => {
             if (this.props.onPageChanged) {
                 const totalPages = Math.ceil(sorted / this.props.pageLimit)
-                 this.props.onPageChanged({invoices: sorted, currentPage: 1, totalPages: totalPages })
+                this.props.onPageChanged({ invoices: sorted, currentPage: 1, totalPages: totalPages })
             } else {
                 this.props.updateState(sorted)
             }
-           
+
             this.buildColumnList()
         })
     }
@@ -363,12 +363,17 @@ export default class DataTable extends Component {
         this.cancel = axios.CancelToken.source()
         let fetchUrl = `${this.props.fetchUrl}${this.props.fetchUrl.includes('?') ? '&' : '?'}&column=${sorted_column}&order=${order}`
 
-        if(!this.props.hide_pagination) {
+        if (!this.props.hide_pagination) {
             fetchUrl += `&page=${pageNumber}&per_page=${noPerPage}`
         }
         axios.get(fetchUrl, {})
             .then(response => {
                 let data = response.data.data && Object.keys(response.data.data).length ? response.data.data : []
+
+                if (this.props.hide_pagination && response.data && Object.keys(response.data).length) {
+                    data = response.data
+                }
+
                 const columns = (this.props.columns && this.props.columns.length) ? (this.props.columns) : ((Object.keys(data).length) ? (Object.keys(data[0])) : null)
 
                 if (this.props.order) {
@@ -386,6 +391,7 @@ export default class DataTable extends Component {
                     columns: columns
                     // progress: 0
                 }, () => {
+                    alert('mike')
                     this.props.updateState(data)
                     this.buildColumnList()
                 })

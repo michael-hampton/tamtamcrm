@@ -201,11 +201,15 @@ export default class NoteTabs extends Component {
 
                                 <FormGroup>
                                     <Label>{translations.reminder}</Label>
-                                    <Input type="select" name="reminder" value={this.props.invoice.late_fee_reminder} onChange={this.props.handleInput}>
+                                    <Input type="select" name="reminder" value={this.props.invoice.late_fee_reminder}
+                                        onChange={this.props.handleInput}>
                                         <option value="">{translations.select_option}</option>
-                                        <option value="1">{`${translations.reminder_1} ${translations.amount} - ${this.props.model.settings.amount_to_charge_1} ${translations.percent} - ${this.props.model.settings.percent_to_charge_1}`}</option>
-                                        <option value="2">{`${translations.reminder_2} ${translations.amount} - ${this.props.model.settings.amount_to_charge_2} ${translations.percent} - ${this.props.model.settings.percent_to_charge_2}`}</option>
-                                        <option value="3">{`${translations.reminder_3} ${translations.amount} - ${this.props.model.settings.amount_to_charge_3} ${translations.percent} - ${this.props.model.settings.percent_to_charge_3}`}</option>
+                                        <option
+                                            value="1">{`${translations.reminder_1} ${translations.amount} - ${this.props.model.settings.amount_to_charge_1} ${translations.percent} - ${this.props.model.settings.percent_to_charge_1}`}</option>
+                                        <option
+                                            value="2">{`${translations.reminder_2} ${translations.amount} - ${this.props.model.settings.amount_to_charge_2} ${translations.percent} - ${this.props.model.settings.percent_to_charge_2}`}</option>
+                                        <option
+                                            value="3">{`${translations.reminder_3} ${translations.amount} - ${this.props.model.settings.amount_to_charge_3} ${translations.percent} - ${this.props.model.settings.percent_to_charge_3}`}</option>
                                     </Input>
                                 </FormGroup>
 

@@ -10,17 +10,17 @@ import { translations } from '../utils/_translations'
 import CustomerRepository from '../repositories/CustomerRepository'
 import UserRepository from '../repositories/UserRepository'
 import { getDefaultTableFields } from '../presenters/DealPresenter'
-import CreditFilters from "../credits/CreditFilters";
+import PaginationNew from '../common/PaginationNew'
 
 export default class DealList extends Component {
     constructor (props) {
         super(props)
 
-        this.state = { 
+        this.state = {
             currentPage: 1,
-             totalPages: null,
-             pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
-             currentInvoices: [],
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             dropdownButtonActions: ['download'],
@@ -70,25 +70,25 @@ export default class DealList extends Component {
 
     addUserToState (deals) {
         const cachedData = !this.state.cachedData.length ? deals : this.state.cachedData
-        this.setState({ deals: deals, cachedData:cachedData }, () => {
-            const totalPages = Math.ceil(deals / this.props.pageLimit);
+        this.setState({ deals: deals, cachedData: cachedData }, () => {
+            const totalPages = Math.ceil(deals.length / this.state.pageLimit)
             this.onPageChanged({ invoices: deals, currentPage: this.state.currentPage, totalPages: totalPages })
-       }) )
+        })
     }
 
-    onPageChanged(data) {
-         let { deals, pageLimit } = this.state
-         const { currentPage, totalPages } = data
+    onPageChanged (data) {
+        let { deals, pageLimit } = this.state
+        const { currentPage, totalPages } = data
 
-         if (data.invoices) {
-             deals = data.invoices
-         }
+        if (data.invoices) {
+            deals = data.invoices
+        }
 
-         const offset = (currentPage - 1) * pageLimit
-         const currentInvoices = deals.slice(offset, offset + pageLimit)
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = deals.slice(offset, offset + pageLimit)
 
-         this.setState({ currentPage, currentInvoices, totalPages })
-     }
+        this.setState({ currentPage, currentInvoices, totalPages })
+    }
 
     handleClose () {
         this.setState({ error: '', show_success: false })
@@ -101,10 +101,13 @@ export default class DealList extends Component {
     }
 
     userList (props) {
-        const { deals, custom_fields, users, customers } = this.state
+        const { pageLimit, custom_fields, users, customers, currentInvoices, deals } = this.state
 
-        return <DealItem showCheckboxes={props.showCheckboxes} action={this.addUserToState} deals={deals} users={users}
-            show_list={props.show_list}
+        return <DealItem showCheckboxes={props.showCheckboxes} action={this.addUserToState} deals={currentInvoices}
+            users={users}
+            show_list={props.show_list} entities={deals}
+            onPageChanged={this.onPageChanged.bind(this)}
+            pageLimit={pageLimit}
             custom_fields={custom_fields} customers={customers}
             viewId={props.viewId}
             ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
@@ -200,6 +203,8 @@ export default class DealList extends Component {
             deals={deals}
         /> : null
 
+        const total = deals.length
+
         return customers.length ? (
             <Row>
                 <div className="col-12">
@@ -208,9 +213,9 @@ export default class DealList extends Component {
                             <CardBody>
                                 <DealFilters
                                     pageLimit={pageLimit}
-                                     cachedData={this.state.cachedData}
-                                     updateList={this.onPageChanged.bind(this)}
-                                     setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.onPageChanged.bind(this)}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
                                     users={users}
                                     deals={deals}
                                     filters={this.state.filters} filter={this.filterDeals}
@@ -241,10 +246,10 @@ export default class DealList extends Component {
                             <CardBody>
                                 <DataTable
 
-pageLimit={pageLimit}
-                                     onPageChanged={this.onPageChanged.bind(this)}
-                                     currentData={currentInvoices}
-                                     hide_pagination={true}
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
 
                                     default_columns={getDefaultTableFields()}
                                     customers={customers}
@@ -260,6 +265,13 @@ pageLimit={pageLimit}
                                     fetchUrl={fetchUrl}
                                     updateState={this.addUserToState}
                                 />
+
+                                {total > 0 &&
+                                <div className="d-flex flex-row py-4 align-items-center">
+                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>

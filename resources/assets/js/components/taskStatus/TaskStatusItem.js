@@ -36,7 +36,7 @@ export default class TaskStatusItem extends Component {
         const self = this
         axios.delete(url)
             .then(function (response) {
-                const arrTaskStatuss = [...self.props.statuses]
+                const arrTaskStatuss = [...self.props.entities]
                 const index = arrTaskStatuss.findIndex(taskStatus => taskStatus.id === id)
                 arrTaskStatuss.splice(index, 1)
                 self.props.addUserToState(arrTaskStatuss)
@@ -47,11 +47,11 @@ export default class TaskStatusItem extends Component {
     }
 
     render () {
-        const { statuses, ignoredColumns, customers } = this.props
+        const { statuses, ignoredColumns, customers, entities } = this.props
         if (statuses && statuses.length) {
             return statuses.map((taskStatus, index) => {
                 const restoreButton = taskStatus.deleted_at
-                    ? <RestoreModal id={taskStatus.id} entities={statuses} updateState={this.props.addUserToState}
+                    ? <RestoreModal id={taskStatus.id} entities={entities} updateState={this.props.addUserToState}
                         url={`/api/statuses/restore/${taskStatus.id}`}/> : null
                 const deleteButton = !taskStatus.deleted_at
                     ? <DeleteModal archive={false} deleteFunction={this.deleteTaskStatus} id={taskStatus.id}/> : null
@@ -59,7 +59,7 @@ export default class TaskStatusItem extends Component {
                     ? <DeleteModal archive={true} deleteFunction={this.deleteTaskStatus} id={taskStatus.id}/> : null
 
                 const editButton = !taskStatus.deleted_at ? <EditTaskStatus
-                    statuses={statuses}
+                    statuses={entities}
                     customers={customers}
                     task_status={taskStatus}
                     action={this.props.addUserToState}

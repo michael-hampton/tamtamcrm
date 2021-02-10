@@ -84,6 +84,15 @@ class EditInvoice extends Component {
         window.addEventListener('resize', this.handleWindowSizeChange)
     }
 
+    componentWillReceiveProps (nextProps, nextContext) {
+        if (nextProps.invoice && nextProps.invoice.id !== this.state.id) {
+            this.invoiceModel = new InvoiceModel(nextProps.invoice, this.props.customers)
+            this.setState(this.invoiceModel.fields)
+
+            console.log('invoice', nextProps.invoice)
+        }
+    }
+
     componentDidMount () {
         if (this.props.task_id) {
             this.loadInvoice()

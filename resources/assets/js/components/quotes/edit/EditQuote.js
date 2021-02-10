@@ -105,6 +105,13 @@ class EditInvoice extends Component {
         }
     }
 
+    componentWillReceiveProps (nextProps, nextContext) {
+        if (nextProps.invoice && nextProps.invoice.id !== this.state.id) {
+            this.quoteModel = new QuoteModel(nextProps.invoice, this.props.customers)
+            this.setState(this.quoteModel.fields)
+        }
+    }
+
     // make sure to remove the listener
     // when the component is not mounted anymore
     componentWillUnmount () {

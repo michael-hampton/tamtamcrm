@@ -52,6 +52,13 @@ export default class EditCase extends React.Component {
         }
     }
 
+    componentWillReceiveProps (nextProps, nextContext) {
+        if (nextProps.case && nextProps.case.id !== this.state.id) {
+            this.caseModel = new CaseModel(this.props.case)
+            this.setState(this.caseModel.fields)
+        }
+    }
+
     handleInput (e) {
         if (e.target.name === 'customer_id') {
             const customer_data = this.caseModel.customerChange(e.target.value)

@@ -50,6 +50,13 @@ export default class EditDeal extends Component {
         this.getSourceTypes()
     }
 
+    componentWillReceiveProps (nextProps, nextContext) {
+        if (nextProps.deal && nextProps.deal.id !== this.state.id) {
+            this.dealModel = new DealModel(this.props.deal)
+            this.setState(this.dealModel.fields)
+        }
+    }
+
     getSourceTypes () {
         axios.get('/api/tasks/source-types')
             .then((r) => {

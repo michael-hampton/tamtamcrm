@@ -49,6 +49,13 @@ class EditLeadForm extends React.Component {
         this.getSourceTypes()
     }
 
+    componentWillReceiveProps (nextProps, nextContext) {
+        if (nextProps.lead && nextProps.lead.id !== this.state.id) {
+            this.leadModel = new LeadModel(this.props.lead)
+            this.setState(this.leadModel.fields)
+        }
+    }
+
     toggleTab (tab) {
         if (this.state.activeTab !== tab) {
             this.setState({ activeTab: tab })

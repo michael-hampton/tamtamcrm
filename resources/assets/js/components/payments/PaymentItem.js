@@ -38,7 +38,7 @@ export default class PaymentItem extends Component {
         const self = this
         axios.delete(url)
             .then(function (response) {
-                const arrPayments = [...self.props.payments]
+                const arrPayments = [...self.props.entities]
                 const index = arrPayments.findIndex(payment => payment.id === id)
                 arrPayments.splice(index, 1)
                 self.props.updateCustomers(arrPayments)
@@ -53,7 +53,7 @@ export default class PaymentItem extends Component {
     }
 
     render () {
-        const { payments, custom_fields, invoices, customers, credits } = this.props
+        const { payments, custom_fields, invoices, customers, credits, entities } = this.props
 
         if (payments && payments.length && customers.length) {
             return payments.map((payment, index) => {
@@ -62,7 +62,7 @@ export default class PaymentItem extends Component {
                 const paymentableCredits = credits && credits.length ? paymentModel.paymentableCredits : null
 
                 const restoreButton = paymentModel.isDeleted
-                    ? <RestoreModal id={payment.id} entities={payments} updateState={this.props.updateCustomers}
+                    ? <RestoreModal id={payment.id} entities={entities} updateState={this.props.updateCustomers}
                         url={`/api/payments/restore/${payment.id}`}/> : null
 
                 const archiveButton = paymentModel.isActive
@@ -77,7 +77,7 @@ export default class PaymentItem extends Component {
                     credits={credits}
                     payment={payment}
                     action={this.props.updateCustomers}
-                    payments={payments}
+                    payments={entities}
                     customers={customers}
                     modal={true}
                 /> : null

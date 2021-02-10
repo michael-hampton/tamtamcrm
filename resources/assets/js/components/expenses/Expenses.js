@@ -10,16 +10,16 @@ import { translations } from '../utils/_translations'
 import CustomerRepository from '../repositories/CustomerRepository'
 import CompanyRepository from '../repositories/CompanyRepository'
 import { getDefaultTableFields } from '../presenters/ExpensePresenter'
-import CreditFilters from "../credits/CreditFilters";
+import PaginationNew from '../common/PaginationNew'
 
 export default class Excuspenses extends Component {
     constructor (props) {
         super(props)
         this.state = {
             currentPage: 1,
-             totalPages: null,
-             pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
-             currentInvoices: [],
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             error: '',
@@ -102,19 +102,19 @@ export default class Excuspenses extends Component {
         })
     }
 
-    onPageChanged(data) {
-         let { expenses, pageLimit } = this.state
-         const { currentPage, totalPages } = data
+    onPageChanged (data) {
+        let { expenses, pageLimit } = this.state
+        const { currentPage, totalPages } = data
 
-         if (data.invoices) {
-             expenses = data.invoices
-         }
+        if (data.invoices) {
+            expenses = data.invoices
+        }
 
-         const offset = (currentPage - 1) * pageLimit
-         const currentInvoices = expenses.slice(offset, offset + pageLimit)
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = expenses.slice(offset, offset + pageLimit)
 
-         this.setState({ currentPage, currentInvoices, totalPages })
-     }
+        this.setState({ currentPage, currentInvoices, totalPages })
+    }
 
     updateExpenses (expenses) {
         const cachedData = !this.state.cachedData.length ? expenses : this.state.cachedData
@@ -122,17 +122,19 @@ export default class Excuspenses extends Component {
             expenses: expenses,
             cachedData: cachedData
         }, () => {
-            const totalPages = Math.ceil(expenses / this.props.pageLimit);
+            const totalPages = Math.ceil(expenses.length / this.state.pageLimit)
             this.onPageChanged({ invoices: expenses, currentPage: this.state.currentPage, totalPages: totalPages })
-       }))
+        })
     }
 
     expenseList (props) {
-        const { expenses, customers, custom_fields, companies } = this.state
-        return <ExpenseItem showCheckboxes={props.showCheckboxes} expenses={expenses} customers={customers}
-            show_list={props.show_list}
+        const { pageLimit, customers, custom_fields, companies, currentInvoices, expenses } = this.state
+        return <ExpenseItem showCheckboxes={props.showCheckboxes} expenses={currentInvoices} customers={customers}
+            show_list={props.show_list} entities={expenses}
+            pageLimit={pageLimit}
             viewId={props.viewId}
             companies={companies}
+            onPageChanged={this.onPageChanged.bind(this)}
             custom_fields={custom_fields}
             ignoredColumns={props.default_columns} updateExpenses={this.updateExpenses}
             toggleViewedEntity={props.toggleViewedEntity}
@@ -197,6 +199,7 @@ export default class Excuspenses extends Component {
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable-large fixed-margin-datatable-large-mobile'
+        const total = expenses.length
 
         return customers.length ? (
             <Row>
@@ -206,9 +209,9 @@ export default class Excuspenses extends Component {
                             <CardBody>
                                 <ExpenseFilters
                                     pageLimit={pageLimit}
-                                     cachedData={this.state.cachedData}
-                                     updateList={this.onPageChanged.bind(this)}
-                                     setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.onPageChanged.bind(this)}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
                                     expenses={expenses} companies={companies}
                                     filters={this.state.filters} filter={this.filterExpenses}
                                     saveBulk={this.saveBulk}/>
@@ -238,10 +241,10 @@ export default class Excuspenses extends Component {
                             <CardBody>
                                 <DataTable
 
-pageLimit={pageLimit}
-                                     onPageChanged={this.onPageChanged.bind(this)}
-                                     currentData={currentInvoices}
-                                     hide_pagination={true}
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
 
                                     default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
@@ -259,6 +262,13 @@ pageLimit={pageLimit}
                                     fetchUrl={fetchUrl}
                                     updateState={this.updateExpenses}
                                 />
+
+                                {total > 0 &&
+                                <div className="d-flex flex-row py-4 align-items-center">
+                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>

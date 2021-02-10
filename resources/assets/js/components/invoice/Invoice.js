@@ -15,7 +15,6 @@ import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import CustomerRepository from '../repositories/CustomerRepository'
 import { getDefaultTableFields } from '../presenters/InvoicePresenter'
-import CreditFilters from "../credits/CreditFilters";
 
 export default class Invoice extends Component {
     constructor (props) {
@@ -72,17 +71,18 @@ export default class Invoice extends Component {
     }
 
     updateInvoice (invoices) {
+        console.log('invoices', invoices)
         const cachedData = !this.state.cachedData.length ? invoices : this.state.cachedData
         this.setState({
             invoices: invoices,
             cachedData: cachedData
         }, () => {
-            const totalPages = Math.ceil(invoices / this.props.pageLimit);
+            const totalPages = Math.ceil(invoices.length / this.state.pageLimit)
             this.onPageChanged({ invoices: invoices, currentPage: this.state.currentPage, totalPages: totalPages })
-       })
+        })
     }
 
-    onPageChanged(data) {
+    onPageChanged (data) {
         let { invoices, pageLimit } = this.state
         const { currentPage, totalPages } = data
 
@@ -106,16 +106,18 @@ export default class Invoice extends Component {
 
     userList (props) {
         const { invoices, customers, custom_fields, currentInvoices } = this.state
-        return <InvoiceItem showCheckboxes={props.showCheckboxes}
+        return currentInvoices.length ? <InvoiceItem showCheckboxes={props.showCheckboxes}
             onPageChanged={this.onPageChanged.bind(this)}
             show_list={props.show_list}
-            invoices={currentInvoices} customers={customers}
+            invoices={currentInvoices} entities={invoices}
+            customers={customers}
             custom_fields={custom_fields}
-            ignoredColumns={props.default_columns} updateInvoice={this.updateInvoice}
+            ignoredColumns={props.default_columns}
+            updateInvoice={this.updateInvoice}
             viewId={props.viewId}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
-            onChangeBulk={props.onChangeBulk}/>
+            onChangeBulk={props.onChangeBulk}/> : null
     }
 
     getCustomers () {
@@ -256,13 +258,16 @@ export default class Invoice extends Component {
                                     fetchUrl={fetchUrl}
                                     updateState={this.updateInvoice}
                                 />
+
+                                {total > 0 &&
+                                <div className="d-flex flex-row py-4 align-items-center">
+                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>
-
-                   <div className="d-flex flex-row py-4 align-items-center">
-                       <PaginationNew totalRecords={total} pageLimit={18} pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)} />
-                   </div>
 
                     <Button onClick={this.toggleDrawer.bind(this)}>bottom</Button>
                     <Drawer anchor="bottom" open={this.state.bottom_drawer_open}

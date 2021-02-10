@@ -20,6 +20,13 @@ export default class EditSubscription extends React.Component {
         this.renderErrorFor = this.renderErrorFor.bind(this)
     }
 
+    componentWillReceiveProps (nextProps, nextContext) {
+        if (nextProps.subscription && nextProps.subscription.id !== this.state.id) {
+            this.subscriptionModel = new SubscriptionModel(this.props.subscription)
+            this.setState(this.subscriptionModel.fields)
+        }
+    }
+
     handleInput (e) {
         this.setState({
             [e.target.name]: e.target.value,

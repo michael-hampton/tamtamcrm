@@ -43,6 +43,13 @@ class EditCompany extends React.Component {
         this.removeLogo = this.removeLogo.bind(this)
     }
 
+    componentWillReceiveProps (nextProps, nextContext) {
+        if (nextProps.brand && nextProps.brand.id !== this.state.id) {
+            this.companyModel = new CompanyModel(this.props.brand)
+            this.setState(this.companyModel.fields)
+        }
+    }
+
     handleInput (e) {
         const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value
         this.setState({

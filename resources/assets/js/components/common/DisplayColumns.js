@@ -89,7 +89,7 @@ export default class DisplayColumns extends Component {
 
         this.setState({ values: arrTest, initialState: arrTest, selected: arrSelected }, function () {
             // console.log('columns', this.state.values)
-            //console.log('selected', this.state.selected)
+            // console.log('selected', this.state.selected)
         })
     }
 

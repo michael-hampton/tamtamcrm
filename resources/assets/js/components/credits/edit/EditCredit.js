@@ -101,6 +101,13 @@ export default class EditCredit extends Component {
         }
     }
 
+    componentWillReceiveProps (nextProps, nextContext) {
+        if (nextProps.credit && nextProps.credit.id !== this.state.id) {
+            this.creditModel = new CreditModel(nextProps.credit, this.props.customers)
+            this.setState(this.creditModel.fields)
+        }
+    }
+
     // make sure to remove the listener
     // when the component is not mounted anymore
     componentWillUnmount () {

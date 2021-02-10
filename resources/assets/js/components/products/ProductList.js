@@ -9,16 +9,16 @@ import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import CompanyRepository from '../repositories/CompanyRepository'
 import { getDefaultTableFields } from '../presenters/ProductPresenter'
-import CreditFilters from "../credits/CreditFilters";
+import PaginationNew from '../common/PaginationNew'
 
 export default class ProductList extends Component {
     constructor (props) {
         super(props)
         this.state = {
             currentPage: 1,
-             totalPages: null,
-             pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
-             currentInvoices: [],
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             error: '',
@@ -62,25 +62,28 @@ export default class ProductList extends Component {
         this.getCustomFields()
     }
 
-    onPageChanged(data) {
-         let { products, pageLimit } = this.state
-         const { currentPage, totalPages } = data
+    onPageChanged (data) {
+        let { products, pageLimit } = this.state
+        const { currentPage, totalPages } = data
 
-         if (data.invoices) {
-             products = data.invoices
-         }
+        if (data.invoices) {
+            products = data.invoices
+        }
 
-         const offset = (currentPage - 1) * pageLimit
-         const currentInvoices = products.slice(offset, offset + pageLimit)
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = products.slice(offset, offset + pageLimit)
 
-         this.setState({ currentPage, currentInvoices, totalPages })
-     }
+        this.setState({ currentPage, currentInvoices, totalPages })
+    }
 
     addProductToState (products) {
         const cachedData = !this.state.cachedData.length ? products : this.state.cachedData
         this.setState({
             products: products,
             cachedData: cachedData
+        }, () => {
+            const totalPages = Math.ceil(products.length / this.state.pageLimit)
+            this.onPageChanged({ invoices: products, currentPage: this.state.currentPage, totalPages: totalPages })
         })
     }
 
@@ -147,10 +150,12 @@ export default class ProductList extends Component {
     }
 
     userList (props) {
-        const { products, custom_fields, companies, categories } = this.state
+        const { pageLimit, custom_fields, companies, categories, currentInvoices, products } = this.state
 
-        return <ProductItem showCheckboxes={props.showCheckboxes} products={products} categories={categories}
-            show_list={props.show_list}
+        return <ProductItem showCheckboxes={props.showCheckboxes} products={currentInvoices} categories={categories}
+            show_list={props.show_list} entities={products}
+            onPageChanged={this.onPageChanged.bind(this)}
+            pageLimit={pageLimit}
             viewId={props.viewId}
             companies={companies} custom_fields={custom_fields}
             ignoredColumns={props.default_columns} addProductToState={this.addProductToState}
@@ -188,6 +193,7 @@ export default class ProductList extends Component {
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable-large fixed-margin-datatable-large-mobile'
+        const total = products.length
 
         return (
             <Row>
@@ -197,9 +203,9 @@ export default class ProductList extends Component {
                             <CardBody>
                                 <ProductFilters
                                     pageLimit={pageLimit}
-                                     cachedData={this.state.cachedData}
-                                     updateList={this.onPageChanged.bind(this)}
-                                     setFilterOpen={this.setFilterOpen.bind(this)} companies={companies}
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.onPageChanged.bind(this)}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} companies={companies}
                                     products={products}
                                     filters={filters} filter={this.filterProducts}
                                     saveBulk={this.saveBulk}/>
@@ -229,10 +235,10 @@ export default class ProductList extends Component {
                             <CardBody>
                                 <DataTable
 
-pageLimit={pageLimit}
-                                     onPageChanged={this.onPageChanged.bind(this)}
-                                     currentData={currentInvoices}
-                                     hide_pagination={true}
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
 
                                     default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
@@ -247,6 +253,13 @@ pageLimit={pageLimit}
                                     fetchUrl={fetchUrl}
                                     updateState={this.addProductToState}
                                 />
+
+                                {total > 0 &&
+                                <div className="d-flex flex-row py-4 align-items-center">
+                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>

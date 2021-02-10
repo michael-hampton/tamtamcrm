@@ -11,7 +11,7 @@ import { caseLinkTypes, casePriorities, consts } from '../utils/_consts'
 import { translations } from '../utils/_translations'
 import CsvImporter from '../common/CsvImporter'
 import { caseStatuses } from '../utils/_statuses'
-import filterSearchResults from "../utils/_search";
+import filterSearchResults from '../utils/_search'
 
 export default class CaseFilters extends Component {
     constructor (props) {
@@ -88,11 +88,8 @@ export default class CaseFilters extends Component {
                 <Col md={3}>
                     <TableSearch onChange={(e) => {
                         const myArrayFiltered = filterSearchResults(e.target.value, this.props.cachedData, this.props.customers)
-
-                        if (myArrayFiltered && myArrayFiltered.length) {
-                            const totalPages = Math.ceil(myArrayFiltered / this.props.pageLimit);
-                            this.props.updateList({ invoices: myArrayFiltered, currentPage: 1, totalPages: totalPages })
-                        }
+                        const totalPages = myArrayFiltered && myArrayFiltered.length ? Math.ceil(myArrayFiltered.length / this.props.pageLimit) : 0
+                        this.props.updateList({ invoices: myArrayFiltered, currentPage: 1, totalPages: totalPages })
                     }}/>
                 </Col>
 

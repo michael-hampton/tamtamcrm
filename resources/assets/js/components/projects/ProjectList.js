@@ -9,7 +9,7 @@ import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import CustomerRepository from '../repositories/CustomerRepository'
 import { getDefaultTableFields } from '../presenters/ProjectPresenter'
-import CreditFilters from "../credits/CreditFilters";
+import PaginationNew from '../common/PaginationNew'
 
 export default class ProjectList extends Component {
     constructor (props) {
@@ -17,9 +17,9 @@ export default class ProjectList extends Component {
 
         this.state = {
             currentPage: 1,
-             totalPages: null,
-             pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
-             currentInvoices: [],
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             customers: [],
@@ -65,22 +65,25 @@ export default class ProjectList extends Component {
         this.setState({
             projects: projects,
             cachedData: cachedData
+        }, () => {
+            const totalPages = Math.ceil(projects / this.props.pageLimit)
+            this.onPageChanged({ invoices: projects, currentPage: this.state.currentPage, totalPages: totalPages })
         })
     }
 
-    onPageChanged(data) {
-         let { projects, pageLimit } = this.state
-         const { currentPage, totalPages } = data
+    onPageChanged (data) {
+        let { projects, pageLimit } = this.state
+        const { currentPage, totalPages } = data
 
-         if (data.invoices) {
-             projects = data.invoices
-         }
+        if (data.invoices) {
+            projects = data.invoices
+        }
 
-         const offset = (currentPage - 1) * pageLimit
-         const currentInvoices = projects.slice(offset, offset + pageLimit)
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = projects.slice(offset, offset + pageLimit)
 
-         this.setState({ currentPage, currentInvoices, totalPages })
-     }
+        this.setState({ currentPage, currentInvoices, totalPages })
+    }
 
     handleClose () {
         this.setState({ error: '', show_success: false })
@@ -91,9 +94,9 @@ export default class ProjectList extends Component {
     }
 
     userList (props) {
-        const { projects, custom_fields, customers } = this.state
-        return <ProjectItem showCheckboxes={props.showCheckboxes} projects={projects} customers={customers}
-            show_list={props.show_list}
+        const { projects, custom_fields, customers, currentInvoices } = this.state
+        return <ProjectItem showCheckboxes={props.showCheckboxes} projects={currentInvoices} customers={customers}
+            show_list={props.show_list} entities={projects}
             custom_fields={custom_fields}
             viewId={props.viewId}
             ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
@@ -163,6 +166,7 @@ export default class ProjectList extends Component {
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable fixed-margin-datatable-mobile'
+        const total = projects.length
 
         console.log('columns', getDefaultTableFields())
 
@@ -174,9 +178,9 @@ export default class ProjectList extends Component {
                             <CardBody>
                                 <ProjectFilters
                                     pageLimit={pageLimit}
-                                     cachedData={this.state.cachedData}
-                                     updateList={this.onPageChanged.bind(this)}
-                                     setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.onPageChanged.bind(this)}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
                                     projects={projects}
                                     filters={this.state.filters} filter={this.filterProjects}
                                     saveBulk={this.saveBulk}/>
@@ -207,10 +211,10 @@ export default class ProjectList extends Component {
                             <CardBody>
                                 <DataTable
 
-pageLimit={pageLimit}
-                                     onPageChanged={this.onPageChanged.bind(this)}
-                                     currentData={currentInvoices}
-                                     hide_pagination={true}
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
 
                                     default_columns={getDefaultTableFields()}
                                     customers={customers}
@@ -227,6 +231,13 @@ pageLimit={pageLimit}
                                     fetchUrl={fetchUrl}
                                     updateState={this.addUserToState}
                                 />
+
+                                {total > 0 &&
+                                <div className="d-flex flex-row py-4 align-items-center">
+                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>

@@ -10,16 +10,16 @@ import InvoiceRepository from '../repositories/InvoiceRepository'
 import queryString from 'query-string'
 import UpdateRecurringInvoice from './edit/UpdateRecurringInvoice'
 import { getDefaultTableFields } from '../presenters/RecurringInvoicePresenter'
-import CreditFilters from "../credits/CreditFilters";
+import PaginationNew from '../common/PaginationNew'
 
 export default class RecurringInvoices extends Component {
     constructor (props) {
         super(props)
         this.state = {
             currentPage: 1,
-             totalPages: null,
-             pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
-             currentInvoices: [],
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             error: '',
@@ -81,25 +81,28 @@ export default class RecurringInvoices extends Component {
         })
     }
 
-    onPageChanged(data) {
-         let { invoices, pageLimit } = this.state
-         const { currentPage, totalPages } = data
+    onPageChanged (data) {
+        let { invoices, pageLimit } = this.state
+        const { currentPage, totalPages } = data
 
-         if (data.invoices) {
-             invoices = data.invoices
-         }
+        if (data.invoices) {
+            invoices = data.invoices
+        }
 
-         const offset = (currentPage - 1) * pageLimit
-         const currentInvoices = invoices.slice(offset, offset + pageLimit)
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = invoices.slice(offset, offset + pageLimit)
 
-         this.setState({ currentPage, currentInvoices, totalPages })
-     }
+        this.setState({ currentPage, currentInvoices, totalPages })
+    }
 
     updateInvoice (invoices) {
         const cachedData = !this.state.cachedData.length ? invoices : this.state.cachedData
         this.setState({
             invoices: invoices,
             cachedData: cachedData
+        }, () => {
+            const totalPages = Math.ceil(invoices.length / this.state.pageLimit)
+            this.onPageChanged({ invoices: invoices, currentPage: this.state.currentPage, totalPages: totalPages })
         })
     }
 
@@ -112,9 +115,12 @@ export default class RecurringInvoices extends Component {
     }
 
     userList (props) {
-        const { invoices, custom_fields, customers, allInvoices } = this.state
-        return <RecurringInvoiceItem showCheckboxes={props.showCheckboxes} allInvoices={allInvoices} invoices={invoices}
-            show_list={props.show_list}
+        const { pageLimit, custom_fields, customers, allInvoices, currentInvoices, invoices } = this.state
+        return <RecurringInvoiceItem showCheckboxes={props.showCheckboxes} allInvoices={allInvoices}
+            invoices={currentInvoices}
+            show_list={props.show_list} entities={invoices}
+            onPageChanged={this.onPageChanged.bind(this)}
+            pageLimit={pageLimit}
             viewId={props.viewId}
             customers={customers} custom_fields={custom_fields}
             ignoredColumns={props.default_columns} updateInvoice={this.updateInvoice}
@@ -196,6 +202,7 @@ export default class RecurringInvoices extends Component {
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable fixed-margin-datatable-mobile'
+        const total = invoices.length
 
         return (
             <Row>
@@ -205,8 +212,8 @@ export default class RecurringInvoices extends Component {
                             <CardBody>
                                 <RecurringInvoiceFilters
                                     pageLimit={pageLimit}
-                                     cachedData={this.state.cachedData}
-                                     updateList={this.onPageChanged.bind(this)}
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.onPageChanged.bind(this)}
                                     customers={customers}
                                     setFilterOpen={this.setFilterOpen.bind(this)}
                                     invoices={invoices}
@@ -238,10 +245,10 @@ export default class RecurringInvoices extends Component {
                             <CardBody>
                                 <DataTable
 
-pageLimit={pageLimit}
-                                     onPageChanged={this.onPageChanged.bind(this)}
-                                     currentData={currentInvoices}
-                                     hide_pagination={true}
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
 
                                     default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
@@ -261,6 +268,13 @@ pageLimit={pageLimit}
                                     fetchUrl={fetchUrl}
                                     updateState={this.updateInvoice}
                                 />
+
+                                {total > 0 &&
+                                <div className="d-flex flex-row py-4 align-items-center">
+                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>

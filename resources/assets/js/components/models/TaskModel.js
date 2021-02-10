@@ -110,6 +110,10 @@ export default class TaskModel extends BaseModel {
         this.fields.customer_id = customer_id
     }
 
+    get autoStartTask () {
+        return this.settings.task_automation_enabled || false
+    }
+
     calculateAmount (taskRate) {
         const total_duration = this.duration
 
@@ -130,10 +134,6 @@ export default class TaskModel extends BaseModel {
         })
 
         return seconds
-    }
-
-    get autoStartTask () {
-        return this.settings.task_automation_enabled || false
     }
 
     calculateDuration (currentStartTime, currentEndTime, returnAsSeconds = false) {

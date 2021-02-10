@@ -99,7 +99,10 @@ export default class Report extends React.Component {
                 }, { field: 'status_id', label: 'status' }],
                 line_item: [{ field: 'product', label: 'product' }, { field: 'invoice', label: 'invoice' }],
                 tax_rate: [{ field: 'number', label: 'number' }, { field: 'tax_name', label: 'name' }],
-                document: [{ field: 'files.type', label: 'file_type' }, { field: 'files.fileable_type', label: 'record_type' }]
+                document: [{ field: 'files.type', label: 'file_type' }, {
+                    field: 'files.fileable_type',
+                    label: 'record_type'
+                }]
             },
             charts: {
                 income: ['amount'],
@@ -150,6 +153,23 @@ export default class Report extends React.Component {
         this.handleWindowSizeChange = this.handleWindowSizeChange.bind(this)
     }
 
+    get loading () {
+        const { loading: state } = this.state
+        const { loading: prop } = this.props
+
+        return state || prop
+    }
+
+    get disallowOrderingBy () {
+        const { disallowOrderingBy: state } = this.state
+        const { disallowOrderingBy: prop } = this.props
+
+        return [
+            ...state,
+            ...prop
+        ]
+    }
+
     componentWillMount () {
         window.addEventListener('resize', this.handleWindowSizeChange)
     }
@@ -172,29 +192,12 @@ export default class Report extends React.Component {
         this.setState({ width: window.innerWidth })
     }
 
-    get loading () {
-        const { loading: state } = this.state
-        const { loading: prop } = this.props
-
-        return state || prop
-    }
-
     handleColumnChange (e) {
         const item = e.target.name
         const isChecked = e.target.checked
         this.setState(prevState => ({ checkedItems: prevState.checkedItems.set(item, isChecked) }), () => {
             console.log('checked items', this.state.checkedItems)
         })
-    }
-
-    get disallowOrderingBy () {
-        const { disallowOrderingBy: state } = this.state
-        const { disallowOrderingBy: prop } = this.props
-
-        return [
-            ...state,
-            ...prop
-        ]
     }
 
     renderFooter (args) {
@@ -388,7 +391,7 @@ export default class Report extends React.Component {
                     }
 
                     const newState = {
-                        checkedItems: map ? map : this.state.checkedItems,
+                        checkedItems: map || this.state.checkedItems,
                         all_columns: report.data.length ? Object.keys(report.data[0]) : [],
                         rows: report.data,
                         currency_report: currency_report || [],
@@ -634,7 +637,7 @@ export default class Report extends React.Component {
                                     {this.buildSelectList()}
 
                                     {!!this.state.group_by.length &&
-                                    this.buildChartOptions()
+                                        this.buildChartOptions()
                                     }
                                 </div>
 
@@ -720,7 +723,7 @@ export default class Report extends React.Component {
                                 <FormGroup>
                                     <label>{translations.chart}</label>
                                     {!this.state.date_container_open && this.state.group_by.length &&
-                                            this.buildChartOptions()
+                                    this.buildChartOptions()
                                     }
 
                                 </FormGroup>

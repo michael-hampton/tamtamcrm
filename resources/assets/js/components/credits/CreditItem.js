@@ -36,7 +36,7 @@ export default class CreditItem extends Component {
         const self = this
         axios.delete(url)
             .then(function (response) {
-                const arrPayments = [...self.props.credits]
+                const arrPayments = [...self.props.entities]
                 const index = arrPayments.findIndex(payment => payment.id === id)
                 arrPayments.splice(index, 1)
                 self.props.updateCustomers(arrPayments)
@@ -51,19 +51,19 @@ export default class CreditItem extends Component {
     }
 
     render () {
-        const { credits, customers, custom_fields, ignoredColumns } = this.props
+        const { credits, customers, custom_fields, ignoredColumns, entities } = this.props
         if (credits && credits.length && customers.length) {
             return credits.map((credit, index) => {
                 const editButton = !credit.deleted_at ? <EditCredit
                     custom_fields={custom_fields}
                     credit={credit}
                     action={this.props.updateCustomers}
-                    credits={credits}
+                    credits={entities}
                     customers={customers}
                     modal={true}
                 /> : null
                 const restoreButton = credit.deleted_at
-                    ? <RestoreModal id={credit.id} entities={credits} updateState={this.props.updateCustomers}
+                    ? <RestoreModal id={credit.id} entities={entities} updateState={this.props.updateCustomers}
                         url={`/api/credits/restore/${credit.id}`}/> : null
                 const archiveButton = !credit.deleted_at
                     ? <DeleteModal archive={true} deleteFunction={this.deleteCredit} id={credit.id}/> : null

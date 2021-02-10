@@ -6,7 +6,7 @@ import DateFilter from '../common/DateFilter'
 import CsvImporter from '../common/CsvImporter'
 import FilterTile from '../common/FilterTile'
 import StatusDropdown from '../common/StatusDropdown'
-import filterSearchResults from "../utils/_search";
+import filterSearchResults from '../utils/_search'
 
 export default class ProjectFilters extends Component {
     constructor (props) {
@@ -73,11 +73,8 @@ export default class ProjectFilters extends Component {
                 <Col md={3}>
                     <TableSearch onChange={(e) => {
                         const myArrayFiltered = filterSearchResults(e.target.value, this.props.cachedData, this.props.customers)
-
-                        if (myArrayFiltered && myArrayFiltered.length) {
-                            const totalPages = Math.ceil(myArrayFiltered / this.props.pageLimit);
-                            this.props.updateList({ invoices: myArrayFiltered, currentPage: 1, totalPages: totalPages })
-                        }
+                        const totalPages = myArrayFiltered && myArrayFiltered.length ? Math.ceil(myArrayFiltered.length / this.props.pageLimit) : 0
+                        this.props.updateList({ invoices: myArrayFiltered, currentPage: 1, totalPages: totalPages })
                     }}/>
                 </Col>
 

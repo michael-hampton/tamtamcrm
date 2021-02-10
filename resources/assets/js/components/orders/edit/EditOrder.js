@@ -105,6 +105,13 @@ export default class EditOrder extends Component {
         }
     }
 
+    componentWillReceiveProps (nextProps, nextContext) {
+        if (nextProps.order && nextProps.order.id !== this.state.id) {
+            this.orderModel = new OrderModel(nextProps.order, this.props.customers)
+            this.setState(this.orderModel.fields)
+        }
+    }
+
     // make sure to remove the listener
     // when the component is not mounted anymore
     componentWillUnmount () {

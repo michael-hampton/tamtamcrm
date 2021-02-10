@@ -32,7 +32,6 @@ export default class BaseModel {
         let url = this.user_account[0].account.portal_domain
         url = url.endsWith('/') ? url.slice(0, -1) : url
 
-
         url += '/portal/register'
 
         const accounts = JSON.parse(localStorage.getItem('appState')).accounts

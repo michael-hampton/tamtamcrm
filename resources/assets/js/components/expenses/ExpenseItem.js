@@ -36,7 +36,7 @@ export default class ExpenseItem extends Component {
         const self = this
         axios.delete(url)
             .then(function (response) {
-                const arrExpenses = [...self.props.expenses]
+                const arrExpenses = [...self.props.entities]
                 const index = arrExpenses.findIndex(expense => expense.id === id)
                 arrExpenses.splice(index, 1)
                 self.props.updateExpenses(arrExpenses)
@@ -47,11 +47,11 @@ export default class ExpenseItem extends Component {
     }
 
     render () {
-        const { expenses, customers, custom_fields, ignoredColumns, companies } = this.props
+        const { expenses, customers, custom_fields, ignoredColumns, companies, entities } = this.props
         if (expenses && expenses.length && customers.length) {
             return expenses.map((expense, index) => {
                 const restoreButton = expense.deleted_at
-                    ? <RestoreModal id={expense.id} entities={expenses} updateState={this.props.updateExpenses}
+                    ? <RestoreModal id={expense.id} entities={entities} updateState={this.props.updateExpenses}
                         url={`/api/expenses/restore/${expense.id}`}/> : null
                 const archiveButton = !expense.deleted_at
                     ? <DeleteModal archive={true} deleteFunction={this.deleteExpense} id={expense.id}/> : null
@@ -62,7 +62,7 @@ export default class ExpenseItem extends Component {
                     custom_fields={custom_fields}
                     expense={expense}
                     action={this.props.updateExpenses}
-                    expenses={expenses}
+                    expenses={entities}
                     customers={customers}
                     modal={true}
                 /> : null

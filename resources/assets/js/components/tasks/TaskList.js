@@ -11,7 +11,7 @@ import CustomerRepository from '../repositories/CustomerRepository'
 import UserRepository from '../repositories/UserRepository'
 import EditTaskDesktop from './edit/EditTaskDesktop'
 import { getDefaultTableFields } from '../presenters/TaskPresenter'
-import SubscriptionFilters from "../subscriptions/SubscriptionFilters";
+import PaginationNew from '../common/PaginationNew'
 
 export default class TaskList extends Component {
     constructor (props) {
@@ -19,9 +19,9 @@ export default class TaskList extends Component {
 
         this.state = {
             currentPage: 1,
-             totalPages: null,
-             pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
-             currentInvoices: [],
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             dropdownButtonActions: ['download', 'mark_in_progress', 'create_invoice'],
@@ -71,7 +71,10 @@ export default class TaskList extends Component {
 
     addUserToState (tasks) {
         const cachedData = !this.state.cachedData.length ? tasks : this.state.cachedData
-        this.setState({ tasks: tasks, cachedData: cachedData })
+        this.setState({ tasks: tasks, cachedData: cachedData }, () => {
+            const totalPages = Math.ceil(tasks.length / this.state.pageLimit)
+            this.onPageChanged({ invoices: tasks, currentPage: this.state.currentPage, totalPages: totalPages })
+        })
     }
 
     handleClose () {
@@ -85,25 +88,28 @@ export default class TaskList extends Component {
         return true
     }
 
-    onPageChanged(data) {
-         let { tasks, pageLimit } = this.state
-         const { currentPage, totalPages } = data
+    onPageChanged (data) {
+        let { tasks, pageLimit } = this.state
+        const { currentPage, totalPages } = data
 
-         if (data.invoices) {
-             tasks = data.invoices
-         }
+        if (data.invoices) {
+            tasks = data.invoices
+        }
 
-         const offset = (currentPage - 1) * pageLimit
-         const currentInvoices = tasks.slice(offset, offset + pageLimit)
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = tasks.slice(offset, offset + pageLimit)
 
-         this.setState({ currentPage, currentInvoices, totalPages })
-     }
+        this.setState({ currentPage, currentInvoices, totalPages })
+    }
 
     userList (props) {
-        const { tasks, custom_fields, users, customers } = this.state
+        const { pageLimit, custom_fields, users, customers, currentInvoices, tasks } = this.state
 
-        return <TaskItem showCheckboxes={props.showCheckboxes} action={this.addUserToState} tasks={tasks} users={users}
-            show_list={props.show_list}
+        return <TaskItem showCheckboxes={props.showCheckboxes} action={this.addUserToState} tasks={currentInvoices}
+            users={users}
+            show_list={props.show_list} entities={tasks}
+            onPageChanged={this.onPageChanged.bind(this)}
+            pageLimit={pageLimit}
             custom_fields={custom_fields} customers={customers}
             viewId={props.viewId}
             ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
@@ -187,6 +193,7 @@ export default class TaskList extends Component {
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable-large fixed-margin-datatable-large-mobile'
+        const total = tasks.length
 
         const is_mobile = window.innerWidth <= 768
 
@@ -218,8 +225,8 @@ export default class TaskList extends Component {
                             <CardBody>
                                 <TaskFilters
                                     pageLimit={pageLimit}
-                                     cachedData={this.state.cachedData}
-                                     updateList={this.onPageChanged.bind(this)}
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.onPageChanged.bind(this)}
                                     customers={customers} setFilterOpen={this.setFilterOpen.bind(this)}
                                     users={users}
                                     tasks={tasks}
@@ -252,10 +259,10 @@ export default class TaskList extends Component {
                             <CardBody>
                                 <DataTable
 
-pageLimit={pageLimit}
-                                     onPageChanged={this.onPageChanged.bind(this)}
-                                     currentData={currentInvoices}
-                                     hide_pagination={true}
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
 
                                     default_columns={getDefaultTableFields()}
                                     customers={customers}
@@ -272,6 +279,13 @@ pageLimit={pageLimit}
                                     updateState={this.addUserToState}
                                     columnMapping={{ calculated_task_rate: translations.task_rate.toUpperCase() }}
                                 />
+
+                                {total > 0 &&
+                                <div className="d-flex flex-row py-4 align-items-center">
+                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>

@@ -219,15 +219,6 @@ export default class ExpenseModel extends BaseModel {
         return null
     }
 
-    updateCustomer () {
-        this.customer = this.customers &&
-        this.customers.length &&
-        this.fields.customer_id &&
-        this.fields.customer_id.toString().length
-            ? this.customers.filter(customer => customer.id === parseInt(this.fields.customer_id))[0]
-            : []
-    }
-
     get customer () {
         return this._customer || []
     }
@@ -238,6 +229,15 @@ export default class ExpenseModel extends BaseModel {
 
     get isConverted () {
         return parseInt(this.fields.exchange_rate) !== 1 && parseInt(this.fields.exchange_rate) !== 0
+    }
+
+    updateCustomer () {
+        this.customer = this.customers &&
+        this.customers.length &&
+        this.fields.customer_id &&
+        this.fields.customer_id.toString().length
+            ? this.customers.filter(customer => customer.id === parseInt(this.fields.customer_id))[0]
+            : []
     }
 
     getExchangeRateForCurrency (currency_id) {

@@ -35,6 +35,13 @@ class EditExpense extends React.Component {
         this.settings = user_account[0].account.settings
     }
 
+    componentWillReceiveProps (nextProps, nextContext) {
+        if (nextProps.expense && nextProps.expense.id !== this.state.id) {
+            this.expenseModel = new ExpenseModel(nextProps.expense, this.props.customers)
+            this.setState(this.expenseModel.fields)
+        }
+    }
+
     toggleMenu (event) {
         this.setState({
             dropdownOpen: !this.state.dropdownOpen

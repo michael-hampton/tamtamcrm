@@ -10,16 +10,16 @@ import QuoteRepository from '../repositories/QuoteRepository'
 import queryString from 'query-string'
 import UpdateRecurringQuote from './edit/UpdateRecurringQuote'
 import { getDefaultTableFields } from '../presenters/RecurringQuotePresenter'
-import CreditFilters from "../credits/CreditFilters";
+import PaginationNew from '../common/PaginationNew'
 
 export default class RecurringQuotes extends Component {
     constructor (props) {
         super(props)
         this.state = {
             currentPage: 1,
-             totalPages: null,
-             pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
-             currentInvoices: [],
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             error: '',
@@ -73,22 +73,25 @@ export default class RecurringQuotes extends Component {
         this.setState({
             invoices: invoices,
             cachedData: cachedData
+        }, () => {
+            const totalPages = Math.ceil(invoices.length / this.state.pageLimit)
+            this.onPageChanged({ invoices: invoices, currentPage: this.state.currentPage, totalPages: totalPages })
         })
     }
 
-    onPageChanged(data) {
-         let { invoices, pageLimit } = this.state
-         const { currentPage, totalPages } = data
+    onPageChanged (data) {
+        let { invoices, pageLimit } = this.state
+        const { currentPage, totalPages } = data
 
-         if (data.invoices) {
-             invoices = data.invoices
-         }
+        if (data.invoices) {
+            invoices = data.invoices
+        }
 
-         const offset = (currentPage - 1) * pageLimit
-         const currentInvoices = invoices.slice(offset, offset + pageLimit)
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = invoices.slice(offset, offset + pageLimit)
 
-         this.setState({ currentPage, currentInvoices, totalPages })
-     }
+        this.setState({ currentPage, currentInvoices, totalPages })
+    }
 
     getQuotes () {
         const quoteRepository = new QuoteRepository()
@@ -112,9 +115,12 @@ export default class RecurringQuotes extends Component {
     }
 
     userList (props) {
-        const { invoices, custom_fields, customers, allQuotes } = this.state
-        return <RecurringQuoteItem showCheckboxes={props.showCheckboxes} allQuotes={allQuotes} invoices={invoices}
-            show_list={props.show_list}
+        const { pageLimit, custom_fields, customers, allQuotes, currentInvoices, invoices } = this.state
+        return <RecurringQuoteItem showCheckboxes={props.showCheckboxes} allQuotes={allQuotes}
+            invoices={currentInvoices}
+            show_list={props.show_list} entities={invoices}
+            onPageChanged={this.onPageChanged.bind(this)}
+            pageLimit={pageLimit}
             viewId={props.viewId}
             customers={customers} custom_fields={custom_fields}
             ignoredColumns={props.default_columns} updateInvoice={this.updateInvoice}
@@ -200,6 +206,7 @@ export default class RecurringQuotes extends Component {
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable fixed-margin-datatable-mobile'
+        const total = invoices.length
 
         return (
             <Row>
@@ -209,8 +216,8 @@ export default class RecurringQuotes extends Component {
                             <CardBody>
                                 <RecurringQuoteFilters
                                     pageLimit={pageLimit}
-                                     cachedData={this.state.cachedData}
-                                     updateList={this.onPageChanged.bind(this)}
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.onPageChanged.bind(this)}
                                     customers={customers}
                                     setFilterOpen={this.setFilterOpen.bind(this)}
                                     invoices={invoices}
@@ -242,10 +249,10 @@ export default class RecurringQuotes extends Component {
                             <CardBody>
                                 <DataTable
 
-pageLimit={pageLimit}
-                                     onPageChanged={this.onPageChanged.bind(this)}
-                                     currentData={currentInvoices}
-                                     hide_pagination={true}
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
 
                                     default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
@@ -265,6 +272,13 @@ pageLimit={pageLimit}
                                     fetchUrl={fetchUrl}
                                     updateState={this.updateInvoice}
                                 />
+
+                                {total > 0 &&
+                                <div className="d-flex flex-row py-4 align-items-center">
+                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>

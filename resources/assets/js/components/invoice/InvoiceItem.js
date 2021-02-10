@@ -50,12 +50,12 @@ export default class InvoiceItem extends Component {
     }
 
     render () {
-        const { invoices, customers, custom_fields } = this.props
+        const { invoices, customers, custom_fields, entities } = this.props
 
         if (invoices && invoices.length && customers.length) {
             return invoices.map((invoice, index) => {
                 const restoreButton = invoice.deleted_at && !invoice.is_deleted
-                    ? <RestoreModal id={invoice.id} entities={invoices} updateState={this.props.updateInvoice}
+                    ? <RestoreModal id={invoice.id} entities={entities} updateState={this.props.updateInvoice}
                         url={`/api/invoice/restore/${invoice.id}`}/> : null
 
                 const archiveButton = !invoice.deleted_at
@@ -72,7 +72,7 @@ export default class InvoiceItem extends Component {
                     invoice={invoice}
                     invoice_id={invoice.id}
                     action={this.props.updateInvoice}
-                    invoices={invoices}
+                    invoices={entities}
                 /> : null
 
                 const columnList = Object.keys(invoice).filter(key => {
@@ -124,7 +124,8 @@ export default class InvoiceItem extends Component {
                         <div className="d-flex w-100 justify-content-between">
                             <h5 className="col-4"><InvoicePresenter customers={customers} field="customer_id"
                                 entity={invoice}
-                                toggleViewedEntity={this.props.toggleViewedEntity}/></h5>
+                                toggleViewedEntity={this.props.toggleViewedEntity}/>
+                            </h5>
                             <span className="col-4">{invoice.number} . <InvoicePresenter
                                 field={invoice.due_date.length ? 'due_date' : 'date'} entity={invoice}
                                 toggleViewedEntity={this.props.toggleViewedEntity}/></span>
@@ -151,7 +152,8 @@ export default class InvoiceItem extends Component {
                         <div className="d-flex w-100 justify-content-between">
                             <h5 className="mb-1"><InvoicePresenter customers={customers} field="customer_id"
                                 entity={invoice}
-                                toggleViewedEntity={this.props.toggleViewedEntity}/></h5>
+                                toggleViewedEntity={this.props.toggleViewedEntity}/>
+                            </h5>
                             <span>
                                 <InvoicePresenter customers={customers}
                                     toggleViewedEntity={this.props.toggleViewedEntity}

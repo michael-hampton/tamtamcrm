@@ -36,7 +36,7 @@ export default class UserItem extends Component {
         const self = this
         axios.delete(url)
             .then(function (response) {
-                const arrUsers = [...self.props.users]
+                const arrUsers = [...self.props.entities]
                 const index = arrUsers.findIndex(user => user.id === id)
                 arrUsers.splice(index, 1)
                 self.props.addUserToState(arrUsers)
@@ -51,12 +51,12 @@ export default class UserItem extends Component {
     }
 
     render () {
-        const { users, departments, custom_fields, ignoredColumns } = this.props
+        const { users, departments, custom_fields, ignoredColumns, entities } = this.props
 
         if (users && users.length) {
             return users.map((user, index) => {
                 const restoreButton = user.deleted_at
-                    ? <RestoreModal id={user.id} entities={users} updateState={this.props.addUserToState}
+                    ? <RestoreModal id={user.id} entities={entities} updateState={this.props.addUserToState}
                         url={`/api/users/restore/${user.id}`}/> : null
                 const archiveButton = !user.deleted_at
                     ? <DeleteModal archive={true} deleteFunction={this.deleteUser} id={user.id}/> : null
@@ -64,7 +64,7 @@ export default class UserItem extends Component {
                     ? <DeleteModal archive={false} deleteFunction={this.deleteUser} id={user.id}/> : null
                 const editButton = !user.deleted_at
                     ? <EditUser accounts={this.props.accounts} departments={departments} user_id={user.id}
-                        custom_fields={custom_fields} users={users}
+                        custom_fields={custom_fields} users={entities}
                         action={this.props.addUserToState}/> : null
 
                 const columnList = Object.keys(user).filter(key => {

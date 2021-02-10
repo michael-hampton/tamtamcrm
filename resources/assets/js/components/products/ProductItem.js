@@ -37,7 +37,7 @@ export default class ProductItem extends Component {
         const url = archive === true ? `/api/products/archive/${id}` : `/api/products/${id}`
         axios.delete(url)
             .then(function (response) {
-                const arrProducts = [...self.props.products]
+                const arrProducts = [...self.props.entities]
                 const index = arrProducts.findIndex(product => product.id === id)
                 arrProducts.splice(index, 1)
                 self.props.addProductToState(arrProducts)
@@ -48,12 +48,12 @@ export default class ProductItem extends Component {
     }
 
     render () {
-        const { products, custom_fields, companies, categories, ignoredColumns } = this.props
+        const { products, custom_fields, companies, categories, ignoredColumns, entities } = this.props
 
         if (products && products.length) {
             return products.map((product, index) => {
                 const restoreButton = product.deleted_at
-                    ? <RestoreModal id={product.id} entities={products} updateState={this.props.addProductToState}
+                    ? <RestoreModal id={product.id} entities={entities} updateState={this.props.addProductToState}
                         url={`/api/products/restore/${product.id}`}/> : null
                 const deleteButton = !product.deleted_at
                     ? <DeleteModal archive={false} deleteFunction={this.deleteProduct} id={product.id}/> : null
@@ -62,7 +62,7 @@ export default class ProductItem extends Component {
                     companies={companies}
                     categories={categories}
                     product={product}
-                    products={products}
+                    products={entities}
                     action={this.props.addProductToState}
                 /> : null
 

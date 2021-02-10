@@ -35,6 +35,13 @@ class EditPayment extends React.Component {
         this.handleCheck = this.handleCheck.bind(this)
     }
 
+    componentWillReceiveProps (nextProps, nextContext) {
+        if (nextProps.payment && nextProps.payment.id !== this.state.id) {
+            this.paymentModel = new PaymentModel(this.props.invoices, this.props.payment)
+            this.setState(this.paymentModel.fields)
+        }
+    }
+
     handleCheck () {
         this.setState({ send_email: !this.state.checked })
     }

@@ -9,6 +9,7 @@ import { translations } from '../utils/_translations'
 import { consts } from '../utils/_consts'
 import StatusDropdown from '../common/StatusDropdown'
 import { purchaseOrderStatuses } from '../utils/_statuses'
+import filterSearchResults from '../utils/_search'
 
 export default class PurchaseOrderFilters extends Component {
     constructor (props) {
@@ -92,10 +93,9 @@ export default class PurchaseOrderFilters extends Component {
             <Row form>
                 <Col md={3}>
                     <TableSearch onChange={(e) => {
-                        const value = typeof e.target.value === 'string' ? e.target.value.toLowerCase() : e.target.value
-                        const search_results = this.props.cachedData.filter(obj => Object.keys(obj).some(key => obj[key] && obj[key].length ? obj[key].toString().toLowerCase().includes(value) : false))
-                        const totalPages = search_results && search_results.length ? Math.ceil(search_results / this.props.pageLimit) : 0
-                        this.props.updateList({ invoices: search_results && search_results.length ?  search_results : [], currentPage: 1, totalPages: totalPages })
+                        const myArrayFiltered = filterSearchResults(e.target.value, this.props.cachedData, [], this.props.companies)
+                        const totalPages = myArrayFiltered && myArrayFiltered.length ? Math.ceil(myArrayFiltered.length / this.props.pageLimit) : 0
+                        this.props.updateList({ invoices: myArrayFiltered, currentPage: 1, totalPages: totalPages })
                     }}/>
                 </Col>
 

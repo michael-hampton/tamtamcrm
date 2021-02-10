@@ -45,6 +45,7 @@ import TaskRepository from '../../repositories/TaskRepository'
 import ExpenseRepository from '../../repositories/ExpenseRepository'
 import ProjectRepository from '../../repositories/ProjectRepository'
 import { getExchangeRateWithMap } from '../../utils/_money'
+import CreditModel from "../../models/CreditModel";
 
 class EditPurchaseOrder extends Component {
     constructor (props, context) {
@@ -102,6 +103,13 @@ class EditPurchaseOrder extends Component {
 
         if (this.props.entity_id && this.props.entity_type) {
             this.loadEntity(this.props.entity_type)
+        }
+    }
+
+    componentWillReceiveProps (nextProps, nextContext) {
+        if (nextProps.invoice && nextProps.invoice.id !== this.state.id) {
+            this.purchaseOrderModel = new PurchaseOrderModel(nextProps.invoice, this.props.companies)
+            this.setState(this.purchaseOrderModel.fields)
         }
     }
 

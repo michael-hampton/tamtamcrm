@@ -66,6 +66,13 @@ export default class EditTaskDesktop extends Component {
         this.renderErrorFor = this.renderErrorFor.bind(this)
     }
 
+    componentWillReceiveProps (nextProps, nextContext) {
+        if (nextProps.task && nextProps.task.id !== this.state.id) {
+            this.taskModel = new TaskModel(nextProps.task, this.props.customers)
+            this.setState(this.taskModel.fields)
+        }
+    }
+
     hasErrorFor (field) {
         return !!this.state.errors[field]
     }
@@ -422,7 +429,8 @@ export default class EditTaskDesktop extends Component {
                 <span>
                     {translations.duration + ' '}
                     <LiveText
-                        duration={formatSecondsToTime(this.taskModel.getTotalDuration(this.taskModel.autoStartTask))} task_automation_enabled={this.taskModel.autoStartTask}/>
+                        duration={formatSecondsToTime(this.taskModel.getTotalDuration(this.taskModel.autoStartTask))}
+                        task_automation_enabled={this.taskModel.autoStartTask}/>
                 </span>
                 }
 

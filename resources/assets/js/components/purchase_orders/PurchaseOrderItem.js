@@ -35,7 +35,7 @@ export default class PurchaseOrderItem extends Component {
         const url = archive === true ? `/api/purchase_order/archive/${id}` : `/api/purchase_order/${id}`
         const self = this
         axios.delete(url).then(function (response) {
-            const arrQuotes = [...self.props.purchase_orders]
+            const arrQuotes = [...self.props.entities]
             const index = arrQuotes.findIndex(payment => payment.id === id)
             arrQuotes.splice(index, 1)
             self.props.updateInvoice(arrQuotes)
@@ -50,11 +50,11 @@ export default class PurchaseOrderItem extends Component {
     }
 
     render () {
-        const { purchase_orders, custom_fields, companies } = this.props
+        const { purchase_orders, custom_fields, companies, entities } = this.props
         if (purchase_orders && purchase_orders.length && companies.length) {
             return purchase_orders.map((purchase_order, index) => {
                 const restoreButton = purchase_order.deleted_at && !purchase_order.is_deleted
-                    ? <RestoreModal id={purchase_order.id} entities={purchase_orders}
+                    ? <RestoreModal id={purchase_order.id} entities={entities}
                         updateState={this.props.updateInvoice}
                         url={`/api/purchase_order/restore/${purchase_order.id}`}/> : null
 
@@ -74,7 +74,7 @@ export default class PurchaseOrderItem extends Component {
                     invoice={purchase_order}
                     invoice_id={purchase_order.id}
                     action={this.props.updateInvoice}
-                    invoices={purchase_orders}
+                    invoices={entities}
                 /> : null
 
                 const columnList = Object.keys(purchase_order).filter(key => {

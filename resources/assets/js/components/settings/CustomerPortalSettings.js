@@ -343,11 +343,12 @@ export default class CustomerPortalSettings extends Component {
                                         formFieldsRows={this.getEnabledModuleFields()}
                                     />
 
-                                    <SectionItem className="mt-4 col-md-8" link={this.model.portal_registration_url} subtitle={this.model.portal_registration_url} onClick={(e) => {
-                                        this.model.copyToClipboard(this.model.portal_registration_url)
-                                        toast.success('upload success')
-                                        return false
-                                    }} title={translations.portal_registration_url} icon={icons.clone} />
+                                    <SectionItem className="mt-4 col-md-8" link={this.model.portal_registration_url}
+                                        subtitle={this.model.portal_registration_url} onClick={(e) => {
+                                            this.model.copyToClipboard(this.model.portal_registration_url)
+                                            toast.success('upload success')
+                                            return false
+                                        }} title={translations.portal_registration_url} icon={icons.clone}/>
                                 </CardBody>
                             </Card>
 

@@ -20,6 +20,13 @@ export default class EditToken extends React.Component {
         this.renderErrorFor = this.renderErrorFor.bind(this)
     }
 
+    componentWillReceiveProps (nextProps, nextContext) {
+        if (nextProps.token && nextProps.token.id !== this.state.id) {
+            this.tokenModel = new TokenModel(this.props.token)
+            this.setState(this.tokenModel.fields)
+        }
+    }
+
     handleInput (e) {
         this.setState({
             [e.target.name]: e.target.value,

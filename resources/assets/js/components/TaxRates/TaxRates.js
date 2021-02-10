@@ -7,7 +7,7 @@ import TaxRateItem from './TaxRateItem'
 import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import { getDefaultTableFields } from '../presenters/TaxRatePresenter'
-import SubscriptionFilters from '../subscriptions/SubscriptionFilters'
+import PaginationNew from '../common/PaginationNew'
 
 export default class TaxRates extends Component {
     constructor (props) {
@@ -15,9 +15,9 @@ export default class TaxRates extends Component {
 
         this.state = {
             currentPage: 1,
-             totalPages: null,
-             pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
-             currentInvoices: [],
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isOpen: window.innerWidth > 670,
             taxRates: [],
             cachedData: [],
@@ -54,26 +54,25 @@ export default class TaxRates extends Component {
             taxRates: taxRates,
             cachedData: cachedData
         }, () => {
-           
-            const totalPages = Math.ceil(taxRates / this.props.pageLimit);
+            const totalPages = Math.ceil(taxRates.length / this.state.pageLimit)
             this.onPageChanged({ invoices: taxRates, currentPage: this.state.currentPage, totalPages: totalPages })
             localStorage.setItem('tax_rates', JSON.stringify(taxRates))
         })
     }
 
-    onPageChanged(data) {
-         let { taxRates, pageLimit } = this.state
-         const { currentPage, totalPages } = data
+    onPageChanged (data) {
+        let { taxRates, pageLimit } = this.state
+        const { currentPage, totalPages } = data
 
-         if (data.invoices) {
-             taxRates = data.invoices
-         }
+        if (data.invoices) {
+            taxRates = data.invoices
+        }
 
-         const offset = (currentPage - 1) * pageLimit
-         const currentInvoices = taxRates.slice(offset, offset + pageLimit)
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = taxRates.slice(offset, offset + pageLimit)
 
-         this.setState({ currentPage, currentInvoices, totalPages })
-     }
+        this.setState({ currentPage, currentInvoices, totalPages })
+    }
 
     filterTaxRates (filters) {
         this.setState({ filters: filters })
@@ -84,9 +83,11 @@ export default class TaxRates extends Component {
     }
 
     userList (props) {
-        const { taxRates } = this.state
-        return <TaxRateItem showCheckboxes={props.showCheckboxes} taxRates={taxRates}
-            show_list={props.show_list}
+        const { pageLimit, currentInvoices, taxRates } = this.state
+        return <TaxRateItem showCheckboxes={props.showCheckboxes} taxRates={currentInvoices}
+            show_list={props.show_list} entities={taxRates}
+            onPageChanged={this.onPageChanged.bind(this)}
+            pageLimit={pageLimit}
             viewId={props.viewId}
             ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
@@ -121,6 +122,7 @@ export default class TaxRates extends Component {
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable fixed-margin-datatable-mobile'
+        const total = taxRates.length
 
         return (
             <Row>
@@ -130,9 +132,9 @@ export default class TaxRates extends Component {
                             <CardBody>
                                 <TaxRateFilters
                                     pageLimit={pageLimit}
-                                     cachedData={this.state.cachedData}
-                                     updateList={this.onPageChanged.bind(this)}
-                                     setFilterOpen={this.setFilterOpen.bind(this)} taxRates={taxRates}
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.onPageChanged.bind(this)}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} taxRates={taxRates}
                                     filters={filters} filter={this.filterTaxRates}
                                     saveBulk={this.saveBulk}/>
                                 {addButton}
@@ -161,9 +163,9 @@ export default class TaxRates extends Component {
                             <CardBody>
                                 <DataTable
                                     pageLimit={pageLimit}
-                                     onPageChanged={this.onPageChanged.bind(this)}
-                                     currentData={currentInvoices}
-                                     hide_pagination={true}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
                                     default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
                                     setError={this.setError.bind(this)}
@@ -177,6 +179,13 @@ export default class TaxRates extends Component {
                                     fetchUrl={fetchUrl}
                                     updateState={this.addUserToState}
                                 />
+
+                                {total > 0 &&
+                                <div className="d-flex flex-row py-4 align-items-center">
+                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>

@@ -38,7 +38,7 @@ export default class ProjectItem extends Component {
 
         axios.delete(url)
             .then(function (response) {
-                const arrProjects = [...self.props.projects]
+                const arrProjects = [...self.props.entities]
                 const index = arrProjects.findIndex(project => project.id === id)
                 arrProjects.splice(index, 1)
                 self.props.addUserToState(arrProjects)
@@ -54,11 +54,11 @@ export default class ProjectItem extends Component {
     }
 
     render () {
-        const { projects, custom_fields, customers, ignoredColumns } = this.props
+        const { projects, custom_fields, customers, ignoredColumns, entities } = this.props
         if (projects && projects.length) {
             return projects.map((project, index) => {
                 const restoreButton = project.deleted_at
-                    ? <RestoreModal id={project.id} entities={projects} updateState={this.props.addUserToState}
+                    ? <RestoreModal id={project.id} entities={entities} updateState={this.props.addUserToState}
                         url={`/api/projects/restore/${project.id}`}/> : null
                 const archiveButton = !project.deleted_at
                     ? <DeleteModal archive={true} deleteFunction={this.deleteProject} id={project.id}/> : null
@@ -69,7 +69,7 @@ export default class ProjectItem extends Component {
                     custom_fields={custom_fields}
                     customers={customers}
                     project={project}
-                    projects={projects}
+                    projects={entities}
                     action={this.props.addUserToState}
                 /> : null
 

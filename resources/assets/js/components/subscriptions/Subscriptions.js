@@ -8,17 +8,17 @@ import SubscriptionItem from './SubscriptionItem'
 import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import { getDefaultTableFields } from '../presenters/TokenPresenter'
-import CreditFilters from "../credits/CreditFilters";
+import PaginationNew from '../common/PaginationNew'
 
 export default class Subscriptions extends Component {
     constructor (props) {
         super(props)
 
-        this.state = { 
+        this.state = {
             currentPage: 1,
-             totalPages: null,
-             pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
-             currentInvoices: [],
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isOpen: window.innerWidth > 670,
             error: '',
             show_success: false,
@@ -52,6 +52,13 @@ export default class Subscriptions extends Component {
         this.setState({
             subscriptions: subscriptions,
             cachedData: cachedData
+        }, () => {
+            const totalPages = Math.ceil(subscriptions.length / this.state.pageLimit)
+            this.onPageChanged({
+                invoices: subscriptions,
+                currentPage: this.state.currentPage,
+                totalPages: totalPages
+            })
         })
     }
 
@@ -63,24 +70,26 @@ export default class Subscriptions extends Component {
         this.props.reset()
     }
 
-    onPageChanged(data) {
-         let { subscriptions, pageLimit } = this.state
-         const { currentPage, totalPages } = data
+    onPageChanged (data) {
+        let { subscriptions, pageLimit } = this.state
+        const { currentPage, totalPages } = data
 
-         if (data.invoices) {
-             subscriptions = data.invoices
-         }
+        if (data.invoices) {
+            subscriptions = data.invoices
+        }
 
-         const offset = (currentPage - 1) * pageLimit
-         const currentInvoices = subscriptions.slice(offset, offset + pageLimit)
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = subscriptions.slice(offset, offset + pageLimit)
 
-         this.setState({ currentPage, currentInvoices, totalPages })
-     }
+        this.setState({ currentPage, currentInvoices, totalPages })
+    }
 
     userList (props) {
-        const { subscriptions } = this.state
-        return <SubscriptionItem showCheckboxes={props.showCheckboxes} subscriptions={subscriptions}
-            show_list={props.show_list}
+        const { pageLimit, currentInvoices, subscriptions } = this.state
+        return <SubscriptionItem showCheckboxes={props.showCheckboxes} subscriptions={currentInvoices}
+            show_list={props.show_list} entities={subscriptions}
+            onPageChanged={this.onPageChanged.bind(this)}
+            pageLimit={pageLimit}
             viewId={props.viewId}
             ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
@@ -129,6 +138,7 @@ export default class Subscriptions extends Component {
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable fixed-margin-datatable-mobile'
+        const total = subscriptions.length
 
         return (
             <Row>
@@ -138,9 +148,9 @@ export default class Subscriptions extends Component {
                             <CardBody>
                                 <SubscriptionFilters
                                     pageLimit={pageLimit}
-                                     cachedData={this.state.cachedData}
-                                     updateList={this.onPageChanged.bind(this)}
-                                     setFilterOpen={this.setFilterOpen.bind(this)}
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.onPageChanged.bind(this)}
+                                    setFilterOpen={this.setFilterOpen.bind(this)}
                                     subscriptions={subscriptions}
                                     updateIgnoredColumns={this.updateIgnoredColumns}
                                     filters={this.state.filters} filter={this.filterSubscriptions}
@@ -176,10 +186,10 @@ export default class Subscriptions extends Component {
                             <CardBody>
                                 <DataTable
 
-pageLimit={pageLimit}
-                                     onPageChanged={this.onPageChanged.bind(this)}
-                                     currentData={currentInvoices}
-                                     hide_pagination={true}
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
 
                                     default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
@@ -192,6 +202,13 @@ pageLimit={pageLimit}
                                     fetchUrl={fetchUrl}
                                     updateState={this.addUserToState}
                                 />
+
+                                {total > 0 &&
+                                <div className="d-flex flex-row py-4 align-items-center">
+                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>

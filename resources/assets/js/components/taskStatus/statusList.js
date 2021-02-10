@@ -8,7 +8,7 @@ import TaskStatusItem from './TaskStatusItem'
 import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import { getDefaultTableFields } from '../presenters/TaskStatusPresenter'
-import SubscriptionFilters from "../subscriptions/SubscriptionFilters";
+import PaginationNew from '../common/PaginationNew'
 
 export default class Categories extends Component {
     constructor (props) {
@@ -16,9 +16,9 @@ export default class Categories extends Component {
 
         this.state = {
             currentPage: 1,
-             totalPages: null,
-             pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
-             currentInvoices: [],
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isOpen: window.innerWidth > 670,
             error: '',
             show_success: false,
@@ -57,22 +57,25 @@ export default class Categories extends Component {
         this.setState({
             statuses: statuses,
             cachedData: cachedData
+        }, () => {
+            const totalPages = Math.ceil(statuses.length / this.state.pageLimit)
+            this.onPageChanged({ invoices: statuses, currentPage: this.state.currentPage, totalPages: totalPages })
         })
     }
 
-    onPageChanged(data) {
-         let { statuses, pageLimit } = this.state
-         const { currentPage, totalPages } = data
+    onPageChanged (data) {
+        let { statuses, pageLimit } = this.state
+        const { currentPage, totalPages } = data
 
-         if (data.invoices) {
-             statuses = data.invoices
-         }
+        if (data.invoices) {
+            statuses = data.invoices
+        }
 
-         const offset = (currentPage - 1) * pageLimit
-         const currentInvoices = statuses.slice(offset, offset + pageLimit)
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = statuses.slice(offset, offset + pageLimit)
 
-         this.setState({ currentPage, currentInvoices, totalPages })
-     }
+        this.setState({ currentPage, currentInvoices, totalPages })
+    }
 
     handleClose () {
         this.setState({ error: '', show_success: false })
@@ -102,9 +105,11 @@ export default class Categories extends Component {
     }
 
     userList (props) {
-        const { statuses, customers } = this.state
-        return <TaskStatusItem showCheckboxes={props.showCheckboxes} customers={customers} statuses={statuses}
-            show_list={props.show_list}
+        const { pageLimit, customers, currentInvoices, statuses } = this.state
+        return <TaskStatusItem showCheckboxes={props.showCheckboxes} customers={customers} statuses={currentInvoices}
+            show_list={props.show_list} entities={statuses}
+            onPageChanged={this.onPageChanged.bind(this)}
+            pageLimit={pageLimit}
             viewId={props.viewId}
             ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
@@ -149,6 +154,7 @@ export default class Categories extends Component {
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable fixed-margin-datatable-mobile'
+        const total = statuses.length
 
         return (
             <Row>
@@ -158,9 +164,9 @@ export default class Categories extends Component {
                             <CardBody>
                                 <TaskStatusFilters
                                     pageLimit={pageLimit}
-                                     cachedData={this.state.cachedData}
-                                     updateList={this.onPageChanged.bind(this)}
-                                     setFilterOpen={this.setFilterOpen.bind(this)}
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.onPageChanged.bind(this)}
+                                    setFilterOpen={this.setFilterOpen.bind(this)}
                                     statuses={statuses}
                                     customers={customers}
                                     filters={this.state.filters} filter={this.filterCategories}
@@ -196,10 +202,10 @@ export default class Categories extends Component {
                             <CardBody>
                                 <DataTable
 
-pageLimit={pageLimit}
-                                     onPageChanged={this.onPageChanged.bind(this)}
-                                     currentData={currentInvoices}
-                                     hide_pagination={true}
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
 
                                     default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
@@ -213,6 +219,13 @@ pageLimit={pageLimit}
                                     fetchUrl={fetchUrl}
                                     updateState={this.addUserToState}
                                 />
+
+                                {total > 0 &&
+                                <div className="d-flex flex-row py-4 align-items-center">
+                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>
