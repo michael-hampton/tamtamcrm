@@ -80,7 +80,10 @@ export default class Order extends Component {
         this.setState({
             orders: orders,
             cachedData: cachedData
-        })
+        }, () => {
+            const totalPages = Math.ceil(orders / this.props.pageLimit);
+            this.onPageChanged({ invoices: orders, currentPage: this.state.currentPage, totalPages: totalPages })
+       }))
     }
 
     filterOrders (filters) {
