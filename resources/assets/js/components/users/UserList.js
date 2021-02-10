@@ -183,7 +183,7 @@ export default class UserList extends Component {
     }
 
     render () {
-        const { users, departments, custom_fields, error, view, filters, isOpen, error_message, success_message, show_success } = this.state
+        const { users, departments, custom_fields, error, view, filters, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const { status, role_id, department_id, searchText, start_date, end_date } = this.state.filters
         const fetchUrl = `/api/users?search_term=${searchText}&status=${status}&role_id=${role_id}&department_id=${department_id}&start_date=${start_date}&end_date=${end_date}`
         const addButton = <AddUser accounts={this.state.accounts} custom_fields={custom_fields}
