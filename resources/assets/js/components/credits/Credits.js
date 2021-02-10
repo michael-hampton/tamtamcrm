@@ -129,7 +129,10 @@ export default class Credits extends Component {
         this.setState({
             credits: credits,
             cachedData: cachedData
-        })
+        }, () => {
+            const totalPages = Math.ceil(credits / this.props.pageLimit);
+            this.onPageChanged({ invoices: credits, currentPage: this.state.currentPage, totalPages: totalPages })
+       }))
     }
 
     customerList (props) {
