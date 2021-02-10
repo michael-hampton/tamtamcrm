@@ -217,8 +217,9 @@ export default class TaskList extends Component {
                         <Card>
                             <CardBody>
                                 <TaskFilters
-                                    cachedData={this.state.cachedData}
-                                    updateList={this.addUserToState}
+                                    pageLimit={pageLimit}
+                                     cachedData={this.state.cachedData}
+                                     updateList={this.onPageChanged.bind(this)}
                                     customers={customers} setFilterOpen={this.setFilterOpen.bind(this)}
                                     users={users}
                                     tasks={tasks}
