@@ -183,9 +183,10 @@ export default class Order extends Component {
                         <Card>
                             <CardBody>
                                 <OrderFilters
-                                    cachedData={this.state.cachedData}
-                                    updateList={this.updateOrder}
-                                    setFilterOpen={this.setFilterOpen.bind(this)} orders={orders}
+                                    pageLimit={pageLimit}
+                                     cachedData={this.state.cachedData}
+                                     updateList={this.onPageChanged.bind(this)}
+                                     setFilterOpen={this.setFilterOpen.bind(this)} orders={orders}
                                     customers={customers}
                                     filters={filters} filter={this.filterOrders}
                                     saveBulk={this.saveBulk}/>
