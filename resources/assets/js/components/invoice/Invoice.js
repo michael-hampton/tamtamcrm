@@ -76,7 +76,10 @@ export default class Invoice extends Component {
         this.setState({
             invoices: invoices,
             cachedData: cachedData
-        })
+        }, () => {
+            const totalPages = Math.ceil(invoices / this.props.pageLimit);
+            this.onPageChanged({ invoices: invoices, currentPage: this.state.currentPage, totalPages: totalPages })
+       })
     }
 
     onPageChanged(data) {
