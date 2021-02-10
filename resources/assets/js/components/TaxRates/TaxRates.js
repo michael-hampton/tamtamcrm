@@ -111,7 +111,7 @@ export default class TaxRates extends Component {
     }
 
     render () {
-        const { taxRates, error, view, filters, isOpen, error_message, success_message, show_success } = this.state
+        const { taxRates, error, view, filters, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const { searchText, status_id, start_date, end_date } = this.state.filters
         const fetchUrl = `/api/taxRates?search_term=${searchText}&status=${status_id}&start_date=${start_date}&end_date=${end_date}`
         const addButton = <AddTaxRate taxRates={taxRates} action={this.addUserToState}/>
