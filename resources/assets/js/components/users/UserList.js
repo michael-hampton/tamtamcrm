@@ -201,9 +201,10 @@ export default class UserList extends Component {
                         <Card>
                             <CardBody>
                                 <UserFilters
-                                    cachedData={this.state.cachedData}
-                                    updateList={this.addUserToState}
-                                    setFilterOpen={this.setFilterOpen.bind(this)} users={users}
+                                    pageLimit={pageLimit}
+                                     cachedData={this.state.cachedData}
+                                     updateList={this.onPageChanged.bind(this)}
+                                     setFilterOpen={this.setFilterOpen.bind(this)} users={users}
                                     departments={departments}
                                     filters={filters} filter={this.filterUsers}
                                     saveBulk={this.saveBulk}/>
