@@ -77,7 +77,9 @@ export default class DisplayColumns extends Component {
         const arrSelected = []
         const arrTest = []
 
-        if (ignored && ignored.length) {
+        this.setState({selected:selected})
+
+        /*if (ignored && ignored.length) {
             this.props.columns.forEach(column => {
                 if (ignored.includes(column)) {
                     arrSelected.push({ label: column, value: column })
@@ -87,10 +89,12 @@ export default class DisplayColumns extends Component {
             })
         }
 
+        console.log('selected', arrSelected)
+
         this.setState({ values: arrTest, initialState: arrTest, selected: arrSelected }, function () {
             // console.log('columns', this.state.values)
             // console.log('selected', this.state.selected)
-        })
+        }) */
     }
 
     render () {

@@ -464,9 +464,9 @@ export default class DataTable extends Component {
             height: '3rem'
         }}/> : null
 
-        const columnFilter = this.state.entities.data && this.state.entities.data.length
+        const columnFilter = this.state.data && this.state.data.length
             ? <DisplayColumns onChange2={this.updateIgnoredColumns}
-                columns={Object.keys(this.state.entities.data[0]).concat(this.state.ignoredColumns)}
+                columns={Object.keys(this.state.data[0]).concat(this.state.ignoredColumns)}
                 ignored_columns={this.state.ignoredColumns}
                 default_columns={this.state.default_columns}/> : null
 
