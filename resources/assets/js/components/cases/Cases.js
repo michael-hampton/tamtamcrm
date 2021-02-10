@@ -150,7 +150,7 @@ export default class Cases extends Component {
 
     render () {
         const { searchText, status, start_date, end_date, customer_id, category_id, priority_id } = this.state.filters
-        const { view, cases, customers, error, isOpen, error_message, success_message, show_success } = this.state
+        const { view, cases, customers, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const fetchUrl = `/api/cases?search_term=${searchText}&status=${status}&start_date=${start_date}&end_date=${end_date}&customer_id=${customer_id}&category_id=${category_id}&priority_id=${priority_id}`
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
