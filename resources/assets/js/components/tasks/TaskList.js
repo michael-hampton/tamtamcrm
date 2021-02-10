@@ -180,7 +180,7 @@ export default class TaskList extends Component {
     }
 
     render () {
-        const { tasks, users, customers, custom_fields, isOpen, error_message, success_message, show_success } = this.state
+        const { tasks, users, customers, custom_fields, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const { project_id, task_status_id, task_type, customer_id, user_id, searchText, start_date, end_date } = this.state.filters
         const fetchUrl = `/api/tasks?search_term=${searchText}&project_id=${project_id}&task_status=${task_status_id}&task_type=${task_type}&customer_id=${customer_id}&user_id=${user_id}&start_date=${start_date}&end_date=${end_date}`
         const { error, view } = this.state
