@@ -185,9 +185,10 @@ export default class PurchaseOrders extends Component {
                         <Card>
                             <CardBody>
                                 <PurchaseOrderFilters
-                                    cachedData={this.state.cachedData}
-                                    updateList={this.updateInvoice}
-                                    setFilterOpen={this.setFilterOpen.bind(this)}
+                                   pageLimit={pageLimit}
+                                     cachedData={this.state.cachedData}
+                                     updateList={this.onPageChanged.bind(this)}
+                                     setFilterOpen={this.setFilterOpen.bind(this)}
                                     purchase_orders={purchase_orders}
                                     companies={companies}
                                     filters={filters} filter={this.filterInvoices}
