@@ -160,7 +160,7 @@ export default class Credits extends Component {
     }
 
     render () {
-        const { customers, credits, custom_fields, view, filters, error, isOpen, error_message, success_message, show_success } = this.state
+        const { customers, credits, custom_fields, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const fetchUrl = `/api/credits?search_term=${this.state.filters.searchText}&status=${this.state.filters.status_id}&customer_id=${this.state.filters.customer_id}&user_id=${this.state.filters.user_id}&project_id=${this.state.filters.project_id}&start_date=${this.state.filters.start_date}&end_date=${this.state.filters.end_date}`
         const addButton = customers.length ? <EditCredit
             entity_id={this.state.entity_id}
