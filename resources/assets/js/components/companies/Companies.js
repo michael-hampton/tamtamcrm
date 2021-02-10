@@ -151,7 +151,7 @@ export default class Companies extends Component {
     }
 
     render () {
-        const { custom_fields, users, error, view, brands, isOpen, error_message, success_message, show_success } = this.state
+        const { custom_fields, users, error, view, brands, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const { searchText, status_id, start_date, end_date } = this.state.filters
         const fetchUrl = `/api/companies?search_term=${searchText}&status=${status_id}&start_date=${start_date}&end_date=${end_date}`
         const addButton = users.length
