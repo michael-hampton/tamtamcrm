@@ -164,9 +164,11 @@ export default class Customers extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <CustomerFilters setFilterOpen={this.setFilterOpen.bind(this)} companies={companies}
-                                    cachedData={this.state.cachedData}
-                                    updateList={this.updateCustomers}
+                                  <CustomerFilters
+                                    pageLimit={pageLimit}
+                                     cachedData={this.state.cachedData}
+                                     updateList={this.onPageChanged.bind(this)}
+                                     setFilterOpen={this.setFilterOpen.bind(this)}
                                     customers={customers}
                                     filters={filters} filter={this.filterCustomers}
                                     saveBulk={this.saveBulk}/>
