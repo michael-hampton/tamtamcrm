@@ -67,7 +67,10 @@ export default class TaxRateFilters extends Component {
                     <TableSearch onChange={(e) => {
                         const value = typeof e.target.value === 'string' ? e.target.value.toLowerCase() : e.target.value
                         const search_results = this.props.cachedData.filter(obj => Object.keys(obj).some(key => obj[key] && obj[key].length ? obj[key].toString().toLowerCase().includes(value) : false))
-                        this.props.updateList(search_results)
+                        if (search_results && search_results.length) {
+                            const totalPages = Math.ceil(search_results / this.props.pageLimit);
+                            this.props.updateList({ invoices: search_results, currentPage: 1, totalPages: totalPages })
+                        }
                     }}/>
                 </Col>
 
