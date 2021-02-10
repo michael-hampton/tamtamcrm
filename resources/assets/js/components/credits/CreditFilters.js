@@ -93,7 +93,10 @@ export default class CreditFilters extends Component {
                     <TableSearch onChange={(e) => {
                         const myArrayFiltered = filterSearchResults(e.target.value, this.props.cachedData, this.props.customers)
 
-                        this.props.updateList(myArrayFiltered)
+                       if (myArrayFiltered && myArrayFiltered.length) {
+                            const totalPages = Math.ceil(myArrayFiltered / this.props.pageLimit);
+                            this.props.updateList({ invoices: myArrayFiltered, currentPage: 1, totalPages: totalPages })
+                        }
                     }}/>
                 </Col>
 
