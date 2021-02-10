@@ -251,6 +251,12 @@ export default class TaskList extends Component {
                         <Card>
                             <CardBody>
                                 <DataTable
+
+pageLimit={pageLimit}
+                                     onPageChanged={this.onPageChanged.bind(this)}
+                                     currentData={currentInvoices}
+                                     hide_pagination={true}
+
                                     default_columns={getDefaultTableFields()}
                                     customers={customers}
                                     setSuccess={this.setSuccess.bind(this)}
