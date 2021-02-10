@@ -173,9 +173,10 @@ export default class ProjectList extends Component {
                         <Card>
                             <CardBody>
                                 <ProjectFilters
-                                    cachedData={this.state.cachedData}
-                                    updateList={this.addUserToState}
-                                    customers={customers} setFilterOpen={this.setFilterOpen.bind(this)}
+                                    pageLimit={pageLimit}
+                                     cachedData={this.state.cachedData}
+                                     updateList={this.onPageChanged.bind(this)}
+                                     setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
                                     projects={projects}
                                     filters={this.state.filters} filter={this.filterProjects}
                                     saveBulk={this.saveBulk}/>
