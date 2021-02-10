@@ -196,9 +196,10 @@ export default class ProductList extends Component {
                         <Card>
                             <CardBody>
                                 <ProductFilters
-                                    cachedData={this.state.cachedData}
-                                    updateList={this.addProductToState}
-                                    setFilterOpen={this.setFilterOpen.bind(this)} companies={companies}
+                                    pageLimit={pageLimit}
+                                     cachedData={this.state.cachedData}
+                                     updateList={this.onPageChanged.bind(this)}
+                                     setFilterOpen={this.setFilterOpen.bind(this)} companies={companies}
                                     products={products}
                                     filters={filters} filter={this.filterProducts}
                                     saveBulk={this.saveBulk}/>
