@@ -78,7 +78,10 @@ export default class Customers extends Component {
         this.setState({
             customers: customers,
             cachedData: cachedData
-        })
+        }, () => {
+            const totalPages = Math.ceil(customers / this.props.pageLimit);
+            this.onPageChanged({ invoices: customers, currentPage: this.state.currentPage, totalPages: totalPages })
+       }))
     }
 
     handleClose () {
