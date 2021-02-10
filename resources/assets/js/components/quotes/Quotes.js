@@ -186,9 +186,10 @@ export default class Quotes extends Component {
                         <Card>
                             <CardBody>
                                 <QuoteFilters
-                                    cachedData={this.state.cachedData}
-                                    updateList={this.updateInvoice}
-                                    setFilterOpen={this.setFilterOpen.bind(this)} quotes={quotes}
+                                    pageLimit={pageLimit}
+                                     cachedData={this.state.cachedData}
+                                     updateList={this.onPageChanged.bind(this)}
+                                     setFilterOpen={this.setFilterOpen.bind(this)} quotes={quotes}
                                     customers={customers}
                                     filters={filters} filter={this.filterInvoices}
                                     saveBulk={this.saveBulk}/>
