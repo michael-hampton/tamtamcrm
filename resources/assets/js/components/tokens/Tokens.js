@@ -143,9 +143,10 @@ export default class Tokens extends Component {
                         <Card>
                             <CardBody>
                                 <TokenFilters
-                                    cachedData={this.state.cachedData}
-                                    updateList={this.addUserToState}
-                                    setFilterOpen={this.setFilterOpen.bind(this)} tokens={tokens}
+                                    pageLimit={pageLimit}
+                                     cachedData={this.state.cachedData}
+                                     updateList={this.onPageChanged.bind(this)}
+                                     setFilterOpen={this.setFilterOpen.bind(this)} tokens={tokens}
                                     updateIgnoredColumns={this.updateIgnoredColumns}
                                     filters={this.state.filters} filter={this.filterTokens}
                                     saveBulk={this.saveBulk} ignoredColumns={this.state.ignoredColumns}/>
