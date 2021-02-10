@@ -155,7 +155,7 @@ export default class Leads extends Component {
     }
 
     render () {
-        const { leads, users, custom_fields, view, isOpen, error_message, success_message, show_success } = this.state
+        const { leads, users, custom_fields, view, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const { status_id, searchText, start_date, end_date, user_id } = this.state.filters
         const fetchUrl = `/api/leads?search_term=${searchText}&user_id=${user_id}&status=${status_id}&start_date=${start_date}&end_date=${end_date}`
         const { error } = this.state
