@@ -202,9 +202,10 @@ export default class Excuspenses extends Component {
                         <Card>
                             <CardBody>
                                 <ExpenseFilters
-                                    cachedData={this.state.cachedData}
-                                    updateList={this.updateExpenses}
-                                    setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
+                                    pageLimit={pageLimit}
+                                     cachedData={this.state.cachedData}
+                                     updateList={this.onPageChanged.bind(this)}
+                                     setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
                                     expenses={expenses} companies={companies}
                                     filters={this.state.filters} filter={this.filterExpenses}
                                     saveBulk={this.saveBulk}/>
