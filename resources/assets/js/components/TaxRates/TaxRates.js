@@ -54,6 +54,9 @@ export default class TaxRates extends Component {
             taxRates: taxRates,
             cachedData: cachedData
         }, () => {
+           
+            const totalPages = Math.ceil(taxRates / this.props.pageLimit);
+            this.onPageChanged({ invoices: taxRates, currentPage: this.state.currentPage, totalPages: totalPages })
             localStorage.setItem('tax_rates', JSON.stringify(taxRates))
         })
     }
