@@ -208,8 +208,9 @@ export default class RecurringQuotes extends Component {
                         <Card>
                             <CardBody>
                                 <RecurringQuoteFilters
-                                    cachedData={this.state.cachedData}
-                                    updateList={this.updateInvoice}
+                                    pageLimit={pageLimit}
+                                     cachedData={this.state.cachedData}
+                                     updateList={this.onPageChanged.bind(this)}
                                     customers={customers}
                                     setFilterOpen={this.setFilterOpen.bind(this)}
                                     invoices={invoices}
