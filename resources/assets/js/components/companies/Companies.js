@@ -59,7 +59,10 @@ export default class Companies extends Component {
 
     addUserToState (brands) {
         const cachedData = !this.state.cachedData.length ? brands : this.state.cachedData
-        this.setState({ brands: brands, cachedData:cachedData })
+        this.setState({ brands: brands, cachedData:cachedData }, () => {
+            const totalPages = Math.ceil(brands / this.props.pageLimit);
+            this.onPageChanged({ invoices: brands, currentPage: this.state.currentPage, totalPages: totalPages })
+       }))
     }
 
     onPageChanged(data) {
