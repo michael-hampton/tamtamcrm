@@ -121,7 +121,10 @@ export default class Excuspenses extends Component {
         this.setState({
             expenses: expenses,
             cachedData: cachedData
-        })
+        }, () => {
+            const totalPages = Math.ceil(expenses / this.props.pageLimit);
+            this.onPageChanged({ invoices: expenses, currentPage: this.state.currentPage, totalPages: totalPages })
+       }))
     }
 
     expenseList (props) {
