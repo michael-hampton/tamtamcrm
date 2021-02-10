@@ -77,7 +77,10 @@ export default class Cases extends Component {
         this.setState({
             cases: cases,
             cachedData: cachedData
-        })
+        }, () => {
+            const totalPages = Math.ceil(invoices / this.props.pageLimit);
+            this.onPageChanged({ invoices: invoices, currentPage: this.state.currentPage, totalPages: totalPages })
+       })
     }
 
     handleClose () {
