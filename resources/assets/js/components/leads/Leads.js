@@ -64,7 +64,10 @@ export default class Leads extends Component {
         this.setState({
             leads: leads,
             cachedData: cachedData
-        })
+        }, () => {
+            const totalPages = Math.ceil(leads / this.props.pageLimit);
+            this.onPageChanged({ invoices: leads, currentPage: this.state.currentPage, totalPages: totalPages })
+       }))
     }
 
     onPageChanged(data) {
