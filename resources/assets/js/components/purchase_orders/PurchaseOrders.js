@@ -218,6 +218,10 @@ export default class PurchaseOrders extends Component {
                         <Card>
                             <CardBody>
                                 <DataTable
+     pageLimit={pageLimit}
+                                     onPageChanged={this.onPageChanged.bind(this)}
+                                     currentData={currentInvoices}
+                                     hide_pagination={true}
                                     default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
                                     setError={this.setError.bind(this)}
