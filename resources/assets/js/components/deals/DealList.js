@@ -204,9 +204,10 @@ export default class DealList extends Component {
                         <Card>
                             <CardBody>
                                 <DealFilters
-                                    cachedData={this.state.cachedData}
-                                    updateList={this.addUserToState}
-                                    setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
+                                    pageLimit={pageLimit}
+                                     cachedData={this.state.cachedData}
+                                     updateList={this.onPageChanged.bind(this)}
+                                     setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
                                     users={users}
                                     deals={deals}
                                     filters={this.state.filters} filter={this.filterDeals}
