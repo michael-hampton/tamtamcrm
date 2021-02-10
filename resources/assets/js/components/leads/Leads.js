@@ -170,9 +170,10 @@ export default class Leads extends Component {
                         <Card>
                             <CardBody>
                                 <LeadFilters
-                                    cachedData={this.state.cachedData}
-                                    updateList={this.addUserToState}
-                                    setFilterOpen={this.setFilterOpen.bind(this)} leads={leads}
+                                    pageLimit={pageLimit}
+                                     cachedData={this.state.cachedData}
+                                     updateList={this.onPageChanged.bind(this)}
+                                     setFilterOpen={this.setFilterOpen.bind(this)} leads={leads}
                                     filters={this.state.filters} filter={this.filterLeads}
                                     saveBulk={this.saveBulk}/>
                                 <AddLead users={users} leads={leads} action={this.addUserToState}
