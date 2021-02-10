@@ -191,7 +191,7 @@ export default class Payments extends Component {
     }
 
     render () {
-        const { payments, custom_fields, invoices, credits, view, filters, customers, error, isOpen, error_message, success_message, show_success } = this.state
+        const { payments, custom_fields, invoices, credits, view, filters, customers, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const { status_id, searchText, customer_id, gateway_id, start_date, end_date } = this.state.filters
         const fetchUrl = `/api/payments?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&gateway_id=${gateway_id}&start_date=${start_date}&end_date=${end_date}`
         const addButton = invoices.length ? <AddPayment
