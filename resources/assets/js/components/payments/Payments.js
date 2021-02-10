@@ -211,9 +211,10 @@ export default class Payments extends Component {
                     <Card>
                         <CardBody>
                             <PaymentFilters
-                                cachedData={this.state.cachedData}
-                                updateList={this.updateCustomers}
-                                setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
+                                 pageLimit={pageLimit}
+                                     cachedData={this.state.cachedData}
+                                     updateList={this.onPageChanged.bind(this)}
+                                     setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
                                 payments={payments} invoices={invoices}
                                 filters={filters} filter={this.filterPayments}
                                 saveBulk={this.saveBulk}/>
