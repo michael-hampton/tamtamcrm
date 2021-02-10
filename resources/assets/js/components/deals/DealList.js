@@ -70,7 +70,10 @@ export default class DealList extends Component {
 
     addUserToState (deals) {
         const cachedData = !this.state.cachedData.length ? deals : this.state.cachedData
-        this.setState({ deals: deals, cachedData:cachedData })
+        this.setState({ deals: deals, cachedData:cachedData }, () => {
+            const totalPages = Math.ceil(deals / this.props.pageLimit);
+            this.onPageChanged({ invoices: deals, currentPage: this.state.currentPage, totalPages: totalPages })
+       }) )
     }
 
     onPageChanged(data) {
