@@ -243,19 +243,26 @@ class PaymentUnitTest extends TestCase
         $balance = $this->customer->balance;
 
         // unapplied payment
-        $data = [
+        $payment_data = [
             'customer_id'       => $this->customer->id,
             'payment_method_id' => 1,
-            'amount'            => 2000 // payment amount should be double invoice
+            'amount'            => $invoice->total * 2 // payment amount should be double invoice
         ];
 
         $paymentRepo = new PaymentRepository(new Payment);
-        $payment = (new ProcessPayment())->process($data, $paymentRepo, $factory);
+        $payment = (new ProcessPayment())->process($payment_data, $paymentRepo, $factory);
 
         // check status pending
-        // check no paymentables
+        $this->assertEquals(Payment::STATUS_PENDING, $payment->status_id);
+        
+       // check no paymentables
+       $this->assertEquals($payment->paymentables->count(), 0);
+
         // check applied empty
+        $this->assertEquals($payment->applied, 0);
+
         // check payment amount
+        $this->assertEquals($payment->amount, $payment_data['amount'];
 
         // add invoice to unapplied payment
         
@@ -273,8 +280,13 @@ class PaymentUnitTest extends TestCase
         $customer = $created->customer->fresh();
 
         // check payment amount remains the same
+        $this->assertEquals($paymemt->amount, $payment_data['amount'];
+
         // check applied equals to invoice amount
+        $this->assertEquals($payment->applied, $invoice->total);
+
         // check status is still pending 
+        $this->assertEquals(Payment::STATUS_PENDING, $payment->status_id);
 
         $this->assertEquals((float)$customer->balance, (float)($balance - $created->amount));
         $this->assertEquals($customer->amount_paid, ($amount_paid + $created->amount));
