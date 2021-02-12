@@ -37,7 +37,7 @@ class EditExpense extends React.Component {
 
     componentWillReceiveProps (nextProps, nextContext) {
         if (nextProps.expense && nextProps.expense.id !== this.state.id) {
-            this.expenseModel = new ExpenseModel(nextProps.expense, this.props.customers)
+            this.expenseModel = new ExpenseModel(nextProps.expense, nextProps.customers)
             this.setState(this.expenseModel.fields)
         }
     }

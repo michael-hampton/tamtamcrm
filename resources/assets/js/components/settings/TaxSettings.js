@@ -8,6 +8,7 @@ import Snackbar from '@material-ui/core/Snackbar'
 import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
 import BlockButton from '../common/BlockButton'
+import CompanyModel from "../models/CompanyModel";
 
 export default class TaxSettings extends Component {
     constructor (props) {
@@ -28,6 +29,8 @@ export default class TaxSettings extends Component {
         this.handleSubmit = this.handleSubmit.bind(this)
         this.getAccount = this.getAccount.bind(this)
         this.toggle = this.toggle.bind(this)
+
+        this.model = new CompanyModel({ id: this.state.id })
     }
 
     componentDidMount () {
@@ -77,7 +80,8 @@ export default class TaxSettings extends Component {
 
     handleSettingsChange (event) {
         const name = event.target.name
-        const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
+        let value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
+        value = (value === 'true') ? true : ((value === 'false') ? false : (value))
 
         this.setState(prevState => ({
             changesMade: true,
@@ -99,7 +103,7 @@ export default class TaxSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false })
+                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false }, () => this.model.updateSettings(this.state.settings))
             })
             .catch((error) => {
                 this.setState({ error: true })

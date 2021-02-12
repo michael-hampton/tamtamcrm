@@ -52,7 +52,7 @@ export default class EditDeal extends Component {
 
     componentWillReceiveProps (nextProps, nextContext) {
         if (nextProps.deal && nextProps.deal.id !== this.state.id) {
-            this.dealModel = new DealModel(this.props.deal)
+            this.dealModel = new DealModel(nextProps.deal)
             this.setState(this.dealModel.fields)
         }
     }

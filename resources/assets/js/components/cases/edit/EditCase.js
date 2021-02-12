@@ -54,7 +54,7 @@ export default class EditCase extends React.Component {
 
     componentWillReceiveProps (nextProps, nextContext) {
         if (nextProps.case && nextProps.case.id !== this.state.id) {
-            this.caseModel = new CaseModel(this.props.case)
+            this.caseModel = new CaseModel(nextProps.case)
             this.setState(this.caseModel.fields)
         }
     }

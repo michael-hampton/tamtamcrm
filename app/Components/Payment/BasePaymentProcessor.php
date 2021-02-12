@@ -28,18 +28,25 @@ class BasePaymentProcessor
 
     private PaymentRepository $payment_repo;
 
+    /**
+     * @var bool
+     */
+    private bool $applying_existing_payment = false;
+
 
     /**
-     * BaseRefund constructor.
+     * BasePaymentProcessor constructor.
      * @param Payment $payment
-     * @param array $data
      * @param PaymentRepository $payment_repo
+     * @param array $data
+     * @param bool $applying_existing_payment
      */
-    public function __construct(Payment $payment, PaymentRepository $payment_repo, array $data)
+    public function __construct(Payment $payment, PaymentRepository $payment_repo, array $data, bool $applying_existing_payment = false)
     {
         $this->payment = $payment;
         $this->payment_repo = $payment_repo;
         $this->data = $data;
+        $this->applying_existing_payment = $applying_existing_payment;
     }
 
     public function getAmount()
@@ -112,7 +119,12 @@ class BasePaymentProcessor
         }
 
         //TODO - Need to check this
-        $this->payment->amount = $this->amount;
+
+        // if the payment already has an amount keep the original amount
+        if (!$this->applying_existing_payment) {
+            $this->payment->amount = $this->amount;
+        }
+
         $this->payment->applied += $this->amount;
 
         if ($this->gateway_fee > 0) {

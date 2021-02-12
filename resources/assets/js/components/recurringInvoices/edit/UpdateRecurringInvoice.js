@@ -109,7 +109,7 @@ class UpdateRecurringInvoice extends Component {
 
     componentWillReceiveProps (nextProps, nextContext) {
         if (nextProps.invoice && nextProps.invoice.id !== this.state.id) {
-            this.invoiceModel = new RecurringInvoiceModel(nextProps.invoice, this.props.customers)
+            this.invoiceModel = new RecurringInvoiceModel(nextProps.invoice, nextProps.customers)
             this.setState(this.invoiceModel.fields)
         }
     }

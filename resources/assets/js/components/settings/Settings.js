@@ -21,6 +21,7 @@ import SnackbarMessage from '../common/SnackbarMessage'
 import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
 import FileUploads from '../documents/FileUploads'
+import CompanyModel from "../models/CompanyModel";
 
 class Settings extends Component {
     constructor (props) {
@@ -43,6 +44,8 @@ class Settings extends Component {
         this.handleSubmit = this.handleSubmit.bind(this)
         this.getAccount = this.getAccount.bind(this)
         this.toggle = this.toggle.bind(this)
+
+        this.model = new CompanyModel({ id: this.state.id })
     }
 
     componentDidMount () {
@@ -135,7 +138,7 @@ class Settings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false })
+                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false }, () => this.model.updateSettings(this.state.settings))
             })
             .catch((error) => {
                 console.error(error)

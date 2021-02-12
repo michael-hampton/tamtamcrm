@@ -111,7 +111,7 @@ class UpdateRecurringQuote extends Component {
 
     componentWillReceiveProps (nextProps, nextContext) {
         if (nextProps.invoice && nextProps.invoice.id !== this.state.id) {
-            this.quoteModel = new RecurringQuoteModel(nextProps.invoice, this.props.customers)
+            this.quoteModel = new RecurringQuoteModel(nextProps.invoice, nextProps.customers)
             this.setState(this.quoteModel.fields)
         }
     }

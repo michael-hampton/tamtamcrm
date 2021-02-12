@@ -7,6 +7,7 @@ import FormBuilder from './FormBuilder'
 import SnackbarMessage from '../common/SnackbarMessage'
 import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
+import CompanyModel from "../models/CompanyModel";
 
 export default class LocalisationSettings extends Component {
     constructor (props) {
@@ -28,6 +29,8 @@ export default class LocalisationSettings extends Component {
         this.handleSubmit = this.handleSubmit.bind(this)
         this.getAccount = this.getAccount.bind(this)
         this.handleChange = this.handleChange.bind(this)
+
+        this.model = new CompanyModel({ id: this.state.id })
     }
 
     componentDidMount () {
@@ -67,7 +70,8 @@ export default class LocalisationSettings extends Component {
 
     handleSettingsChange (event) {
         const name = event.target.name
-        const value = event.target.value
+        let value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
+        value = (value === 'true') ? true : ((value === 'false') ? false : (value))
 
         if (name === 'currency_format') {
             this.setState(prevState => ({

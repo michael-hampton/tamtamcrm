@@ -52,6 +52,14 @@ export default class CompanyModel extends BaseModel {
         }
     }
 
+    updateSettings (settings) {
+        const app_settings = JSON.parse(localStorage.getItem('appState'))
+        const accounts = app_settings.accounts
+        const index = accounts.findIndex((obj) => obj.account_id === parseInt(this.fields.id))
+        app_settings.accounts[index].account.settings = settings
+        localStorage.setItem('appState', JSON.stringify(app_settings))
+    }
+
     get fileCount () {
         return this._file_count || 0
     }

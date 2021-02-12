@@ -10,6 +10,7 @@ import AccountRepository from '../repositories/AccountRepository'
 import SectionItem from '../common/entityContainers/SectionItem'
 import BaseModel from '../models/BaseModel'
 import { toast, ToastContainer } from 'react-toastify'
+import CompanyModel from "../models/CompanyModel";
 
 export default class CustomerPortalSettings extends Component {
     constructor (props) {
@@ -31,7 +32,7 @@ export default class CustomerPortalSettings extends Component {
         this.getAccount = this.getAccount.bind(this)
         this.toggle = this.toggle.bind(this)
 
-        this.model = new BaseModel()
+        this.model = new CompanyModel({ id: this.state.id })
     }
 
     componentDidMount () {
@@ -103,7 +104,7 @@ export default class CustomerPortalSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false })
+                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false }, () => this.model.updateSettings(this.state.settings))
             })
             .catch((error) => {
                 this.setState({ error: true })

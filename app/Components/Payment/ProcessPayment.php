@@ -19,17 +19,32 @@ class ProcessPayment
      */
     public function process(array $data, PaymentRepository $payment_repo, Payment $payment): ?Payment
     {
+        if (empty($data['invoices']) && empty($data['credits'])) {
+            $data['status_id'] = Payment::STATUS_PENDING;
+        }
+
+        $applying_existing_payment = false;
+
+        if (!empty($payment->amount) && $payment->paymentables->count(
+            ) === 0 && (!empty($data['credits']) || !empty($data['invoices']))) {
+            //applying payment - keep original amount
+            $data['amount'] = $payment->amount;
+            $applying_existing_payment = true;
+        }
+
         $payment = $payment_repo->save($data, $payment);
 
         $objCreditPayment = null;
 
         if (!empty($data['credits'])) {
-            $objCreditPayment = new CreditPayment($data, $payment, $payment_repo);
+            $objCreditPayment = new CreditPayment($data, $payment, $payment_repo, $applying_existing_payment);
             $payment = $objCreditPayment->process();
         }
 
         if (!empty($data['invoices'])) {
-            $payment = (new InvoicePayment($data, $payment, $payment_repo))->process($objCreditPayment);
+            $payment = (new InvoicePayment($data, $payment, $payment_repo, $applying_existing_payment))->process(
+                $objCreditPayment
+            );
         }
 
         return $payment->fresh();

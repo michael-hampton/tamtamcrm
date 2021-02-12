@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Actions\Transaction\TriggerTransaction;
 use App\Components\Currency\CurrencyConverter;
 use App\Events\Payment\PaymentWasCreated;
+use App\Events\Payment\PaymentWasUpdated;
 use App\Models\Account;
 use App\Models\Payment;
 use App\Repositories\Base\BaseRepository;
@@ -60,25 +61,13 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
         return $this->model;
     }
 
-
-    /**
-     * @param array $data
-     * @param Payment $payment
-     * @param bool $create_transaction
-     * @return Payment|null
-     */
-    public function save(array $data, Payment $payment, $create_transaction = false): ?Payment
+    public function createPayment(Payment $payment, array $data, $create_transaction = false): Payment
     {
-        $send_event = false;
-
         if (!empty($data)) {
             $payment->fill($data);
         }
 
-        if (!$payment->id) {
-            $payment = $this->convertCurrencies($payment);
-            $send_event = true;
-        }
+        $payment = $this->convertCurrencies($payment);
 
         $payment->setNumber();
         $payment->setStatus(empty($data['status_id']) ? Payment::STATUS_COMPLETED : $data['status_id']);
@@ -92,11 +81,39 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
             );
         }
 
-        if ($send_event) {
-            event(new PaymentWasCreated($payment));
-        }
+        event(new PaymentWasCreated($payment));
 
         return $payment->fresh();
+    }
+
+    public function updatePayment(Payment $payment, array $data)
+    {
+        if (!empty($data)) {
+            $payment->fill($data);
+        }
+
+        $payment->setStatus(empty($data['status_id']) ? Payment::STATUS_COMPLETED : $data['status_id']);
+        $payment->save();
+
+        event(new PaymentWasUpdated($payment));
+
+        return $payment->fresh();
+    }
+
+
+    /**
+     * @param array $data
+     * @param Payment $payment
+     * @param bool $create_transaction
+     * @return Payment|null
+     */
+    public function save(array $data, Payment $payment, $create_transaction = false): ?Payment
+    {
+        if(!empty($payment->id)) {
+            return $this->updatePayment($payment, $data);
+        }
+
+        return $this->createPayment($payment, $data, $create_transaction);
     }
 
     /**

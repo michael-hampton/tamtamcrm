@@ -86,7 +86,7 @@ class EditInvoice extends Component {
 
     componentWillReceiveProps (nextProps, nextContext) {
         if (nextProps.invoice && nextProps.invoice.id !== this.state.id) {
-            this.invoiceModel = new InvoiceModel(nextProps.invoice, this.props.customers)
+            this.invoiceModel = new InvoiceModel(nextProps.invoice, nextProps.customers)
             this.setState(this.invoiceModel.fields)
 
             console.log('invoice', nextProps.invoice)

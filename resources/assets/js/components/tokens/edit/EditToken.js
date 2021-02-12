@@ -22,7 +22,7 @@ export default class EditToken extends React.Component {
 
     componentWillReceiveProps (nextProps, nextContext) {
         if (nextProps.token && nextProps.token.id !== this.state.id) {
-            this.tokenModel = new TokenModel(this.props.token)
+            this.tokenModel = new TokenModel(nextProps.token)
             this.setState(this.tokenModel.fields)
         }
     }

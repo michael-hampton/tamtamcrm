@@ -37,7 +37,7 @@ class EditPayment extends React.Component {
 
     componentWillReceiveProps (nextProps, nextContext) {
         if (nextProps.payment && nextProps.payment.id !== this.state.id) {
-            this.paymentModel = new PaymentModel(this.props.invoices, this.props.payment)
+            this.paymentModel = new PaymentModel(nextProps.invoices, nextProps.payment)
             this.setState(this.paymentModel.fields)
         }
     }

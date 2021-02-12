@@ -107,7 +107,7 @@ export default class EditOrder extends Component {
 
     componentWillReceiveProps (nextProps, nextContext) {
         if (nextProps.order && nextProps.order.id !== this.state.id) {
-            this.orderModel = new OrderModel(nextProps.order, this.props.customers)
+            this.orderModel = new OrderModel(nextProps.order, nextProps.customers)
             this.setState(this.orderModel.fields)
         }
     }

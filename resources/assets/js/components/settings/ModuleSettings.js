@@ -23,6 +23,7 @@ import BlockButton from '../common/BlockButton'
 import { icons } from '../utils/_icons'
 import SnackbarMessage from '../common/SnackbarMessage'
 import Header from './Header'
+import CompanyModel from "../models/CompanyModel";
 
 class ModuleSettings extends Component {
     constructor (props) {
@@ -185,6 +186,8 @@ class ModuleSettings extends Component {
         this.customInputSwitched = this.customInputSwitched.bind(this)
         this.handleAllChecked = this.handleAllChecked.bind(this)
         this.toggleTab = this.toggleTab.bind(this)
+
+        this.model = new CompanyModel({ id: this.state.id })
     }
 
     toggleTab (tab) {

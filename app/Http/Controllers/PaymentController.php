@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Email\DispatchEmail;
-use App\Components\Payment\DeletePayment;
+use App\Actions\Payment\DeletePayment;
 use App\Components\Payment\ProcessPayment;
 use App\Components\Refund\RefundFactory;
 use App\Events\Payment\PaymentWasCreated;
@@ -14,7 +14,6 @@ use App\Models\Credit;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\PaymentType;
 use App\Repositories\CreditRepository;
 use App\Repositories\Interfaces\PaymentRepositoryInterface;
 use App\Requests\Payment\CreatePaymentRequest;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Components\Payment;
+namespace App\Actions\Payment;
 
 use App\Actions\Transaction\TriggerTransaction;
 use App\Events\Payment\PaymentWasDeleted;
@@ -31,7 +31,7 @@ class DeletePayment
     {
         $this->updateCredit();
         $this->updateInvoice();
-        $this->updateCustomer();
+        //$this->updateCustomer();
         $this->updatePayment();
 
         return $this->payment;
@@ -104,6 +104,7 @@ class DeletePayment
             $invoice->resetBalance($paymentable_invoice->amount);
             $invoice->reduceAmountPaid($paymentable_invoice->amount);
             $invoice->customer->increaseBalance($paymentable_invoice->amount);
+            $invoice->customer->reduceAmountPaid($paymentable_invoice->amount);
             $invoice->setStatus($delete_status);
             $invoice->save();
 
@@ -131,7 +132,8 @@ class DeletePayment
 
     private function updateCustomer(): bool
     {
-        $customer = $this->payment->customer;
+        $customer = $this->payment->customer->fresh();
+
         $customer->reduceAmountPaid($this->payment->amount);
 
         return true;

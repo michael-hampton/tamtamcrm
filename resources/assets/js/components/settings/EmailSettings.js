@@ -9,6 +9,7 @@ import { icons } from '../utils/_icons'
 import SnackbarMessage from '../common/SnackbarMessage'
 import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
+import CompanyModel from "../models/CompanyModel";
 
 class EmailSettings extends Component {
     constructor (props) {
@@ -30,6 +31,8 @@ class EmailSettings extends Component {
         this.handleSubmit = this.handleSubmit.bind(this)
         this.getAccount = this.getAccount.bind(this)
         this.trim = this.trim.bind(this)
+
+        this.model = new CompanyModel({ id: this.state.id })
     }
 
     componentDidMount () {
@@ -73,7 +76,8 @@ class EmailSettings extends Component {
 
     handleSettingsChange (event) {
         const name = event.target.name
-        const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
+        let value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
+        value = (value === 'true') ? true : ((value === 'false') ? false : (value))
 
         this.setState(prevState => ({
             changesMade: true,
@@ -101,7 +105,7 @@ class EmailSettings extends Component {
     handleSubmit (e) {
         this.trim().then(result => {
             axios.put(`/api/accounts/${this.state.id}`, { settings: JSON.stringify(this.state.settings) }, {}).then((response) => {
-                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false })
+                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false }, () => this.model.updateSettings(this.state.settings))
             }).catch((error) => {
                 this.setState({ error: true })
             })

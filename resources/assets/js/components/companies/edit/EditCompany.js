@@ -45,7 +45,7 @@ class EditCompany extends React.Component {
 
     componentWillReceiveProps (nextProps, nextContext) {
         if (nextProps.brand && nextProps.brand.id !== this.state.id) {
-            this.companyModel = new CompanyModel(this.props.brand)
+            this.companyModel = new CompanyModel(nextProps.brand)
             this.setState(this.companyModel.fields)
         }
     }

@@ -4,7 +4,7 @@ namespace Tests\Unit;
 
 use App\Components\Currency\CurrencyConverter;
 use App\Components\InvoiceCalculator\LineItem;
-use App\Components\Payment\DeletePayment;
+use App\Actions\Payment\DeletePayment;
 use App\Components\Payment\Invoice\ReverseInvoicePayment;
 use App\Components\Payment\ProcessPayment;
 use App\Components\Refund\RefundFactory;
@@ -89,7 +89,7 @@ class PaymentUnitTest extends TestCase
     /** @test */
     public function it_can_delete_the_payment()
     {
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
         $factory = (new PaymentFactory())->create($invoice->customer, $invoice->user, $invoice->account);
         $original_amount = $invoice->total;
 
@@ -105,6 +105,7 @@ class PaymentUnitTest extends TestCase
         $paymentRepo = new PaymentRepository(new Payment);
         $payment = (new ProcessPayment())->process($data, $paymentRepo, $factory);
         $original_amount_paid = $payment->customer->amount_paid;
+        $original_customer_balance = $payment->customer->balance;
         $this->assertEquals($original_amount_paid, $invoice->total);
 
         $payment = $payment->fresh();
@@ -112,8 +113,10 @@ class PaymentUnitTest extends TestCase
         $payment = (new DeletePayment($payment))->execute();
 
         $invoice = $invoice->fresh();
+        $customer = $payment->customer->fresh();
 
-        $this->assertEquals($payment->customer->amount_paid, ($original_amount_paid - $original_amount));
+        $this->assertEquals($customer->amount_paid, ($original_amount_paid - $original_amount));
+        $this->assertEquals($customer->balance, ($original_customer_balance + $original_amount));
         $this->assertEquals($invoice->balance, $original_amount);
         $this->assertEquals($invoice->amount_paid, 0);
         $this->assertEquals($invoice->total, $original_amount);

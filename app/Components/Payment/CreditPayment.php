@@ -21,9 +21,9 @@ class CreditPayment extends BasePaymentProcessor
      * @param Payment $payment
      * @param PaymentRepository $payment_repo
      */
-    public function __construct(array $data, Payment $payment, PaymentRepository $payment_repo)
+    public function __construct(array $data, Payment $payment, PaymentRepository $payment_repo, bool $applying_existing_payment = false)
     {
-        parent::__construct($payment, $payment_repo, $data);
+        parent::__construct($payment, $payment_repo, $data, $applying_existing_payment);
         $this->credits = $data['credits'];
     }
 

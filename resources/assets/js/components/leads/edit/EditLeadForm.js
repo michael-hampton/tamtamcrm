@@ -51,7 +51,7 @@ class EditLeadForm extends React.Component {
 
     componentWillReceiveProps (nextProps, nextContext) {
         if (nextProps.lead && nextProps.lead.id !== this.state.id) {
-            this.leadModel = new LeadModel(this.props.lead)
+            this.leadModel = new LeadModel(nextProps.lead)
             this.setState(this.leadModel.fields)
         }
     }

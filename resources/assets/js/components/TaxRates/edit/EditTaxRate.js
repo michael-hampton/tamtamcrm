@@ -22,7 +22,7 @@ class EditTaxRate extends React.Component {
 
     componentWillReceiveProps (nextProps, nextContext) {
         if (nextProps.taxRate && nextProps.taxRate.id !== this.state.id) {
-            this.taxRateModel = new TaxRateModel(this.props.taxRate)
+            this.taxRateModel = new TaxRateModel(nextProps.taxRate)
             this.setState(this.taxRateModel.fields)
         }
     }

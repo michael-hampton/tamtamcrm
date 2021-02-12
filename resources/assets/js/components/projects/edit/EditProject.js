@@ -11,7 +11,6 @@ import DefaultModalFooter from '../../common/ModalFooter'
 import Details from './Details'
 import DropdownMenuBuilder from '../../common/DropdownMenuBuilder'
 import CustomFieldsForm from '../../common/CustomFieldsForm'
-import PaymentModel from "../../models/PaymentModel";
 
 class EditProject extends React.Component {
     constructor (props) {
@@ -37,7 +36,7 @@ class EditProject extends React.Component {
 
     componentWillReceiveProps (nextProps, nextContext) {
         if (nextProps.project && nextProps.project.id !== this.state.id) {
-            this.projectModel = new ProjectModel(this.props.project)
+            this.projectModel = new ProjectModel(nextProps.project)
             this.setState(this.projectModel.fields)
         }
     }

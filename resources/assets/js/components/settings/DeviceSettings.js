@@ -7,6 +7,7 @@ import ColorPicker from '../common/ColorPicker'
 import Header from './Header'
 import SnackbarMessage from '../common/SnackbarMessage'
 import AccountRepository from '../repositories/AccountRepository'
+import CompanyModel from "../models/CompanyModel";
 
 export default class DeviceSettings extends Component {
     constructor (props) {
@@ -32,6 +33,8 @@ export default class DeviceSettings extends Component {
         this.handleHeaderColor = this.handleHeaderColor.bind(this)
         this.handleFooterColor = this.handleFooterColor.bind(this)
         this.refresh = this.refresh.bind(this)
+
+        this.model = new CompanyModel({ id: this.state.id })
     }
 
     componentDidMount () {
@@ -151,7 +154,8 @@ export default class DeviceSettings extends Component {
 
     handleSettingsChange (event) {
         const name = event.target.name
-        const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
+        let value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
+        value = (value === 'true') ? true : ((value === 'false') ? false : (value))
 
         this.setState(prevState => ({
             changesMade: true,
@@ -226,7 +230,7 @@ export default class DeviceSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false })
+                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false }, () => this.model.updateSettings(this.state.settings))
             })
             .catch((error) => {
                 this.setState({ error: true })

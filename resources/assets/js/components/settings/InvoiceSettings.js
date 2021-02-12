@@ -16,6 +16,7 @@ import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
 import { icons } from '../utils/_icons'
 import BlockButton from '../common/BlockButton'
+import CompanyModel from "../models/CompanyModel";
 
 class InvoiceSettings extends Component {
     constructor (props) {
@@ -37,6 +38,8 @@ class InvoiceSettings extends Component {
         this.handleSubmit = this.handleSubmit.bind(this)
         this.getAccount = this.getAccount.bind(this)
         this.toggle = this.toggle.bind(this)
+
+        this.model = new CompanyModel({ id: this.state.id })
     }
 
     componentDidMount () {
@@ -103,7 +106,8 @@ class InvoiceSettings extends Component {
 
     handleSettingsChange (event) {
         const name = event.target.name
-        const value = event.target.value
+        let value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
+        value = (value === 'true') ? true : ((value === 'false') ? false : (value))
 
         this.setState(prevState => ({
             changesMade: true,
@@ -135,7 +139,7 @@ class InvoiceSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false })
+                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false }, () => this.model.updateSettings(this.state.settings))
             })
             .catch((error) => {
                 console.error(error)

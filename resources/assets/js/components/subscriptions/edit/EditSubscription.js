@@ -22,7 +22,7 @@ export default class EditSubscription extends React.Component {
 
     componentWillReceiveProps (nextProps, nextContext) {
         if (nextProps.subscription && nextProps.subscription.id !== this.state.id) {
-            this.subscriptionModel = new SubscriptionModel(this.props.subscription)
+            this.subscriptionModel = new SubscriptionModel(nextProps.subscription)
             this.setState(this.subscriptionModel.fields)
         }
     }
