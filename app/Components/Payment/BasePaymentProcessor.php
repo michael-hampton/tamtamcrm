@@ -172,8 +172,10 @@ class BasePaymentProcessor
     {
         if($this->payment->applied < $this->payment->amount) {
             $this->payment->setStatus(Payment::STATUS_PENDING);
+            return true;
         }
-        //$status = $this->payment->refunded == $this->amount ? Payment::STATUS_REFUNDED : Payment::STATUS_PARTIALLY_REFUNDED;
-        //$this->payment->setStatus($status);
+       
+        $this->payment->setStatus(Payment::STATUS_COMPLETED);
+        return true;
     }
 }
