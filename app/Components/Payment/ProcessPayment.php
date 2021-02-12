@@ -23,12 +23,10 @@ class ProcessPayment
             $data['status_id'] = Payment::STATUS_PENDING;
         }
 
-        $applying_existing_payment = false;
+        $applying_existing_payment = $this->applyToExistingPayment($payment);
 
-        if ($this->applyToExistingPayment($payment) === true) {
-            //applying payment - keep original amount
+        if(!empty($payment->id)) {
             $data['amount'] = $payment->amount;
-            $applying_existing_payment = true;
         }
 
         $payment = $payment_repo->save($data, $payment);
