@@ -103,7 +103,7 @@ class BasePaymentProcessor
     protected function save(): ?Payment
     {
         $this->applyPayment();
-        //$this->setStatus();
+        $this->setStatus();
         $this->updateCustomer();
 
         $this->payment->save();
@@ -170,7 +170,10 @@ class BasePaymentProcessor
 
     private function setStatus()
     {
-        $status = $this->payment->refunded == $this->amount ? Payment::STATUS_REFUNDED : Payment::STATUS_PARTIALLY_REFUNDED;
-        $this->payment->setStatus($status);
+        if($this->payment->applied < $this->payment->amount) {
+            $this->payment->setStatus(Payment::STATUS_PENDING);
+        }
+        //$status = $this->payment->refunded == $this->amount ? Payment::STATUS_REFUNDED : Payment::STATUS_PARTIALLY_REFUNDED;
+        //$this->payment->setStatus($status);
     }
 }
