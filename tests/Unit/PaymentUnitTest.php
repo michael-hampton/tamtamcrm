@@ -235,6 +235,58 @@ class PaymentUnitTest extends TestCase
         $this->assertEquals($invoice->amount_paid, $created->amount);
     }
 
+    /* public function it_can_apply_a_payments()
+    {
+        $invoice = Invoice::factory()->create();
+        $factory = (new PaymentFactory())->create($this->customer, $this->user, $this->account);
+        $amount_paid = $this->customer->amount_paid;
+        $balance = $this->customer->balance;
+
+        // unapplied payment
+        $data = [
+            'customer_id'       => $this->customer->id,
+            'payment_method_id' => 1,
+            'amount'            => 2000 // payment amount should be double invoice
+        ];
+
+        $paymentRepo = new PaymentRepository(new Payment);
+        $payment = (new ProcessPayment())->process($data, $paymentRepo, $factory);
+
+        // check status pending
+        // check no paymentables
+        // check applied empty
+        // check payment amount
+
+        // add invoice to unapplied payment
+        
+        $data = [
+            //'customer_id'       => $this->customer->id,
+            'payment_method_id' => 1,
+            'amount'            => $invoice->total
+        ];
+        $data['invoices'][0]['invoice_id'] = $invoice->id;
+        $data['invoices'][0]['amount'] = $invoice->total;
+
+        $payment = (new ProcessPayment())->process($data, $paymentRepo, $payment);
+
+        $invoice = $invoice->fresh();
+        $customer = $created->customer->fresh();
+
+        // check payment amount remains the same
+        // check applied equals to invoice amount
+        // check status is still pending 
+
+        $this->assertEquals((float)$customer->balance, (float)($balance - $created->amount));
+        $this->assertEquals($customer->amount_paid, ($amount_paid + $created->amount));
+        $this->assertEquals($data['customer_id'], $created->customer_id);
+        $this->assertEquals($data['payment_method_id'], $created->payment_method_id);
+        $this->assertEquals($invoice->amount_paid, $created->amount);
+
+        // add another invoice
+        // check status of payment completed
+        // check applied same as amount
+    } */
+
     /** @test */
     public function it_can_create_a_payment_with_a_gateway_fee()
     {
