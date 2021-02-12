@@ -25,8 +25,7 @@ class ProcessPayment
 
         $applying_existing_payment = false;
 
-        if (!empty($payment->amount) && $payment->paymentables->count(
-            ) === 0 && (!empty($data['credits']) || !empty($data['invoices']))) {
+        if ($this->applyToExistingPayment($payment) === true) {
             //applying payment - keep original amount
             $data['amount'] = $payment->amount;
             $applying_existing_payment = true;
@@ -48,5 +47,20 @@ class ProcessPayment
         }
 
         return $payment->fresh();
+    }
+
+    private function applyToExistingPayment(Payment $payment)
+    {
+        if (!empty($payment->amount) && $payment->paymentables->count(
+            ) === 0 && (!empty($data['credits']) || !empty($data['invoices']))) {
+            //applying payment - keep original amount
+            return true;
+        }
+
+        if($payment->applied > 0 && $payment->applied < $payment->amount) {
+            return true;
+        }
+
+        return false;
     }
 }
