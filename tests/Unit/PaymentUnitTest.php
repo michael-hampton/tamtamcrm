@@ -237,7 +237,6 @@ class PaymentUnitTest extends TestCase
 
     /* public function it_can_apply_a_payments()
     {
-        $invoice = Invoice::factory()->create();
         $factory = (new PaymentFactory())->create($this->customer, $this->user, $this->account);
         $amount_paid = $this->customer->amount_paid;
         $balance = $this->customer->balance;
@@ -246,7 +245,7 @@ class PaymentUnitTest extends TestCase
         $payment_data = [
             'customer_id'       => $this->customer->id,
             'payment_method_id' => 1,
-            'amount'            => $invoice->total * 2 // payment amount should be double invoice
+            'amount'            => $invoice->total * 3 // payment amount should be double invoice
         ];
 
         $paymentRepo = new PaymentRepository(new Payment);
@@ -265,7 +264,7 @@ class PaymentUnitTest extends TestCase
         $this->assertEquals($payment->amount, $payment_data['amount'];
 
         // add invoice to unapplied payment
-        
+        $invoice = Invoice::factory()->create();
         $data = [
             //'customer_id'       => $this->customer->id,
             'payment_method_id' => 1,
@@ -274,7 +273,7 @@ class PaymentUnitTest extends TestCase
         $data['invoices'][0]['invoice_id'] = $invoice->id;
         $data['invoices'][0]['amount'] = $invoice->total;
 
-        $payment = (new ProcessPayment())->process($data, $paymentRepo, $payment);
+        $payment = (new ProcessPayment())->process($data, $paymentRepo, $payment->fresh());
 
         $invoice = $invoice->fresh();
         $customer = $created->customer->fresh();
@@ -288,15 +287,35 @@ class PaymentUnitTest extends TestCase
         // check status is still pending 
         $this->assertEquals(Payment::STATUS_PENDING, $payment->status_id);
 
-        $this->assertEquals((float)$customer->balance, (float)($balance - $created->amount));
-        $this->assertEquals($customer->amount_paid, ($amount_paid + $created->amount));
-        $this->assertEquals($data['customer_id'], $created->customer_id);
-        $this->assertEquals($data['payment_method_id'], $created->payment_method_id);
-        $this->assertEquals($invoice->amount_paid, $created->amount);
-
         // add another invoice
-        // check status of payment completed
+        $invoice = Invoice::factory()->create();
+        $data = [
+            //'customer_id'       => $this->customer->id,
+            'payment_method_id' => 1,
+            'amount'            => $invoice->total
+        ];
+        $data['invoices'][0]['invoice_id'] = $invoice->id;
+        $data['invoices'][0]['amount'] = $invoice->total;
+
+        $payment = (new ProcessPayment())->process($data, $paymentRepo, $payment->fresh());
+        
+       // check status of payment still pending 
+        $this->assertEquals(Payment::STATUS_PENDING, $payment->status_id);
+
         // check applied same as amount
+
+        $invoice = Invoice::factory()->create();
+        $data = [
+            //'customer_id'       => $this->customer->id,
+            'payment_method_id' => 1,
+            'amount'            => $invoice->total
+        ];
+        $data['invoices'][0]['invoice_id'] = $invoice->id;
+        $data['invoices'][0]['amount'] = $invoice->total;
+
+        $payment = (new ProcessPayment())->process($data, $paymentRepo, $payment->fresh());
+
+        $this->assertEquals(Payment::STATUS_COMPLETED, $payment->status_id);
     } */
 
     /** @test */
