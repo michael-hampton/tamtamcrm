@@ -469,7 +469,7 @@ class PaymentUnitTest extends TestCase
         $this->assertEquals(50, $payment->amount);
         $this->assertEquals($credit->amount_paid, $payment->amount);
         $this->assertEquals($credit->balance, 0);
-        $this->assertEquals($payment->applied, 50);
+        $this->assertEquals($payment->applied, 0);
     }
 
     /** @test */
