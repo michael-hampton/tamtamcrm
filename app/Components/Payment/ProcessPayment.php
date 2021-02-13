@@ -23,7 +23,7 @@ class ProcessPayment
             $data['status_id'] = Payment::STATUS_PENDING;
         }
 
-        $applying_existing_payment = $this->applyToExistingPayment($payment);
+        $applying_existing_payment = $this->applyToExistingPayment($payment, $data);
 
         if(!empty($payment->id)) {
             $data['amount'] = $payment->amount;
@@ -47,7 +47,7 @@ class ProcessPayment
         return $payment->fresh();
     }
 
-    private function applyToExistingPayment(Payment $payment)
+    private function applyToExistingPayment(Payment $payment, array $data)
     {
         if (!empty($payment->amount) && $payment->paymentables->count(
             ) === 0 && (!empty($data['credits']) || !empty($data['invoices']))) {

@@ -46,6 +46,8 @@ class CreditPayment extends BasePaymentProcessor
             $this->increasePaymentAmount($amount);
         }
 
+        //$this->save();
+
         return $this->payment;
     }
 
