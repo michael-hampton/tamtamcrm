@@ -15,6 +15,7 @@ import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
 import { getExchangeRateWithMap } from '../../utils/_money'
 import FormatMoney from '../../common/FormatMoney'
+import { toast, ToastContainer } from "react-toastify";
 
 class EditExpense extends React.Component {
     constructor (props) {
@@ -163,8 +164,29 @@ class EditExpense extends React.Component {
         this.expenseModel.update(this.getFormData()).then(response => {
             if (!response) {
                 this.setState({ errors: this.expenseModel.errors, message: this.expenseModel.error_message })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.expense), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.expense), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
 
             const index = this.props.expenses.findIndex(expense => expense.id === this.state.id)
             this.props.expenses[index] = response
@@ -213,6 +235,18 @@ class EditExpense extends React.Component {
                     <DefaultModalHeader toggle={this.toggle} title={translations.edit_expense}/>
 
                     <ModalBody className={theme}>
+
+                        <ToastContainer
+                            position="top-center"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
 
                         {message && <div className="alert alert-danger" role="alert">
                             {message}

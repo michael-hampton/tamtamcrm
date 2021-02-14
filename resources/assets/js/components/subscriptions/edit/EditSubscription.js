@@ -6,6 +6,7 @@ import SubscriptionModel from '../../models/SubscriptionModel'
 import Details from './Details'
 import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
+import { toast, ToastContainer } from 'react-toastify'
 
 export default class EditSubscription extends React.Component {
     constructor (props) {
@@ -61,8 +62,29 @@ export default class EditSubscription extends React.Component {
                     errors: this.subscriptionModel.errors,
                     message: this.subscriptionModel.error_message
                 })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.subscription), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.subscription), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
 
             const index = this.props.subscriptions.findIndex(subscription => subscription.id === this.props.subscription.id)
             this.props.subscriptions[index] = response
@@ -101,6 +123,18 @@ export default class EditSubscription extends React.Component {
                     <DefaultModalHeader toggle={this.toggle} title={translations.edit_subscription}/>
 
                     <ModalBody className={theme}>
+                        <ToastContainer
+                            position="top-center"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
+
                         <Details hasErrorFor={this.hasErrorFor} subscription={this.state}
                             renderErrorFor={this.renderErrorFor} handleInput={this.handleInput.bind(this)}/>
                     </ModalBody>

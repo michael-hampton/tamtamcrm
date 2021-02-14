@@ -749,6 +749,8 @@ _localizedValues.en = {
     should_send_email_for_online_payment_help_text: 'Will send a receipt to the customer when an online payment is created',
     unexpected_error: 'There was an unexpected error',
     success_message: 'Action completed successfully',
+    updated_successfully: '{entity} was updated successfully',
+    updated_unsuccessfully: '{entity} could not be updated successfully',
     about_message: 'Thankyou for using our app',
     about_link: 'If you like it please click here',
     language: 'Language',

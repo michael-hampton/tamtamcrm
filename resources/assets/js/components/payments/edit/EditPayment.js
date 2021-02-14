@@ -13,6 +13,7 @@ import { translations } from '../../utils/_translations'
 import Documents from './Documents'
 import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
+import { toast, ToastContainer } from 'react-toastify'
 
 class EditPayment extends React.Component {
     constructor (props) {
@@ -136,8 +137,29 @@ class EditPayment extends React.Component {
         this.paymentModel.update(this.getFormData()).then(response => {
             if (!response) {
                 this.setState({ errors: this.paymentModel.errors, message: this.paymentModel.error_message })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.payment), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.expense), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
 
             const index = this.props.payments.findIndex(payment => payment.id === this.state.id)
             this.props.payments[index] = response
@@ -200,6 +222,18 @@ class EditPayment extends React.Component {
                     <DefaultModalHeader toggle={this.toggle} title={translations.edit_payment}/>
 
                     <ModalBody className={theme}>
+
+                        <ToastContainer
+                            position="top-center"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
 
                         {message && <div className="alert alert-danger" role="alert">
                             {message}

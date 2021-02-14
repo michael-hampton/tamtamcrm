@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Requests\Quote;
+namespace App\Requests\PurchaseOrder;
 
 use App\Models\PurchaseOrder;
 use App\Repositories\Base\BaseFormRequest;

@@ -27,6 +27,7 @@ import DefaultModalFooter from '../../common/ModalFooter'
 import FileUploads from '../../documents/FileUploads'
 import DropdownMenuBuilder from '../../common/DropdownMenuBuilder'
 import CustomFieldsForm from '../../common/CustomFieldsForm'
+import { toast, ToastContainer } from "react-toastify";
 
 class EditLeadForm extends React.Component {
     constructor (props) {
@@ -135,8 +136,29 @@ class EditLeadForm extends React.Component {
         this.leadModel.save(formData).then(response => {
             if (!response) {
                 this.setState({ errors: this.leadModel.errors, message: this.leadModel.error_message })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.lead), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.deal), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
 
             const index = this.props.allTasks.findIndex(lead => lead.id === this.props.lead.id)
             this.props.allTasks[index] = response
@@ -219,6 +241,18 @@ class EditLeadForm extends React.Component {
                     <DefaultModalHeader toggle={this.toggle} title={translations.edit_lead}/>
 
                     <ModalBody className={theme}>
+
+                        <ToastContainer
+                            position="top-center"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
 
                         <React.Fragment>
                             <Nav tabs>

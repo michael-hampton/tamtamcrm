@@ -43,6 +43,7 @@ import TaskRepository from '../../repositories/TaskRepository'
 import ExpenseRepository from '../../repositories/ExpenseRepository'
 import ProjectRepository from '../../repositories/ProjectRepository'
 import { getExchangeRateWithMap } from '../../utils/_money'
+import { toast, ToastContainer } from "react-toastify";
 
 export default class EditCredit extends Component {
     constructor (props, context) {
@@ -454,8 +455,29 @@ export default class EditCredit extends Component {
                     showErrorMessage: true,
                     loading: false
                 })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.credit), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.credit), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
 
             if (!this.state.id) {
                 const firstInvoice = response
@@ -470,7 +492,7 @@ export default class EditCredit extends Component {
             const index = this.props.credits.findIndex(credit => credit.id === this.state.id)
             this.props.credits[index] = response
             this.props.action(this.props.credits)
-            this.setState({ loading: false, changesMade: false })
+            this.setState({ loading: false, changesMade: false, modalOpen: false })
         })
     }
 
@@ -759,6 +781,18 @@ export default class EditCredit extends Component {
                             title={this.creditModel.isNew ? translations.add_credit : translations.edit_credit}/>
 
                         <ModalBody className={theme}>
+                            <ToastContainer
+                                position="top-center"
+                                autoClose={5000}
+                                hideProgressBar={false}
+                                newestOnTop={false}
+                                closeOnClick
+                                rtl={false}
+                                pauseOnFocusLoss
+                                draggable
+                                pauseOnHover
+                            />
+
                             {form}
                         </ModalBody>
                         <DefaultModalFooter show_success={true} toggle={this.toggle} saveData={this.saveData}

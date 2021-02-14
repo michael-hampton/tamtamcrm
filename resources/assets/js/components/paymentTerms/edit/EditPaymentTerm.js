@@ -5,6 +5,7 @@ import { icons } from '../../utils/_icons'
 import { translations } from '../../utils/_translations'
 import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
+import { toast, ToastContainer } from 'react-toastify'
 
 class EditPaymentTerm extends React.Component {
     constructor (props) {
@@ -52,6 +53,16 @@ class EditPaymentTerm extends React.Component {
             number_of_days: this.state.number_of_days
         })
             .then((response) => {
+                toast.success(translations.updated_successfully.replace('{entity}', translations.payment_term), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 const index = this.props.payment_terms.findIndex(payment_term => payment_term.id === this.state.id)
                 this.props.payment_terms[index] = response.data
                 this.props.action(this.props.payment_terms)
@@ -90,6 +101,18 @@ class EditPaymentTerm extends React.Component {
                     <DefaultModalHeader toggle={this.toggle} title={translations.edit_payment_term}/>
 
                     <ModalBody className={theme}>
+                        <ToastContainer
+                            position="top-center"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
+
                         <FormGroup>
                             <Label for="name">{translations.name} <span className="text-danger">*</span></Label>
                             <Input className={this.hasErrorFor('name') ? 'is-invalid' : ''}

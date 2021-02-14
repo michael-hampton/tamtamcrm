@@ -178,8 +178,29 @@ export default class EditTaskDesktop extends Component {
                     errors: this.taskModel.errors,
                     message: this.taskModel.error_message
                 })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.task), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.task), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
 
             if (!this.state.id) {
                 const allTasks = this.props.tasks
@@ -187,8 +208,6 @@ export default class EditTaskDesktop extends Component {
                 this.props.action(allTasks)
                 localStorage.removeItem('taskForm')
                 this.setState(this.initialState)
-
-                console.log('response', response)
 
                 return
             }

@@ -43,6 +43,7 @@ import TaskRepository from '../../repositories/TaskRepository'
 import ExpenseRepository from '../../repositories/ExpenseRepository'
 import ProjectRepository from '../../repositories/ProjectRepository'
 import { getExchangeRateWithMap } from '../../utils/_money'
+import { toast, ToastContainer } from 'react-toastify'
 
 export default class EditOrder extends Component {
     constructor (props) {
@@ -404,8 +405,29 @@ export default class EditOrder extends Component {
                     errors: this.orderModel.errors,
                     message: this.orderModel.error_message
                 })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.order), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.order), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
 
             if (!this.state.id) {
                 const firstInvoice = response
@@ -420,7 +442,7 @@ export default class EditOrder extends Component {
             const index = this.props.orders.findIndex(order => order.id === this.state.id)
             this.props.orders[index] = response
             this.props.action(this.props.orders)
-            this.setState({ loading: false, changesMade: false })
+            this.setState({ loading: false, changesMade: false, modalOpen: false })
         })
     }
 
@@ -750,6 +772,18 @@ export default class EditOrder extends Component {
                             title={this.orderModel.isNew ? translations.add_order : translations.edit_order}/>
 
                         <ModalBody className={theme}>
+                            <ToastContainer
+                                position="top-center"
+                                autoClose={5000}
+                                hideProgressBar={false}
+                                newestOnTop={false}
+                                closeOnClick
+                                rtl={false}
+                                pauseOnFocusLoss
+                                draggable
+                                pauseOnHover
+                            />
+
                             {form}
                         </ModalBody>
 

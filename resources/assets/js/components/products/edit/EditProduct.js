@@ -29,6 +29,7 @@ import FileUploads from '../../documents/FileUploads'
 import ProductModel from '../../models/ProductModel'
 import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
+import { toast, ToastContainer } from 'react-toastify'
 
 class EditProduct extends React.Component {
     constructor (props) {
@@ -117,8 +118,29 @@ class EditProduct extends React.Component {
         this.productModel.save(formData).then(response => {
             if (!response) {
                 this.setState({ errors: this.productModel.errors, message: this.productModel.error_message })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.product), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.product), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
 
             const index = this.props.products.findIndex(product => product.id === this.props.product.id)
             this.props.products[index] = response
@@ -226,6 +248,18 @@ class EditProduct extends React.Component {
                     <DefaultModalHeader toggle={this.toggle} title={translations.edit_product}/>
 
                     <ModalBody className={theme}>
+
+                        <ToastContainer
+                            position="top-center"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
 
                         <ProductListDropdown id={this.state.id} formData={this.getFormData()}/>
                         {successMessage}

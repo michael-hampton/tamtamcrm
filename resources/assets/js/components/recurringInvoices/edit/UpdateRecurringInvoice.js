@@ -45,6 +45,7 @@ import ExpenseRepository from '../../repositories/ExpenseRepository'
 import ProjectRepository from '../../repositories/ProjectRepository'
 import { getExchangeRateWithMap } from '../../utils/_money'
 import Recurringm from './Recurringm'
+import { toast, ToastContainer } from 'react-toastify'
 
 class UpdateRecurringInvoice extends Component {
     constructor (props, context) {
@@ -543,8 +544,29 @@ class UpdateRecurringInvoice extends Component {
                     errors: this.invoiceModel.errors,
                     message: this.invoiceModel.error_message
                 })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.recurring_invoice), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.recurring_invoice), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
 
             if (!this.state.id) {
                 const firstInvoice = response
@@ -559,7 +581,7 @@ class UpdateRecurringInvoice extends Component {
             const index = this.props.invoices.findIndex(invoice => invoice.id === this.state.id)
             this.props.invoices[index] = response
             this.props.action(this.props.invoices)
-            this.setState({ loading: false, changesMade: false })
+            this.setState({ loading: false, changesMade: false, modalOpen: false })
         })
     }
 
@@ -863,6 +885,18 @@ class UpdateRecurringInvoice extends Component {
                             title={this.invoiceModel.isNew ? translations.add_recurring_invoice : translations.edit_recurring_invoice}/>
 
                         <ModalBody className={theme}>
+                            <ToastContainer
+                                position="top-center"
+                                autoClose={5000}
+                                hideProgressBar={false}
+                                newestOnTop={false}
+                                closeOnClick
+                                rtl={false}
+                                pauseOnFocusLoss
+                                draggable
+                                pauseOnHover
+                            />
+
                             {form}
                         </ModalBody>
                         <DefaultModalFooter show_success={showSuccessButton} toggle={this.toggle}

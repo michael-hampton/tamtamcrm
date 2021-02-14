@@ -26,6 +26,7 @@ import Emails from '../../emails/Emails'
 import Contacts from './Contacts'
 import { consts } from '../../utils/_consts'
 import Links from './Links'
+import { toast, ToastContainer } from 'react-toastify'
 
 export default class EditCase extends React.Component {
     constructor (props) {
@@ -129,8 +130,29 @@ export default class EditCase extends React.Component {
         this.caseModel.update(formData).then(response => {
             if (!response) {
                 this.setState({ errors: this.caseModel.errors, message: this.caseModel.error_message })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.case), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.task), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
 
             const index = this.props.cases.findIndex(cases => cases.id === this.props.case.id)
             this.props.cases[index] = response
@@ -215,6 +237,18 @@ export default class EditCase extends React.Component {
                     <DefaultModalHeader toggle={this.toggle} title={translations.edit_case}/>
 
                     <ModalBody className={theme}>
+                        <ToastContainer
+                            position="top-center"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
+
                         <Nav tabs>
                             <NavItem>
                                 <NavLink

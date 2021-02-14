@@ -27,6 +27,7 @@ import CompanyModel from '../../models/CompanyModel'
 import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
 import FileUploads from '../../documents/FileUploads'
+import { toast, ToastContainer } from 'react-toastify'
 
 class EditCompany extends React.Component {
     constructor (props) {
@@ -117,8 +118,29 @@ class EditCompany extends React.Component {
         this.companyModel.save(formData).then(response => {
             if (!response) {
                 this.setState({ errors: this.companyModel.errors, message: this.companyModel.error_message })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.company), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.payment_term), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
 
             const index = this.props.brands.findIndex(company => company.id === this.props.brand.id)
             this.props.brands[index] = response
@@ -160,6 +182,18 @@ class EditCompany extends React.Component {
                     <DefaultModalHeader toggle={this.toggle} title={translations.edit_company}/>
 
                     <ModalBody className={theme}>
+
+                        <ToastContainer
+                            position="top-center"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
 
                         <CompanyDropdown formData={this.getFormData()} id={this.state.id}/>
                         {successMessage}

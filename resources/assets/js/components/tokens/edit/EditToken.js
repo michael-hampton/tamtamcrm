@@ -6,6 +6,7 @@ import TokenModel from '../../models/TokenModel'
 import DropdownMenuBuilder from '../../common/DropdownMenuBuilder'
 import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
+import { toast, ToastContainer } from 'react-toastify'
 
 export default class EditToken extends React.Component {
     constructor (props) {
@@ -61,8 +62,29 @@ export default class EditToken extends React.Component {
         this.tokenModel.save(data).then(response => {
             if (!response) {
                 this.setState({ errors: this.tokenModel.errors, message: this.tokenModel.error_message })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.token), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.token), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
 
             const index = this.props.tokens.findIndex(token => token.id === this.props.token.id)
             this.props.tokens[index] = response
@@ -101,6 +123,18 @@ export default class EditToken extends React.Component {
                     <DefaultModalHeader toggle={this.toggle} title={translations.edit_token}/>
 
                     <ModalBody className={theme}>
+                        <ToastContainer
+                            position="top-center"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
+
                         <DropdownMenuBuilder invoices={this.props.tokens} formData={this.getFormData()}
                             model={this.tokenModel}
                             action={this.props.action}/>

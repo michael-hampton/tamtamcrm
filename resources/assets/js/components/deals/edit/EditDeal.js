@@ -28,6 +28,7 @@ import FileUploads from '../../documents/FileUploads'
 import Emails from '../../emails/Emails'
 import Comments from '../../comments/Comments'
 import DropdownMenuBuilder from '../../common/DropdownMenuBuilder'
+import { toast, ToastContainer } from 'react-toastify'
 
 export default class EditDeal extends Component {
     constructor (props) {
@@ -129,8 +130,29 @@ export default class EditDeal extends Component {
         this.dealModel.update(this.getFormData()).then(response => {
             if (!response) {
                 this.setState({ errors: this.dealModel.errors, message: this.dealModel.error_message })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.deal), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.deal), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
 
             const index = this.props.deals.findIndex(deal => deal.id === this.props.deal.id)
             this.props.deals[index] = response
@@ -178,6 +200,18 @@ export default class EditDeal extends Component {
                 <DefaultModalHeader toggle={this.toggle} title={translations.edit_deal}/>
 
                 <ModalBody className={theme}>
+                    <ToastContainer
+                        position="top-center"
+                        autoClose={5000}
+                        hideProgressBar={false}
+                        newestOnTop={false}
+                        closeOnClick
+                        rtl={false}
+                        pauseOnFocusLoss
+                        draggable
+                        pauseOnHover
+                    />
+
                     <Nav tabs>
                         <NavItem>
                             <NavLink

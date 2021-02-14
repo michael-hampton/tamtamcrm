@@ -10,7 +10,7 @@ use App\Repositories\Interfaces\InvoiceRepositoryInterface;
 use App\Repositories\Interfaces\PurchaseOrderRepositoryInterface;
 use App\Repositories\Interfaces\QuoteRepositoryInterface;
 use App\Requests\PurchaseOrder\CreatePurchaseOrderRequest;
-use App\Requests\Quote\UpdatePurchaseOrderRequest;
+use App\Requests\PurchaseOrder\UpdatePurchaseOrderRequest;
 use App\Requests\SearchRequest;
 use App\Search\PurchaseOrderSearch;
 use App\Transformations\PurchaseOrderTransformable;
