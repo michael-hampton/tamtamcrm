@@ -82,11 +82,18 @@ class EditPurchaseOrder extends Component {
         this.settings = user_account[0].account.settings
     }
 
-    componentWillMount () {
-        window.addEventListener('resize', this.handleWindowSizeChange)
+    static getDerivedStateFromProps (props, state) {
+        if (props.invoice && props.invoice.id !== state.id) {
+            const invoiceModel = new PurchaseOrderModel(props.invoice, props.companies)
+            return invoiceModel.fields
+        }
+
+        return null
     }
 
     componentDidMount () {
+        window.addEventListener('resize', this.handleWindowSizeChange)
+
         if (this.props.task_id) {
             this.loadInvoice()
         } else if (!this.props.invoice.id) {
@@ -106,10 +113,9 @@ class EditPurchaseOrder extends Component {
         }
     }
 
-    componentWillReceiveProps (nextProps, nextContext) {
-        if (nextProps.invoice && nextProps.invoice.id !== this.state.id) {
-            this.purchaseOrderModel = new PurchaseOrderModel(nextProps.invoice, nextProps.companies)
-            this.setState(this.purchaseOrderModel.fields)
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.invoice && this.props.invoice.id !== prevProps.invoice.id) {
+            this.purchaseOrderModel = new PurchaseOrderModel(this.props.invoice, this.props.companies)
         }
     }
 

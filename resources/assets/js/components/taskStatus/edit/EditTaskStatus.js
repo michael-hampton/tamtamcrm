@@ -23,6 +23,21 @@ class EditTaskStatus extends React.Component {
         this.handleFileChange = this.handleFileChange.bind(this)
     }
 
+    static getDerivedStateFromProps (props, state) {
+        if (props.task_status && props.task_status.id !== state.id) {
+            const invoiceModel = new TaskStatusModel(props.task_status)
+            return invoiceModel.fields
+        }
+
+        return null
+    }
+
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.task_status && this.props.task_status.id !== prevProps.task_status.id) {
+            this.taskStatusModel = new TaskStatusModel(this.props.task_status)
+        }
+    }
+
     handleFileChange (e) {
         this.setState({
             [e.target.name]: e.target.files[0]

@@ -8,7 +8,7 @@ import Snackbar from '@material-ui/core/Snackbar'
 import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
 import BlockButton from '../common/BlockButton'
-import CompanyModel from "../models/CompanyModel";
+import CompanyModel from '../models/CompanyModel'
 
 export default class TaxSettings extends Component {
     constructor (props) {
@@ -103,7 +103,11 @@ export default class TaxSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false }, () => this.model.updateSettings(this.state.settings))
+                this.setState({
+                    success: true,
+                    cached_settings: this.state.settings,
+                    changesMade: false
+                }, () => this.model.updateSettings(this.state.settings))
             })
             .catch((error) => {
                 this.setState({ error: true })

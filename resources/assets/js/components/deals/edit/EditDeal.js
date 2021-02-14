@@ -47,14 +47,22 @@ export default class EditDeal extends Component {
         this.toggleMenu = this.toggleMenu.bind(this)
     }
 
+    static getDerivedStateFromProps (props, state) {
+        if (props.deal && props.deal.id !== state.id) {
+            const dealModel = new DealModel(props.deal, props.customers)
+            return dealModel.fields
+        }
+
+        return null
+    }
+
     componentDidMount () {
         this.getSourceTypes()
     }
 
-    componentWillReceiveProps (nextProps, nextContext) {
-        if (nextProps.deal && nextProps.deal.id !== this.state.id) {
-            this.dealModel = new DealModel(nextProps.deal)
-            this.setState(this.dealModel.fields)
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.deal && this.props.deal.id !== prevProps.deal.id) {
+            this.dealModel = new DealModel(this.props.deal, this.props.customers)
         }
     }
 

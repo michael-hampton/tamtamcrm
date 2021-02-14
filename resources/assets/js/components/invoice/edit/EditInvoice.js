@@ -81,20 +81,18 @@ class EditInvoice extends Component {
         this.settings = user_account[0].account.settings
     }
 
-    componentWillMount () {
-        window.addEventListener('resize', this.handleWindowSizeChange)
-    }
-
-    componentWillReceiveProps (nextProps, nextContext) {
-        if (nextProps.invoice && nextProps.invoice.id !== this.state.id) {
-            this.invoiceModel = new InvoiceModel(nextProps.invoice, nextProps.customers)
-            this.setState(this.invoiceModel.fields)
-
-            console.log('invoice', nextProps.invoice)
+    static getDerivedStateFromProps (props, state) {
+        if (props.invoice && props.invoice.id !== state.id) {
+            const invoiceModel = new InvoiceModel(props.invoice, props.customers)
+            return invoiceModel.fields
         }
+
+        return null
     }
 
     componentDidMount () {
+        window.addEventListener('resize', this.handleWindowSizeChange)
+
         if (this.props.task_id) {
             this.loadInvoice()
         } else if (!this.state.id) {
@@ -114,6 +112,12 @@ class EditInvoice extends Component {
         }
 
         // this.loadProjects()
+    }
+
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.invoice && this.props.invoice.id !== prevProps.invoice.id) {
+            this.invoiceModel = new InvoiceModel(this.props.invoice, this.props.customers)
+        }
     }
 
     // make sure to remove the listener

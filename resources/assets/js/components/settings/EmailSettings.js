@@ -9,7 +9,7 @@ import { icons } from '../utils/_icons'
 import SnackbarMessage from '../common/SnackbarMessage'
 import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
-import CompanyModel from "../models/CompanyModel";
+import CompanyModel from '../models/CompanyModel'
 
 class EmailSettings extends Component {
     constructor (props) {
@@ -105,7 +105,11 @@ class EmailSettings extends Component {
     handleSubmit (e) {
         this.trim().then(result => {
             axios.put(`/api/accounts/${this.state.id}`, { settings: JSON.stringify(this.state.settings) }, {}).then((response) => {
-                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false }, () => this.model.updateSettings(this.state.settings))
+                this.setState({
+                    success: true,
+                    cached_settings: this.state.settings,
+                    changesMade: false
+                }, () => this.model.updateSettings(this.state.settings))
             }).catch((error) => {
                 this.setState({ error: true })
             })

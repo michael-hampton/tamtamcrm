@@ -88,7 +88,7 @@ export default class StatusDropdown extends Component {
                 <li className="p-1" style={{ lineHeight: '32px' }} key={index}>
                     <FormGroup check>
                         <Label check>
-                            <Input className="mt-2" checked={isChecked} onClick={this.filterStatuses} type="checkbox"
+                            <Input className="mt-2" checked={isChecked} onChange={this.filterStatuses} type="checkbox"
                                 value={status.value}/>
                             {status.label}
                         </Label>

@@ -21,10 +21,18 @@ export default class EditSubscription extends React.Component {
         this.renderErrorFor = this.renderErrorFor.bind(this)
     }
 
-    componentWillReceiveProps (nextProps, nextContext) {
-        if (nextProps.subscription && nextProps.subscription.id !== this.state.id) {
-            this.subscriptionModel = new SubscriptionModel(nextProps.subscription)
-            this.setState(this.subscriptionModel.fields)
+    static getDerivedStateFromProps (props, state) {
+        if (props.subscription && props.subscription.id !== state.id) {
+            const invoiceModel = new SubscriptionModel(props.subscription)
+            return invoiceModel.fields
+        }
+
+        return null
+    }
+
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.subscription && this.props.subscription.id !== prevProps.subscription.id) {
+            this.subscriptionModel = new SubscriptionModel(this.props.subscription)
         }
     }
 

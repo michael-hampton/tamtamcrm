@@ -36,10 +36,16 @@ class EditPayment extends React.Component {
         this.handleCheck = this.handleCheck.bind(this)
     }
 
-    componentWillReceiveProps (nextProps, nextContext) {
-        if (nextProps.payment && nextProps.payment.id !== this.state.id) {
-            this.paymentModel = new PaymentModel(nextProps.invoices, nextProps.payment)
-            this.setState(this.paymentModel.fields)
+    static getDerivedStateFromProps (props, state) {
+        if (props.payment && props.payment.id !== state.id) {
+            const paymentModel = new PaymentModel(props.invoices, props.payment)
+            return paymentModel.fields
+        }
+    }
+
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.payment && this.props.payment.id !== prevProps.payment.id) {
+            this.paymentModel = new PaymentModel(this.props.invoices, this.props.payment)
         }
     }
 

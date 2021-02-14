@@ -31,14 +31,22 @@ class EditProject extends React.Component {
         this.changeStatus = this.changeStatus.bind(this)
     }
 
+    static getDerivedStateFromProps (props, state) {
+        if (props.project && props.project.id !== state.id) {
+            const projectModel = new ProjectModel(props.project)
+            return projectModel.fields
+        }
+
+        return null
+    }
+
     componentDidMount () {
         this.getProject()
     }
 
-    componentWillReceiveProps (nextProps, nextContext) {
-        if (nextProps.project && nextProps.project.id !== this.state.id) {
-            this.projectModel = new ProjectModel(nextProps.project)
-            this.setState(this.projectModel.fields)
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.project && this.props.project.id !== prevProps.project.id) {
+            this.projectModel = new ProjectModel(this.props.project)
         }
     }
 

@@ -48,7 +48,6 @@ import InvoiceItem from './invoice/InvoiceItem'
 import { getDefaultTableFields as defaultOrderFields } from './presenters/OrderPresenter'
 import { getDefaultTableFields as defaultInvoiceFields } from './presenters/InvoicePresenter'
 import { getDefaultTableFields as defaultQuoteFields } from './presenters/QuotePresenter'
-import { getDefaultTableFields as defaultCreditFields } from './presenters/CreditPresenter'
 import { getDefaultTableFields as defaultPaymentFields } from './presenters/PaymentPresenter'
 import { getDefaultTableFields as defaultTaskFields } from './presenters/TaskPresenter'
 import { getDefaultTableFields as defaultExpenseFields } from './presenters/ExpensePresenter'
@@ -1738,41 +1737,45 @@ export default class Dashboard extends Component {
         const arrRecentInvoices = filterInvoicesLast30Days.length ? groupByStatus(filterInvoicesLast30Days, 1, 'status_id') : []
 
         const overdue_invoices = this.state.customers.length && arrOverdueInvoices.length
-            ? <InvoiceItem ignoredColumns={defaultInvoiceFields()} showCheckboxes={false} updateInvoice={(entities) => {
-                this.addUserToState('invoices', entities)
-            }} invoices={arrOverdueInvoices} force_mobile={true} show_list={true} users={[]}
-            custom_fields={[]} customers={this.state.customers}
-            viewId={this.state.viewId}
-            toggleViewedEntity={(id, title = null, edit = null) => {
-                this.toggleViewedEntity('Invoice', this.state.invoices, id, title, edit)
-            }}
-            bulk={[]}
-            onChangeBulk={null}/>
+            ? <InvoiceItem ignoredColumns={defaultInvoiceFields()} showCheckboxes={false}
+                updateInvoice={(entities) => {
+                    this.addUserToState('invoices', entities)
+                }} invoices={arrOverdueInvoices} force_mobile={true} show_list={true} users={[]}
+                custom_fields={[]} customers={this.state.customers}
+                viewId={this.state.viewId}
+                toggleViewedEntity={(id, title = null, edit = null) => {
+                    this.toggleViewedEntity('Invoice', this.state.invoices, id, title, edit)
+                }}
+                bulk={[]}
+                onChangeBulk={null}/>
             : null
 
         const recent_invoices = this.state.customers.length && arrRecentInvoices.length
-            ? <InvoiceItem ignoredColumns={defaultInvoiceFields()} showCheckboxes={false} updateInvoice={(entities) => {
-                this.addUserToState('invoices', entities)
-            }} invoices={arrRecentInvoices} force_mobile={true} show_list={true} users={[]}
-            custom_fields={[]} customers={this.state.customers}
-            viewId={this.state.viewId}
-            toggleViewedEntity={(id, title = null, edit = null) => {
-                this.toggleViewedEntity('Invoice', this.state.invoices, id, title, edit)
-            }}
-            bulk={[]}
-            onChangeBulk={null}/> : null
+            ? <InvoiceItem ignoredColumns={defaultInvoiceFields()} showCheckboxes={false}
+                updateInvoice={(entities) => {
+                    this.addUserToState('invoices', entities)
+                }} invoices={arrRecentInvoices} force_mobile={true} show_list={true} users={[]}
+                custom_fields={[]} customers={this.state.customers}
+                viewId={this.state.viewId}
+                toggleViewedEntity={(id, title = null, edit = null) => {
+                    this.toggleViewedEntity('Invoice', this.state.invoices, id, title, edit)
+                }}
+                bulk={[]}
+                onChangeBulk={null}/> : null
 
         const recent_tasks = this.state.customers.length && arrRecentTasks.length
-            ? <TaskItem ignoredColumns={defaultTaskFields()} showCheckboxes={false} force_mobile={true} action={(entities) => {
-                this.addUserToState('tasks', entities)
-            }} tasks={arrRecentTasks} show_list={true} users={JSON.parse(localStorage.getItem('users'))}
-            custom_fields={[]} customers={this.state.customers}
-            viewId={this.state.viewId}
-            toggleViewedEntity={(id, title = null, edit = null) => {
-                this.toggleViewedEntity('Task', this.state.tasks, id, title, edit)
-            }}
-            bulk={[]}
-            onChangeBulk={null}/> : null
+            ? <TaskItem ignoredColumns={defaultTaskFields()} showCheckboxes={false} force_mobile={true}
+                action={(entities) => {
+                    this.addUserToState('tasks', entities)
+                }} tasks={arrRecentTasks} show_list={true}
+                users={JSON.parse(localStorage.getItem('users'))}
+                custom_fields={[]} customers={this.state.customers}
+                viewId={this.state.viewId}
+                toggleViewedEntity={(id, title = null, edit = null) => {
+                    this.toggleViewedEntity('Task', this.state.tasks, id, title, edit)
+                }}
+                bulk={[]}
+                onChangeBulk={null}/> : null
 
         const running_tasks = this.state.customers.length && arrRunningTasks.length
             ? <TaskItem ignoredColumns={defaultTaskFields()} showCheckboxes={false} action={(entities) => {
@@ -1788,16 +1791,17 @@ export default class Dashboard extends Component {
             onChangeBulk={null}/> : null
 
         const recent_expenses = this.state.customers.length && arrRecentExpenses.length
-            ? <ExpenseItem ignoredColumns={defaultExpenseFields()} showCheckboxes={false} updateExpenses={(entities) => {
-                this.addUserToState('expenses', entities)
-            }} expenses={arrRecentExpenses} force_mobile={true} show_list={true} users={[]}
-            custom_fields={[]} customers={this.state.customers}
-            viewId={this.state.viewId}
-            toggleViewedEntity={(id, title = null, edit = null) => {
-                this.toggleViewedEntity('Expense', this.state.expenses, id, title, edit)
-            }}
-            bulk={[]}
-            onChangeBulk={null}/> : null
+            ? <ExpenseItem ignoredColumns={defaultExpenseFields()} showCheckboxes={false}
+                updateExpenses={(entities) => {
+                    this.addUserToState('expenses', entities)
+                }} expenses={arrRecentExpenses} force_mobile={true} show_list={true} users={[]}
+                custom_fields={[]} customers={this.state.customers}
+                viewId={this.state.viewId}
+                toggleViewedEntity={(id, title = null, edit = null) => {
+                    this.toggleViewedEntity('Expense', this.state.expenses, id, title, edit)
+                }}
+                bulk={[]}
+                onChangeBulk={null}/> : null
 
         const overdue_quotes = this.state.customers.length && arrOverdueQuotes.length
             ? <QuoteItem ignoredColumns={defaultQuoteFields()} showCheckboxes={false} updateInvoice={(entities) => {
@@ -1848,18 +1852,19 @@ export default class Dashboard extends Component {
             onChangeBulk={null}/> : null
 
         const recent_payments = this.state.customers.length && arrRecentPayments.length
-            ? <PaymentItem ignoredColumns={defaultPaymentFields()} showCheckboxes={false} updateCustomers={(entities) => {
-                this.addUserToState('payments', entities)
-            }} payments={arrRecentPayments} force_mobile={true} credits={this.state.credits}
-            invoices={this.state.invoices} show_list={true}
-            users={[]}
-            custom_fields={[]} customers={this.state.customers}
-            viewId={this.state.viewId}
-            toggleViewedEntity={(id, title = null, edit = null) => {
-                this.toggleViewedEntity('Payment', this.state.payments, id, title, edit)
-            }}
-            bulk={[]}
-            onChangeBulk={null}/> : null
+            ? <PaymentItem ignoredColumns={defaultPaymentFields()} showCheckboxes={false}
+                updateCustomers={(entities) => {
+                    this.addUserToState('payments', entities)
+                }} payments={arrRecentPayments} force_mobile={true} credits={this.state.credits}
+                invoices={this.state.invoices} show_list={true}
+                users={[]}
+                custom_fields={[]} customers={this.state.customers}
+                viewId={this.state.viewId}
+                toggleViewedEntity={(id, title = null, edit = null) => {
+                    this.toggleViewedEntity('Payment', this.state.payments, id, title, edit)
+                }}
+                bulk={[]}
+                onChangeBulk={null}/> : null
 
         const modules = JSON.parse(localStorage.getItem('modules'))
 

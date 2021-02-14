@@ -122,7 +122,11 @@ export default class CaseSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false }, () => this.model.updateSettings(this.state.settings))
+                this.setState({
+                    success: true,
+                    cached_settings: this.state.settings,
+                    changesMade: false
+                }, () => this.model.updateSettings(this.state.settings))
             })
             .catch((error) => {
                 console.error(error)

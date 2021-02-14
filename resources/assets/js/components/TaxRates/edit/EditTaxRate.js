@@ -21,10 +21,18 @@ class EditTaxRate extends React.Component {
         this.renderErrorFor = this.renderErrorFor.bind(this)
     }
 
-    componentWillReceiveProps (nextProps, nextContext) {
-        if (nextProps.taxRate && nextProps.taxRate.id !== this.state.id) {
-            this.taxRateModel = new TaxRateModel(nextProps.taxRate)
-            this.setState(this.taxRateModel.fields)
+    static getDerivedStateFromProps (props, state) {
+        if (props.taxRate && props.taxRate.id !== state.id) {
+            const invoiceModel = new TaxRateModel(props.taxRate)
+            return invoiceModel.fields
+        }
+
+        return null
+    }
+
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.taxRate && this.props.taxRate.id !== prevProps.taxRate.id) {
+            this.taxRateModel = new TaxRateModel(this.props.taxRate)
         }
     }
 

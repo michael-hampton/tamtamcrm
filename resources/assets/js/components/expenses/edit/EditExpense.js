@@ -15,7 +15,7 @@ import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
 import { getExchangeRateWithMap } from '../../utils/_money'
 import FormatMoney from '../../common/FormatMoney'
-import { toast, ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from 'react-toastify'
 
 class EditExpense extends React.Component {
     constructor (props) {
@@ -36,10 +36,18 @@ class EditExpense extends React.Component {
         this.settings = user_account[0].account.settings
     }
 
-    componentWillReceiveProps (nextProps, nextContext) {
-        if (nextProps.expense && nextProps.expense.id !== this.state.id) {
-            this.expenseModel = new ExpenseModel(nextProps.expense, nextProps.customers)
-            this.setState(this.expenseModel.fields)
+    static getDerivedStateFromProps (props, state) {
+        if (props.expense && props.expense.id !== state.id) {
+            const expenseModel = new ExpenseModel(props.expense, props.customers)
+            return expenseModel.fields
+        }
+
+        return null
+    }
+
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.expense && this.props.expense.id !== prevProps.expense.id) {
+            this.expenseModel = new ExpenseModel(this.props.expense, this.props.customers)
         }
     }
 

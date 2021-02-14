@@ -7,7 +7,7 @@ import FormBuilder from './FormBuilder'
 import SnackbarMessage from '../common/SnackbarMessage'
 import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
-import CompanyModel from "../models/CompanyModel";
+import CompanyModel from '../models/CompanyModel'
 
 export default class LocalisationSettings extends Component {
     constructor (props) {

@@ -66,10 +66,18 @@ export default class EditTaskDesktop extends Component {
         this.renderErrorFor = this.renderErrorFor.bind(this)
     }
 
-    componentWillReceiveProps (nextProps, nextContext) {
-        if (nextProps.task && nextProps.task.id !== this.state.id) {
-            this.taskModel = new TaskModel(nextProps.task, this.props.customers)
-            this.setState(this.taskModel.fields)
+    static getDerivedStateFromProps (props, state) {
+        if (props.task && props.task.id !== state.id) {
+            const invoiceModel = new TaskModel(props.task, props.customers)
+            return invoiceModel.fields
+        }
+
+        return null
+    }
+
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.task && this.props.task.id !== prevProps.task.id) {
+            this.taskModel = new TaskModel(this.props.task, this.props.customers)
         }
     }
 

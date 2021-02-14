@@ -27,7 +27,7 @@ import DefaultModalFooter from '../../common/ModalFooter'
 import FileUploads from '../../documents/FileUploads'
 import DropdownMenuBuilder from '../../common/DropdownMenuBuilder'
 import CustomFieldsForm from '../../common/CustomFieldsForm'
-import { toast, ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from 'react-toastify'
 
 class EditLeadForm extends React.Component {
     constructor (props) {
@@ -46,14 +46,22 @@ class EditLeadForm extends React.Component {
         this.convertLead = this.convertLead.bind(this)
     }
 
+    static getDerivedStateFromProps (props, state) {
+        if (props.lead && props.lead.id !== state.id) {
+            const leadModel = new LeadModel(props.lead)
+            return leadModel.fields
+        }
+
+        return null
+    }
+
     componentDidMount () {
         this.getSourceTypes()
     }
 
-    componentWillReceiveProps (nextProps, nextContext) {
-        if (nextProps.lead && nextProps.lead.id !== this.state.id) {
-            this.leadModel = new LeadModel(nextProps.lead)
-            this.setState(this.leadModel.fields)
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.lead && this.props.lead.id !== prevProps.lead.id) {
+            this.leadModel = new LeadModel(this.props.lead)
         }
     }
 

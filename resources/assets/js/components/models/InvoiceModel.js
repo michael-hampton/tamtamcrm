@@ -83,7 +83,7 @@ export default class InvoiceModel extends BaseModel {
             recurring: '',
             activeTab: '1',
             po_number: '',
-            design_id: '',
+            design_id: this.settings.invoice_design_id ? this.settings.invoice_design_id : null,
             recurring_invoice_id: null,
             currency_id: this.settings.currency_id.toString().length ? this.settings.currency_id : consts.default_currency,
             exchange_rate: 1,
@@ -105,7 +105,6 @@ export default class InvoiceModel extends BaseModel {
 
         if (data !== null) {
             this._fields = { ...this.fields, ...data }
-
             this.updateCustomer()
         }
 

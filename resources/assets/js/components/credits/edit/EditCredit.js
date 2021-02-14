@@ -43,7 +43,7 @@ import TaskRepository from '../../repositories/TaskRepository'
 import ExpenseRepository from '../../repositories/ExpenseRepository'
 import ProjectRepository from '../../repositories/ProjectRepository'
 import { getExchangeRateWithMap } from '../../utils/_money'
-import { toast, ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from 'react-toastify'
 
 export default class EditCredit extends Component {
     constructor (props, context) {
@@ -80,11 +80,18 @@ export default class EditCredit extends Component {
         this.settings = user_account[0].account.settings
     }
 
-    componentWillMount () {
-        window.addEventListener('resize', this.handleWindowSizeChange)
+    static getDerivedStateFromProps (props, state) {
+        if (props.credit && props.credit.id !== state.id) {
+            const creditModel = new CreditModel(props.credit, props.customers)
+            return creditModel.fields
+        }
+
+        return null
     }
 
     componentDidMount () {
+        window.addEventListener('resize', this.handleWindowSizeChange)
+
         if (!this.state.id) {
             if (Object.prototype.hasOwnProperty.call(localStorage, 'creditForm')) {
                 const storedValues = JSON.parse(localStorage.getItem('creditForm'))
@@ -102,10 +109,9 @@ export default class EditCredit extends Component {
         }
     }
 
-    componentWillReceiveProps (nextProps, nextContext) {
-        if (nextProps.credit && nextProps.credit.id !== this.state.id) {
-            this.creditModel = new CreditModel(nextProps.credit, this.props.customers)
-            this.setState(this.creditModel.fields)
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.credit && this.props.credit.id !== prevProps.credit.id) {
+            this.creditModel = new CreditModel(this.props.credit, this.props.customers)
         }
     }
 

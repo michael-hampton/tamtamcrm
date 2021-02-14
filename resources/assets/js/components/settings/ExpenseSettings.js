@@ -8,7 +8,6 @@ import SnackbarMessage from '../common/SnackbarMessage'
 import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
 import BlockButton from '../common/BlockButton'
-import BaseModel from '../models/BaseModel'
 import CompanyModel from '../models/CompanyModel'
 
 export default class ExpenseSettings extends Component {
@@ -121,7 +120,11 @@ export default class ExpenseSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false }, () => this.model.updateSettings(this.state.settings))
+                this.setState({
+                    success: true,
+                    cached_settings: this.state.settings,
+                    changesMade: false
+                }, () => this.model.updateSettings(this.state.settings))
             })
             .catch((error) => {
                 console.error(error)

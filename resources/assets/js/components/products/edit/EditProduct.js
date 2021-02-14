@@ -53,6 +53,19 @@ class EditProduct extends React.Component {
         this.handleFeatures = this.handleFeatures.bind(this)
     }
 
+    static getDerivedStateFromProps (props, state) {
+        if (props.product && props.product.id !== state.id) {
+            const productModel = new ProductModel(props.product)
+            return productModel.fields
+        }
+    }
+
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.product && this.props.product.id !== prevProps.product.id) {
+            this.productModel = new ProductModel(this.props.product)
+        }
+    }
+
     getFormData () {
         const formData = new FormData()
         formData.append('cover', this.state.cover)

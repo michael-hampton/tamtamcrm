@@ -21,10 +21,18 @@ export default class EditToken extends React.Component {
         this.renderErrorFor = this.renderErrorFor.bind(this)
     }
 
-    componentWillReceiveProps (nextProps, nextContext) {
-        if (nextProps.token && nextProps.token.id !== this.state.id) {
-            this.tokenModel = new TokenModel(nextProps.token)
-            this.setState(this.tokenModel.fields)
+    static getDerivedStateFromProps (props, state) {
+        if (props.token && props.token.id !== state.id) {
+            const invoiceModel = new TokenModel(props.token)
+            return invoiceModel.fields
+        }
+
+        return null
+    }
+
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.token && this.props.token.id !== prevProps.token.id) {
+            this.tokenModel = new TokenModel(this.props.token)
         }
     }
 

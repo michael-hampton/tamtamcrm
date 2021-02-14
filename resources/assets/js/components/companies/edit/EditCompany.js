@@ -44,10 +44,18 @@ class EditCompany extends React.Component {
         this.removeLogo = this.removeLogo.bind(this)
     }
 
-    componentWillReceiveProps (nextProps, nextContext) {
-        if (nextProps.brand && nextProps.brand.id !== this.state.id) {
-            this.companyModel = new CompanyModel(nextProps.brand)
-            this.setState(this.companyModel.fields)
+    static getDerivedStateFromProps (props, state) {
+        if (props.brand && props.brand.id !== state.id) {
+            const companyModel = new CompanyModel(props.brand)
+            return companyModel.fields
+        }
+
+        return null
+    }
+
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.brand && this.props.brand.id !== prevProps.brand.id) {
+            this.companyModel = new CompanyModel(this.props.brand)
         }
     }
 

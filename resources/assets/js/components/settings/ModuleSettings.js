@@ -23,7 +23,7 @@ import BlockButton from '../common/BlockButton'
 import { icons } from '../utils/_icons'
 import SnackbarMessage from '../common/SnackbarMessage'
 import Header from './Header'
-import CompanyModel from "../models/CompanyModel";
+import CompanyModel from '../models/CompanyModel'
 
 class ModuleSettings extends Component {
     constructor (props) {

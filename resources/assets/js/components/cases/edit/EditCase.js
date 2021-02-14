@@ -46,6 +46,15 @@ export default class EditCase extends React.Component {
         this.closeCase = this.closeCase.bind(this)
     }
 
+    static getDerivedStateFromProps (props, state) {
+        if (props.case && props.case.id !== state.id) {
+            const caseModel = new CaseModel(props.case, props.customers)
+            return caseModel.fields
+        }
+
+        return null
+    }
+
     componentDidMount () {
         if (this.props.case && this.props.case.customer_id) {
             const contacts = this.caseModel.contacts
@@ -53,10 +62,9 @@ export default class EditCase extends React.Component {
         }
     }
 
-    componentWillReceiveProps (nextProps, nextContext) {
-        if (nextProps.case && nextProps.case.id !== this.state.id) {
-            this.caseModel = new CaseModel(nextProps.case)
-            this.setState(this.caseModel.fields)
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.case && this.props.case.id !== prevProps.case.id) {
+            this.caseModel = new CaseModel(this.props.case, this.props.customers)
         }
     }
 

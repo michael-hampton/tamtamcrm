@@ -46,6 +46,7 @@ import ProjectRepository from '../../repositories/ProjectRepository'
 import { getExchangeRateWithMap } from '../../utils/_money'
 import Recurringm from './Recurringm'
 import { toast, ToastContainer } from 'react-toastify'
+import InvoiceModel from '../../models/InvoiceModel'
 
 class UpdateRecurringInvoice extends Component {
     constructor (props, context) {
@@ -84,11 +85,18 @@ class UpdateRecurringInvoice extends Component {
         this.settings = user_account[0].account.settings
     }
 
-    componentWillMount () {
-        window.addEventListener('resize', this.handleWindowSizeChange)
+    static getDerivedStateFromProps (props, state) {
+        if (props.invoice && props.invoice.id !== state.id) {
+            const invoiceModel = new RecurringInvoiceModel(props.invoice, props.customers)
+            return invoiceModel.fields
+        }
+
+        return null
     }
 
     componentDidMount () {
+        window.addEventListener('resize', this.handleWindowSizeChange)
+
         if (this.props.task_id) {
             this.loadInvoice()
         } else if (!this.state.id) {
@@ -108,10 +116,9 @@ class UpdateRecurringInvoice extends Component {
         }
     }
 
-    componentWillReceiveProps (nextProps, nextContext) {
-        if (nextProps.invoice && nextProps.invoice.id !== this.state.id) {
-            this.invoiceModel = new RecurringInvoiceModel(nextProps.invoice, nextProps.customers)
-            this.setState(this.invoiceModel.fields)
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.invoice && this.props.invoice.id !== prevProps.invoice.id) {
+            this.invoiceModel = new InvoiceModel(this.props.invoice, this.props.customers)
         }
     }
 

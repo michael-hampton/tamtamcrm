@@ -80,11 +80,18 @@ export default class EditOrder extends Component {
         this.settings = user_account[0].account.settings
     }
 
-    componentWillMount () {
-        window.addEventListener('resize', this.handleWindowSizeChange)
+    static getDerivedStateFromProps (props, state) {
+        if (props.order && props.order.id !== state.id) {
+            const orderModel = new OrderModel(props.order, props.customers)
+            return orderModel.fields
+        }
+
+        return null
     }
 
     componentDidMount () {
+        window.addEventListener('resize', this.handleWindowSizeChange)
+
         /* if (!this.state.id) {
             if (Object.prototype.hasOwnProperty.call(localStorage, 'orderForm')) {
                 const storedValues = JSON.parse(localStorage.getItem('orderForm'))
@@ -106,10 +113,9 @@ export default class EditOrder extends Component {
         }
     }
 
-    componentWillReceiveProps (nextProps, nextContext) {
-        if (nextProps.order && nextProps.order.id !== this.state.id) {
-            this.orderModel = new OrderModel(nextProps.order, nextProps.customers)
-            this.setState(this.orderModel.fields)
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.order && this.props.order.id !== prevProps.order.id) {
+            this.orderModel = new OrderModel(this.props.order, this.props.customers)
         }
     }
 
