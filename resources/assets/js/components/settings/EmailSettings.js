@@ -147,6 +147,13 @@ class EmailSettings extends Component {
                     ]
                 },
                 {
+                    name: 'reply_to_name',
+                    label: translations.reply_to_name,
+                    type: 'text',
+                    placeholder: translations.reply_to_name,
+                    value: settings.reply_to_name
+                },
+                {
                     name: 'reply_to_email',
                     label: translations.reply_to_email,
                     type: 'text',
