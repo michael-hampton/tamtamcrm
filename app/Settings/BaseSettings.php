@@ -761,6 +761,12 @@ class BaseSettings
             'default_value'    => '',
             'type'             => 'string'
         ],
+        'reply_to_name'                       => [
+            'required'         => false,
+            'translated_value' => '',
+            'default_value'    => '',
+            'type'             => 'string'
+        ],
         'bcc_email'                            => [
             'required'         => false,
             'translated_value' => '',
