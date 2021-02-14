@@ -690,6 +690,7 @@ _localizedValues.en = {
     dark: 'Dark',
     custom: 'Custom',
     reply_to_email: 'Reply To Email',
+    reply_to_name: 'Reply To Name',
     bcc_email: 'BCC Email',
     enable_email_markup: 'Enable Markup',
     pdf_email_attachment: 'Attach PDF',
