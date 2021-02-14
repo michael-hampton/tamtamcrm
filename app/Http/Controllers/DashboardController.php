@@ -63,7 +63,7 @@ class DashboardController extends Controller
     public function index()
     {
         $search_request = new SearchRequest();
-        $search_request->replace(['column' => 'created_at', 'order' => 'desc', 'per_page' => 25]);
+        $search_request->replace(['column' => 'created_at', 'order' => 'desc']);
 
         $deal_repo = new DealRepository(new Deal);
         $arrSources = $this->taskRepository->getSourceTypeCounts(3, auth()->user()->account_user()->account_id);

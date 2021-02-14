@@ -313,6 +313,9 @@ class EditInvoice extends Component {
     }
 
     toggle () {
+
+        alert(this.state.modalOpen)
+
         if (this.state.modalOpen && this.state.changesMade) {
             if (!window.confirm('Your changes have not been saved?')) {
                 return false
@@ -356,6 +359,8 @@ class EditInvoice extends Component {
                         line_items: [],
                         invitations: []
                     })
+
+                    alert('here')
                 }
 
                 localStorage.removeItem('invoiceForm')

@@ -45,6 +45,13 @@ import QuoteItem from './quotes/QuoteItem'
 import OrderItem from './orders/OrderItem'
 import TaskModel from './models/TaskModel'
 import InvoiceItem from './invoice/InvoiceItem'
+import { getDefaultTableFields as defaultOrderFields } from './presenters/OrderPresenter'
+import { getDefaultTableFields as defaultInvoiceFields } from './presenters/InvoicePresenter'
+import { getDefaultTableFields as defaultQuoteFields } from './presenters/QuotePresenter'
+import { getDefaultTableFields as defaultCreditFields } from './presenters/CreditPresenter'
+import { getDefaultTableFields as defaultPaymentFields } from './presenters/PaymentPresenter'
+import { getDefaultTableFields as defaultTaskFields } from './presenters/TaskPresenter'
+import { getDefaultTableFields as defaultExpenseFields } from './presenters/ExpensePresenter'
 
 const brandPrimary = getStyle('--primary')
 const brandSuccess = getStyle('--success')
@@ -260,7 +267,7 @@ export default class Dashboard extends Component {
         super(props)
         this.getOption = this.getOption.bind(this)
         this.state = {
-            dashboard_minimized: localStorage.getItem('dashboard_minimized') || false,
+            dashboard_minimized: !!(localStorage.getItem('dashboard_minimized') && localStorage.getItem('dashboard_minimized') === 'true'),
             sources: [],
             customers: [],
             modal: false,
@@ -797,7 +804,7 @@ export default class Dashboard extends Component {
         const quoteApproved = formatData(this.state.quotes, consts.quote_status_approved, start, end, 'total', 'status_id')
         const quoteUnapproved = formatData(this.state.quotes, consts.quote_status_sent, start, end, 'total', 'status_id')
 
-        const filterQuotesByExpiration = filterOverdue(this.state.quotes)
+        const filterQuotesByExpiration = this.state.quotes && this.state.quotes.length ? filterOverdue(this.state.quotes) : []
         const quoteOverdue = formatData(filterQuotesByExpiration, consts.quote_status_sent, start, end, 'total', 'status_id')
 
         const buttons = {}
@@ -1694,23 +1701,23 @@ export default class Dashboard extends Component {
 
         let leads = ''
         // expired
-        const filterQuotesByExpiration = filterOverdue(this.state.quotes)
+        const filterQuotesByExpiration = this.state.quotes && this.state.quotes.length ? filterOverdue(this.state.quotes) : []
         const arrOverdueQuotes = filterQuotesByExpiration.length ? groupByStatus(filterQuotesByExpiration, 2, 'status_id') : []
 
-        const filterOrdersByExpiration = filterOverdue(this.state.orders)
+        const filterOrdersByExpiration = this.state.orders && this.state.orders.length ? filterOverdue(this.state.orders) : []
         const arrOverdueOrders = filterOrdersByExpiration.length ? groupByStatus(filterOrdersByExpiration, 2, 'status_id') : []
 
-        const filterInvociesByExpiration = this.state.invoices.length ? filterOverdue(this.state.invoices) : []
+        const filterInvociesByExpiration = this.state.invoices && this.state.invoices.length ? filterOverdue(this.state.invoices) : []
         const arrOverdueInvoices = filterInvociesByExpiration.length ? groupByStatus(filterInvociesByExpiration, 2, 'status_id') : []
 
         // last 30 days
-        const filterQuotesLast30Days = getLast30Days(this.state.quotes)
+        const filterQuotesLast30Days = this.state.quotes && this.state.quotes.length ? getLast30Days(this.state.quotes) : []
         const arrRecentQuotes = filterQuotesLast30Days.length ? groupByStatus(filterQuotesLast30Days, 1, 'status_id') : []
 
-        const filterOrdersLast30Days = getLast30Days(this.state.orders)
+        const filterOrdersLast30Days = this.state.orders && this.state.orders.length ? getLast30Days(this.state.orders) : []
         const arrRecentOrders = filterOrdersLast30Days.length ? groupByStatus(filterOrdersLast30Days, 1, 'status_id') : []
 
-        const filterPaymentsLast30Days = getLast30Days(this.state.payments)
+        const filterPaymentsLast30Days = this.state.payments && this.state.payments.length ? getLast30Days(this.state.payments) : []
         const arrRecentPayments = filterPaymentsLast30Days.length ? groupByStatus(filterPaymentsLast30Days, 4, 'status_id') : []
 
         const arrRecentExpenses = this.state.expenses.length ? getLast30Days(this.state.expenses) : []
@@ -1727,11 +1734,11 @@ export default class Dashboard extends Component {
             return !item.deleted_at && taskModel.isRunning
         }) : []
 
-        const filterInvoicesLast30Days = getLast30Days(this.state.invoices)
+        const filterInvoicesLast30Days = this.state.invoices && this.state.invoices.length ? getLast30Days(this.state.invoices) : []
         const arrRecentInvoices = filterInvoicesLast30Days.length ? groupByStatus(filterInvoicesLast30Days, 1, 'status_id') : []
 
         const overdue_invoices = this.state.customers.length && arrOverdueInvoices.length
-            ? <InvoiceItem showCheckboxes={false} updateInvoice={(entities) => {
+            ? <InvoiceItem ignoredColumns={defaultInvoiceFields()} showCheckboxes={false} updateInvoice={(entities) => {
                 this.addUserToState('invoices', entities)
             }} invoices={arrOverdueInvoices} force_mobile={true} show_list={true} users={[]}
             custom_fields={[]} customers={this.state.customers}
@@ -1744,7 +1751,7 @@ export default class Dashboard extends Component {
             : null
 
         const recent_invoices = this.state.customers.length && arrRecentInvoices.length
-            ? <InvoiceItem showCheckboxes={false} updateInvoice={(entities) => {
+            ? <InvoiceItem ignoredColumns={defaultInvoiceFields()} showCheckboxes={false} updateInvoice={(entities) => {
                 this.addUserToState('invoices', entities)
             }} invoices={arrRecentInvoices} force_mobile={true} show_list={true} users={[]}
             custom_fields={[]} customers={this.state.customers}
@@ -1756,7 +1763,7 @@ export default class Dashboard extends Component {
             onChangeBulk={null}/> : null
 
         const recent_tasks = this.state.customers.length && arrRecentTasks.length
-            ? <TaskItem showCheckboxes={false} force_mobile={true} action={(entities) => {
+            ? <TaskItem ignoredColumns={defaultTaskFields()} showCheckboxes={false} force_mobile={true} action={(entities) => {
                 this.addUserToState('tasks', entities)
             }} tasks={arrRecentTasks} show_list={true} users={JSON.parse(localStorage.getItem('users'))}
             custom_fields={[]} customers={this.state.customers}
@@ -1768,7 +1775,7 @@ export default class Dashboard extends Component {
             onChangeBulk={null}/> : null
 
         const running_tasks = this.state.customers.length && arrRunningTasks.length
-            ? <TaskItem showCheckboxes={false} action={(entities) => {
+            ? <TaskItem ignoredColumns={defaultTaskFields()} showCheckboxes={false} action={(entities) => {
                 this.addUserToState('tasks', entities)
             }} tasks={arrRunningTasks} force_mobile={true} show_list={true}
             users={JSON.parse(localStorage.getItem('users'))}
@@ -1781,7 +1788,7 @@ export default class Dashboard extends Component {
             onChangeBulk={null}/> : null
 
         const recent_expenses = this.state.customers.length && arrRecentExpenses.length
-            ? <ExpenseItem showCheckboxes={false} updateExpenses={(entities) => {
+            ? <ExpenseItem ignoredColumns={defaultExpenseFields()} showCheckboxes={false} updateExpenses={(entities) => {
                 this.addUserToState('expenses', entities)
             }} expenses={arrRecentExpenses} force_mobile={true} show_list={true} users={[]}
             custom_fields={[]} customers={this.state.customers}
@@ -1793,7 +1800,7 @@ export default class Dashboard extends Component {
             onChangeBulk={null}/> : null
 
         const overdue_quotes = this.state.customers.length && arrOverdueQuotes.length
-            ? <QuoteItem showCheckboxes={false} updateInvoice={(entities) => {
+            ? <QuoteItem ignoredColumns={defaultQuoteFields()} showCheckboxes={false} updateInvoice={(entities) => {
                 this.addUserToState('quotes', entities)
             }} quotes={arrOverdueQuotes} force_mobile={true} show_list={true} users={[]}
             custom_fields={[]} customers={this.state.customers}
@@ -1805,7 +1812,7 @@ export default class Dashboard extends Component {
             onChangeBulk={null}/> : null
 
         const recent_quotes = this.state.customers.length && arrRecentQuotes.length
-            ? <QuoteItem showCheckboxes={false} updateInvoice={(entities) => {
+            ? <QuoteItem ignoredColumns={defaultQuoteFields()} showCheckboxes={false} updateInvoice={(entities) => {
                 this.addUserToState('quotes', entities)
             }} quotes={arrRecentQuotes} force_mobile={true} show_list={true} users={[]}
             custom_fields={[]} customers={this.state.customers}
@@ -1817,7 +1824,7 @@ export default class Dashboard extends Component {
             onChangeBulk={null}/> : null
 
         const overdue_orders = this.state.customers.length && arrOverdueOrders.length
-            ? <OrderItem showCheckboxes={false} updateOrder={(entities) => {
+            ? <OrderItem ignoredColumns={defaultOrderFields()} showCheckboxes={false} updateOrder={(entities) => {
                 this.addUserToState('orders', entities)
             }} orders={arrOverdueOrders} force_mobile={true} show_list={true} users={[]}
             custom_fields={[]} customers={this.state.customers}
@@ -1829,7 +1836,7 @@ export default class Dashboard extends Component {
             onChangeBulk={null}/> : null
 
         const recent_orders = this.state.customers.length && arrRecentOrders.length
-            ? <OrderItem showCheckboxes={false} updateOrder={(entities) => {
+            ? <OrderItem ignoredColumns={defaultOrderFields()} showCheckboxes={false} updateOrder={(entities) => {
                 this.addUserToState('orders', entities)
             }} orders={arrRecentOrders} force_mobile={true} show_list={true} users={[]}
             custom_fields={[]} customers={this.state.customers}
@@ -1841,7 +1848,7 @@ export default class Dashboard extends Component {
             onChangeBulk={null}/> : null
 
         const recent_payments = this.state.customers.length && arrRecentPayments.length
-            ? <PaymentItem showCheckboxes={false} updateCustomers={(entities) => {
+            ? <PaymentItem ignoredColumns={defaultPaymentFields()} showCheckboxes={false} updateCustomers={(entities) => {
                 this.addUserToState('payments', entities)
             }} payments={arrRecentPayments} force_mobile={true} credits={this.state.credits}
             invoices={this.state.invoices} show_list={true}
