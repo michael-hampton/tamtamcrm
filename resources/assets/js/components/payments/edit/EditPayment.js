@@ -41,6 +41,8 @@ class EditPayment extends React.Component {
             const paymentModel = new PaymentModel(props.invoices, props.payment)
             return paymentModel.fields
         }
+
+        return null
     }
 
     componentDidUpdate (prevProps, prevState) {
