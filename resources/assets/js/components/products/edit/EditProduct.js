@@ -58,6 +58,8 @@ class EditProduct extends React.Component {
             const productModel = new ProductModel(props.product)
             return productModel.fields
         }
+
+        return null
     }
 
     componentDidUpdate (prevProps, prevState) {
