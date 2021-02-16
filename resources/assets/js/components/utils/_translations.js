@@ -1,5 +1,7 @@
 const _localizedValues = []
 _localizedValues.en = {
+    refund_successful: 'Payment was refunded successfully',
+    refund_unsuccessful: 'Payment could not be refunded',
     portal_registration_url: 'Registration URL',
     reminder: 'Late Fee Reminder',
     reminder_1: 'Reminder 1',
