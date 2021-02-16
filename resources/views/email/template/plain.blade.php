@@ -27,8 +27,8 @@ if(!empty($data)) {
     </div>
 
     <div class="row">
-        @if(isset($view_link) && isset($view_text))
-            <a href="{{ $view_link }}">{{ $view_text }}</a>
+        @if(isset($url) && isset($button_text))
+            <a href="{{ $url }}">{{ $button_text }}</a>
         @endif
     </div>
 </div>

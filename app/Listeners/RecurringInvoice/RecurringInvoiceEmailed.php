@@ -4,6 +4,7 @@ namespace App\Listeners\RecurringInvoice;
 
 use App\Factory\NotificationFactory;
 use App\Repositories\NotificationRepository;
+use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class RecurringInvoiceEmailed implements ShouldQueue
@@ -47,5 +48,8 @@ class RecurringInvoiceEmailed implements ShouldQueue
         );
         $notification->entity_id = $event->recurringInvoice->id;
         $this->notification_repo->save($notification, $fields);
+
+        $event->invitation->inviteable->date_notification_last_sent = Carbon::now();
+        $event->invitation->inviteable->save();
     }
 }

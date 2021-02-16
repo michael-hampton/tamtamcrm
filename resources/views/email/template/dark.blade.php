@@ -39,9 +39,9 @@ if(!empty($data)) {
                     @endisset
 
 
-                    @if(!empty($view_link) && !empty($view_text))
-                        @component('email.components.button', ['url' => $view_link])
-                            {{$view_text}}
+                    @if(!empty($url) && !empty($button_text))
+                        @component('email.components.button', ['url' => $url])
+                            {{$button_text}}
                         @endcomponent
                     @endif
                 </div>

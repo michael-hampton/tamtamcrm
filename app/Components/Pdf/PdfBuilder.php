@@ -112,6 +112,26 @@ class PdfBuilder
         return $new_array[0]->label;
     }
 
+    private function getStatus($model, int $status)
+    {
+        $refl = new \ReflectionClass($model);
+        $consts = $refl->getConstants();
+
+        if (empty($this->statuses)) {
+            $this->statuses = [];
+
+            foreach ($consts as $key => $const) {
+                if (strpos($key, 'STATUS') !== false) {
+                    $this->statuses[$const] = !empty(trans('texts.' . strtolower($key))) ? trans(
+                        'texts.' . strtolower($key)
+                    ) : $key;
+                }
+            }
+        }
+
+        return !empty($this->statuses[$status]) ? $this->statuses[$status] : null;
+    }
+
     public function buildCustomer(Customer $customer): self
     {
         $this->data['$customer.number'] = [
@@ -456,6 +476,15 @@ class PdfBuilder
         $this->data['$' . $this->class . '.agent'] = [
             'value' => $user->present()->name() ?: '&nbsp;',
             'label' => trans('texts.agent')
+        ];
+        return $this;
+    }
+
+    public function setStatus()
+    {
+        $this->data['$' . $this->class . '.status'] = [
+            'value' => $this->getStatus($this->entity, $this->entity->status_id) ?: '&nbsp;',
+            'label' => trans('texts.status')
         ];
         return $this;
     }

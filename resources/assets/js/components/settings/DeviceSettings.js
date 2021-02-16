@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Button, Card, CardBody } from 'reactstrap'
+import { Button, Card, CardBody, FormGroup, Label, Input } from 'reactstrap'
 import axios from 'axios'
 import { translations } from '../utils/_translations'
 import FormBuilder from './FormBuilder'
@@ -19,7 +19,8 @@ export default class DeviceSettings extends Component {
             cached_settings: {},
             settings: {
                 dark_theme: !!(!Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true')),
-                number_of_rows: localStorage.getItem('number_of_rows') || 10
+                number_of_rows: localStorage.getItem('number_of_rows') || 10,
+                button_theme: localStorage.getItem('button_theme') || ''
             },
             success: false,
             error: false,
@@ -165,6 +166,9 @@ export default class DeviceSettings extends Component {
             }
         }), () => {
             switch (name) {
+                case 'button_theme':
+                    localStorage.setItem('button_theme', value)
+                    break
                 case 'currency_format':
                     localStorage.setItem('currency_format', value)
                     break
@@ -200,7 +204,7 @@ export default class DeviceSettings extends Component {
                     value: settings.number_of_rows,
                     options: [
                         {
-                            value: 10,
+                           value: 10,
                             text: 10
                         },
                         {
@@ -212,7 +216,91 @@ export default class DeviceSettings extends Component {
                             text: 50
                         }
                     ]
-                }
+                },
+                {
+                    name: 'button_theme',
+                    label: translations.theme,
+                    type: 'select',
+                    value: settings.button_theme,
+                    options: [
+                        {
+                            value: 'cerulean',
+                            text: 'cerulean'
+                        },
+                        {
+                            value: 'darkly',
+                            text: 'darkly'
+                        },
+                        {
+                            value: 'litera',
+                            text: 'litera'
+                        },
+                        {
+                            value: 'materia',
+                            text: 'materia'
+                        },
+                        {
+                            value: 'sandstone',
+                            text: 'sandstone'
+                        },
+                        {
+                            value: 'slate',
+                            text: 'slate'
+                        },
+                        {
+                            value: 'superhero',
+                            text: 'superhero'
+                        },
+                        {
+                            value: 'cosmo',
+                            text: 'cosmo'
+                        },
+                        {
+                            value: 'flatly',
+                            text: 'flatly'
+                        },
+                        {
+                            value: 'lumen',
+                            text: 'lumen'
+                        },
+                        {
+                            value: 'minty',
+                            text: 'Minty'
+                        },
+                        {
+                            value: 'simplex',
+                            text: 'Simplex'
+                        },
+                        {
+                            value: 'solar',
+                            text: 'solar'
+                        },
+                        {
+                            value: 'cyborg',
+                            text: 'cyborg'
+                        },
+                        {
+                            value: 'sketchy',
+                            text: 'sketchy'
+                        },
+                        {
+                            value: 'spacelab',
+                            text: 'spacelab'
+                        },
+                        {
+                            value: 'pulse',
+                            text: 'pulse'
+                        },
+                        {
+                            value: 'yeti',
+                            text: 'yeti'
+                        },
+                        {
+                            value: 'journal',
+                            text: 'journal'
+                        }
+                    ]
+                },
             ]
         ]
     }

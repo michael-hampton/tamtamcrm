@@ -25,6 +25,7 @@ class BaseEmailActions
      */
     protected function sendInvitationEmails(string $subject, string $body, string $template, $contact = null)
     {
+
         if ($this->entity->invitations->count() === 0) {
             return false;
         }
@@ -77,11 +78,19 @@ class BaseEmailActions
 
         SendEmail::dispatchNow($this->entity, $subject, $body, $template, $contact, $footer);
 
+        $this->triggerEvent($invitation, $template);
+
+        return true;
+    }
+
+    protected function triggerEvent($model = null, $template = '')
+    {
         $entity_class = (new \ReflectionClass($this->entity))->getShortName();
         $event_class = "App\Events\\" . $entity_class . "\\" . $entity_class . "WasEmailed";
 
-        if (class_exists($event_class) && $invitation !== null) {
-            event(new $event_class($invitation, $template));
+        if (class_exists($event_class)) {
+
+            event(new $event_class($model === null ? $this->entity : $model, $template));
         }
 
         return true;

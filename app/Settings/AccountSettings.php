@@ -75,6 +75,7 @@ class AccountSettings extends BaseSettings
                 '$invoice.due_date',
                 '$invoice.balance_due',
                 '$invoice.invoice_total',
+                '$invoice.invoice_status'
             ],
             'lead'             => [
 
@@ -97,6 +98,7 @@ class AccountSettings extends BaseSettings
                 '$order.due_date',
                 '$order.balance_due',
                 '$order.order_total',
+                '$order.order_status'
             ],
             'quote'            => [
                 '$quote.quote_number',
@@ -107,6 +109,7 @@ class AccountSettings extends BaseSettings
                 '$quote.valid_until',
                 '$quote.balance_due',
                 '$quote.quote_total',
+                '$quote.quote_status'
             ],
             'purchase_order'   => [
                 '$purchaseorder.quote_number',
@@ -117,6 +120,7 @@ class AccountSettings extends BaseSettings
                 '$purchaseorder.valid_until',
                 '$purchaseorder.balance_due',
                 '$purchaseorder.quote_total',
+                '$purchaseorder.purchaseorder_status'
             ],
 
             'credit'                => [
@@ -127,6 +131,7 @@ class AccountSettings extends BaseSettings
                 '$credit.credit_date',
                 '$credit.credit_balance',
                 '$credit.credit_amount',
+                '$credit.credit_status'
             ],
             'product_columns'       => [
                 '$product.product_key',

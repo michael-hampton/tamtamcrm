@@ -90,8 +90,9 @@ class DefaultLayout extends Component {
 
     render () {
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
+        const button_theme = Object.prototype.hasOwnProperty.call(localStorage, 'button_theme') ? localStorage.getItem('button_theme') : ''
         return (
-            <div className={`app ${theme}`}>
+            <div className={`app ${theme} ${button_theme}`}>
                 <ToastContainer
                     limit={1}
                     position="top-center"

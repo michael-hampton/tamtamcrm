@@ -37,6 +37,10 @@ class InvoiceEmailedNotification implements ShouldQueue
                 ['all_notifications', 'invoice_sent']
             );
 
+            if (empty($notification->method)) {
+                continue;
+            }
+
             $user->notify($notification);
         }
     }

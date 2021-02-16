@@ -3,7 +3,7 @@ import moment from 'moment'
 import BaseModel, { LineItem } from './BaseModel'
 import { consts } from '../utils/_consts'
 
-export const purchase_order_pdf_fields = ['$purchaseorder.number', '$purchaseorder.po_number', '$purchaseorder.quote_date', '$purchaseorder.valid_until', '$purchaseorder.balance_due', '$purchaseorder.purchaseorder_datetime', '$purchaseorder.purchaseorder_agent',
+export const purchase_order_pdf_fields = ['$purchaseorder.number', '$purchaseorder.po_number', '$purchaseorder.quote_date', '$purchaseorder.valid_until', '$purchaseorder.balance_due', '$purchaseorder.purchaseorder_datetime', '$purchaseorder.purchaseorder_status', '$purchaseorder.purchaseorder_agent',
     '$purchaseorder.quote_total', '$purchaseorder.partial_due', '$purchaseorder.custom1', '$purchaseorder.custom2', '$purchaseorder.custom3', '$purchaseorder.custom4', '$quote.surcharge1',
     '$quote.surcharge2', '$invoice.surcharge3', '$invoice.surcharge4'
 ]
@@ -83,7 +83,7 @@ export default class PurchaseOrderModel extends BaseModel {
             recurring: '',
             activeTab: '1',
             po_number: '',
-            design_id: '',
+            design_id: this.settings.purchase_order_design_id ? this.settings.purchase_order_design_id : null,
             currency_id: this.settings.currency_id.toString().length ? this.settings.currency_id : consts.default_currency,
             exchange_rate: 1,
             success: false,

@@ -41,6 +41,7 @@ class InvoicePdf extends PdfBuilder
         $customer = $this->entity->customer;
 
         $this->setDefaults($customer)
+             ->setStatus()
              ->buildContact($contact)
              ->setTaxes($customer)
              ->setDatetime($this->entity->created_at)

@@ -37,6 +37,10 @@ class OrderEmailedNotification implements ShouldQueue
                 ['all_notifications', 'order_sent']
             );
 
+            if (empty($notification->method)) {
+                continue;
+            }
+
             $user->notify($notification);
         }
     }

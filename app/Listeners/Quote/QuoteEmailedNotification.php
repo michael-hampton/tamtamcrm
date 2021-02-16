@@ -37,6 +37,10 @@ class QuoteEmailedNotification implements ShouldQueue
                 ['all_notifications', 'quote_sent']
             );
 
+            if (empty($notification->method)) {
+                continue;
+            }
+
             $user->notify($notification);
         }
     }

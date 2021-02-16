@@ -37,6 +37,10 @@ class PurchaseOrderEmailedNotification implements ShouldQueue
                 ['all_notifications', 'purchase_order_sent']
             );
 
+            if (empty($notification->method)) {
+                continue;
+            }
+
             $user->notify($notification);
         }
     }

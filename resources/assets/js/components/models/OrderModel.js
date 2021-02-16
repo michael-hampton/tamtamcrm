@@ -3,7 +3,7 @@ import moment from 'moment'
 import BaseModel, { LineItem } from './BaseModel'
 import { consts } from '../utils/_consts'
 
-export const order_pdf_fields = ['$order.number', '$order.po_number', '$order.order_date', '$order.order_total', '$order.order_datetime', '$order.order_agent',
+export const order_pdf_fields = ['$order.number', '$order.po_number', '$order.order_date', '$order.order_total', '$order.order_datetime', '$order.order_status', '$order.order_agent',
     '$order.balance', '$order.partial_due', '$order.custom1', '$order.custom2', '$order.custom3', '$order.custom4',
     '$order.surcharge1', '$order.surcharge2', '$order.surcharge3', '$order.surcharge4'
 ]
@@ -39,7 +39,7 @@ export default class OrderModel extends BaseModel {
             invoice_id: null,
             project_id: '',
             total: 0,
-            design_id: '',
+            design_id: this.merged_settings.order_design_id ? this.merged_settings.order_design_id : null,
             date: moment(new Date()).format('YYYY-MM-DD'),
             due_date: moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
             custom_value1: '',

@@ -37,6 +37,10 @@ class CreditEmailedNotification implements ShouldQueue
                 ['all_notifications', 'credit_sent']
             );
 
+            if (empty($notification->method)) {
+                continue;
+            }
+
             $user->notify($notification);
         }
     }

@@ -37,7 +37,7 @@ export default class CreditModel extends BaseModel {
             project_id: '',
             assigned_to: '',
             number: '',
-            design_id: '',
+            design_id: this.merged_settings.credit_design_id ? this.merged_settings.credit_design_id : null,
             file_count: 0,
             date: moment(new Date()).format('YYYY-MM-DD'),
             due_date: moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),

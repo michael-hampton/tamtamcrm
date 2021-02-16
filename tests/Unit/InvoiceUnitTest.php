@@ -93,7 +93,7 @@ class InvoiceUnitTest extends TestCase
     /** @test */
     public function it_can_show_all_the_invoices()
     {
-        Invoice::factory()->create();
+        Invoice::factory()->create(['customer_id' => $this->customer->id]);
         $list = (new InvoiceSearch(new InvoiceRepository(new Invoice)))->filter(
             new SearchRequest(),
             $this->main_account
@@ -104,7 +104,7 @@ class InvoiceUnitTest extends TestCase
     /** @test */
     public function it_can_update_the_invoice()
     {
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
         $customer_id = $this->customer->id;
         $data = ['customer_id' => $customer_id];
         $invoiceRepo = new InvoiceRepository($invoice);
@@ -117,7 +117,7 @@ class InvoiceUnitTest extends TestCase
     /** @test */
     public function it_can_show_the_invoice()
     {
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
         $invoiceRepo = new InvoiceRepository(new Invoice);
         $found = $invoiceRepo->findInvoiceById($invoice->id);
         $this->assertInstanceOf(Invoice::class, $found);
@@ -248,7 +248,7 @@ class InvoiceUnitTest extends TestCase
     /** @test */
     public function it_can_archive_the_invoice()
     {
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
         $deleted = $invoice->archive();
         $this->assertTrue($deleted);
     }
@@ -309,7 +309,7 @@ class InvoiceUnitTest extends TestCase
     /** @test */
     public function testReverseInvoice()
     {
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
 
         $account = $invoice->account;
         $settings = $account->settings;
@@ -385,7 +385,7 @@ class InvoiceUnitTest extends TestCase
     /** @test */
     public function testReversal()
     {
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
         $invoice->customer->balance = 0;
         $invoice->customer->save();
 
@@ -442,7 +442,7 @@ class InvoiceUnitTest extends TestCase
     /** @test */
     public function testReversalNoPayment()
     {
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
 
         (new InvoiceRepository(new Invoice()))->markSent($invoice);
 
@@ -472,7 +472,7 @@ class InvoiceUnitTest extends TestCase
     /** @test */
     public function testCancelInvoice()
     {
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
 
         (new InvoiceRepository(new Invoice))->markSent($invoice);
 
@@ -498,7 +498,7 @@ class InvoiceUnitTest extends TestCase
     /** @test */
     public function testDeleteInvoice()
     {
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
         $invoice->customer->balance = 0;
         $invoice->customer->save();
         $invoice_balance = $invoice->balance;
@@ -535,7 +535,7 @@ class InvoiceUnitTest extends TestCase
 
     public function testPartialDelete()
     {
-        $first_invoice = Invoice::factory()->create();
+        $first_invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
 
         $first_invoice->customer->balance = 0;
         $first_invoice->customer->save();
@@ -543,7 +543,7 @@ class InvoiceUnitTest extends TestCase
 
         (new InvoiceRepository(new Invoice))->markSent($first_invoice);
 
-        $second_invoice = Invoice::factory()->create();
+        $second_invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
         $second_invoice->customer_id = $first_invoice->customer->id;
         $second_invoice->customer->save();
 
@@ -601,7 +601,7 @@ class InvoiceUnitTest extends TestCase
     /** @test */
     public function testCancellationReversal()
     {
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
         $invoice->customer->balance = 0;
         $invoice->customer->save();
 
@@ -637,7 +637,7 @@ class InvoiceUnitTest extends TestCase
     public function autoBill()
     {
         // create invoice
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
         $invoice->customer_id = 5;
         $invoice->gateway_fee = 0;
         $invoice->save();
@@ -669,7 +669,7 @@ class InvoiceUnitTest extends TestCase
     public function autoBill_with_gateway()
     {
         // create invoice
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
         $invoice->customer_id = 5;
         $invoice->gateway_fee = 0;
 
@@ -712,6 +712,8 @@ class InvoiceUnitTest extends TestCase
     {
         // create invoice
         $invoice = Invoice::factory()->create();
+        $invoice = (new InvoiceRepository(new Invoice()))->save(['customer_id' => $this->customer->id], $invoice);
+
         $invoice->customer_id = 5;
         $invoice->status_id = Invoice::STATUS_SENT;
         $invoice->account_id = $this->account->id;
@@ -752,7 +754,7 @@ class InvoiceUnitTest extends TestCase
     public function test_reminder_from_invoice()
     {
         // create invoice
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
         $invoice->customer_id = 5;
         $invoice->status_id = Invoice::STATUS_SENT;
         $invoice->account_id = $this->account->id;
@@ -794,7 +796,7 @@ class InvoiceUnitTest extends TestCase
     public function test_reminders_percentage()
     {
         // create invoice
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
         $invoice->customer_id = 5;
         $invoice->account_id = $this->account->id;
         $invoice->date_to_send = Carbon::now();

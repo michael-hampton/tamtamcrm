@@ -41,6 +41,8 @@ trait UserNotifies
 
         $keys = array_column($found, 'value');
 
+        unset($keys[4], $keys['all_notifications']);
+
         if (count(array_intersect($required_permissions, $keys)) >= 1) {
             array_push($notifiable_methods, 'mail');
         }

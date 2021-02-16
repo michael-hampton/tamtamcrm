@@ -3,7 +3,7 @@ import moment from 'moment'
 import BaseModel, { LineItem } from './BaseModel'
 import { consts } from '../utils/_consts'
 
-export const quote_pdf_fields = ['$quote.number', '$quote.po_number', '$quote.quote_date', '$quote.valid_until', '$quote.balance_due', '$quote.quote_datetime', '$quote.quote_agent',
+export const quote_pdf_fields = ['$quote.number', '$quote.po_number', '$quote.quote_date', '$quote.valid_until', '$quote.balance_due', '$quote.quote_datetime', '$quote.quote_status', '$quote.quote_agent',
     '$quote.quote_total', '$quote.partial_due', '$quote.custom1', '$quote.custom2', '$quote.custom3', '$quote.custom4', '$quote.surcharge1',
     '$quote.surcharge2', '$invoice.surcharge3', '$invoice.surcharge4'
 ]
@@ -84,7 +84,7 @@ export default class QuoteModel extends BaseModel {
             recurring_quote_id: '',
             activeTab: '1',
             po_number: '',
-            design_id: '',
+            design_id: this.merged_settings.quote_design_id ? this.merged_settings.quote_design_id : null,
             currency_id: this.settings.currency_id.toString().length ? this.settings.currency_id : consts.default_currency,
             exchange_rate: 1,
             success: false,

@@ -3,7 +3,7 @@ import moment from 'moment'
 import BaseModel, { LineItem } from './BaseModel'
 import { consts } from '../utils/_consts'
 
-export const invoice_pdf_fields = ['$invoice.number', '$invoice.po_number', '$invoice.invoice_date', '$invoice.invoice_datetime', '$invoice.invoice_agent', '$invoice.due_date',
+export const invoice_pdf_fields = ['$invoice.number', '$invoice.po_number', '$invoice.invoice_date', '$invoice.invoice_datetime', '$invoice.invoice_status', '$invoice.invoice_agent', '$invoice.due_date',
     '$invoice.balance', '$invoice.invoice_total', '$invoice.partial_due', '$invoice.custom1', '$invoice.custom2', '$invoice.custom3',
     '$invoice.custom4', '$invoice.surcharge1', '$invoice.surcharge2', '$invoice.surcharge3', '$invoice.surcharge4'
 ]
@@ -83,7 +83,7 @@ export default class InvoiceModel extends BaseModel {
             recurring: '',
             activeTab: '1',
             po_number: '',
-            design_id: this.settings.invoice_design_id ? this.settings.invoice_design_id : null,
+            design_id: this.merged_settings.invoice_design_id ? this.merged_settings.invoice_design_id : null,
             recurring_invoice_id: null,
             currency_id: this.settings.currency_id.toString().length ? this.settings.currency_id : consts.default_currency,
             exchange_rate: 1,

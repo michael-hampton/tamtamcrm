@@ -9,6 +9,9 @@ class DispatchEmail extends BaseEmailActions
 {
     public function __construct($entity)
     {
+//        echo '<pre>';
+//        print_r($entity);
+
         parent::__construct($entity);
     }
 
@@ -65,17 +68,5 @@ class DispatchEmail extends BaseEmailActions
         SendEmail::dispatchNow($this->entity, $subject, $body, $entity_string, $contact);
 
         $this->triggerEvent();
-    }
-
-    private function triggerEvent()
-    {
-        $entity_class = (new \ReflectionClass($this->entity))->getShortName();
-        $event_class = "App\Events\\" . $entity_class . "\\" . $entity_class . "WasEmailed";
-
-        if (class_exists($event_class)) {
-            event(new $event_class($this->entity));
-        }
-
-        return true;
     }
 }
