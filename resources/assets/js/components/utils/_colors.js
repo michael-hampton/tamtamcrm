@@ -62,8 +62,8 @@ export const paymentStatusColors = {
     [consts.payment_status_completed]: 'success',
     [consts.payment_status_partial_refund]: 'dark',
     [consts.payment_status_refunded]: 'danger',
-    partially_unapplied: 'secondary',
-    unapplied: 'info'
+    [consts.payment_status_partially_unapplied]: 'secondary',
+    [consts.payment_status_partially_unapplied]: 'info'
 }
 
 export const creditStatusColors = {
