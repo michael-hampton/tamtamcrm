@@ -32,8 +32,8 @@ export default function PaymentPresenter (props) {
 
     if (entity.applied < entity.amount) {
       status =  entity.applied == 0
-          ? <Badge className="mr-2" color={paymentStatusColors.unapplied}>{translations.unapplied}</Badge>
-          : <Badge className="mr-2" color={paymentStatusColors.partially_unapplied}>{translations.partially_unapplied}</Badge>
+          ? <Badge className="mr-2" color={paymentStatusColors['-2']}>{translations.unapplied}</Badge>
+          : <Badge className="mr-2" color={paymentStatusColors['-3']}>{translations.partially_unapplied}</Badge>
 
     switch (field) {
         case 'assigned_to': {
