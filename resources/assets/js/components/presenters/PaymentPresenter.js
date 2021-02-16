@@ -25,10 +25,15 @@ export default function PaymentPresenter (props) {
 
     const paymentModel = new PaymentModel(entity.invoices, entity, entity.credits)
 
-    const status = (entity.deleted_at && !entity.is_deleted) ? (<Badge className="mr-2"
+    let status = (entity.deleted_at && !entity.is_deleted) ? (<Badge className="mr-2"
         color="warning">{translations.archived}</Badge>) : ((entity.deleted_at && entity.is_deleted) ? (
         <Badge className="mr-2" color="danger">{translations.deleted}</Badge>) : (
         <Badge color={paymentStatusColors[entity.status_id]}>{paymentStatuses[entity.status_id]}</Badge>))
+
+    if (entity.applied < entity.amount) {
+      status =  entity.applied == 0
+          ? <Badge className="mr-2" color={paymentStatusColors.unapplied}>{translations.unapplied}</Badge>
+          : <Badge className="mr-2" color={paymentStatusColors.partially_unapplied}>{translations.partially_unapplied}</Badge>
 
     switch (field) {
         case 'assigned_to': {
