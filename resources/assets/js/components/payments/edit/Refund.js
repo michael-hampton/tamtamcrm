@@ -19,6 +19,7 @@ import { translations } from '../../utils/_translations'
 import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
 import PaymentModel from '../../models/PaymentModel'
+import { toast, ToastContainer } from 'react-toastify'
 
 class Refund extends React.Component {
     constructor (props) {
@@ -124,6 +125,16 @@ class Refund extends React.Component {
             .then((response) => {
                 this.initialState = this.state
 
+                toast.success(translations.refund_successful.replace('{entity}', translations.expense), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
+
                 if (this.props.payments && this.props.action) {
                     const index = this.props.payments.findIndex(payment => payment.id === this.props.payment.id)
                     this.props.payments[index] = response.data
@@ -143,6 +154,16 @@ class Refund extends React.Component {
                 } else {
                     this.setState({ message: error.response.data })
                 }
+
+                toast.error(translations.refund_unsuccessful.replace('{entity}', translations.refund), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
             })
     }
 
@@ -264,6 +285,19 @@ class Refund extends React.Component {
             <React.Fragment>
                 <DropdownItem onClick={this.toggle}><i className={`fa ${icons.refund}`}/>{translations.refund}
                 </DropdownItem>
+               
+                <ToastContainer
+                            position="top-center"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
+
                 <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
                     <DefaultModalHeader toggle={this.toggle} title={translations.refund}/>
 
