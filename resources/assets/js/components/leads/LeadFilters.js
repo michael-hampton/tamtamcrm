@@ -162,8 +162,8 @@ export default class LeadFilters extends Component {
                 </Col>
 
                 <Col sm={12} md={1} className="mt-3 mt-md-0">
-                    <CsvImporter customers={this.props.customers} filename="tasks.csv"
-                        url={`/api/tasks?search_term=${searchText}&project_id=${project_id}&task_status=${task_status_id}&task_type=${task_type}&customer_id=${customer_id}&user_id=${user_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
+                    <CsvImporter filename="tasks.csv"
+                        url={`/api/leads?search_term=${searchText}&project_id=${project_id}&task_status=${task_status_id}&task_type=${task_type}&customer_id=${customer_id}&user_id=${user_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
                 </Col>
 
                 <Col sm={12} md={3} className="mt-3 mt-md-0">
@@ -188,12 +188,12 @@ export default class LeadFilters extends Component {
 
                 <Col sm={12} md={2} className="mt-3 mt-md-0">
                     <FormGroup>
-                        <DateFilter onChange={this.filterTasks}/>
+                        <DateFilter onChange={this.filterLeads}/>
                     </FormGroup>
                 </Col>
                 <Col sm={12} md={1} className="mt-3 mt-md-0">
                     <Button color="primary" onClick={() => {
-                        location.href = '/#/kanban?type=task'
+                        location.href = '/#/kanban?type=lead'
                     }}>Kanban view </Button>
                 </Col>
             </Row>
