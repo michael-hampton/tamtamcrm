@@ -68,18 +68,79 @@ export default class LeadFilters extends Component {
         const { status_id, searchText, start_date, end_date, customer_id, user_id } = this.state.filters
 
         return (
-            <Row form>
-                <Col sm={12} md={3} className="mt-3 mt-md-0 h-100">
+             <Row form>
+                <Col md={2}>
                     <TableSearch onChange={(e) => {
-                        const value = typeof e.target.value === 'string' ? e.target.value.toLowerCase() : e.target.value
-                        const search_results = this.props.cachedData.filter(obj => Object.keys(obj).some(key => obj[key] && obj[key].length ? obj[key].toString().toLowerCase().includes(value) : false))
-                        const totalPages = search_results && search_results.length ? Math.ceil(search_results / this.props.pageLimit) : 0
+                        const myArrayFiltered = filterSearchResults(e.target.value, this.props.cachedData, this.props.customers)
+                        const totalPages = myArrayFiltered && myArrayFiltered.length ? Math.ceil(myArrayFiltered.length / this.props.pageLimit) : 0
                         this.props.updateList({
-                            invoices: search_results && search_results.length ? search_results : [],
+                            invoices: myArrayFiltered.length,
                             currentPage: 1,
                             totalPages: totalPages
                         })
                     }}/>
+                </Col>
+
+                /* <Col md={3}>
+                    <CustomerDropdown
+                        customers={this.props.customers}
+                        customer={this.props.filters.customer_id}
+                        handleInputChanges={(e) => {
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [e.target.id]: e.target.value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
+                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
+                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                            })
+                        }}
+                        name="customer_id"
+                    />
+                </Col> */
+
+                <Col sm={12} md={3} className="mt-3 mt-md-0">
+                    <UserDropdown
+                        handleInputChanges={(e) => {
+                            const name = e.target.name
+                            const value = e.target.value
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [name]: value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, value, this.state.filters)
+                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
+                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                            })
+                        }}
+                        users={this.props.users}
+                        name="user_id"
+                    />
+                </Col>
+
+                <Col sm={12} md={2} className="mt-3 mt-md-0">
+
+                    <TaskStatusDropdown
+                        task_type={2}
+                        handleInputChanges={(e) => {
+                            const name = e.target.name
+                            const value = e.target.value
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [name]: value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, value, this.state.filters)
+                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
+                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                            })
+                        }}
+                    />
                 </Col>
 
                 <Col sm={12} md={2} className="mt-3 mt-md-0">
@@ -99,23 +160,40 @@ export default class LeadFilters extends Component {
                     </FormGroup>
                 </Col>
 
+                <Col sm={12} md={1} className="mt-3 mt-md-0">
+                    <CsvImporter customers={this.props.customers} filename="tasks.csv"
+                        url={`/api/tasks?search_term=${searchText}&project_id=${project_id}&task_status=${task_status_id}&task_type=${task_type}&customer_id=${customer_id}&user_id=${user_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
+                </Col>
+
                 <Col sm={12} md={3} className="mt-3 mt-md-0">
-                    <UserDropdown
-                        handleInputChanges={this.filterLeads}
-                        users={this.props.users}
-                        name="user_id"
+                    <ProjectDropdown
+                        handleInputChanges={(e) => {
+                            const name = e.target.name
+                            const value = e.target.value
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [name]: value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, value, this.state.filters)
+                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
+                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                            })
+                        }}
+                        name="project_id"
                     />
                 </Col>
 
-                <Col sm={12} md={1} className="mt-3 mt-md-0">
-                    <CsvImporter filename="leads.csv"
-                        url={`/api/leads?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&user_id=${user_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
-                </Col>
-
-                <Col sm={12} md={2} className="mt-3 mt-md-0 h-100">
+                <Col sm={12} md={2} className="mt-3 mt-md-0">
                     <FormGroup>
-                        <DateFilter onChange={this.filterLeads}/>
+                        <DateFilter onChange={this.filterTasks}/>
                     </FormGroup>
+                </Col>
+                <Col sm={12} md={1} className="mt-3 mt-md-0">
+                    <Button color="primary" onClick={() => {
+                        location.href = '/#/kanban?type=task'
+                    }}>Kanban view </Button>
                 </Col>
             </Row>
         )
