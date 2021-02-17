@@ -110,7 +110,20 @@ export default class TaskFilters extends Component {
 
                 <Col sm={12} md={3} className="mt-3 mt-md-0">
                     <UserDropdown
-                        handleInputChanges={this.filterTasks}
+                        handleInputChanges={(e) => {
+                            const name = e.target.name
+                            const value = e.target.value
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [name]: value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, value, this.state.filters)
+                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
+                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                            })
+                        }}
                         users={this.props.users}
                         name="user_id"
                     />
@@ -161,7 +174,20 @@ export default class TaskFilters extends Component {
 
                 <Col sm={12} md={3} className="mt-3 mt-md-0">
                     <ProjectDropdown
-                        handleInputChanges={this.filterTasks}
+                        handleInputChanges={(e) => {
+                            const name = e.target.name
+                            const value = e.target.value
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [name]: value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, value, this.state.filters)
+                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
+                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                            })
+                        }}
                         name="project_id"
                     />
                 </Col>
