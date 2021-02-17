@@ -9,6 +9,7 @@ import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import { getDefaultTableFields } from '../presenters/TokenPresenter'
 import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class Tokens extends Component {
     constructor (props) {
@@ -54,7 +55,13 @@ export default class Tokens extends Component {
     }
 
     addUserToState (tokens) {
+        const should_filter = !this.state.cachedData.length
         const cachedData = !this.state.cachedData.length ? tokens : this.state.cachedData
+
+        if (should_filter) {
+            tokens = filterStatuses(tokens, '', this.state.filters)
+        }
+
         this.setState({
             tokens: tokens,
             cachedData: cachedData
@@ -74,8 +81,9 @@ export default class Tokens extends Component {
 
         const offset = (currentPage - 1) * pageLimit
         const currentInvoices = tokens.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
 
-        this.setState({ currentPage, currentInvoices, totalPages })
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     filterTokens (filters) {
@@ -136,7 +144,7 @@ export default class Tokens extends Component {
     render () {
         const { searchText, status, start_date, end_date } = this.state.filters
         const { view, tokens, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
-        const fetchUrl = `/api/tokens?search_term=${searchText}&status=${status}&start_date=${start_date}&end_date=${end_date} `
+        const fetchUrl = `/api/tokens?start_date=${start_date}&end_date=${end_date} `
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable fixed-margin-datatable-mobile'

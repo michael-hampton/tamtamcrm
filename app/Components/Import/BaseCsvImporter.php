@@ -1160,20 +1160,21 @@ abstract class BaseCsvImporter
      */
     private function tryStart(bool $save_data = false)
     {
-        if (!$this->isLocked()) {
+        $this->mutex->releaseLock();
+
+        //if (!$this->isLocked()) {
             if (!$this->exists()) {
                 return false;
             }
 
-            $this->lock();
-
+            //$this->lock();
             $this->initialize();
             $this->process($save_data);
             $this->finalStage();
 
             $this->setAsFinished();
             $this->mutex->releaseLock();
-        }
+        //}
 
         return $this->progressBar();
     }

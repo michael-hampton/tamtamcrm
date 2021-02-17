@@ -9,6 +9,7 @@ import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import { getDefaultTableFields } from '../presenters/TokenPresenter'
 import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class Subscriptions extends Component {
     constructor (props) {
@@ -48,7 +49,13 @@ export default class Subscriptions extends Component {
     }
 
     addUserToState (subscriptions) {
+        const should_filter = !this.state.cachedData.length
         const cachedData = !this.state.cachedData.length ? subscriptions : this.state.cachedData
+
+        if (should_filter) {
+            subscriptions = filterStatuses(subscriptions, '', this.state.filters)
+        }
+
         this.setState({
             subscriptions: subscriptions,
             cachedData: cachedData
@@ -80,8 +87,9 @@ export default class Subscriptions extends Component {
 
         const offset = (currentPage - 1) * pageLimit
         const currentInvoices = subscriptions.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
 
-        this.setState({ currentPage, currentInvoices, totalPages })
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     userList (props) {
@@ -134,7 +142,7 @@ export default class Subscriptions extends Component {
     render () {
         const { searchText, status, start_date, end_date } = this.state.filters
         const { view, subscriptions, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
-        const fetchUrl = `/api/subscriptions?search_term=${searchText}&status=${status}&start_date=${start_date}&end_date=${end_date} `
+        const fetchUrl = `/api/subscriptions?start_date=${start_date}&end_date=${end_date} `
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable fixed-margin-datatable-mobile'

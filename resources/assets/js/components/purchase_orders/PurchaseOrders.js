@@ -10,6 +10,7 @@ import CompanyRepository from '../repositories/CompanyRepository'
 import queryString from 'query-string'
 import { getDefaultTableFields } from '../presenters/PurchaseOrderPresenter'
 import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class PurchaseOrders extends Component {
     constructor (props) {
@@ -63,7 +64,13 @@ export default class PurchaseOrders extends Component {
     }
 
     updateInvoice (purchase_orders) {
+        const should_filter = !this.state.cachedData.length
         const cachedData = !this.state.cachedData.length ? purchase_orders : this.state.cachedData
+
+        if (should_filter) {
+            purchase_orders = filterStatuses(purchase_orders, '', this.state.filters)
+        }
+
         this.setState({
             purchase_orders: purchase_orders,
             cachedData: cachedData
@@ -87,8 +94,9 @@ export default class PurchaseOrders extends Component {
 
         const offset = (currentPage - 1) * pageLimit
         const currentInvoices = purchase_orders.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
 
-        this.setState({ currentPage, currentInvoices, totalPages })
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     filterInvoices (filters) {
@@ -172,7 +180,7 @@ export default class PurchaseOrders extends Component {
     render () {
         const { purchase_orders, custom_fields, companies, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const { status_id, company_id, searchText, start_date, end_date, project_id, user_id } = this.state.filters
-        const fetchUrl = `/api/purchase_order?search_term=${searchText}&user_id=${user_id}&status=${status_id}&company_id=${company_id}&project_id=${project_id}&start_date=${start_date}&end_date=${end_date}`
+        const fetchUrl = `/api/purchase_order?start_date=${start_date}&end_date=${end_date}`
         const addButton = companies.length ? <EditPurchaseOrder
             entity_id={this.state.entity_id}
             entity_type={this.state.entity_type}

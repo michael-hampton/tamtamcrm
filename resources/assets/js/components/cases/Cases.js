@@ -10,6 +10,7 @@ import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import { getDefaultTableFields } from '../presenters/CasePresenter'
 import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class Cases extends Component {
     constructor (props) {
@@ -68,12 +69,19 @@ export default class Cases extends Component {
 
         const offset = (currentPage - 1) * pageLimit
         const currentInvoices = cases.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
 
-        this.setState({ currentPage, currentInvoices, totalPages })
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     addUserToState (cases) {
+        const should_filter = !this.state.cachedData.length
         const cachedData = !this.state.cachedData.length ? cases : this.state.cachedData
+
+        if (should_filter) {
+            cases = filterStatuses(cases, '', this.state.filters)
+        }
+
         this.setState({
             cases: cases,
             cachedData: cachedData
@@ -156,7 +164,7 @@ export default class Cases extends Component {
     render () {
         const { searchText, status, start_date, end_date, customer_id, category_id, priority_id } = this.state.filters
         const { view, cases, customers, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
-        const fetchUrl = `/api/cases?search_term=${searchText}&status=${status}&start_date=${start_date}&end_date=${end_date}&customer_id=${customer_id}&category_id=${category_id}&priority_id=${priority_id}`
+        const fetchUrl = `/api/cases?start_date=${start_date}&end_date=${end_date}`
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable-large fixed-margin-datatable-large-mobile'

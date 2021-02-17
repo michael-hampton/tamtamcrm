@@ -11,6 +11,7 @@ import queryString from 'query-string'
 import UpdateRecurringInvoice from './edit/UpdateRecurringInvoice'
 import { getDefaultTableFields } from '../presenters/RecurringInvoicePresenter'
 import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class RecurringInvoices extends Component {
     constructor (props) {
@@ -91,12 +92,19 @@ export default class RecurringInvoices extends Component {
 
         const offset = (currentPage - 1) * pageLimit
         const currentInvoices = invoices.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
 
-        this.setState({ currentPage, currentInvoices, totalPages })
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     updateInvoice (invoices) {
+        const should_filter = !this.state.cachedData.length
         const cachedData = !this.state.cachedData.length ? invoices : this.state.cachedData
+
+        if (should_filter) {
+            invoices = filterStatuses(invoices, '', this.state.filters)
+        }
+
         this.setState({
             invoices: invoices,
             cachedData: cachedData
@@ -186,7 +194,7 @@ export default class RecurringInvoices extends Component {
     render () {
         const { invoices, custom_fields, customers, allInvoices, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const { status_id, customer_id, searchText, start_date, end_date, project_id, user_id } = this.state.filters
-        const fetchUrl = `/api/recurring-invoice?search_term=${searchText}&user_id=${user_id}&status=${status_id}&customer_id=${customer_id}&project_id=${project_id}&start_date=${start_date}&end_date=${end_date}`
+        const fetchUrl = `/api/recurring-invoice?start_date=${start_date}&end_date=${end_date}`
         const addButton = customers.length && allInvoices.length
             ? <UpdateRecurringInvoice
                 allInvoices={allInvoices}

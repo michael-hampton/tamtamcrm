@@ -15,6 +15,7 @@ import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import CustomerRepository from '../repositories/CustomerRepository'
 import { getDefaultTableFields } from '../presenters/InvoicePresenter'
+import { filterStatuses } from '../utils/_search'
 
 export default class Invoice extends Component {
     constructor (props) {
@@ -71,8 +72,13 @@ export default class Invoice extends Component {
     }
 
     updateInvoice (invoices) {
-        console.log('invoices', invoices)
+        const should_filter = !this.state.cachedData.length
         const cachedData = !this.state.cachedData.length ? invoices : this.state.cachedData
+
+        if (should_filter) {
+            invoices = filterStatuses(invoices, '', this.state.filters)
+        }
+
         this.setState({
             invoices: invoices,
             cachedData: cachedData
@@ -92,8 +98,9 @@ export default class Invoice extends Component {
 
         const offset = (currentPage - 1) * pageLimit
         const currentInvoices = invoices.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
 
-        this.setState({ currentPage, currentInvoices, totalPages })
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     filterInvoices (filters) {
@@ -183,7 +190,7 @@ export default class Invoice extends Component {
         const total = invoices.length
 
         const { status_id, customer_id, searchText, start_date, end_date, project_id, user_id, id } = this.state.filters
-        const fetchUrl = `/api/invoice?search_term=${searchText}&status=${status_id}&user_id=${user_id}&id=${id}&customer_id=${customer_id}&project_id=${project_id}&start_date=${start_date}&end_date=${end_date}`
+        const fetchUrl = `/api/invoice?id=${id}&start_date=${start_date}&end_date=${end_date}`
         const addButton = this.state.customers.length ? <EditInvoice
             entity_id={this.state.entity_id}
             entity_type={this.state.entity_type}

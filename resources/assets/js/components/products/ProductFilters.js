@@ -7,6 +7,7 @@ import DateFilter from '../common/DateFilter'
 import CsvImporter from '../common/CsvImporter'
 import FilterTile from '../common/FilterTile'
 import StatusDropdown from '../common/StatusDropdown'
+import { filterStatuses } from "../utils/_search";
 
 export default class ProductFilters extends Component {
     constructor (props) {
@@ -83,14 +84,36 @@ export default class ProductFilters extends Component {
 
                 <Col sm={12} md={2} className="mt-3 mt-md-0">
                     <FormGroup>
-                        <StatusDropdown name="status" filterStatus={this.filterProducts} statuses={this.statuses}/>
+                        <StatusDropdown filterStatus={(e) => {
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [e.target.id]: e.target.value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
+                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
+                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                            })
+                        }} statuses={this.statuses}/>
                     </FormGroup>
                 </Col>
 
                 <Col sm={12} md={3} className="mt-3 mt-md-0">
                     <CompanyDropdown
                         company_id={this.props.filters.company_id}
-                        handleInputChanges={this.filterProducts}
+                        handleInputChanges={(e) => {
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [e.target.name]: e.target.value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
+                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
+                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                            })
+                        }}
                         companies={this.props.companies}
                         name="company_id"
                     />

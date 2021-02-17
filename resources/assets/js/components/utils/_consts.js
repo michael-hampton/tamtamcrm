@@ -145,7 +145,7 @@ export const consts = {
     payment_status_completed: 4,
     payment_status_partial_refund: 5,
     payment_status_refunded: 6,
-    payment_status_unapplied: 'unapplied',
+    // payment_status_unapplied: 'unapplied',
     payment_status_unapplied: '-2',
     payment_status_partially_unapplied: '-3',
     task_status_logged: 1,

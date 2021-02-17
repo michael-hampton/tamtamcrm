@@ -9,7 +9,7 @@ import CustomerDropdown from '../common/dropdowns/CustomerDropdown'
 import TaskStatusDropdown from '../common/dropdowns/TaskStatusDropdown'
 import StatusDropdown from '../common/StatusDropdown'
 import ProjectDropdown from '../common/dropdowns/ProjectDropdown'
-import filterSearchResults from '../utils/_search'
+import filterSearchResults, { filterStatuses } from '../utils/_search'
 
 export default class TaskFilters extends Component {
     constructor (props) {
@@ -92,7 +92,18 @@ export default class TaskFilters extends Component {
                     <CustomerDropdown
                         customers={this.props.customers}
                         customer={this.props.filters.customer_id}
-                        handleInputChanges={this.filterTasks}
+                        handleInputChanges={(e) => {
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [e.target.id]: e.target.value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
+                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
+                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                            })
+                        }}
                         name="customer_id"
                     />
                 </Col>
@@ -109,13 +120,37 @@ export default class TaskFilters extends Component {
 
                     <TaskStatusDropdown
                         task_type={1}
-                        handleInputChanges={this.filterTasks}
+                        handleInputChanges={(e) => {
+                            const name = e.target.name
+                            const value = e.target.value
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [name]: value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, value, this.state.filters)
+                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
+                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                            })
+                        }}
                     />
                 </Col>
 
                 <Col sm={12} md={2} className="mt-3 mt-md-0">
                     <FormGroup>
-                        <StatusDropdown filterStatus={this.filterTasks}/>
+                        <StatusDropdown filterStatus={(e) => {
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [e.target.id]: e.target.value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
+                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
+                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                            })
+                        }}/>
                     </FormGroup>
                 </Col>
 

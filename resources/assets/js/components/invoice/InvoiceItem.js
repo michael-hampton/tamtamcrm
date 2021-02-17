@@ -54,7 +54,7 @@ export default class InvoiceItem extends Component {
 
         if (invoices && invoices.length && customers.length) {
             return invoices.map((invoice, index) => {
-                const restoreButton = invoice.deleted_at && !invoice.is_deleted
+                const restoreButton = invoice.deleted_at && invoice.is_deleted
                     ? <RestoreModal id={invoice.id} entities={entities} updateState={this.props.updateInvoice}
                         url={`/api/invoice/restore/${invoice.id}`}/> : null
 

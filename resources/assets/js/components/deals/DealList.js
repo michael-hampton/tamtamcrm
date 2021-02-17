@@ -11,6 +11,7 @@ import CustomerRepository from '../repositories/CustomerRepository'
 import UserRepository from '../repositories/UserRepository'
 import { getDefaultTableFields } from '../presenters/DealPresenter'
 import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class DealList extends Component {
     constructor (props) {
@@ -69,7 +70,13 @@ export default class DealList extends Component {
     }
 
     addUserToState (deals) {
+        const should_filter = !this.state.cachedData.length
         const cachedData = !this.state.cachedData.length ? deals : this.state.cachedData
+
+        if (should_filter) {
+            deals = filterStatuses(deals, '', this.state.filters)
+        }
+
         this.setState({ deals: deals, cachedData: cachedData }, () => {
             const totalPages = Math.ceil(deals.length / this.state.pageLimit)
             this.onPageChanged({ invoices: deals, currentPage: this.state.currentPage, totalPages: totalPages })
@@ -86,8 +93,9 @@ export default class DealList extends Component {
 
         const offset = (currentPage - 1) * pageLimit
         const currentInvoices = deals.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
 
-        this.setState({ currentPage, currentInvoices, totalPages })
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     handleClose () {
@@ -186,7 +194,7 @@ export default class DealList extends Component {
     render () {
         const { deals, users, customers, custom_fields, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const { task_status, customer_id, user_id, searchText, start_date, end_date } = this.state.filters
-        const fetchUrl = `/api/deals?search_term=${searchText}&task_status=${task_status}&customer_id=${customer_id}&user_id=${user_id}&start_date=${start_date}&end_date=${end_date}`
+        const fetchUrl = `/api/deals?start_date=${start_date}&end_date=${end_date}`
         const { error, view } = this.state
 
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)

@@ -7,7 +7,7 @@ import DateFilter from '../common/DateFilter'
 import CsvImporter from '../common/CsvImporter'
 import StatusDropdown from '../common/StatusDropdown'
 import { recurringInvoiceStatuses } from '../utils/_statuses'
-import filterSearchResults from '../utils/_search'
+import filterSearchResults, { filterStatuses } from '../utils/_search'
 
 export default class RecurringInvoiceFilters extends Component {
     constructor (props) {
@@ -83,7 +83,18 @@ export default class RecurringInvoiceFilters extends Component {
                     <CustomerDropdown
                         customer={this.props.filters.customer_id}
                         renderErrorFor={this.renderErrorFor}
-                        handleInputChanges={this.filterInvoices}
+                        handleInputChanges={(e) => {
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [e.target.id]: e.target.value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
+                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
+                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                            })
+                        }}
                         customers={this.props.customers}
                         name="customer_id"
                     />
@@ -91,7 +102,18 @@ export default class RecurringInvoiceFilters extends Component {
 
                 <Col sm={12} md={2} className="mt-3 mt-md-0">
                     <FormGroup>
-                        <StatusDropdown filterStatus={this.filterInvoices} statuses={this.statuses}/>
+                        <StatusDropdown filterStatus={(e) => {
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [e.target.id]: e.target.value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
+                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
+                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                            })
+                        }} statuses={this.statuses}/>
                     </FormGroup>
                 </Col>
 

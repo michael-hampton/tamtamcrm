@@ -31,10 +31,10 @@ export default function PaymentPresenter (props) {
         <Badge color={paymentStatusColors[entity.status_id]}>{paymentStatuses[entity.status_id]}</Badge>))
 
     if (entity.applied < entity.amount) {
-      status =  entity.applied == 0
-          ? <Badge className="mr-2" color={paymentStatusColors['-2']}>{translations.unapplied}</Badge>
-          : <Badge className="mr-2" color={paymentStatusColors['-3']}>{translations.partially_unapplied}</Badge>
-
+        status = entity.applied === 0
+            ? <Badge className="mr-2" color={paymentStatusColors['-2']}>{translations.unapplied}</Badge>
+            : <Badge className="mr-2" color={paymentStatusColors['-3']}>{translations.partially_unapplied}</Badge>
+    }
     switch (field) {
         case 'assigned_to': {
             const assigned_user = JSON.parse(localStorage.getItem('users')).filter(user => user.id === parseInt(props.entity.assigned_to))

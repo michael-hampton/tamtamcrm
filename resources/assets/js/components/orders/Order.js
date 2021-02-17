@@ -10,6 +10,7 @@ import { translations } from '../utils/_translations'
 import CustomerRepository from '../repositories/CustomerRepository'
 import { getDefaultTableFields } from '../presenters/OrderPresenter'
 import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from "../utils/_search";
 
 export default class Order extends Component {
     constructor (props) {
@@ -71,12 +72,19 @@ export default class Order extends Component {
 
         const offset = (currentPage - 1) * pageLimit
         const currentInvoices = orders.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
 
-        this.setState({ currentPage, currentInvoices, totalPages })
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     updateOrder (orders) {
+        const should_filter = !this.state.cachedData.length
         const cachedData = !this.state.cachedData.length ? orders : this.state.cachedData
+
+        if (should_filter) {
+            orders = filterStatuses(orders, '', this.state.filters)
+        }
+
         this.setState({
             orders: orders,
             cachedData: cachedData
@@ -166,7 +174,7 @@ export default class Order extends Component {
     render () {
         const { orders, customers, custom_fields, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const { status_id, customer_id, searchText, start_date, end_date, user_id } = this.state.filters
-        const fetchUrl = `/api/order?search_term=${searchText}&user_id=${user_id}&status=${status_id}&customer_id=${customer_id}&start_date=${start_date}&end_date=${end_date}`
+        const fetchUrl = `/api/order?start_date=${start_date}&end_date=${end_date}`
         const addButton = this.state.customers.length ? <EditOrder
             entity_id={this.state.entity_id}
             entity_type={this.state.entity_type}

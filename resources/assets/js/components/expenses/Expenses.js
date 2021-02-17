@@ -11,6 +11,7 @@ import CustomerRepository from '../repositories/CustomerRepository'
 import CompanyRepository from '../repositories/CompanyRepository'
 import { getDefaultTableFields } from '../presenters/ExpensePresenter'
 import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from "../utils/_search";
 
 export default class Excuspenses extends Component {
     constructor (props) {
@@ -112,12 +113,19 @@ export default class Excuspenses extends Component {
 
         const offset = (currentPage - 1) * pageLimit
         const currentInvoices = expenses.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
 
-        this.setState({ currentPage, currentInvoices, totalPages })
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     updateExpenses (expenses) {
+        const should_filter = !this.state.cachedData.length
         const cachedData = !this.state.cachedData.length ? expenses : this.state.cachedData
+
+        if (should_filter) {
+            expenses = filterStatuses(expenses, '', this.state.filters)
+        }
+
         this.setState({
             expenses: expenses,
             cachedData: cachedData
@@ -186,7 +194,7 @@ export default class Excuspenses extends Component {
     render () {
         const { expenses, customers, custom_fields, view, companies, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const { searchText, status_id, customer_id, company_id, start_date, end_date, expense_category_id, user_id } = this.state.filters
-        const fetchUrl = `/api/expenses?search_term=${searchText}&status=${status_id}&user_id=${user_id}&customer_id=${customer_id}&company_id=${company_id}&start_date=${start_date}&end_date=${end_date}&expense_category_id=${expense_category_id}`
+        const fetchUrl = `/api/expenses?start_date=${start_date}&end_date=${end_date}`
         const addButton = customers.length ? <AddExpense
             entity_id={this.state.entity_id}
             entity_type={this.state.entity_type}

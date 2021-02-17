@@ -4,6 +4,7 @@ import TableSearch from '../common/TableSearch'
 import DateFilter from '../common/DateFilter'
 import FilterTile from '../common/FilterTile'
 import StatusDropdown from '../common/StatusDropdown'
+import { filterStatuses } from "../utils/_search";
 
 export default class PaymentTermFilters extends Component {
     constructor (props) {
@@ -74,7 +75,18 @@ export default class PaymentTermFilters extends Component {
 
                 <Col sm={12} md={2} className="mt-3 mt-md-0">
                     <FormGroup>
-                        <StatusDropdown name="status" filterStatus={this.filterPaymentTerms} statuses={this.statuses}/>
+                        <StatusDropdown filterStatus={(e) => {
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [e.target.id]: e.target.value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
+                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
+                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                            })
+                        }} statuses={this.statuses}/>
                     </FormGroup>
                 </Col>
 

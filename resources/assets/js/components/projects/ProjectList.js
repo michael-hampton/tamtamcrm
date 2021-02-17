@@ -10,6 +10,7 @@ import { translations } from '../utils/_translations'
 import CustomerRepository from '../repositories/CustomerRepository'
 import { getDefaultTableFields } from '../presenters/ProjectPresenter'
 import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class ProjectList extends Component {
     constructor (props) {
@@ -61,7 +62,13 @@ export default class ProjectList extends Component {
     }
 
     addUserToState (projects) {
+        const should_filter = !this.state.cachedData.length
         const cachedData = !this.state.cachedData.length ? projects : this.state.cachedData
+
+        if (should_filter) {
+            projects = filterStatuses(projects, '', this.state.filters)
+        }
+
         this.setState({
             projects: projects,
             cachedData: cachedData
@@ -81,8 +88,9 @@ export default class ProjectList extends Component {
 
         const offset = (currentPage - 1) * pageLimit
         const currentInvoices = projects.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
 
-        this.setState({ currentPage, currentInvoices, totalPages })
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     handleClose () {
@@ -162,7 +170,7 @@ export default class ProjectList extends Component {
     render () {
         const { projects, customers, custom_fields, view, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const { status_id, customer_id, searchText, start_date, end_date, user_id } = this.state.filters
-        const fetchUrl = `/api/projects?search_term=${searchText}&user_id=${user_id}&status=${status_id}&customer_id=${customer_id}&start_date=${start_date}&end_date=${end_date}`
+        const fetchUrl = `/api/projects?start_date=${start_date}&end_date=${end_date}`
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable fixed-margin-datatable-mobile'

@@ -9,6 +9,7 @@ import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import { getDefaultTableFields } from '../presenters/TaskStatusPresenter'
 import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class Categories extends Component {
     constructor (props) {
@@ -53,7 +54,13 @@ export default class Categories extends Component {
     }
 
     addUserToState (statuses) {
+        const should_filter = !this.state.cachedData.length
         const cachedData = !this.state.cachedData.length ? statuses : this.state.cachedData
+
+        if (should_filter) {
+            statuses = filterStatuses(statuses, '', this.state.filters)
+        }
+
         this.setState({
             statuses: statuses,
             cachedData: cachedData
@@ -73,8 +80,9 @@ export default class Categories extends Component {
 
         const offset = (currentPage - 1) * pageLimit
         const currentInvoices = statuses.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
 
-        this.setState({ currentPage, currentInvoices, totalPages })
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     handleClose () {
@@ -150,7 +158,7 @@ export default class Categories extends Component {
     render () {
         const { searchText, status, start_date, end_date } = this.state.filters
         const { view, statuses, customers, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
-        const fetchUrl = `/api/taskStatus?search_term=${searchText}&status=${status}&start_date=${start_date}&end_date=${end_date} `
+        const fetchUrl = `/api/taskStatus?start_date=${start_date}&end_date=${end_date} `
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable fixed-margin-datatable-mobile'

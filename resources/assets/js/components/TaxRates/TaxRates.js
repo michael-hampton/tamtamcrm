@@ -8,6 +8,7 @@ import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import { getDefaultTableFields } from '../presenters/TaxRatePresenter'
 import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class TaxRates extends Component {
     constructor (props) {
@@ -49,7 +50,13 @@ export default class TaxRates extends Component {
     }
 
     addUserToState (taxRates) {
+        const should_filter = !this.state.cachedData.length
         const cachedData = !this.state.cachedData.length ? taxRates : this.state.cachedData
+
+        if (should_filter) {
+            taxRates = filterStatuses(taxRates, '', this.state.filters)
+        }
+
         this.setState({
             taxRates: taxRates,
             cachedData: cachedData
@@ -70,8 +77,9 @@ export default class TaxRates extends Component {
 
         const offset = (currentPage - 1) * pageLimit
         const currentInvoices = taxRates.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
 
-        this.setState({ currentPage, currentInvoices, totalPages })
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     filterTaxRates (filters) {
@@ -117,7 +125,7 @@ export default class TaxRates extends Component {
     render () {
         const { taxRates, error, view, filters, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const { searchText, status_id, start_date, end_date } = this.state.filters
-        const fetchUrl = `/api/taxRates?search_term=${searchText}&status=${status_id}&start_date=${start_date}&end_date=${end_date}`
+        const fetchUrl = `/api/taxRates?start_date=${start_date}&end_date=${end_date}`
         const addButton = <AddTaxRate taxRates={taxRates} action={this.addUserToState}/>
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'

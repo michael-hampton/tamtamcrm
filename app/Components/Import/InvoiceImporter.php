@@ -34,7 +34,12 @@ class InvoiceImporter extends BaseCsvImporter
         'unit_tax'      => 'unit_tax',
         'quantity'      => 'quantity',
         'shipping_cost' => 'shipping_cost',
-        'tax_rate'      => 'tax_rate'
+        'tax_rate'      => 'tax_rate',
+        'custom_value1' => 'custom value1',
+        'custom_value2' => 'custom value2',
+        'custom_value3' => 'custom value3',
+        'custom_value4' => 'custom value4',
+        'exchange_rate' => 'exchange_rate'
     ];
     /**
      * @var array|string[]
@@ -49,6 +54,11 @@ class InvoiceImporter extends BaseCsvImporter
         'terms'         => 'terms',
         'public notes'  => 'public_notes',
         'private notes' => 'private_notes',
+        'custom value1' => 'custom_value1',
+        'custom value2' => 'custom_value2',
+        'custom value3' => 'custom_value3',
+        'custom value4' => 'custom_value4',
+        'exchange rate' => 'exchange_rate',
         'line_items'    => [
             'description'   => 'description',
             'product'       => 'product_id',
@@ -110,6 +120,10 @@ class InvoiceImporter extends BaseCsvImporter
                 'number'        => ['validation' => 'number_validation'],
                 'customer name' => ['validation' => 'required', 'cast' => 'string'],
                 'terms'         => ['cast' => 'string'],
+                'custom value1' => ['cast' => 'string'],
+                'custom value2' => ['cast' => 'string'],
+                'custom value3' => ['cast' => 'string'],
+                'custom value4' => ['cast' => 'string'],
                 'private notes' => ['cast' => 'string'],
                 'public notes'  => ['cast' => 'string'],
                 'po number'     => ['cast' => 'string'],

@@ -10,6 +10,7 @@ import CustomerRepository from '../repositories/CustomerRepository'
 import queryString from 'query-string'
 import { getDefaultTableFields } from '../presenters/CreditPresenter'
 import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class Credits extends Component {
     constructor (props) {
@@ -72,8 +73,9 @@ export default class Credits extends Component {
 
         const offset = (currentPage - 1) * pageLimit
         const currentInvoices = credits.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
 
-        this.setState({ currentPage, currentInvoices, totalPages })
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     filterCredits (filters) {
@@ -124,7 +126,13 @@ export default class Credits extends Component {
     }
 
     updateCustomers (credits) {
+        const should_filter = !this.state.cachedData.length
         const cachedData = !this.state.cachedData.length ? credits : this.state.cachedData
+
+        if (should_filter) {
+            credits = filterStatuses(credits, '', this.state.filters)
+        }
+
         this.setState({
             credits: credits,
             cachedData: cachedData
@@ -165,7 +173,7 @@ export default class Credits extends Component {
 
     render () {
         const { customers, credits, custom_fields, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
-        const fetchUrl = `/api/credits?search_term=${this.state.filters.searchText}&status=${this.state.filters.status_id}&customer_id=${this.state.filters.customer_id}&user_id=${this.state.filters.user_id}&project_id=${this.state.filters.project_id}&start_date=${this.state.filters.start_date}&end_date=${this.state.filters.end_date}`
+        const fetchUrl = `/api/credits?start_date=${this.state.filters.start_date}&end_date=${this.state.filters.end_date}`
         const addButton = customers.length ? <EditCredit
             entity_id={this.state.entity_id}
             entity_type={this.state.entity_type}

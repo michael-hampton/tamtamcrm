@@ -304,9 +304,10 @@ export default class Importer extends React.Component {
         const preview = headers.length && columns.length
             ? headers.map((header, index) => {
                 const select_list = this.buildSelectList(header)
+                const formatted_header = translations[header] && translations[header].length ? translations[header] : header
                 return <Form className="p-2" key={index} inline>
                     <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                        <Label for="exampleEmail" className="mr-sm-2">{header}</Label>
+                        <Label for="exampleEmail" className="mr-sm-2">{formatted_header}</Label>
                         {select_list}
                     </FormGroup>
                 </Form>

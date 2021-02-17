@@ -12,6 +12,7 @@ import UserRepository from '../repositories/UserRepository'
 import EditTaskDesktop from './edit/EditTaskDesktop'
 import { getDefaultTableFields } from '../presenters/TaskPresenter'
 import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class TaskList extends Component {
     constructor (props) {
@@ -70,7 +71,13 @@ export default class TaskList extends Component {
     }
 
     addUserToState (tasks) {
+        const should_filter = !this.state.cachedData.length
         const cachedData = !this.state.cachedData.length ? tasks : this.state.cachedData
+
+        if (should_filter) {
+            tasks = filterStatuses(tasks, '', this.state.filters)
+        }
+
         this.setState({ tasks: tasks, cachedData: cachedData }, () => {
             const totalPages = Math.ceil(tasks.length / this.state.pageLimit)
             this.onPageChanged({ invoices: tasks, currentPage: this.state.currentPage, totalPages: totalPages })
@@ -98,8 +105,9 @@ export default class TaskList extends Component {
 
         const offset = (currentPage - 1) * pageLimit
         const currentInvoices = tasks.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
 
-        this.setState({ currentPage, currentInvoices, totalPages })
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     userList (props) {
@@ -188,7 +196,7 @@ export default class TaskList extends Component {
     render () {
         const { tasks, users, customers, custom_fields, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const { project_id, task_status_id, task_type, customer_id, user_id, searchText, start_date, end_date } = this.state.filters
-        const fetchUrl = `/api/tasks?search_term=${searchText}&project_id=${project_id}&task_status=${task_status_id}&task_type=${task_type}&customer_id=${customer_id}&user_id=${user_id}&start_date=${start_date}&end_date=${end_date}`
+        const fetchUrl = `/api/tasks?start_date=${start_date}&end_date=${end_date}`
         const { error, view } = this.state
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'

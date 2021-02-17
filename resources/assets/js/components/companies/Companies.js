@@ -9,6 +9,7 @@ import { translations } from '../utils/_translations'
 import UserRepository from '../repositories/UserRepository'
 import { getDefaultTableFields } from '../presenters/CompanyPresenter'
 import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from "../utils/_search";
 
 export default class Companies extends Component {
     constructor (props) {
@@ -58,7 +59,13 @@ export default class Companies extends Component {
     }
 
     addUserToState (brands) {
+        const should_filter = !this.state.cachedData.length
         const cachedData = !this.state.cachedData.length ? brands : this.state.cachedData
+
+        if (should_filter) {
+            brands = filterStatuses(brands, '', this.state.filters)
+        }
+
         this.setState({ brands: brands, cachedData: cachedData }, () => {
             const totalPages = Math.ceil(brands.length / this.state.pageLimit)
             this.onPageChanged({ invoices: brands, currentPage: this.state.currentPage, totalPages: totalPages })
@@ -75,8 +82,9 @@ export default class Companies extends Component {
 
         const offset = (currentPage - 1) * pageLimit
         const currentInvoices = brands.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
 
-        this.setState({ currentPage, currentInvoices, totalPages })
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     handleClose () {
@@ -158,7 +166,7 @@ export default class Companies extends Component {
     render () {
         const { custom_fields, users, error, view, brands, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const { searchText, status_id, start_date, end_date } = this.state.filters
-        const fetchUrl = `/api/companies?search_term=${searchText}&status=${status_id}&start_date=${start_date}&end_date=${end_date}`
+        const fetchUrl = `/api/companies?start_date=${start_date}&end_date=${end_date}`
         const addButton = users.length
             ? <AddCompany brands={brands} users={users} action={this.addUserToState}
                 custom_fields={custom_fields}/> : null

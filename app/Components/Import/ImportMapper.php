@@ -7,9 +7,11 @@ namespace App\Components\Import;
 use App\Factory\CompanyFactory;
 use App\Models\Company;
 use App\Models\CompanyContact;
+use App\Models\Country;
 use App\Models\Currency;
 use App\Models\Customer;
 use App\Models\CustomerContact;
+use App\Models\Industry;
 use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\Project;
@@ -29,6 +31,16 @@ trait ImportMapper
      * @var array
      */
     private array $customers = [];
+
+    /**
+     * @var array
+     */
+    private array $countries = [];
+
+    /**
+     * @var array
+     */
+    private array $industries = [];
 
     private Collection $customer_objects;
 
@@ -63,6 +75,10 @@ trait ImportMapper
     private array $converters = [
         'product'               => 'getProduct',
         'customer name'         => 'getCustomer',
+        'industry'              => 'getIndustry',
+        'country'               => 'getCountry',
+        'billing country'       => 'getCountry',
+        'shipping country'      => 'getCountry',
         'contact email'         => 'getContact',
         'brand name'            => 'getBrand',
         'expense category name' => 'getExpenseCategory',
@@ -324,6 +340,38 @@ trait ImportMapper
         $payment_type = $this->payment_types[strtolower($value)];
 
         return $payment_type['id'];
+    }
+
+    private function getCountry(string $value)
+    {
+        if (empty($this->countries)) {
+            $this->countries = Country::all()->keyBy('name')->toArray();
+            $this->countries = array_change_key_case($this->countries, CASE_LOWER);
+        }
+
+        if (empty($this->countries) || empty($this->countries[strtolower($value)])) {
+            return null;
+        }
+
+        $country = $this->countries[strtolower($value)];
+
+        return $country['id'];
+    }
+
+    private function getIndustry(string $value)
+    {
+        if (empty($this->industries)) {
+            $this->industries = Industry::all()->keyBy('name')->toArray();
+            $this->industries = array_change_key_case($this->industries, CASE_LOWER);
+        }
+
+        if (empty($this->industries) || empty($this->industries[strtolower($value)])) {
+            return null;
+        }
+
+        $industry = $this->industries[strtolower($value)];
+
+        return $industry['id'];
     }
 
     private function getTaskStatus(string $value)

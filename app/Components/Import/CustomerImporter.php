@@ -48,8 +48,13 @@ class CustomerImporter extends BaseCsvImporter
         'currency code' => 'currency_id',
         'website'       => 'website',
         'terms'         => 'terms',
+        'industry'      => 'industry_id',
         'public notes'  => 'public_notes',
         'private notes' => 'private_notes',
+        'custom value1' => 'custom_value1',
+        'custom value2' => 'custom_value2',
+        'custom value3' => 'custom_value3',
+        'custom value4' => 'custom_value4',
         'contacts'      => [
             'first_name' => 'first_name',
             'last_name'  => 'last_name',
@@ -60,13 +65,15 @@ class CustomerImporter extends BaseCsvImporter
             'billing address 1' => 'address_1',
             'billing address 2' => 'address_2',
             'billing zip'       => 'zip',
-            'billing city'      => 'city'
+            'billing city'      => 'city',
+            'billing country'   => 'country_id'
         ],
         'shipping'      => [
             'shipping address 1' => 'address_1',
             'shipping address 2' => 'address_2',
             'shipping zip'       => 'zip',
-            'shipping city'      => 'city'
+            'shipping city'      => 'city',
+            'shipping country'   => 'country_id'
         ]
     ];
     /**
@@ -108,12 +115,16 @@ class CustomerImporter extends BaseCsvImporter
     {
         return [
             'mappings' => [
-                'first_name' => ['validation' => 'required', 'cast' => 'string'],
-                'last_name'  => ['validation' => 'required', 'cast' => 'string'],
-                'email'      => ['validation' => 'email|required', 'cast' => 'string'],
-                'phone'      => ['cast' => 'string'],
-                'name'       => ['validation' => 'required', 'cast' => 'string'],
-                'vat_number' => ['required', 'cast' => 'string'],
+                'first_name'    => ['validation' => 'required', 'cast' => 'string'],
+                'last_name'     => ['validation' => 'required', 'cast' => 'string'],
+                'email'         => ['validation' => 'email|required', 'cast' => 'string'],
+                'phone'         => ['cast' => 'string'],
+                'name'          => ['validation' => 'required', 'cast' => 'string'],
+                'vat_number'    => ['required', 'cast' => 'string'],
+                'custom value1' => ['cast' => 'string'],
+                'custom value2' => ['cast' => 'string'],
+                'custom value3' => ['cast' => 'string'],
+                'custom value4' => ['cast' => 'string'],
                 //'due date'      => ['cast' => 'date'],
                 //'customer_id' => ['required', 'cast' => 'int'],
             ],

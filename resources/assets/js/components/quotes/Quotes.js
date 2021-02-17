@@ -10,6 +10,7 @@ import { translations } from '../utils/_translations'
 import queryString from 'query-string'
 import { getDefaultTableFields } from '../presenters/QuotePresenter'
 import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class Quotes extends Component {
     constructor (props) {
@@ -63,7 +64,13 @@ export default class Quotes extends Component {
     }
 
     updateInvoice (quotes) {
+        const should_filter = !this.state.cachedData.length
         const cachedData = !this.state.cachedData.length ? quotes : this.state.cachedData
+
+        if (should_filter) {
+            quotes = filterStatuses(quotes, '', this.state.filters)
+        }
+
         this.setState({
             quotes: quotes,
             cachedData: cachedData
@@ -83,8 +90,9 @@ export default class Quotes extends Component {
 
         const offset = (currentPage - 1) * pageLimit
         const currentInvoices = quotes.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
 
-        this.setState({ currentPage, currentInvoices, totalPages })
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     filterInvoices (filters) {
@@ -169,7 +177,7 @@ export default class Quotes extends Component {
     render () {
         const { quotes, custom_fields, customers, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const { status_id, customer_id, searchText, start_date, end_date, project_id, user_id } = this.state.filters
-        const fetchUrl = `/api/quote?search_term=${searchText}&status=${status_id}&user_id=${user_id}&customer_id=${customer_id}&project_id=${project_id}&start_date=${start_date}&end_date=${end_date}`
+        const fetchUrl = `/api/quote?start_date=${start_date}&end_date=${end_date}`
         const addButton = customers.length ? <EditQuote
             entity_id={this.state.entity_id}
             entity_type={this.state.entity_type}

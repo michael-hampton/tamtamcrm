@@ -12,6 +12,7 @@ import CreditRepository from '../repositories/CreditRepository'
 import InvoiceRepository from '../repositories/InvoiceRepository'
 import { getDefaultTableFields } from '../presenters/PaymentPresenter'
 import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class Payments extends Component {
     constructor (props) {
@@ -78,7 +79,9 @@ export default class Payments extends Component {
         const offset = (currentPage - 1) * pageLimit
         const currentInvoices = payments.slice(offset, offset + pageLimit)
 
-        this.setState({ currentPage, currentInvoices, totalPages })
+        const filters = data.filters ? data.filters : this.state.filters
+
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     handleClose () {
@@ -151,13 +154,19 @@ export default class Payments extends Component {
     }
 
     updateCustomers (payments) {
+        const should_filter = !this.state.cachedData.length
         const cachedData = !this.state.cachedData.length ? payments : this.state.cachedData
+
+        if (should_filter) {
+            payments = filterStatuses(payments, '', this.state.filters)
+        }
+
         this.setState({
             payments: payments,
             cachedData: cachedData
         }, () => {
             const totalPages = Math.ceil(payments.length / this.state.pageLimit)
-            this.onPageChanged({ invoices: payments, currentPage: this.state.currentPage, totalPages: totalPages })
+            this.onPageChanged({ invoices: payments, currentPage: this.state.currentPage, totalPages: totalPages }, should_filter)
         })
     }
 
@@ -198,7 +207,7 @@ export default class Payments extends Component {
     render () {
         const { payments, custom_fields, invoices, credits, view, filters, customers, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const { status_id, searchText, customer_id, gateway_id, start_date, end_date } = this.state.filters
-        const fetchUrl = `/api/payments?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&gateway_id=${gateway_id}&start_date=${start_date}&end_date=${end_date}`
+        const fetchUrl = `/api/payments?gateway_id=${gateway_id}&start_date=${start_date}&end_date=${end_date}`
         const addButton = invoices.length ? <AddPayment
             custom_fields={custom_fields}
             invoices={invoices}

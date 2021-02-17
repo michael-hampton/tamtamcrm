@@ -9,6 +9,7 @@ import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import { getDefaultTableFields } from '../presenters/UserPresenter'
 import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class UserList extends Component {
     constructor (props) {
@@ -72,8 +73,9 @@ export default class UserList extends Component {
 
         const offset = (currentPage - 1) * pageLimit
         const currentInvoices = users.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
 
-        this.setState({ currentPage, currentInvoices, totalPages })
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     filterUsers (filters) {
@@ -146,7 +148,13 @@ export default class UserList extends Component {
     }
 
     addUserToState (users) {
+        const should_filter = !this.state.cachedData.length
         const cachedData = !this.state.cachedData.length ? users : this.state.cachedData
+
+        if (should_filter) {
+            users = filterStatuses(users, '', this.state.filters)
+        }
+
         this.setState({
             users: users,
             cachedData: cachedData
@@ -190,7 +198,7 @@ export default class UserList extends Component {
     render () {
         const { users, departments, custom_fields, error, view, filters, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const { status, role_id, department_id, searchText, start_date, end_date } = this.state.filters
-        const fetchUrl = `/api/users?search_term=${searchText}&status=${status}&role_id=${role_id}&department_id=${department_id}&start_date=${start_date}&end_date=${end_date}`
+        const fetchUrl = `/api/users?start_date=${start_date}&end_date=${end_date}`
         const addButton = <AddUser accounts={this.state.accounts} custom_fields={custom_fields}
             departments={departments}
             users={users}

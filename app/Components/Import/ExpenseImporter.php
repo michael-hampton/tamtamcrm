@@ -45,11 +45,16 @@ class ExpenseImporter extends BaseCsvImporter
         'reference number'      => 'reference_number',
         'project name'          => 'project_id',
         'date'                  => 'date',
+        'payment date'          => 'payment_date',
         'amount'                => 'amount',
         'currency code'         => 'currency_id',
         'terms'                 => 'terms',
         'public notes'          => 'public_notes',
-        'private notes'         => 'private_notes'
+        'private notes'         => 'private_notes',
+        'custom value1'         => 'custom_value1',
+        'custom value2'         => 'custom_value2',
+        'custom value3'         => 'custom_value3',
+        'custom value4'         => 'custom_value4',
     ];
     /**
      * @var Account
@@ -98,7 +103,12 @@ class ExpenseImporter extends BaseCsvImporter
                 'project name'          => ['cast' => 'string'],
                 'amount'                => ['cast' => 'float'],
                 'date'                  => ['cast' => 'date'],
+                'payment date'          => ['cast' => 'date'],
                 'currency code'         => ['required', 'cast' => 'string'],
+                'custom value1'         => ['cast' => 'string'],
+                'custom value2'         => ['cast' => 'string'],
+                'custom value3'         => ['cast' => 'string'],
+                'custom value4'         => ['cast' => 'string'],
             ],
             'config'   => [
                 'csv_date_format' => 'Y-m-d'

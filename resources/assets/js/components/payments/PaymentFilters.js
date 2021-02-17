@@ -9,7 +9,7 @@ import { translations } from '../utils/_translations'
 import { consts } from '../utils/_consts'
 import StatusDropdown from '../common/StatusDropdown'
 import { paymentStatuses } from '../utils/_statuses'
-import filterSearchResults from '../utils/_search'
+import filterSearchResults, { filterStatuses } from '../utils/_search'
 
 export default class PaymentFilters extends Component {
     constructor (props) {
@@ -41,8 +41,12 @@ export default class PaymentFilters extends Component {
                 label: translations.complete
             },
             {
-                value: consts.payment_status_unapplied,
+                value: 'unapplied',
                 label: translations.unapplied
+            },
+            {
+                value: 'partially_applied',
+                label: translations.partially_unapplied
             }
         ]
 
@@ -99,7 +103,18 @@ export default class PaymentFilters extends Component {
 
                 <Col sm={12} md={3} className="mt-3 mt-md-0">
                     <CustomerDropdown
-                        handleInputChanges={this.filterPayments}
+                        handleInputChanges={(e) => {
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [e.target.id]: e.target.value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
+                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
+                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                            })
+                        }}
                         customer={this.state.filters.customer_id}
                         customers={this.props.customers}
                         name="customer_id"
@@ -108,7 +123,19 @@ export default class PaymentFilters extends Component {
 
                 <Col sm={12} md={2} className="mt-3 mt-md-0">
                     <FormGroup>
-                        <StatusDropdown filterStatus={this.filterPayments} statuses={this.statuses}/>
+                        <StatusDropdown filterStatus={(e) => {
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [e.target.id]: e.target.value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
+                                console.log('results', results)
+                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
+                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                            })
+                        }} statuses={this.statuses}/>
                     </FormGroup>
                 </Col>
 

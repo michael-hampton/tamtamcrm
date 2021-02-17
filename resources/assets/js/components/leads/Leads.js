@@ -10,6 +10,7 @@ import { translations } from '../utils/_translations'
 import UserRepository from '../repositories/UserRepository'
 import { getDefaultTableFields } from '../presenters/LeadPresenter'
 import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class Leads extends Component {
     constructor (props) {
@@ -60,7 +61,13 @@ export default class Leads extends Component {
     }
 
     addUserToState (leads) {
+        const should_filter = !this.state.cachedData.length
         const cachedData = !this.state.cachedData.length ? leads : this.state.cachedData
+
+        if (should_filter) {
+            leads = filterStatuses(leads, '', this.state.filters)
+        }
+
         this.setState({
             leads: leads,
             cachedData: cachedData
@@ -80,8 +87,9 @@ export default class Leads extends Component {
 
         const offset = (currentPage - 1) * pageLimit
         const currentInvoices = leads.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
 
-        this.setState({ currentPage, currentInvoices, totalPages })
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     filterLeads (filters) {
@@ -163,7 +171,7 @@ export default class Leads extends Component {
     render () {
         const { leads, users, custom_fields, view, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const { status_id, searchText, start_date, end_date, user_id } = this.state.filters
-        const fetchUrl = `/api/leads?search_term=${searchText}&user_id=${user_id}&status=${status_id}&start_date=${start_date}&end_date=${end_date}`
+        const fetchUrl = `/api/leads?start_date=${start_date}&end_date=${end_date}`
         const { error } = this.state
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
