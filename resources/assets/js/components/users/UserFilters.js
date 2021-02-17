@@ -86,7 +86,20 @@ export default class UserFilters extends Component {
                 <Col sm={12} md={3} className="mt-3 mt-md-0">
                     <DepartmentDropdown
                         name="department_id"
-                        handleInputChanges={this.filterUsers}
+                        handleInputChanges={(e) => {
+                            const name = e.target.name
+                            const value = e.target.value
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [name]: value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, value, this.state.filters)
+                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
+                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                            })
+                        }}
                         departments={this.props.departments}
                     />
                 </Col>
@@ -94,7 +107,20 @@ export default class UserFilters extends Component {
                 <Col sm={12} md={2} className="mt-3 mt-md-0">
                     <RoleDropdown
                         name="role_id"
-                        handleInputChanges={this.filterUsers}
+                        handleInputChanges={(e) => {
+                            const name = e.target.name
+                            const value = e.target.value
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [name]: value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, value, this.state.filters)
+                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
+                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                            })
+                        }}
                     />
                 </Col>
 
