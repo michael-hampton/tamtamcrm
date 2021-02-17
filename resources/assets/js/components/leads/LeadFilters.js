@@ -125,7 +125,7 @@ export default class LeadFilters extends Component {
                 <Col sm={12} md={2} className="mt-3 mt-md-0">
 
                     <TaskStatusDropdown
-                        task_type={2}
+                        task_type={3}
                         handleInputChanges={(e) => {
                             const name = e.target.name
                             const value = e.target.value
