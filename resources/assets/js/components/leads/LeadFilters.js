@@ -71,10 +71,11 @@ export default class LeadFilters extends Component {
              <Row form>
                 <Col md={2}>
                     <TableSearch onChange={(e) => {
-                        const myArrayFiltered = filterSearchResults(e.target.value, this.props.cachedData, this.props.customers)
-                        const totalPages = myArrayFiltered && myArrayFiltered.length ? Math.ceil(myArrayFiltered.length / this.props.pageLimit) : 0
+                        const value = typeof e.target.value === 'string' ? e.target.value.toLowerCase() : e.target.value
+                         const search_results = this.props.cachedData.filter(obj => Object.keys(obj).some(key => obj[key] && obj[key].length ? obj[key].toString().toLowerCase().includes(value) : false))
+                         const totalPages = search_results && search_results.length ? Math.ceil(search_results / this.props.pageLimit) : 0
                         this.props.updateList({
-                            invoices: myArrayFiltered.length,
+                            invoices: search_results && search_results.length ? search_results : [],
                             currentPage: 1,
                             totalPages: totalPages
                         })
