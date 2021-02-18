@@ -8,7 +8,7 @@ export default class ColorPickerNew extends Component {
         super(props)
         this.state = {
             show: false,
-            color: null
+            color: this.props.color || null
         }
 
         this.toggle = this.toggle.bind(this)

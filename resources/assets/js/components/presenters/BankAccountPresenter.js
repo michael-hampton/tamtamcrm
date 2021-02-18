@@ -14,10 +14,8 @@ export default function BankAccountPresenter (props) {
 
     switch (field) {
         case 'bank':
-            return <td onClick={() => props.toggleViewedEntity(entity, entity.name, props.edit)} key={field}
-                data-label={translations.bank}>{entity[field].name}</td>
+            return entity[field].name
         default:
-            return <td onClick={() => props.toggleViewedEntity(entity, entity.name, props.edit)} key={field}
-                data-label={field}>{entity[field]}</td>
+            return entity[field]
     }
 }

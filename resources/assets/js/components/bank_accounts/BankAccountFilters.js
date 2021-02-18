@@ -60,6 +60,8 @@ export default class BankAccountFilters extends Component {
     }
 
     getFilters () {
+        const { status_id, searchText, start_date, end_date } = this.state.filters
+
         return (
             <Row form>
                 <Col md={3}>
@@ -75,7 +77,7 @@ export default class BankAccountFilters extends Component {
                     }}/>
                 </Col>
 
-                <Col sm{12} md={3} className="mt-3 mt-md-0">
+                <Col sm={12} md={3} className="mt-3 mt-md-0">
                      <BankDropdown
                          banks={this.props.banks}
                          bank_id={this.props.filters.bank_id}
@@ -106,7 +108,7 @@ export default class BankAccountFilters extends Component {
                 </Col>
 
                 <Col sm={12} md={3} className="mt-3 mt-md-0">
-                    <FormGroup
+                    <FormGroup>
                         <DateFilter onChange={this.filterBankAccounts}/>
                     </FormGroup>
                 </Col>

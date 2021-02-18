@@ -10,6 +10,7 @@ import BankAccountItem from './BankAccountItem'
 import BankAccountFilters from './BankAccountFilters'
 import AddBankAccount from './edit/AddBankAccount'
 import { getDefaultTableFields } from '../presenters/BankAccountPresenter'
+import BankRepository from "../repositories/BankRepository";
 
 export default class BankAccountList extends Component {
     constructor (props) {
@@ -100,16 +101,16 @@ export default class BankAccountList extends Component {
     }
 
     getCustomFields () {
-         const all_custom_fields = JSON.parse(localStorage.getItem('custom_fields'))
-         const custom_fields = []
+        const all_custom_fields = JSON.parse(localStorage.getItem('custom_fields'))
+        const custom_fields = []
 
-         if (all_custom_fields.Project) {
-             custom_fields[0] = all_custom_fields.Project
-         }
+        if (all_custom_fields.Project) {
+            custom_fields[0] = all_custom_fields.Project
+        }
 
-         this.setState({
-             custom_fields: custom_fields
-         })
+        this.setState({
+            custom_fields: custom_fields
+        })
     }
 
     userList (props) {
@@ -126,16 +127,16 @@ export default class BankAccountList extends Component {
     }
 
     getBanks () {
-         const bankRepository = new BankRepository()
-         bankRepository.get().then(response => {
-             if (!response) {
-                 alert('error')
-             }
+        const bankRepository = new BankRepository()
+        bankRepository.get().then(response => {
+            if (!response) {
+                alert('error')
+            }
 
-             this.setState({ banks: response }, () => {
-                 console.log('banks', this.state.banks)
-             })
-         })
+            this.setState({ banks: response }, () => {
+                console.log('banks', this.state.banks)
+            })
+        })
     }
 
     handleClose () {
@@ -159,7 +160,7 @@ export default class BankAccountList extends Component {
 
     render () {
         const { start_date, end_date } = this.state.filters
-        const { banks, cachedData, view, bank_accounts, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { custom_fields, banks, cachedData, view, bank_accounts, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const fetchUrl = `/api/bank_accounts?start_date=${start_date}&end_date=${end_date} `
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
@@ -234,7 +235,7 @@ export default class BankAccountList extends Component {
                                 {total > 0 &&
                                 <div className="d-flex flex-row py-4 align-items-center">
                                     <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
-                                      pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
                                 </div>
                                 }
                             </CardBody>
