@@ -217,7 +217,8 @@ export default class BankAccountList extends Component {
                                     onPageChanged={this.onPageChanged.bind(this)}
                                     currentData={cachedData}
                                     hide_pagination={true}
-
+                                    disableSorting={['id']}
+                                    defaultColumn='name'
                                     default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
                                     setError={this.setError.bind(this)}
