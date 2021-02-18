@@ -47,11 +47,11 @@ export default class BankAccountList extends Component {
         this.addUserToState = this.addUserToState.bind(this)
         this.userList = this.userList.bind(this)
         this.filterBankAccounts = this.filterBankAccounts.bind(this)
-        this.getUsers = this.getUsers.bind(this)
+        this.getBanks = this.getBanks.bind(this)
     }
 
     componentDidMount () {
-        this.getUsers()
+        this.getBanks()
     }
 
     addUserToState (bank_accounts) {
@@ -111,19 +111,17 @@ export default class BankAccountList extends Component {
             onChangeBulk={props.onChangeBulk}/>
     }
 
-    getUsers () {
-        axios.get('api/users')
-            .then((r) => {
-                this.setState({
-                    users: r.data
-                })
-            })
-            .catch((e) => {
-                this.setState({
-                    loading: false,
-                    error: e
-                })
-            })
+    getBanks () {
+         const bankRepository = new BankRepository()
+         bankRepository.get().then(response => {
+             if (!response) {
+                 alert('error')
+             }
+
+             this.setState({ banks: response }, () => {
+                 console.log('banks', this.state.banks)
+             })
+         })
     }
 
     handleClose () {
