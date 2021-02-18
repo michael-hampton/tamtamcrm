@@ -99,8 +99,8 @@ export default class BankAccountList extends Component {
     }
 
     userList (props) {
-        const { banks, pageLimit, users, currentInvoices, bank_accounts } = this.state
-        return <BankAccountItem banks={banks} showCheckboxes={props.showCheckboxes} bank_accounts={currentInvoices} users={users}
+        const { custom_fields, banks, pageLimit, users, currentInvoices, bank_accounts } = this.state
+        return <BankAccountItem custom_fields={custom_fields} banks={banks} showCheckboxes={props.showCheckboxes} bank_accounts={currentInvoices} users={users}
             viewId={props.viewId} entities={bank_accounts}
             pageLimit={pageLimit}
             show_list={props.show_list}
