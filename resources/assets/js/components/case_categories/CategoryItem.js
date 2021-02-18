@@ -7,7 +7,7 @@ import { Input, ListGroupItem } from 'reactstrap'
 import CategoryPresenter from '../presenters/CategoryPresenter'
 import EditCategory from './edit/EditCategory'
 
-export default class TokenItem extends Component {
+export default class CategoryItem extends Component {
     constructor (props) {
         super(props)
 
