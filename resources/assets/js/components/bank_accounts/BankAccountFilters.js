@@ -6,7 +6,7 @@ import FilterTile from '../common/FilterTile'
 import StatusDropdown from '../common/StatusDropdown'
 import { filterStatuses } from '../utils/_search'
 
-export default class TokenFilters extends Component {
+export default class BankAccountFilters extends Component {
     constructor (props) {
         super(props)
         this.state = {
