@@ -7,7 +7,7 @@ import { Input, ListGroupItem } from 'reactstrap'
 import EditCaseTemplate from './edit/EditCaseTemplate'
 import CaseTemplatePresenter from '../presenters/CaseTemplatePresenter'
 
-export default class TokenItem extends Component {
+export default class CaseTemplateItem extends Component {
     constructor (props) {
         super(props)
 
