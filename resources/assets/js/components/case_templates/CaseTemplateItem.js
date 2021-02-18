@@ -36,10 +36,10 @@ export default class CaseTemplateItem extends Component {
         const self = this
         axios.delete(url)
             .then(function (response) {
-                const arrTokens = [...self.props.entities]
-                const index = arrTokens.findIndex(case_template => case_template.id === id)
-                arrTokens.splice(index, 1)
-                self.props.addUserToState(arrTokens)
+                const arrTemplates = [...self.props.entities]
+                const index = arrTemplates.findIndex(case_template => case_template.id === id)
+                arrTemplates.splice(index, 1)
+                self.props.addUserToState(arrTemplates)
             })
             .catch(function (error) {
                 console.log(error)
