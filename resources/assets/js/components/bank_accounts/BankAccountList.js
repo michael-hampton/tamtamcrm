@@ -46,7 +46,7 @@ export default class BankAccountList extends Component {
 
         this.addUserToState = this.addUserToState.bind(this)
         this.userList = this.userList.bind(this)
-        this.filterTokens = this.filterTokens.bind(this)
+        this.filterBankAccounts = this.filterBankAccounts.bind(this)
         this.getUsers = this.getUsers.bind(this)
     }
 
@@ -90,7 +90,7 @@ export default class BankAccountList extends Component {
         this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
-    filterTokens (filters) {
+    filterBankAccounts (filters) {
         this.setState({ filters: filters })
     }
 
