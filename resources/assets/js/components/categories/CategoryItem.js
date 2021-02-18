@@ -7,7 +7,7 @@ import { Input, ListGroupItem } from 'reactstrap'
 import CategoryPresenter from '../presenters/CategoryPresenter'
 import EditCategory from './edit/EditCategory'
 
-export default class TokenItem extends Component {
+export default class CategoryItem extends Component {
     constructor (props) {
         super(props)
 
@@ -36,10 +36,10 @@ export default class TokenItem extends Component {
         const self = this
         axios.delete(url)
             .then(function (response) {
-                const arrTokens = [...self.props.entities]
-                const index = arrTokens.findIndex(category => category.id === id)
-                arrTokens.splice(index, 1)
-                self.props.addUserToState(arrTokens)
+                const arrCategories = [...self.props.entities]
+                const index = arrCategories.findIndex(category => category.id === id)
+                arrCategories.splice(index, 1)
+                self.props.addUserToState(arrCategories)
             })
             .catch(function (error) {
                 console.log(error)
