@@ -5,6 +5,8 @@ import DateFilter from '../common/DateFilter'
 import FilterTile from '../common/FilterTile'
 import StatusDropdown from '../common/StatusDropdown'
 import { filterStatuses } from '../utils/_search'
+import BankDropdown from '../common/dropdowns/BankDropdown'
+import CsvImporter from '../common/CsvImporter'
 
 export default class BankAccountFilters extends Component {
     constructor (props) {
@@ -73,6 +75,14 @@ export default class BankAccountFilters extends Component {
                     }}/>
                 </Col>
 
+                <Col sm{12} md={3} className="mt-3 mt-md-0">
+                     <BankDropdown
+                         banks={this.props.banks}
+                         bank_id={this.props.filters.bank_id}
+                         handleInputChanges={this.filterBankAccounts}
+                     />
+                </Col>
+
                 <Col sm={12} md={2} className="mt-3 mt-md-0">
                     <FormGroup>
                         <StatusDropdown filterStatus={(e) => {
@@ -96,10 +106,15 @@ export default class BankAccountFilters extends Component {
                 </Col>
 
                 <Col sm={12} md={3} className="mt-3 mt-md-0">
-                    <FormGroup>
+                    <FormGroup
                         <DateFilter onChange={this.filterBankAccounts}/>
                     </FormGroup>
                 </Col>
+
+                <Col sm={12} md={1} className="mt-3 mt-md-0">
+                     <CsvImporter filename="bank_account.csv"
+                         url={`/api/bank_accounts?search_term=${searchText}&status=${status_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
+                 </Col>
             </Row>
         )
     }
