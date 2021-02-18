@@ -7,7 +7,7 @@ import FilterTile from '../common/FilterTile'
 import DateFilter from '../common/DateFilter'
 import CsvImporter from '../common/CsvImporter'
 import StatusDropdown from '../common/StatusDropdown'
-import { filterStatuses } from "../utils/_search";
+import { filterStatuses } from '../utils/_search'
 
 export default class CustomerFilters extends Component {
     constructor (props) {
@@ -94,7 +94,12 @@ export default class CustomerFilters extends Component {
                             }), () => {
                                 const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
                                 const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
-                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                                this.props.updateList({
+                                    invoices: results,
+                                    currentPage: 1,
+                                    totalPages: totalPages,
+                                    filters: this.state.filters
+                                })
                             })
                         }}/>
                     </FormGroup>
@@ -113,7 +118,12 @@ export default class CustomerFilters extends Component {
                             }), () => {
                                 const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
                                 const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
-                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                                this.props.updateList({
+                                    invoices: results,
+                                    currentPage: 1,
+                                    totalPages: totalPages,
+                                    filters: this.state.filters
+                                })
                             })
                         }}
                     />

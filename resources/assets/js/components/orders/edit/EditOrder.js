@@ -81,7 +81,7 @@ export default class EditOrder extends Component {
     }
 
     static getDerivedStateFromProps (props, state) {
-        if (props.order && props.order.id !== state.id) {
+        if (props.order && props.order.id && props.order.id !== state.id) {
             const orderModel = new OrderModel(props.order, props.customers)
             return orderModel.fields
         }
@@ -114,7 +114,7 @@ export default class EditOrder extends Component {
     }
 
     componentDidUpdate (prevProps, prevState) {
-        if (this.props.order && this.props.order.id !== prevProps.order.id) {
+        if (this.props.order && this.props.order.id && this.props.order.id !== prevProps.order.id) {
             this.orderModel = new OrderModel(this.props.order, this.props.customers)
         }
     }

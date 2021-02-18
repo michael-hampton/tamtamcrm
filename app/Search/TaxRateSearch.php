@@ -46,6 +46,8 @@ class TaxRateSearch extends BaseSearch
 
         if ($request->has('status')) {
             $this->status('tax_rates', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {

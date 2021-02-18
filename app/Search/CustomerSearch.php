@@ -47,6 +47,8 @@ class CustomerSearch extends BaseSearch
 
         if ($request->has('status')) {
             $this->status('customers', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->filled('company_id')) {

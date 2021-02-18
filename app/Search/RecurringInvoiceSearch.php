@@ -46,6 +46,8 @@ class RecurringInvoiceSearch extends BaseSearch
 
         if ($request->has('status')) {
             $this->status('recurring_invoices', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->filled('customer_id')) {

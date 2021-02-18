@@ -194,8 +194,8 @@ export default class TaskList extends Component {
     }
 
     render () {
-        const { tasks, users, customers, custom_fields, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
-        const { project_id, task_status_id, task_type, customer_id, user_id, searchText, start_date, end_date } = this.state.filters
+        const { cachedData, tasks, users, customers, custom_fields, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { start_date, end_date } = this.state.filters
         const fetchUrl = `/api/tasks?start_date=${start_date}&end_date=${end_date}`
         const { error, view } = this.state
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
@@ -213,7 +213,7 @@ export default class TaskList extends Component {
             customers={customers}
             users={users}
             action={this.addUserToState}
-            tasks={tasks}
+            tasks={cachedData}
         /> : <EditTaskDesktop
             modal={true}
             listView={true}
@@ -221,7 +221,7 @@ export default class TaskList extends Component {
             users={users}
             task={{}}
             add={true}
-            tasks={tasks}
+            tasks={cachedData}
             action={this.addUserToState}
         />
 
@@ -233,7 +233,7 @@ export default class TaskList extends Component {
                             <CardBody>
                                 <TaskFilters
                                     pageLimit={pageLimit}
-                                    cachedData={this.state.cachedData}
+                                    cachedData={cachedData}
                                     updateList={this.onPageChanged.bind(this)}
                                     customers={customers} setFilterOpen={this.setFilterOpen.bind(this)}
                                     users={users}

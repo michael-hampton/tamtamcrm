@@ -139,8 +139,8 @@ export default class PaymentTerms extends Component {
     }
 
     render () {
-        const { searchText, status, start_date, end_date } = this.state.filters
-        const { view, paymentTerms, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { start_date, end_date } = this.state.filters
+        const { cachedData, view, paymentTerms, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const fetchUrl = `/api/payment_terms?start_date=${start_date}&end_date=${end_date} `
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
@@ -155,7 +155,7 @@ export default class PaymentTerms extends Component {
                             <CardBody>
                                 <PaymentTermFilters
                                     pageLimit={pageLimit}
-                                    cachedData={this.state.cachedData}
+                                    cachedData={cachedData}
                                     updateList={this.onPageChanged.bind(this)}
                                     setFilterOpen={this.setFilterOpen.bind(this)}
                                     paymentTerms={paymentTerms}
@@ -163,7 +163,7 @@ export default class PaymentTerms extends Component {
                                     saveBulk={this.saveBulk}/>
 
                                 <AddPaymentTerm
-                                    payment_terms={paymentTerms}
+                                    payment_terms={cachedData}
                                     action={this.addUserToState}
                                 />
                             </CardBody>

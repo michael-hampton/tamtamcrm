@@ -140,8 +140,8 @@ export default class Subscriptions extends Component {
     }
 
     render () {
-        const { searchText, status, start_date, end_date } = this.state.filters
-        const { view, subscriptions, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { start_date, end_date } = this.state.filters
+        const { cachedData, view, subscriptions, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const fetchUrl = `/api/subscriptions?start_date=${start_date}&end_date=${end_date} `
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
@@ -156,7 +156,7 @@ export default class Subscriptions extends Component {
                             <CardBody>
                                 <SubscriptionFilters
                                     pageLimit={pageLimit}
-                                    cachedData={this.state.cachedData}
+                                    cachedData={cachedData}
                                     updateList={this.onPageChanged.bind(this)}
                                     setFilterOpen={this.setFilterOpen.bind(this)}
                                     subscriptions={subscriptions}
@@ -166,7 +166,7 @@ export default class Subscriptions extends Component {
                                     ignoredColumns={this.state.ignoredColumns}/>
 
                                 <AddSubscription
-                                    subscriptions={subscriptions}
+                                    subscriptions={cachedData}
                                     action={this.addUserToState}
                                 />
                             </CardBody>

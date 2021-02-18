@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Button, Card, CardBody, FormGroup, Label, Input } from 'reactstrap'
+import { Button, Card, CardBody } from 'reactstrap'
 import axios from 'axios'
 import { translations } from '../utils/_translations'
 import FormBuilder from './FormBuilder'
@@ -204,7 +204,7 @@ export default class DeviceSettings extends Component {
                     value: settings.number_of_rows,
                     options: [
                         {
-                           value: 10,
+                            value: 10,
                             text: 10
                         },
                         {
@@ -300,7 +300,7 @@ export default class DeviceSettings extends Component {
                             text: 'journal'
                         }
                     ]
-                },
+                }
             ]
         ]
     }

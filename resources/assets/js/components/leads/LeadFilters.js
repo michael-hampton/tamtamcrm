@@ -6,7 +6,7 @@ import CsvImporter from '../common/CsvImporter'
 import FilterTile from '../common/FilterTile'
 import StatusDropdown from '../common/StatusDropdown'
 import UserDropdown from '../common/dropdowns/UserDropdown'
-import { filterStatuses } from "../utils/_search";
+import { filterStatuses } from '../utils/_search'
 
 export default class LeadFilters extends Component {
     constructor (props) {
@@ -68,12 +68,12 @@ export default class LeadFilters extends Component {
         const { status_id, searchText, start_date, end_date, customer_id, user_id } = this.state.filters
 
         return (
-             <Row form>
+            <Row form>
                 <Col md={2}>
                     <TableSearch onChange={(e) => {
                         const value = typeof e.target.value === 'string' ? e.target.value.toLowerCase() : e.target.value
-                         const search_results = this.props.cachedData.filter(obj => Object.keys(obj).some(key => obj[key] && obj[key].length ? obj[key].toString().toLowerCase().includes(value) : false))
-                         const totalPages = search_results && search_results.length ? Math.ceil(search_results / this.props.pageLimit) : 0
+                        const search_results = this.props.cachedData.filter(obj => Object.keys(obj).some(key => obj[key] && obj[key].length ? obj[key].toString().toLowerCase().includes(value) : false))
+                        const totalPages = search_results && search_results.length ? Math.ceil(search_results / this.props.pageLimit) : 0
                         this.props.updateList({
                             invoices: search_results && search_results.length ? search_results : [],
                             currentPage: 1,
@@ -95,7 +95,12 @@ export default class LeadFilters extends Component {
                             }), () => {
                                 const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
                                 const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
-                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                                this.props.updateList({
+                                    invoices: results,
+                                    currentPage: 1,
+                                    totalPages: totalPages,
+                                    filters: this.state.filters
+                                })
                             })
                         }}
                         name="customer_id"
@@ -115,7 +120,12 @@ export default class LeadFilters extends Component {
                             }), () => {
                                 const results = filterStatuses(this.props.cachedData, value, this.state.filters)
                                 const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
-                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                                this.props.updateList({
+                                    invoices: results,
+                                    currentPage: 1,
+                                    totalPages: totalPages,
+                                    filters: this.state.filters
+                                })
                             })
                         }}
                         users={this.props.users}
@@ -138,7 +148,12 @@ export default class LeadFilters extends Component {
                             }), () => {
                                 const results = filterStatuses(this.props.cachedData, value, this.state.filters)
                                 const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
-                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                                this.props.updateList({
+                                    invoices: results,
+                                    currentPage: 1,
+                                    totalPages: totalPages,
+                                    filters: this.state.filters
+                                })
                             })
                         }}
                     />
@@ -155,7 +170,12 @@ export default class LeadFilters extends Component {
                             }), () => {
                                 const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
                                 const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
-                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                                this.props.updateList({
+                                    invoices: results,
+                                    currentPage: 1,
+                                    totalPages: totalPages,
+                                    filters: this.state.filters
+                                })
                             })
                         }}/>
                     </FormGroup>
@@ -179,7 +199,12 @@ export default class LeadFilters extends Component {
                             }), () => {
                                 const results = filterStatuses(this.props.cachedData, value, this.state.filters)
                                 const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
-                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                                this.props.updateList({
+                                    invoices: results,
+                                    currentPage: 1,
+                                    totalPages: totalPages,
+                                    filters: this.state.filters
+                                })
                             })
                         }}
                         name="project_id"

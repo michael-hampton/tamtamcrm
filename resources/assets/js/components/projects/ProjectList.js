@@ -168,15 +168,13 @@ export default class ProjectList extends Component {
     }
 
     render () {
-        const { projects, customers, custom_fields, view, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
-        const { status_id, customer_id, searchText, start_date, end_date, user_id } = this.state.filters
+        const { cachedData, projects, customers, custom_fields, view, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { start_date, end_date } = this.state.filters
         const fetchUrl = `/api/projects?start_date=${start_date}&end_date=${end_date}`
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable fixed-margin-datatable-mobile'
         const total = projects.length
-
-        console.log('columns', getDefaultTableFields())
 
         return this.state.customers.length ? (
             <Row>
@@ -186,13 +184,13 @@ export default class ProjectList extends Component {
                             <CardBody>
                                 <ProjectFilters
                                     pageLimit={pageLimit}
-                                    cachedData={this.state.cachedData}
+                                    cachedData={cachedData}
                                     updateList={this.onPageChanged.bind(this)}
                                     setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
                                     projects={projects}
                                     filters={this.state.filters} filter={this.filterProjects}
                                     saveBulk={this.saveBulk}/>
-                                <AddProject customers={customers} projects={projects} action={this.addUserToState}
+                                <AddProject customers={customers} projects={cachedData} action={this.addUserToState}
                                     custom_fields={custom_fields}/>
                             </CardBody>
                         </Card>

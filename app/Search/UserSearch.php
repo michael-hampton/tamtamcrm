@@ -44,6 +44,8 @@ class UserSearch extends BaseSearch
 
         if ($request->has('status')) {
             $this->status('users', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->filled('role_id')) {

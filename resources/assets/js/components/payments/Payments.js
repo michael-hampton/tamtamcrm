@@ -166,7 +166,11 @@ export default class Payments extends Component {
             cachedData: cachedData
         }, () => {
             const totalPages = Math.ceil(payments.length / this.state.pageLimit)
-            this.onPageChanged({ invoices: payments, currentPage: this.state.currentPage, totalPages: totalPages }, should_filter)
+            this.onPageChanged({
+                invoices: payments,
+                currentPage: this.state.currentPage,
+                totalPages: totalPages
+            }, should_filter)
         })
     }
 
@@ -205,15 +209,15 @@ export default class Payments extends Component {
     }
 
     render () {
-        const { payments, custom_fields, invoices, credits, view, filters, customers, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
-        const { status_id, searchText, customer_id, gateway_id, start_date, end_date } = this.state.filters
+        const { cachedData, payments, custom_fields, invoices, credits, view, filters, customers, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { gateway_id, start_date, end_date } = this.state.filters
         const fetchUrl = `/api/payments?gateway_id=${gateway_id}&start_date=${start_date}&end_date=${end_date}`
         const addButton = invoices.length ? <AddPayment
             custom_fields={custom_fields}
             invoices={invoices}
             credits={credits}
             action={this.updateCustomers}
-            payments={payments}
+            payments={cachedData}
         /> : null
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
@@ -227,7 +231,7 @@ export default class Payments extends Component {
                         <CardBody>
                             <PaymentFilters
                                 pageLimit={pageLimit}
-                                cachedData={this.state.cachedData}
+                                cachedData={cachedData}
                                 updateList={this.onPageChanged.bind(this)}
                                 setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
                                 payments={payments} invoices={invoices}

@@ -177,7 +177,7 @@ export default class RecurringInvoice extends Component {
                                     <CardBody>
                                         <FileUploads updateCount={(count) => {
                                             this.setState({ file_count: count })
-                                        }} entity_type="Invoice" entity={this.state.entity}
+                                        }} entity_type="RecurringInvoice" entity={this.state.entity}
                                         user_id={this.state.entity.user_id}/>
                                     </CardBody>
                                 </Card>

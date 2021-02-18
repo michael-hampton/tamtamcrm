@@ -9,7 +9,7 @@ import { translations } from '../utils/_translations'
 import UserRepository from '../repositories/UserRepository'
 import { getDefaultTableFields } from '../presenters/CompanyPresenter'
 import PaginationNew from '../common/PaginationNew'
-import { filterStatuses } from "../utils/_search";
+import { filterStatuses } from '../utils/_search'
 
 export default class Companies extends Component {
     constructor (props) {
@@ -164,11 +164,11 @@ export default class Companies extends Component {
     }
 
     render () {
-        const { custom_fields, users, error, view, brands, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
-        const { searchText, status_id, start_date, end_date } = this.state.filters
+        const { cachedData, custom_fields, users, error, view, brands, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { start_date, end_date } = this.state.filters
         const fetchUrl = `/api/companies?start_date=${start_date}&end_date=${end_date}`
         const addButton = users.length
-            ? <AddCompany brands={brands} users={users} action={this.addUserToState}
+            ? <AddCompany brands={cachedData} users={users} action={this.addUserToState}
                 custom_fields={custom_fields}/> : null
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
@@ -183,7 +183,7 @@ export default class Companies extends Component {
                             <CardBody>
                                 <CompanyFilters
                                     pageLimit={pageLimit}
-                                    cachedData={this.state.cachedData}
+                                    cachedData={cachedData}
                                     updateList={this.onPageChanged.bind(this)}
                                     setFilterOpen={this.setFilterOpen.bind(this)} brands={brands}
                                     filters={this.state.filters} filter={this.filterCompanies}

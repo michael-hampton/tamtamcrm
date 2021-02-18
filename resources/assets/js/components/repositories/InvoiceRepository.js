@@ -10,7 +10,7 @@ export default class InvoiceRepository extends BaseRepository {
     }
 
     async get (status = null) {
-        const url = status !== null ? `api/invoice?status=${status}` : this._url
+        const url = status !== null ? `api/invoice?status=${status}` : this._url + '?status=active'
         this.errors = []
         this.error_message = ''
 

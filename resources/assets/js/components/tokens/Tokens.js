@@ -142,8 +142,8 @@ export default class Tokens extends Component {
     }
 
     render () {
-        const { searchText, status, start_date, end_date } = this.state.filters
-        const { view, tokens, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { start_date, end_date } = this.state.filters
+        const { cachedData, view, tokens, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const fetchUrl = `/api/tokens?start_date=${start_date}&end_date=${end_date} `
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
@@ -158,7 +158,7 @@ export default class Tokens extends Component {
                             <CardBody>
                                 <TokenFilters
                                     pageLimit={pageLimit}
-                                    cachedData={this.state.cachedData}
+                                    cachedData={cachedData}
                                     updateList={this.onPageChanged.bind(this)}
                                     setFilterOpen={this.setFilterOpen.bind(this)} tokens={tokens}
                                     updateIgnoredColumns={this.updateIgnoredColumns}
@@ -166,7 +166,7 @@ export default class Tokens extends Component {
                                     saveBulk={this.saveBulk} ignoredColumns={this.state.ignoredColumns}/>
 
                                 <AddToken
-                                    tokens={tokens}
+                                    tokens={cachedData}
                                     action={this.addUserToState}
                                 />
                             </CardBody>

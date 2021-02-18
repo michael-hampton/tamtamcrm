@@ -188,14 +188,14 @@ export default class ProductList extends Component {
     }
 
     render () {
-        const { products, custom_fields, companies, categories, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
-        const { status, searchText, category_id, company_id, start_date, end_date } = this.state.filters
+        const { cachedData, products, custom_fields, companies, categories, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { start_date, end_date } = this.state.filters
         const fetchUrl = `/api/products?start_date=${start_date}&end_date=${end_date}`
         const addButton = companies.length && categories.length ? <AddProduct
             custom_fields={custom_fields}
             companies={companies}
             categories={categories}
-            products={products}
+            products={cachedData}
             action={this.addProductToState}
         /> : null
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
@@ -211,7 +211,7 @@ export default class ProductList extends Component {
                             <CardBody>
                                 <ProductFilters
                                     pageLimit={pageLimit}
-                                    cachedData={this.state.cachedData}
+                                    cachedData={cachedData}
                                     updateList={this.onPageChanged.bind(this)}
                                     setFilterOpen={this.setFilterOpen.bind(this)} companies={companies}
                                     products={products}

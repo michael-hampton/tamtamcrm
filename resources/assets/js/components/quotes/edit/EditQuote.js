@@ -83,7 +83,7 @@ class EditInvoice extends Component {
     }
 
     static getDerivedStateFromProps (props, state) {
-        if (props.invoice && props.invoice.id !== state.id) {
+        if (props.invoice && props.invoice_id && props.invoice.id !== state.id) {
             const invoiceModel = new QuoteModel(props.invoice, props.customers)
             return invoiceModel.fields
         }
@@ -114,7 +114,7 @@ class EditInvoice extends Component {
     }
 
     componentDidUpdate (prevProps, prevState) {
-        if (this.props.invoice && this.props.invoice.id !== prevProps.invoice.id) {
+        if (this.props.invoice && this.props.invoice_id && this.props.invoice.id !== prevProps.invoice.id) {
             this.quoteModel = new QuoteModel(this.props.invoice, this.props.customers)
         }
     }

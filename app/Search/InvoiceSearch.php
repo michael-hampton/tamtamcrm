@@ -46,6 +46,8 @@ class InvoiceSearch extends BaseSearch
 
         if ($request->filled('status')) {
             $this->status('invoices', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->filled('customer_id')) {

@@ -43,6 +43,8 @@ class ProductSearch extends BaseSearch
 
         if ($request->has('status')) {
             $this->status('products', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->filled('company_id')) {

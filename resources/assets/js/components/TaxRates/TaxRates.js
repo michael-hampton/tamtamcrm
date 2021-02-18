@@ -123,10 +123,10 @@ export default class TaxRates extends Component {
     }
 
     render () {
-        const { taxRates, error, view, filters, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
-        const { searchText, status_id, start_date, end_date } = this.state.filters
+        const { cachedData, taxRates, error, view, filters, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { start_date, end_date } = this.state.filters
         const fetchUrl = `/api/taxRates?start_date=${start_date}&end_date=${end_date}`
-        const addButton = <AddTaxRate taxRates={taxRates} action={this.addUserToState}/>
+        const addButton = <AddTaxRate taxRates={cachedData} action={this.addUserToState}/>
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable fixed-margin-datatable-mobile'
@@ -140,7 +140,7 @@ export default class TaxRates extends Component {
                             <CardBody>
                                 <TaxRateFilters
                                     pageLimit={pageLimit}
-                                    cachedData={this.state.cachedData}
+                                    cachedData={cachedData}
                                     updateList={this.onPageChanged.bind(this)}
                                     setFilterOpen={this.setFilterOpen.bind(this)} taxRates={taxRates}
                                     filters={filters} filter={this.filterTaxRates}

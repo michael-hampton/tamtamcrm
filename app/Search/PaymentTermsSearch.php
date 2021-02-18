@@ -42,6 +42,8 @@ class PaymentTermsSearch extends BaseSearch
 
         if ($request->has('status')) {
             $this->status('payment_terms', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->has('search_term') && !empty($request->search_term)) {

@@ -45,6 +45,8 @@ class TokenSearch extends BaseSearch
 
         if ($request->has('status')) {
             $this->status('company_tokens', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->has('search_term') && !empty($request->search_term)) {

@@ -42,7 +42,7 @@ class UserEmailChangedNotification extends Mailable
         $this->buildMessage();
 
         return $this->to($this->user->email)
-                    ->from('tamtamcrm@support.com')
+                    ->from(config('taskmanager.from_email'))
                     ->subject($this->subject)
                     ->markdown(
                         'email.admin.new',

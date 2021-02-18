@@ -169,8 +169,8 @@ export default class Leads extends Component {
     }
 
     render () {
-        const { leads, users, custom_fields, view, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
-        const { status_id, searchText, start_date, end_date, user_id } = this.state.filters
+        const { cachedData, leads, users, custom_fields, view, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { start_date, end_date } = this.state.filters
         const fetchUrl = `/api/leads?start_date=${start_date}&end_date=${end_date}`
         const { error } = this.state
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
@@ -186,12 +186,12 @@ export default class Leads extends Component {
                             <CardBody>
                                 <LeadFilters
                                     pageLimit={pageLimit}
-                                    cachedData={this.state.cachedData}
+                                    cachedData={cachedData}
                                     updateList={this.onPageChanged.bind(this)}
                                     setFilterOpen={this.setFilterOpen.bind(this)} leads={leads}
                                     filters={this.state.filters} filter={this.filterLeads}
                                     saveBulk={this.saveBulk}/>
-                                <AddLead users={users} leads={leads} action={this.addUserToState}
+                                <AddLead users={users} leads={cachedData} action={this.addUserToState}
                                     custom_fields={custom_fields}/>
                             </CardBody>
                         </Card>

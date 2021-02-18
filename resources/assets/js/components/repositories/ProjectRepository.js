@@ -38,7 +38,7 @@ export default class ProjectRepository extends BaseRepository {
             parameters.customer_id = customer_id
         }
 
-        const url = Object.keys(parameters).length ? this._url + `?${this.buildQueryParams(parameters)}` : this._url
+        const url = Object.keys(parameters).length ? this._url + `?${this.buildQueryParams(parameters)}` : this._url + '?status=active'
 
         try {
             const res = await axios.get(url)

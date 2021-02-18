@@ -42,6 +42,8 @@ class LeadSearch extends BaseSearch
 
         if ($request->has('status')) {
             $this->status('leads', $request->status, 'task_status_id');
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->has('search_term') && !empty($request->search_term)) {

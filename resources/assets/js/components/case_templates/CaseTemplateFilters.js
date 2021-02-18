@@ -1,20 +1,26 @@
 import React, { Component } from 'react'
-import { Col, Row } from 'reactstrap'
+import { Col, FormGroup, Row } from 'reactstrap'
 import TableSearch from '../common/TableSearch'
+import DateFilter from '../common/DateFilter'
 import FilterTile from '../common/FilterTile'
+import StatusDropdown from '../common/StatusDropdown'
+import { filterStatuses } from '../utils/_search'
 
-export default class CaseTemplateFilters extends Component {
+export default class TokenFilters extends Component {
     constructor (props) {
         super(props)
         this.state = {
             isOpen: false,
             dropdownButtonActions: ['download'],
             filters: {
-                searchText: ''
+                searchText: '',
+                status: 'active',
+                start_date: '',
+                end_date: ''
             }
         }
 
-        this.filterCaseTemplates = this.filterCaseTemplates.bind(this)
+        this.filterTemplates = this.filterTemplates.bind(this)
         this.getFilters = this.getFilters.bind(this)
     }
 
@@ -22,7 +28,7 @@ export default class CaseTemplateFilters extends Component {
         this.setState({ isOpen: isOpen })
     }
 
-    filterCaseTemplates (event) {
+    filterTemplates (event) {
         if ('start_date' in event) {
             this.setState(prevState => ({
                 filters: {
@@ -55,7 +61,44 @@ export default class CaseTemplateFilters extends Component {
         return (
             <Row form>
                 <Col md={3}>
-                    <TableSearch onChange={this.filterBrands}/>
+                    <TableSearch onChange={(e) => {
+                        const value = typeof e.target.value === 'string' ? e.target.value.toLowerCase() : e.target.value
+                        const search_results = this.props.cachedData.filter(obj => Object.keys(obj).some(key => obj[key] && obj[key].length ? obj[key].toString().toLowerCase().includes(value) : false))
+                        const totalPages = search_results && search_results.length ? Math.ceil(search_results.length / this.props.pageLimit) : 0
+                        this.props.updateList({
+                            invoices: search_results && search_results.length ? search_results : [],
+                            currentPage: 1,
+                            totalPages: totalPages
+                        })
+                    }}/>
+                </Col>
+
+                <Col sm={12} md={2} className="mt-3 mt-md-0">
+                    <FormGroup>
+                        <StatusDropdown filterStatus={(e) => {
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [e.target.id]: e.target.value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
+                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
+                                this.props.updateList({
+                                    invoices: results,
+                                    currentPage: 1,
+                                    totalPages: totalPages,
+                                    filters: this.state.filters
+                                })
+                            })
+                        }} statuses={this.statuses}/>
+                    </FormGroup>
+                </Col>
+
+                <Col sm={12} md={3} className="mt-3 mt-md-0">
+                    <FormGroup>
+                        <DateFilter onChange={this.filterTemplates}/>
+                    </FormGroup>
                 </Col>
             </Row>
         )

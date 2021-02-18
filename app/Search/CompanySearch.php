@@ -43,6 +43,8 @@ class CompanySearch extends BaseSearch
 
         if ($request->has('status')) {
             $this->status('companies', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->has('search_term') && !empty($request->search_term)) {

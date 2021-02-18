@@ -44,6 +44,8 @@ class PurchaseOrderSearch extends BaseSearch
 
         if ($request->has('status')) {
             $this->status('purchase_orders', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->filled('company_id')) {

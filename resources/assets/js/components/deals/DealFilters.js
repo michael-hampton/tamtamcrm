@@ -96,7 +96,12 @@ export default class DealFilters extends Component {
                             }), () => {
                                 const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
                                 const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
-                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                                this.props.updateList({
+                                    invoices: results,
+                                    currentPage: 1,
+                                    totalPages: totalPages,
+                                    filters: this.state.filters
+                                })
                             })
                         }}
                         name="customer_id"
@@ -116,7 +121,12 @@ export default class DealFilters extends Component {
                             }), () => {
                                 const results = filterStatuses(this.props.cachedData, value, this.state.filters)
                                 const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
-                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                                this.props.updateList({
+                                    invoices: results,
+                                    currentPage: 1,
+                                    totalPages: totalPages,
+                                    filters: this.state.filters
+                                })
                             })
                         }}
                         users={this.props.users}
@@ -139,7 +149,12 @@ export default class DealFilters extends Component {
                             }), () => {
                                 const results = filterStatuses(this.props.cachedData, value, this.state.filters)
                                 const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
-                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                                this.props.updateList({
+                                    invoices: results,
+                                    currentPage: 1,
+                                    totalPages: totalPages,
+                                    filters: this.state.filters
+                                })
                             })
                         }}
                     />
@@ -156,7 +171,12 @@ export default class DealFilters extends Component {
                             }), () => {
                                 const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
                                 const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
-                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                                this.props.updateList({
+                                    invoices: results,
+                                    currentPage: 1,
+                                    totalPages: totalPages,
+                                    filters: this.state.filters
+                                })
                             })
                         }}/>
                     </FormGroup>
@@ -180,7 +200,12 @@ export default class DealFilters extends Component {
                             }), () => {
                                 const results = filterStatuses(this.props.cachedData, value, this.state.filters)
                                 const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
-                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                                this.props.updateList({
+                                    invoices: results,
+                                    currentPage: 1,
+                                    totalPages: totalPages,
+                                    filters: this.state.filters
+                                })
                             })
                         }}
                         name="project_id"

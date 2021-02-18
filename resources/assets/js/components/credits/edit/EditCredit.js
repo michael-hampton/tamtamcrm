@@ -81,7 +81,7 @@ export default class EditCredit extends Component {
     }
 
     static getDerivedStateFromProps (props, state) {
-        if (props.credit && props.credit.id !== state.id) {
+        if (props.credit && props.credit.id && props.credit.id !== state.id) {
             const creditModel = new CreditModel(props.credit, props.customers)
             return creditModel.fields
         }
@@ -110,7 +110,7 @@ export default class EditCredit extends Component {
     }
 
     componentDidUpdate (prevProps, prevState) {
-        if (this.props.credit && this.props.credit.id !== prevProps.credit.id) {
+        if (this.props.credit && this.props.credit.id && this.props.credit.id !== prevProps.credit.id) {
             this.creditModel = new CreditModel(this.props.credit, this.props.customers)
         }
     }

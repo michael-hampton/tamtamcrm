@@ -42,6 +42,8 @@ class QuoteSearch extends BaseSearch
 
         if ($request->has('status')) {
             $this->status('quotes', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->filled('customer_id')) {

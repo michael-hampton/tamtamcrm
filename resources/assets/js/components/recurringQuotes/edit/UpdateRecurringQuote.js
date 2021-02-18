@@ -85,7 +85,7 @@ class UpdateRecurringQuote extends Component {
     }
 
     static getDerivedStateFromProps (props, state) {
-        if (props.invoice && props.invoice.id !== state.id) {
+        if (props.invoice && props.invoice.id && props.invoice.id !== state.id) {
             const invoiceModel = new RecurringQuoteModel(props.invoice, props.customers)
             return invoiceModel.fields
         }
@@ -118,7 +118,7 @@ class UpdateRecurringQuote extends Component {
     }
 
     componentDidUpdate (prevProps, prevState) {
-        if (this.props.invoice && this.props.invoice.id !== prevProps.invoice.id) {
+        if (this.props.invoice && this.props.invoice.id && this.props.invoice.id !== prevProps.invoice.id) {
             this.quoteModel = new RecurringQuoteModel(this.props.invoice, this.props.customers)
         }
     }

@@ -112,7 +112,12 @@ export default class PaymentFilters extends Component {
                             }), () => {
                                 const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
                                 const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
-                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                                this.props.updateList({
+                                    invoices: results,
+                                    currentPage: 1,
+                                    totalPages: totalPages,
+                                    filters: this.state.filters
+                                })
                             })
                         }}
                         customer={this.state.filters.customer_id}
@@ -133,7 +138,12 @@ export default class PaymentFilters extends Component {
                                 const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
                                 console.log('results', results)
                                 const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
-                                this.props.updateList({ invoices: results, currentPage: 1, totalPages: totalPages, filters: this.state.filters })
+                                this.props.updateList({
+                                    invoices: results,
+                                    currentPage: 1,
+                                    totalPages: totalPages,
+                                    filters: this.state.filters
+                                })
                             })
                         }} statuses={this.statuses}/>
                     </FormGroup>

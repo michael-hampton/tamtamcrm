@@ -14,7 +14,7 @@ export default class DealRepository extends BaseRepository {
         this.error_message = ''
 
         try {
-            const res = await axios.get(this._url)
+            const res = await axios.get(this._url + '?status=active')
 
             if (res.status === 200) {
                 // test for status you want, etc

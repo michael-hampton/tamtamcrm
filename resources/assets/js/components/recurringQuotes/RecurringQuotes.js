@@ -196,8 +196,8 @@ export default class RecurringQuotes extends Component {
     }
 
     render () {
-        const { invoices, custom_fields, customers, allQuotes, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
-        const { status_id, customer_id, searchText, start_date, end_date, project_id, user_id } = this.state.filters
+        const { cachedData, invoices, custom_fields, customers, allQuotes, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { start_date, end_date } = this.state.filters
         const fetchUrl = `/api/recurring-quote?start_date=${start_date}&end_date=${end_date}`
         const addButton = customers.length ? <UpdateRecurringQuote
             allQuotes={allQuotes}
@@ -208,7 +208,7 @@ export default class RecurringQuotes extends Component {
             invoice={{}}
             add={true}
             action={this.updateInvoice}
-            invoices={invoices}
+            invoices={cachedData}
             modal={true}
         /> : null
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
@@ -224,7 +224,7 @@ export default class RecurringQuotes extends Component {
                             <CardBody>
                                 <RecurringQuoteFilters
                                     pageLimit={pageLimit}
-                                    cachedData={this.state.cachedData}
+                                    cachedData={cachedData}
                                     updateList={this.onPageChanged.bind(this)}
                                     customers={customers}
                                     setFilterOpen={this.setFilterOpen.bind(this)}

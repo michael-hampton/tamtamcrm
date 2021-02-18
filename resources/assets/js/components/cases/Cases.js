@@ -162,8 +162,8 @@ export default class Cases extends Component {
     }
 
     render () {
-        const { searchText, status, start_date, end_date, customer_id, category_id, priority_id } = this.state.filters
-        const { view, cases, customers, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { start_date, end_date } = this.state.filters
+        const { cachedData, view, cases, customers, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const fetchUrl = `/api/cases?start_date=${start_date}&end_date=${end_date}`
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
@@ -178,7 +178,7 @@ export default class Cases extends Component {
                             <CardBody>
                                 <CaseFilters
                                     pageLimit={pageLimit}
-                                    cachedData={this.state.cachedData}
+                                    cachedData={cachedData}
                                     updateList={this.onPageChanged.bind(this)}
                                     setFilterOpen={this.setFilterOpen.bind(this)} cases={cases}
                                     customers={customers}
@@ -187,7 +187,7 @@ export default class Cases extends Component {
 
                                 <AddCase
                                     customers={customers}
-                                    cases={cases}
+                                    cases={cachedData}
                                     action={this.addUserToState}
                                 />
                             </CardBody>

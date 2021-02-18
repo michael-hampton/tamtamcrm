@@ -11,7 +11,7 @@ import CustomerRepository from '../repositories/CustomerRepository'
 import CompanyRepository from '../repositories/CompanyRepository'
 import { getDefaultTableFields } from '../presenters/ExpensePresenter'
 import PaginationNew from '../common/PaginationNew'
-import { filterStatuses } from "../utils/_search";
+import { filterStatuses } from '../utils/_search'
 
 export default class Excuspenses extends Component {
     constructor (props) {
@@ -192,8 +192,8 @@ export default class Excuspenses extends Component {
     }
 
     render () {
-        const { expenses, customers, custom_fields, view, companies, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
-        const { searchText, status_id, customer_id, company_id, start_date, end_date, expense_category_id, user_id } = this.state.filters
+        const { cachedData, expenses, customers, custom_fields, view, companies, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { start_date, end_date } = this.state.filters
         const fetchUrl = `/api/expenses?start_date=${start_date}&end_date=${end_date}`
         const addButton = customers.length ? <AddExpense
             entity_id={this.state.entity_id}
@@ -202,7 +202,7 @@ export default class Excuspenses extends Component {
             customers={customers}
             companies={companies}
             action={this.updateExpenses}
-            expenses={expenses}
+            expenses={cachedData}
         /> : null
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
@@ -217,7 +217,7 @@ export default class Excuspenses extends Component {
                             <CardBody>
                                 <ExpenseFilters
                                     pageLimit={pageLimit}
-                                    cachedData={this.state.cachedData}
+                                    cachedData={cachedData}
                                     updateList={this.onPageChanged.bind(this)}
                                     setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
                                     expenses={expenses} companies={companies}

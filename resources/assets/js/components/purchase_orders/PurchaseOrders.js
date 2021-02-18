@@ -178,8 +178,8 @@ export default class PurchaseOrders extends Component {
     }
 
     render () {
-        const { purchase_orders, custom_fields, companies, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
-        const { status_id, company_id, searchText, start_date, end_date, project_id, user_id } = this.state.filters
+        const { cachedData, purchase_orders, custom_fields, companies, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { start_date, end_date } = this.state.filters
         const fetchUrl = `/api/purchase_order?start_date=${start_date}&end_date=${end_date}`
         const addButton = companies.length ? <EditPurchaseOrder
             entity_id={this.state.entity_id}
@@ -189,7 +189,7 @@ export default class PurchaseOrders extends Component {
             invoice={{}}
             add={true}
             action={this.updateInvoice}
-            invoices={purchase_orders}
+            invoices={cachedData}
             modal={true}
         /> : null
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
@@ -205,7 +205,7 @@ export default class PurchaseOrders extends Component {
                             <CardBody>
                                 <PurchaseOrderFilters
                                     pageLimit={pageLimit}
-                                    cachedData={this.state.cachedData}
+                                    cachedData={cachedData}
                                     updateList={this.onPageChanged.bind(this)}
                                     setFilterOpen={this.setFilterOpen.bind(this)}
                                     purchase_orders={purchase_orders}

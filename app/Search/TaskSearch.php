@@ -65,6 +65,8 @@ class TaskSearch extends BaseSearch
 
         if ($request->filled('task_status')) {
             $this->status('tasks', $request->task_status, 'task_status_id');
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->filled('task_type')) {

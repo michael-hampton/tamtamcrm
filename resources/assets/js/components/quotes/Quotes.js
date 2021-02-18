@@ -175,8 +175,8 @@ export default class Quotes extends Component {
     }
 
     render () {
-        const { quotes, custom_fields, customers, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
-        const { status_id, customer_id, searchText, start_date, end_date, project_id, user_id } = this.state.filters
+        const { cachedData, quotes, custom_fields, customers, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { start_date, end_date } = this.state.filters
         const fetchUrl = `/api/quote?start_date=${start_date}&end_date=${end_date}`
         const addButton = customers.length ? <EditQuote
             entity_id={this.state.entity_id}
@@ -186,7 +186,7 @@ export default class Quotes extends Component {
             invoice={{}}
             add={true}
             action={this.updateInvoice}
-            invoices={quotes}
+            invoices={cachedData}
             modal={true}
         /> : null
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
@@ -202,7 +202,7 @@ export default class Quotes extends Component {
                             <CardBody>
                                 <QuoteFilters
                                     pageLimit={pageLimit}
-                                    cachedData={this.state.cachedData}
+                                    cachedData={cachedData}
                                     updateList={this.onPageChanged.bind(this)}
                                     setFilterOpen={this.setFilterOpen.bind(this)} quotes={quotes}
                                     customers={customers}

@@ -196,12 +196,12 @@ export default class UserList extends Component {
     }
 
     render () {
-        const { users, departments, custom_fields, error, view, filters, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
-        const { status, role_id, department_id, searchText, start_date, end_date } = this.state.filters
+        const { cachedData, users, departments, custom_fields, error, view, filters, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { start_date, end_date } = this.state.filters
         const fetchUrl = `/api/users?start_date=${start_date}&end_date=${end_date}`
         const addButton = <AddUser accounts={this.state.accounts} custom_fields={custom_fields}
             departments={departments}
-            users={users}
+            users={cachedData}
             action={this.addUserToState}/>
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
@@ -216,7 +216,7 @@ export default class UserList extends Component {
                             <CardBody>
                                 <UserFilters
                                     pageLimit={pageLimit}
-                                    cachedData={this.state.cachedData}
+                                    cachedData={cachedData}
                                     updateList={this.onPageChanged.bind(this)}
                                     setFilterOpen={this.setFilterOpen.bind(this)} users={users}
                                     departments={departments}

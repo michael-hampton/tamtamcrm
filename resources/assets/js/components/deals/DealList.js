@@ -192,8 +192,8 @@ export default class DealList extends Component {
     }
 
     render () {
-        const { deals, users, customers, custom_fields, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
-        const { task_status, customer_id, user_id, searchText, start_date, end_date } = this.state.filters
+        const { cachedData, deals, users, customers, custom_fields, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { start_date, end_date } = this.state.filters
         const fetchUrl = `/api/deals?start_date=${start_date}&end_date=${end_date}`
         const { error, view } = this.state
 
@@ -208,7 +208,7 @@ export default class DealList extends Component {
             customers={customers}
             users={users}
             action={this.addUserToState}
-            deals={deals}
+            deals={cachedData}
         /> : null
 
         const total = deals.length
@@ -221,7 +221,7 @@ export default class DealList extends Component {
                             <CardBody>
                                 <DealFilters
                                     pageLimit={pageLimit}
-                                    cachedData={this.state.cachedData}
+                                    cachedData={cachedData}
                                     updateList={this.onPageChanged.bind(this)}
                                     setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
                                     users={users}

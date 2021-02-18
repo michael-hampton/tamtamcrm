@@ -46,6 +46,8 @@ class RecurringQuoteSearch extends BaseSearch
 
         if ($request->has('status')) {
             $this->status('recurring_quotes', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->filled('customer_id')) {

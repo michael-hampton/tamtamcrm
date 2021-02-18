@@ -11,7 +11,7 @@ import queryString from 'query-string'
 import CompanyRepository from '../repositories/CompanyRepository'
 import { getDefaultTableFields } from '../presenters/CustomerPresenter'
 import PaginationNew from '../common/PaginationNew'
-import { filterStatuses } from "../utils/_search";
+import { filterStatuses } from '../utils/_search'
 
 export default class Customers extends Component {
     constructor (props) {

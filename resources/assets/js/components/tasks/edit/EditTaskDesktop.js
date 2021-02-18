@@ -67,7 +67,7 @@ export default class EditTaskDesktop extends Component {
     }
 
     static getDerivedStateFromProps (props, state) {
-        if (props.task && props.task.id !== state.id) {
+        if (props.task && props.task.id && props.task.id !== state.id) {
             const invoiceModel = new TaskModel(props.task, props.customers)
             return invoiceModel.fields
         }
@@ -76,7 +76,7 @@ export default class EditTaskDesktop extends Component {
     }
 
     componentDidUpdate (prevProps, prevState) {
-        if (this.props.task && this.props.task.id !== prevProps.task.id) {
+        if (this.props.task && this.props.task.id && this.props.task.id !== prevProps.task.id) {
             this.taskModel = new TaskModel(this.props.task, this.props.customers)
         }
     }

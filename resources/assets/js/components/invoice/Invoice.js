@@ -186,11 +186,11 @@ export default class Invoice extends Component {
     }
 
     render () {
-        const { invoices, customers, custom_fields, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { cachedData, invoices, customers, custom_fields, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { start_date, end_date, id } = this.state.filters
         const total = invoices.length
-
-        const { status_id, customer_id, searchText, start_date, end_date, project_id, user_id, id } = this.state.filters
         const fetchUrl = `/api/invoice?id=${id}&start_date=${start_date}&end_date=${end_date}`
+
         const addButton = this.state.customers.length ? <EditInvoice
             entity_id={this.state.entity_id}
             entity_type={this.state.entity_type}
@@ -198,7 +198,7 @@ export default class Invoice extends Component {
             customers={customers}
             add={true}
             action={this.updateInvoice}
-            invoices={invoices}
+            invoices={cachedData}
             modal={true}
         /> : null
 
@@ -214,7 +214,7 @@ export default class Invoice extends Component {
                             <CardBody>
                                 <InvoiceFilters
                                     pageLimit={pageLimit}
-                                    cachedData={this.state.cachedData}
+                                    cachedData={cachedData}
                                     updateList={this.onPageChanged.bind(this)}
                                     setFilterOpen={this.setFilterOpen.bind(this)} invoices={invoices}
                                     customers={customers}

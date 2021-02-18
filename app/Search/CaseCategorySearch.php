@@ -48,6 +48,8 @@ class CaseCategorySearch extends BaseSearch
 
         if ($request->has('status')) {
             $this->status('case_categories', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->has('search_term') && !empty($request->search_term)) {

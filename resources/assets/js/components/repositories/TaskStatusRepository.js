@@ -12,7 +12,7 @@ export default class TaskRepository extends BaseRepository {
     async get (task_type) {
         this.errors = []
         this.error_message = ''
-        const url = `${this._url}?task_type=${task_type}`
+        const url = `${this._url}?status=active&task_type=${task_type}`
 
         try {
             const res = await axios.get(url)

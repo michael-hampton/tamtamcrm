@@ -12,7 +12,7 @@ export default class CreditRepository extends BaseRepository {
     async get (status = null) {
         this.errors = []
         this.error_message = ''
-        const url = status !== null ? `api/credits?status=${status}` : this._url
+        const url = status !== null ? `api/credits?status=${status}` : this._url + '?status=active'
 
         try {
             const res = await axios.get(url)

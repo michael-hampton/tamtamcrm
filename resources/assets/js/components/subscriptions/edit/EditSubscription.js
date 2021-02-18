@@ -22,7 +22,7 @@ export default class EditSubscription extends React.Component {
     }
 
     static getDerivedStateFromProps (props, state) {
-        if (props.subscription && props.subscription.id !== state.id) {
+        if (props.subscription & props.subscription.id && props.subscription.id !== state.id) {
             const invoiceModel = new SubscriptionModel(props.subscription)
             return invoiceModel.fields
         }
@@ -31,7 +31,7 @@ export default class EditSubscription extends React.Component {
     }
 
     componentDidUpdate (prevProps, prevState) {
-        if (this.props.subscription && this.props.subscription.id !== prevProps.subscription.id) {
+        if (this.props.subscription && this.props.subscription.id && this.props.subscription.id !== prevProps.subscription.id) {
             this.subscriptionModel = new SubscriptionModel(this.props.subscription)
         }
     }

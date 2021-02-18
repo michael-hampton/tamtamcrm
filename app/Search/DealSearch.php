@@ -57,6 +57,8 @@ class DealSearch extends BaseSearch
 
         if ($request->filled('task_status')) {
             $this->status('deals', $request->task_status_id, 'task_status_id');
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->filled('task_type')) {

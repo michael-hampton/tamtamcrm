@@ -10,7 +10,7 @@ import { translations } from '../utils/_translations'
 import CustomerRepository from '../repositories/CustomerRepository'
 import { getDefaultTableFields } from '../presenters/OrderPresenter'
 import PaginationNew from '../common/PaginationNew'
-import { filterStatuses } from "../utils/_search";
+import { filterStatuses } from '../utils/_search'
 
 export default class Order extends Component {
     constructor (props) {
@@ -172,8 +172,8 @@ export default class Order extends Component {
     }
 
     render () {
-        const { orders, customers, custom_fields, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
-        const { status_id, customer_id, searchText, start_date, end_date, user_id } = this.state.filters
+        const { cachedData, orders, customers, custom_fields, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { start_date, end_date } = this.state.filters
         const fetchUrl = `/api/order?start_date=${start_date}&end_date=${end_date}`
         const addButton = this.state.customers.length ? <EditOrder
             entity_id={this.state.entity_id}
@@ -182,7 +182,7 @@ export default class Order extends Component {
             customers={customers}
             add={true}
             action={this.updateOrder}
-            orders={orders}
+            orders={cachedData}
             modal={true}
         /> : null
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
@@ -198,7 +198,7 @@ export default class Order extends Component {
                             <CardBody>
                                 <OrderFilters
                                     pageLimit={pageLimit}
-                                    cachedData={this.state.cachedData}
+                                    cachedData={cachedData}
                                     updateList={this.onPageChanged.bind(this)}
                                     setFilterOpen={this.setFilterOpen.bind(this)} orders={orders}
                                     customers={customers}

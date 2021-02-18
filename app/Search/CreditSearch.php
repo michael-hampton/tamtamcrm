@@ -48,6 +48,8 @@ class CreditSearch extends BaseSearch
 
         if ($request->has('status')) {
             $this->status('credits', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->filled('customer_id')) {

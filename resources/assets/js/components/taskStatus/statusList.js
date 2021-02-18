@@ -156,8 +156,8 @@ export default class Categories extends Component {
     }
 
     render () {
-        const { searchText, status, start_date, end_date } = this.state.filters
-        const { view, statuses, customers, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { start_date, end_date } = this.state.filters
+        const { cachedData, view, statuses, customers, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const fetchUrl = `/api/taskStatus?start_date=${start_date}&end_date=${end_date} `
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
@@ -172,7 +172,7 @@ export default class Categories extends Component {
                             <CardBody>
                                 <TaskStatusFilters
                                     pageLimit={pageLimit}
-                                    cachedData={this.state.cachedData}
+                                    cachedData={cachedData}
                                     updateList={this.onPageChanged.bind(this)}
                                     setFilterOpen={this.setFilterOpen.bind(this)}
                                     statuses={statuses}
@@ -182,7 +182,7 @@ export default class Categories extends Component {
 
                                 <AddTaskStatus
                                     customers={customers}
-                                    statuses={statuses}
+                                    statuses={cachedData}
                                     action={this.addUserToState}
                                 />
                             </CardBody>

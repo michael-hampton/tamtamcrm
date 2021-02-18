@@ -1,121 +1,121 @@
 import React, { Component } from 'react'
-import AddBankAccount from './edit/AddBankAccount'
-import DataTable from '../common/DataTable'
+import axios from 'axios'
 import { Alert, Card, CardBody, Row } from 'reactstrap'
-import BankAccountFilters from './BankAccountFilters'
-import BankAccountItem from './BankAccountItem'
-import queryString from 'query-string'
+import DataTable from '../common/DataTable'
 import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
-import BankRepository from '../repositories/BankRepository'
+import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
+import BankAccountItem from './BankAccountItem'
+import BankAccountFilters from './BankAccountFilters'
+import AddBankAccount from './edit/AddBankAccount'
+import { getDefaultTableFields } from '../presenters/BankAccountPresenter'
 
-export default class BankAccountList extends Component {
+export default class Tokens extends Component {
     constructor (props) {
         super(props)
 
         this.state = {
+            currentPage: 1,
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isOpen: window.innerWidth > 670,
-            banks: [],
-            bank_accounts: [],
-            cachedData: [],
-            errors: [],
-            bulk: [],
-            dropdownButtonActions: ['download'],
             error: '',
             show_success: false,
             error_message: translations.unexpected_error,
             success_message: translations.success_message,
+            dropdownButtonActions: ['download'],
+            bank_accounts: [],
+            users: [],
+            cachedData: [],
             view: {
                 ignore: [],
                 viewMode: false,
                 viewedId: null,
                 title: null
             },
+            errors: [],
             filters: {
-                status_id: 'active',
-                user_id: queryString.parse(this.props.location.search).user_id || '',
-                bank_id: queryString.parse(this.props.location.search).bank_id || '',
                 searchText: '',
+                status: 'active',
                 start_date: '',
                 end_date: ''
-            },
-            custom_fields: [],
-            ignoredColumns: [
-                'id',
-                'bank_id',
-                'created_at',
-                'deleted_at',
-                'updated_at',
-                'is_deleted',
-                'archived_at',
-                'account_id',
-                'custom_value1',
-                'custom_value2',
-                'custom_value3',
-                'custom_value4',
-                'user_id',
-                'assigned_to',
-                'private_notes',
-                'public_notes'
-            ],
-            showRestoreButton: false
+            }
         }
 
         this.addUserToState = this.addUserToState.bind(this)
         this.userList = this.userList.bind(this)
-        this.filterBankAccounts = this.filterBankAccounts.bind(this)
-        this.getBanks = this.getBanks.bind(this)
+        this.filterTokens = this.filterTokens.bind(this)
+        this.getUsers = this.getUsers.bind(this)
     }
 
     componentDidMount () {
-        this.getBanks()
-        // this.getCustomFields()
+        this.getUsers()
     }
 
     addUserToState (bank_accounts) {
+        const should_filter = !this.state.cachedData.length
         const cachedData = !this.state.cachedData.length ? bank_accounts : this.state.cachedData
+
+        if (should_filter) {
+            bank_accounts = filterStatuses(bank_accounts, '', this.state.filters)
+        }
+
         this.setState({
             bank_accounts: bank_accounts,
             cachedData: cachedData
+        }, () => {
+            const totalPages = Math.ceil(bank_accounts.length / this.state.pageLimit)
+            this.onPageChanged({
+                invoices: bank_accounts,
+                currentPage: this.state.currentPage,
+                totalPages: totalPages
+            })
         })
     }
 
-    handleClose () {
-        this.setState({ error: '', show_success: false })
+    onPageChanged (data) {
+        let { bank_accounts, pageLimit } = this.state
+        const { currentPage, totalPages } = data
+
+        if (data.invoices) {
+            bank_accounts = data.invoices
+        }
+
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = bank_accounts.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
+
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
-    filterBankAccounts (filters) {
+    filterTokens (filters) {
         this.setState({ filters: filters })
     }
 
+    resetFilters () {
+        this.props.reset()
+    }
+
     userList (props) {
-        const { bank_accounts, custom_fields, banks } = this.state
-        return <BankAccountItem showCheckboxes={props.showCheckboxes} bank_accounts={bank_accounts}
-            banks={banks}
-            custom_fields={custom_fields}
-            viewId={props.viewId}
-            ignoredColumns={props.ignoredColumns} addUserToState={this.addUserToState}
+        const { pageLimit, users, currentInvoices, bank_accounts } = this.state
+        return <BankAccountItem showCheckboxes={props.showCheckboxes} bank_accounts={currentInvoices} users={users}
+            viewId={props.viewId} entities={bank_accounts}
+            pageLimit={pageLimit}
+            show_list={props.show_list}
+            onPageChanged={this.onPageChanged.bind(this)}
+            ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
     }
 
-    getCustomFields () {
-        const all_custom_fields = JSON.parse(localStorage.getItem('custom_fields'))
-        const custom_fields = []
-
-        if (all_custom_fields.Project) {
-            custom_fields[0] = all_custom_fields.Project
-        }
-
-        this.setState({
-            custom_fields: custom_fields
-        })
-
-        /* axios.get('api/accounts/fields/Project')
+    getUsers () {
+        axios.get('api/users')
             .then((r) => {
                 this.setState({
-                    custom_fields: r.data.fields
+                    users: r.data
                 })
             })
             .catch((e) => {
@@ -123,20 +123,11 @@ export default class BankAccountList extends Component {
                     loading: false,
                     error: e
                 })
-            }) */
+            })
     }
 
-    getBanks () {
-        const bankRepository = new BankRepository()
-        bankRepository.get().then(response => {
-            if (!response) {
-                alert('error')
-            }
-
-            this.setState({ banks: response }, () => {
-                console.log('banks', this.state.banks)
-            })
-        })
+    handleClose () {
+        this.setState({ error: '', show_success: false })
     }
 
     setFilterOpen (isOpen) {
@@ -155,12 +146,13 @@ export default class BankAccountList extends Component {
     }
 
     render () {
-        const { bank_accounts, custom_fields, ignoredColumns, view, error, isOpen, error_message, success_message, show_success, banks } = this.state
-        const { status_id, searchText, start_date, end_date, user_id, bank_id } = this.state.filters
-        const fetchUrl = `/api/bank_accounts?search_term=${searchText}&user_id=${user_id}&status=${status_id}&start_date=${start_date}&end_date=${end_date}&bank_id=${bank_id}`
+        const { start_date, end_date } = this.state.filters
+        const { cachedData, view, bank_accounts, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const fetchUrl = `/api/bank_accounts?start_date=${start_date}&end_date=${end_date} `
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable fixed-margin-datatable-mobile'
+        const total = bank_accounts.length
 
         return (
             <Row>
@@ -168,14 +160,19 @@ export default class BankAccountList extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <BankAccountFilters setFilterOpen={this.setFilterOpen.bind(this)}
-                                    bank_accounts={bank_accounts}
+                                <BankAccountFilters
+                                    pageLimit={pageLimit}
+                                    cachedData={cachedData}
+                                    updateList={this.onPageChanged.bind(this)}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} bank_accounts={bank_accounts}
                                     updateIgnoredColumns={this.updateIgnoredColumns}
-                                    filters={this.state.filters} filter={this.filterBankAccounts}
-                                    saveBulk={this.saveBulk}
-                                    ignoredColumns={this.state.ignoredColumns}/>
-                                <AddBankAccount banks={banks} bank_accounts={bank_accounts} action={this.addUserToState}
-                                    custom_fields={custom_fields}/>
+                                    filters={this.state.filters} filter={this.filterTokens}
+                                    saveBulk={this.saveBulk} ignoredColumns={this.state.ignoredColumns}/>
+
+                                <AddBankAccount
+                                    bank_accounts={bank_accounts}
+                                    action={this.addUserToState}
+                                />
                             </CardBody>
                         </Card>
                     </div>
@@ -200,19 +197,30 @@ export default class BankAccountList extends Component {
                         <Card>
                             <CardBody>
                                 <DataTable
+
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={cachedData}
+                                    hide_pagination={true}
+
+                                    default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
                                     setError={this.setError.bind(this)}
                                     dropdownButtonActions={this.state.dropdownButtonActions}
                                     entity_type="BankAccount"
                                     bulk_save_url="/api/bank_accounts/bulk"
                                     view={view}
-                                    disableSorting={['id']}
-                                    defaultColumn='name'
-                                    ignore={ignoredColumns}
                                     userList={this.userList}
                                     fetchUrl={fetchUrl}
                                     updateState={this.addUserToState}
                                 />
+
+                                {total > 0 &&
+                                <div className="d-flex flex-row py-4 align-items-center">
+                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>
