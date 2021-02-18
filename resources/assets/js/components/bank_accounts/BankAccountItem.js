@@ -7,7 +7,7 @@ import { Input, ListGroupItem } from 'reactstrap'
 import BankAccountPresenter from '../presenters/BankAccountPresenter'
 import EditBankAccount from './edit/EditBankAccount'
 
-export default class TokenItem extends Component {
+export default class BankAccountItem extends Component {
     constructor (props) {
         super(props)
 
