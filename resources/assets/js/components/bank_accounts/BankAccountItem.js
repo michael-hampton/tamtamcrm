@@ -36,10 +36,10 @@ export default class BankAccountItem extends Component {
         const self = this
         axios.delete(url)
             .then(function (response) {
-                const arrTokens = [...self.props.entities]
-                const index = arrTokens.findIndex(bank_account => bank_account.id === id)
-                arrTokens.splice(index, 1)
-                self.props.addUserToState(arrTokens)
+                const arrBankAccounts = [...self.props.entities]
+                const index = arrBankAccounts.findIndex(bank_account => bank_account.id === id)
+                arrBankAccounts.splice(index, 1)
+                self.props.addUserToState(arrBankAccounts)
             })
             .catch(function (error) {
                 console.log(error)
