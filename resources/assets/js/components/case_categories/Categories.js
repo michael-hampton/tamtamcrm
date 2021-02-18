@@ -45,7 +45,7 @@ export default class Categories extends Component {
 
         this.addUserToState = this.addUserToState.bind(this)
         this.userList = this.userList.bind(this)
-        this.filterTokens = this.filterTokens.bind(this)
+        this.filterCategories = this.filterCategories.bind(this)
     }
 
     addUserToState (categories) {
@@ -80,7 +80,7 @@ export default class Categories extends Component {
         this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
-    filterTokens (filters) {
+    filterCategories (filters) {
         this.setState({ filters: filters })
     }
 
