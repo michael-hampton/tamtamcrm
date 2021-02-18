@@ -183,6 +183,8 @@ export default class BankAccountList extends Component {
                                     saveBulk={this.saveBulk} ignoredColumns={this.state.ignoredColumns}/>
 
                                 <AddBankAccount
+                                    banks={banks}
+                                    custom_fields={custom_fields}
                                     bank_accounts={bank_accounts}
                                     action={this.addUserToState}
                                 />
