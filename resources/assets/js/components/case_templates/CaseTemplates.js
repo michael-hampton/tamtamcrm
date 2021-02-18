@@ -46,7 +46,7 @@ export default class CaseTemplates extends Component {
 
         this.addUserToState = this.addUserToState.bind(this)
         this.userList = this.userList.bind(this)
-        this.filterTokens = this.filterTokens.bind(this)
+        this.filterTemplates = this.filterTemplates.bind(this)
     }
 
     addUserToState (templates) {
@@ -81,7 +81,7 @@ export default class CaseTemplates extends Component {
         this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
-    filterTokens (filters) {
+    filterTemplates (filters) {
         this.setState({ filters: filters })
     }
 
