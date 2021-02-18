@@ -15,7 +15,7 @@ export default class BankAccountItem extends Component {
             width: window.innerWidth
         }
 
-        this.deleteToken = this.deleteToken.bind(this)
+        this.deleteBankAccount = this.deleteBankAccount.bind(this)
         this.handleWindowSizeChange = this.handleWindowSizeChange.bind(this)
     }
 
@@ -31,7 +31,7 @@ export default class BankAccountItem extends Component {
         this.setState({ width: window.innerWidth })
     }
 
-    deleteToken (id, archive = false) {
+    deleteBankAccount (id, archive = false) {
         const url = archive === true ? `/api/bank_accounts/archive/${id}` : `/api/bank_accounts/${id}`
         const self = this
         axios.delete(url)
@@ -54,9 +54,9 @@ export default class BankAccountItem extends Component {
                     ? <RestoreModal id={bank_account.id} entities={entities} updateState={this.props.addUserToState}
                         url={`/api/bank_accounts/restore/${bank_account.id}`}/> : null
                 const deleteButton = !bank_account.deleted_at
-                    ? <DeleteModal archive={false} deleteFunction={this.deleteToken} id={bank_account.id}/> : null
+                    ? <DeleteModal archive={false} deleteFunction={this.deleteBankAccount} id={bank_account.id}/> : null
                 const archiveButton = !bank_account.deleted_at
-                    ? <DeleteModal archive={true} deleteFunction={this.deleteToken} id={bank_account.id}/> : null
+                    ? <DeleteModal archive={true} deleteFunction={this.deleteBankAccount} id={bank_account.id}/> : null
 
                 const editButton = !bank_account.deleted_at ? <EditBankAccount
                     bank_accounts={entities}
