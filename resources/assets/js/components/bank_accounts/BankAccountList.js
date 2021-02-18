@@ -27,7 +27,8 @@ export default class BankAccountList extends Component {
             success_message: translations.success_message,
             dropdownButtonActions: ['download'],
             bank_accounts: [],
-            users: [],
+            banks: [],
+            custom_fields: [],
             cachedData: [],
             view: {
                 ignore: [],
@@ -96,6 +97,19 @@ export default class BankAccountList extends Component {
 
     resetFilters () {
         this.props.reset()
+    }
+
+    getCustomFields () {
+         const all_custom_fields = JSON.parse(localStorage.getItem('custom_fields'))
+         const custom_fields = []
+
+         if (all_custom_fields.Project) {
+             custom_fields[0] = all_custom_fields.Project
+         }
+
+         this.setState({
+             custom_fields: custom_fields
+         })
     }
 
     userList (props) {
