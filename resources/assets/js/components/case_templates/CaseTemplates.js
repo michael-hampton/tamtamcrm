@@ -11,7 +11,7 @@ import CaseTemplateFilters from './CaseTemplateFilters'
 import AddCaseTemplate from './edit/AddCaseTemplate'
 import { getDefaultTableFields } from '../presenters/CaseTemplatePresenter'
 
-export default class Tokens extends Component {
+export default class CaseTemplates extends Component {
     constructor (props) {
         super(props)
 
