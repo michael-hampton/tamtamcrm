@@ -11,7 +11,7 @@ import BankAccountFilters from './BankAccountFilters'
 import AddBankAccount from './edit/AddBankAccount'
 import { getDefaultTableFields } from '../presenters/BankAccountPresenter'
 
-export default class Tokens extends Component {
+export default class BankAccountList extends Component {
     constructor (props) {
         super(props)
 
@@ -218,7 +218,7 @@ export default class Tokens extends Component {
                                 {total > 0 &&
                                 <div className="d-flex flex-row py-4 align-items-center">
                                     <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
-                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                      pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
                                 </div>
                                 }
                             </CardBody>
