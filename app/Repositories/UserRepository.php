@@ -123,6 +123,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
         if (!empty($user->email) && $user->email !== $data['email']) {
             $email_changed = true;
+            $original_user = $user;
         }
 
         $is_new = empty($user->id);
@@ -169,7 +170,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         }
 
         if ($email_changed === true) {
-            event(new UserEmailChanged($user));
+            event(new UserEmailChanged($user, $original_user));
         }
 
         $user = $user->fresh();
