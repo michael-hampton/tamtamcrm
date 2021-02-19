@@ -15,14 +15,17 @@ class UserEmailChanged
 
     public User $user;
 
+    public User $original_user;
+
     /**
      * Create a new event instance.
      *
      * @param User $user
      */
-    public function __construct(User $user)
+    public function __construct(User $user, User $original_user)
     {
         $this->user = $user;
+        $this->original_user = $original_user;
     }
 
     /**
