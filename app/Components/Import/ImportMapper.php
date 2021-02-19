@@ -110,6 +110,10 @@ trait ImportMapper
     {
         $this->object = $this->buildObject($items);
 
+//        echo '<pre>';
+//        print_r($this->object);
+//        die;
+
         if (!$save_data) {
             $this->success[] = $this->transformObject($this->object);
             return true;

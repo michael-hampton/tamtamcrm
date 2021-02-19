@@ -23,6 +23,21 @@ class CustomerContactRepository extends BaseRepository
         $this->model = $client_contact;
     }
 
+    public function createContact(array $data, Customer $customer)
+    {
+        $create_contact = CustomerContactFactory::create($customer->account, $customer->user, $customer);
+        $create_contact->customer_id = $customer->id;
+        $create_contact->fill($data);
+
+        $create_contact->password = isset($item['password']) && strlen($item['password']) > 0 ? Hash::make(
+            $item['password']
+        ) : '';
+
+        $create_contact->save();
+
+        return $create_contact;
+    }
+
     /**
      * @param array $contacts
      * @param Customer $customer

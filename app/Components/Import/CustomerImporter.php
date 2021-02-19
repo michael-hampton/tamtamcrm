@@ -160,7 +160,9 @@ class CustomerImporter extends BaseCsvImporter
     public function saveCallback(Customer $customer, array $data)
     {
         if (!empty($data['contacts'])) {
-            (new CustomerContactRepository(new CustomerContact()))->save($data['contacts'], $customer);
+            foreach ($data['contacts'] as $contact) {
+                (new CustomerContactRepository(new CustomerContact()))->createContact($contact, $customer);
+            }
         }
 
         $addresses[0] = [];

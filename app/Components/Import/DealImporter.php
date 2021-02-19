@@ -81,7 +81,7 @@ class DealImporter extends BaseCsvImporter
             'mappings' => [
                 'name'          => ['validation' => 'required|unique:deals', 'cast' => 'string'],
                 'description'   => ['cast' => 'string'],
-                'valued_at'     => ['cast' => 'string'],
+                'valued_at'     => ['cast' => 'float'],
                 'due_date'      => ['cast' => 'date'],
                 'customer name' => ['validation' => 'required', 'cast' => 'string'],
                 'task status'   => ['validation' => 'required', 'cast' => 'string'],
