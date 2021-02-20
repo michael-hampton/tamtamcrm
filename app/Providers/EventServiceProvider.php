@@ -254,6 +254,7 @@ use App\Listeners\User\DeletedUser;
 use App\Listeners\User\RestoredUser;
 use App\Listeners\User\SendUserEmailChangedEmail;
 use App\Listeners\User\UpdatedUser;
+use App\Listeners\User\UserEmailHasChanged;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider

@@ -20,7 +20,6 @@ use App\Models\User;
 use App\Repositories\ExpenseCategoryRepository;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ImportTest extends TestCase
@@ -179,6 +178,16 @@ class ImportTest extends TestCase
                 'industry_id'   => $industry->id
             ]
         );
+
+        $this->assertDatabaseHas(
+            'company_contacts',
+            [
+                'email'      => $data['email'],
+                'first_name' => $data['first_name'],
+                'last_name'  => $data['last_name'],
+                'phone'      => $data['contact phone']
+            ]
+        );
     }
 
     /** @test */
@@ -221,6 +230,10 @@ class ImportTest extends TestCase
                 //'private_notes' => $data['private notes']
             ]
         );
+
+        $invoice = Invoice::where('number', $data['number'])->first();
+
+        $this->assertEquals($invoice->invitations->count(), 1);
     }
 
     /** @test */
@@ -243,6 +256,7 @@ class ImportTest extends TestCase
                 'customer_id' => $this->customer->id,
                 'amount'      => $data['amount'],
                 'date'        => $data['date'],
+                'applied'     => $this->invoice->total
             ]
         );
 
@@ -250,6 +264,7 @@ class ImportTest extends TestCase
             'paymentables',
             [
                 'paymentable_id' => $this->invoice->id,
+                'amount'         => $this->invoice->total
             ]
         );
     }

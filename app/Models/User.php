@@ -28,6 +28,10 @@ class User extends Authenticatable implements JWTSubject
     protected $presenter = 'App\Presenters\UserPresenter';
     protected $with = ['accounts'];
 
+    protected $casts = [
+        'two_factor_authentication_enabled' => 'boolean'
+    ];
+
     /**
      * The attributes that are mass assignable.
      *

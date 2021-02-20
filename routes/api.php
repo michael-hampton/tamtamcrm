@@ -445,6 +445,7 @@ Route::group(
         Route::get('user/profile/{username}', 'UserController@profile');
         Route::get('users/department/{department_id}', 'UserController@filterUsersByDepartment');
         Route::post('users/restore/{id}', 'UserController@restore');
+        Route::post('user/verify/{user}', 'UserController@verifyAccount');
 
 // permissions
         Route::get('permissions', 'PermissionController@index');

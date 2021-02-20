@@ -7,6 +7,7 @@ use App\Factory\UserFactory;
 use App\Jobs\User\CreateUser;
 use App\Models\Department;
 use App\Models\User;
+use App\Notifications\User\VerifyUser;
 use App\Repositories\DepartmentRepository;
 use App\Repositories\Interfaces\RoleRepositoryInterface;
 use App\Repositories\Interfaces\UserRepositoryInterface;
@@ -22,6 +23,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Str;
 
 /**
  * Class UserController
@@ -211,5 +213,14 @@ class UserController extends Controller
         $group = User::withTrashed()->where('id', '=', $id)->first();
         $this->user_repo->restore($group);
         return response()->json([], 200);
+    }
+
+    public function verifyAccount(User $user)
+    {
+        $user->confirmation_code = Str::random(config('taskmanager.key_length'));
+        $user->save();
+        $user->notify(new VerifyUser($user));
+
+        return response()->json(['message' => 'User account has been confirmed'], 200);
     }
 }

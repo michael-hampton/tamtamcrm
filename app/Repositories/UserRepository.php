@@ -124,6 +124,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         if (!empty($user->email) && $user->email !== $data['email']) {
             $email_changed = true;
             $original_user = $user;
+            $user->previous_email_address = $user->email;
         }
 
         $is_new = empty($user->id);
@@ -160,6 +161,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
                     $data['company_user']['is_admin'],
                     !empty($data['company_user']['notifications']) ? $data['company_user']['notifications'] : []
                 );
+
             } else {
                 $data['company_user']['notifications'] = !empty($data['company_user']['notifications']) ? $data['company_user']['notifications']
                     : $user->notificationDefaults();

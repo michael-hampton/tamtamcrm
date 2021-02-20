@@ -21,7 +21,7 @@ class SendUserEmailChangedEmail
     /**
      * Handle the event.
      *
-     * @param UserEmailChanged $event
+     * @param UserEmailHasChanged $event
      * @return void
      */
     public function handle(UserEmailChanged $event)

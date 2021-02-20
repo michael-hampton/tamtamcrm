@@ -321,16 +321,17 @@ class SetupController extends Controller
         $domain->save();
 
         $user_repo = new UserRepository(new User);
+        $user = UserFactory::create($domain->id);
 
         $data['username'] = $data['email'];
+        $data['company_user']['is_admin'] = true;
+        //$data['company_user']['notifications'] = $user::notificationDefaults();
 
         // create new user
-        $user = $user_repo->save($data, UserFactory::create($domain->id));
+        $user = $user_repo->save($data, $user);
 
         $user->two_factor_expiry = Carbon::now();
         $user->save();
-
-        $user->attachUserToAccount($account, true);
 
         if ($user) {
             auth()->login($user, false);

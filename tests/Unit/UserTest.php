@@ -88,6 +88,32 @@ class UserTest extends TestCase
     }
 
     /** @test */
+    public function user_changed_email()
+    {
+        $factory = (new UserFactory())->create(5);
+        $data = [
+            'first_name' => $this->faker->firstName,
+            'last_name' => $this->faker->lastName,
+            'email' => $this->faker->email,
+            'username' => $this->faker->userName,
+            'is_active' => 1,
+            'profile_photo' => $this->faker->word,
+            'company_user' => ['is_admin' => false],
+            'password' => 'password123'
+        ];
+
+        $userRepo = new UserRepository(new User);
+        $user = $userRepo->save($data, $factory);
+        $data = [
+            'email'      => $this->faker->unique()->email,
+        ];
+
+        $userRepo = new UserRepository($user);
+        $updated = $userRepo->save($data, $user);
+        $this->assertInstanceOf(User::class, $updated);
+    }
+
+    /** @test */
     public function it_can_create_a_user()
     {
         $factory = (new UserFactory())->create(5);

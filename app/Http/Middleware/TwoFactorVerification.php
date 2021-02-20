@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use PragmaRX\Google2FA\Google2FA;
 
 class TwoFactorVerification
 {
@@ -17,15 +18,18 @@ class TwoFactorVerification
      * @param Closure $next
      * @return mixed
      */
-    public function handle($request, Closure $next)
+    public function handle($request, Closure $next, bool $two_factor_enabled = false)
     {
         $user = auth()->user();
 
-        if ($user->two_factor_expiry > Carbon::now()) {
+        if ($user->two_factor_expiry > Carbon::now(
+            ) || (!$two_factor_enabled && !$user->two_factor_authentication_enabled)) {
             return $next($request);
         }
 
-        $user->two_factor_token = mt_rand(10000, 99999);
+        $google2fa = new Google2FA();
+        $user->two_factor_token = encrypt($google2fa->generateSecretKey());
+        $user->two_factor_authentication_enabled = true;
         $user->save();
 
         Mail::to($user)->send(new TwoFactorAuthMail($user->two_factor_token));

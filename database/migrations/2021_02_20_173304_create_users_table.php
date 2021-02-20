@@ -42,6 +42,8 @@ class CreateUsersTable extends Migration
             $table->string('two_factor_token');
             $table->dateTime('two_factor_expiry')->nullable();
             $table->string('google_id')->nullable();
+            $table->string('previous_email_address')->nullable();
+            $table->tinyInteger('two_factor_authentication_enabled')->default(0);
         });
     }
 
