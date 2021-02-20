@@ -14,17 +14,20 @@ class NestedCheckboxTree extends React.Component {
     }
 
     onGroupChange(groupName) {
-        let newState = _.cloneDeep(this.state);
+        let newState = {...this.state}
 
         let group = newState[groupName];
         group.checked = !group.checked;
-        _.forEach(group.children, c => { c.checked = group.checked });
+        
+        group.children.forEach(c => {
+	    c.checked = group.checked
+        })
 
         this.setState(newState);
     }
 
     onChildChange(groupName, childName) {
-        let newState = _.cloneDeep(this.state);
+        let newState = {...this.state}
 
         var group = newState[groupName];
         group.children[childName].checked = !group.children[childName].checked;
