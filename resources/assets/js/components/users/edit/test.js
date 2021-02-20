@@ -31,7 +31,7 @@ class NestedCheckboxTree extends React.Component {
 
         var group = newState[groupName];
         group.children[childName].checked = !group.children[childName].checked;
-        group.checked = _.every(group.children, "checked");
+        // group.checked = _.every(group.children, "checked");
 
         this.setState(newState);
     }
@@ -39,7 +39,7 @@ class NestedCheckboxTree extends React.Component {
     render() {
         return (
             <div>
-                {_.map(this.state, (item) =>
+                {this.state.map((item) => (
                     <CheckboxGroup key={item.name} onGroupChange={this.onGroupChange} onItemChange={this.onChildChange} {...item} />
                 )}
             </div>
@@ -55,7 +55,7 @@ function CheckboxGroup(props) {
             </label>
 
             <div style={{marginLeft: 20}}>
-                {_.map(props.children, function (childItem) {
+                {props.children.map((childItem) => {
                     return (
                         <Checkbox key={childItem.name} onChange={props.onItemChange.bind(null, props.name)} {...childItem} />
                     );
@@ -78,8 +78,20 @@ function Checkbox(props) {
 }
 
 var itemList = {
-    Fruits: ['Apple', 'Orange', 'Pineapple', 'Mango'],
-    Vegetables: ['Tomatoes', 'Cucumbers', 'Carrots', 'Avocados']
+    invoice: ['store', 'destroy', 'update', 'show'],
+    credit: ['store', 'destroy', 'update', 'show'],
+    order: ['store', 'destroy', 'update', 'show'],
+    lead: ['store', 'destroy', 'update', 'show'],
+    deal: ['store', 'destroy', 'update', 'show'],
+    quote: ['store', 'destroy', 'update', 'show'],
+    task: ['store', 'destroy', 'update', 'show'],
+    project: ['store', 'destroy', 'update', 'show'],
+    purchase_order: ['store', 'destroy', 'update', 'show'],
+    company: ['store', 'destroy', 'update', 'show'],
+    payment: ['store', 'destroy', 'update', 'show'],
+    expense: ['store', 'destroy', 'update', 'show'],
+    product: ['store', 'destroy', 'update', 'show'],
+    customer: ['store', 'destroy', 'update', 'show']
 };
 
 ReactDOM.render(<NestedCheckboxTree list={itemList} />, document.getElementById('component'));
