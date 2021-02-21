@@ -4,11 +4,11 @@ class NestedCheckboxTree extends React.Component {
         this.onGroupChange = this.onGroupChange.bind(this);
         this.onChildChange = this.onChildChange.bind(this);
 
-        this.state = _.transform(this.props.list, (acc, children, groupName) => {
+        this.state = this.props.list.reduce(acc, children, groupName) => {
             acc[groupName] = {
                 name: groupName,
                 checked: false,
-                children: _.transform(children, (acc, child) => acc[child] = { name: child, checked: false }, {})
+                children:  children.reduce(acc, child) => acc[child] = { name: child, checked: false }, {})
             };
         }, {});
     }
