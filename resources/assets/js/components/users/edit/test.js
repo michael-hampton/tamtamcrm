@@ -57,7 +57,7 @@ function CheckboxGroup(props) {
             <div style={{marginLeft: 20}}>
                 {props.children.map((childItem) => {
                     return (
-                        <Checkbox key={childItem.name} onChange={props.onItemChange.bind(null, props.name)} {...childItem} />
+                        <Checkbox key={childItem.name} group={props.name} onChange={props.onItemChange.bind(null, props.name)} {...childItem} />
                     );
                 }.bind(this))}
             </div>
@@ -67,6 +67,7 @@ function CheckboxGroup(props) {
 
 function Checkbox(props, group) {
     let name = 'update'
+    const value = props.name + 'controller.' + props.group.name
 
     switch(props.name) {
         case 'store':
@@ -80,15 +81,13 @@ function Checkbox(props, group) {
         case 'destroy':
             name = 'delete'
         break;
-
-        
     }
     return (
         <div>
             <label>
-                <input type="checkbox" checked={props.checked} onChange={props.onChange.bind(null, props.name)} />
+                <input type="checkbox" checked={props.checked} onChange={props.onChange.bind(null, value)} />
                 {' '}
-                {props.name}
+                {name}
             </label>
         </div>
     );
