@@ -78,22 +78,11 @@ function CheckboxGroup(props) {
 }
 
 function Checkbox(props, group) {
-    let name = 'update'
-    const value = props.name + 'controller.' + props.group.name
+    const labels = {store: 'create', update: 'update', destroy: 'delete', show: 'view'}
+    const name = labels[props.name]
+    const value = props.group.name + 'controller.' + props.name
 
-    switch(props.name) {
-        case 'store':
-            name = 'create'
-         break;
-
-        case 'show'
-            name 'view'
-        break;
-
-        case 'destroy':
-            name = 'delete'
-        break;
-    }
+  
     return (
         <div>
             <label>
