@@ -13,6 +13,18 @@ class NestedCheckboxTree extends React.Component {
         }, {});
     }
 
+    selectAll () {
+        let newState = {...this.state}
+
+        newState.forEach(group => {
+            group.children.forEach(c => {
+	        c.checked = true
+            })
+        })
+
+        this.setState(newState);
+    }
+
     onGroupChange(groupName) {
         let newState = {...this.state}
 
