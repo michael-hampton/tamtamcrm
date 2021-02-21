@@ -2,13 +2,15 @@ import React from 'react'
 import { Card, CardBody, CardHeader, Col, FormGroup, Input, Label, Row } from 'reactstrap'
 import DepartmentDropdown from '../../common/dropdowns/DepartmentDropdown'
 import RoleDropdown from '../../common/dropdowns/RoleDropdown'
+import NestedCheckboxTree from './NestedCheckboxTree'
 
 export default class PermissionsForm extends React.Component {
     constructor (props) {
         super(props)
 
         this.state = {
-            selectedAccounts: this.props.selectedAccounts
+            selectedAccounts: this.props.selectedAccounts,
+            selectedRoles: this.props.selectedRoles
         }
 
         this.account_id = JSON.parse(localStorage.getItem('appState')).user.account_id
@@ -49,8 +51,24 @@ export default class PermissionsForm extends React.Component {
 
     render () {
         const account = this.props.accounts.filter(account => parseInt(account.id) === parseInt(this.account_id))
-
         const is_admin = this.state.selectedAccounts && this.state.selectedAccounts.is_admin === true
+        const role = this.state.selectedRoles
+        const itemList = {
+            invoice: ['store', 'update', 'destroy', 'show'],
+            credit: ['store', 'update', 'destroy', 'show'],
+            order: ['store', 'update', 'destroy', 'show'],
+            lead: ['store', 'update', 'destroy', 'show'],
+            deal: ['store', 'update', 'destroy', 'show'],
+            quote: ['store', 'update', 'destroy', 'show'],
+            task: ['store', 'update', 'destroy', 'show'],
+            project: ['store', 'update', 'destroy', 'show'],
+            purchase_order: ['store', 'update', 'destroy', 'show'],
+            company: ['store', 'update', 'destroy', 'show'],
+            payment: ['store', 'update', 'destroy', 'show'],
+            expense: ['store', 'update', 'destroy', 'show'],
+            product: ['store', 'update', 'destroy', 'show'],
+            customer: ['store', 'update', 'destroy', 'show']
+        }
 
         const accountList = this.props.accounts.length && account ? (
             <React.Fragment key={account[0].id}>
@@ -72,6 +90,7 @@ export default class PermissionsForm extends React.Component {
             <CardHeader>Permissions</CardHeader>
             <CardBody>
                 <Row form>
+
                     <Col md={6}>
                         <Label for="job_description">Department:</Label>
                         <DepartmentDropdown
@@ -87,7 +106,10 @@ export default class PermissionsForm extends React.Component {
                             name="role"
                             multiple={true}
                             errors={this.props.errors}
-                            handleInputChanges={this.props.handleMultiSelect}
+                            handleInputChanges={(e) => {
+                                this.setStagit statuste({ selectedRoles: Array.from(e.target.selectedOptions, (item) => item.value) })
+                                this.props.handleMultiSelect(e)
+                            }}
                             role={this.props.selectedRoles}
                         />
                     </Col>
@@ -99,6 +121,8 @@ export default class PermissionsForm extends React.Component {
                         {!!accountList && accountList}
                     </Col>
                 </Row>
+
+                <NestedCheckboxTree list={itemList} selected_roles={role} />
             </CardBody>
         </Card>
 

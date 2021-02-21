@@ -10,6 +10,7 @@ use App\Models\Industry;
 use App\Models\Language;
 use App\Models\PaymentGateway;
 use App\Models\PaymentMethod;
+use App\Models\Permission;
 use App\Models\TaxRate;
 use App\Models\User;
 use App\Requests\LoginRequest;
@@ -64,25 +65,34 @@ class LoginController extends Controller
                 ]
             );
 
+            $permissions = Permission::getRolePermissions($user);
+
+            $allowed_permissions = [];
+
+            foreach ($permissions as $permission) {
+                $allowed_permissions[$permission->role_id][$permission->name] = $permission->has_permission;
+            }
+
             $response = [
                 'success' => true,
                 'data'    => [
-                    'account_id'         => $default_account->id,
-                    'id'                 => $user->id,
-                    'auth_token'         => $user->auth_token,
-                    'name'               => $user->name,
-                    'email'              => $user->email,
-                    'accounts'           => $accounts,
-                    'number_of_accounts' => $user->accounts->count(),
-                    'currencies'         => Currency::all()->toArray(),
-                    'languages'          => Language::all()->toArray(),
-                    'industries'         => Industry::all()->toArray(),
-                    'countries'          => Country::all()->toArray(),
-                    'payment_types'      => PaymentMethod::all()->toArray(),
-                    'gateways'           => PaymentGateway::all()->toArray(),
-                    'tax_rates'          => TaxRate::all()->toArray(),
-                    'custom_fields'      => auth()->user()->account_user()->account->custom_fields,
-                    'users'              => User::where('is_active', '=', 1)->get(
+                    'account_id'          => $default_account->id,
+                    'id'                  => $user->id,
+                    'auth_token'          => $user->auth_token,
+                    'name'                => $user->name,
+                    'email'               => $user->email,
+                    'accounts'            => $accounts,
+                    'allowed_permissions' => $allowed_permissions,
+                    'number_of_accounts'  => $user->accounts->count(),
+                    'currencies'          => Currency::all()->toArray(),
+                    'languages'           => Language::all()->toArray(),
+                    'industries'          => Industry::all()->toArray(),
+                    'countries'           => Country::all()->toArray(),
+                    'payment_types'       => PaymentMethod::all()->toArray(),
+                    'gateways'            => PaymentGateway::all()->toArray(),
+                    'tax_rates'           => TaxRate::all()->toArray(),
+                    'custom_fields'       => auth()->user()->account_user()->account->custom_fields,
+                    'users'               => User::where('is_active', '=', 1)->get(
                         ['first_name', 'last_name', 'phone_number', 'id']
                     )->toArray()
                 ]

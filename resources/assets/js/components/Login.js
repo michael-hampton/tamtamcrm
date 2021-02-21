@@ -90,6 +90,7 @@ class Login extends Component {
 
                     // save app state with user date in local storage
                     localStorage.appState = JSON.stringify(appState)
+                    localStorage.setItem('allowed_permissions', JSON.stringify(response.data.data.allowed_permissions))
                     localStorage.setItem('currencies', JSON.stringify(response.data.data.currencies))
                     localStorage.setItem('languages', JSON.stringify(response.data.data.languages))
                     localStorage.setItem('industries', JSON.stringify(response.data.data.industries))
