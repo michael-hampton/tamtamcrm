@@ -51,7 +51,7 @@ function CheckboxGroup(props) {
     return (
         <div>
             <label>
-                <input type="checkbox" checked={props.checked} onChange={props.onGroupChange.bind(null, props.name)} /> <strong>{props.name}</strong>
+                <input type="checkbox" checked={props.checked} onChange={props.onGroupChange.bind(null, props.name)} /> <strong>{translations[props.name]}</strong>
             </label>
 
             <div style={{marginLeft: 20}}>
@@ -65,7 +65,24 @@ function CheckboxGroup(props) {
     );
 }
 
-function Checkbox(props) {
+function Checkbox(props, group) {
+    let name = 'update'
+
+    switch(props.name) {
+        case 'store':
+            name = 'create'
+         break;
+
+        case 'show'
+            name 'view'
+        break;
+
+        case 'destroy':
+            name = 'delete'
+        break;
+
+        
+    }
     return (
         <div>
             <label>
