@@ -1,3 +1,5 @@
+import { translations } from '../../utils/_translations'
+
 class NestedCheckboxTree extends React.Component {
     constructor(props) {
         super(props);
