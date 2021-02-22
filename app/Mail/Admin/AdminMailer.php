@@ -4,6 +4,7 @@
 namespace App\Mail\Admin;
 
 use App\Events\EmailFailedToSend;
+use App\Models\Invitation;
 use App\Models\User;
 use Exception;
 use Illuminate\Mail\Mailable;
@@ -22,7 +23,7 @@ class AdminMailer extends Mailable
      */
     protected string $message;
 
-    protected $entity;
+    public $entity;
 
     /**
      * @var string
@@ -30,14 +31,21 @@ class AdminMailer extends Mailable
     protected string $template;
 
     /**
+     * @var Invitation|null
+     */
+    protected ?Invitation $invitation;
+
+    /**
      * AdminMailer constructor.
      * @param string $template
      * @param $entity
+     * @param Invitation|null $invitation
      */
-    public function __construct(string $template, $entity)
+    public function __construct(string $template, $entity, Invitation $invitation = null)
     {
         $this->template = $template;
         $this->entity = $entity;
+        $this->invitation = $invitation;
     }
 
     /**
@@ -87,7 +95,11 @@ class AdminMailer extends Mailable
                             [
                                 'data' => $message_array,
                             ]
-                        );
+                        )->withSwiftMessage( //https://stackoverflow.com/questions/42207987/get-message-id-with-laravel-mailable
+                    function ($swiftmessage) {
+                        $swiftmessage->entity = !empty($this->invitation) ? $this->invitation : $this->entity;
+                    }
+                );;
         } catch (Exception $exception) {
             event(new EmailFailedToSend($this->entity, $exception->getMessage()));
             return false;

@@ -28,6 +28,7 @@ class AddUser extends React.Component {
 
         this.initialState = {
             modal: false,
+            customize: false,
             username: '',
             email: '',
             first_name: '',
@@ -46,6 +47,7 @@ class AddUser extends React.Component {
             selectedAccounts: [],
             selectedRoles: [],
             notifications: [],
+            customized_permissions: [],
             message: '',
             custom_value1: '',
             custom_value2: '',
@@ -81,7 +83,6 @@ class AddUser extends React.Component {
                 ...prevState.selectedAccounts,
                 notifications: { email: notifications },
                 account_id: this.account_id,
-                permissions: ''
             }
         }))
     }
@@ -167,7 +168,8 @@ class AddUser extends React.Component {
             custom_value1: this.state.custom_value1,
             custom_value2: this.state.custom_value2,
             custom_value3: this.state.custom_value3,
-            custom_value4: this.state.custom_value4
+            custom_value4: this.state.custom_value4,
+            customized_permissions: this.state.customize === true ? this.state.customized_permissions : {}
         })
             .then((response) => {
                 this.toggle()
@@ -205,6 +207,11 @@ class AddUser extends React.Component {
                 this.setState(this.initialState, () => localStorage.removeItem('userForm'))
             }
         })
+    }
+
+    setPermissions (permissions, customize) {
+        console.log('permissions', permissions)
+        this.setState({ customized_permissions: permissions, customize: customize })
     }
 
     handleMultiSelect (e) {
@@ -278,7 +285,8 @@ class AddUser extends React.Component {
                             </TabPane>
 
                             <TabPane tabId="2">
-                                <PermissionsForm handleInput={this.handleInput} errors={this.state.errors}
+                                <PermissionsForm setPermissions={this.setPermissions.bind(this)}
+                                    handleInput={this.handleInput} errors={this.state.errors}
                                     setAccounts={this.setSelectedAccounts}
                                     departments={this.props.departments} accounts={this.props.accounts}
                                     selectedAccounts={this.state.selectedAccounts}

@@ -13,7 +13,6 @@ class ObjectSent extends AdminMailer
 {
     use Queueable, SerializesModels;
 
-    private $invitation;
     private string $entity_name;
     private $contact;
 
@@ -33,7 +32,7 @@ class ObjectSent extends AdminMailer
         $this->entity = $invitation->inviteable;
         $this->user = $user;
 
-        parent::__construct("{$this->entity_name}_sent", $invitation->inviteable);
+        parent::__construct("{$this->entity_name}_sent", $invitation->inviteable, $invitation);
     }
 
     /**

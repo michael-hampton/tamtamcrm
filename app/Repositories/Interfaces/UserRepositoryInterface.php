@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Interfaces;
 
+use App\Models\Account;
 use App\Models\Department;
 use App\Models\User;
 use App\Repositories\Base\BaseRepositoryInterface;
@@ -9,6 +10,13 @@ use Illuminate\Support\Collection;
 
 interface UserRepositoryInterface extends BaseRepositoryInterface
 {
+    /**
+     * @param User $user
+     * @param array $permissions
+     * @return mixed
+     */
+    public function savePermissions(User $user, Account $account, array $permissions);
+
     /**
      *
      * @param string[] $columns

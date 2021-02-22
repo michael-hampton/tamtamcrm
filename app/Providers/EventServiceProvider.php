@@ -176,6 +176,7 @@ use App\Listeners\Lead\LeadEmailed;
 use App\Listeners\Lead\LeadNotification;
 use App\Listeners\Lead\LeadRestored;
 use App\Listeners\Lead\LeadUpdated;
+use App\Listeners\LogSentMessage;
 use App\Listeners\NewUserNotification;
 use App\Listeners\Order\OrderArchived;
 use App\Listeners\Order\OrderBackordered;
@@ -256,6 +257,7 @@ use App\Listeners\User\SendUserEmailChangedEmail;
 use App\Listeners\User\UpdatedUser;
 use App\Listeners\User\UserEmailHasChanged;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Illuminate\Mail\Events\MessageSending;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -265,6 +267,9 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
+        MessageSending::class => [
+            LogSentMessage::class,
+        ],
         UserWasCreated::class                  => [
             NewUserNotification::class,
             CreatedUser::class

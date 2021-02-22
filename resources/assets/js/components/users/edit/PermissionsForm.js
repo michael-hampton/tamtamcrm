@@ -107,7 +107,7 @@ export default class PermissionsForm extends React.Component {
                             multiple={true}
                             errors={this.props.errors}
                             handleInputChanges={(e) => {
-                                this.setStagit statuste({ selectedRoles: Array.from(e.target.selectedOptions, (item) => item.value) })
+                                this.setState({ selectedRoles: Array.from(e.target.selectedOptions, (item) => item.value) })
                                 this.props.handleMultiSelect(e)
                             }}
                             role={this.props.selectedRoles}
@@ -122,7 +122,17 @@ export default class PermissionsForm extends React.Component {
                     </Col>
                 </Row>
 
-                <NestedCheckboxTree list={itemList} selected_roles={role} />
+                <NestedCheckboxTree setPermissions={(permissions, customize) => {
+                    const user_permissions = {}
+                    Object.keys(permissions).forEach((group) => {
+                        Object.keys(permissions[group].children).forEach((key) => {
+                            console.log('permissions', permissions[group].children[key])
+                            user_permissions[permissions[group].children[key].value] = permissions[group].children[key].checked
+                        })
+                    })
+
+                    this.props.setPermissions(user_permissions, customize)
+                }} list={itemList} selected_roles={role} />
             </CardBody>
         </Card>
 

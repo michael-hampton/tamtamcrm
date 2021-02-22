@@ -77,13 +77,21 @@ class UserController extends Controller
     public function store(CreateUserRequest $request)
     {
         $user = $this->user_repo->save(
-            $request->all(),
+            $request->except('customized_permissions'),
             UserFactory::create(auth()->user()->account_user()->account->domains->id)
         );
-        //$user = $this->user_repo->save($request->all(), (new UserFactory())->create());
-        return $this->transformUser($user);
 
-        event(new UserWasCreated($user, auth()->user()->account_user()->account));
+        if (!empty($request->input('customized_permissions'))) {
+            $this->user_repo->savePermissions(
+                $user,
+                $user->account_user()->account,
+                $request->input('customized_permissions')
+            );
+        }
+
+        event(new UserWasCreated($user));
+
+        return $this->transformUser($user);
     }
 
     /**
@@ -146,7 +154,19 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, int $id)
     {
         $user = $this->user_repo->findUserById($id);
-        $user = $this->user_repo->save($request->all(), $user);
+
+        $user = $this->user_repo->save($request->except('customized_permissions'), $user);
+
+        if (!empty($request->input('customized_permissions'))) {
+            $this->user_repo->savePermissions(
+                $user,
+                $user->account_user()->account,
+                $request->input('customized_permissions')
+            );
+        } else {
+            $user->permissions()->delete();
+        }
+
         return response()->json($user);
     }
 

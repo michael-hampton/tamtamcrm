@@ -9,6 +9,7 @@ use App\Events\User\UserWasUpdated;
 use App\Models\Account;
 use App\Models\AccountUser;
 use App\Models\Department;
+use App\Models\Permission;
 use App\Models\User;
 use App\Repositories\Base\BaseRepository;
 use App\Repositories\Interfaces\UserRepositoryInterface;
@@ -16,6 +17,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection as Support;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class UserRepository extends BaseRepository implements UserRepositoryInterface
@@ -163,6 +165,8 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
                 );
 
             } else {
+                unset($data['company_user']['permissions'], $data['company_user']['settings']);
+
                 $data['company_user']['notifications'] = !empty($data['company_user']['notifications']) ? $data['company_user']['notifications']
                     : $user->notificationDefaults();
                 $cu->fill($data['company_user']);
@@ -234,6 +238,26 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     {
         $company = $user->account_user()->account;
         $company->forceDelete();
+
+        return true;
+    }
+
+    /**
+     * @param User $user
+     * @param array $permissions
+     * @return bool|mixed
+     */
+    public function savePermissions(User $user, Account $account, array $permissions) {
+        $all_permissions = Permission::all()->keyBy('name');
+
+        DB::table('permission_user')->where('user_id', '=', $user->id)->delete();
+
+        foreach ($permissions as $permission => $allowed) {
+            if(!empty($all_permissions[$permission])) {
+                $set_permission = $all_permissions[$permission];
+                $user->permissions()->attach($set_permission->id, ['account_id' => $account->id]);
+            }
+        }
 
         return true;
     }

@@ -8,13 +8,18 @@ export default class NestedCheckboxTree extends React.Component {
         this.onGroupChange = this.onGroupChange.bind(this)
         this.onChildChange = this.onChildChange.bind(this)
         this.onSectionChange = this.onSectionChange.bind(this)
+        this.rebuildPermissions = this.rebuildPermissions.bind(this)
 
         this.allowed_permissions = JSON.parse(localStorage.getItem('allowed_permissions'))
 
         const data = this.props.list
 
-        this.state = {}
-        this.state.roles = this.props.selected_roles
+        this.state = {
+            roles: this.props.selected_roles,
+            customize: false,
+            first_load: false
+        }
+
         this.state.permissions = Object.keys(data).reduce((acc, key) => {
             acc[key] = {
                 name: key,
@@ -52,18 +57,23 @@ export default class NestedCheckboxTree extends React.Component {
 
     componentDidUpdate (prevProps, prevState) {
         if (this.props.selected_roles && this.props.selected_roles !== prevProps.selected_roles) {
-
-            const permissions = Object.keys(this.props.list).reduce((acc, key) => {
-                acc[key] = {
-                    name: key,
-                    checked: false,
-                    children: this.reduceChildren(this.props.list[key], key)
-                }
-                return acc
-            }, {})
-
-            this.setState({permissions: permissions})
+            this.rebuildPermissions()
         }
+    }
+
+    rebuildPermissions () {
+        const permissions = Object.keys(this.props.list).reduce((acc, key) => {
+            acc[key] = {
+                name: key,
+                checked: false,
+                children: this.reduceChildren(this.props.list[key], key)
+            }
+            return acc
+        }, {})
+
+        this.setState({ permissions: permissions, first_load: true }, () => {
+            this.props.setPermissions(permissions, this.state.customize)
+        })
     }
 
     reduceChildren (children, group) {
@@ -102,7 +112,11 @@ export default class NestedCheckboxTree extends React.Component {
             })
         })
 
-        this.setState({ permissions: newState, sections: sections })
+        this.setState({ permissions: newState, sections: sections }, () => {
+            if (this.state.customize === true) {
+                this.props.setPermissions(newState, this.state.customize)
+            }
+        })
     }
 
     onGroupChange (groupName) {
@@ -115,7 +129,11 @@ export default class NestedCheckboxTree extends React.Component {
 	        group.children[key].checked = group.checked
         })
 
-        this.setState({ permissions: newState })
+        this.setState({ permissions: newState }, () => {
+            if (this.state.customize === true) {
+                this.props.setPermissions(newState, this.state.customize)
+            }
+        })
     }
 
     onChildChange (groupName, childName) {
@@ -125,7 +143,11 @@ export default class NestedCheckboxTree extends React.Component {
         group.children[childName].checked = !group.children[childName].checked
         // group.checked = _.every(group.children, "checked");
 
-        this.setState({ permissions: newState })
+        this.setState({ permissions: newState }, () => {
+            if (this.state.customize === true) {
+                this.props.setPermissions(newState, this.state.customize)
+            }
+        })
     }
 
     render () {
@@ -133,18 +155,36 @@ export default class NestedCheckboxTree extends React.Component {
         return (
             <React.Fragment>
                 <div className="row">
-                    <div className="col-md-12">
-                        <div className="col-md-3" />
+                    <div className="d-flex justify-content-between col-12">
+                        <label>
+                            <input type="checkbox" onClick={(e) => {
+                                this.setState({ customize: !this.state.customize }, () => {
+                                    if (!this.state.first_load) {
+                                        this.rebuildPermissions()
+                                    }
+                                })
+                            }}/> {translations.customize}
+                        </label>
+
+                        <h3>{translations.permissions}</h3>
+                    </div>
+                </div>
+
+                {this.state.customize &&
+                <div className="row">
+                    <div className="col-12">
+                        <div className="col-md-4" />
                         {sections.map((section) => (
-                            <CheckboxSection name={section} key={section} onSectionChange={this.onSectionChange} />
+                            <CheckboxSection customize={this.state.customize} name={section} key={section} onSectionChange={this.onSectionChange} />
                         ))}
                     </div>
                 </div>
+                }
 
                 <div className="row">
                     <div className="col-md-12">
                         {Object.keys(this.state.permissions).map((item) => (
-                            <CheckboxGroup key={this.state.permissions[item].name} onGroupChange={this.onGroupChange} onItemChange={this.onChildChange} {...this.state.permissions[item]} />
+                            <CheckboxGroup customize={this.state.customize} key={this.state.permissions[item].name} onGroupChange={this.onGroupChange} onItemChange={this.onChildChange} {...this.state.permissions[item]} />
                         ))}
                     </div>
                 </div>
@@ -155,28 +195,41 @@ export default class NestedCheckboxTree extends React.Component {
 }
 
 function CheckboxSection (props) {
+    let input = <input type="checkbox" checked={props.checked} onChange={props.onSectionChange.bind(null, props.name)} />
+
+    if (!props.customize) {
+        input = props.checked ? <span className="fa fa-check" style={{ fontSize: 20 }} /> : <span className="fa fa-times" style={{ fontSize: 20 }} />
+    }
+
     return (
         <div className="col-md-2">
             <label>
-                <input type="checkbox" checked={props.checked} onChange={props.onSectionChange.bind(null, props.name)} /> <strong>{props.name}</strong>
+                {input} <strong>{props.name}</strong>
             </label>
         </div>
     )
 }
 
 function CheckboxGroup (props) {
+    let input = <input type="checkbox" checked={props.checked} onChange={props.onGroupChange.bind(null, props.name)} />
+
+    if (!props.customize) {
+        input = props.checked ? <span className="fa fa-check" style={{ fontSize: 20 }} /> : <span className="fa fa-times" style={{ fontSize: 20 }} />
+    }
+
     return (
         <div>
-            <div className="col-md-3">
+            <div className="col-md-4">
                 <label>
-                    <input type="checkbox" checked={props.checked} onChange={props.onGroupChange.bind(null, props.name)} /> <strong>{translations[props.name]}</strong>
+                    {input}
+                    <strong>{translations[props.name]}</strong>
                 </label>
             </div>
 
             {Object.keys(props.children).map((key) => {
                 return (
                     <div className="col-md-2">
-                        <Checkbox key={props.children[key].name} group={props.name} onChange={props.onItemChange.bind(null, props.name)} {...props.children[key]} />
+                        <Checkbox customize={props.customize} key={props.children[key].name} group={props.name} onChange={props.onItemChange.bind(null, props.name)} {...props.children[key]} />
                     </div>
                 )
             })}
@@ -189,10 +242,16 @@ function Checkbox (props, group) {
     const name = labels[props.name]
     const value = props.group + 'controller.' + props.name
 
+    let input = <input type="checkbox" checked={props.checked} onChange={props.onChange.bind(null, props.name)} />
+
+    if (!props.customize) {
+        input = props.checked ? <span className="fa fa-check" style={{ fontSize: 20 }} /> : <span className="fa fa-times" style={{ fontSize: 20 }} />
+    }
+
     return (
         <div>
             <label>
-                <input type="checkbox" checked={props.checked} onChange={props.onChange.bind(null, props.name)} />
+                {input}
                 {' '}
                 {name}
             </label>

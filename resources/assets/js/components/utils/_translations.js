@@ -1,7 +1,6 @@
 const _localizedValues = []
 _localizedValues.en = {
     partially_unapplied: 'Partially Unapplied',
-    unapplied: 'Unapplied',
     refund_successful: 'Payment was refunded successfully',
     refund_unsuccessful: 'Payment could not be refunded',
     portal_registration_url: 'Registration URL',
@@ -888,7 +887,10 @@ _localizedValues.en = {
     year: 'Year',
     file_type: 'File Type',
     record_type: 'Record Type',
-    chart: 'Chart'
+    chart: 'Chart',
+    confirm_email: 'Confirm Email',
+    email_confirmed: 'Your have confirmed your email address. An email has been sent',
+    customize: 'Customize'
 }
 
 let language = []

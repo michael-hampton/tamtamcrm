@@ -28,4 +28,26 @@ export default class UserRepository extends BaseRepository {
             return false
         }
     }
+
+    async confirmEmail (user) {
+        this.errors = []
+        this.error_message = ''
+
+        alert('mike 2')
+
+        try {
+            const res = await axios.post(`/api/user/verify/${user}`)
+
+            if (res.status === 200) {
+                // test for status you want, etc
+                console.log(res.status)
+            }
+
+            // Don't forget to return something
+            return res.data
+        } catch (e) {
+            this.handleError(e)
+            return false
+        }
+    }
 }

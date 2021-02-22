@@ -11,7 +11,6 @@ class ObjectViewed extends AdminMailer
 {
     use Queueable, SerializesModels;
 
-    private $invitation;
     private string $entity_name;
     private $contact;
 
@@ -29,7 +28,7 @@ class ObjectViewed extends AdminMailer
         $this->invitation = $invitation;
         $this->user = $user;
 
-        parent::__construct("{$this->entity_name}_viewed", $this->entity);
+        parent::__construct("{$this->entity_name}_viewed", $this->entity, $invitation);
     }
 
     /**

@@ -19,15 +19,11 @@ class AccountUser extends Pivot
         'updated_at'    => 'timestamp',
         'created_at'    => 'timestamp',
         'deleted_at'    => 'timestamp',
-        'settings'      => 'object',
         'notifications' => 'object',
-        'permissions'   => 'string',
     ];
     protected $fillable = [
         'notifications',
         'account_id',
-        'permissions',
-        'settings',
         'is_admin',
         'is_owner',
         'is_locked',

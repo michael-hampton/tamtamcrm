@@ -112,7 +112,10 @@ class User extends Authenticatable implements JWTSubject
 
     public function permissions()
     {
-        return $this->belongsToMany(Permission::class, 'permission_user');
+        return $this->belongsToMany(Permission::class, 'permission_user')->where(
+            'account_id',
+            $this->account_user()->account->id
+        );
     }
 
     /**
@@ -182,9 +185,9 @@ class User extends Authenticatable implements JWTSubject
         $this->accounts()->attach(
             $account->id,
             [
-                'account_id'    => $account->id,
-                'is_owner'      => $is_admin,
-                'is_admin'      => $is_admin,
+                'account_id' => $account->id,
+                'is_owner' => $is_admin,
+                'is_admin' => $is_admin,
                 'notifications' => !empty($notifications) ? $notifications : $this->notificationDefaults()
             ]
         );
@@ -197,7 +200,7 @@ class User extends Authenticatable implements JWTSubject
     public function accounts()
     {
         return $this->belongsToMany(Account::class)->using(Models\AccountUser::class)
-                    ->withPivot('permissions', 'settings', 'is_admin', 'is_owner', 'is_locked');
+                    ->withPivot('is_admin', 'is_owner', 'is_locked');
     }
 
     public static function notificationDefaults()

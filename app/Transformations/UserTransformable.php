@@ -21,7 +21,7 @@ trait UserTransformable
             'email'           => $user->email,
             'username'        => $user->username,
             'phone_number'    => $user->phone_number,
-            'password'        => $user->password,
+            //'password'        => $user->password,
             'job_description' => $user->job_description,
             'account_users'   => $this->transformUserAccounts($user->account_users),
             'gender'          => $user->gender,
