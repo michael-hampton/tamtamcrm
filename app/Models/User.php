@@ -112,6 +112,10 @@ class User extends Authenticatable implements JWTSubject
 
     public function permissions()
     {
+        if (empty($this->account_user())) {
+            return new \Illuminate\Support\Collection();
+        }
+
         return $this->belongsToMany(Permission::class, 'permission_user')->where(
             'account_id',
             $this->account_user()->account->id
@@ -185,9 +189,9 @@ class User extends Authenticatable implements JWTSubject
         $this->accounts()->attach(
             $account->id,
             [
-                'account_id' => $account->id,
-                'is_owner' => $is_admin,
-                'is_admin' => $is_admin,
+                'account_id'    => $account->id,
+                'is_owner'      => $is_admin,
+                'is_admin'      => $is_admin,
                 'notifications' => !empty($notifications) ? $notifications : $this->notificationDefaults()
             ]
         );

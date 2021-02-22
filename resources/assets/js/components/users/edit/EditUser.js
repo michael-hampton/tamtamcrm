@@ -55,7 +55,8 @@ class EditUser extends React.Component {
             custom_value3: '',
             custom_value4: '',
             is_admin: false,
-            activeTab: '1'
+            activeTab: '1',
+            has_custom_permissions: false
         }
 
         this.initialState = this.state
@@ -166,6 +167,7 @@ class EditUser extends React.Component {
                     last_name: r.data.user.last_name,
                     phone_number: r.data.user.phone_number,
                     job_description: r.data.user.job_description,
+                    has_custom_permissions: r.data.user.has_custom_permissions,
                     custom_value1: r.data.user.custom_value1,
                     custom_value2: r.data.user.custom_value2,
                     custom_value3: r.data.user.custom_value3,
@@ -392,7 +394,7 @@ class EditUser extends React.Component {
 
                             <TabPane tabId="2">
                                 {this.state.username && this.state.username.length &&
-                                <PermissionsForm setPermissions={this.setPermissions.bind(this)}
+                                <PermissionsForm has_custom_permissions={this.state.has_custom_permissions} setPermissions={this.setPermissions.bind(this)}
                                     handleInput={this.handleInput} errors={this.state.errors}
                                     setAccounts={this.setSelectedAccounts}
                                     departments={this.props.departments} accounts={this.props.accounts}

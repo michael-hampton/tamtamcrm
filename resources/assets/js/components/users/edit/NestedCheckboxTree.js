@@ -1,6 +1,5 @@
 import React from 'react'
 import { translations } from '../../utils/_translations'
-import InvoiceModel from '../../models/InvoiceModel'
 
 export default class NestedCheckboxTree extends React.Component {
     constructor (props) {
@@ -16,7 +15,7 @@ export default class NestedCheckboxTree extends React.Component {
 
         this.state = {
             roles: this.props.selected_roles,
-            customize: false,
+            customize: this.props.has_custom_permissions || false,
             first_load: false
         }
 
@@ -55,9 +54,15 @@ export default class NestedCheckboxTree extends React.Component {
         return null
     }
 
+    componentDidMount () {
+        if (this.props.has_custom_permissions === true) {
+            this.rebuildPermissions()
+        }
+    }
+
     componentDidUpdate (prevProps, prevState) {
         if (this.props.selected_roles && this.props.selected_roles !== prevProps.selected_roles) {
-            this.rebuildPermissions()
+            this.props.setPermissions(this.state.permissions, true)
         }
     }
 
@@ -157,7 +162,7 @@ export default class NestedCheckboxTree extends React.Component {
                 <div className="row">
                     <div className="d-flex justify-content-between col-12">
                         <label>
-                            <input type="checkbox" onClick={(e) => {
+                            <input type="checkbox" checked={this.state.customize} onClick={(e) => {
                                 this.setState({ customize: !this.state.customize }, () => {
                                     if (!this.state.first_load) {
                                         this.rebuildPermissions()
