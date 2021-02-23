@@ -7,7 +7,7 @@ namespace App\Http\Controllers;
 use App\Actions\Email\DispatchEmail;
 use App\Actions\Invoice\CancelInvoice;
 use App\Actions\Invoice\CreatePayment;
-use App\Actions\Invoice\GenerateDispatchNote;
+use App\Actions\Pdf\GenerateDispatchNote;
 use App\Actions\Invoice\ReverseInvoicePayment;
 use App\Actions\Order\CancelOrder;
 use App\Actions\Order\DispatchOrder;

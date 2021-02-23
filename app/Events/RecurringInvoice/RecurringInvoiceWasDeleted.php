@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events\Cases;
+namespace App\Events\RecurringInvoice;
 
 use App\Models\RecurringInvoice;
 use Illuminate\Queue\SerializesModels;
