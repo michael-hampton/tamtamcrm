@@ -165,11 +165,12 @@ class SendMail extends Mailable
 
     /**
      * @param $reply_to_address
-     * @return SendMail
+     * @param $reply_to_name
+     * @return $this
      */
-    public function setReplyTo($reply_to_address): self
+    public function setReplyTo($reply_to_address, $reply_to_name): self
     {
-        $this->replyTo($reply_to_address);
+        $this->replyTo($reply_to_address, $reply_to_name);
         return $this;
     }
 

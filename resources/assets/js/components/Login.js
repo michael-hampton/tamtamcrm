@@ -17,6 +17,8 @@ import {
 } from 'reactstrap'
 import queryString from 'query-string'
 import { icons } from './utils/_icons'
+import { translations } from './utils/_translations'
+import ConfirmPassword from './common/ConfirmPassword'
 
 class Login extends Component {
     constructor (props) {
@@ -27,7 +29,8 @@ class Login extends Component {
             email: '',
             password: '',
             error: '',
-            confirmed: queryString.parse(this.props.location.search).confirmed || false
+            confirmed: queryString.parse(this.props.location.search).confirmed || false,
+            should_confirm_password: false
         }
 
         this.handleChange = this.handleChange.bind(this)
@@ -103,7 +106,9 @@ class Login extends Component {
                     localStorage.setItem('access_token', userData.auth_token)
                     localStorage.setItem('number_of_accounts', response.data.data.number_of_accounts)
                     localStorage.setItem('expires', d2)
+                    localStorage.setItem('require_login', response.data.data.require_login)
                     localStorage.setItem('account_id', response.data.data.account_id)
+
                     this.setState({
                         isLoggedIn: appState.isLoggedIn,
                         user: appState.user
@@ -122,6 +127,20 @@ class Login extends Component {
     }
 
     render () {
+        const social_login_button = this.state.should_confirm_password
+            ? <ConfirmPassword id="google" callback={this.onSocialClick.bind(this, 'google')}
+                button_color="btn-primary" button_label="Login With Google"/>
+            : <a onClick={this.onSocialClick.bind(this, 'google')}
+                style={{
+                    marginTop: '0px !important',
+                    background: 'green',
+                    color: '#ffffff',
+                    padding: '5px',
+                    borderRadius: '7px'
+                }}
+                className="ml-2 btn-google">
+                <strong>Login With Google</strong>
+            </a>
         return (
             <div className="app flex-row align-items-center">
                 <Container>
@@ -177,19 +196,7 @@ class Login extends Component {
                                                 </Col>
                                             </Row>
 
-                                            {!this.state.loading &&
-                                            <a onClick={this.onSocialClick.bind(this, 'google')}
-                                                style={{
-                                                    marginTop: '0px !important',
-                                                    background: 'green',
-                                                    color: '#ffffff',
-                                                    padding: '5px',
-                                                    borderRadius: '7px'
-                                                }}
-                                                className="ml-2 btn-google">
-                                                <strong>Login With Google</strong>
-                                            </a>
-                                            }
+                                            {!this.state.loading && social_login_button}
                                         </Form>
                                     </CardBody>
                                 </Card>

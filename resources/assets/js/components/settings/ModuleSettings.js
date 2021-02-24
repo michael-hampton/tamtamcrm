@@ -24,15 +24,20 @@ import { icons } from '../utils/_icons'
 import SnackbarMessage from '../common/SnackbarMessage'
 import Header from './Header'
 import CompanyModel from '../models/CompanyModel'
+import AccountRepository from '../repositories/AccountRepository'
+import FormBuilder from './FormBuilder'
 
 class ModuleSettings extends Component {
     constructor (props) {
         super(props)
         this.state = {
-            success: false,
-            error: false,
             id: localStorage.getItem('account_id'),
             activeTab: '1',
+            cached_settings: {},
+            settings: {},
+            success: false,
+            error: false,
+            changesMade: false,
             showConfirm: false,
             modules: Object.prototype.hasOwnProperty.call(localStorage, 'modules') ? JSON.parse(localStorage.getItem('modules')) : {
                 recurringInvoices: false,
@@ -186,8 +191,96 @@ class ModuleSettings extends Component {
         this.customInputSwitched = this.customInputSwitched.bind(this)
         this.handleAllChecked = this.handleAllChecked.bind(this)
         this.toggleTab = this.toggleTab.bind(this)
+        this.handleSettingsChange = this.handleSettingsChange.bind(this)
+        this.getAccount = this.getAccount.bind(this)
+        this.handleSubmit = this.handleSubmit.bind(this)
 
         this.model = new CompanyModel({ id: this.state.id })
+    }
+
+    componentDidMount () {
+        window.addEventListener('beforeunload', this.beforeunload.bind(this))
+        this.getAccount()
+    }
+
+    componentWillUnmount () {
+        window.removeEventListener('beforeunload', this.beforeunload.bind(this))
+    }
+
+    beforeunload (e) {
+        if (this.state.changesMade) {
+            if (!confirm(translations.changes_made_warning)) {
+                e.preventDefault()
+                return false
+            }
+        }
+    }
+
+    handleSubmit (e) {
+        const formData = new FormData()
+        formData.append('settings', JSON.stringify(this.state.settings))
+        formData.append('_method', 'PUT')
+
+        axios.post(`/api/accounts/${this.state.id}`, formData, {
+            headers: {
+                'content-type': 'multipart/form-data'
+            }
+        })
+            .then((response) => {
+                this.setState({
+                    success: true,
+                    cached_settings: this.state.settings,
+                    changesMade: false
+                }, () => this.model.updateSettings(this.state.settings))
+            })
+            .catch((error) => {
+                this.setState({ error: true })
+            })
+    }
+
+    getAccount () {
+        const accountRepository = new AccountRepository()
+        accountRepository.getById(this.state.id).then(response => {
+            if (!response) {
+                alert('error')
+            }
+
+            this.setState({
+                loaded: true,
+                settings: response.settings,
+                cached_settings: response.settings
+            }, () => {
+                console.log(response)
+            })
+        })
+    }
+
+    handleSettingsChange (event) {
+        const name = event.target.name
+        const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
+
+        this.setState(prevState => ({
+            changesMade: true,
+            settings: {
+                ...prevState.settings,
+                [name]: value
+            }
+        }))
+    }
+
+    getSettingFields () {
+        const settings = this.state.settings
+
+        return [
+            [
+                {
+                    name: 'require_admin_password',
+                    label: translations.require_admin_password,
+                    type: 'switch',
+                    value: settings.require_admin_password
+                }
+            ]
+        ]
     }
 
     toggleTab (tab) {
@@ -233,6 +326,10 @@ class ModuleSettings extends Component {
         this.setState({ success: false, error: false })
     }
 
+    handleCancel () {
+        this.setState({ settings: this.state.cached_settings, changesMade: false })
+    }
+
     render () {
         const tabs = <Nav tabs className="nav-justified setting-tabs disable-scrollbars">
             <NavItem>
@@ -264,8 +361,9 @@ class ModuleSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={translations.settings_not_saved}/>
 
-                <Header title={translations.account_management}
-                    tabs={tabs}/>
+                <Header tabs={tabs} title={translations.account_management}
+                    handleSubmit={this.handleSubmit.bind(this)} cancelButtonDisabled={!this.state.changesMade}
+                    handleCancel={this.handleCancel.bind(this)}/>
 
                 <div className="settings-container settings-container-narrow fixed-margin-mobile">
                     <TabContent activeTab={this.state.activeTab}>
@@ -282,6 +380,15 @@ class ModuleSettings extends Component {
                                         block>
                                         <i style={{ marginRight: '14px', fontSize: '24px' }}
                                             className={`fa ${icons.delete}`}/>{translations.delete_account}</Button>
+                                </CardBody>
+                            </Card>
+
+                            <Card>
+                                <CardBody>
+                                    <FormBuilder
+                                        handleChange={this.handleSettingsChange}
+                                        formFieldsRows={this.getSettingFields()}
+                                    />
                                 </CardBody>
                             </Card>
                         </TabPane>

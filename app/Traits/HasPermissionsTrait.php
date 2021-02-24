@@ -39,7 +39,11 @@ trait HasPermissionsTrait
 
     public function hasPermissionTo($permission)
     {
-        return $this->userHasPermission($permission) || $this->checkIfRoleHasPermission($permission);
+        if ($this->permissions()->count() > 0) {
+            return $this->userHasPermission($permission);
+        }
+
+        return $this->checkIfRoleHasPermission($permission);
     }
 
     protected function userHasPermission($permission)

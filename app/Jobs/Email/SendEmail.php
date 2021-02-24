@@ -75,7 +75,7 @@ class SendEmail implements ShouldQueue
         $design_style = $settings->email_style;
 
         if ($design_style == 'custom') {
-            $email_style_custom = $settings->email_style_custom;
+            $email_style_custom  = $settings->email_style_custom;
             $body = str_replace("$body", $body, $email_style_custom);
         }
 
@@ -89,7 +89,9 @@ class SendEmail implements ShouldQueue
 
 
         if (strlen($settings->reply_to_email) > 0) {
-            $message->setReplyTo($settings->reply_to_email);
+            $reply_to_name = !empty($settings->reply_to_name) ? $settings->reply_to_name
+                : $this->entity->account->present()->name;
+            $message->setReplyTo($settings->reply_to_email, $reply_to_name);
         }
 
         if (strlen($settings->bcc_email) > 0) {

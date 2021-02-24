@@ -75,6 +75,8 @@ export default class UserList extends Component {
         const currentInvoices = users.slice(offset, offset + pageLimit)
         const filters = data.filters ? data.filters : this.state.filters
 
+        console.log('current', currentInvoices)
+
         this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
@@ -160,7 +162,6 @@ export default class UserList extends Component {
             cachedData: cachedData
         }, () => {
             localStorage.setItem('users', JSON.stringify(users))
-        }, () => {
             const totalPages = Math.ceil(users.length / this.state.pageLimit)
             this.onPageChanged({ invoices: users, currentPage: this.state.currentPage, totalPages: totalPages })
         })

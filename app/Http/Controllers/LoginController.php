@@ -21,7 +21,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use JWTAuth;
@@ -78,6 +77,7 @@ class LoginController extends Controller
                 'success' => true,
                 'data'    => [
                     'account_id'          => $default_account->id,
+                    'require_login'       => (bool)$default_account->settings->require_admin_password,
                     'id'                  => $user->id,
                     'auth_token'          => $user->auth_token,
                     'name'                => $user->name,
@@ -219,25 +219,36 @@ class LoginController extends Controller
             ]
         );
 
+        $permissions = Permission::getRolePermissions($user);
+
+        $allowed_permissions = [];
+
+        foreach ($permissions as $permission) {
+            $allowed_permissions[$permission->role_id][$permission->name] = $permission->has_permission;
+        }
+
         return [
             'success' => true,
             'data'    => [
-                'redirect'           => 'http://taskman2.develop',
-                'account_id'         => $default_account->id,
-                'id'                 => $user->id,
-                'auth_token'         => $user->auth_token,
-                'name'               => $user->first_name . ' ' . $user->last_name,
-                'email'              => $user->email,
-                'accounts'           => json_encode($accounts),
-                'number_of_accounts' => $user->accounts->count(),
-                'currencies'         => json_encode(Currency::all()->toArray()),
-                'languages'          => json_encode(Language::all()->toArray()),
-                'countries'          => json_encode(Country::all()->toArray()),
-                'payment_types'      => json_encode(PaymentMethod::all()->toArray()),
-                'gateways'           => json_encode(PaymentGateway::all()->toArray()),
-                'tax_rates'          => json_encode(TaxRate::all()->toArray()),
-                'custom_fields'      => json_encode(auth()->user()->account_user()->account->custom_fields),
-                'users'              => json_encode(
+                'redirect'            => 'http://taskman2.develop',
+                'account_id'          => $default_account->id,
+                'require_login'       => (bool)$default_account->settings->require_admin_password,
+                'id'                  => $user->id,
+                'auth_token'          => $user->auth_token,
+                'name'                => $user->first_name . ' ' . $user->last_name,
+                'email'               => $user->email,
+                'accounts'            => json_encode($accounts),
+                'allowed_permissions' => json_encode($allowed_permissions),
+                'number_of_accounts'  => $user->accounts->count(),
+                'currencies'          => json_encode(Currency::all()->toArray()),
+                'languages'           => json_encode(Language::all()->toArray()),
+                'countries'           => json_encode(Country::all()->toArray()),
+                'payment_types'       => json_encode(PaymentMethod::all()->toArray()),
+                'gateways'            => json_encode(PaymentGateway::all()->toArray()),
+                'industries'          => json_encode(Industry::all()->toArray()),
+                'tax_rates'           => json_encode(TaxRate::all()->toArray()),
+                'custom_fields'       => json_encode(auth()->user()->account_user()->account->custom_fields),
+                'users'               => json_encode(
                     User::where('is_active', '=', 1)->get(
                         ['first_name', 'last_name', 'phone_number', 'id']
                     )->toArray()

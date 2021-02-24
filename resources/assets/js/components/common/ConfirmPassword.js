@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
-import { FormGroup, Input, Label, Modal, ModalBody } from 'reactstrap'
+import { DropdownItem, FormGroup, Input, Label, Modal, ModalBody } from 'reactstrap'
 import { translations } from '../utils/_translations'
-import axios from 'axios'
 import DefaultModalHeader from './ModalHeader'
 import DefaultModalFooter from './ModalFooter'
 
@@ -41,23 +40,8 @@ export default class ConfirmPassword extends Component {
     }
 
     handleClick () {
-        const data = {
-            password: this.state.password
-        }
-
-        axios.delete(this.props.url, { data: data })
-            .then((r) => {
-                this.props.callback(this.props.id)
-            })
-            .catch((error) => {
-                if (error.response.data.errors) {
-                    this.setState({
-                        errors: error.response.data.errors
-                    })
-                } else {
-                    this.setState({ message: error.response.data })
-                }
-            })
+        this.toggle()
+        this.props.callback(this.props.id, this.state.password)
     }
 
     toggle () {
@@ -70,10 +54,14 @@ export default class ConfirmPassword extends Component {
     render () {
         const { message } = this.state
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
+        const button = this.props.dropdown
+            ? <DropdownItem onClick={this.toggle}><i className={`fa ${this.props.icon} mr-2`}/>{this.props.button_label}
+            </DropdownItem> : <button className={`btn ${this.props.button_color}`}
+                onClick={this.toggle}>{this.props.button_label}</button>
 
         return (
             <React.Fragment>
-                <button className="btn btn-danger" onClick={this.toggle}>{translations.delete}</button>
+                {button}
                 <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
                     <DefaultModalHeader toggle={this.toggle} title={translations.confirm_password_title}/>
 
@@ -82,6 +70,8 @@ export default class ConfirmPassword extends Component {
                         {message && <div className="alert alert-danger" role="alert">
                             {message}
                         </div>}
+
+                        {this.props.text && <p>{this.props.text}</p>}
 
                         <FormGroup className="mb-3">
                             <Label>{translations.confirm_password}</Label>

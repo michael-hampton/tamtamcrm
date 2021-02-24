@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React from 'react'
 import FileUpload from './FileUpload'
+import axios from "axios";
 
 export default class FileUploadList extends React.Component {
     constructor (props) {
@@ -13,11 +14,27 @@ export default class FileUploadList extends React.Component {
         this.deleteFile = this.deleteFile.bind(this)
     }
 
-    deleteFile (id) {
-        const arrFiles = [...this.state.files]
-        const index = arrFiles.findIndex(file => file.id === id)
-        arrFiles.splice(index, 1)
-        this.setState({ files: arrFiles })
+    deleteFile (id, password) {
+        const data = {
+            password: password
+        }
+
+        axios.delete(`/api/uploads/${id}`, { data: data })
+            .then((r) => {
+                const arrFiles = [...this.state.files]
+                const index = arrFiles.findIndex(file => file.id === id)
+                arrFiles.splice(index, 1)
+                this.setState({ files: arrFiles })
+            })
+            .catch((error) => {
+                if (error.response.data.errors) {
+                    this.setState({
+                        errors: error.response.data.errors
+                    })
+                } else {
+                    this.setState({ message: error.response.data })
+                }
+            })
     }
 
     render () {

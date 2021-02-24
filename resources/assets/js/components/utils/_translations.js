@@ -890,7 +890,8 @@ _localizedValues.en = {
     chart: 'Chart',
     confirm_email: 'Confirm Email',
     email_confirmed: 'Your have confirmed your email address. An email has been sent',
-    customize: 'Customize'
+    customize: 'Customize',
+    require_admin_password: 'Password is required to log in'
 }
 
 let language = []

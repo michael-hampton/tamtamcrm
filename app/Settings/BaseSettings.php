@@ -761,7 +761,7 @@ class BaseSettings
             'default_value'    => '',
             'type'             => 'string'
         ],
-        'reply_to_name'                       => [
+        'reply_to_name'                        => [
             'required'         => false,
             'translated_value' => '',
             'default_value'    => '',
@@ -1554,6 +1554,12 @@ class BaseSettings
             'type'             => 'string'
         ],
         'require_customer_portal_login'        => [
+            'required'         => false,
+            'translated_value' => '',
+            'default_value'    => true,
+            'type'             => 'bool'
+        ],
+        'require_admin_password'               => [
             'required'         => false,
             'translated_value' => '',
             'default_value'    => true,
