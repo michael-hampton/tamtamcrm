@@ -267,6 +267,7 @@ export default class RecurringInvoices extends Component {
                                     bulk_save_url="/api/recurring-invoice/bulk"
                                     view={view}
                                     columnMapping={{
+                                        status_id: 'status',
                                         customer_id: 'CUSTOMER',
                                         number_of_occurrrances: translations.cycles_remaining
                                     }}

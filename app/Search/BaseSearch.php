@@ -6,40 +6,40 @@ use App\Models\Account;
 use App\Models\Invoice;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use ReflectionClass;
 
 class BaseSearch
 {
+    protected array $field_mapping = [
+        'private_notes'      => '$table.private_notes',
+        'public_notes'       => '$table.public_notes',
+        'industry'           => 'industries.name',
+        'custom1'            => '$table.custom_value1',
+        'custom2'            => '$table.custom_value2',
+        'custom3'            => '$table.custom_value3',
+        'custom4'            => '$table.custom_value4',
+        'address_1'          => 'billing.address_1',
+        'address_2'          => 'billing.address_2',
+        'city'               => 'billing.city',
+        'state'              => 'billing.state_code',
+        'zip'                => 'billing.zip',
+        'country'            => 'billing_country.name',
+        'shipping_address_1' => 'shipping.address_1',
+        'shipping_address_2' => 'shipping.address_2',
+        'shipping_city'      => 'shipping.city',
+        'shipping_town'      => 'shipping.state_code',
+        'shipping_zip'       => 'shipping.zip',
+        'shipping_country'   => 'shipping_country.name',
+        'language'           => 'languages.name',
+        'customer'           => 'customers.name',
+        'currency'           => 'currencies.name',
+        'balance'            => '$table.balance',
+        'customer_balance'   => 'customers.balance'
+    ];
     /**
      * @var array
      */
     private array $statuses = [];
-
-    protected array $field_mapping = [
-            'private_notes' => '$table.private_notes',
-            'public_notes' => '$table.public_notes',
-            'industry' => 'industries.name',
-            'custom1' => '$table.custom_value1',
-            'custom2' => '$table.custom_value2',
-            'custom3' => '$table.custom_value3',
-            'custom4' => '$table.custom_value4',
-            'address_1' => 'billing.address_1',
-            'address_2' => 'billing.address_2',
-            'city' => 'billing.city',
-            'state' => 'billing.state_code',
-            'zip' => 'billing.zip',
-            'country' => 'billing_country.name',
-            'shipping_address_1' => 'shipping.address_1',
-            'shipping_address_2' => 'shipping.address_2',
-            'shipping_city' => 'shipping.city',
-            'shipping_town' => 'shipping.state_code',
-            'shipping_zip' => 'shipping.zip',
-            'shipping_country' => 'shipping_country.name',
-            'language' => 'languages.name',
-            'customer' => 'customers.name',
-            'currency' => 'currencies.name',
-            'balance' => '$table.balance',
-            'customer_balance' => 'customers.balance'
-        ];
 
     /**
      * @param $permission
@@ -234,7 +234,7 @@ class BaseSearch
 
     protected function getStatus($model, int $status)
     {
-        $refl = new \ReflectionClass($model);
+        $refl = new ReflectionClass($model);
         $consts = $refl->getConstants();
 
         if (empty($this->statuses)) {

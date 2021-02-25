@@ -243,7 +243,7 @@ export default class Order extends Component {
                                     entity_type="Order"
                                     bulk_save_url="/api/order/bulk"
                                     view={view}
-                                    columnMapping={{ customer_id: 'CUSTOMER' }}
+                                    columnMapping={{ customer_id: 'CUSTOMER', status_id: 'status' }}
                                     // order={['id', 'number', 'date', 'customer_name', 'total', 'balance', 'status_id']}
                                     disableSorting={['id']}
                                     defaultColumn='number'

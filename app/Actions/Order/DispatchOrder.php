@@ -3,10 +3,10 @@
 namespace App\Actions\Order;
 
 
-use App\Events\Order\OrderWasHeld;
 use App\Models\Order;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\OrderRepository;
+use ReflectionException;
 
 class DispatchOrder
 {
@@ -23,7 +23,7 @@ class DispatchOrder
      * @param OrderRepository $order_repo
      * @param bool $force_invoice
      * @return Order
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function execute(
         InvoiceRepository $invoice_repo,

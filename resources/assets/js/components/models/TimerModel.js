@@ -46,10 +46,24 @@ export default class TimerModel extends BaseModel {
     addDuration (index, value) {
         const data = [...this.time_log]
 
-        var time = moment(data[index].start_time, 'HH:mm:ss')
+        if (!data[index]) {
+            data[index] = {}
+        }
+
+        const time = data[index].start_time && data[index].start_time.toString().length ? moment(data[index].start_time, 'HH:mm:ss') : moment(new Date()).subtract(value, 'minutes')
         time.add(value, 'm')
         data[index].end_time = time.format('HH:mm:ss')
+
+        if (!data[index].date || !data[index].date.toString().length) {
+            data[index].start_time = moment(new Date()).subtract(value, 'minutes').format('HH:mm:ss')
+            data[index].date = moment(new Date()).format('YYYY-MM-DD')
+            data[index].end_date = moment(new Date()).format('YYYY-MM-DD')
+        }
+
         this.time_log = data
+
+        console.log('time log', this.time_log)
+
         return data
     }
 

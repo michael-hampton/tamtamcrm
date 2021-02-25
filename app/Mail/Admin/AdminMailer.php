@@ -13,18 +13,15 @@ class AdminMailer extends Mailable
 {
 
     public $subject;
+    public $entity;
     /**
      * @var User
      */
     protected User $user;
-
     /**
      * @var string
      */
     protected string $message;
-
-    public $entity;
-
     /**
      * @var string
      */
@@ -99,7 +96,7 @@ class AdminMailer extends Mailable
                     function ($swiftmessage) {
                         $swiftmessage->entity = !empty($this->invitation) ? $this->invitation : $this->entity;
                     }
-                );;
+                );
         } catch (Exception $exception) {
             event(new EmailFailedToSend($this->entity, $exception->getMessage()));
             return false;

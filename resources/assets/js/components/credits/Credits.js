@@ -242,7 +242,7 @@ export default class Credits extends Component {
                                     entity_type="Credit"
                                     bulk_save_url="/api/credit/bulk"
                                     view={view}
-                                    columnMapping={{ customer_id: 'CUSTOMER' }}
+                                    columnMapping={{ customer_id: 'CUSTOMER', status_id: 'status' }}
                                     disableSorting={['id']}
                                     defaultColumn='number'
                                     userList={this.customerList}

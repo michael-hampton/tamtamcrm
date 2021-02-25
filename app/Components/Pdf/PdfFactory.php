@@ -15,13 +15,13 @@ class PdfFactory
                 break;
             case 'App\Models\Cases':
                 return new TaskPdf($entity, 'case');
-            break;
+                break;
             case 'App\Models\RecurringInvoice':
                 return new InvoicePdf($entity, 'invoice');
-            break;
+                break;
             case 'App\Models\RecurringQuote':
                 return new InvoicePdf($entity, 'quote');
-            break;
+                break;
             case 'App\Models\Lead':
                 return new LeadPdf($entity);
                 break;

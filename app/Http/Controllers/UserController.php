@@ -14,6 +14,7 @@ use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Repositories\UserRepository;
 use App\Requests\SearchRequest;
 use App\Requests\User\CreateUserRequest;
+use App\Requests\User\DeleteUserRequest;
 use App\Requests\User\UpdateUserRequest;
 use App\Search\UserSearch;
 use App\Transformations\UserTransformable;
@@ -134,11 +135,12 @@ class UserController extends Controller
     }
 
     /**
+     * @param DeleteUserRequest $request
      * @param int $id
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function destroy(int $id)
+    public function destroy(DeleteUserRequest $request, int $id)
     {
         $user = $this->user_repo->findUserById($id);
         $this->authorize('delete', $user);

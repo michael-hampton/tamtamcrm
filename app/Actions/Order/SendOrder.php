@@ -9,7 +9,6 @@ use App\Components\Shipping\ShippoShipment;
 use App\Events\Order\OrderWasDispatched;
 use App\Jobs\Inventory\UpdateInventory;
 use App\Models\Order;
-use App\Repositories\OrderRepository;
 
 class SendOrder
 {

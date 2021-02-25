@@ -38,6 +38,10 @@ class BaseRefund
      */
     protected array $data;
     /**
+     * @var CompanyGateway
+     */
+    protected CompanyGateway $company_gateway;
+    /**
      * @var float
      */
     private float $amount = 0;
@@ -45,16 +49,10 @@ class BaseRefund
      * @var bool
      */
     private bool $has_invoices = false;
-
     /**
      * @var CreditRepository
      */
     private CreditRepository $credit_repo;
-
-    /**
-     * @var CompanyGateway
-     */
-    protected CompanyGateway $company_gateway;
 
     /**
      * BaseRefund constructor.

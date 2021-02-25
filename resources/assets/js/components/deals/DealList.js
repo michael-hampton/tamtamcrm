@@ -258,7 +258,7 @@ export default class DealList extends Component {
                                     onPageChanged={this.onPageChanged.bind(this)}
                                     currentData={currentInvoices}
                                     hide_pagination={true}
-
+                                    columnMapping={{ customer_id: 'CUSTOMER', status_name: 'Status' }}
                                     default_columns={getDefaultTableFields()}
                                     customers={customers}
                                     setSuccess={this.setSuccess.bind(this)}

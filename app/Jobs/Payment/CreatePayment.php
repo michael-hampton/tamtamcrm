@@ -72,7 +72,11 @@ class CreatePayment implements ShouldQueue
         $order = Order::where('id', '=', $this->data['order_id'])->first();
         $this->customer = $order->customer;
         $charge_point = $this->customer->getSetting('order_charge_point');
-        $order = (new DispatchOrder($order))->execute(new InvoiceRepository(new Invoice), new OrderRepository(new Order), true);
+        $order = (new DispatchOrder($order))->execute(
+            new InvoiceRepository(new Invoice),
+            new OrderRepository(new Order),
+            true
+        );
         $this->ids = $order->invoice_id;
         $this->customer = $order->customer;
         $payment = $this->createPayment($charge_point === 'on_creation');

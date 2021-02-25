@@ -41,8 +41,12 @@ class BasePaymentProcessor
      * @param array $data
      * @param bool $applying_existing_payment
      */
-    public function __construct(Payment $payment, PaymentRepository $payment_repo, array $data, bool $applying_existing_payment = false)
-    {
+    public function __construct(
+        Payment $payment,
+        PaymentRepository $payment_repo,
+        array $data,
+        bool $applying_existing_payment = false
+    ) {
         $this->payment = $payment;
         $this->payment_repo = $payment_repo;
         $this->data = $data;
@@ -144,6 +148,17 @@ class BasePaymentProcessor
         return true;
     }
 
+    private function setStatus()
+    {
+        if ($this->payment->applied < $this->payment->amount) {
+            $this->payment->setStatus(Payment::STATUS_PENDING);
+            return true;
+        }
+
+        $this->payment->setStatus(Payment::STATUS_COMPLETED);
+        return true;
+    }
+
     /**
      * @return mixed
      */
@@ -167,16 +182,5 @@ class BasePaymentProcessor
         );
 
         return $this;
-    }
-
-    private function setStatus()
-    {
-        if($this->payment->applied < $this->payment->amount) {
-            $this->payment->setStatus(Payment::STATUS_PENDING);
-            return true;
-        }
-       
-        $this->payment->setStatus(Payment::STATUS_COMPLETED);
-        return true;
     }
 }

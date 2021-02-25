@@ -263,7 +263,7 @@ export default class Excuspenses extends Component {
                                     entity_type="Expense"
                                     bulk_save_url="/api/expense/bulk"
                                     view={view}
-                                    columnMapping={{ customer_id: 'CUSTOMER', company_id: 'COMPANY' }}
+                                    columnMapping={{ customer_id: 'CUSTOMER', company_id: 'COMPANY', status_id: 'status' }}
                                     disableSorting={['id']}
                                     defaultColumn='amount'
                                     userList={this.expenseList}

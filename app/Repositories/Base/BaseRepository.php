@@ -199,6 +199,17 @@ class BaseRepository implements BaseRepositoryInterface
         return $invitation;
     }
 
+    public function calculateTotals($entity)
+    {
+        if (empty($entity->line_items)) {
+            return $entity;
+        }
+
+        $objInvoice = (new InvoiceCalculator($entity))->build();
+
+        return $objInvoice->rebuildEntity();
+    }
+
     /**
      * @param $entity
      * @param array $data
@@ -266,17 +277,6 @@ class BaseRepository implements BaseRepositoryInterface
         }
 
         return str_replace(array_keys($variables), array_values($variables), $content);
-    }
-
-    public function calculateTotals($entity)
-    {
-        if (empty($entity->line_items)) {
-            return $entity;
-        }
-
-        $objInvoice = (new InvoiceCalculator($entity))->build();
-
-        return $objInvoice->rebuildEntity();
     }
 
 }

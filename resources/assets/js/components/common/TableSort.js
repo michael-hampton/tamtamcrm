@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { translations } from '../utils/_translations'
 
 export default class TableSort extends Component {
     constructor (props) {
@@ -35,7 +36,8 @@ export default class TableSort extends Component {
     }
 
     columnHead (value) {
-        return this.props.columnMapping && this.props.columnMapping[value] !== undefined ? this.props.columnMapping[value] : value.split('_').join(' ').toUpperCase()
+        const heading_value = this.props.columnMapping && this.props.columnMapping[value] !== undefined ? this.props.columnMapping[value] : value
+        return translations[heading_value.toLowerCase()] || value.split('_').join(' ').toUpperCase()
     }
 
     sortByColumn (column) {

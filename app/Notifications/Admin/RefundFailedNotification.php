@@ -2,7 +2,6 @@
 
 namespace App\Notifications\Admin;
 
-use App\Mail\Admin\PaymentFailed;
 use App\Mail\Admin\RefundFailed;
 use App\Models\Payment;
 use Illuminate\Bus\Queueable;

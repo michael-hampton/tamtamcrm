@@ -131,6 +131,21 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->getAccount();
     }*/
+    public function account_user()
+    {
+        if (!$this->id) {
+            $this->id = auth()->user()->id;
+        }
+
+        return Models\AccountUser::join('company_tokens', 'company_tokens.account_id', '=', 'account_user.account_id')
+                                 ->where('company_tokens.user_id', '=', $this->id)
+                                 ->where('company_tokens.is_web', '=', true)
+                                 ->where('company_tokens.token', '=', $this->auth_token)->select(
+                'account_user.*'
+            )->first();
+    }
+
+
 
     public function account_users()
     {
@@ -145,20 +160,6 @@ class User extends Authenticatable implements JWTSubject
     public function files()
     {
         return $this->morphMany(File::class, 'fileable');
-    }
-
-    public function account_user()
-    {
-        if (!$this->id) {
-            $this->id = auth()->user()->id;
-        }
-
-        return Models\AccountUser::join('company_tokens', 'company_tokens.account_id', '=', 'account_user.account_id')
-                                 ->where('company_tokens.user_id', '=', $this->id)
-                                 ->where('company_tokens.is_web', '=', true)
-                                 ->where('company_tokens.token', '=', $this->auth_token)->select(
-                'account_user.*'
-            )->first();
     }
 
     /**

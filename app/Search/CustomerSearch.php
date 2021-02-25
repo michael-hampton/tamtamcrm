@@ -119,6 +119,22 @@ class CustomerSearch extends BaseSearch
         return true;
     }
 
+    /**
+     * @return mixed
+     */
+    private function transformList()
+    {
+        $list = $this->query->get();
+
+        $customers = $list->map(
+            function (Customer $customer) {
+                return $this->transformCustomer($customer);
+            }
+        )->all();
+
+        return $customers;
+    }
+
     public function buildCurrencyReport(Request $request, Account $account)
     {
         return DB::table('customers')
@@ -182,9 +198,15 @@ class CustomerSearch extends BaseSearch
                 DB::raw('ROUND(balance, 2) AS balance'),
                 DB::raw('ROUND(amount_paid, 2) AS amount_paid'),
                 DB::raw('ROUND(credit_balance, 2) AS credit_balance'),
-                DB::raw('(ROUND(balance * IF(account_currency.exchange_rate = 0.00, 1, account_currency.exchange_rate), 2)) AS converted_balance'),
-                DB::raw('(ROUND(amount_paid * IF(account_currency.exchange_rate = 0.00, 1, account_currency.exchange_rate), 2)) AS converted_amount_paid'),
-                DB::raw('(ROUND(credit_balance * IF(account_currency.exchange_rate = 0.00, 1, account_currency.exchange_rate), 2)) AS converted_credit_balance'),
+                DB::raw(
+                    '(ROUND(balance * IF(account_currency.exchange_rate = 0.00, 1, account_currency.exchange_rate), 2)) AS converted_balance'
+                ),
+                DB::raw(
+                    '(ROUND(amount_paid * IF(account_currency.exchange_rate = 0.00, 1, account_currency.exchange_rate), 2)) AS converted_amount_paid'
+                ),
+                DB::raw(
+                    '(ROUND(credit_balance * IF(account_currency.exchange_rate = 0.00, 1, account_currency.exchange_rate), 2)) AS converted_credit_balance'
+                ),
             );
         }
 
@@ -240,23 +262,6 @@ class CustomerSearch extends BaseSearch
         return $rows;
         //$this->query->where('status', '<>', 1)
 
-    }
-
-
-    /**
-     * @return mixed
-     */
-    private function transformList()
-    {
-        $list = $this->query->get();
-
-        $customers = $list->map(
-            function (Customer $customer) {
-                return $this->transformCustomer($customer);
-            }
-        )->all();
-
-        return $customers;
     }
 
 }

@@ -105,6 +105,18 @@ class PaymentSearch extends BaseSearch
         return true;
     }
 
+    private function transformList()
+    {
+        $list = $this->query->get();
+        $payments = $list->map(
+            function (Payment $payment) {
+                return $this->transformPayment($payment);
+            }
+        )->all();
+
+        return $payments;
+    }
+
     public function buildCurrencyReport(Request $request, Account $account)
     {
         return DB::table('payments')
@@ -209,18 +221,6 @@ class PaymentSearch extends BaseSearch
         return $rows;
         //$this->query->where('status', '<>', 1)
 
-    }
-
-    private function transformList()
-    {
-        $list = $this->query->get();
-        $payments = $list->map(
-            function (Payment $payment) {
-                return $this->transformPayment($payment);
-            }
-        )->all();
-
-        return $payments;
     }
 
 }

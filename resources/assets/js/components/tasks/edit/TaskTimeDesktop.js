@@ -45,14 +45,14 @@ export default class TaskTimeDesktop extends Component {
         console.log('times', times)
     }
 
-    handleChange (e) {
+    handleChange (e, text = false) {
         const value = e.target.value
 
         if (!value || !value.length) {
             return true
         }
 
-        const times = this.timerModel.addDuration(this.state.currentIndex, value)
+        const times = this.timerModel.addDuration(this.state.currentIndex || 0, value)
         this.setState({ timers: times }, () => {
             this.props.handleTaskTimeChange(times)
         })

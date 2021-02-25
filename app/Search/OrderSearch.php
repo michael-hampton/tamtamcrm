@@ -115,6 +115,18 @@ class OrderSearch extends BaseSearch
         return true;
     }
 
+    private function transformList()
+    {
+        $list = $this->query->get();
+
+        $orders = $list->map(
+            function (Order $order) {
+                return $this->transformOrder($order);
+            }
+        )->all();
+        return $orders;
+    }
+
     public function buildCurrencyReport(Request $request, Account $account)
     {
         return DB::table('product_task')
@@ -234,18 +246,6 @@ class OrderSearch extends BaseSearch
         return $rows;
         //$this->query->where('status', '<>', 1)
 
-    }
-
-    private function transformList()
-    {
-        $list = $this->query->get();
-
-        $orders = $list->map(
-            function (Order $order) {
-                return $this->transformOrder($order);
-            }
-        )->all();
-        return $orders;
     }
 
     /**

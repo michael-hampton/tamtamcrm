@@ -99,6 +99,21 @@ class LeadSearch extends BaseSearch
         return true;
     }
 
+    /**
+     * @return mixed
+     */
+    private function transformList()
+    {
+        $list = $this->query->get();
+        $leads = $list->map(
+            function (Lead $lead) {
+                return $this->transformLead($lead);
+            }
+        )->all();
+
+        return $leads;
+    }
+
     public function buildReport(Request $request, Account $account)
     {
         $this->query = DB::table('leads');
@@ -151,20 +166,5 @@ class LeadSearch extends BaseSearch
         return $rows;
         //$this->query->where('status', '<>', 1)
 
-    }
-
-    /**
-     * @return mixed
-     */
-    private function transformList()
-    {
-        $list = $this->query->get();
-        $leads = $list->map(
-            function (Lead $lead) {
-                return $this->transformLead($lead);
-            }
-        )->all();
-
-        return $leads;
     }
 }

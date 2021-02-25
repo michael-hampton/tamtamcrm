@@ -62,6 +62,18 @@ trait Balancer
     }
 
     /**
+     * @param float $amount_paid
+     * @return float
+     * @return float
+     */
+    public function setAmountPaid(float $amount_paid)
+    {
+        $this->amount_paid = (float)$amount_paid;
+
+        return $this->amount_paid;
+    }
+
+    /**
      * @param float $amount
      * @return float
      */
@@ -84,18 +96,6 @@ trait Balancer
         $this->balance = (float)$balance;
 
         return $this->balance;
-    }
-
-    /**
-     * @param float $amount_paid
-     * @return float
-     * @return float
-     */
-    public function setAmountPaid(float $amount_paid)
-    {
-        $this->amount_paid = (float)$amount_paid;
-
-        return $this->amount_paid;
     }
 
     public function setTotal(float $total)

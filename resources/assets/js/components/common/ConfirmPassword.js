@@ -9,6 +9,7 @@ export default class ConfirmPassword extends Component {
         super(props)
         this.state = {
             password: '',
+            confirm_text: '',
             errors: [],
             message: '',
             modal: false
@@ -40,6 +41,12 @@ export default class ConfirmPassword extends Component {
     }
 
     handleClick () {
+        if (!this.state.password.length && !this.state.confirm_text.length) {
+            const message = this.props.text_input ? 'Please enter the text' : 'Please enter a password'
+            alert(message)
+            return false
+        }
+
         this.toggle()
         this.props.callback(this.props.id, this.state.password)
     }
@@ -54,10 +61,24 @@ export default class ConfirmPassword extends Component {
     render () {
         const { message } = this.state
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
+        const icon = this.props.icon ? <i style={this.props.icon_style || null} className={`fa ${this.props.icon} mr-2`}/> : null
         const button = this.props.dropdown
-            ? <DropdownItem onClick={this.toggle}><i className={`fa ${this.props.icon} mr-2`}/>{this.props.button_label}
+            ? <DropdownItem onClick={this.toggle}>{icon}{this.props.button_label}
             </DropdownItem> : <button className={`btn ${this.props.button_color}`}
-                onClick={this.toggle}>{this.props.button_label}</button>
+                onClick={this.toggle}>{icon}{this.props.button_label}</button>
+        const input = this.props.text_input === true ? <FormGroup className="mb-3">
+            <Label>{translations.confirm_text_for_delete}</Label>
+            <Input className={this.hasErrorFor('confirm_text') ? 'is-invalid' : ''} type="text"
+                name="confirm_text"
+                value={this.state.confirm_text} onChange={this.handleInput.bind(this)}/>
+            {this.renderErrorFor('confirm_text')}
+        </FormGroup> : <FormGroup className="mb-3">
+            <Label>{translations.confirm_password}</Label>
+            <Input className={this.hasErrorFor('password') ? 'is-invalid' : ''} type="password"
+                name="password"
+                value={this.state.password} onChange={this.handleInput.bind(this)}/>
+            {this.renderErrorFor('password')}
+        </FormGroup>
 
         return (
             <React.Fragment>
@@ -73,13 +94,7 @@ export default class ConfirmPassword extends Component {
 
                         {this.props.text && <p>{this.props.text}</p>}
 
-                        <FormGroup className="mb-3">
-                            <Label>{translations.confirm_password}</Label>
-                            <Input className={this.hasErrorFor('password') ? 'is-invalid' : ''} type="password"
-                                name="password"
-                                value={this.state.password} onChange={this.handleInput.bind(this)}/>
-                            {this.renderErrorFor('password')}
-                        </FormGroup>
+                        {input}
 
                     </ModalBody>
 

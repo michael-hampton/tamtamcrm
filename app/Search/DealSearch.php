@@ -117,6 +117,21 @@ class DealSearch extends BaseSearch
         return true;
     }
 
+    /**
+     * @return mixed
+     */
+    private function transformList()
+    {
+        $list = $this->query->get();
+        $deals = $list->map(
+            function (Deal $deal) {
+                return $this->transformDeal($deal);
+            }
+        )->all();
+
+        return $deals;
+    }
+
     public function buildCurrencyReport(Request $request, Account $account)
     {
         return DB::table('invoices')
@@ -219,20 +234,5 @@ class DealSearch extends BaseSearch
         return $rows;
         //$this->query->where('status', '<>', 1)
 
-    }
-
-    /**
-     * @return mixed
-     */
-    private function transformList()
-    {
-        $list = $this->query->get();
-        $deals = $list->map(
-            function (Deal $deal) {
-                return $this->transformDeal($deal);
-            }
-        )->all();
-
-        return $deals;
     }
 }

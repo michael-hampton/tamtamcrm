@@ -235,16 +235,6 @@ class Invoice extends BaseCalculator
     }
 
     /**
-     * @param float $balance
-     * @return $this
-     */
-    private function increaseAmountPaid(float $amount_paid): self
-    {
-        $this->amount_paid += $amount_paid;
-        return $this;
-    }
-
-    /**
      * @param float $total
      * @return $this
      */
@@ -495,6 +485,16 @@ class Invoice extends BaseCalculator
     public function setInclusiveTaxes(bool $inclusive_taxes): self
     {
         $this->inclusive_taxes = $inclusive_taxes;
+        return $this;
+    }
+
+    /**
+     * @param float $balance
+     * @return $this
+     */
+    private function increaseAmountPaid(float $amount_paid): self
+    {
+        $this->amount_paid += $amount_paid;
         return $this;
     }
 }

@@ -1,17 +1,12 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import {
-    Button,
     Card,
     CardBody,
     CustomInput,
     Form,
     FormGroup,
     Label,
-    Modal,
-    ModalBody,
-    ModalFooter,
-    ModalHeader,
     Nav,
     NavItem,
     NavLink,
@@ -26,6 +21,7 @@ import Header from './Header'
 import CompanyModel from '../models/CompanyModel'
 import AccountRepository from '../repositories/AccountRepository'
 import FormBuilder from './FormBuilder'
+import ConfirmPassword from '../common/ConfirmPassword'
 
 class ModuleSettings extends Component {
     constructor (props) {
@@ -289,9 +285,14 @@ class ModuleSettings extends Component {
         }
     }
 
-    deleteAccount () {
+    deleteAccount (id, password) {
+        if (!password.trim().length) {
+            this.setState({ error: true })
+            return false
+        }
+
         const url = `/api/account/${this.state.id}`
-        axios.delete(url)
+        axios.delete(url, { password: password })
             .then((r) => {
                 this.setState({
                     showConfirm: false
@@ -351,6 +352,16 @@ class ModuleSettings extends Component {
                     {translations.enable_modules}
                 </NavLink>
             </NavItem>
+
+            <NavItem>
+                <NavLink
+                    className={this.state.activeTab === '3' ? 'active' : ''}
+                    onClick={() => {
+                        this.toggleTab('3')
+                    }}>
+                    {translations.security}
+                </NavLink>
+            </NavItem>
         </Nav>
 
         return (
@@ -375,20 +386,12 @@ class ModuleSettings extends Component {
                                     <BlockButton icon={icons.token} button_text={translations.tokens}
                                         button_link="/#/tokens"/>
 
-                                    <Button onClick={() => this.setState({ showConfirm: true })} color="danger"
-                                        size="lg"
-                                        block>
-                                        <i style={{ marginRight: '14px', fontSize: '24px' }}
-                                            className={`fa ${icons.delete}`}/>{translations.delete_account}</Button>
-                                </CardBody>
-                            </Card>
-
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getSettingFields()}
-                                    />
+                                    <ConfirmPassword id={this.state.id} callback={(id, password) => {
+                                        this.deleteAccount(id, password)
+                                    }
+                                    } text={translations.delete_account_message} icon={icons.delete}
+                                    button_color="btn-danger btn-lg btn-block"
+                                    button_label={translations.delete_account} icon_style={{ transform: 'rotate(20deg)', marginRight: '14px', fontSize: '24px' }}/>
                                 </CardBody>
                             </Card>
                         </TabPane>
@@ -423,21 +426,19 @@ class ModuleSettings extends Component {
                                 </CardBody>
                             </Card>
                         </TabPane>
+
+                        <TabPane tabId="3">
+                            <Card>
+                                <CardBody>
+                                    <FormBuilder
+                                        handleChange={this.handleSettingsChange}
+                                        formFieldsRows={this.getSettingFields()}
+                                    />
+                                </CardBody>
+                            </Card>
+                        </TabPane>
                     </TabContent>
                 </div>
-
-                <Modal isOpen={this.state.showConfirm} fade="false"
-                    toggle={() => this.setState({ showConfirm: false })}>
-                    <ModalHeader toggle={() => this.setState({ showConfirm: false })}>Are you sure?</ModalHeader>
-                    <ModalBody>
-                        {translations.delete_company_message}
-                    </ModalBody>
-                    <ModalFooter>
-
-                        <Button onClick={() => this.setState({ showConfirm: false })}>Cancel</Button>
-                        <Button onClick={this.deleteAccount} color="danger">Delete</Button>
-                    </ModalFooter>
-                </Modal>
             </React.Fragment>
 
         )

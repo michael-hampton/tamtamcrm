@@ -163,7 +163,6 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
                     $data['company_user']['is_admin'],
                     !empty($data['company_user']['notifications']) ? $data['company_user']['notifications'] : []
                 );
-
             } else {
                 unset($data['company_user']['permissions'], $data['company_user']['settings']);
 
@@ -247,13 +246,14 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
      * @param array $permissions
      * @return bool|mixed
      */
-    public function savePermissions(User $user, Account $account, array $permissions) {
+    public function savePermissions(User $user, Account $account, array $permissions)
+    {
         $all_permissions = Permission::all()->keyBy('name');
 
         DB::table('permission_user')->where('user_id', '=', $user->id)->delete();
 
         foreach ($permissions as $permission => $allowed) {
-            if(!empty($all_permissions[$permission])) {
+            if (!empty($all_permissions[$permission])) {
                 $set_permission = $all_permissions[$permission];
                 $user->permissions()->attach($set_permission->id, ['account_id' => $account->id]);
             }

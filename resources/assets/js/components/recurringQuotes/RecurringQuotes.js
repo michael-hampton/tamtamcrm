@@ -271,6 +271,7 @@ export default class RecurringQuotes extends Component {
                                     bulk_save_url="/api/recurring-quote/bulk"
                                     view={view}
                                     columnMapping={{
+                                        status_id: 'status',
                                         customer_id: 'CUSTOMER',
                                         number_of_occurrrances: translations.cycles_remaining
                                     }}

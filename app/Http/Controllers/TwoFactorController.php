@@ -10,7 +10,6 @@ class TwoFactorController extends Controller
     public function __construct()
     {
         $this->middleware('two_factor_auth:true', ['only' => ['enableTwoFactorAuthenticationForUser']]);
-
     }
 
     public function show2faForm()
@@ -34,7 +33,7 @@ class TwoFactorController extends Controller
 
         $user = auth()->user();
 
-        if ($request->token === decrypt($user->two_factor_token) ) {
+        if ($request->token === decrypt($user->two_factor_token)) {
             $user->two_factor_expiry = Carbon::now()->addMinutes(config('session.lifetime'));
             $user->save();
             return redirect()->intended('/home');

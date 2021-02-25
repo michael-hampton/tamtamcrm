@@ -101,38 +101,6 @@ trait Taxable
         return $this->map;
     }
 
-    private function calculateTax(string $name, float $rate, float $amount, float $paid)
-    {
-        if (empty($amount)) {
-            return false;
-        }
-
-        $key = $rate . ' ' . $name;
-
-        if (!isset($this->map[$key])) {
-            $this->map[$key] = [
-                'name'   => $name,
-                'rate'   => $rate,
-                'amount' => 0,
-                'paid'   => 0
-            ];
-        }
-
-        $this->map[$key]['amount'] += $amount;
-        $this->map[$key]['paid'] += $paid;
-    }
-
-    private function calculateTaxAmount(float $amount, float $rate)
-    {
-        $taxAmount = 0;
-
-        if ($this->uses_inclusive_taxes) {
-            return $amount - ($amount / (1 + ($rate / 100)));
-        }
-
-        return round($amount * $rate / 100, 2);
-    }
-
     private function calculateTaxes()
     {
         $total = $this->calculateSubtotal();
@@ -209,6 +177,27 @@ trait Taxable
         return $map;
     }
 
+    private function calculateSubtotal()
+    {
+        $total = 0.0;
+
+        foreach ($this->line_items as $item) {
+            $lineTotal = $item->quantity * $item->unit_price;
+
+            if ($item->unit_discount > 0) {
+                if ($this->is_amount_discount) {
+                    $lineTotal -= $item->unit_discount;
+                } else {
+                    $lineTotal -= $lineTotal * $item->unit_discount / 100;
+                }
+            }
+
+            $total += $lineTotal;
+        }
+
+        return $total;
+    }
+
     private function getItemTaxable($item, float $invoiceTotal)
     {
         $lineTotal = $item->quantity * $item->unit_price;
@@ -232,26 +221,36 @@ trait Taxable
         return $lineTotal;
     }
 
-    private function calculateSubtotal()
+    private function calculateTaxAmount(float $amount, float $rate)
     {
-        $total = 0.0;
+        $taxAmount = 0;
 
-        foreach ($this->line_items as $item) {
-
-            $lineTotal = $item->quantity * $item->unit_price;
-
-            if ($item->unit_discount > 0) {
-                if ($this->is_amount_discount) {
-                    $lineTotal -= $item->unit_discount;
-                } else {
-                    $lineTotal -= $lineTotal * $item->unit_discount / 100;
-                }
-            }
-
-            $total += $lineTotal;
+        if ($this->uses_inclusive_taxes) {
+            return $amount - ($amount / (1 + ($rate / 100)));
         }
 
-        return $total;
+        return round($amount * $rate / 100, 2);
+    }
+
+    private function calculateTax(string $name, float $rate, float $amount, float $paid)
+    {
+        if (empty($amount)) {
+            return false;
+        }
+
+        $key = $rate . ' ' . $name;
+
+        if (!isset($this->map[$key])) {
+            $this->map[$key] = [
+                'name'   => $name,
+                'rate'   => $rate,
+                'amount' => 0,
+                'paid'   => 0
+            ];
+        }
+
+        $this->map[$key]['amount'] += $amount;
+        $this->map[$key]['paid'] += $paid;
     }
 
 }

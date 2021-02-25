@@ -111,6 +111,21 @@ class PurchaseOrderSearch extends BaseSearch
         return true;
     }
 
+    /**
+     * @return mixed
+     */
+    private function transformList()
+    {
+        $list = $this->query->get();
+        $pos = $list->map(
+            function (PurchaseOrder $po) {
+                return $this->transformPurchaseOrder($po);
+            }
+        )->all();
+
+        return $pos;
+    }
+
     public function buildCurrencyReport(Request $request, Account $account)
     {
         return DB::table('purchase_orders')
@@ -213,20 +228,5 @@ class PurchaseOrderSearch extends BaseSearch
         }
 
         return $rows;
-    }
-
-    /**
-     * @return mixed
-     */
-    private function transformList()
-    {
-        $list = $this->query->get();
-        $pos = $list->map(
-            function (PurchaseOrder $po) {
-                return $this->transformPurchaseOrder($po);
-            }
-        )->all();
-
-        return $pos;
     }
 }

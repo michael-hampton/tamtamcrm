@@ -230,6 +230,7 @@ export default class Leads extends Component {
                                     entity_type="Lead"
                                     bulk_save_url="/api/lead/bulk"
                                     view={view}
+                                    columnMapping={{ status_name: 'Status' }}
                                     disableSorting={['id']}
                                     defaultColumn='name'
                                     userList={this.userList}

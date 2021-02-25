@@ -257,7 +257,7 @@ export default class Invoice extends Component {
                                     entity_type="Invoice"
                                     bulk_save_url="/api/invoice/bulk"
                                     view={view}
-                                    columnMapping={{ customer_id: 'CUSTOMER' }}
+                                    columnMapping={{ customer_id: 'CUSTOMER', status_id: 'status' }}
                                     // order={['id', 'number', 'date', 'customer_name', 'total', 'balance', 'status_id']}
                                     disableSorting={['id']}
                                     defaultColumn='number'

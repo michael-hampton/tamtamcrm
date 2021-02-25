@@ -119,6 +119,21 @@ class ExpenseSearch extends BaseSearch
         return true;
     }
 
+    /**
+     * @return mixed
+     */
+    private function transformList()
+    {
+        $list = $this->query->get();
+        $expenses = $list->map(
+            function (Expense $expense) {
+                return $this->transformExpense($expense);
+            }
+        )->all();
+
+        return $expenses;
+    }
+
     public function buildCurrencyReport(Request $request, Account $account)
     {
         return DB::table('expenses')
@@ -242,20 +257,5 @@ class ExpenseSearch extends BaseSearch
         }
 
         return $rows;
-    }
-
-    /**
-     * @return mixed
-     */
-    private function transformList()
-    {
-        $list = $this->query->get();
-        $expenses = $list->map(
-            function (Expense $expense) {
-                return $this->transformExpense($expense);
-            }
-        )->all();
-
-        return $expenses;
     }
 }

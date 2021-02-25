@@ -25,7 +25,7 @@ class ProcessPayment
 
         $applying_existing_payment = $this->applyToExistingPayment($payment, $data);
 
-        if(!empty($payment->id)) {
+        if (!empty($payment->id)) {
             $data['amount'] = $payment->amount;
         }
 
@@ -55,7 +55,7 @@ class ProcessPayment
             return true;
         }
 
-        if($payment->applied > 0 && $payment->applied < $payment->amount) {
+        if ($payment->applied > 0 && $payment->applied < $payment->amount) {
             return true;
         }
 

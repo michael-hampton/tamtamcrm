@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Col, FormGroup, Row } from 'reactstrap'
+import { Col, FormGroup, Row, Button } from 'reactstrap'
 import TableSearch from '../common/TableSearch'
 import DateFilter from '../common/DateFilter'
 import CsvImporter from '../common/CsvImporter'
@@ -7,6 +7,8 @@ import FilterTile from '../common/FilterTile'
 import StatusDropdown from '../common/StatusDropdown'
 import UserDropdown from '../common/dropdowns/UserDropdown'
 import { filterStatuses } from '../utils/_search'
+import TaskStatusDropdown from '../common/dropdowns/TaskStatusDropdown'
+import ProjectDropdown from '../common/dropdowns/ProjectDropdown'
 
 export default class LeadFilters extends Component {
     constructor (props) {
@@ -65,7 +67,7 @@ export default class LeadFilters extends Component {
     }
 
     getFilters () {
-        const { status_id, searchText, start_date, end_date, customer_id, user_id } = this.state.filters
+        const { project_id, task_status_id, searchText, start_date, end_date, customer_id, user_id } = this.state.filters
 
         return (
             <Row form>
@@ -81,31 +83,6 @@ export default class LeadFilters extends Component {
                         })
                     }}/>
                 </Col>
-
-                /* <Col md={3}>
-                    <CustomerDropdown
-                        customers={this.props.customers}
-                        customer={this.props.filters.customer_id}
-                        handleInputChanges={(e) => {
-                            this.setState(prevState => ({
-                                filters: {
-                                    ...prevState.filters,
-                                    [e.target.id]: e.target.value
-                                }
-                            }), () => {
-                                const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
-                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
-                                this.props.updateList({
-                                    invoices: results,
-                                    currentPage: 1,
-                                    totalPages: totalPages,
-                                    filters: this.state.filters
-                                })
-                            })
-                        }}
-                        name="customer_id"
-                    />
-                </Col> */
 
                 <Col sm={12} md={3} className="mt-3 mt-md-0">
                     <UserDropdown
@@ -183,7 +160,7 @@ export default class LeadFilters extends Component {
 
                 <Col sm={12} md={1} className="mt-3 mt-md-0">
                     <CsvImporter filename="tasks.csv"
-                        url={`/api/leads?search_term=${searchText}&project_id=${project_id}&task_status=${task_status_id}&task_type=${task_type}&customer_id=${customer_id}&user_id=${user_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
+                        url={`/api/leads?search_term=${searchText}&project_id=${project_id}&task_status=${task_status_id}&task_type=${3}&customer_id=${customer_id}&user_id=${user_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
                 </Col>
 
                 <Col sm={12} md={3} className="mt-3 mt-md-0">

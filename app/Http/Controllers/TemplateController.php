@@ -2,11 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Components\Pdf\InvoicePdf;
-use App\Components\Pdf\LeadPdf;
 use App\Components\Pdf\PdfFactory;
-use App\Components\Pdf\PurchaseOrderPdf;
-use App\Components\Pdf\TaskPdf;
 use App\Traits\BuildVariables;
 use Illuminate\Http\Response;
 use League\CommonMark\CommonMarkConverter;

@@ -61,6 +61,35 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
         return $this->model;
     }
 
+    /**
+     * @param array $data
+     * @param Payment $payment
+     * @param bool $create_transaction
+     * @return Payment|null
+     */
+    public function save(array $data, Payment $payment, $create_transaction = false): ?Payment
+    {
+        if (!empty($payment->id)) {
+            return $this->updatePayment($payment, $data);
+        }
+
+        return $this->createPayment($payment, $data, $create_transaction);
+    }
+
+    public function updatePayment(Payment $payment, array $data)
+    {
+        if (!empty($data)) {
+            $payment->fill($data);
+        }
+
+        $payment->setStatus(empty($data['status_id']) ? Payment::STATUS_COMPLETED : $data['status_id']);
+        $payment->save();
+
+        event(new PaymentWasUpdated($payment));
+
+        return $payment->fresh();
+    }
+
     public function createPayment(Payment $payment, array $data, $create_transaction = false): Payment
     {
         if (!empty($data)) {
@@ -84,36 +113,6 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
         event(new PaymentWasCreated($payment));
 
         return $payment->fresh();
-    }
-
-    public function updatePayment(Payment $payment, array $data)
-    {
-        if (!empty($data)) {
-            $payment->fill($data);
-        }
-
-        $payment->setStatus(empty($data['status_id']) ? Payment::STATUS_COMPLETED : $data['status_id']);
-        $payment->save();
-
-        event(new PaymentWasUpdated($payment));
-
-        return $payment->fresh();
-    }
-
-
-    /**
-     * @param array $data
-     * @param Payment $payment
-     * @param bool $create_transaction
-     * @return Payment|null
-     */
-    public function save(array $data, Payment $payment, $create_transaction = false): ?Payment
-    {
-        if(!empty($payment->id)) {
-            return $this->updatePayment($payment, $data);
-        }
-
-        return $this->createPayment($payment, $data, $create_transaction);
     }
 
     /**

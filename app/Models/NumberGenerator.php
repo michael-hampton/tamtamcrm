@@ -60,6 +60,30 @@ class NumberGenerator
         return $number;
     }
 
+    private function setPrefix(Customer $customer = null)
+    {
+        $this->recurring_prefix = $customer !== null ? $customer->getSetting(
+            'recurring_number_prefix'
+        ) : $this->entity_obj->account->settings->recurring_number_prefix;
+
+        return $this;
+    }
+
+    private function setPattern($entity_object, Customer $customer = null)
+    {
+        $entity_id = strtolower((new ReflectionClass($entity_object))->getShortName());
+
+        $pattern_entity = "{$entity_id}_number_prefix";
+
+        $this->pattern = $customer !== null
+            ? trim($customer->getSetting($pattern_entity))
+            : trim(
+                $this->entity_obj->account->settings->{$pattern_entity}
+            );
+
+        return $this;
+    }
+
     private function setCounter(Customer $customer = null)
     {
         if ($this->counter_type === 'group' && $customer !== null) {
@@ -94,21 +118,6 @@ class NumberGenerator
         return $this;
     }
 
-    private function setPattern($entity_object, Customer $customer = null)
-    {
-        $entity_id = strtolower((new ReflectionClass($entity_object))->getShortName());
-
-        $pattern_entity = "{$entity_id}_number_prefix";
-
-        $this->pattern = $customer !== null
-            ? trim($customer->getSetting($pattern_entity))
-            : trim(
-                $this->entity_obj->account->settings->{$pattern_entity}
-            );
-
-        return $this;
-    }
-
     /**
      * @param $entity_object
      * @param Customer|null $customer
@@ -124,15 +133,6 @@ class NumberGenerator
         $this->counter_type = $customer !== null ? $customer->getSetting(
             $counter_type
         ) : $this->entity_obj->account->settings->{$counter_type};
-
-        return $this;
-    }
-
-    private function setPrefix(Customer $customer = null)
-    {
-        $this->recurring_prefix = $customer !== null ? $customer->getSetting(
-            'recurring_number_prefix'
-        ) : $this->entity_obj->account->settings->recurring_number_prefix;
 
         return $this;
     }

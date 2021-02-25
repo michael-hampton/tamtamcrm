@@ -21,6 +21,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
+use ReflectionClass;
 
 class SendEmail implements ShouldQueue
 {
@@ -75,7 +76,7 @@ class SendEmail implements ShouldQueue
         $design_style = $settings->email_style;
 
         if ($design_style == 'custom') {
-            $email_style_custom  = $settings->email_style_custom;
+            $email_style_custom = $settings->email_style_custom;
             $body = str_replace("$body", $body, $email_style_custom);
         }
 
@@ -98,7 +99,7 @@ class SendEmail implements ShouldQueue
             $message->setBcc($settings->bcc_email);
         }
 
-        if ($settings->pdf_email_attachment && (new \ReflectionClass($this->entity))->getShortName() !== 'Payment') {
+        if ($settings->pdf_email_attachment && (new ReflectionClass($this->entity))->getShortName() !== 'Payment') {
             $message->setAttachments(public_path((new GeneratePdf($this->entity))->execute($this->contact)));
         }
 

@@ -111,6 +111,21 @@ class CreditSearch extends BaseSearch
         return true;
     }
 
+    /**
+     * @return mixed
+     */
+    private function transformList()
+    {
+        $list = $this->query->get();
+        $credits = $list->map(
+            function (Credit $credit) {
+                return $this->transformCredit($credit);
+            }
+        )->all();
+
+        return $credits;
+    }
+
     public function buildCurrencyReport(Request $request, Account $account)
     {
         return DB::table('credits')
@@ -230,20 +245,5 @@ class CreditSearch extends BaseSearch
         return $rows;
         //$this->query->where('status', '<>', 1)
 
-    }
-
-    /**
-     * @return mixed
-     */
-    private function transformList()
-    {
-        $list = $this->query->get();
-        $credits = $list->map(
-            function (Credit $credit) {
-                return $this->transformCredit($credit);
-            }
-        )->all();
-
-        return $credits;
     }
 }

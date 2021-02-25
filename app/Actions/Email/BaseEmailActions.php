@@ -5,6 +5,8 @@ namespace App\Actions\Email;
 
 use App\Jobs\Email\SendEmail;
 use App\Models\ContactInterface;
+use ReflectionClass;
+use ReflectionException;
 
 class BaseEmailActions
 {
@@ -25,7 +27,6 @@ class BaseEmailActions
      */
     protected function sendInvitationEmails(string $subject, string $body, string $template, $contact = null)
     {
-
         if ($this->entity->invitations->count() === 0) {
             return false;
         }
@@ -62,7 +63,7 @@ class BaseEmailActions
      * @param array $footer
      * @param null $invitation
      * @return bool
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     protected function dispatchEmail(
         ContactInterface $contact,
@@ -85,11 +86,10 @@ class BaseEmailActions
 
     protected function triggerEvent($model = null, $template = '')
     {
-        $entity_class = (new \ReflectionClass($this->entity))->getShortName();
+        $entity_class = (new ReflectionClass($this->entity))->getShortName();
         $event_class = "App\Events\\" . $entity_class . "\\" . $entity_class . "WasEmailed";
 
         if (class_exists($event_class)) {
-
             event(new $event_class($model === null ? $this->entity : $model, $template));
         }
 

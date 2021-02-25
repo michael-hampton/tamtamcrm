@@ -122,13 +122,6 @@ class IncomeReport
         ];
     }
 
-    private function filterDates($collection, $request)
-    {
-        $start = date("Y-m-d", strtotime($request->input('start_date')));
-        $end = date("Y-m-d", strtotime($request->input('end_date')));
-        $collection->whereBetween('date', [$start, $end]);
-    }
-
     public function buildCurrencyReport(Request $request, Account $account)
     {
         $expense_query = DB::table('expenses')
@@ -150,5 +143,12 @@ class IncomeReport
                  ->groupBy('currency_id')
                  ->union($expense_query)
                  ->get();
+    }
+
+    private function filterDates($collection, $request)
+    {
+        $start = date("Y-m-d", strtotime($request->input('start_date')));
+        $end = date("Y-m-d", strtotime($request->input('end_date')));
+        $collection->whereBetween('date', [$start, $end]);
     }
 }

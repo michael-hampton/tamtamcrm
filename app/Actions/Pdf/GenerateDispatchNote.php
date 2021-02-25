@@ -3,9 +3,9 @@
 namespace App\Actions\Pdf;
 
 
-use App\Models\Invoice;
 use App\Components\Pdf\InvoicePdf;
 use App\Jobs\Pdf\CreatePdf;
+use App\Models\Invoice;
 
 class GenerateDispatchNote
 {

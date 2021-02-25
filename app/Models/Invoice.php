@@ -328,44 +328,6 @@ class Invoice extends Model
         return true;
     }
 
-
-    public function setNumber()
-    {
-        if (empty($this->number)) {
-            $this->number = (new NumberGenerator)->getNextNumberForEntity($this, $this->customer);
-            return true;
-        }
-
-        return true;
-    }
-
-    public function setExchangeRate()
-    {
-        $exchange_rate = $this->customer->getExchangeRate();
-        $this->exchange_rate = !empty($exchange_rate) ? $exchange_rate : null;
-        return true;
-    }
-
-    public function getNumber()
-    {
-        return $this->number;
-    }
-
-    public function getDesignId()
-    {
-        return !empty($this->design_id) ? $this->design_id : $this->customer->getSetting('invoice_design_id');
-    }
-
-    public function getPdfFilename()
-    {
-        return 'storage/' . $this->account->id . '/' . $this->customer->id . '/invoices/' . $this->number . '.pdf';
-    }
-
-    public function canBeSent()
-    {
-        return $this->status_id === self::STATUS_DRAFT;
-    }
-
     /**
      * @param $amount
      * @return Customer
@@ -385,5 +347,42 @@ class Invoice extends Model
         }
 
         return $customer;
+    }
+
+    public function getNumber()
+    {
+        return $this->number;
+    }
+
+    public function setNumber()
+    {
+        if (empty($this->number)) {
+            $this->number = (new NumberGenerator)->getNextNumberForEntity($this, $this->customer);
+            return true;
+        }
+
+        return true;
+    }
+
+    public function setExchangeRate()
+    {
+        $exchange_rate = $this->customer->getExchangeRate();
+        $this->exchange_rate = !empty($exchange_rate) ? $exchange_rate : null;
+        return true;
+    }
+
+    public function getDesignId()
+    {
+        return !empty($this->design_id) ? $this->design_id : $this->customer->getSetting('invoice_design_id');
+    }
+
+    public function getPdfFilename()
+    {
+        return 'storage/' . $this->account->id . '/' . $this->customer->id . '/invoices/' . $this->number . '.pdf';
+    }
+
+    public function canBeSent()
+    {
+        return $this->status_id === self::STATUS_DRAFT;
     }
 }

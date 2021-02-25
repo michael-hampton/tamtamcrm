@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
+use ReflectionClass;
 
 class LogSentMessage implements ShouldQueue
 {
@@ -18,7 +19,7 @@ class LogSentMessage implements ShouldQueue
         //https://laracasts.com/discuss/channels/general-discussion/capturing-smtp-message-id?page=1
 
         if (!empty($message->message->entity)) {
-            $entity_class = (new \ReflectionClass($message->message->entity))->getShortName();
+            $entity_class = (new ReflectionClass($message->message->entity))->getShortName();
 
             if ($entity_class === 'Invitation') {
                 $message->message->entity->email_id = $message->message->getId();

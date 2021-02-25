@@ -130,15 +130,6 @@ class DeletePayment
         return true;
     }
 
-    private function updateCustomer(): bool
-    {
-        $customer = $this->payment->customer->fresh();
-
-        $customer->reduceAmountPaid($this->payment->amount);
-
-        return true;
-    }
-
     public function updatePayment(): bool
     {
         $this->payment->setStatus(Payment::STATUS_VOIDED);
@@ -148,6 +139,15 @@ class DeletePayment
         event(new PaymentWasDeleted($this->payment));
 
         $this->payment->delete();
+
+        return true;
+    }
+
+    private function updateCustomer(): bool
+    {
+        $customer = $this->payment->customer->fresh();
+
+        $customer->reduceAmountPaid($this->payment->amount);
 
         return true;
     }

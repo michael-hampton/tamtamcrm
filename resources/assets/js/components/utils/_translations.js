@@ -536,7 +536,7 @@ _localizedValues.en = {
     cancel_account_message:
         'Warning: This will permanently delete your account, there is no undo.',
     delete_account: 'Delete Account',
-    delete_company_message:
+    delete_account_message:
         'Warning: This will permanently delete your company, there is no undo.',
     enable_modules: 'Enable Modules',
     converted_quote: 'Successfully converted quote',
@@ -891,7 +891,8 @@ _localizedValues.en = {
     confirm_email: 'Confirm Email',
     email_confirmed: 'Your have confirmed your email address. An email has been sent',
     customize: 'Customize',
-    require_admin_password: 'Password is required to log in'
+    require_admin_password: 'Password is required to log in',
+    confirm_text_for_delete: 'Please type delete to confirm'
 }
 
 let language = []

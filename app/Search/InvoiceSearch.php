@@ -115,6 +115,22 @@ class InvoiceSearch extends BaseSearch
         return true;
     }
 
+    /**
+     * @return mixed
+     */
+    private function transformList()
+    {
+        $list = $this->query->get();
+
+        $invoices = $list->map(
+            function (Invoice $invoice) {
+                return (new InvoiceTransformable())->transformInvoice($invoice);
+            }
+        )->all();
+
+        return $invoices;
+    }
+
     public function buildCurrencyReport(Request $request, Account $account)
     {
         return DB::table('invoices')
@@ -234,22 +250,6 @@ class InvoiceSearch extends BaseSearch
         }
 
         return $rows;
-    }
-
-    /**
-     * @return mixed
-     */
-    private function transformList()
-    {
-        $list = $this->query->get();
-
-        $invoices = $list->map(
-            function (Invoice $invoice) {
-                return (new InvoiceTransformable())->transformInvoice($invoice);
-            }
-        )->all();
-
-        return $invoices;
     }
 
 }

@@ -109,6 +109,21 @@ class QuoteSearch extends BaseSearch
         return true;
     }
 
+    /**
+     * @return mixed
+     */
+    private function transformList()
+    {
+        $list = $this->query->get();
+        $quotes = $list->map(
+            function (Quote $quote) {
+                return (new QuoteTransformable())->transformQuote($quote);
+            }
+        )->all();
+
+        return $quotes;
+    }
+
     public function buildCurrencyReport(Request $request, Account $account)
     {
         return DB::table('quotes')
@@ -228,20 +243,5 @@ class QuoteSearch extends BaseSearch
         return $rows;
         //$this->query->where('status', '<>', 1)
 
-    }
-
-    /**
-     * @return mixed
-     */
-    private function transformList()
-    {
-        $list = $this->query->get();
-        $quotes = $list->map(
-            function (Quote $quote) {
-                return (new QuoteTransformable())->transformQuote($quote);
-            }
-        )->all();
-
-        return $quotes;
     }
 }

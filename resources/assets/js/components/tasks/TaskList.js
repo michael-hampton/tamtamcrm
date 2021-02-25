@@ -285,7 +285,7 @@ export default class TaskList extends Component {
                                     userList={this.userList}
                                     fetchUrl={fetchUrl}
                                     updateState={this.addUserToState}
-                                    columnMapping={{ calculated_task_rate: translations.task_rate.toUpperCase() }}
+                                    columnMapping={{ calculated_task_rate: translations.task_rate.toUpperCase(), customer_id: 'CUSTOMER', status_name: 'Status' }}
                                 />
 
                                 {total > 0 &&

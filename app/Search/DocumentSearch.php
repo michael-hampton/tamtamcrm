@@ -131,11 +131,11 @@ class DocumentSearch extends BaseSearch
 
         $order = $request->input('orderByField');
 
-        if($order === 'record_type') {
+        if ($order === 'record_type') {
             $order = 'fileable_type';
         }
 
-        if($order === 'file_type') {
+        if ($order === 'file_type') {
             $order = 'type';
         }
 
