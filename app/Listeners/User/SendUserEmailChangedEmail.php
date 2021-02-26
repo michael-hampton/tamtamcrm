@@ -3,7 +3,7 @@
 namespace App\Listeners\User;
 
 use App\Events\User\UserEmailChanged;
-use App\Mail\UserEmailChangedNotification;
+use App\Mail\User\UserEmailChangedNotification;
 use Illuminate\Support\Facades\Mail;
 
 class SendUserEmailChangedEmail
@@ -19,10 +19,7 @@ class SendUserEmailChangedEmail
     }
 
     /**
-     * Handle the event.
-     *
-     * @param UserEmailHasChanged $event
-     * @return void
+     * @param UserEmailChanged $event
      */
     public function handle(UserEmailChanged $event)
     {

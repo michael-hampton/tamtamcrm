@@ -22,6 +22,7 @@ use App\Repositories\DomainRepository;
 use App\Repositories\UserRepository;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -335,7 +336,7 @@ class SetupController extends Controller
 
         if ($user) {
             auth()->login($user, false);
-            event(new UserWasCreated($user));
+            event(new Registered($user));
             $user->notify(new NewAccount($account));
         }
 

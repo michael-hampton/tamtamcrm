@@ -13,7 +13,7 @@ Route::middleware('auth:api')->get(
 // routes/api.php
 
 Route::group(
-    ['middleware' => ['jwt.auth', 'api-header']],
+    ['middleware' => ['jwt.auth', 'api-header', 'verified']],
     function () {
         Route::get('status/{task_type}', 'TaskStatusController@index');
         Route::get('dashboard', 'DashboardController@index');
@@ -445,7 +445,6 @@ Route::group(
         Route::get('user/profile/{username}', 'UserController@profile');
         Route::get('users/department/{department_id}', 'UserController@filterUsersByDepartment');
         Route::post('users/restore/{id}', 'UserController@restore');
-        Route::post('user/verify/{user}', 'UserController@verifyAccount');
 
 // permissions
         Route::get('permissions', 'PermissionController@index');
@@ -486,6 +485,8 @@ Route::group(
         Route::get('login', 'LoginController@showLogin');
         Route::post('login', 'LoginController@doLogin');
         Route::get('logout', 'LoginController@doLogout');
+
+        Route::post('user/verify/{user}', 'Auth\VerificationController@resend');
 
         Route::post('passwordReset/create', 'Auth\PasswordResetController@create');
         Route::get('passwordReset/find/{token}', 'PasswordResetController@find');

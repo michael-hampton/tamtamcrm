@@ -8,6 +8,7 @@ import EmailFields from '../settings/EmailFields'
 import EmailPreview from '../settings/EmailPreview'
 import { translations } from '../utils/_translations'
 import ViewPdf from './ViewPdf'
+import InvoiceModel from '../models/InvoiceModel'
 
 export default class Emails extends Component {
     constructor (props) {
@@ -17,14 +18,15 @@ export default class Emails extends Component {
             settings: [],
             id: localStorage.getItem('account_id'),
             loaded: false,
-            active_email_tab: '1',
+            active_email_tab: window.innerWidth <= 768 ? '1' : '3',
             preview: null,
             subject: '',
             body: '',
             showSpinner: true,
             showPreview: false,
             template_type: this.props.template,
-            template_name: 'Invoice'
+            template_name: 'Invoice',
+            is_mobile: window.innerWidth <= 768
         }
 
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
@@ -33,10 +35,23 @@ export default class Emails extends Component {
         this.getAccount = this.getAccount.bind(this)
         this.getPreview = this.getPreview.bind(this)
         this.buildPreviewData = this.buildPreviewData.bind(this)
+        this.handleWindowSizeChange = this.handleWindowSizeChange.bind(this)
     }
 
     componentDidMount () {
         this.getAccount()
+
+        window.addEventListener('resize', this.handleWindowSizeChange)
+    }
+
+    // make sure to remove the listener
+    // when the component is not mounted anymore
+    componentWillUnmount () {
+        window.removeEventListener('resize', this.handleWindowSizeChange)
+    }
+
+    handleWindowSizeChange () {
+        this.setState({ is_mobile: window.innerWidth <= 768 })
     }
 
     async getAccount () {
@@ -152,12 +167,36 @@ export default class Emails extends Component {
                 show_editor={true} entity={this.props.entity}
                 entity_id={this.props.entity_id}/> : null
         const spinner = this.state.showSpinner === true ? <Spinner style={{ width: '3rem', height: '3rem' }}/> : null
+        const preview_container = <Card className={this.state.is_mobile ? 'mt-3' : ''}>
+            <CardHeader>{translations.preview}</CardHeader>
+            <CardBody>
+                {this.state.is_mobile && fields}
+                {spinner}
+                {preview}
+            </CardBody>
+        </Card>
+
+        const customize_container = <Card>
+            <CardHeader>{translations.customise}</CardHeader>
+            <CardBody>
+                {editor}
+            </CardBody>
+        </Card>
 
         return (
             <React.Fragment>
                 <ToastContainer/>
 
-                <Nav tabs>
+                {!this.state.is_mobile &&
+                <div className="col-md-6">
+                    {fields}
+                    {customize_container}
+                    {preview_container}
+                </div>
+                }
+
+                <Nav tabs className={this.state.is_mobile ? 'col-md-6' : ''}>
+                    {this.state.is_mobile &&
                     <NavItem>
                         <NavLink
                             className={this.state.active_email_tab === '1' ? 'active' : ''}
@@ -168,6 +207,9 @@ export default class Emails extends Component {
                         </NavLink>
                     </NavItem>
 
+                    }
+
+                    {this.state.is_mobile &&
                     <NavItem>
                         <NavLink
                             className={this.state.active_email_tab === '2' ? 'active' : ''}
@@ -178,13 +220,15 @@ export default class Emails extends Component {
                         </NavLink>
                     </NavItem>
 
+                    }
+
                     <NavItem>
                         <NavLink
                             className={this.state.active_email_tab === '3' ? 'active' : ''}
                             onClick={() => {
                                 this.toggleEmailTab('3')
                             }}>
-                            {translations.history}
+                            {translations.pdf}
                         </NavLink>
                     </NavItem>
 
@@ -194,7 +238,7 @@ export default class Emails extends Component {
                             onClick={() => {
                                 this.toggleEmailTab('4')
                             }}>
-                            {translations.pdf}
+                            {translations.history}
                         </NavLink>
                     </NavItem>
                 </Nav>
@@ -202,26 +246,23 @@ export default class Emails extends Component {
                 <TabContent activeTab={this.state.active_email_tab} className="bg-transparent">
 
                     <TabPane tabId="1">
-                        <Card>
-                            <CardHeader>{translations.preview}</CardHeader>
-                            <CardBody>
-                                {fields}
-                                {spinner}
-                                {preview}
-                            </CardBody>
-                        </Card>
+                        {preview_container}
                     </TabPane>
 
                     <TabPane tabId="2">
+                        {customize_container}
+                    </TabPane>
+
+                    <TabPane tabId="3">
                         <Card>
-                            <CardHeader>{translations.customise}</CardHeader>
+                            <CardHeader>{translations.pdf}</CardHeader>
                             <CardBody>
-                                {editor}
+                                <ViewPdf width={this.props.width} model={this.props.model}/>
                             </CardBody>
                         </Card>
                     </TabPane>
 
-                    <TabPane tabId="3">
+                    <TabPane tabId="4">
                         <Card>
                             <CardHeader>{translations.history}</CardHeader>
                             <CardBody>
@@ -229,15 +270,6 @@ export default class Emails extends Component {
                                     handleSettingsChange={this.handleSettingsChange}
                                     active_id={this.state.active_id}
                                     emails={this.props.emails}/>
-                            </CardBody>
-                        </Card>
-                    </TabPane>
-
-                    <TabPane tabId="4">
-                        <Card>
-                            <CardHeader>{translations.pdf}</CardHeader>
-                            <CardBody>
-                                <ViewPdf width={this.props.width} model={this.props.model}/>
                             </CardBody>
                         </Card>
                     </TabPane>

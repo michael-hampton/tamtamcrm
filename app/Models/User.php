@@ -7,6 +7,7 @@ use App\Models;
 use App\Traits\Archiveable;
 use App\Traits\HasPermissionsTrait;
 use App\Util\Jobs\FileUploader;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -17,7 +18,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use stdClass;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable implements JWTSubject
+class User extends Authenticatable implements JWTSubject, MustVerifyEmail
 {
 
     use Notifiable, SoftDeletes, HasPermissionsTrait, PresentableTrait, HasFactory;

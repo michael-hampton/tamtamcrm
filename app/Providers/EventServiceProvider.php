@@ -256,6 +256,8 @@ use App\Listeners\User\RestoredUser;
 use App\Listeners\User\SendUserEmailChangedEmail;
 use App\Listeners\User\UpdatedUser;
 use App\Listeners\User\UserEmailHasChanged;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Mail\Events\MessageSending;
 
@@ -267,6 +269,9 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
+        Registered::class => [
+            SendEmailVerificationNotification::class
+        ],
         MessageSending::class                  => [
             LogSentMessage::class,
         ],

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Mail\User\UserCreated;
 use App\Models\Cases;
 use App\Models\Company;
 use App\Models\CompanyGateway;
@@ -56,6 +57,8 @@ use App\Policies\TaskPolicy;
 use App\Policies\TaskStatusPolicy;
 use App\Policies\TaxRatePolicy;
 use App\Policies\UserPolicy;
+use Coconuts\Mail\MailMessage;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -104,5 +107,9 @@ class AuthServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->registerPolicies();
+
+        VerifyEmail::toMailUsing(function ($notifiable, $url) {
+            return (new UserCreated($notifiable, $url));
+        });
     }
 }

@@ -48,7 +48,8 @@ class EmailController extends Controller
         $entity = ucfirst($request->input('entity'));
         $entity = "App\Models\\$entity";
 
-        $entity_obj = $entity::find($request->input('entity_id'));
+        $entity_obj = $entity::where('id', '=', $request->input('entity_id'))->withTrashed()->first();
+
         $contact = null;
 
         if (!empty($to)) {

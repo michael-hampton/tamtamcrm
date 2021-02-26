@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Mail\TwoFactorAuthMail;
+use App\Mail\User\TwoFactorAuthMail;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Http\Request;

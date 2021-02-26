@@ -236,13 +236,4 @@ class UserController extends Controller
         $this->user_repo->restore($group);
         return response()->json([], 200);
     }
-
-    public function verifyAccount(User $user)
-    {
-        $user->confirmation_code = Str::random(config('taskmanager.key_length'));
-        $user->save();
-        $user->notify(new VerifyUser($user));
-
-        return response()->json(['message' => 'User account has been confirmed'], 200);
-    }
 }

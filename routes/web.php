@@ -38,3 +38,8 @@ Route::view('/{path?}', 'app');
 
 Route::get('auth/google', [\App\Http\Controllers\LoginController::class, 'redirectToGoogle']);
 Route::get('auth/google/callback', [\App\Http\Controllers\LoginController::class, 'handleGoogleCallback']);
+Route::get('/email/verify/{id}/{hash}', function (\Illuminate\Foundation\Auth\EmailVerificationRequest $request) {
+    $request->fulfill();
+
+    return redirect('/home');
+})->middleware(['auth'])->name('verification.verify');

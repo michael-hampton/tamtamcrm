@@ -33,8 +33,6 @@ export default class UserRepository extends BaseRepository {
         this.errors = []
         this.error_message = ''
 
-        alert('mike 2')
-
         try {
             const res = await axios.post(`/api/user/verify/${user}`)
 

@@ -23,9 +23,9 @@ export default class ViewPdf extends Component {
     }
 
     render () {
-        const width = this.props.width || 924
+        const width = this.props.width ? this.props.width + 'px' : '100%'
         return (
-            <iframe style={{ width: `${width}px`, height: '400px' }}
+            <iframe style={{ width: `${width}`, height: '400px' }}
                 className="embed-responsive-item" id="viewer"
                 src={this.state.obj_url}/>
         )
