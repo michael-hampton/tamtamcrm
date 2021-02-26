@@ -3,6 +3,8 @@ import { DropdownItem, FormGroup, Input, Label, Modal, ModalBody } from 'reactst
 import { translations } from '../utils/_translations'
 import DefaultModalHeader from './ModalHeader'
 import DefaultModalFooter from './ModalFooter'
+import UserRepository from '../../repositories/UserRepository'
+import { toast, ToastContainer } from 'react-toastify'
 
 export default class ConfirmPassword extends Component {
     constructor (props) {
@@ -47,7 +49,31 @@ export default class ConfirmPassword extends Component {
             return false
         }
 
-        this.toggle()
+        const userRepository = new UserRepository()
+
+        userRepository.forgotPassword(this.state.email).then(response => {
+            if (!response) {
+                toast.error(translations.forgot_password_link_failed, {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+                return
+            }
+
+            toast.success(translations.forgot_password_link_sent, {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
        
     }
 
@@ -59,8 +85,7 @@ export default class ConfirmPassword extends Component {
     }
 
     render () {
-        const { message } = this.state
-        const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
+       const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
 
         return (
             <React.Fragment>
@@ -71,9 +96,17 @@ export default class ConfirmPassword extends Component {
 
                     <ModalBody className={theme}>
 
-                        {message && <div className="alert alert-danger" role="alert">
-                            {message}
-                        </div>}
+                        <ToastContainer
+                            position="top-center"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
 
                         <FormGroup className="mb-3">
                             <Label>{translations.email}</Label>
