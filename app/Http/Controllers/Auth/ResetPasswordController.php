@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 
-class ResetPasswordAPIController extends Controller
+class ResetPasswordController extends Controller
 {
 
     use ResetsPasswords;
