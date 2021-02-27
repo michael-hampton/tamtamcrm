@@ -52,15 +52,15 @@ export default class TimerModel extends BaseModel {
 
         let seconds = 0
         
-        if(value.includes(':')) {
+        // if(value.includes(':')) {
            const [hh = '0', mm = '0', ss = '0'] = (value || '0:0:0').split(':');
            const hour = parseInt(hh, 10) || 0;
            const minute = parseInt(mm, 10) || 0;
            const second = parseInt(ss, 10) || 0;
-           return (hour*3600) + (minute*60) + (second);
-        } else {
-            seconds = Math.round(parseFloat(value) * 60 * 60)
-        }
+           return (hour * 3600) + (minute * 60) + (second);
+        // } else {
+            // seconds = Math.round(parseFloat(value) * 60 * 60)
+        // }
 
         const time = data[index].start_time && data[index].start_time.toString().length ? moment(data[index].start_time, 'HH:mm:ss') : moment(new Date()).subtract(value, 'seconds')
         time.add(value, 'seconds')
