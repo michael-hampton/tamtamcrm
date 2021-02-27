@@ -50,12 +50,24 @@ export default class TimerModel extends BaseModel {
             data[index] = {}
         }
 
-        const time = data[index].start_time && data[index].start_time.toString().length ? moment(data[index].start_time, 'HH:mm:ss') : moment(new Date()).subtract(value, 'minutes')
-        time.add(value, 'm')
+        let seconds = 0
+        
+        if(value.includes(':')) {
+            var parts = value.split(':').reverse ();
+        
+            seconds = ((parts.length >= 3) ? (+parts[2]): 0)*60*60 + 
+                ((parts.length >= 2) ? (+parts[1]): 0)*60 + 
+                ((parts.length >= 1) ? (+parts[0]): 0);
+        } else {
+            seconds = Math.round(parseFloat(value) * 60 * 60)
+        }
+
+        const time = data[index].start_time && data[index].start_time.toString().length ? moment(data[index].start_time, 'HH:mm:ss') : moment(new Date()).subtract(value, 'seconds')
+        time.add(value, 'seconds')
         data[index].end_time = time.format('HH:mm:ss')
 
         if (!data[index].date || !data[index].date.toString().length) {
-            data[index].start_time = moment(new Date()).subtract(value, 'minutes').format('HH:mm:ss')
+            data[index].start_time = moment(new Date()).subtract(value, 'seconds').format('HH:mm:ss')
             data[index].date = moment(new Date()).format('YYYY-MM-DD')
             data[index].end_date = moment(new Date()).format('YYYY-MM-DD')
         }
