@@ -81,6 +81,11 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, CanRe
         return $this->belongsTo(Event::class);
     }
 
+    public function timers()
+    {
+        return $this->hasMany(Timer::class);
+    }
+
     /**
      * @return BelongsToMany
      */

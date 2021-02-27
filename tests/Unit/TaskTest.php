@@ -3,16 +3,21 @@
 namespace Tests\Unit;
 
 use App\Factory\TaskFactory;
+use App\Factory\TimerFactory;
+use App\Jobs\Task\TaskOverlap;
 use App\Models\Account;
 use App\Models\Customer;
 use App\Models\Project;
 use App\Models\Task;
+use App\Models\Timer;
 use App\Models\User;
 use App\Repositories\ProjectRepository;
 use App\Repositories\TaskRepository;
+use App\Repositories\TimerRepository;
 use App\Requests\SearchRequest;
 use App\Search\TaskSearch;
 use App\Transformations\TaskTransformable;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -185,6 +190,35 @@ class TaskTest extends TestCase
         $transformed = $this->transformTask($address);
         $this->assertNotEmpty($transformed);
     }
+
+    /*public function test_task_overlap() {
+        $task = Task::factory()->create();
+
+        $data = [
+            'date'       => Carbon::now()->format('Y-m-d'),
+            'start_time' => Carbon::now()->format('Y-m-d H:i:s'),
+            'end_time'   => Carbon::now()->addDay()->addMinutes(10)->format('Y-m-d H:i:s'),
+        ];
+
+        $timerRepo = new TimerRepository(new Timer());
+        $factory = (new TimerFactory())->create($this->user, $this->account, $task);
+        $timer = $timerRepo->save($task, $factory, $data);
+
+        $data = [
+            'date'       => Carbon::now()->format('Y-m-d'),
+            'start_time' => Carbon::now()->addMinutes(4)->format('Y-m-d H:i:s'),
+            'end_time'   => Carbon::now()->addDay()->addMinutes(30)->format('Y-m-d H:i:s'),
+        ];
+
+        $timerRepo = new TimerRepository(new Timer());
+        $factory = (new TimerFactory())->create($this->user, $this->account, $task);
+        $timer2 = $timerRepo->save($task, $factory, $data);
+
+        echo 'timers - ' . $timer->started_at . ':' . $timer->stopped_at . ' ts - ' . $timer2->started_at . ':' . $timer2->stopped_at;
+
+        TaskOverlap::dispatchNow(new TaskRepository(new Task(), new ProjectRepository(new Project())), $this->user);
+        die;
+    } */
 
     public function tearDown(): void
     {
