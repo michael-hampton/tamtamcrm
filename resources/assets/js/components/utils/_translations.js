@@ -892,7 +892,11 @@ _localizedValues.en = {
     email_confirmed: 'Your have confirmed your email address. An email has been sent',
     customize: 'Customize',
     require_admin_password: 'Password is required to log in',
-    confirm_text_for_delete: 'Please type delete to confirm'
+    confirm_text_for_delete: 'Please type delete to confirm',
+    forgot_password: 'Forgot Password',
+    login: 'Login',
+    forgot_password_link_failed: 'Unable to send reset password link',
+    forgot_password_link_sent: 'A fresh verification link has been sent to your email address.'
 }
 
 let language = []

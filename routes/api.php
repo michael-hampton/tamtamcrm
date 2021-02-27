@@ -485,12 +485,13 @@ Route::group(
         Route::get('login', 'LoginController@showLogin');
         Route::post('login', 'LoginController@doLogin');
         Route::get('logout', 'LoginController@doLogout');
+        Route::post('forgot-password', 'Auth\ForgotPasswordController@sendResetLinkEmail');
 
         Route::post('user/verify/{user}', 'Auth\VerificationController@resend');
 
-        Route::post('passwordReset/create', 'Auth\PasswordResetController@create');
-        Route::get('passwordReset/find/{token}', 'PasswordResetController@find');
-        Route::post('passwordReset/reset', 'Auth\PasswordResetController@reset');
+//        Route::post('passwordReset/create', 'Auth\PasswordResetController@create');
+//        Route::get('passwordReset/find/{token}', 'PasswordResetController@find');
+//        Route::post('passwordReset/reset', 'Auth\PasswordResetController@reset');
 
         // unprotected routes for website
         Route::get("category-list", 'CategoryController@getRootCategories');

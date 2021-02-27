@@ -15,6 +15,8 @@ Route::middleware('two_factor_auth')->group(function () {
     Route::get('setup/final', 'SetupController@finish')->name('home');
 });
 
+Route::get('reset-password/{token}', 'Auth\ResetPasswordController@getPassword');
+Route::post('/reset-password', 'Auth\ResetPasswordController@updatePassword')->name('password.request');
 Route::get('/2fa/enable', 'TwoFactorController@enableTwoFactorAuthenticationForUser');
 Route::get('/2fa', 'TwoFactorController@show2faForm');
 Route::post('/2fa', 'TwoFactorController@verifyToken');

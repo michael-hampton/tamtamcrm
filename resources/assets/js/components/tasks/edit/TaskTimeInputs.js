@@ -35,25 +35,27 @@ const TaskTimeInputs = (props) => {
                                 </MuiPickersUtilsProvider>
                             </FormGroup>
                         </Col>
-                        <Col md={3}>
+                        <Col md={2}>
                             <FormGroup>
                                 <Label>{translations.start_time}</Label>
-                                <TimePickerInput name="start_time" index={idx} value={props.timers[idx].start_time}
+                                <TimePickerInput name="start_time" index={idx}
+                                    value={props.timers[idx].start_time && props.timers[idx].start_time.toString().length ? props.timers[idx].start_time : moment().format('HH:MM:ss')}
                                     setValue={props.handleTimeChange}/>
                             </FormGroup>
                         </Col>
 
-                        <Col md={3}>
+                        <Col md={2}>
                             <FormGroup>
                                 <Label>{translations.end_time}</Label>
-                                <TimePickerInput name="end_time" index={idx} value={props.timers[idx].end_time}
+                                <TimePickerInput name="end_time" index={idx}
+                                    value={props.timers[idx].end_time && props.timers[idx].end_time.toString().length ? props.timers[idx].end_time : moment().format('HH:MM:ss')}
                                     setValue={props.handleTimeChange}/>
                             </FormGroup>
                         </Col>
 
                         <Col md={3}>
                             <FormGroup>
-                                <Label>{translations.duration} {props.model.calculateDuration(start, end)}</Label>
+                                <Label>{translations.duration} {props.timers[idx].start_time && props.timers[idx].start_time.toString().length ? props.model.calculateDuration(start, end) : ''}</Label>
                                 <Duration onChange={props.handleChange}/>
                             </FormGroup>
                         </Col>

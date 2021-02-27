@@ -54,7 +54,7 @@ export default class UserRepository extends BaseRepository {
         this.error_message = ''
 
         try {
-            const res = await axios.post(`/api/login/forgot-password`, { email:email })
+            const res = await axios.post('/api/forgot-password', { email: email })
 
             if (res.status === 200) {
                 // test for status you want, etc

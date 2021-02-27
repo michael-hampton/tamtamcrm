@@ -19,6 +19,7 @@ import queryString from 'query-string'
 import { icons } from './utils/_icons'
 import { translations } from './utils/_translations'
 import ConfirmPassword from './common/ConfirmPassword'
+import ForgotPassword from './ForgotPassword'
 
 class Login extends Component {
     constructor (props) {
@@ -161,7 +162,7 @@ class Login extends Component {
                                                 </div>
                                             }
 
-                                            <h1>Login</h1>
+                                            <h1>{translations.login}</h1>
                                             <p className="text-muted">Sign In to your account</p>
                                             <InputGroup className="mb-3">
                                                 <InputGroupAddon addonType="prepend">
@@ -169,7 +170,7 @@ class Login extends Component {
                                                         <i className="icon-user"/>
                                                     </InputGroupText>
                                                 </InputGroupAddon>
-                                                <Input type="text" name="email" placeholder="Email"
+                                                <Input type="text" name="email" placeholder={translations.email}
                                                     autoComplete="email" onChange={this.handleChange.bind(this)}/>
                                             </InputGroup>
                                             <InputGroup className="mb-4">
@@ -178,25 +179,24 @@ class Login extends Component {
                                                         <i className="icon-lock"/>
                                                     </InputGroupText>
                                                 </InputGroupAddon>
-                                                <Input type="password" name="password" placeholder="Password"
+                                                <Input type="password" name="password" placeholder={translations.password}
                                                     autoComplete="current-password"
                                                     onChange={this.handleChange.bind(this)}/>
                                             </InputGroup>
                                             <Row>
-                                                <Col xs="6">
-                                                    <Button disabled={this.state.loading} type="submit" color="primary"
-                                                        className="px-4">Login</Button>
-                                                    {this.state.loading &&
-                                                    <span style={{ fontSize: '36px' }}
-                                                        className={`fa ${icons.spinner}`}/>
-                                                    }
-                                                </Col>
-                                                <Col xs="6" className="text-right">
-                                                    <Button color="link" className="px-0">Forgot password?</Button>
-                                                </Col>
+                                                <div className="col-12 d-flex justify-content-between">
+                                                    <div>
+                                                        <Button disabled={this.state.loading} type="submit" color="primary"
+                                                            className="px-4">{translations.login}</Button>
+                                                        {this.state.loading &&
+                                                        <span style={{ fontSize: '36px' }}
+                                                            className={`fa ${icons.spinner}`}/>
+                                                        }
+                                                    </div>
+                                                    {!this.state.loading && social_login_button}
+                                                    <ForgotPassword />
+                                                </div>
                                             </Row>
-
-                                            {!this.state.loading && social_login_button}
                                         </Form>
                                     </CardBody>
                                 </Card>

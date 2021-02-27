@@ -3,10 +3,13 @@
 namespace App\Models;
 
 use App\Collection;
+use App\Mail\User\ForgotPassword;
 use App\Models;
+use App\Notifications\User\ForgotPasswordNotification;
 use App\Traits\Archiveable;
 use App\Traits\HasPermissionsTrait;
 use App\Util\Jobs\FileUploader;
+use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -18,7 +21,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use stdClass;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable implements JWTSubject, MustVerifyEmail
+class User extends Authenticatable implements JWTSubject, MustVerifyEmail, CanResetPassword
 {
 
     use Notifiable, SoftDeletes, HasPermissionsTrait, PresentableTrait, HasFactory;
@@ -147,7 +150,6 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     }
 
 
-
     public function account_users()
     {
         return $this->hasMany(Models\AccountUser::class);
@@ -218,15 +220,15 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     }
 
     /**
-    * Send a password reset notification to the user.
-    *
-    * @param  string  $token
-    * @return void
-    */
+     * Send a password reset notification to the user.
+     *
+     * @param string $token
+     * @return void
+     */
     public function sendPasswordResetNotification($token)
     {
-        $url = 'https://example.com/reset-password?token='.$token;
+        $url = url('reset-password/' . $token);
 
-        $this->notify(new ResetPasswordNotification($this, $url));
+        $this->notify(new ForgotPasswordNotification($this, $url));
     }
 }

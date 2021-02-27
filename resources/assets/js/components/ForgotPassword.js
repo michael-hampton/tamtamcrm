@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
-import { DropdownItem, FormGroup, Input, Label, Modal, ModalBody } from 'reactstrap'
-import { translations } from '../utils/_translations'
-import DefaultModalHeader from './ModalHeader'
-import DefaultModalFooter from './ModalFooter'
-import UserRepository from '../../repositories/UserRepository'
+import { FormGroup, Input, Label, Modal, ModalBody } from 'reactstrap'
 import { toast, ToastContainer } from 'react-toastify'
+import UserRepository from './repositories/UserRepository'
+import DefaultModalFooter from './common/ModalFooter'
+import { translations } from './utils/_translations'
+import DefaultModalHeader from './common/ModalHeader'
 
-export default class ConfirmPassword extends Component {
+export default class ForgotPassword extends Component {
     constructor (props) {
         super(props)
         this.state = {
@@ -74,7 +74,13 @@ export default class ConfirmPassword extends Component {
                 draggable: true,
                 progress: undefined
             })
-       
+
+            setTimeout(
+                () => this.setState({ modal: false }),
+                5000
+            );
+
+        })
     }
 
     toggle () {
@@ -85,12 +91,12 @@ export default class ConfirmPassword extends Component {
     }
 
     render () {
-       const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
+        const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
 
         return (
             <React.Fragment>
-                <button className="btn btn-primary"
-                onClick={this.toggle}>{translations.forgot_password}</button>
+                <button type="button" className="btn btn-link"
+                    onClick={this.toggle}>{translations.forgot_password}</button>
                 <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
                     <DefaultModalHeader toggle={this.toggle} title={translations.forgot_password}/>
 
@@ -113,7 +119,7 @@ export default class ConfirmPassword extends Component {
                             <Input className={this.hasErrorFor('email') ? 'is-invalid' : ''} type="text"
                                 name="email"
                                 value={this.state.email} onChange={this.handleInput.bind(this)}/>
-                            {this.renderErrorFor('confirm_text')}
+                            {this.renderErrorFor('email')}
                         </FormGroup>
 
                     </ModalBody>

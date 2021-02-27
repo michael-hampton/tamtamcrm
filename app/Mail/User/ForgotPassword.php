@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Mail\User;
@@ -12,6 +11,9 @@ class ForgotPassword extends Mailable
 {
     use Queueable, SerializesModels;
 
+    /**
+     * @var User
+     */
     private User $user;
 
     private $message;
