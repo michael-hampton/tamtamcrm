@@ -53,11 +53,11 @@ export default class TimerModel extends BaseModel {
         let seconds = 0
         
         if(value.includes(':')) {
-            var parts = value.split(':').reverse ();
-        
-            seconds = ((parts.length >= 3) ? (+parts[2]): 0)*60*60 + 
-                ((parts.length >= 2) ? (+parts[1]): 0)*60 + 
-                ((parts.length >= 1) ? (+parts[0]): 0);
+           const [hh = '0', mm = '0', ss = '0'] = (value || '0:0:0').split(':');
+           const hour = parseInt(hh, 10) || 0;
+           const minute = parseInt(mm, 10) || 0;
+           const second = parseInt(ss, 10) || 0;
+           return (hour*3600) + (minute*60) + (second);
         } else {
             seconds = Math.round(parseFloat(value) * 60 * 60)
         }
