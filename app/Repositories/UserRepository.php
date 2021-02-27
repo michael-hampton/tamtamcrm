@@ -175,7 +175,9 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         }
 
         if ($email_changed === true) {
-            event(new UserEmailChanged($user, $original_user));
+            $user->email_verified_at = null;
+            $user->save();
+            $user->sendEmailVerificationNotification();
         }
 
         $user = $user->fresh();

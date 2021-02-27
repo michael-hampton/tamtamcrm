@@ -17,6 +17,8 @@ class VerificationController
         $user = User::findOrFail($user_id);
 
         if (!$user->hasVerifiedEmail()) {
+            $user->previous_email_address = null;
+            $user->save();
             $user->markEmailAsVerified();
         }
 

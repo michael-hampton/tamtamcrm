@@ -44,4 +44,4 @@ Route::get('/email/verify/{id}/{hash}', function (\Illuminate\Foundation\Auth\Em
     $request->fulfill();
 
     return redirect('/home');
-})->middleware(['auth'])->name('verification.verify');
+})->middleware(['auth', 'signed'])->name('verification.verify');

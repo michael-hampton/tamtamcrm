@@ -20,14 +20,18 @@ class UserEmailChangedNotification extends Mailable
      */
     private array $message_array;
 
+    private string $url;
+
     /**
      * Create a new message instance.
-     *
+     * UserEmailChangedNotification constructor.
      * @param User $user
+     * @param string $url
      */
-    public function __construct(User $user)
+    public function __construct(User $user, string $url)
     {
         $this->user = $user;
+        $this->url = $url;
     }
 
     /**
@@ -82,9 +86,11 @@ class UserEmailChangedNotification extends Mailable
         )->account : $this->user->accounts->first();
 
         $this->message_array = [
-            'title'   => $this->subject,
-            'message' => $this->message,
-            'logo'    => $account->present()->logo(),
+            'title'       => $this->subject,
+            'message'     => $this->message,
+            'logo'        => $account->present()->logo(),
+            'url'         => $this->url,
+            'button_text' => trans('texts.email_changed_button'),
         ];
     }
 

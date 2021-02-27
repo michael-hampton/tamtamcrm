@@ -39,7 +39,7 @@ const TaskTimeInputs = (props) => {
                             <FormGroup>
                                 <Label>{translations.start_time}</Label>
                                 <TimePickerInput name="start_time" index={idx}
-                                    value={props.timers[idx].start_time && props.timers[idx].start_time.toString().length ? props.timers[idx].start_time : moment().format('HH:MM:ss')}
+                                    value={props.timers[idx].start_time && props.timers[idx].start_time.toString().length ? props.timers[idx].start_time : moment().format('HH:mm:ss')}
                                     setValue={props.handleTimeChange}/>
                             </FormGroup>
                         </Col>
@@ -48,7 +48,7 @@ const TaskTimeInputs = (props) => {
                             <FormGroup>
                                 <Label>{translations.end_time}</Label>
                                 <TimePickerInput name="end_time" index={idx}
-                                    value={props.timers[idx].end_time && props.timers[idx].end_time.toString().length ? props.timers[idx].end_time : moment().format('HH:MM:ss')}
+                                    value={props.timers[idx].end_time && props.timers[idx].end_time.toString().length ? props.timers[idx].end_time : moment().format('HH:mm:ss')}
                                     setValue={props.handleTimeChange}/>
                             </FormGroup>
                         </Col>

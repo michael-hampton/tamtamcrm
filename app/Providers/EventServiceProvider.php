@@ -252,11 +252,13 @@ use App\Listeners\Task\TaskUpdated;
 use App\Listeners\User\ArchivedUser;
 use App\Listeners\User\CreatedUser;
 use App\Listeners\User\DeletedUser;
+use App\Listeners\User\LogVerifiedUser;
 use App\Listeners\User\RestoredUser;
 use App\Listeners\User\SendUserEmailChangedEmail;
 use App\Listeners\User\UpdatedUser;
 use App\Listeners\User\UserEmailHasChanged;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Mail\Events\MessageSending;
@@ -269,7 +271,10 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        Registered::class => [
+        Verified::class                        => [
+            LogVerifiedUser::class,
+        ],
+        Registered::class                      => [
             SendEmailVerificationNotification::class
         ],
         MessageSending::class                  => [
@@ -281,9 +286,6 @@ class EventServiceProvider extends ServiceProvider
         ],
         UserWasDeleted::class                  => [
             DeletedUser::class,
-        ],
-        UserEmailChanged::class                => [
-            SendUserEmailChangedEmail::class
         ],
         UserWasArchived::class                 => [
             ArchivedUser::class
