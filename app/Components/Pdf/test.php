@@ -4,7 +4,7 @@ class DateParser {
 
     public function evaluate($string)
     {
-       $this->variables = ['MONTH' => 'F', 'YEAR' => 'Y', 'QUARTER' => 'QUARTER'];
+       $this->variables = ['MONTH' => 'F', 'YEAR' => 'Y', 'QUARTER' => 'QUARTER', 'MONTHYEAR' => 'F Y'];
 
         $stack = $this->parse($string);
         
@@ -63,6 +63,7 @@ class DateParser {
         
             switch($type) {
                 case 'F':
+                case 'F Y':
                     $date = $date->modify($operator . $numerator . 'months');
                 break;
             
@@ -71,7 +72,9 @@ class DateParser {
                 break;
             }
         
-            $value = $type === 'QUARTER' ? $this->calculateQuarters($numerator) : $date->format('Y-F-d');
+            $format = $type === 'F Y' ? 'F Y' : 'Y-F-d';
+        
+            $value = $type === 'QUARTER' ? $this->calculateQuarters($numerator) : $date->format($format);
        
             if (!empty($value)) {
                 $stack->push($value);
