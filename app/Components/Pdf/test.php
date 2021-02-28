@@ -1,17 +1,17 @@
 <?php
 class DateParser {
-    public $variables = [];
+    private $variables = [];
 
     public function evaluate($string)
     {
-       $this->variables = ['MONTH' => 'm'];
+       $this->variables = ['MONTH' => 'F'];
 
         $stack = $this->parse($string);
         
         return $this->run($stack);
     }
 
-    public function parse($string)
+    private function parse($string)
     {
         $tokens = $this->tokenize($string);
         
@@ -40,16 +40,16 @@ class DateParser {
         return $output;
     }
 
-    protected function isParenthesis($expression) {
+    private function isParenthesis($expression) {
         return $expression === 'to';
     }
 
-    public function registerVariable($name, $value)
+    private function registerVariable($name, $value)
     {
         $this->variables[$name] = $value;
     }
 
-    public function run(Stack $stack)
+    private function run(Stack $stack)
     {
         
         while (($operator = $stack->pop()) && in_array($operator, ['+', '-', '/', '*'])) {
@@ -62,13 +62,13 @@ class DateParser {
             $date = new DateTime($date);
         
             switch($type) {
-                case 'm':
+                case 'F':
             
                 $date = $date->modify($operator . $numerator . 'months');
                 break;
             }
         
-            $value = $date->format('Y-m-d');
+            $value = $date->format('Y-F-d');
        
             if (!empty($value)) {
                 $stack->push($value);
@@ -82,7 +82,7 @@ class DateParser {
         return $this->render($stack);
     }   
 
-    protected function extractVariables($token)
+    private function extractVariables($token)
     {
         if ($token[0] == '$') {
             $key = substr($token, 1);
@@ -93,7 +93,7 @@ class DateParser {
         return $token;
     }
       
-    protected function render(Stack $stack)
+    private function render(Stack $stack)
     {
         $output = '';
         while (($el = $stack->shift())) {
@@ -107,7 +107,7 @@ class DateParser {
         throw new \RuntimeException('Could not render output');
     }
 
-    protected function parseParenthesis($expression, Stack $output, Stack $operators)
+    private function parseParenthesis($expression, Stack $output, Stack $operators)
     {
         $type = $output->pop();
     
@@ -133,7 +133,7 @@ class DateParser {
         } */
     }
 
-    protected function parseOperator($expression, Stack $output, Stack $operators)
+    private function parseOperator($expression, Stack $output, Stack $operators)
     {
     
         $end = $operators->poke();
@@ -153,7 +153,7 @@ class DateParser {
       
     }
 
-    protected function tokenize($string)
+    private function tokenize($string)
     {
         $parts = preg_split('((\d+\.?\d+|\+|-|\(|\)|\*|/)|\s+)', $string, null, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
         $parts = array_map('trim', $parts);
