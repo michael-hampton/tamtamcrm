@@ -4,7 +4,7 @@ class DateParser {
 
     public function evaluate($string)
     {
-       $this->variables = ['MONTH' => 'F'];
+       $this->variables = ['MONTH' => 'F', 'YEAR' => 'Y'];
 
         $stack = $this->parse($string);
         
@@ -63,8 +63,11 @@ class DateParser {
         
             switch($type) {
                 case 'F':
+                    $date = $date->modify($operator . $numerator . 'months');
+                break;
             
-                $date = $date->modify($operator . $numerator . 'months');
+                case 'Y':
+                    $date = $date->modify($operator . $numerator . 'years');
                 break;
             }
         
