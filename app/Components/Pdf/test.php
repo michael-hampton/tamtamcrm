@@ -4,7 +4,7 @@ class DateParser {
 
     public function evaluate($string)
     {
-       $this->variables = ['MONTH' => 'F', 'YEAR' => 'Y'];
+       $this->variables = ['MONTH' => 'F', 'YEAR' => 'Y', 'QUARTER' => 'QUARTER'];
 
         $stack = $this->parse($string);
         
@@ -71,7 +71,7 @@ class DateParser {
                 break;
             }
         
-            $value = $date->format('Y-F-d');
+            $value = $type === 'QUARTER' ? $this->calculateQuarters($numerator) : $date->format('Y-F-d');
        
             if (!empty($value)) {
                 $stack->push($value);
@@ -84,6 +84,25 @@ class DateParser {
         
         return $this->render($stack);
     }   
+
+    private function calculateQuarters($numerator) {
+        $current = floor((date('n') - 1) / 3);
+
+        $year = date('y');
+        $quarters = array();
+
+        for ($i = 0; $i < 12; $i++) {
+            $q = (($current+$i)%4) + 1;
+            $quarters[] = "Q" . $q . "-" . $year;
+
+            if (($current+$i+1)%4 == 0) {
+                $year++;
+            }
+        }
+           
+        return $quarters[$numerator];
+
+    }
 
     private function extractVariables($token)
     {
@@ -114,26 +133,20 @@ class DateParser {
     {
         $type = $output->pop();
     
-        $output->push(date($type));
+        if($type === 'QUARTER') {
+            $month = date("n");
+
+            //Calculate the year quarter.
+            $yearQuarter = ceil($month / 3);
+
+            //Print it out
+            $output->push("Q$yearQuarter-" . date('y'));
+        } else {
+            $output->push(date($type));
+        }
+    
         $output->push($expression);
     
-    
-        /* if ($expression->isOpen()) {
-            $operators->push($expression);
-        } else {
-            $clean = false;
-            while (($end = $operators->pop())) {
-                if ($end->isParenthesis()) {
-                    $clean = true;
-                    break;
-                } else {
-                    $output->push($end);
-                }
-            }
-            if (!$clean) {
-                throw new \RuntimeException('Mismatched Parenthesis');
-            }
-        } */
     }
 
     private function parseOperator($expression, Stack $output, Stack $operators)
