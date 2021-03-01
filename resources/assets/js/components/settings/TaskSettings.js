@@ -178,6 +178,15 @@ export default class TaskSettings extends Component {
                     value: settings.include_times_on_invoice,
                     help_text: translations.include_times_on_invoice_help,
                     group: 1
+                },
+                {
+                    name: 'include_dates_on_invoice',
+                    label: translations.include_dates_on_invoice,
+                    icon: `fa ${icons.archive}`,
+                    type: 'switch',
+                    value: settings.include_dates_on_invoice,
+                    help_text: translations.include_dates_on_invoice_help,
+                    group: 1
                 }
             ]
         ]

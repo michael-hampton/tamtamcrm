@@ -931,11 +931,15 @@ class PdfBuilder
                 }
             }
 
-            $this->line_items[$item->type_id][$key][$table_type . '.quantity'] = $item->quantity;
-            $this->line_items[$item->type_id][$key][$table_type . '.notes'] = !empty($item->notes) ? $item->notes : '';
+            $description = (new DateParser())->evaluate($item->description);
+            $notes = (new DateParser())->evaluate($item->notes);
 
-            if (empty($this->line_items[$item->type_id][$key][$table_type . '.notes']) && !empty($item->description)) {
-                $this->line_items[$item->type_id][$key][$table_type . '.notes'] = $item->description;
+            $this->line_items[$item->type_id][$key][$table_type . '.quantity'] = $item->quantity;
+            $this->line_items[$item->type_id][$key][$table_type . '.notes'] = !empty($notes) ? $item->notes : '';
+
+
+            if (empty($this->line_items[$item->type_id][$key][$table_type . '.notes']) && !empty($description)) {
+                $this->line_items[$item->type_id][$key][$table_type . '.notes'] = $description;
             }
 
             $this->line_items[$item->type_id][$key][$table_type . '.cost'] = $this->formatCurrency(

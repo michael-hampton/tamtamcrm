@@ -104,8 +104,6 @@ class Order extends Model
         'assigned_to'
     ];
 
-    protected $table = 'product_task';
-
     public function task()
     {
         return $this->belongsTo('App\Models\Task');

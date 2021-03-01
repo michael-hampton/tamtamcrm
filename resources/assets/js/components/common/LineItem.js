@@ -179,10 +179,10 @@ class LineItem extends Component {
                             amount={total}/>}</p>
                     </FormGroup>
 
-                    <Col md={2} data-id={index}>
+                    <Col md={4} data-id={index}>
                         <FormGroup>
                             <Label>{translations.description}</Label>
-                            <Input key={`e-${index}`} name="description" data-line={index} type='text'
+                            <textarea rows={6} key={`e-${index}`} name="description" data-line={index}
                                 value={lineItem.description}
                                 onChange={this.props.onChange} className='pa2 mr2 f6 form-control'/>
                         </FormGroup>

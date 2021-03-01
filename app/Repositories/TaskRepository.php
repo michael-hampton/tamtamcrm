@@ -93,7 +93,7 @@ class TaskRepository extends BaseRepository implements TaskRepositoryInterface
 
     public function getTasksWithProducts(): Support
     {
-        return $this->model->join('product_task', 'product_task.task_id', '=', 'tasks.id')->select('tasks.*')
+        return $this->model->join('orders', 'orders.task_id', '=', 'tasks.id')->select('tasks.*')
                            ->groupBy('tasks.id')->get();
     }
 

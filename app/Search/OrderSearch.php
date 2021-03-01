@@ -49,7 +49,7 @@ class OrderSearch extends BaseSearch
         }
 
         if ($request->has('status')) {
-            $this->status('product_task', $request->status);
+            $this->status('orders', $request->status);
         } else {
             $this->query->withTrashed();
         }
@@ -103,12 +103,12 @@ class OrderSearch extends BaseSearch
         $this->query->where(
             function ($query) use ($filter) {
                 $query->where('number', 'like', '%' . $filter . '%')
-                      ->orWhere('product_task.po_number', 'like', '%' . $filter . '%')
-                      ->orWhere('product_task.date', 'like', '%' . $filter . '%')
-                      ->orWhere('product_task.custom_value1', 'like', '%' . $filter . '%')
-                      ->orWhere('product_task.custom_value2', 'like', '%' . $filter . '%')
-                      ->orWhere('product_task.custom_value3', 'like', '%' . $filter . '%')
-                      ->orWhere('product_task.custom_value4', 'like', '%' . $filter . '%');
+                      ->orWhere('orders.po_number', 'like', '%' . $filter . '%')
+                      ->orWhere('orders.date', 'like', '%' . $filter . '%')
+                      ->orWhere('orders.custom_value1', 'like', '%' . $filter . '%')
+                      ->orWhere('orders.custom_value2', 'like', '%' . $filter . '%')
+                      ->orWhere('orders.custom_value3', 'like', '%' . $filter . '%')
+                      ->orWhere('orders.custom_value4', 'like', '%' . $filter . '%');
             }
         );
 
@@ -129,23 +129,23 @@ class OrderSearch extends BaseSearch
 
     public function buildCurrencyReport(Request $request, Account $account)
     {
-        return DB::table('product_task')
+        return DB::table('orders')
                  ->select(
                      DB::raw(
-                         'count(*) as count, currencies.name, SUM(product_task.total) as total, SUM(product_task.balance) AS balance'
+                         'count(*) as count, currencies.name, SUM(orders.total) as total, SUM(orders.balance) AS balance'
                      )
                  )
-                 ->join('customers', 'customers.id', '=', 'product_task.customer_id')
+                 ->join('customers', 'customers.id', '=', 'orders.customer_id')
                  ->join('currencies', 'currencies.id', '=', 'customers.currency_id')
                  ->where('customers.currency_id', '<>', 0)
-                 ->where('product_task.account_id', '=', $account->id)
+                 ->where('orders.account_id', '=', $account->id)
                  ->groupBy('customers.currency_id')
                  ->get();
     }
 
     public function buildReport(Request $request, Account $account)
     {
-        $this->query = DB::table('product_task');
+        $this->query = DB::table('orders');
 
         if (!empty($request->input('group_by'))) {
             if (in_array($request->input('group_by'), ['date', 'due_date']) && !empty(
@@ -153,22 +153,22 @@ class OrderSearch extends BaseSearch
                     'group_by_frequency'
                 )
                 )) {
-                $this->addMonthYearToSelect('product_task', $request->input('group_by'));
+                $this->addMonthYearToSelect('orders', $request->input('group_by'));
             }
 
             $this->query->addSelect(
                 DB::raw(
-                    'count(*) as count, customers.name AS customer, SUM(total) as total, SUM(product_task.balance) AS balance, product_task.status_id AS status'
+                    'count(*) as count, customers.name AS customer, SUM(total) as total, SUM(orders.balance) AS balance, orders.status_id AS status'
                 )
             );
 
-            $this->addGroupBy('product_task', $request->input('group_by'), $request->input('group_by_frequency'));
+            $this->addGroupBy('orders', $request->input('group_by'), $request->input('group_by_frequency'));
         } else {
             $this->query->select(
                 'total',
-                'product_task.balance',
-                DB::raw('(product_task.total * 1 / product_task.exchange_rate) AS converted_amount'),
-                DB::raw('(product_task.balance * 1 / product_task.balance) AS converted_balance'),
+                'orders.balance',
+                DB::raw('(orders.total * 1 / orders.exchange_rate) AS converted_amount'),
+                DB::raw('(orders.balance * 1 / orders.balance) AS converted_balance'),
                 'customers.name AS customer',
                 'customers.balance AS customer_balance',
                 'billing.address_1',
@@ -183,38 +183,38 @@ class OrderSearch extends BaseSearch
                 'shipping.state_code AS shipping_town',
                 'shipping.zip AS shipping_zip',
                 'shipping_country.name AS shipping_country',
-                'product_task.number',
+                'orders.number',
                 'discount_total',
                 'po_number',
                 'date',
                 'due_date',
                 'partial',
                 'partial_due_date',
-                'product_task.custom_value1',
-                'product_task.custom_value2',
-                'product_task.custom_value3',
-                'product_task.custom_value4',
+                'orders.custom_value1',
+                'orders.custom_value2',
+                'orders.custom_value3',
+                'orders.custom_value4',
                 'shipping_cost',
                 'tax_total',
-                'product_task.status_id AS status'
+                'orders.status_id AS status'
             );
         }
 
-        $this->query->join('customers', 'customers.id', '=', 'product_task.customer_id')
+        $this->query->join('customers', 'customers.id', '=', 'orders.customer_id')
                     ->leftJoin('addresses AS billing', 'billing.customer_id', '=', 'customers.id')
                     ->leftJoin('addresses AS shipping', 'shipping.customer_id', '=', 'customers.id')
                     ->leftJoin('countries AS billing_country', 'billing_country.id', '=', 'billing.country_id')
                     ->leftJoin('countries AS shipping_country', 'shipping_country.id', '=', 'shipping.country_id')
-                    ->where('product_task.account_id', '=', $account->id);
+                    ->where('orders.account_id', '=', $account->id);
 
         $order_by = $request->input('orderByField');
 
         if (!empty($order_by)) {
             if (!empty($this->field_mapping[$order_by])) {
-                $order = str_replace('$table', 'product_task', $this->field_mapping[$order_by]);
+                $order = str_replace('$table', 'orders', $this->field_mapping[$order_by]);
                 $this->query->orderBy($order, $request->input('orderByDirection'));
             } elseif ($order_by !== 'status') {
-                $this->query->orderBy('product_task.' . $order_by, $request->input('orderByDirection'));
+                $this->query->orderBy('orders.' . $order_by, $request->input('orderByDirection'));
             }
         }
 
@@ -224,7 +224,7 @@ class OrderSearch extends BaseSearch
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
             $date_field = !empty($request->input('manual_date_field')) ? $request->input('manual_date_field') : 'date';
-            $this->filterDates($request, 'product_task', $date_field);
+            $this->filterDates($request, 'orders', $date_field);
         }
 
         $rows = $this->query->get()->toArray();
@@ -261,8 +261,8 @@ class OrderSearch extends BaseSearch
 
     private function baseQuery()
     {
-        $this->query = $this->model->join('products', 'products.id', '=', 'product_task.product_id')
-                                   ->select('product_task.*', 'products.price', 'product_task.id as order_id');
+        $this->query = $this->model->join('products', 'products.id', '=', 'orders.product_id')
+                                   ->select('orders.*', 'products.price', 'orders.id as order_id');
     }
 
     /**
@@ -271,7 +271,7 @@ class OrderSearch extends BaseSearch
     private function addTaskToQuery(Task $objTask)
     {
         $this->baseQuery();
-        $this->query->where('product_task.task_id', $objTask->id);
+        $this->query->where('orders.task_id', $objTask->id);
     }
 
     /**
@@ -300,6 +300,6 @@ class OrderSearch extends BaseSearch
 
         $filters = explode(',', $filter);
 
-        $this->query->whereIn('product_task.status', $filters);
+        $this->query->whereIn('orders.status', $filters);
     }
 }

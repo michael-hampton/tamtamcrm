@@ -822,6 +822,8 @@ _localizedValues.en = {
         'Always show the tasks section when creating invoices',
     include_times_on_invoice: 'Include times on invoice',
     include_times_on_invoice_help: 'Add time details to the invoice line items',
+    include_dates_on_invoice: 'Include dates on invoice',
+    include_dates_on_invoice_help: 'Add dates to the invoice line items',
     default_task_rate: 'Default Task Rate',
     configure_categories: 'Configure Categories',
     dispatch_note: 'Dispatch Note',

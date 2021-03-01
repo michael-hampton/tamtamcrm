@@ -33,7 +33,7 @@ class UpdateOrderRequest extends FormRequest
             'total'          => 'required',
             'tax_total'      => 'required',
             'line_items'     => 'required|array',
-            'number'         => 'nullable|unique:product_task,number,' . $this->order_id . ',id,account_id,' . $this->account_id,
+            'number'         => 'nullable|unique:orders,number,' . $this->order_id . ',id,account_id,' . $this->account_id,
         ];
     }
 

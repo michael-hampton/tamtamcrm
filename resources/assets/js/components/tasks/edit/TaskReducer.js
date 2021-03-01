@@ -9,17 +9,31 @@ export default function convertTaskToInvoiceItem (task, project = null, line_ite
 
     const task_rate = task.calculated_task_rate && task.calculated_task_rate > 0 ? task.calculated_task_rate : settings.task_rate
     let notes = task.description + '\n'
+    const dates = []
 
-    if (settings.include_times_on_invoice === true) {
+    if (settings.include_times_on_invoice === true || settings.include_dates_on_invoice === true) {
         if (task.timers) {
             task.timers.filter(time => {
                 return time.date.length && time.end_date.length
             }).map(time => {
-                const start = formatDate(`${time.date} ${time.start_time}`, true)
-                const end = formatDate(`${time.end_date} ${time.end_time}`, true)
-                notes += `\n ${start} - ${end}`
+                if (settings.include_times_on_invoice === true && settings.include_dates_on_invoice === true) {
+                    const start = formatDate(`${time.date} ${time.start_time}`, true)
+                    const end = formatDate(`${time.end_date} ${time.end_time}`, true)
+                    notes += `\n ${start} - ${end}`
+                } else if (settings.include_dates_on_invoice === true) {
+                    const date = formatDate(time.date, false)
+                    dates.push(date)
+                } else {
+                    const start = formatDate(`${time.date} ${time.start_time}`, true, false)
+                    const end = formatDate(`${time.end_date} ${time.end_time}`, true, false)
+                    notes += `\n ${start} - ${end}`
+                }
             })
         }
+    }
+
+    if (settings.include_dates_on_invoice === true && settings.include_times_on_invoice === false) {
+        notes += '\n' + dates.join('\n')
     }
 
     const taskModel = new TaskModel(task)
@@ -31,7 +45,8 @@ export default function convertTaskToInvoiceItem (task, project = null, line_ite
         unit_price: taskModel.calculateAmount(task_rate),
         quantity: Math.round(task.duration, 3),
         type_id: consts.line_item_task,
-        notes: notes
+        notes: notes,
+        description: notes
     }
 
     if (line_item_only) {

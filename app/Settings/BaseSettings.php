@@ -107,6 +107,12 @@ class BaseSettings
             'default_value'    => false,
             'type'             => 'bool'
         ],
+        'include_dates_on_invoice'             => [
+            'required'         => false,
+            'translated_value' => '',
+            'default_value'    => false,
+            'type'             => 'bool'
+        ],
         'task_automation_enabled'              => [
             'required'         => false,
             'translated_value' => '',

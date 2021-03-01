@@ -76,6 +76,7 @@ class AdminMailer extends Mailable
      */
     protected function execute(array $message_array)
     {
+
         $template = !in_array(
             get_class($this->entity),
             ['App\Models\Lead', 'App\Models\PurchaseOrder']

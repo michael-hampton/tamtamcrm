@@ -227,11 +227,11 @@ class TaskController extends Controller
             auth()->user()->account_user()->account
         );
         $task = $this->task_repo->findTaskById($task_id);
-        $product_tasks = (new OrderRepository(new Order))->getOrdersForTask($task);
+        $orderss = (new OrderRepository(new Order))->getOrdersForTask($task);
 
         $arrData = [
             'products'    => $products,
-            'selectedIds' => $product_tasks->pluck('product_id')->all(),
+            'selectedIds' => $orderss->pluck('product_id')->all(),
         ];
 
         return response()->json($arrData);
