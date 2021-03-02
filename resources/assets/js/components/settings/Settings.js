@@ -138,6 +138,12 @@ class Settings extends Component {
             }
         })
             .then((response) => {
+                console.log('response', response.data)
+                if (this.state.id === null) {
+                    this.model = new CompanyModel({ id: response.data })
+                    this.model.updateSettings(response.data.settings)
+                    return false
+                }
                 this.setState({
                     success: true,
                     cached_settings: this.state.settings,

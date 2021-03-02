@@ -17,7 +17,6 @@ use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection as Support;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class UserRepository extends BaseRepository implements UserRepositoryInterface
@@ -245,19 +244,22 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
     /**
      * @param User $user
+     * @param AccountUser $account_user
      * @param array $permissions
      * @return bool|mixed
      */
-    public function savePermissions(User $user, Account $account, array $permissions)
+    public function savePermissions(User $user, AccountUser $account_user, array $permissions)
     {
+        $account = $account_user->account;
+
         $all_permissions = Permission::all()->keyBy('name');
 
-        DB::table('permission_user')->where('user_id', '=', $user->id)->delete();
+        $user->permissions($account)->forceDelete();
 
         foreach ($permissions as $permission => $allowed) {
             if (!empty($all_permissions[$permission])) {
                 $set_permission = $all_permissions[$permission];
-                $user->permissions()->attach($set_permission->id, ['account_id' => $account->id]);
+                $user->permissions($account)->attach($set_permission->id, ['account_id' => $account->id]);
             }
         }
 

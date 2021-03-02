@@ -83,7 +83,15 @@ export default class CompanyModel extends BaseModel {
     updateSettings (settings) {
         const app_settings = JSON.parse(localStorage.getItem('appState'))
         const accounts = app_settings.accounts
-        const index = accounts.findIndex((obj) => obj.account_id === parseInt(this.fields.id))
+        let index = accounts.findIndex((obj) => obj.account_id === parseInt(this.fields.id))
+
+        if (!app_settings.accounts[index]) {
+            index = this.fields.id
+            app_settings.accounts[index] = {}
+            app_settings.accounts[index].account = {}
+            app_settings.accounts[index].account.settings = {}
+        }
+
         app_settings.accounts[index].account.settings = settings
         localStorage.setItem('appState', JSON.stringify(app_settings))
     }

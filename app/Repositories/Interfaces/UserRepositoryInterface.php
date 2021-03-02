@@ -3,6 +3,7 @@
 namespace App\Repositories\Interfaces;
 
 use App\Models\Account;
+use App\Models\AccountUser;
 use App\Models\Department;
 use App\Models\User;
 use App\Repositories\Base\BaseRepositoryInterface;
@@ -15,7 +16,7 @@ interface UserRepositoryInterface extends BaseRepositoryInterface
      * @param array $permissions
      * @return mixed
      */
-    public function savePermissions(User $user, Account $account, array $permissions);
+    public function savePermissions(User $user, AccountUser $account_user, array $permissions);
 
     /**
      *

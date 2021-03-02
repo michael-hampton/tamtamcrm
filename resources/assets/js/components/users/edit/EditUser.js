@@ -184,6 +184,7 @@ class EditUser extends React.Component {
 
     getFormData () {
         return {
+            account_id: localStorage.getItem('account_id'),
             company_user: this.state.selectedAccounts,
             username: this.state.username,
             department: this.state.department,

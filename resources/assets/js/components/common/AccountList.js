@@ -31,7 +31,7 @@ export default class AccountList extends Component {
         const accountId = e.target.value
 
         if (accountId === 'add') {
-            window.location.href = '/#/accounts/true'
+            window.location.href = '/#/account-settings/true'
             return
         }
 
@@ -51,6 +51,8 @@ export default class AccountList extends Component {
         if (Object.prototype.hasOwnProperty.call(localStorage, 'appState')) {
             accounts = JSON.parse(localStorage.appState).accounts
         }
+
+        console.log('accounts', accounts)
 
         const columnList = accounts !== false ? accounts.map(account => {
             return <option key={account.account.id} value={account.account.id}>{account.account.settings.name}</option>

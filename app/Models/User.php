@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Collection;
-use App\Mail\User\ForgotPassword;
 use App\Models;
 use App\Notifications\User\ForgotPasswordNotification;
 use App\Traits\Archiveable;
@@ -119,15 +118,21 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, CanRe
         return $this->belongsToMany(Role::class, 'role_user');
     }
 
-    public function permissions()
+    public function permissions(Account $account = null)
     {
-        if (empty($this->account_user())) {
-            return new \Illuminate\Support\Collection();
+        if (empty($account)) {
+            $account_user = $this->account_user();
+
+            if (empty($account_user)) {
+                return new \Illuminate\Support\Collection();
+            }
+
+            $account = $account_user->account;
         }
 
         return $this->belongsToMany(Permission::class, 'permission_user')->where(
             'account_id',
-            $this->account_user()->account->id
+            $account->id
         );
     }
 

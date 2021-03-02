@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Email\DispatchEmail;
 use App\Models\CustomerContact;
+use App\Models\Invitation;
 use App\Repositories\Base\BaseRepository;
 use App\Repositories\EmailRepository;
 use App\Requests\Email\SendEmailRequest;
@@ -17,6 +18,7 @@ use App\Transformations\PurchaseOrderTransformable;
 use App\Transformations\QuoteTransformable;
 use App\Transformations\TaskTransformable;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use ReflectionClass;
 use ReflectionException;
 
@@ -106,5 +108,40 @@ class EmailController extends Controller
         }
 
         return false;
+    }
+
+    public function postmark(Request $request)
+    {
+        $invitation = Invitation::where('email_id', '=', $request->input('MessageID'))->first();
+
+        if (empty($invitation)) {
+            return response()->json('Could not find message');
+        }
+
+        $status = '';
+        $response = $request->input('RecordType');
+
+        if (empty($response)) {
+            return response()->json(['message' => 'Unknown status'], 403);
+        }
+
+        switch ($response) {
+            case 'Delivery':
+                $status = 'delivered';
+                break;
+            case 'Bounce':
+                $status = 'bounced';
+                break;
+            case 'SpamComplaint':
+                $status = 'spam';
+                break;
+        }
+
+        if (!empty($status)) {
+            $invitation->update(['email_send_status' => $status]);
+            return response()->json(['message' => $status], 200);
+        }
+
+        return response()->json(['message' => 'Unknown status'], 403);
     }
 }

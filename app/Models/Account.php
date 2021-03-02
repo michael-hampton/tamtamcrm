@@ -86,7 +86,7 @@ class Account extends Model
 
     public function users()
     {
-        return $this->hasManyThrough(User::class, AccountUser::class, 'company_id', 'id', 'id', 'user_id');
+        return $this->hasManyThrough(User::class, AccountUser::class, 'account_id', 'id', 'id', 'user_id');
     }
 
     public function designs()

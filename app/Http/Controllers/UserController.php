@@ -7,7 +7,6 @@ use App\Factory\UserFactory;
 use App\Jobs\User\CreateUser;
 use App\Models\Department;
 use App\Models\User;
-use App\Notifications\User\VerifyUser;
 use App\Repositories\DepartmentRepository;
 use App\Repositories\Interfaces\RoleRepositoryInterface;
 use App\Repositories\Interfaces\UserRepositoryInterface;
@@ -24,7 +23,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Str;
 
 /**
  * Class UserController
@@ -82,10 +80,12 @@ class UserController extends Controller
             UserFactory::create(auth()->user()->account_user()->account->domains->id)
         );
 
+        $account_user = $user->account_users->where('account_id', $request->input('account_id'))->first();
+
         if (!empty($request->input('customized_permissions'))) {
             $this->user_repo->savePermissions(
                 $user,
-                $user->account_user()->account,
+                $account_user,
                 $request->input('customized_permissions')
             );
         }

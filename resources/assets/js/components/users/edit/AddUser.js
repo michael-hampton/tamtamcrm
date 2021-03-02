@@ -153,6 +153,7 @@ class AddUser extends React.Component {
         }
 
         axios.post('/api/users', {
+            account_id: localStorage.getItem('account_id'),
             username: this.state.username,
             company_user: this.state.selectedAccounts,
             department: this.state.department,
