@@ -29,8 +29,7 @@ class CreatePaymentRequest extends BaseFormRequest
     public function rules()
     {
         $rules = [
-            'amount'                => 'numeric|required',
-            'amount'                => new ValidAmount($this->all()),
+            'amount'                => ['numeric', 'required', new ValidAmount($this->all())],
             'date'                  => 'required',
             'customer_id'           => 'bail|required|exists:customers,id',
             'invoices.*.invoice_id' => 'required|distinct|exists:invoices,id',
