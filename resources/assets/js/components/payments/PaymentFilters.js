@@ -136,7 +136,6 @@ export default class PaymentFilters extends Component {
                                 }
                             }), () => {
                                 const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
-                                console.log('results', results)
                                 const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
                                 this.props.updateList({
                                     invoices: results,

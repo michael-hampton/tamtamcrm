@@ -77,11 +77,13 @@ export function filterStatuses (data, value, filters = null) {
         data = data.filter(obj => parseInt(obj.task_status_id) === parseInt(filters.task_status_id)) || []
     }
 
-    if (!filters.status || !filters.status.toString().length) {
-        filters.status = 'active'
-    }
+    let status = 'active'
 
-    let status = (filters.status_id) ? (filters.status_id) : ((filters.status) ? (filters.status) : (''))
+    if (filters.status_id && filters.status_id.toString().length) {
+        status = filters.status_id
+    } else if (filters.status && filters.status.toString().length) {
+        status = filters.status
+    }
 
     status = status.split(',')
 

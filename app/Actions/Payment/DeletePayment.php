@@ -138,7 +138,7 @@ class DeletePayment
 
         event(new PaymentWasDeleted($this->payment));
 
-        $this->payment->delete();
+        $this->payment->deleteEntity();
 
         return true;
     }
