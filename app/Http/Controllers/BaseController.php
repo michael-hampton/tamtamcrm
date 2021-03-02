@@ -612,7 +612,7 @@ class BaseController extends Controller
             'gateways'           => PaymentGateway::all(),
             'tax_rates'          => TaxRate::all(),
             'users'              => User::where('is_active', '=', 1)->get(
-                ['first_name', 'last_name', 'phone_number', 'id']
+                ['first_name', 'last_name', 'phone_number', 'id', 'email']
             )
         ];
     }
