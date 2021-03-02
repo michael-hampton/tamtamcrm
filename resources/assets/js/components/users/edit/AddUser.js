@@ -54,7 +54,8 @@ class AddUser extends React.Component {
             custom_value3: '',
             custom_value4: '',
             is_admin: false,
-            activeTab: '1'
+            activeTab: '1',
+            can_save: true
         }
 
         this.state = this.initialState
@@ -68,6 +69,8 @@ class AddUser extends React.Component {
         this.setSelectedAccounts = this.setSelectedAccounts.bind(this)
         this.hasErrorFor = this.hasErrorFor.bind(this)
         this.renderErrorFor = this.renderErrorFor.bind(this)
+        this.getUser = this.getUser.bind(this)
+        this.searchUsers = this.searchUsers.bind(this)
     }
 
     componentDidMount () {
@@ -89,6 +92,50 @@ class AddUser extends React.Component {
 
     setSelectedAccounts (selectedAccounts) {
         this.setState({ selectedAccounts: selectedAccounts })
+    }
+
+    getUser (id) {
+        axios.get(`/api/users/edit/${id}`, { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` } })
+            .then((r) => {
+                this.setState({
+                    id: id,
+                    can_save: true,
+                    roles: r.data.roles,
+                    user: r.data.user,
+                    gender: r.data.user.gender,
+                    dob: r.data.user.dob,
+                    username: r.data.user.username,
+                    email: r.data.user.email,
+                    first_name: r.data.user.first_name,
+                    last_name: r.data.user.last_name,
+                    phone_number: r.data.user.phone_number,
+                    job_description: r.data.user.job_description,
+                    has_custom_permissions: r.data.user.has_custom_permissions,
+                    custom_value1: r.data.user.custom_value1,
+                    custom_value2: r.data.user.custom_value2,
+                    custom_value3: r.data.user.custom_value3,
+                    custom_value4: r.data.user.custom_value4,
+                    password: r.data.user.password,
+                    selectedRoles: r.data.selectedIds,
+                    selectedAccounts: r.data.user.account_users[0]
+                })
+            })
+            .catch((e) => {
+                console.error(e)
+            })
+    }
+
+    searchUsers () {
+        const users = JSON.parse(localStorage.getItem('users'))
+        const user = users.filter(user => user.email === this.state.email)
+
+        if (user.length) {
+            if(confirm('The user already exists. Do you want to add them to this account?')) {
+                this.getUser(user[0].id)
+            }
+        } else {
+            this.setState({ can_save: false })
+        }
     }
 
     toggleTab (tab) {
@@ -144,6 +191,11 @@ class AddUser extends React.Component {
     }
 
     handleClick () {
+        if(!this.state.can_save) {
+           this.searchUsers()
+            return false
+        }
+
         const is_valid = this._validate()
         if (is_valid !== true && is_valid.length) {
             this.setState({ password_error: is_valid })
@@ -196,7 +248,12 @@ class AddUser extends React.Component {
 
         this.setState({
             [name]: value
-        }, () => localStorage.setItem('userForm', JSON.stringify(this.state)))
+        }, () => {
+            if(name === 'email') {
+                this.searchUsers()
+            }
+           localStorage.setItem('userForm', JSON.stringify(this.state))
+        })
     }
 
     toggle () {
