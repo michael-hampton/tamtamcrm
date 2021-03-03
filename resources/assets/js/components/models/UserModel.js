@@ -20,7 +20,24 @@ export default class UserModel extends BaseModel {
             target_url: 'http://',
             event_id: '',
             loading: false,
-            errors: []
+            errors: [],
+            roles: [],
+            gender: '',
+            dob: null,
+            username: '',
+            email: '',
+            first_name: '',
+            last_name: '',
+            phone_number: '',
+            job_description: '',
+            has_custom_permissions: false,
+            custom_value1: '',
+            custom_value2: '',
+            custom_value3: '',
+            custom_value4: '',
+            password: '',
+            selectedRoles: [],
+            selectedAccounts: []
         }
 
         if (data !== null) {

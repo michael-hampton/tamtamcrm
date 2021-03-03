@@ -3,11 +3,11 @@ import axios from 'axios'
 import { Input, ListGroupItem } from 'reactstrap'
 import RestoreModal from '../common/RestoreModal'
 import ActionsMenu from '../common/ActionsMenu'
-import EditUser from './edit/EditUser'
 import UserPresenter from '../presenters/UserPresenter'
 import { translations } from '../utils/_translations'
 import ConfirmPassword from '../common/ConfirmPassword'
 import { icons } from '../utils/_icons'
+import AddUser from './edit/AddUser'
 
 export default class UserItem extends Component {
     constructor (props) {
@@ -78,7 +78,7 @@ export default class UserItem extends Component {
                     } text={translations.delete_message} button_color="btn-link"
                     button_label={translations.delete}/> : null
                 const editButton = !user.deleted_at
-                    ? <EditUser accounts={this.props.accounts} departments={departments} user_id={user.id}
+                    ? <AddUser add={false} accounts={this.props.accounts} departments={departments} user_id={user.id}
                         custom_fields={custom_fields} users={entities}
                         action={this.props.addUserToState}/> : null
 

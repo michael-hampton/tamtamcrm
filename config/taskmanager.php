@@ -11,6 +11,6 @@ return [
     'web_url'                => 'http://taskman.develop',
     'site_url'               => env('APP_URL', ''),
     'currency_converter_key' => env('CURRENCY_CONVERTER_KEY'),
-    'from_email'             => 'support@tamtamcrm.com',
+    'from_email'             => env('FROM_EMAIL'),
     'from_name'              => 'Michael Hampton'
 ];

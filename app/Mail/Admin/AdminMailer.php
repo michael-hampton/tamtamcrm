@@ -85,7 +85,7 @@ class AdminMailer extends Mailable
         ) : $this->entity->account->settings->email_style;
 
         try {
-            return $this->to($this->user->email)
+            return $this->to('michael.hampton@onbuy.com')
                         ->from(config('taskmanager.from_email'))
                         ->subject($this->subject)
                         ->markdown(

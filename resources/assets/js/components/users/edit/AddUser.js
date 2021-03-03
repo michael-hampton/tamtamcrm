@@ -2,7 +2,7 @@ import React from 'react'
 import {
     Card,
     CardBody,
-    CardHeader,
+    CardHeader, DropdownItem,
     FormGroup,
     Modal,
     ModalBody,
@@ -21,6 +21,9 @@ import CustomFieldsForm from '../../common/CustomFieldsForm'
 import { translations } from '../../utils/_translations'
 import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
+import { toast, ToastContainer } from 'react-toastify'
+import { icons } from '../../utils/_icons'
+import UserModel from '../../models/UserModel'
 
 class AddUser extends React.Component {
     constructor (props) {
@@ -55,10 +58,14 @@ class AddUser extends React.Component {
             custom_value4: '',
             is_admin: false,
             activeTab: '1',
-            can_save: true
+            can_save: true,
+            password_changed: false
         }
 
         this.state = this.initialState
+        this.account_id = JSON.parse(localStorage.getItem('appState')).user.account_id
+
+        this.userModel = new UserModel()
 
         this.toggle = this.toggle.bind(this)
         this.toggleTab = this.toggleTab.bind(this)
@@ -71,6 +78,15 @@ class AddUser extends React.Component {
         this.renderErrorFor = this.renderErrorFor.bind(this)
         this.getUser = this.getUser.bind(this)
         this.searchUsers = this.searchUsers.bind(this)
+        this._validate = this._validate.bind(this)
+    }
+
+    static getDerivedStateFromProps (props, state) {
+        if (props.user_id && props.user_id !== state.id) {
+            return { id: props.user_id }
+        }
+
+        return null
     }
 
     componentDidMount () {
@@ -78,16 +94,16 @@ class AddUser extends React.Component {
             const storedValues = JSON.parse(localStorage.getItem('userForm'))
             this.setState({ ...storedValues }, () => console.log('new state', this.state))
         }
+
+        if (this.props.user_id) {
+            this.getUser(this.props.user_id)
+        }
     }
 
-    setNotifications (notifications) {
-        this.setState(prevState => ({
-            selectedAccounts: {
-                ...prevState.selectedAccounts,
-                notifications: { email: notifications },
-                account_id: this.account_id,
-            }
-        }))
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.user_id && this.props.user_id !== prevProps.user_id) {
+            this.getUser(this.props.user_id)
+        }
     }
 
     setSelectedAccounts (selectedAccounts) {
@@ -97,7 +113,7 @@ class AddUser extends React.Component {
     getUser (id) {
         axios.get(`/api/users/edit/${id}`, { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` } })
             .then((r) => {
-                this.setState({
+                const data = {
                     id: id,
                     can_save: true,
                     roles: r.data.roles,
@@ -118,7 +134,11 @@ class AddUser extends React.Component {
                     password: r.data.user.password,
                     selectedRoles: r.data.selectedIds,
                     selectedAccounts: r.data.user.account_users[0]
-                })
+                }
+
+                this.userModel = new UserModel(data)
+
+                this.setState(this.userModel.fields)
             })
             .catch((e) => {
                 console.error(e)
@@ -130,7 +150,7 @@ class AddUser extends React.Component {
         const user = users.filter(user => user.email === this.state.email)
 
         if (user.length) {
-            if(confirm('The user already exists. Do you want to add them to this account?')) {
+            if (confirm('The user already exists. Do you want to add them to this account?')) {
                 this.getUser(user[0].id)
             }
         } else {
@@ -175,7 +195,7 @@ class AddUser extends React.Component {
     _validate () {
         const { password } = this.state
 
-        if (!password.length || !password.trim().length) {
+        if (!password || !password.length) {
             return translations.please_enter_your_password
         }
 
@@ -190,9 +210,23 @@ class AddUser extends React.Component {
         return true
     }
 
+    setNotifications (notifications) {
+        this.setState(prevState => ({
+            selectedAccounts: {
+                ...prevState.selectedAccounts,
+                notifications: { email: notifications },
+                account_id: this.account_id
+            }
+        }))
+    }
+
+    setPermissions (permissions, customize) {
+        this.setState({ customized_permissions: permissions, customize: customize })
+    }
+
     handleClick () {
-        if(!this.state.can_save) {
-           this.searchUsers()
+        if (!this.state.can_save) {
+            this.searchUsers()
             return false
         }
 
@@ -204,7 +238,8 @@ class AddUser extends React.Component {
             this.setState({ password_error: '' })
         }
 
-        axios.post('/api/users', {
+        this.setState({ loading: true })
+        this.userModel.save({
             account_id: localStorage.getItem('account_id'),
             username: this.state.username,
             company_user: this.state.selectedAccounts,
@@ -216,60 +251,102 @@ class AddUser extends React.Component {
             phone_number: this.state.phone_number,
             dob: this.state.dob,
             gender: this.state.gender,
-            password: this.state.password,
+            password: this.state.password_changed ? this.state.password : '',
             role: this.state.selectedRoles,
             custom_value1: this.state.custom_value1,
             custom_value2: this.state.custom_value2,
             custom_value3: this.state.custom_value3,
             custom_value4: this.state.custom_value4,
             customized_permissions: this.state.customize === true ? this.state.customized_permissions : {}
-        })
-            .then((response) => {
-                this.toggle()
-                const newUser = response.data
-                this.props.users.push(newUser)
+        }).then(response => {
+            if (!response) {
+                this.setState({
+                    showErrorMessage: true,
+                    loading: false,
+                    errors: this.userModel.errors,
+                    message: this.userModel.error_message
+                })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.user), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
+                return
+            }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.user), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
+
+            if (!this.state.id) {
+                this.props.users.push(response)
                 this.props.action(this.props.users)
                 localStorage.removeItem('userForm')
                 this.setState(this.initialState)
-            })
-            .catch((error) => {
-                if (error.response.data.errors) {
-                    this.setState({
-                        errors: error.response.data.errors
-                    })
-                } else {
-                    this.setState({ message: error.response.data })
-                }
-            })
+                this.toggle()
+                return
+            }
+
+            const index = this.props.users.findIndex(user => user.id === this.state.id)
+            this.props.users[index] = response
+            this.props.action(this.props.users)
+            this.setState({ loading: false, changesMade: false, modalOpen: false })
+            this.toggle()
+        })
     }
 
     handleInput (event) {
         const { name, value } = event.target
+        const { password } = this.state
 
         this.setState({
             [name]: value
         }, () => {
-            if(name === 'email') {
+            if (name === 'email' && this.props.add) {
                 this.searchUsers()
             }
-           localStorage.setItem('userForm', JSON.stringify(this.state))
+
+            if (name === 'password' && value !== password) {
+                this.setState({ password_changed: true })
+            }
+
+            localStorage.setItem('userForm', JSON.stringify(this.state))
         })
     }
 
     toggle () {
+        if (this.state.id && this.state.modal && this.state.changesMade) {
+            if (window.confirm('Your changes have not been saved?')) {
+                this.setState({ ...this.initialState })
+            }
+
+            return
+        }
+
         this.setState({
             modal: !this.state.modal,
             errors: []
         }, () => {
             if (!this.state.modal) {
-                this.setState(this.initialState, () => localStorage.removeItem('userForm'))
+                localStorage.removeItem('userForm')
+
+                if(this.props.add) {
+                    this.setState(this.initialState)
+                }
             }
         })
-    }
-
-    setPermissions (permissions, customize) {
-        console.log('permissions', permissions)
-        this.setState({ customized_permissions: permissions, customize: customize })
     }
 
     handleMultiSelect (e) {
@@ -283,14 +360,28 @@ class AddUser extends React.Component {
     render () {
         const { message } = this.state
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
+        const button = this.props.add === true ? <AddButtons toggle={this.toggle}/>
+            : <DropdownItem onClick={this.toggle}><i className={`fa ${icons.edit}`}/>{translations.edit_user}
+            </DropdownItem>
 
         return (
             <React.Fragment>
-                <AddButtons toggle={this.toggle}/>
+                {button}
                 <Modal size="lg" isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
-                    <DefaultModalHeader toggle={this.toggle} title={translations.add_user}/>
+                    <DefaultModalHeader toggle={this.toggle} title={this.state.id ? translations.edit_user : translations.add_user}/>
 
                     <ModalBody className={theme}>
+                        <ToastContainer
+                            position="top-center"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
 
                         {message && <div className="alert alert-danger" role="alert">
                             {message}
@@ -343,7 +434,7 @@ class AddUser extends React.Component {
                             </TabPane>
 
                             <TabPane tabId="2">
-                                <PermissionsForm setPermissions={this.setPermissions.bind(this)}
+                                <PermissionsForm has_custom_permissions={this.state.has_custom_permissions} setPermissions={this.setPermissions.bind(this)}
                                     handleInput={this.handleInput} errors={this.state.errors}
                                     setAccounts={this.setSelectedAccounts}
                                     departments={this.props.departments} accounts={this.props.accounts}

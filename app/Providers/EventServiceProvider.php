@@ -262,6 +262,7 @@ use Illuminate\Auth\Events\Verified;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Mail\Events\MessageSending;
+use Illuminate\Mail\Events\MessageSent;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -277,7 +278,7 @@ class EventServiceProvider extends ServiceProvider
         Registered::class                      => [
             SendEmailVerificationNotification::class
         ],
-        MessageSending::class                  => [
+        MessageSent::class                  => [
             LogSentMessage::class,
         ],
         UserWasCreated::class                  => [

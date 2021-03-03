@@ -14,6 +14,11 @@ trait UserTransformable
      */
     protected function transformUser(User $user)
     {
+//        echo '<pre>';
+//        print_r($user->permissions);
+//        die;
+
+
         return [
             'id'                     => (int)$user->id,
             'first_name'             => $user->first_name,
@@ -21,7 +26,7 @@ trait UserTransformable
             'email'                  => $user->email,
             'username'               => $user->username,
             'phone_number'           => $user->phone_number,
-            //'password'        => $user->password,
+            'password'               => $user->password,
             'job_description'        => $user->job_description,
             'account_users'          => $this->transformUserAccounts($user->account_users),
             'gender'                 => $user->gender,

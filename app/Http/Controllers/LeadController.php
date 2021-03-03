@@ -125,6 +125,16 @@ class LeadController extends Controller
     }
 
     /**
+     * @param $id
+     * @return JsonResponse
+     */
+    public function show($id)
+    {
+        $lead = $this->lead_repo->findLeadById($id);
+        return response()->json($this->transformLead($lead));
+    }
+
+    /**
      * @param Request $request
      * @param Lead $lead
      * @param $action

@@ -83,7 +83,7 @@ export default class NestedCheckboxTree extends React.Component {
 
     reduceChildren (children, group) {
         return children.reduce((acc, key) => {
-            const value = `${group}controller.${key}`
+            const value = `${group.replace('_', '')}controller.${key}`
 
             let checked = false
 

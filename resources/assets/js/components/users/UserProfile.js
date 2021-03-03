@@ -3,8 +3,8 @@ import { Button, Col, Container, Progress, Row } from 'reactstrap'
 import axios from 'axios'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import EditUser from './edit/EditUser'
 import { monthByNumber } from '../utils/helper'
+import AddUser from './edit/AddUser'
 
 class UserProfile extends React.Component {
     constructor (props) {
@@ -92,7 +92,7 @@ class UserProfile extends React.Component {
 
         if (this.state.user && this.state.user.id) {
             button = parseInt(JSON.parse(localStorage.getItem('appState')).user.id) === this.state.user.id
-                ? <EditUser user={this.state.user} user_id={this.state.user.id}/>
+                ? <AddUser user={this.state.user} user_id={this.state.user.id}/>
                 : ''
 
             uploadButton = parseInt(JSON.parse(localStorage.getItem('appState')).user.id) === this.state.user.id

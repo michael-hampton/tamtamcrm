@@ -17,6 +17,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection as Support;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class UserRepository extends BaseRepository implements UserRepositoryInterface
@@ -131,11 +132,13 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         $is_new = empty($user->id);
 
         /*************** save new user ***************************/
+        $password = isset($data['password']) ? $data['password'] : '';
+        unset($data['password']);
+
         $user->fill($data);
 
-        if (isset($data['password']) && !empty($data['password']) && (empty($user->id) || auth()->user(
-                )->id === $user->id)) {
-            $user->password = Hash::make($data['password']);
+        if (!empty($password) && (empty($user->id) || auth()->user()->id === $user->id)) {
+            $user->password = Hash::make($password);
         }
 
         $user->save();
@@ -151,9 +154,10 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         if (isset($data['company_user'])) {
             $account_id = !empty(auth()->user()) ? auth()->user()->account_user(
             )->account_id : $user->domain->default_account_id;
+
             $account = Account::find($account_id);
 
-            $cu = AccountUser::whereUserId($user->id)->whereAccountId($account->id)->withTrashed()->first();
+            $cu = $user->account_users()->whereAccountId($account->id)->withTrashed()->first();
 
             /*No company user exists - attach the user*/
             if (!$cu) {
@@ -163,7 +167,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
                     !empty($data['company_user']['notifications']) ? $data['company_user']['notifications'] : []
                 );
             } else {
-                unset($data['company_user']['permissions'], $data['company_user']['settings']);
+                unset($data['company_user']['account_id'], $data['company_user']['permissions'], $data['company_user']['settings']);
 
                 $data['company_user']['notifications'] = !empty($data['company_user']['notifications']) ? $data['company_user']['notifications']
                     : $user->notificationDefaults();
@@ -254,7 +258,10 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
         $all_permissions = Permission::all()->keyBy('name');
 
-        $user->permissions($account)->forceDelete();
+        DB::table('permission_user')->where('user_id', $user->id)->where(
+            'account_id',
+            $account_user->account->id
+        )->delete();
 
         foreach ($permissions as $permission => $allowed) {
             if (!empty($all_permissions[$permission])) {

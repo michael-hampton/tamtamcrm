@@ -139,6 +139,9 @@ Route::group(
         Route::put('order/{order_id}', 'OrderController@update');
         Route::post('order', 'OrderController@store');
         Route::post('order/{order}/{action}', 'OrderController@action')->name('invoices.action');
+        Route::delete('order/archive/{order_id}', 'OrderController@archive');
+        Route::delete('order/{order_id}', 'OrderController@destroy');
+        Route::post('order/restore/{id}', 'OrderController@restore');
 
 // uploads
         Route::get('uploads/{entity}/{entity_id}', 'UploadController@index');
@@ -426,6 +429,7 @@ Route::group(
 // leads
         Route::get('leads', 'LeadController@index');
         Route::put('lead/{lead_id}', 'LeadController@update');
+        Route::get('leads/{id}', 'LeadController@show');
         Route::delete('leads/archive/{lead_id}', 'LeadController@archive');
         Route::delete('leads/{lead}', 'LeadController@destroy');
         Route::post('leads/restore/{id}', 'LeadController@restore');

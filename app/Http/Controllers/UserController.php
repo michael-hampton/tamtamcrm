@@ -23,6 +23,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class UserController
@@ -158,15 +159,21 @@ class UserController extends Controller
         $user = $this->user_repo->findUserById($id);
 
         $user = $this->user_repo->save($request->except('customized_permissions'), $user);
+        $account_user = $user->account_users->where('account_id', $request->input('account_id'))->first();
 
         if (!empty($request->input('customized_permissions'))) {
             $this->user_repo->savePermissions(
                 $user,
-                $user->account_user()->account,
+                $account_user,
                 $request->input('customized_permissions')
             );
         } else {
-            $user->permissions()->delete();
+            die('no');
+
+            DB::table('permission_user')->where('user_id', $user->id)->where(
+                'account_id',
+                $account_user->account->id
+            )->delete();
         }
 
         return response()->json($user);

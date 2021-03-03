@@ -232,7 +232,7 @@ class MessageContainer extends React.Component {
                             })}
                         </div> : null}
 
-                    {notifications.length ? (
+                    {notifications && notifications.length ? (
                         <Card>
                             <CardHeader><h2 className="text-center">Notifications</h2>
                             </CardHeader>

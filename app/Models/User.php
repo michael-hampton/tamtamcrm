@@ -130,7 +130,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, CanRe
             $account = $account_user->account;
         }
 
-        return $this->belongsToMany(Permission::class, 'permission_user')->where(
+        return $this->belongsToMany(Permission::class, 'permission_user', 'user_id', 'permission_id')->where(
             'account_id',
             $account->id
         );
@@ -151,10 +151,15 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, CanRe
             $this->id = auth()->user()->id;
         }
 
-        return Models\AccountUser::join('company_tokens', 'company_tokens.account_id', '=', 'account_user.account_id')
-                                 ->where('company_tokens.user_id', '=', $this->id)
-                                 ->where('company_tokens.is_web', '=', true)
-                                 ->where('company_tokens.token', '=', $this->auth_token)->select(
+        return $this->account_users()->join(
+            'company_tokens',
+            'company_tokens.account_id',
+            '=',
+            'account_user.account_id'
+        )
+                    ->where('company_tokens.user_id', '=', $this->id)
+                    ->where('company_tokens.is_web', '=', true)
+                    ->where('company_tokens.token', '=', $this->auth_token)->select(
                 'account_user.*'
             )->first();
     }
@@ -203,9 +208,9 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, CanRe
         $this->accounts()->attach(
             $account->id,
             [
-                'account_id'    => $account->id,
-                'is_owner'      => $is_admin,
-                'is_admin'      => $is_admin,
+                'account_id' => $account->id,
+                'is_owner' => $is_admin,
+                'is_admin' => $is_admin,
                 'notifications' => !empty($notifications) ? $notifications : $this->notificationDefaults()
             ]
         );

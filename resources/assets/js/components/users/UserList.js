@@ -161,7 +161,6 @@ export default class UserList extends Component {
             users: users,
             cachedData: cachedData
         }, () => {
-            localStorage.setItem('users', JSON.stringify(users))
             const totalPages = Math.ceil(users.length / this.state.pageLimit)
             this.onPageChanged({ invoices: users, currentPage: this.state.currentPage, totalPages: totalPages })
         })
@@ -200,7 +199,7 @@ export default class UserList extends Component {
         const { cachedData, users, departments, custom_fields, error, view, filters, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const { start_date, end_date } = this.state.filters
         const fetchUrl = `/api/users?start_date=${start_date}&end_date=${end_date}`
-        const addButton = <AddUser accounts={this.state.accounts} custom_fields={custom_fields}
+        const addButton = <AddUser add={true} accounts={this.state.accounts} custom_fields={custom_fields}
             departments={departments}
             users={cachedData}
             action={this.addUserToState}/>
