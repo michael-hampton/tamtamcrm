@@ -45,6 +45,7 @@ class CreateUsersTable extends Migration
             $table->string('previous_email_address')->nullable();
             $table->tinyInteger('two_factor_authentication_enabled')->default(0);
             $table->timestamp('email_verified_at')->nullable();
+            $table->dateTime('password_verified_at')->nullable();
         });
     }
 

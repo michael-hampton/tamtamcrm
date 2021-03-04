@@ -14,11 +14,6 @@ trait UserTransformable
      */
     protected function transformUser(User $user)
     {
-//        echo '<pre>';
-//        print_r($user->permissions);
-//        die;
-
-
         return [
             'id'                     => (int)$user->id,
             'first_name'             => $user->first_name,

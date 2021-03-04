@@ -58,10 +58,6 @@ class ActivityController extends Controller
 
     public function index(Request $request)
     {
-        echo '<pre>';
-        print_r(auth()->user()->account_user());
-        die;
-
         $currentUser = auth()->user();
         $comments = auth()->user()->account_user()->account->comments()->with('user')->get();
         $list = $this->notification_repo->listNotifications('*', 'created_at', 'DESC');

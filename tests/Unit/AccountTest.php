@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Actions\Account\ConvertAccount;
+use App\Actions\Account\CreateAccount;
 use App\Models\Account;
 use App\Models\Customer;
 use App\Models\User;
@@ -30,6 +31,12 @@ class AccountTest extends TestCase
         $this->assertInstanceOf(Customer::class, $account->domains->customer);
         $this->assertInstanceOf(User::class, $account->domains->user);
         $this->assertEquals(1, $account->domains->customer->contacts->count());
+    }
+
+    /** @test */
+    public function it_can_create_an_account()
+    {
+        (new CreateAccount())->execute(['email' => $this->faker->safeEmail, 'password' => $this->faker->password]);
     }
 
     public function tearDown(): void
