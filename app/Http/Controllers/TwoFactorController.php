@@ -58,5 +58,7 @@ class TwoFactorController extends Controller
         $user->two_factor_expiry = Carbon::now()->addMinutes(config('session.lifetime'));
         $user->two_factor_authentication_enabled = true;
         $user->save();
+
+        return response()->json('Token updated');
     }
 }
