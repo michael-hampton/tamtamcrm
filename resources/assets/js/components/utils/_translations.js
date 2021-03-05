@@ -898,7 +898,15 @@ _localizedValues.en = {
     forgot_password: 'Forgot Password',
     login: 'Login',
     forgot_password_link_failed: 'Unable to send reset password link',
-    forgot_password_link_sent: 'A fresh verification link has been sent to your email address.'
+    forgot_password_link_sent: 'A fresh verification link has been sent to your email address.',
+    administrator: 'Administrator',
+    administrator_help:
+        'Allow user to manage users, change settings and modify all records',
+    enable_two_factor: 'Enable Two Factor Authentication',
+    disable_two_factor: 'Disable Two Factor Authentication',
+    two_factor_no_phone_entered: 'In order to enable two factor authentication you need to enter a mobile number.',
+    one_time_password: 'One Time Password',
+    secret: 'Secret'
 }
 
 let language = []

@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Requests\TwoFactor\TwoFactorVerification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use PragmaRX\Google2FA\Google2FA;
 
 class TwoFactorController extends Controller
 {
@@ -40,5 +43,20 @@ class TwoFactorController extends Controller
         }
 
         return redirect('/2fa')->with('message', 'Incorrect code.');
+    }
+
+    public function enableTwoFactorAuthentication (TwoFactorVerification $request)
+    {
+        $token = (new Google2FA())->verifyKey($request->input('secret'), $request->input('one_time_password'));
+
+        if(empty($token)) {
+            return response()->json('Unable to generate token');
+        }
+
+        $user = User::where('user_id', $request->input('user'))->first();
+        $user->two_factor_token = $token;
+        $user->two_factor_expiry = Carbon::now()->addMinutes(config('session.lifetime'));
+        $user->two_factor_authentication_enabled = true;
+        $user->save();
     }
 }

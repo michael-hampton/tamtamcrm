@@ -1,9 +1,10 @@
 import React from 'react'
-import { Card, CardBody, CardHeader, Col, FormGroup, Input, Label, Row } from 'reactstrap'
+import { Button, Card, CardBody, CardHeader, Col, FormGroup, Input, Label, Row } from 'reactstrap'
 import FormBuilder from '../../settings/FormBuilder'
 import DropdownDate from '../../common/DropdownDate'
 import { translations } from '../../utils/_translations'
 import PasswordField from '../../common/PasswordField'
+import TwoFactorAuthentication from './TwoFactorAuthentication'
 
 export default class DetailsForm extends React.Component {
     constructor (props) {
@@ -178,6 +179,10 @@ export default class DetailsForm extends React.Component {
                             {/* {this.props.renderErrorFor('password')} */}
                         </FormGroup>
                     </Col>
+
+                    <TwoFactorAuthentication user={this.props.user} callback={(e) => {
+                        console.log('e', e)
+                    }} />
                 </Row>
                 {customForm}
             </CardBody>

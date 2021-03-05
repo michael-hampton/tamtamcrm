@@ -1,8 +1,9 @@
 import React from 'react'
-import { Card, CardBody, CardHeader, Col, FormGroup, Input, Label, Row } from 'reactstrap'
+import { Card, CardBody, CardHeader, Col, CustomInput, FormGroup, Input, Label, Row } from 'reactstrap'
 import DepartmentDropdown from '../../common/dropdowns/DepartmentDropdown'
 import RoleDropdown from '../../common/dropdowns/RoleDropdown'
 import NestedCheckboxTree from './NestedCheckboxTree'
+import { translations } from "../../utils/_translations";
 
 export default class PermissionsForm extends React.Component {
     constructor (props) {
@@ -72,17 +73,24 @@ export default class PermissionsForm extends React.Component {
 
         const accountList = this.props.accounts.length && account ? (
             <React.Fragment key={account[0].id}>
-                <div>
-                    <FormGroup check inline>
-                        <Label check>
-                            <Input name="is_admin" checked={is_admin}
-                                value={account && account.length ? account[0].id : false}
-                                onChange={this.handleCheck}
-                                type="checkbox"/>
-                            Administrator
-                        </Label>
-                    </FormGroup>
-                </div>
+                <span className="list-group-item-dark list-group-item list-group-item-action flex-column align-items-start">
+                    <div className="d-flex w-100 justify-content-between">
+                        <h5 className="mb-1">
+                            {translations.administrator}
+                        </h5>
+                        <CustomInput
+                            checked={is_admin}
+                            type="switch"
+                            id="is_admin"
+                            name="is_admin"
+                            label=""
+                            value={account && account.length ? account[0].id : false}
+                            onChange={this.handleCheck}/>
+                    </div>
+                    <h6 id="passwordHelpBlock" className="form-text text-muted">
+                        {translations.administrator_help}
+                    </h6>
+                </span>
             </React.Fragment>
         ) : null
 
@@ -116,8 +124,7 @@ export default class PermissionsForm extends React.Component {
                 </Row>
 
                 <Row form>
-                    <h4>Accounts</h4>
-                    <Col md={6}>
+                    <Col>
                         {!!accountList && accountList}
                     </Col>
                 </Row>

@@ -449,6 +449,7 @@ Route::group(
         Route::get('user/profile/{username}', 'UserController@profile');
         Route::get('users/department/{department_id}', 'UserController@filterUsersByDepartment');
         Route::post('users/restore/{id}', 'UserController@restore');
+        Route::post('2fa/enable', 'TwoFactorController@enableTwoFactorAuthentication');
 
 // permissions
         Route::get('permissions', 'PermissionController@index');
