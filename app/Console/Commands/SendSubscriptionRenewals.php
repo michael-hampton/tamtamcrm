@@ -97,6 +97,7 @@ class SendSubscriptionRenewals extends Command
 
         $invoice = (new InvoiceRepository(new Invoice))->save(['line_items' => $line_items], $invoice);
 
+        // TODO - should mark invoice sent and check customer balance
         return $invoice;
     }
 }
