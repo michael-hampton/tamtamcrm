@@ -33,6 +33,7 @@ class CreateAccount
         // set default account
         $domain->default_account_id = $account->id;
         $domain->allowed_number_of_users = 99999;
+        // TODO - Need to set first due date for subscription 
         $domain->save();
 
         $user_repo = new UserRepository(new User);
