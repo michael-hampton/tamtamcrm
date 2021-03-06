@@ -3,6 +3,7 @@
 namespace App\Mail\Account;
 
 use App\Models\Account;
+use App\Models\Domain;
 use App\Models\Invoice;
 use App\Traits\Money;
 use Illuminate\Bus\Queueable;
@@ -71,12 +72,12 @@ class SubscriptionInvoice extends Mailable
 
     private function getDataArray()
     {
-        $cost = $this->account->subscription_period === Account::SUBSCRIPTION_PERIOD_YEAR ? env(
+        $cost = $this->account->subscription_period === Domain::SUBSCRIPTION_PERIOD_YEAR ? env(
             'YEARLY_ACCOUNT_PRICE'
         ) : env('MONTHLY_ACCOUNT_PRICE');
 
         return [
-            'term'     => $this->account->subscription_period === Account::SUBSCRIPTION_PERIOD_YEAR ? 'Yearly' : 'Monthly',
+            'term'     => $this->account->subscription_period === Domain::SUBSCRIPTION_PERIOD_YEAR ? 'Yearly' : 'Monthly',
             'number'   => $this->invoice->getNumber(),
             'due_date' => date('d-m-Y', strtotime($this->account->subscription_expiry_date)),
             'amount'   => self::formatCurrency($cost, $this->invoice->customer)

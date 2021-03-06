@@ -33,7 +33,8 @@ class CreateAccount
         // set default account
         $domain->default_account_id = $account->id;
         $domain->allowed_number_of_users = 99999;
-        // TODO - Need to set first due date for subscription 
+        $domain->subscription_period = Domain::SUBSCRIPTION_PERIOD_MONTH;
+        $domain->subscription_expiry_date = now()->addMonthNoOverflow();
         $domain->save();
 
         $user_repo = new UserRepository(new User);

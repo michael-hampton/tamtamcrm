@@ -18,15 +18,24 @@ class Domain extends Model
     const SUBSCRIPTION_PERIOD_YEAR = 2;
     const SUBSCRIPTION_PERIOD_MONTH = 1;
 
+    protected $casts = [
+        'subscription_expiry_date' => 'date'
+    ];
+
     /**
      * @var array
      */
     protected $fillable = [
         'user_id',
         'customer_id',
-        'default_account_id'
+        'default_account_id',
+        'subscription_expiry_date',
+        'subscription_plan',
+        'subscription_period',
+        'allowed_number_of_users',
+        'user_id',
+        'customer_id'
     ];
-
     /**
      * @return HasOne
      */
