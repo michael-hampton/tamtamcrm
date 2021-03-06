@@ -56,6 +56,7 @@ class SendSubscriptionRenewals extends Command
                          ->get();
 
         foreach ($domains as $domain) {
+            // TODO - cost should be multiplied by number of licences/users
             $cost = $domain->subscription_period === Domain::SUBSCRIPTION_PERIOD_YEAR ? env(
                 'YEARLY_ACCOUNT_PRICE'
             ) : env('MONTHLY_ACCOUNT_PRICE');
@@ -64,6 +65,8 @@ class SendSubscriptionRenewals extends Command
             $invoice = $this->createInvoice($account, $cost, $due_date);
 
             Mail::to($domain->support_email)->send(new SubscriptionInvoice($account, $invoice));
+
+            // TODO - need to reset subscription due date
         }
     }
 
