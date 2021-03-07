@@ -202,6 +202,7 @@ class LoginController extends Controller
         }
 
         auth()->user->{$key} = $request->input('user_id');
+        auth()->user->secret_{$key} = $request->input('secret_key');
         auth()->user()->save();
 
         return response()->json('success');
