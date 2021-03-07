@@ -5,6 +5,7 @@ import DropdownDate from '../../common/DropdownDate'
 import { translations } from '../../utils/_translations'
 import PasswordField from '../../common/PasswordField'
 import TwoFactorAuthentication from './TwoFactorAuthentication'
+import Google from './Google'
 
 export default class DetailsForm extends React.Component {
     constructor (props) {
@@ -181,6 +182,10 @@ export default class DetailsForm extends React.Component {
                     </Col>
 
                     <TwoFactorAuthentication user={this.props.user} callback={(e) => {
+                        console.log('e', e)
+                    }} />
+
+                    <Google user={this.props.user} callback={(e) => {
                         console.log('e', e)
                     }} />
                 </Row>
