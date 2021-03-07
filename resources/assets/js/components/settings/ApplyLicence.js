@@ -13,6 +13,7 @@ export default class ApplyLicence extends Component {
         this.state = {
             id: localStorage.getItem('account_id'),
             licence_number: null,
+            licence_checked: false,
             errors: [],
             message: '',
             modal: false
@@ -23,11 +24,13 @@ export default class ApplyLicence extends Component {
         this.renderErrorFor = this.renderErrorFor.bind(this)
         this.handleInput = this.handleInput.bind(this)
         this.handleClick = this.handleClick.bind(this)
+        this.checkLicence = this.checkLicence.bind(this)
     }
 
     handleInput (e) {
         this.setState({
-            [e.target.name]: e.target.value
+            [e.target.name]: e.target.value,
+            licence_checked: false
         })
     }
 
@@ -51,6 +54,11 @@ export default class ApplyLicence extends Component {
             return false
         }
 
+        if(this.state.licence_checked === false) {
+            alert('Please verify the licence')
+            return false
+        }
+
         axios.post(`/api/account/apply/${this.state.id}`, { licence_number: this.state.licence_number })
             .then((response) => {
                 this.setState({
@@ -61,6 +69,10 @@ export default class ApplyLicence extends Component {
                 console.error(error)
                 this.setState({ error: true })
             })
+    }
+
+    checkLicence () {
+        this.setState({ licence_checked: true })
     }
 
     toggle () {
@@ -93,11 +105,15 @@ export default class ApplyLicence extends Component {
                             <Input onChange={this.handleInput} type="number" name="licence_number" id="licence_number" placeholder={translations.licence_number} />
                         </FormGroup>
 
+                        <button type="button" className="btn btn-primary" onClick={this.licence_checked}>Verify Licence</button>
+
                     </ModalBody>
 
+                    {!!this.state.licence_checked && 
                     <DefaultModalFooter show_success={true} toggle={this.toggle}
                         saveData={this.handleClick.bind(this)}
                         loading={false}/>
+                    }
                 </Modal>
             </React.Fragment>
         )
