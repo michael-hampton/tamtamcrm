@@ -194,6 +194,19 @@ class LoginController extends Controller
         }
     }
 
+    public function enable($provider)
+    {
+        $key = "{$provider}_id";
+        if(!empty(auth()->user()->{$key})) {
+            return response()->json('User already has account');
+        }
+
+        auth()->user->{$key} = $request->input('user_id');
+        auth()->user()->save();
+
+        return response()->json('success');
+    }
+
     private function executeLogin($token)
     {
         $this->forced_includes = ['company_users'];
