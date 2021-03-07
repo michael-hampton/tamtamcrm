@@ -105,7 +105,9 @@ export default class ApplyLicence extends Component {
                             <Input onChange={this.handleInput} type="number" name="licence_number" id="licence_number" placeholder={translations.licence_number} />
                         </FormGroup>
 
+                        {!this.state.licence_checked &&
                         <button type="button" className="btn btn-primary" onClick={this.licence_checked}>Verify Licence</button>
+                        }
 
                     </ModalBody>
 
