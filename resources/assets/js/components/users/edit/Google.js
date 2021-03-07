@@ -41,7 +41,7 @@ export default class Google extends Component {
     render () {
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
         const button = <Button onClick={this.toggle} outline
-        color="primary">{translations.enable_google}</Button>
+        color="primary">{this.props.user.google_id && this.props.user.google_id.toString().length ? translations.disable_google : translations.enable_google}</Button>
 
         return (
             <React.Fragment>
