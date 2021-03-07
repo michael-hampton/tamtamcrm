@@ -205,7 +205,11 @@ export const consts = {
     line_item_expense: 6,
     line_item_task: 3,
     line_item_product: 1,
-    line_item_project: 9
+    line_item_project: 9,
+    standard_yearly_account_price: 200,
+    standard_monthly_account_price: 20,
+    advanced_yearly_account_price: 350,
+    advanced_monthly_account_price: 25
 }
 
 export const caseLinkTypes = {

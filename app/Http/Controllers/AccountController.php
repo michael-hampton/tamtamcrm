@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Factory\AccountFactory;
+use App\Jobs\ProcessSubscription;
 use App\Models\Account;
 use App\Models\CompanyToken;
+use App\Models\Domain;
 use App\Notifications\NewAccountCreated;
 use App\Repositories\AccountRepository;
 use App\Requests\Account\StoreAccountRequest;
@@ -200,5 +202,52 @@ class AccountController extends BaseController
         ];
 
         return response()->json($response, 201);
+    }
+
+    public function upgrade(Request $request)
+    {
+        $domain = auth()->user()->account_user()->account->domains;
+        $domain->subscription_plan = $request->input(
+            'package'
+        ) === 'standard' ? Domain::SUBSCRIPTION_STANDARD : Domain::SUBSCRIPTION_ADVANCED;
+        $domain->subscription_period = $request->input(
+            'period'
+        ) === 'monthly' ? Domain::SUBSCRIPTION_PERIOD_MONTH : Domain::SUBSCRIPTION_PERIOD_YEAR;
+        $domain->subscription_expiry_date = now()->addDays(10);
+        $number_of_licences = $request->input('number_of_licences');
+
+        if (empty($number_of_licences)) {
+            $request->input('package') === 'standard'
+                ? env('STANDARD_NUMBER_OF_LICENCES')
+                : env(
+                'ADVANCED_NUMBER_OF_LICENCES'
+            );
+        }
+
+        $domain->number_of_licences = $number_of_licences;
+
+        $domain->save();
+
+        ProcessSubscription::dispatchNow();
+    }
+
+    public function apply(Request $request)
+    {
+        $package = !empty($request->input('package')) ? $request->input('package') : 'standard';
+        $period = !empty($request->input('period')) ? $request->input('period') : 'monthly';
+        $number_of_licences = $request->input('number_of_licences');
+
+        if (empty($number_of_licences)) {
+            $package === 'standard' ? env('STANDARD_NUMBER_OF_LICENCES') : env('ADVANCED_NUMBER_OF_LICENCES');
+        }
+
+        $domain = auth()->user()->account_user()->account->domains;
+        $domain->subscription_plan = $package === 'standard' ? Domain::SUBSCRIPTION_STANDARD : Domain::SUBSCRIPTION_ADVANCED;
+        $domain->subscription_period = $period === 'monthly' ? Domain::SUBSCRIPTION_PERIOD_MONTH : Domain::SUBSCRIPTION_PERIOD_YEAR;
+        $domain->subscription_expiry_date = $period === 'monthly' ? now()->addMonthNoOverflow()
+            : now()->addYearNoOverflow();
+        $domain->number_of_licences = $number_of_licences;
+        $domain->licence_number = $request->input('licence_number');
+        $domain->save();
     }
 }

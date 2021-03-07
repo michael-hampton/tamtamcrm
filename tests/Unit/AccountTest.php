@@ -9,6 +9,7 @@ use App\Models\Account;
 use App\Models\Customer;
 use App\Models\CustomerContact;
 use App\Models\Domain;
+use App\Models\Invoice;
 use App\Models\User;
 use App\Repositories\DomainRepository;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -62,7 +63,7 @@ class AccountTest extends TestCase
                 'subscription_expiry_date' => now()->addDays(10),
                 'subscription_period'      => Domain::SUBSCRIPTION_PERIOD_MONTH,
                 'subscription_plan'        => Domain::SUBSCRIPTION_STANDARD,
-                'allowed_number_of_users'  => 10,
+                'number_of_licences'       => 10,
                 'support_email'            => $this->faker->safeEmail
             ]
         );
@@ -70,11 +71,17 @@ class AccountTest extends TestCase
         $domain->default_account_id = $account->id;
         $domain->save();
 
-        $cost = $domain->subscription_period === Domain::SUBSCRIPTION_PERIOD_YEAR ? env(
-            'YEARLY_ACCOUNT_PRICE'
-        ) : env('MONTHLY_ACCOUNT_PRICE');
+        if ($domain->subscription_plan === Domain::SUBSCRIPTION_STANDARD) {
+            $cost = $domain->subscription_period === Domain::SUBSCRIPTION_PERIOD_YEAR ? env(
+                'STANDARD_YEARLY_ACCOUNT_PRICE'
+            ) : env('STANDARD_MONTHLY_ACCOUNT_PRICE');
+        } else {
+            $cost = $domain->subscription_period === Domain::SUBSCRIPTION_PERIOD_YEAR ? env(
+                'ADVANCED_YEARLY_ACCOUNT_PRICE'
+            ) : env('ADVANCED_MONTHLY_ACCOUNT_PRICE');
+        }
 
-        $number_of_licences = $domain->allowed_number_of_users;
+        $number_of_licences = $domain->number_of_licences;
 
         if ($number_of_licences > 1 && $number_of_licences !== 99999) {
             $cost *= $number_of_licences;

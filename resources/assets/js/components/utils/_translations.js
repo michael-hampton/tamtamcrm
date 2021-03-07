@@ -906,7 +906,14 @@ _localizedValues.en = {
     disable_two_factor: 'Disable Two Factor Authentication',
     two_factor_no_phone_entered: 'In order to enable two factor authentication you need to enter a mobile number.',
     one_time_password: 'One Time Password',
-    secret: 'Secret'
+    secret: 'Secret',
+    upgrade_account: 'Upgrade Account',
+    apply_licence: 'Apply Licence',
+    licence_number: 'Licence Number',
+    standard: 'Standard',
+    advanced: 'Advanced',
+    number_of_licences: 'Number of Licences',
+    per_licence: 'Per Licence'
 }
 
 let language = []

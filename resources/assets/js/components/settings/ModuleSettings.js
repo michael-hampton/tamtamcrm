@@ -22,6 +22,9 @@ import CompanyModel from '../models/CompanyModel'
 import AccountRepository from '../repositories/AccountRepository'
 import FormBuilder from './FormBuilder'
 import ConfirmPassword from '../common/ConfirmPassword'
+import UpgradeAccount from "./UpgradeAccount";
+import App from "../App";
+import ApplyLicence from "./ApplyLicence";
 
 class ModuleSettings extends Component {
     constructor (props) {
@@ -381,6 +384,15 @@ class ModuleSettings extends Component {
                         <TabPane tabId="1">
                             <Card>
                                 <CardBody>
+                                    <div className="d-flex justify-content-between">
+                                        <UpgradeAccount callback={(e) => {
+                                            console.log('upgrade', e)
+                                        }} />
+                                        <ApplyLicence callback={(e) => {
+                                            console.log('apply', e)
+                                        }} />
+                                    </div>
+
                                     <BlockButton icon={icons.link} button_text={translations.subscriptions}
                                         button_link="/#/subscriptions"/>
                                     <BlockButton icon={icons.token} button_text={translations.tokens}

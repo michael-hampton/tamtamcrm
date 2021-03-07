@@ -304,6 +304,8 @@ Route::group(
         Route::get('accounts/{id}', 'AccountController@show');
         Route::get('dates', 'AccountController@getDateFormats');
         Route::delete('account/{account_id}', 'AccountController@destroy');
+        Route::post('account/upgrade/{account_id}', 'AccountController@upgrade')->name('email.send');
+        Route::post('account/apply/{account_id}', 'AccountController@apply')->name('email.send');
 
 
 // email

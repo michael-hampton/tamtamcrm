@@ -32,7 +32,7 @@ class CreateAccount
 
         // set default account
         $domain->default_account_id = $account->id;
-        $domain->allowed_number_of_users = 99999;
+        $domain->number_of_licences = 99999;
         $domain->subscription_period = Domain::SUBSCRIPTION_PERIOD_MONTH;
         $domain->subscription_expiry_date = now()->addMonthNoOverflow();
         $domain->save();

@@ -12,7 +12,6 @@ use App\Models\Invoice;
 use App\Repositories\InvoiceRepository;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -51,11 +50,17 @@ class ProcessSubscription implements ShouldQueue
         foreach ($domains as $domain) {
             $account = $domain->default_company;
 
-            $cost = $domain->subscription_period === Domain::SUBSCRIPTION_PERIOD_YEAR ? env(
-                'YEARLY_ACCOUNT_PRICE'
-            ) : env('MONTHLY_ACCOUNT_PRICE');
+            if ($domain->subscription_plan === Domain::SUBSCRIPTION_STANDARD) {
+                $cost = $domain->subscription_period === Domain::SUBSCRIPTION_PERIOD_YEAR ? env(
+                    'STANDARD_YEARLY_ACCOUNT_PRICE'
+                ) : env('STANDARD_MONTHLY_ACCOUNT_PRICE');
+            } else {
+                $cost = $domain->subscription_period === Domain::SUBSCRIPTION_PERIOD_YEAR ? env(
+                    'ADVANCED_YEARLY_ACCOUNT_PRICE'
+                ) : env('ADVANCED_MONTHLY_ACCOUNT_PRICE');
+            }
 
-            $number_of_licences = $domain->allowed_number_of_users;
+            $number_of_licences = $domain->number_of_licences;
 
             if ($number_of_licences > 1 && $number_of_licences !== 99999) {
                 $cost *= $number_of_licences;

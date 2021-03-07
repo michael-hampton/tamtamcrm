@@ -32,7 +32,7 @@ class Domain extends Model
         'subscription_expiry_date',
         'subscription_plan',
         'subscription_period',
-        'allowed_number_of_users',
+        'number_of_licences',
         'user_id',
         'customer_id'
     ];

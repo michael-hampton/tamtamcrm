@@ -221,7 +221,7 @@ class Account extends Model
 
     public function getNumberOfAllowedUsers()
     {
-        return $this->domains->allowed_number_of_users;
+        return $this->domains->number_of_licences;
     }
 
     public function getNumberOfAllowedCustomers()
