@@ -17,6 +17,7 @@ use App\Transformations\AccountTransformable;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Http;
 
 /**
  * Class AccountController
@@ -233,9 +234,19 @@ class AccountController extends BaseController
 
     public function apply(Request $request)
     {
-        $package = !empty($request->input('package')) ? $request->input('package') : 'standard';
-        $period = !empty($request->input('period')) ? $request->input('period') : 'monthly';
-        $number_of_licences = $request->input('number_of_licences');
+        $response = Http::get('http://tamtamcrm-main.com/api/licence/' . $request->input('licence_number'));
+
+        $licence = json_decode($response->body(), true);
+
+        if (empty($licence)) {
+            return response()->json('Licence could not be found');
+        }
+
+        $licence_details = json_decode($licence['details'], true);
+
+        $package = $licence_details['package'];
+        $period = $licence_details['period'];
+        $number_of_licences = $licence_details['number_of_licences'];
 
         if (empty($number_of_licences)) {
             $package === 'standard' ? env('STANDARD_NUMBER_OF_LICENCES') : env('ADVANCED_NUMBER_OF_LICENCES');

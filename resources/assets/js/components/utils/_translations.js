@@ -915,7 +915,8 @@ _localizedValues.en = {
     number_of_licences: 'Number of Licences',
     per_licence: 'Per Licence',
     enable_google: 'Enable Google',
-    disable_google: 'Disable Google'
+    disable_google: 'Disable Google',
+    user_id: 'User ID'
 }
 
 let language = []

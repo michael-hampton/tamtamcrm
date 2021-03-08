@@ -20,6 +20,8 @@ Route::group(
         Route::get('reports', 'ReportController@index');
         Route::get('activity', 'ActivityController@index');
 
+        Route::post('login/enable/{provider}', 'LoginController@enable');
+
         //support
         Route::post('support/messages/send', 'SupportController');
 

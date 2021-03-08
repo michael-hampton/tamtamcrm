@@ -18,6 +18,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Auth;
@@ -194,16 +195,20 @@ class LoginController extends Controller
         }
     }
 
-    public function enable($provider)
+    public function enable($provider, Request $request)
     {
         $key = "{$provider}_id";
-        if(!empty(auth()->user()->{$key})) {
+        $key2 = "{$provider}_secret";
+
+        $user = User::where('id', $request->input('user'))->first();
+
+        if (!empty($user->{$key}) || !empty($user->{$key2})) {
             return response()->json('User already has account');
         }
 
-        auth()->user->{$key} = $request->input('user_id');
-        auth()->user->secret_{$key} = $request->input('secret_key');
-        auth()->user()->save();
+        $user->{$key} = $request->input('user_id');
+        $user->{$key2} = $request->input('secret');
+        $user->save();
 
         return response()->json('success');
     }

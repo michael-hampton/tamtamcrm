@@ -36,7 +36,7 @@ trait UserTransformable
             'is_deleted'                        => (bool)$user->is_deleted,
             'has_custom_permissions'            => $user->permissions()->count() > 0,
             'two_factor_authentication_enabled' => $user->two_factor_authentication_enabled,
-            'google_id'                         => $user->google_id;
+            'google_id'                         => $user->google_id
         ];
         /*if ($user->departments->count() > 0) {
             $objDepartment = $user->departments->first();
