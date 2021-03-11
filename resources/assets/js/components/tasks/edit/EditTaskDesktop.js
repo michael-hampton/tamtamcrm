@@ -222,7 +222,7 @@ export default class EditTaskDesktop extends Component {
 
             const index = this.props.tasks.findIndex(task => task.id === this.state.id)
             this.props.tasks[index] = response
-            this.props.action(this.props.tasks)
+            this.props.action(this.props.tasks, true)
             this.setState({ loading: false, changesMade: false })
         })
     }

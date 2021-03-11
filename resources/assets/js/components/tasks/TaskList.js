@@ -21,7 +21,8 @@ export default class TaskList extends Component {
         this.state = {
             currentPage: 1,
             totalPages: null,
-            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            pageLimit: 2,
+            //pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
             currentInvoices: [],
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,

@@ -166,7 +166,7 @@ class TaskController extends Controller
         }
 
         //$task = SaveTaskTimes::dispatchNow($request->all(), $task);
-        return response()->json($task);
+        return response()->json($this->transformTask($task));
     }
 
     public function getDeals()
