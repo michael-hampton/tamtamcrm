@@ -107,6 +107,7 @@ class Login extends Component {
                     localStorage.setItem('access_token', userData.auth_token)
                     localStorage.setItem('number_of_accounts', response.data.data.number_of_accounts)
                     localStorage.setItem('expires', d2)
+                    localStorage.setItem('last_login', d1)
                     localStorage.setItem('require_login', response.data.data.require_login)
                     localStorage.setItem('account_id', response.data.data.account_id)
 

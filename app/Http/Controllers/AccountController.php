@@ -7,6 +7,7 @@ use App\Jobs\ProcessSubscription;
 use App\Models\Account;
 use App\Models\CompanyToken;
 use App\Models\Domain;
+use App\Models\Licence;
 use App\Notifications\NewAccountCreated;
 use App\Repositories\AccountRepository;
 use App\Requests\Account\StoreAccountRequest;
@@ -234,15 +235,13 @@ class AccountController extends BaseController
 
     public function apply(Request $request)
     {
-        $response = Http::get('http://tamtamcrm-main.com/api/licence/' . $request->input('licence_number'));
-
-        $licence = json_decode($response->body(), true);
+        $licence = Licence::where('licence_number', $request->input('licence_number'))->first();
 
         if (empty($licence)) {
             return response()->json('Licence could not be found');
         }
 
-        $licence_details = json_decode($licence['details'], true);
+        $licence_details = json_decode($licence->details, true);
 
         $package = $licence_details['package'];
         $period = $licence_details['period'];

@@ -88,6 +88,22 @@ export default class InvoiceLine extends Component {
             })
     }
 
+    checkPaidAmount (invoice_id) {
+        let total = 0
+
+        this.props.payments.map((payment) => {
+            if (payment.paymentables && payment.paymentables.length) {
+                payment.paymentables.map((paymentable) => {
+                    if (paymentable.paymentable_type.includes('Invoice') && paymentable.invoice_id === parseInt(invoice_id)) {
+                        total += parseFloat(paymentable.amount)
+                    }
+                })
+            }
+        })
+
+        return total
+    }
+
     handleChange (e) {
         const name = e.target.name
         const idx = e.target.dataset.id
@@ -146,6 +162,8 @@ export default class InvoiceLine extends Component {
                 invoice_total = invoice.total - refunded_amount
                 manual_update = true
             }
+
+            this.checkPaidAmount(invoice_id)
 
             this.props.customerChange(invoice.customer_id)
             lines[idx].amount = parseFloat(invoice_total)

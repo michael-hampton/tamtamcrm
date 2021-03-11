@@ -48,10 +48,19 @@ export default class ConfirmPassword extends Component {
         }
 
         this.toggle()
+        localStorage.setItem('password_last_set', new Date())
         this.props.callback(this.props.id, this.state.password)
     }
 
     toggle () {
+        const diff = Math.abs(new Date(localStorage.getItem('password_last_set')) - new Date())
+        const minutes = Math.floor((diff / 1000) / 60)
+
+        if (minutes <= 30) {
+            this.props.callback(this.props.id, '')
+            return true
+        }
+
         this.setState({
             modal: !this.state.modal,
             errors: []
