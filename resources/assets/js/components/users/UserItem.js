@@ -44,9 +44,9 @@ export default class UserItem extends Component {
             .then(function (response) {
                 const arrUsers = [...self.props.entities]
                 const index = arrUsers.findIndex(user => user.id === parseInt(id))
-                arrUsers.splice(index, 1)
-                console.log('users', arrUsers)
-                self.props.addUserToState(arrUsers)
+                arrUsers[index].is_deleted = archive !== true
+                arrUsers[index].deleted_at = new Date()
+                self.props.addUserToState(arrUsers, true)
             })
             .catch(function (error) {
                 self.setState(

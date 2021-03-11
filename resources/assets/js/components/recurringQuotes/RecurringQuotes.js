@@ -69,8 +69,8 @@ export default class RecurringQuotes extends Component {
         this.getQuotes()
     }
 
-    updateInvoice (invoices) {
-        const should_filter = !this.state.cachedData.length
+    updateInvoice (invoices, do_filter = false) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? invoices : this.state.cachedData
 
         if (should_filter) {
@@ -123,10 +123,10 @@ export default class RecurringQuotes extends Component {
     }
 
     userList (props) {
-        const { pageLimit, custom_fields, customers, allQuotes, currentInvoices, invoices } = this.state
+        const { pageLimit, custom_fields, customers, allQuotes, currentInvoices, cachedData } = this.state
         return <RecurringQuoteItem showCheckboxes={props.showCheckboxes} allQuotes={allQuotes}
             invoices={currentInvoices}
-            show_list={props.show_list} entities={invoices}
+            show_list={props.show_list} entities={cachedData}
             onPageChanged={this.onPageChanged.bind(this)}
             pageLimit={pageLimit}
             viewId={props.viewId}

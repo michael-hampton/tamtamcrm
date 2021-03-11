@@ -40,8 +40,9 @@ export default class ProjectItem extends Component {
             .then(function (response) {
                 const arrProjects = [...self.props.entities]
                 const index = arrProjects.findIndex(project => project.id === id)
-                arrProjects.splice(index, 1)
-                self.props.addUserToState(arrProjects)
+                arrProjects[index].is_deleted = archive !== true
+                arrProjects[index].deleted_at = new Date()
+                self.props.addUserToState(arrProjects, true)
             })
             .catch(function (error) {
                 console.log(error)

@@ -39,8 +39,9 @@ export default class ProductItem extends Component {
             .then(function (response) {
                 const arrProducts = [...self.props.entities]
                 const index = arrProducts.findIndex(product => product.id === id)
-                arrProducts.splice(index, 1)
-                self.props.addProductToState(arrProducts)
+                arrProducts[index].is_deleted = archive !== true
+                arrProducts[index].deleted_at = new Date()
+                self.props.addProductToState(arrProducts, true)
             })
             .catch(function (error) {
                 console.log(error)

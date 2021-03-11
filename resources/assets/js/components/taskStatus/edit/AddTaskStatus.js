@@ -60,8 +60,8 @@ class AddTaskStatus extends React.Component {
                 return
             }
 
-            this.props.statuses.push(response)
-            this.props.action(this.props.statuses)
+            this.props.statuses.unshift(response)
+            this.props.action(this.props.statuses, true)
             this.setState(this.initialState)
         })
     }

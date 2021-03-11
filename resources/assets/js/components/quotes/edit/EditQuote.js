@@ -494,8 +494,8 @@ class EditInvoice extends Component {
             if (!this.state.id) {
                 const firstInvoice = response
                 const allInvoices = this.props.invoices
-                allInvoices.push(firstInvoice)
-                this.props.action(allInvoices)
+                allInvoices.unshift(firstInvoice)
+                this.props.action(allInvoices, true)
                 localStorage.removeItem('quoteForm')
                 localStorage.removeItem('recurringQuoteForm')
                 this.setState(this.initialState)
@@ -504,7 +504,7 @@ class EditInvoice extends Component {
 
             const index = this.props.invoices.findIndex(invoice => invoice.id === this.state.id)
             this.props.invoices[index] = response
-            this.props.action(this.props.invoices)
+            this.props.action(this.props.invoices, true)
             this.setState({ loading: false, changesMade: false, modalOpen: false })
         })
     }

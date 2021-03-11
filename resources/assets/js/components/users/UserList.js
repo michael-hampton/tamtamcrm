@@ -149,8 +149,8 @@ export default class UserList extends Component {
             })
     }
 
-    addUserToState (users) {
-        const should_filter = !this.state.cachedData.length
+    addUserToState (users, do_filter = false) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? users : this.state.cachedData
 
         if (should_filter) {
@@ -167,9 +167,9 @@ export default class UserList extends Component {
     }
 
     userList (props) {
-        const { pageLimit, departments, custom_fields, accounts, currentInvoices, users } = this.state
+        const { pageLimit, departments, custom_fields, accounts, currentInvoices, cachedData } = this.state
         return <UserItem showCheckboxes={props.showCheckboxes} accounts={accounts} departments={departments}
-            show_list={props.show_list} entities={users}
+            show_list={props.show_list} entities={cachedData}
             onPageChanged={this.onPageChanged.bind(this)}
             pageLimit={pageLimit}
             viewId={props.viewId}

@@ -118,8 +118,8 @@ export default class Excuspenses extends Component {
         this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
-    updateExpenses (expenses) {
-        const should_filter = !this.state.cachedData.length
+    updateExpenses (expenses, do_filter = false) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? expenses : this.state.cachedData
 
         if (should_filter) {
@@ -136,9 +136,9 @@ export default class Excuspenses extends Component {
     }
 
     expenseList (props) {
-        const { pageLimit, customers, custom_fields, companies, currentInvoices, expenses } = this.state
+        const { pageLimit, customers, custom_fields, companies, currentInvoices, cachedData } = this.state
         return <ExpenseItem showCheckboxes={props.showCheckboxes} expenses={currentInvoices} customers={customers}
-            show_list={props.show_list} entities={expenses}
+            show_list={props.show_list} entities={cachedData}
             pageLimit={pageLimit}
             viewId={props.viewId}
             companies={companies}

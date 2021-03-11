@@ -71,8 +71,8 @@ export default class Invoice extends Component {
         this.getCustomFields()
     }
 
-    updateInvoice (invoices) {
-        const should_filter = !this.state.cachedData.length
+    updateInvoice (invoices, do_filter = false) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? invoices : this.state.cachedData
 
         if (should_filter) {
@@ -112,11 +112,11 @@ export default class Invoice extends Component {
     }
 
     userList (props) {
-        const { invoices, customers, custom_fields, currentInvoices } = this.state
+        const { cachedData, customers, custom_fields, currentInvoices } = this.state
         return currentInvoices.length ? <InvoiceItem showCheckboxes={props.showCheckboxes}
             onPageChanged={this.onPageChanged.bind(this)}
             show_list={props.show_list}
-            invoices={currentInvoices} entities={invoices}
+            invoices={currentInvoices} entities={cachedData}
             customers={customers}
             custom_fields={custom_fields}
             ignoredColumns={props.default_columns}

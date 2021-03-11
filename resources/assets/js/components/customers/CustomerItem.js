@@ -36,8 +36,9 @@ export default class CustomerItem extends Component {
         axios.delete(url).then(data => {
             const arrCustomers = [...this.props.entities]
             const index = arrCustomers.findIndex(customer => customer.id === id)
-            arrCustomers.splice(index, 1)
-            this.props.updateCustomers(arrCustomers)
+            arrCustomers[index].is_deleted = archive !== true
+            arrCustomers[index].deleted_at = new Date()
+            this.props.updateCustomers(arrCustomers, true)
         })
     }
 

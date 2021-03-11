@@ -47,8 +47,8 @@ export default class PaymentTerms extends Component {
         this.filterPaymentTerms = this.filterPaymentTerms.bind(this)
     }
 
-    addUserToState (paymentTerms) {
-        const should_filter = !this.state.cachedData.length
+    addUserToState (paymentTerms, do_filter = false) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? paymentTerms : this.state.cachedData
 
         if (should_filter) {
@@ -96,9 +96,9 @@ export default class PaymentTerms extends Component {
     }
 
     userList (props) {
-        const { pageLimit, currentInvoices, paymentTerms } = this.state
+        const { pageLimit, currentInvoices, cachedData } = this.state
         return <PaymentTermItem showCheckboxes={props.showCheckboxes} paymentTerms={currentInvoices}
-            show_list={props.show_list} entities={paymentTerms}
+            show_list={props.show_list} entities={cachedData}
             onPageChanged={this.onPageChanged.bind(this)}
             pageLimit={pageLimit}
             ignoredColumns={props.default_columns} addUserToState={this.addUserToState}

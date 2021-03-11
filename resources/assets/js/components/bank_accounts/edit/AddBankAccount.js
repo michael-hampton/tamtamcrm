@@ -74,8 +74,8 @@ class AddBankAccount extends React.Component {
                 return
             }
 
-            this.props.bank_accounts.push(response)
-            this.props.action(this.props.bank_accounts)
+            this.props.bank_accounts.unshift(response)
+            this.props.action(this.props.bank_accounts, true)
             this.setState(this.initialState)
             localStorage.removeItem('bankAccountForm')
         })

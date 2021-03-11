@@ -38,8 +38,9 @@ export default class CaseTemplateItem extends Component {
             .then(function (response) {
                 const arrTemplates = [...self.props.entities]
                 const index = arrTemplates.findIndex(case_template => case_template.id === id)
-                arrTemplates.splice(index, 1)
-                self.props.addUserToState(arrTemplates)
+                arrTemplates[index].is_deleted = archive !== true
+                arrTemplates[index].deleted_at = new Date()
+                self.props.addUserToState(arrTemplates, true)
             })
             .catch(function (error) {
                 console.log(error)

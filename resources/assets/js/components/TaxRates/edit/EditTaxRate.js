@@ -93,7 +93,7 @@ class EditTaxRate extends React.Component {
 
             const index = this.props.taxRates.findIndex(taxRate => taxRate.id === this.props.taxRate.id)
             this.props.taxRates[index] = response
-            this.props.action(this.props.taxRates)
+            this.props.action(this.props.taxRates, true)
             this.setState({
                 editMode: false,
                 changesMade: false

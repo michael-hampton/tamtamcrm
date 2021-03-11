@@ -38,8 +38,9 @@ export default class TaxRateItem extends Component {
             .then(function (response) {
                 const arrTaxRates = [...self.props.entities]
                 const index = arrTaxRates.findIndex(taxRate => taxRate.id === id)
-                arrTaxRates.splice(index, 1)
-                self.props.addUserToState(arrTaxRates)
+                arrTaxRates[index].is_deleted = archive !== true
+                arrTaxRates[index].deleted_at = new Date()
+                self.props.addUserToState(arrTaxRates, true)
             })
             .catch(function (error) {
                 self.setState(

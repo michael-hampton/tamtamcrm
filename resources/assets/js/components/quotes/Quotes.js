@@ -63,8 +63,8 @@ export default class Quotes extends Component {
         this.getCustomFields()
     }
 
-    updateInvoice (quotes) {
-        const should_filter = !this.state.cachedData.length
+    updateInvoice (quotes, do_filter = false) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? quotes : this.state.cachedData
 
         if (should_filter) {
@@ -104,10 +104,10 @@ export default class Quotes extends Component {
     }
 
     userList (props) {
-        const { pageLimit, custom_fields, customers, currentInvoices, quotes } = this.state
+        const { pageLimit, custom_fields, customers, currentInvoices, cachedData } = this.state
         return <QuoteItem showCheckboxes={props.showCheckboxes} quotes={currentInvoices} customers={customers}
             show_list={props.show_list}
-            entities={quotes}
+            entities={cachedData}
             onPageChanged={this.onPageChanged.bind(this)}
             pageLimit={pageLimit}
             custom_fields={custom_fields}

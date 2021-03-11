@@ -77,8 +77,8 @@ export default class Order extends Component {
         this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
-    updateOrder (orders) {
-        const should_filter = !this.state.cachedData.length
+    updateOrder (orders, do_filter = false) {
+        const should_filter = !this.state.cachedData.length || do_filter == true
         const cachedData = !this.state.cachedData.length ? orders : this.state.cachedData
 
         if (should_filter) {
@@ -103,9 +103,9 @@ export default class Order extends Component {
     }
 
     userList (props) {
-        const { pageLimit, customers, custom_fields, currentInvoices, orders } = this.state
+        const { pageLimit, customers, custom_fields, currentInvoices, cachedData } = this.state
         return <OrderItem showCheckboxes={props.showCheckboxes}
-            show_list={props.show_list} entities={orders}
+            show_list={props.show_list} entities={cachedData}
             onPageChanged={this.onPageChanged.bind(this)}
             pageLimit={pageLimit}
             orders={currentInvoices} customers={customers}

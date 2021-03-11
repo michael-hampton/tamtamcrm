@@ -40,8 +40,9 @@ export default class TaskItem extends Component {
             .then(function (response) {
                 const arrTasks = [...self.props.entities]
                 const index = arrTasks.findIndex(task => task.id === id)
-                arrTasks.splice(index, 1)
-                self.props.addUserToState(arrTasks)
+                arrTasks[index].is_deleted = archive !== true
+                arrTasks[index].deleted_at = new Date()
+                self.props.addUserToState(arrTasks, true)
             })
             .catch(function (error) {
                 console.log(error)

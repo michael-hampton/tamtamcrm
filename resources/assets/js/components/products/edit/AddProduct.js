@@ -108,8 +108,8 @@ class AddProduct extends React.Component {
                 this.setState({ errors: this.productModel.errors, message: this.productModel.error_message })
                 return
             }
-            this.props.products.push(response)
-            this.props.action(this.props.products)
+            this.props.products.unshift(response)
+            this.props.action(this.props.products, true)
             this.setState(this.initialState)
             localStorage.removeItem('productForm')
         })

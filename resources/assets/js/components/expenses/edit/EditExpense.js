@@ -198,7 +198,7 @@ class EditExpense extends React.Component {
 
             const index = this.props.expenses.findIndex(expense => expense.id === this.state.id)
             this.props.expenses[index] = response
-            this.props.action(this.props.expenses)
+            this.props.action(this.props.expenses, true)
             this.setState({ changesMade: false, loading: false })
             this.toggle()
         })

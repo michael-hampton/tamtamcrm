@@ -133,13 +133,13 @@ export default class DropdownMenuBuilder extends Component {
 
             if (action === 'clone_to_quote') {
                 this.props.invoices.push(response)
-                this.props.action(this.props.invoices)
+                this.props.action(this.props.invoices, true)
                 message = `${translations.quote} ${response.number} ${translations.has_been_created}`
             }
 
             if (action === 'clone_to_credit') {
                 this.props.invoices.push(response)
-                this.props.action(this.props.invoices)
+                this.props.action(this.props.invoices, true)
                 message = `${translations.credit} ${response.number} ${translations.has_been_created}`
             }
 
@@ -150,7 +150,7 @@ export default class DropdownMenuBuilder extends Component {
             if (action === 'start_recurring') {
                 const index = this.props.invoices.findIndex(invoice => invoice.id === this.props.model.fields.id)
                 this.props.invoices[index] = response
-                this.props.action(this.props.invoices)
+                this.props.action(this.props.invoices, true)
                 this.props.reload(response)
                 const recurring_text = this.props.model.entity === 'RecurringInvoice' ? translations.recurring_invoice : translations.recurring_quote
                 message = `${recurring_text} ${response.number} ${translations.has_started}`
@@ -159,7 +159,7 @@ export default class DropdownMenuBuilder extends Component {
             if (action === 'stop_recurring') {
                 const index = this.props.invoices.findIndex(invoice => invoice.id === this.props.model.fields.id)
                 this.props.invoices[index] = response
-                this.props.action(this.props.invoices)
+                this.props.action(this.props.invoices, true)
                 this.props.reload(response)
                 const recurring_text = this.props.model.entity === 'RecurringInvoice' ? translations.recurring_invoice : translations.recurring_quote
                 message = `${recurring_text} ${response.number} ${translations.has_stopped}`
@@ -192,26 +192,26 @@ export default class DropdownMenuBuilder extends Component {
             if (action === 'merge_case') {
                 const index = this.props.invoices.findIndex(invoice => invoice.id === this.props.model.fields.id)
                 this.props.invoices[index] = response
-                this.props.action(this.props.invoices)
+                this.props.action(this.props.invoices, true)
                 message = `The ${this.props.model.entity} ${translations.case_merged}`
             }
 
             if (action === 'clone_to_order') {
                 this.props.invoices.push(response)
-                this.props.action(this.props.invoices)
+                this.props.action(this.props.invoices, true)
                 message = `${translations.order} ${response.number} ${translations.has_been_created}`
             }
 
             if (action === 'clone_to_expense') {
                 this.props.invoices.push(response)
-                this.props.action(this.props.invoices)
+                this.props.action(this.props.invoices, true)
                 message = `${translations.expense} ${response.number} ${translations.has_been_created}`
             }
 
             if (action === 'approve') {
                 const index = this.props.invoices.findIndex(invoice => invoice.id === this.props.model.fields.id)
                 this.props.invoices[index] = response
-                this.props.action(this.props.invoices)
+                this.props.action(this.props.invoices, true)
                 this.props.reload(response)
                 message = `The ${this.props.model.entity} ${translations.approved}`
             }
@@ -219,7 +219,7 @@ export default class DropdownMenuBuilder extends Component {
             if (action === 'reject') {
                 const index = this.props.invoices.findIndex(invoice => invoice.id === this.props.model.fields.id)
                 this.props.invoices[index] = response
-                this.props.action(this.props.invoices)
+                this.props.action(this.props.invoices, true)
                 this.props.reload(response)
                 message = `The ${this.props.model.entity} ${translations.rejected}`
             }
@@ -227,7 +227,7 @@ export default class DropdownMenuBuilder extends Component {
             if (action === 'request_change') {
                 const index = this.props.invoices.findIndex(invoice => invoice.id === this.props.model.fields.id)
                 this.props.invoices[index] = response
-                this.props.action(this.props.invoices)
+                this.props.action(this.props.invoices, true)
                 this.props.reload(response)
                 message = `The ${this.props.model.entity} ${translations.request_change}`
             }
@@ -235,7 +235,7 @@ export default class DropdownMenuBuilder extends Component {
             if (action === 'mark_sent') {
                 const index = this.props.invoices.findIndex(invoice => invoice.id === this.props.model.fields.id)
                 this.props.invoices[index] = response
-                this.props.action(this.props.invoices)
+                this.props.action(this.props.invoices, true)
                 this.props.reload(response)
                 message = `The ${this.props.model.entity} ${translations.sent}`
             }
@@ -243,7 +243,7 @@ export default class DropdownMenuBuilder extends Component {
             if (action === 'create_payment') {
                 const index = this.props.invoices.findIndex(invoice => invoice.id === this.props.model.fields.id)
                 this.props.invoices[index] = response
-                this.props.action(this.props.invoices)
+                this.props.action(this.props.invoices, true)
                 this.props.reload(response)
                 message = `The ${this.props.model.entity} ${translations.paid}.`
             }
@@ -252,14 +252,14 @@ export default class DropdownMenuBuilder extends Component {
                 const index = this.props.invoices.findIndex(invoice => invoice.id === this.props.model.fields.id)
                 this.props.invoices[index] = response
                 this.props.reload(response)
-                this.props.action(this.props.invoices)
+                this.props.action(this.props.invoices, true)
                 message = `The ${this.props.model.entity} ${translations.cancelled_invoice}`
             }
 
             if (action === 'reverse') {
                 const index = this.props.invoices.findIndex(invoice => invoice.id === this.props.model.fields.id)
                 this.props.invoices[index] = response
-                this.props.action(this.props.invoices)
+                this.props.action(this.props.invoices, true)
                 this.props.reload(response)
                 message = `The ${this.props.model.entity} ${translations.reversed_invoice}`
             }
@@ -272,7 +272,7 @@ export default class DropdownMenuBuilder extends Component {
                 const index = this.props.invoices.findIndex(invoice => invoice.id === this.props.model.fields.id)
                 this.props.invoices[index] = response
                 console.log('response', response)
-                this.props.action(this.props.invoices)
+                this.props.action(this.props.invoices, true)
                 this.props.reload(response)
                 message = `${translations.order_held}`
             }
@@ -280,7 +280,7 @@ export default class DropdownMenuBuilder extends Component {
             if (action === 'reverse_status') {
                 const index = this.props.invoices.findIndex(invoice => invoice.id === this.props.model.fields.id)
                 this.props.invoices[index] = response
-                this.props.action(this.props.invoices)
+                this.props.action(this.props.invoices, true)
                 this.props.reload(response)
                 message = `${translations.order_unheld}`
             }

@@ -40,8 +40,9 @@ export default class PaymentItem extends Component {
             .then(function (response) {
                 const arrPayments = [...self.props.entities]
                 const index = arrPayments.findIndex(payment => payment.id === id)
-                arrPayments.splice(index, 1)
-                self.props.updateCustomers(arrPayments)
+                arrPayments[index].is_deleted = archive !== true
+                arrPayments[index].deleted_at = new Date()
+                self.props.updateCustomers(arrPayments, true)
             })
             .catch(function (error) {
                 self.setState(
@@ -95,7 +96,7 @@ export default class PaymentItem extends Component {
                     </td>
                 })
 
-                const refundButton = invoices && paymentableInvoices && paymentableInvoices.length && invoices.length
+                const refundButton = paymentModel.isActive && invoices && paymentableInvoices && paymentableInvoices.length && invoices.length
                     ? <Refund customers={customers} payment={payment}
                         modal={true}
                         allInvoices={paymentableInvoices}

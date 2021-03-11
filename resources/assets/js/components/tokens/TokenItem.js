@@ -38,8 +38,9 @@ export default class TokenItem extends Component {
             .then(function (response) {
                 const arrTokens = [...self.props.entities]
                 const index = arrTokens.findIndex(token => token.id === id)
-                arrTokens.splice(index, 1)
-                self.props.addUserToState(arrTokens)
+                arrTokens[index].is_deleted = archive !== true
+                arrTokens[index].deleted_at = new Date()
+                self.props.addUserToState(arrTokens, true)
             })
             .catch(function (error) {
                 console.log(error)

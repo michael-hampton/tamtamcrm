@@ -38,8 +38,9 @@ export default class ExpenseItem extends Component {
             .then(function (response) {
                 const arrExpenses = [...self.props.entities]
                 const index = arrExpenses.findIndex(expense => expense.id === id)
-                arrExpenses.splice(index, 1)
-                self.props.updateExpenses(arrExpenses)
+                arrExpenses[index].is_deleted = archive !== true
+                arrExpenses[index].deleted_at = new Date()
+                self.props.updateExpenses(arrExpenses, true)
             })
             .catch(function (error) {
                 alert(error)

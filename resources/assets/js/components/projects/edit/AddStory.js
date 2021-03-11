@@ -96,8 +96,8 @@ class AddStory extends React.Component {
                 return
             }
 
-            this.props.projects.push(response)
-            this.props.action(this.props.projects)
+            this.props.projects.unshift(response)
+            this.props.action(this.props.projects, true)
             this.setState(this.initialState)
             localStorage.removeItem('projectForm')
         })

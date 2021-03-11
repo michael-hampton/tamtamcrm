@@ -41,7 +41,7 @@ class EditProject extends React.Component {
     }
 
     componentDidMount () {
-        this.getProject()
+        // this.getProject()
     }
 
     componentDidUpdate (prevProps, prevState) {
@@ -153,7 +153,7 @@ class EditProject extends React.Component {
 
             const index = this.props.projects.findIndex(project => project.id === this.props.project.id)
             this.props.projects[index] = response
-            this.props.action(this.props.projects)
+            this.props.action(this.props.projects, true)
             this.setState({
                 editMode: false,
                 changesMade: false

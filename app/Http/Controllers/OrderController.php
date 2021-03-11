@@ -141,7 +141,7 @@ class OrderController extends BaseController
      */
     public function restore(int $id)
     {
-        $order = $this->order_repo->findOrderById($id);
+        $order = Order::withTrashed()->where('id', '=', $id)->first();
         $order->restoreEntity();
         return response()->json([], 200);
     }

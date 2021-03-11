@@ -69,8 +69,8 @@ export default class DealList extends Component {
         this.getCustomFields()
     }
 
-    addUserToState (deals) {
-        const should_filter = !this.state.cachedData.length
+    addUserToState (deals, do_filter = false) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? deals : this.state.cachedData
 
         if (should_filter) {
@@ -109,11 +109,11 @@ export default class DealList extends Component {
     }
 
     userList (props) {
-        const { pageLimit, custom_fields, users, customers, currentInvoices, deals } = this.state
+        const { pageLimit, custom_fields, users, customers, currentInvoices, cachedData } = this.state
 
         return <DealItem showCheckboxes={props.showCheckboxes} action={this.addUserToState} deals={currentInvoices}
             users={users}
-            show_list={props.show_list} entities={deals}
+            show_list={props.show_list} entities={cachedData}
             onPageChanged={this.onPageChanged.bind(this)}
             pageLimit={pageLimit}
             custom_fields={custom_fields} customers={customers}

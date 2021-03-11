@@ -125,8 +125,8 @@ export default class Credits extends Component {
             }) */
     }
 
-    updateCustomers (credits) {
-        const should_filter = !this.state.cachedData.length
+    updateCustomers (credits, do_filter = false) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? credits : this.state.cachedData
 
         if (should_filter) {
@@ -143,11 +143,11 @@ export default class Credits extends Component {
     }
 
     customerList (props) {
-        const { pageLimit, customers, custom_fields, currentInvoices, credits } = this.state
+        const { pageLimit, customers, custom_fields, currentInvoices, cachedData } = this.state
         return <CreditItem showCheckboxes={props.showCheckboxes} credits={currentInvoices} customers={customers}
             show_list={props.show_list}
             onPageChanged={this.onPageChanged.bind(this)}
-            pageLimit={pageLimit} entities={credits}
+            pageLimit={pageLimit} entities={cachedData}
             custom_fields={custom_fields}
             viewId={props.viewId}
             ignoredColumns={props.default_columns} updateCustomers={this.updateCustomers}

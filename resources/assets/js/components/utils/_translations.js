@@ -594,6 +594,7 @@ _localizedValues.en = {
     edit_attribute: 'Edit Attribute',
     edit_subscription: 'Edit Subscription',
     subscriptions: 'Webhooks',
+    subscription: 'Webhook',
     name: 'Name',
     change_duration: 'Change Duration',
     add_department: 'Add Department',

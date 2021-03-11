@@ -39,8 +39,9 @@ export default class DealItem extends Component {
             .then(function (response) {
                 const arrDeals = [...self.props.entities]
                 const index = arrDeals.findIndex(deal => deal.id === id)
-                arrDeals.splice(index, 1)
-                self.props.addUserToState(arrDeals)
+                arrDeals[index].is_deleted = archive !== true
+                arrDeals[index].deleted_at = new Date()
+                self.props.addUserToState(arrDeals, true)
             })
             .catch(function (error) {
                 console.log(error)

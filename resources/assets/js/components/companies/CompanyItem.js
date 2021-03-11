@@ -40,8 +40,9 @@ export default class CompanyItem extends Component {
             .then(function (response) {
                 const arrBrands = [...self.props.entities]
                 const index = arrBrands.findIndex(brand => brand.id === id)
-                arrBrands.splice(index, 1)
-                self.props.addUserToState(arrBrands)
+                arrBrands[index].is_deleted = archive !== true
+                arrBrands[index].deleted_at = new Date()
+                self.props.addUserToState(arrBrands, true)
             })
             .catch(function (error) {
                 console.log(error)

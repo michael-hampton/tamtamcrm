@@ -49,8 +49,8 @@ export default class CaseTemplates extends Component {
         this.filterTemplates = this.filterTemplates.bind(this)
     }
 
-    addUserToState (templates) {
-        const should_filter = !this.state.cachedData.length
+    addUserToState (templates, do_filter = false) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? templates : this.state.cachedData
 
         if (should_filter) {
@@ -90,9 +90,9 @@ export default class CaseTemplates extends Component {
     }
 
     userList (props) {
-        const { pageLimit, users, currentInvoices, templates } = this.state
+        const { pageLimit, users, currentInvoices, cachedData } = this.state
         return <CaseTemplateItem showCheckboxes={props.showCheckboxes} case_templates={currentInvoices} users={users}
-            viewId={props.viewId} entities={templates}
+            viewId={props.viewId} entities={cachedData}
             pageLimit={pageLimit}
             show_list={props.show_list}
             onPageChanged={this.onPageChanged.bind(this)}

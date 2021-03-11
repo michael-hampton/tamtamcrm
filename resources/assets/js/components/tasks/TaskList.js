@@ -70,8 +70,8 @@ export default class TaskList extends Component {
         this.getCustomFields()
     }
 
-    addUserToState (tasks) {
-        const should_filter = !this.state.cachedData.length
+    addUserToState (tasks, do_filter = false) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? tasks : this.state.cachedData
 
         if (should_filter) {
@@ -111,11 +111,11 @@ export default class TaskList extends Component {
     }
 
     userList (props) {
-        const { pageLimit, custom_fields, users, customers, currentInvoices, tasks } = this.state
+        const { pageLimit, custom_fields, users, customers, currentInvoices, cachedData } = this.state
 
         return <TaskItem showCheckboxes={props.showCheckboxes} action={this.addUserToState} tasks={currentInvoices}
             users={users}
-            show_list={props.show_list} entities={tasks}
+            show_list={props.show_list} entities={cachedData}
             onPageChanged={this.onPageChanged.bind(this)}
             pageLimit={pageLimit}
             custom_fields={custom_fields} customers={customers}

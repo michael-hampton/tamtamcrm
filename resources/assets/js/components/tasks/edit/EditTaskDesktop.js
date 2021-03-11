@@ -171,7 +171,7 @@ export default class EditTaskDesktop extends Component {
         if (this.props.allTasks) {
             const index = this.props.allTasks.findIndex(task => task.id === this.props.task.id)
             this.props.allTasks[index] = response
-            this.props.action(this.props.allTasks)
+            this.props.action(this.props.allTasks, true)
             this.setState({ timers: response.timers })
             this.taskModel = new TaskModel(response, this.props.customers)
         }
@@ -212,8 +212,8 @@ export default class EditTaskDesktop extends Component {
 
             if (!this.state.id) {
                 const allTasks = this.props.tasks
-                allTasks.push(response)
-                this.props.action(allTasks)
+                allTasks.unshift(response)
+                this.props.action(allTasks, true)
                 localStorage.removeItem('taskForm')
                 this.setState(this.initialState)
 

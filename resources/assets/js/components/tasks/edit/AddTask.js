@@ -135,8 +135,8 @@ class AddModal extends React.Component {
             }
 
             if (this.props.tasks && this.props.action) {
-                this.props.tasks.push(response)
-                this.props.action(this.props.tasks)
+                this.props.tasks.unshift(response)
+                this.props.action(this.props.tasks, true)
             }
 
             this.setState(this.initialState)

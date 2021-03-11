@@ -78,8 +78,8 @@ export default class ProductList extends Component {
         this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
-    addProductToState (products) {
-        const should_filter = !this.state.cachedData.length
+    addProductToState (products, do_filter = false) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? products : this.state.cachedData
 
         if (should_filter) {
@@ -158,10 +158,10 @@ export default class ProductList extends Component {
     }
 
     userList (props) {
-        const { pageLimit, custom_fields, companies, categories, currentInvoices, products } = this.state
+        const { pageLimit, custom_fields, companies, categories, currentInvoices, cachedData } = this.state
 
         return <ProductItem showCheckboxes={props.showCheckboxes} products={currentInvoices} categories={categories}
-            show_list={props.show_list} entities={products}
+            show_list={props.show_list} entities={cachedData}
             onPageChanged={this.onPageChanged.bind(this)}
             pageLimit={pageLimit}
             viewId={props.viewId}

@@ -96,7 +96,7 @@ export default class EditToken extends React.Component {
 
             const index = this.props.tokens.findIndex(token => token.id === this.props.token.id)
             this.props.tokens[index] = response
-            this.props.action(this.props.tokens)
+            this.props.action(this.props.tokens, true)
             this.setState({
                 editMode: false,
                 changesMade: false

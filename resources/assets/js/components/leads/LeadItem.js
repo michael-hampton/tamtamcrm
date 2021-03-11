@@ -39,8 +39,9 @@ export default class LeadItem extends Component {
             .then(function (response) {
                 const arrLeads = [...self.props.entities]
                 const index = arrLeads.findIndex(lead => lead.id === id)
-                arrLeads.splice(index, 1)
-                self.props.addUserToState(arrLeads)
+                arrLeads[index].is_deleted = archive !== true
+                arrLeads[index].deleted_at = new Date()
+                self.props.addUserToState(arrLeads, true)
             })
             .catch(function (error) {
                 console.log(error)

@@ -63,8 +63,8 @@ export default class PurchaseOrders extends Component {
         this.getCustomFields()
     }
 
-    updateInvoice (purchase_orders) {
-        const should_filter = !this.state.cachedData.length
+    updateInvoice (purchase_orders, do_filter = false) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? purchase_orders : this.state.cachedData
 
         if (should_filter) {
@@ -108,13 +108,13 @@ export default class PurchaseOrders extends Component {
     }
 
     userList (props) {
-        const { pageLimit, custom_fields, companies, currentInvoices, purchase_orders } = this.state
+        const { pageLimit, custom_fields, companies, currentInvoices, cachedData } = this.state
         return <PurchaseOrderItem showCheckboxes={props.showCheckboxes} purchase_orders={currentInvoices}
             show_list={props.show_list}
             onPageChanged={this.onPageChanged.bind(this)}
             pageLimit={pageLimit}
             companies={companies}
-            entities={purchase_orders}
+            entities={cachedData}
             custom_fields={custom_fields}
             viewId={props.viewId}
             ignoredColumns={props.default_columns} updateInvoice={this.updateInvoice}

@@ -37,8 +37,9 @@ export default class OrderItem extends Component {
         axios.delete(url).then(function (response) {
             const arrQuotes = [...self.props.entities]
             const index = arrQuotes.findIndex(payment => payment.id === id)
-            arrQuotes.splice(index, 1)
-            self.props.updateOrder(arrQuotes)
+            arrQuotes[index].is_deleted = archive !== true
+            arrQuotes[index].deleted_at = new Date()
+            self.props.updateOrder(arrQuotes, true)
         })
             .catch(function (error) {
                 self.setState(
@@ -53,7 +54,7 @@ export default class OrderItem extends Component {
         const { orders, customers, custom_fields, entities } = this.props
         if (orders && orders.length && customers.length) {
             return orders.map((order, index) => {
-                const restoreButton = order.deleted_at && !order.is_deleted
+                const restoreButton = order.deleted_at
                     ? <RestoreModal id={order.id} entities={entities} updateState={this.props.updateOrder}
                         url={`/api/order/restore/${order.id}`}/> : null
 

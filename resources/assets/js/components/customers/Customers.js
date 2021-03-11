@@ -76,8 +76,8 @@ export default class Customers extends Component {
         this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
-    updateCustomers (customers) {
-        const should_filter = !this.state.cachedData.length
+    updateCustomers (customers, do_filter = false) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? customers : this.state.cachedData
 
         if (should_filter) {
@@ -130,9 +130,9 @@ export default class Customers extends Component {
     }
 
     customerList (props) {
-        const { pageLimit, custom_fields, currentInvoices, customers } = this.state
+        const { pageLimit, custom_fields, currentInvoices, cachedData } = this.state
         return <CustomerItem viewId={props.viewId} showCheckboxes={props.showCheckboxes} customers={currentInvoices}
-            show_list={props.show_list} entities={customers}
+            show_list={props.show_list} entities={cachedData}
             onPageChanged={this.onPageChanged.bind(this)}
             pageLimit={pageLimit}
             custom_fields={custom_fields}

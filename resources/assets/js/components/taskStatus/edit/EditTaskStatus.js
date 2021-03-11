@@ -104,7 +104,7 @@ class EditTaskStatus extends React.Component {
 
             const index = this.props.statuses.findIndex(task_status => task_status.id === this.state.id)
             this.props.statuses[index] = response
-            this.props.action(this.props.statuses)
+            this.props.action(this.props.statuses, true)
             this.setState({ changesMade: false, loading: false })
             this.toggle()
         })

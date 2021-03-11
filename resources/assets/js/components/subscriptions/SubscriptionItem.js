@@ -38,8 +38,9 @@ export default class SubscriptionItem extends Component {
             .then(function (response) {
                 const arrSubscriptions = [...self.props.entities]
                 const index = arrSubscriptions.findIndex(subscription => subscription.id === id)
-                arrSubscriptions.splice(index, 1)
-                self.props.addUserToState(arrSubscriptions)
+                arrSubscriptions[index].is_deleted = archive !== true
+                arrSubscriptions[index].deleted_at = new Date()
+                self.props.addUserToState(arrSubscriptions, true)
             })
             .catch(function (error) {
                 console.log(error)

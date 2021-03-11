@@ -116,6 +116,6 @@ class ProjectController extends Controller
 
         $this->authorize('delete', $project);
         $project->deleteEntity();
-        return response()->json([], 200);
+        return response()->json($this->transformProject($project), 200);
     }
 }

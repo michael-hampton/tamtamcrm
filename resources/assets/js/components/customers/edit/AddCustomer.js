@@ -64,8 +64,8 @@ class AddCustomer extends React.Component {
             .then((response) => {
                 this.toggle()
                 const newCustomer = response.data
-                this.props.customers.push(newCustomer)
-                this.props.action(this.props.customers)
+                this.props.customers.unshift(newCustomer)
+                this.props.action(this.props.customers, true)
                 this.setState(this.initialState)
             })
             .catch((error) => {

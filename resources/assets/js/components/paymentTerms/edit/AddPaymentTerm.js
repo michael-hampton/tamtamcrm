@@ -56,8 +56,8 @@ class AddPaymentTerm extends React.Component {
         })
             .then((response) => {
                 const newUser = response.data
-                this.props.payment_terms.push(newUser)
-                this.props.action(this.props.payment_terms)
+                this.props.payment_terms.unshift(newUser)
+                this.props.action(this.props.payment_terms, true)
                 localStorage.removeItem('paymentTermsForm')
                 this.setState({
                     name: null,

@@ -48,8 +48,8 @@ export default class Categories extends Component {
         this.filterCategories = this.filterCategories.bind(this)
     }
 
-    addUserToState (categories) {
-        const should_filter = !this.state.cachedData.length
+    addUserToState (categories, do_filter = false) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? categories : this.state.cachedData
 
         if (should_filter) {
@@ -89,9 +89,9 @@ export default class Categories extends Component {
     }
 
     userList (props) {
-        const { pageLimit, users, currentInvoices, categories } = this.state
+        const { pageLimit, users, currentInvoices, cachedData } = this.state
         return <CategoryItem showCheckboxes={props.showCheckboxes} categories={currentInvoices} users={users}
-            viewId={props.viewId} entities={categories}
+            viewId={props.viewId} entities={cachedData}
             pageLimit={pageLimit}
             show_list={props.show_list}
             onPageChanged={this.onPageChanged.bind(this)}

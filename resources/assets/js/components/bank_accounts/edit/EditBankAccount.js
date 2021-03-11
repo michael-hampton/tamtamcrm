@@ -86,7 +86,7 @@ class EditBankAccount extends React.Component {
 
             const index = this.props.bank_accounts.findIndex(bank_account => bank_account.id === this.props.bank_account.id)
             this.props.bank_accounts[index] = response
-            this.props.action(this.props.bank_accounts)
+            this.props.action(this.props.bank_accounts, true)
             this.setState({
                 editMode: false,
                 changesMade: false

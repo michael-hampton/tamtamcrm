@@ -42,6 +42,7 @@ Route::group(
 
         // subscription
         Route::resource('subscriptions', 'SubscriptionController');
+        Route::post('subscriptions/restore/{id}', 'SubscriptionController@restore');
 
         // expense categories
         Route::resource('expense-categories', 'ExpenseCategoryController');
@@ -138,6 +139,7 @@ Route::group(
 
         //order
         Route::get('order', 'OrderController@index');
+        Route::post('order/restore/{id}', 'OrderController@restore');
         Route::put('order/{order_id}', 'OrderController@update');
         Route::post('order', 'OrderController@store');
         Route::post('order/{order}/{action}', 'OrderController@action')->name('invoices.action');
@@ -546,7 +548,10 @@ Route::group(
 
         // cases
         Route::resource('cases', 'CaseController');
+        Route::delete('cases/archive/{case_id}', 'CaseController@archive');
+        Route::post('cases/restore/{id}', 'CaseController@restore');
         Route::post('cases/{case}/{action}', 'CaseController@action')->name('invoices.action');
+
 
         // case categories
         Route::resource('case-categories', 'CaseCategoryController');

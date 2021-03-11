@@ -60,8 +60,8 @@ export default class Leads extends Component {
         this.getCustomFields()
     }
 
-    addUserToState (leads) {
-        const should_filter = !this.state.cachedData.length
+    addUserToState (leads, do_filter = false) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? leads : this.state.cachedData
 
         if (should_filter) {
@@ -101,10 +101,10 @@ export default class Leads extends Component {
     }
 
     userList (props) {
-        const { pageLimit, custom_fields, users, currentInvoices, leads } = this.state
+        const { pageLimit, custom_fields, users, currentInvoices, cachedData } = this.state
         return <LeadItem showCheckboxes={props.showCheckboxes} leads={currentInvoices} users={users}
             custom_fields={custom_fields}
-            show_list={props.show_list} entities={leads}
+            show_list={props.show_list} entities={cachedData}
             onPageChanged={this.onPageChanged.bind(this)}
             pageLimit={pageLimit}
             viewId={props.viewId}

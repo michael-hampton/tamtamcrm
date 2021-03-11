@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 use App\Factory\SubscriptionFactory;
+use App\Models\Order;
 use App\Models\Subscription;
 use App\Repositories\SubscriptionRepository;
 use App\Requests\SearchRequest;
@@ -105,5 +106,17 @@ class SubscriptionController extends Controller
         $subscriptions = Subscription::withTrashed()->find($ids);
 
         return response()->json($subscriptions);
+    }
+
+    /**
+     * @param int $id
+     * @return mixed
+     * @throws Exception
+     */
+    public function restore(int $id)
+    {
+        $order = Subscription::withTrashed()->where('id', '=', $id)->first();
+        $order->restoreEntity();
+        return response()->json([], 200);
     }
 }

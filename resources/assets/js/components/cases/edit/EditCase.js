@@ -164,14 +164,12 @@ export default class EditCase extends React.Component {
 
             const index = this.props.cases.findIndex(cases => cases.id === this.props.case.id)
             this.props.cases[index] = response
-            this.props.action(this.props.cases)
+            this.props.action(this.props.cases, true)
             this.setState({
                 editMode: false,
-                changesMade: false
+                changesMade: false,
+                modal: action !== 'save'
             })
-            if (action === 'save') {
-                this.toggle()
-            }
         })
     }
 

@@ -38,8 +38,9 @@ export default class CaseItem extends Component {
             .then(function (response) {
                 const arrCases = [...self.props.entities]
                 const index = arrCases.findIndex(case_file => case_file.id === id)
-                arrCases.splice(index, 1)
-                self.props.addUserToState(arrCases)
+                arrCases[index].is_deleted = archive !== true
+                arrCases[index].deleted_at = new Date()
+                self.props.addUserToState(arrCases, true)
             })
             .catch(function (error) {
                 console.log(error)

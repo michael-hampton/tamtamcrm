@@ -77,7 +77,7 @@ class EditLeadForm extends React.Component {
                 const arrTasks = [...this.props.allTasks]
                 const index = arrTasks.findIndex(task => task.id === this.props.task.id)
                 arrTasks.splice(index, 1)
-                this.props.action(arrTasks)
+                this.props.action(arrTasks, true)
             })
             .catch(function (error) {
                 console.log(error)
@@ -170,7 +170,7 @@ class EditLeadForm extends React.Component {
 
             const index = this.props.allTasks.findIndex(lead => lead.id === this.props.lead.id)
             this.props.allTasks[index] = response
-            this.props.action(this.props.allTasks)
+            this.props.action(this.props.allTasks, true)
             this.setState({
                 editMode: false,
                 changesMade: false

@@ -142,8 +142,8 @@ class AddPayment extends React.Component {
             }
 
             if (this.props.payments) {
-                this.props.payments.push(response)
-                this.props.action(this.props.payments)
+                this.props.payments.unshift(response)
+                this.props.action(this.props.payments, true)
             } else {
                 // TODO
             }

@@ -111,8 +111,8 @@ class AddCompany extends React.Component {
                 this.setState({ errors: this.companyModel.errors, message: this.companyModel.error_message })
                 return
             }
-            this.props.brands.push(response)
-            this.props.action(this.props.brands)
+            this.props.brands.unshift(response)
+            this.props.action(this.props.brands, true)
             localStorage.removeItem('companyForm')
             this.setState(this.initialState)
         })

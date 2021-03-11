@@ -74,8 +74,8 @@ export default class Cases extends Component {
         this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
-    addUserToState (cases) {
-        const should_filter = !this.state.cachedData.length
+    addUserToState (cases, do_filter = false) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? cases : this.state.cachedData
 
         if (should_filter) {
@@ -119,11 +119,11 @@ export default class Cases extends Component {
     }
 
     userList (props) {
-        const { pageLimit, customers, currentInvoices, cases } = this.state
+        const { pageLimit, customers, currentInvoices, cachedData } = this.state
         return <CaseItem showCheckboxes={props.showCheckboxes} customers={customers} cases={currentInvoices}
             show_list={props.show_list}
             onPageChanged={this.onPageChanged.bind(this)}
-            pageLimit={pageLimit} entities={cases}
+            pageLimit={pageLimit} entities={cachedData}
             viewId={props.viewId}
             ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}

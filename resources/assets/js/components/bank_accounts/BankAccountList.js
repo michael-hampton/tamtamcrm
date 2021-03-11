@@ -10,7 +10,7 @@ import BankAccountItem from './BankAccountItem'
 import BankAccountFilters from './BankAccountFilters'
 import AddBankAccount from './edit/AddBankAccount'
 import { getDefaultTableFields } from '../presenters/BankAccountPresenter'
-import BankRepository from "../repositories/BankRepository";
+import BankRepository from '../repositories/BankRepository'
 
 export default class BankAccountList extends Component {
     constructor (props) {
@@ -56,8 +56,8 @@ export default class BankAccountList extends Component {
         this.getBanks()
     }
 
-    addUserToState (bank_accounts) {
-        const should_filter = !this.state.cachedData.length
+    addUserToState (bank_accounts, do_filter = false) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? bank_accounts : this.state.cachedData
 
         if (should_filter) {
@@ -114,9 +114,9 @@ export default class BankAccountList extends Component {
     }
 
     userList (props) {
-        const { custom_fields, banks, pageLimit, users, currentInvoices, bank_accounts } = this.state
+        const { custom_fields, banks, pageLimit, users, currentInvoices, cachedData } = this.state
         return <BankAccountItem custom_fields={custom_fields} banks={banks} showCheckboxes={props.showCheckboxes} bank_accounts={currentInvoices} users={users}
-            viewId={props.viewId} entities={bank_accounts}
+            viewId={props.viewId} entities={cachedData}
             pageLimit={pageLimit}
             show_list={props.show_list}
             onPageChanged={this.onPageChanged.bind(this)}

@@ -49,8 +49,8 @@ export default class TaxRates extends Component {
         this.handleClose = this.handleClose.bind(this)
     }
 
-    addUserToState (taxRates) {
-        const should_filter = !this.state.cachedData.length
+    addUserToState (taxRates, do_filter = false) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? taxRates : this.state.cachedData
 
         if (should_filter) {
@@ -91,9 +91,9 @@ export default class TaxRates extends Component {
     }
 
     userList (props) {
-        const { pageLimit, currentInvoices, taxRates } = this.state
+        const { pageLimit, currentInvoices, cachedData } = this.state
         return <TaxRateItem showCheckboxes={props.showCheckboxes} taxRates={currentInvoices}
-            show_list={props.show_list} entities={taxRates}
+            show_list={props.show_list} entities={cachedData}
             onPageChanged={this.onPageChanged.bind(this)}
             pageLimit={pageLimit}
             viewId={props.viewId}

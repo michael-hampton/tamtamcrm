@@ -65,8 +65,8 @@ class AddCategory extends React.Component {
             .then((response) => {
                 this.toggle()
                 const newUser = response.data
-                this.props.categories.push(newUser)
-                this.props.action(this.props.categories)
+                this.props.categories.unshift(newUser)
+                this.props.action(this.props.categories, true)
                 this.setState({
                     name: null,
                     description: null

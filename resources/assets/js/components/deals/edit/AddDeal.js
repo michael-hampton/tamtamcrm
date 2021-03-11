@@ -98,8 +98,8 @@ export default class AddDeal extends React.Component {
                 this.setState({ errors: this.dealModel.errors, message: this.taskModel.error_message })
                 return
             }
-            this.props.deals.push(response)
-            this.props.action(this.props.deals)
+            this.props.deals.unshift(response)
+            this.props.action(this.props.deals, true)
             this.setState(this.initialState)
             localStorage.removeItem('dealForm')
         })

@@ -205,7 +205,7 @@ export default function CustomerTabs (props) {
 
             const index = props.customers.findIndex(customer => parseInt(customer.id) === props.customer.id)
             props.customers[index] = response
-            props.action(props.customers)
+            props.action(props.customers, true)
             this.setState({
                 editMode: false,
                 changesMade: false
@@ -271,7 +271,7 @@ export default function CustomerTabs (props) {
             }
 
             props.customers.push(response)
-            props.action(props.customers)
+            props.action(props.customers, true)
             toast.success('user mappings updated successfully')
             props.toggle()
         })

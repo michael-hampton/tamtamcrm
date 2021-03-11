@@ -171,7 +171,7 @@ class EditPayment extends React.Component {
 
             const index = this.props.payments.findIndex(payment => payment.id === this.state.id)
             this.props.payments[index] = response
-            this.props.action(this.props.payments)
+            this.props.action(this.props.payments, true)
             this.setState({ changesMade: false, loading: false })
             this.toggle()
         })

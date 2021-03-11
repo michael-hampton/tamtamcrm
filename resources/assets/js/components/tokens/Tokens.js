@@ -54,8 +54,8 @@ export default class Tokens extends Component {
         this.getUsers()
     }
 
-    addUserToState (tokens) {
-        const should_filter = !this.state.cachedData.length
+    addUserToState (tokens, do_filter = false) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? tokens : this.state.cachedData
 
         if (should_filter) {
@@ -95,9 +95,9 @@ export default class Tokens extends Component {
     }
 
     userList (props) {
-        const { pageLimit, users, currentInvoices, tokens } = this.state
+        const { pageLimit, users, currentInvoices, cachedData } = this.state
         return <TokenItem showCheckboxes={props.showCheckboxes} tokens={currentInvoices} users={users}
-            viewId={props.viewId} entities={tokens}
+            viewId={props.viewId} entities={cachedData}
             pageLimit={pageLimit}
             show_list={props.show_list}
             onPageChanged={this.onPageChanged.bind(this)}

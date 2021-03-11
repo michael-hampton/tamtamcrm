@@ -152,7 +152,7 @@ class EditCompany extends React.Component {
 
             const index = this.props.brands.findIndex(company => company.id === this.props.brand.id)
             this.props.brands[index] = response
-            this.props.action(this.props.brands)
+            this.props.action(this.props.brands, true)
             this.setState({
                 editMode: false,
                 changesMade: false

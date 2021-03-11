@@ -96,7 +96,7 @@ export default class EditSubscription extends React.Component {
 
             const index = this.props.subscriptions.findIndex(subscription => subscription.id === this.props.subscription.id)
             this.props.subscriptions[index] = response
-            this.props.action(this.props.subscriptions)
+            this.props.action(this.props.subscriptions, true)
             this.setState({
                 editMode: false,
                 changesMade: false

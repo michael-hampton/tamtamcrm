@@ -58,8 +58,8 @@ export default class Companies extends Component {
         this.getCustomFields()
     }
 
-    addUserToState (brands) {
-        const should_filter = !this.state.cachedData.length
+    addUserToState (brands, do_filter = false) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? brands : this.state.cachedData
 
         if (should_filter) {
@@ -96,9 +96,9 @@ export default class Companies extends Component {
     }
 
     userList (props) {
-        const { pageLimit, custom_fields, users, currentInvoices, brands } = this.state
+        const { pageLimit, custom_fields, users, currentInvoices, cachedData } = this.state
         return <CompanyItem showCheckboxes={props.showCheckboxes} brands={currentInvoices} users={users}
-            show_list={props.show_list} entities={brands}
+            show_list={props.show_list} entities={cachedData}
             onPageChanged={this.onPageChanged.bind(this)}
             pageLimit={pageLimit}
             custom_fields={custom_fields}

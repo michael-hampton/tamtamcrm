@@ -164,7 +164,7 @@ export default class EditDeal extends Component {
 
             const index = this.props.deals.findIndex(deal => deal.id === this.props.deal.id)
             this.props.deals[index] = response
-            this.props.action(this.props.deals)
+            this.props.action(this.props.deals, true)
             this.setState({
                 editMode: false,
                 changesMade: false

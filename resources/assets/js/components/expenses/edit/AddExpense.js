@@ -162,8 +162,8 @@ class AddExpense extends React.Component {
                 this.setState({ errors: this.expenseModel.errors, message: this.expenseModel.error_message })
                 return
             }
-            this.props.expenses.push(response)
-            this.props.action(this.props.expenses)
+            this.props.expenses.unshift(response)
+            this.props.action(this.props.expenses, true)
             localStorage.removeItem('expenseForm')
             this.setState(this.initialState)
         })

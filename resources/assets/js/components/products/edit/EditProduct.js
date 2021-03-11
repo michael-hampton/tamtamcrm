@@ -159,7 +159,7 @@ class EditProduct extends React.Component {
 
             const index = this.props.products.findIndex(product => product.id === this.props.product.id)
             this.props.products[index] = response
-            this.props.action(this.props.products)
+            this.props.action(this.props.products, true)
             this.setState({
                 editMode: false,
                 changesMade: false

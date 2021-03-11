@@ -153,8 +153,8 @@ export default class Payments extends Component {
         })
     }
 
-    updateCustomers (payments) {
-        const should_filter = !this.state.cachedData.length
+    updateCustomers (payments, do_filter = false) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? payments : this.state.cachedData
 
         if (should_filter) {
@@ -179,9 +179,9 @@ export default class Payments extends Component {
     }
 
     customerList (props) {
-        const { pageLimit, custom_fields, invoices, credits, customers, currentInvoices, payments } = this.state
+        const { pageLimit, custom_fields, invoices, credits, customers, currentInvoices, cachedData } = this.state
         return <PaymentItem showCheckboxes={props.showCheckboxes} payments={currentInvoices} customers={customers}
-            show_list={props.show_list} entities={payments}
+            show_list={props.show_list} entities={cachedData}
             onPageChanged={this.onPageChanged.bind(this)}
             pageLimit={pageLimit}
             viewId={props.viewId}

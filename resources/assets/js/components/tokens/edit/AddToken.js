@@ -58,8 +58,8 @@ export default class AddToken extends React.Component {
                 return
             }
 
-            this.props.tokens.push(response)
-            this.props.action(this.props.tokens)
+            this.props.tokens.unshift(response)
+            this.props.action(this.props.tokens, true)
             localStorage.removeItem('tokenForm')
             this.setState(this.initialState)
         })

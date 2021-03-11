@@ -38,8 +38,9 @@ export default class RecurringInvoiceItem extends Component {
             .then(function (response) {
                 const arrInvoices = [...self.props.entities]
                 const index = arrInvoices.findIndex(payment => payment.id === id)
-                arrInvoices.splice(index, 1)
-                self.props.updateInvoice(arrInvoices)
+                arrInvoices[index].is_deleted = archive !== true
+                arrInvoices[index].deleted_at = new Date()
+                self.props.updateInvoice(arrInvoices, true)
             })
             .catch(function (error) {
                 self.setState(

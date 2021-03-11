@@ -96,8 +96,8 @@ export default class AddCase extends React.Component {
                 this.setState({ errors: this.caseModel.errors, message: this.caseModel.error_message })
                 return
             }
-            this.props.cases.push(response)
-            this.props.action(this.props.cases)
+            this.props.cases.unshift(response)
+            this.props.action(this.props.cases, true)
             this.setState(this.initialState)
             localStorage.removeItem('caseForm')
         })

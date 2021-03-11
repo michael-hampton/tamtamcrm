@@ -61,8 +61,8 @@ export default class ProjectList extends Component {
         this.getCustomFields()
     }
 
-    addUserToState (projects) {
-        const should_filter = !this.state.cachedData.length
+    addUserToState (projects, do_filter = false) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? projects : this.state.cachedData
 
         if (should_filter) {
@@ -102,9 +102,9 @@ export default class ProjectList extends Component {
     }
 
     userList (props) {
-        const { projects, custom_fields, customers, currentInvoices } = this.state
+        const { cachedData, custom_fields, customers, currentInvoices } = this.state
         return <ProjectItem showCheckboxes={props.showCheckboxes} projects={currentInvoices} customers={customers}
-            show_list={props.show_list} entities={projects}
+            show_list={props.show_list} entities={cachedData}
             custom_fields={custom_fields}
             viewId={props.viewId}
             ignoredColumns={props.default_columns} addUserToState={this.addUserToState}

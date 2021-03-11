@@ -291,8 +291,8 @@ class AddUser extends React.Component {
             })
 
             if (!this.state.id) {
-                this.props.users.push(response)
-                this.props.action(this.props.users)
+                this.props.users.unshift(response)
+                this.props.action(this.props.users, true)
                 localStorage.removeItem('userForm')
                 this.setState(this.initialState)
                 this.toggle()
@@ -301,7 +301,7 @@ class AddUser extends React.Component {
 
             const index = this.props.users.findIndex(user => user.id === this.state.id)
             this.props.users[index] = response
-            this.props.action(this.props.users)
+            this.props.action(this.props.users, true)
             this.setState({ loading: false, changesMade: false, modalOpen: false })
             this.toggle()
         })

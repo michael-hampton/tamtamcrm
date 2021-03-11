@@ -37,8 +37,9 @@ export default class InvoiceItem extends Component {
         axios.delete(url).then(function (response) {
             const arrQuotes = [...self.props.invoices]
             const index = arrQuotes.findIndex(payment => payment.id === id)
-            arrQuotes.splice(index, 1)
-            self.props.updateInvoice(arrQuotes)
+            arrQuotes[index].is_deleted = archive !== true
+            arrQuotes[index].deleted_at = new Date()
+            self.props.updateInvoice(arrQuotes, true)
         })
             .catch(function (error) {
                 self.setState(

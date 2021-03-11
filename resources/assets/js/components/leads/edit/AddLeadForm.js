@@ -83,8 +83,8 @@ class AddLeadForm extends React.Component {
                 })
                 return
             }
-            this.props.leads.push(response)
-            this.props.action(this.props.leads)
+            this.props.leads.unshift(response)
+            this.props.action(this.props.leads, true)
             this.setState(this.initialState)
             localStorage.removeItem('leadForm')
         })

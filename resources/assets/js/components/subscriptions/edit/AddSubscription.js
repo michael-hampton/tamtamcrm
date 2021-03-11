@@ -66,8 +66,8 @@ export default class AddSubscription extends React.Component {
                 return
             }
 
-            this.props.subscriptions.push(response)
-            this.props.action(this.props.subscriptions)
+            this.props.subscriptions.unshift(response)
+            this.props.action(this.props.subscriptions, true)
             localStorage.removeItem('subscriptionForm')
             this.setState(this.initialState)
         })

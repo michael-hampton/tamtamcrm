@@ -93,7 +93,7 @@ class BankAccountController extends Controller
         $bank_account = $this->bank_account_repo->findBankAccountById($id);
         $bank_account->deleteEntity();
 
-        return response()->json('deleted');
+        return response()->json($this->transformBankAccount($bank_account));
     }
 
     /**

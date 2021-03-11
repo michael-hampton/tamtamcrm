@@ -48,8 +48,8 @@ export default class Subscriptions extends Component {
         this.filterSubscriptions = this.filterSubscriptions.bind(this)
     }
 
-    addUserToState (subscriptions) {
-        const should_filter = !this.state.cachedData.length
+    addUserToState (subscriptions, do_filter = false) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? subscriptions : this.state.cachedData
 
         if (should_filter) {
@@ -93,9 +93,9 @@ export default class Subscriptions extends Component {
     }
 
     userList (props) {
-        const { pageLimit, currentInvoices, subscriptions } = this.state
+        const { pageLimit, currentInvoices, cachedData } = this.state
         return <SubscriptionItem showCheckboxes={props.showCheckboxes} subscriptions={currentInvoices}
-            show_list={props.show_list} entities={subscriptions}
+            show_list={props.show_list} entities={cachedData}
             onPageChanged={this.onPageChanged.bind(this)}
             pageLimit={pageLimit}
             viewId={props.viewId}

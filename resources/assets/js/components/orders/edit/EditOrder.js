@@ -438,8 +438,8 @@ export default class EditOrder extends Component {
             if (!this.state.id) {
                 const firstInvoice = response
                 const allInvoices = this.props.orders
-                allInvoices.push(firstInvoice)
-                this.props.action(allInvoices)
+                allInvoices.unshift(firstInvoice)
+                this.props.action(allInvoices, true)
                 localStorage.removeItem('orderForm')
                 this.setState(this.initialState)
                 return
@@ -447,7 +447,7 @@ export default class EditOrder extends Component {
 
             const index = this.props.orders.findIndex(order => order.id === this.state.id)
             this.props.orders[index] = response
-            this.props.action(this.props.orders)
+            this.props.action(this.props.orders, true)
             this.setState({ loading: false, changesMade: false, modalOpen: false })
         })
     }
