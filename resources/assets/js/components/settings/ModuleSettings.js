@@ -284,20 +284,20 @@ class ModuleSettings extends Component {
                     type: 'select',
                     options: [
                         {
-                            value: '43200',
-                            text: '30 days'
-                        },
-                        {
-                            value: '10080',
-                            text: '7 days'
+                            value: '480',
+                            text: `8 ${translations.hours}`
                         },
                         {
                             value: '1440',
-                            text: '1 day'
+                            text: `1 ${translations.day}`
                         },
                         {
-                            value: '480',
-                            text: '8 hours'
+                            value: '10080',
+                            text: `7 ${translations.days}`
+                        },
+                        {
+                            value: '43200',
+                            text: `30 ${translations.days}`
                         }
                     ],
                     value: settings.default_logout_time,

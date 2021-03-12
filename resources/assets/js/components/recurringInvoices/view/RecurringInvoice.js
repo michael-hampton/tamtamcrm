@@ -19,6 +19,7 @@ export default class RecurringInvoice extends Component {
             activeTab: '1',
             obj_url: null,
             show_success: false,
+            show_alert: false,
             file_count: this.props.entity.files.length || 0
         }
 
@@ -43,7 +44,8 @@ export default class RecurringInvoice extends Component {
         const invoiceRepository = new InvoiceRepository()
         invoiceRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ show_alert: true })
+                return
             }
 
             this.setState({ invoices: response }, () => {
@@ -218,6 +220,8 @@ export default class RecurringInvoice extends Component {
                     button1={{ label: translations.view_pdf }}
                     button2_click={(e) => this.triggerAction(this.invoiceModel.isActive ? 'stop_recurring' : 'start_recurring')}
                     button2={{ label: this.invoiceModel.isActive ? translations.stop : translations.start }}/>
+
+                <Alert is_open={this.state.show_alert} message={translations.unexpected_error} />
             </React.Fragment>
 
         )

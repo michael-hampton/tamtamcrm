@@ -85,8 +85,6 @@ export default class AccountModel extends BaseModel {
         this.errors = []
         this.error_message = ''
 
-        alert('here')
-
         try {
             const res = await axios.put(`${this.url}/${this.fields.id}`, data)
 

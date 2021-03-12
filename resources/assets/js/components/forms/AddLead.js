@@ -53,7 +53,6 @@ class AddLead extends React.Component {
     }
 
     getSourceTypes () {
-        alert('here')
         axios.get('/api/tasks/source-types')
             .then((r) => {
                 this.setState({

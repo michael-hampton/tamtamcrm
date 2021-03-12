@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Account;
 use App\Models\AccountUser;
 use App\Models\CompanyToken;
 use App\Models\Country;
@@ -34,8 +35,6 @@ class LoginController extends Controller
 
     public function doLogin(LoginRequest $request)
     {
-        $this->forced_includes = ['company_users'];
-
         $this->validateLogin($request);
 
         if ($this->hasTooManyLoginAttempts($request)) {
@@ -45,13 +44,13 @@ class LoginController extends Controller
         }
 
         if ($token = auth()->attempt($request->all())) {
-            $token = $this->getToken($request->email, $request->password);
             $user = auth()->user();
+            $default_account = $user->accounts->first()->domains->default_company;
+
+            $token = $this->getToken($request, $default_account);
+
             $user->auth_token = $token;
             $user->save();
-
-            $default_account = $user->accounts->first()->domains->default_company;
-            //$user->setAccount($default_account);
 
             $accounts = AccountUser::whereUserId($user->id)->with('account')->get();
 
@@ -93,7 +92,7 @@ class LoginController extends Controller
                     'payment_types'       => PaymentMethod::all()->toArray(),
                     'gateways'            => PaymentGateway::all()->toArray(),
                     'tax_rates'           => TaxRate::all()->toArray(),
-                    'custom_fields'       => auth()->user()->account_user()->account->custom_fields,
+                    'custom_fields'       => $user->account_user()->account->custom_fields,
                     'users'               => User::where('is_active', '=', 1)->get(
                         ['first_name', 'last_name', 'phone_number', 'id', 'email']
                     )->toArray()
@@ -106,12 +105,14 @@ class LoginController extends Controller
         return response()->json(['success' => false, 'data' => 'Record doesnt exists']);
     }
 
-    private function getToken($email, $password)
+    private function getToken(LoginRequest $request, Account $account)
     {
+        $expiration_time = !empty($account->settings->default_logout_time) ? $account->settings->default_logout_time : null;
+        config()->set('jwt.ttl', $expiration_time);
         $token = null;
-        //$credentials = $request->only('email', 'password');
+
         try {
-            if (!$token = JWTAuth::attempt(['email' => $email, 'password' => $password])) {
+            if (!$token = JWTAuth::attempt(['email' => $request->email, 'password' => $request->password])) {
                 return response()->json(
                     [
                         'response' => 'error',

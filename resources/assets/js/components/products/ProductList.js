@@ -107,7 +107,8 @@ export default class ProductList extends Component {
         const companyRepository = new CompanyRepository()
         companyRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
             }
 
             this.setState({ companies: response }, () => {

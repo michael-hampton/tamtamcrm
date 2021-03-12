@@ -130,7 +130,8 @@ export default class BankAccountList extends Component {
         const bankRepository = new BankRepository()
         bankRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
             }
 
             this.setState({ banks: response }, () => {
@@ -160,7 +161,7 @@ export default class BankAccountList extends Component {
 
     render () {
         const { start_date, end_date } = this.state.filters
-        const { custom_fields, banks, cachedData, view, bank_accounts, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { custom_fields, banks, cachedData, view, bank_accounts, error, isOpen, error_message, success_message, show_success, pageLimit } = this.state
         const fetchUrl = `/api/bank_accounts?start_date=${start_date}&end_date=${end_date} `
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'

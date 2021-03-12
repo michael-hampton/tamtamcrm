@@ -209,7 +209,9 @@ export const consts = {
     standard_yearly_account_price: 200,
     standard_monthly_account_price: 20,
     advanced_yearly_account_price: 350,
-    advanced_monthly_account_price: 25
+    advanced_monthly_account_price: 25,
+    web_url: 'https://michael-hampton.github.io/tamtam',
+    github_url: 'https://github.com/michael-hampton/tamtamcrm'
 }
 
 export const caseLinkTypes = {

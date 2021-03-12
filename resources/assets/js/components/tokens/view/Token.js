@@ -15,6 +15,7 @@ export default class Token extends Component {
         this.state = {
             users: [],
             show_success: false,
+            show_alert: false,
             success_message: ''
         }
 
@@ -31,7 +32,8 @@ export default class Token extends Component {
         const userModel = new UserModel()
         userModel.getUsers().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ show_alert: true })
+                return
             }
 
             this.setState({ users: response }, () => {
@@ -75,6 +77,8 @@ export default class Token extends Component {
                     {this.state.success_message}
                 </Alert>
                 }
+
+                <Alert is_open={this.state.show_alert} message={translations.unexpected_error} />
             </React.Fragment>
 
         )

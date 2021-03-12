@@ -21,6 +21,7 @@ export default class Expense extends Component {
             activeTab: '1',
             obj_url: null,
             show_success: false,
+            show_alert: false,
             file_count: this.props.entity.files.length || 0
         }
 
@@ -45,7 +46,8 @@ export default class Expense extends Component {
         const expenseRepo = new ExpenseRepository()
         expenseRepo.getCategories().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ show_alert: true })
+                return
             }
 
             this.setState({ categories: response }, () => {
@@ -57,7 +59,7 @@ export default class Expense extends Component {
     getCompanies () {
         this.companyModel.getCompanies().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ show_alert: true })
             }
 
             this.setState({ companies: response }, () => {
@@ -70,7 +72,7 @@ export default class Expense extends Component {
         const invoiceRepository = new InvoiceRepository()
         invoiceRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ show_alert: true })
             }
 
             this.setState({ invoices: response }, () => {
@@ -177,6 +179,8 @@ export default class Expense extends Component {
                     button1={{ label: button1_label }}
                     button2_click={(e) => this.triggerAction('clone_to_expense', true)}
                     button2={{ label: translations.clone_expense }}/>
+
+                <Alert is_open={this.state.show_alert} message={translations.unexpected_error} />
 
             </React.Fragment>
 

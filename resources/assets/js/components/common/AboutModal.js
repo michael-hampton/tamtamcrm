@@ -11,6 +11,7 @@ import {
 } from 'reactstrap'
 import axios from 'axios'
 import { translations } from '../utils/_translations'
+import { consts } from "../utils/_consts";
 
 export default class AboutModal extends Component {
     constructor (props) {
@@ -110,7 +111,8 @@ export default class AboutModal extends Component {
                         <div className="text-center">
                             <p>{translations.about_message}</p>
                             <p>{translations.about_link}</p>
-                            <p>https://michael-hampton.github.io/tamtam</p>
+                            <p>{translations.website}: {consts.web_url}</p>
+                            <p>{translations.github}: {consts.github_url}</p>
                         </div>
 
                         {Object.keys(this.state.health_check).length &&
@@ -132,7 +134,7 @@ export default class AboutModal extends Component {
                         </Button>
                     </ModalBody>
                     <ModalFooter>
-                        <Button onClick={this.toggle} color="secondary">Cancel</Button>
+                        <Button onClick={this.toggle} color="secondary">{translations.cancel}</Button>
                         <Button onClick={this.sendMessage}
                             color="primary">Upgrade</Button>{' '}
                     </ModalFooter>

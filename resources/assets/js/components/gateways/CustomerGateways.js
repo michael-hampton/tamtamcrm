@@ -50,7 +50,8 @@ export default class CustomerGateways extends React.Component {
         const gatewayModel = new GatewayModel()
         gatewayModel.getGateways().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
             }
 
             this.setState({ company_gateways: response })

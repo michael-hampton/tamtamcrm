@@ -5,6 +5,7 @@ import { translations } from '../../utils/_translations'
 import CustomerModel from '../../models/CustomerModel'
 import { icons } from '../../utils/_icons'
 import { consts } from '../../utils/_consts'
+import { toast, ToastContainer } from 'react-toastify'
 
 class CustomerSettings extends Component {
     constructor (props) {
@@ -1183,7 +1184,16 @@ class CustomerSettings extends Component {
                 this.setState({ errors: this.customerModel.errors, message: this.customerModel.error_message })
                 return
             }
-            alert('good')
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.credit), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
         })
     }
 
@@ -1192,6 +1202,18 @@ class CustomerSettings extends Component {
 
         return (
             <React.Fragment>
+                <ToastContainer
+                    position="top-center"
+                    autoClose={5000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                />
+
                 <Nav tabs className="nav-justified setting-tabs disable-scrollbars">
                     <NavItem>
                         <NavLink

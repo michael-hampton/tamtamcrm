@@ -15,6 +15,7 @@ export default class Payment extends Component {
             entity: this.props.entity,
             activeTab: '1',
             show_success: false,
+            show_alert: false,
             gateways: []
         }
 
@@ -37,7 +38,7 @@ export default class Payment extends Component {
     getGateways () {
         this.gatewayModel.getGateways().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ show_alert: true })
             }
 
             this.setState({ gateways: response }, () => {
@@ -112,6 +113,8 @@ export default class Payment extends Component {
                     button1={{ label: translations.refund }}
                     button2_click={(e) => this.triggerAction('archive')}
                     button2={{ label: translations.archive }}/>
+
+                <Alert is_open={this.state.show_alert} message={translations.unexpected_error} />
             </React.Fragment>
         )
     }

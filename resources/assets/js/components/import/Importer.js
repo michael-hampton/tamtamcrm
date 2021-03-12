@@ -13,6 +13,7 @@ export default class Importer extends React.Component {
     constructor (props) {
         super(props)
         this.state = {
+            show_alert: false,
             export_data: '',
             import_type: '',
             file_type: '',
@@ -61,7 +62,7 @@ export default class Importer extends React.Component {
 
     export () {
         if (!this.state.import_type.length) {
-            alert('Please select an import type')
+            this.setState({ show_alert: true, error_message: 'Please select an import type' })
             return false
         }
 
@@ -93,7 +94,7 @@ export default class Importer extends React.Component {
 
     preview () {
         if (!this.state.import_type.length) {
-            alert('Please select an import type')
+            this.setState({ show_alert: true, error_message: 'Please select an import type' })
             return false
         }
 
@@ -134,7 +135,7 @@ export default class Importer extends React.Component {
 
     upload () {
         if (!this.state.import_type.length) {
-            alert('Please select an import type')
+            this.setState({ show_alert: true, error_message: 'Please select an import type' })
             return false
         }
 
@@ -512,6 +513,8 @@ export default class Importer extends React.Component {
                     </Alert>
                 </Snackbar>
                 }
+
+                <Alert is_open={this.state.show_alert} message={error_message} />
             </React.Fragment>
 
         )

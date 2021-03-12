@@ -118,7 +118,8 @@ export default class Payments extends Component {
         const invoiceRepository = new InvoiceRepository()
         invoiceRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
             }
 
             this.setState({ invoices: response }, () => {
@@ -131,7 +132,8 @@ export default class Payments extends Component {
         const creditRepository = new CreditRepository()
         creditRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
             }
 
             this.setState({ credits: response }, () => {
@@ -144,7 +146,8 @@ export default class Payments extends Component {
         const customerRepository = new CustomerRepository()
         customerRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
             }
 
             this.setState({ customers: response }, () => {

@@ -63,7 +63,6 @@ export default class TimerModel extends BaseModel {
         data[index].end_time = time.format('HH:mm:ss')
 
         if (!data[index].start_time || !data[index].start_time.toString().length) {
-            alert('here 2')
             data[index].start_time = moment(new Date()).subtract(seconds, 'seconds').format('HH:mm:ss')
             data[index].date = moment(new Date()).format('YYYY-MM-DD')
             data[index].end_date = moment(new Date()).format('YYYY-MM-DD')

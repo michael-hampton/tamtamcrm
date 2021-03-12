@@ -20,6 +20,7 @@ import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
 import PaymentModel from '../../models/PaymentModel'
 import { toast, ToastContainer } from 'react-toastify'
+import Alert from '../../common/Alert'
 
 class Refund extends React.Component {
     constructor (props) {
@@ -32,6 +33,8 @@ class Refund extends React.Component {
         this.model = new PaymentModel(null, this.props.payment)
 
         this.state = {
+            show_alert: false,
+            error_message: '',
             modal: false,
             loading: false,
             send_email: this.settings.should_send_email_for_manual_payment || false,
@@ -109,7 +112,7 @@ class Refund extends React.Component {
         })
 
         if (invoices.length === 0 && parseFloat(this.state.amount) <= 0) {
-            alert('You must enter a valid refund amount')
+            this.setState({ show_alert: true, error_message: 'You must enter a valid refund amount' })
             return false
         }
 
@@ -314,6 +317,8 @@ class Refund extends React.Component {
                         saveData={this.handleClick.bind(this)}
                         loading={false}/>
                 </Modal>
+
+                <Alert is_open={this.state.show_alert} message={this.state.error_message} />
             </React.Fragment>
         ) : this.getForm()
     }

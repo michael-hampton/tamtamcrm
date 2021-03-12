@@ -18,6 +18,7 @@ export default class RecurringQuote extends Component {
             activeTab: '1',
             obj_url: null,
             show_success: false,
+            show_alert: true,
             file_count: this.props.entity.files.length || 0
         }
 
@@ -37,7 +38,7 @@ export default class RecurringQuote extends Component {
         const quoteRepository = new QuoteRepository()
         quoteRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ show_alert: true })
             }
 
             this.setState({ quotes: response }, () => {
@@ -212,6 +213,7 @@ export default class RecurringQuote extends Component {
                     button2_click={(e) => this.triggerAction(this.quoteModel.isActive ? 'stop_recurring' : 'start_recurring')}
                     button2={{ label: this.quoteModel.isActive ? translations.stop : translations.start }}/>
 
+                <Alert is_open={this.state.show_alert} message={translations.unexpected_error} />
             </React.Fragment>
 
         )

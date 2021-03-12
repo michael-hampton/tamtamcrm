@@ -14,6 +14,7 @@ import MetaItem from '../../common/entityContainers/MetaItem'
 import Overview from './Overview'
 import Details from './Details'
 import ErrorLog from './ErrorLog'
+import Alert from '../../common/Alert'
 
 export default class Customer extends Component {
     constructor (props) {
@@ -22,6 +23,7 @@ export default class Customer extends Component {
         this.state = {
             activeTab: '1',
             show_success: false,
+            show_alert: false,
             gateways: [],
             file_count: this.props.entity.files.length || 0
         }
@@ -46,7 +48,8 @@ export default class Customer extends Component {
     getGateways () {
         this.gatewayModel.getGateways().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ show_alert: true })
+                return
             }
 
             this.setState({ gateways: response }, () => {
@@ -186,6 +189,8 @@ export default class Customer extends Component {
                         window.location.href = `/#/gateway-settings?customer_id=${this.props.entity.id}`
                     }}
                     button2={{ label: translations.gateways }}/>
+
+                <Alert is_open={this.state.show_alert} message={translations.unexpected_error} />
 
             </React.Fragment>
 

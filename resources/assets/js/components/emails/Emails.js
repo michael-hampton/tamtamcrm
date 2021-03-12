@@ -9,6 +9,7 @@ import EmailPreview from '../settings/EmailPreview'
 import { translations } from '../utils/_translations'
 import ViewPdf from './ViewPdf'
 import InvoiceModel from '../models/InvoiceModel'
+import Alert from '../common/Alert'
 
 export default class Emails extends Component {
     constructor (props) {
@@ -26,7 +27,8 @@ export default class Emails extends Component {
             showPreview: false,
             template_type: this.props.template,
             template_name: 'Invoice',
-            is_mobile: window.innerWidth <= 768
+            is_mobile: window.innerWidth <= 768,
+            show_alert: false
         }
 
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
@@ -63,7 +65,7 @@ export default class Emails extends Component {
                 }, () => this.getPreview())
             })
             .catch((e) => {
-                alert('There was an issue updating the settings')
+                this.setState({ show_alert: true })
             })
     }
 
@@ -274,6 +276,8 @@ export default class Emails extends Component {
                         </Card>
                     </TabPane>
                 </TabContent>
+
+                <Alert is_open={this.state.show_alert} message={translations.unexpected_error} />
             </React.Fragment>
         )
     }

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { ListGroup, Row } from 'reactstrap'
+import { Alert, ListGroup, Row } from 'reactstrap'
 import { icons } from '../../utils/_icons'
 import { translations } from '../../utils/_translations'
 import SectionItem from '../../common/entityContainers/SectionItem'
@@ -14,7 +14,8 @@ export default class Gateway extends Component {
         super(props)
 
         this.state = {
-            payments: []
+            payments: [],
+            show_alert: false
         }
 
         this.getPayments = this.getPayments.bind(this)
@@ -28,7 +29,8 @@ export default class Gateway extends Component {
         const paymentRepository = new PaymentRepository()
         paymentRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ show_alert: true })
+                return
             }
 
             this.setState({ payments: response }, () => {
@@ -88,6 +90,8 @@ export default class Gateway extends Component {
                 )}
 
                 <ErrorLog error_logs={this.props.entity.error_logs}/>
+
+                <Alert is_open={this.state.show_alert} message={translations.unexpected_error} />
             </React.Fragment>
 
         )

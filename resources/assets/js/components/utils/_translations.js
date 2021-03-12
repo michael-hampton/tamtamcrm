@@ -917,7 +917,10 @@ _localizedValues.en = {
     per_licence: 'Per Licence',
     enable_google: 'Enable Google',
     disable_google: 'Disable Google',
-    user_id: 'User ID'
+    user_id: 'User ID',
+    default_logout_time: 'Default Logout Time',
+    github: 'Github',
+    alert: 'Alert'
 }
 
 let language = []
