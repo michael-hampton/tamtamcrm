@@ -14,7 +14,7 @@ import MetaItem from '../../common/entityContainers/MetaItem'
 import Overview from './Overview'
 import Details from './Details'
 import ErrorLog from './ErrorLog'
-import Alert from '../../common/Alert'
+import AlertPopup from '../../common/AlertPopup'
 
 export default class Customer extends Component {
     constructor (props) {
@@ -190,8 +190,9 @@ export default class Customer extends Component {
                     }}
                     button2={{ label: translations.gateways }}/>
 
-                <Alert is_open={this.state.show_alert} message={translations.unexpected_error} />
-
+                <AlertPopup is_open={this.state.show_alert} message={this.state.error_message} onClose={(e) => {
+                    this.setState({ show_alert: false })
+                }}/>
             </React.Fragment>
 
         )

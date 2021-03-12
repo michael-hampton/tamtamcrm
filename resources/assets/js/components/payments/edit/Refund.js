@@ -20,7 +20,7 @@ import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
 import PaymentModel from '../../models/PaymentModel'
 import { toast, ToastContainer } from 'react-toastify'
-import Alert from '../../common/Alert'
+import AlertPopup from '../../common/AlertPopup'
 
 class Refund extends React.Component {
     constructor (props) {
@@ -318,7 +318,9 @@ class Refund extends React.Component {
                         loading={false}/>
                 </Modal>
 
-                <Alert is_open={this.state.show_alert} message={this.state.error_message} />
+                <AlertPopup is_open={this.state.show_alert} message={this.state.error_message} onClose={(e) => {
+                    this.setState({ show_alert: false })
+                }} />
             </React.Fragment>
         ) : this.getForm()
     }

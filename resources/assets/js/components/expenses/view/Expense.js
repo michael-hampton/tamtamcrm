@@ -11,6 +11,7 @@ import { icons } from '../../utils/_icons'
 import Overview from './Overview'
 import InvoiceRepository from '../../repositories/InvoiceRepository'
 import ExpenseRepository from '../../repositories/ExpenseRepository'
+import AlertPopup from '../../common/AlertPopup'
 
 export default class Expense extends Component {
     constructor (props) {
@@ -180,8 +181,9 @@ export default class Expense extends Component {
                     button2_click={(e) => this.triggerAction('clone_to_expense', true)}
                     button2={{ label: translations.clone_expense }}/>
 
-                <Alert is_open={this.state.show_alert} message={translations.unexpected_error} />
-
+                <AlertPopup is_open={this.state.show_alert} message={this.state.error_message} onClose={(e) => {
+                    this.setState({ show_alert: false })
+                }}/>
             </React.Fragment>
 
         )

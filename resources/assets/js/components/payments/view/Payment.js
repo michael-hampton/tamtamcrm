@@ -6,6 +6,7 @@ import Refund from '../edit/Refund'
 import BottomNavigationButtons from '../../common/BottomNavigationButtons'
 import GatewayModel from '../../models/GatewayModel'
 import Overview from './Overview'
+import AlertPopup from '../../common/AlertPopup'
 
 export default class Payment extends Component {
     constructor (props) {
@@ -13,9 +14,9 @@ export default class Payment extends Component {
 
         this.state = {
             entity: this.props.entity,
+            show_alert: false,
             activeTab: '1',
             show_success: false,
-            show_alert: false,
             gateways: []
         }
 
@@ -114,7 +115,9 @@ export default class Payment extends Component {
                     button2_click={(e) => this.triggerAction('archive')}
                     button2={{ label: translations.archive }}/>
 
-                <Alert is_open={this.state.show_alert} message={translations.unexpected_error} />
+                <AlertPopup is_open={this.state.show_alert} message={this.state.error_message} onClose={(e) => {
+                    this.setState({ show_alert: false })
+                }} />
             </React.Fragment>
         )
     }

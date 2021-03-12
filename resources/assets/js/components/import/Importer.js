@@ -8,6 +8,7 @@ import queryString from 'query-string'
 import FormatMoney from '../common/FormatMoney'
 import moment from 'moment'
 import { icons } from '../utils/_icons'
+import AlertPopup from '../common/AlertPopup'
 
 export default class Importer extends React.Component {
     constructor (props) {
@@ -514,7 +515,9 @@ export default class Importer extends React.Component {
                 </Snackbar>
                 }
 
-                <Alert is_open={this.state.show_alert} message={error_message} />
+                <AlertPopup is_open={this.state.show_alert} message={this.state.error_message} onClose={(e) => {
+                    this.setState({ show_alert: false })
+                }}/>
             </React.Fragment>
 
         )

@@ -8,8 +8,7 @@ import EmailFields from '../settings/EmailFields'
 import EmailPreview from '../settings/EmailPreview'
 import { translations } from '../utils/_translations'
 import ViewPdf from './ViewPdf'
-import InvoiceModel from '../models/InvoiceModel'
-import Alert from '../common/Alert'
+import AlertPopup from '../common/AlertPopup'
 
 export default class Emails extends Component {
     constructor (props) {
@@ -277,7 +276,9 @@ export default class Emails extends Component {
                     </TabPane>
                 </TabContent>
 
-                <Alert is_open={this.state.show_alert} message={translations.unexpected_error} />
+                <AlertPopup is_open={this.state.show_alert} message={this.state.error_message} onClose={(e) => {
+                    this.setState({ show_alert: false })
+                }}/>
             </React.Fragment>
         )
     }

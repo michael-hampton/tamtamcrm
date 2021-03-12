@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Alert, ListGroup, Row } from 'reactstrap'
+import { ListGroup, Row } from 'reactstrap'
 import { icons } from '../../utils/_icons'
 import { translations } from '../../utils/_translations'
 import SectionItem from '../../common/entityContainers/SectionItem'
@@ -8,6 +8,7 @@ import FormatMoney from '../../common/FormatMoney'
 import FieldGrid from '../../common/entityContainers/FieldGrid'
 import PaymentRepository from '../../repositories/PaymentRepository'
 import ErrorLog from '../../customers/view/ErrorLog'
+import AlertPopup from '../../common/AlertPopup'
 
 export default class Gateway extends Component {
     constructor (props) {
@@ -91,7 +92,9 @@ export default class Gateway extends Component {
 
                 <ErrorLog error_logs={this.props.entity.error_logs}/>
 
-                <Alert is_open={this.state.show_alert} message={translations.unexpected_error} />
+                <AlertPopup is_open={this.state.show_alert} message={this.state.error_message} onClose={(e) => {
+                    this.setState({ show_alert: false })
+                }}/>
             </React.Fragment>
 
         )

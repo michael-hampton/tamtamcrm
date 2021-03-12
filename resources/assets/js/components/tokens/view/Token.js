@@ -7,6 +7,7 @@ import UserModel from '../../models/UserModel'
 import PlainEntityHeader from '../../common/entityContainers/PlanEntityHeader'
 import FormatDate from '../../common/FormatDate'
 import TokenModel from '../../models/TokenModel'
+import AlertPopup from '../../common/AlertPopup'
 
 export default class Token extends Component {
     constructor (props) {
@@ -78,7 +79,9 @@ export default class Token extends Component {
                 </Alert>
                 }
 
-                <Alert is_open={this.state.show_alert} message={translations.unexpected_error} />
+                <AlertPopup is_open={this.state.show_alert} message={this.state.error_message} onClose={(e) => {
+                    this.setState({ show_alert: false })
+                }}/>
             </React.Fragment>
 
         )

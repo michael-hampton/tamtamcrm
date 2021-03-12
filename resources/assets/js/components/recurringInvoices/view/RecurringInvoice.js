@@ -9,6 +9,7 @@ import ViewContacts from '../../common/entityContainers/ViewContacts'
 import ViewSchedule from '../../common/entityContainers/ViewSchedule'
 import Overview from './Overview'
 import InvoiceRepository from '../../repositories/InvoiceRepository'
+import AlertPopup from '../../common/AlertPopup'
 
 export default class RecurringInvoice extends Component {
     constructor (props) {
@@ -221,7 +222,9 @@ export default class RecurringInvoice extends Component {
                     button2_click={(e) => this.triggerAction(this.invoiceModel.isActive ? 'stop_recurring' : 'start_recurring')}
                     button2={{ label: this.invoiceModel.isActive ? translations.stop : translations.start }}/>
 
-                <Alert is_open={this.state.show_alert} message={translations.unexpected_error} />
+                <AlertPopup is_open={this.state.show_alert} message={this.state.error_message} onClose={(e) => {
+                    this.setState({ show_alert: false })
+                }}/>
             </React.Fragment>
 
         )

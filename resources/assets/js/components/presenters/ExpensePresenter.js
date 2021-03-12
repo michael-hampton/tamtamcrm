@@ -89,8 +89,8 @@ export default function ExpensePresenter (props) {
             }
 
             const companyIndex = props.companies.findIndex(company => company.id === entity[field])
-            const company = props.companies[companyIndex]
-            return company.name
+            const company = props.companies[companyIndex] ? props.companies[companyIndex] : null
+            return company === null ? '' : company.name
         }
 
         case 'invoices':
