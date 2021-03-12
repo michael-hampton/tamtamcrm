@@ -277,6 +277,31 @@ class ModuleSettings extends Component {
                     label: translations.require_admin_password,
                     type: 'switch',
                     value: settings.require_admin_password
+                },
+                {
+                    name: 'default_logout_time',
+                    label: translations.default_logout_time,
+                    type: 'select',
+                    options: [
+                        {
+                            value: '43200',
+                            text: '30 days'
+                        },
+                        {
+                            value: '10080',
+                            text: '7 days'
+                        },
+                        {
+                            value: '1440',
+                            text: '1 day'
+                        },
+                        {
+                            value: '480',
+                            text: '8 hours'
+                        }
+                    ],
+                    value: settings.default_logout_time,
+                    group: 1
                 }
             ]
         ]
