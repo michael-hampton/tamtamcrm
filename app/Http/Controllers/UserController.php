@@ -100,9 +100,8 @@ class UserController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public function edit(int $id)
+    public function edit(User $user)
     {
-        $user = $this->user_repo->findUserById($id);
         $roles = $this->role_repo->listRoles('created_at', 'desc')->where(
             'account_id',
             auth()->user()->account_user()->account_id
@@ -123,10 +122,9 @@ class UserController extends Controller
      * @return Response
      * @throws Exception
      */
-    public function archive(int $id)
+    public function archive(User $user)
     {
-        $objUser = $this->user_repo->findUserById($id);
-        $response = $objUser->delete();
+        $response = $user->delete();
 
         if ($response) {
             return response()->json('User deleted!');
@@ -141,9 +139,8 @@ class UserController extends Controller
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function destroy(DeleteUserRequest $request, int $id)
+    public function destroy(DeleteUserRequest $request, User $user)
     {
-        $user = $this->user_repo->findUserById($id);
         $this->authorize('delete', $user);
         $this->user_repo->destroy($user);
         return response()->json([], 200);
@@ -154,10 +151,8 @@ class UserController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public function update(UpdateUserRequest $request, int $id)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        $user = $this->user_repo->findUserById($id);
-
         $user = $this->user_repo->save($request->except('customized_permissions'), $user);
         $account_user = $user->account_users->where('account_id', $request->input('account_id'))->first();
 
@@ -227,9 +222,8 @@ class UserController extends Controller
      * @param int $id
      * @return mixed
      */
-    public function show(int $id)
+    public function show(User $user)
     {
-        $user = $this->user_repo->findUserById($id);
         return response()->json($this->transformUser($user));
     }
 
