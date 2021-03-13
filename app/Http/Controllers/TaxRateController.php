@@ -59,11 +59,10 @@ class TaxRateController extends Controller
      * @param int $id
      * @return Response
      */
-    public function update(UpdateTaxRateRequest $request, $id)
+    public function update(UpdateTaxRateRequest $request, TaxRate $tax_rate)
     {
-        $taxRate = $this->tax_rate_repo->findTaxRateById($id);
-        $taxRate = $this->tax_rate_repo->save($request->all(), $taxRate);
-        return response()->json($this->transformTaxRate($taxRate));
+        $tax_rate = $this->tax_rate_repo->save($request->all(), $tax_rate);
+        return response()->json($this->transformTaxRate($tax_rate));
     }
 
     /**
@@ -72,9 +71,8 @@ class TaxRateController extends Controller
      * @param int $id
      * @return Response
      */
-    public function archive(int $id)
+    public function archive(TaxRate $tax_rate)
     {
-        $tax_rate = $this->tax_rate_repo->findTaxRateById($id);
         $tax_rate->archive();
         return response()->json('deleted');
     }
@@ -84,9 +82,8 @@ class TaxRateController extends Controller
      * @return mixed
      * @throws AuthorizationException
      */
-    public function destroy(int $id)
+    public function destroy(TaxRate $tax_rate)
     {
-        $tax_rate = TaxRate::withTrashed()->where('id', '=', $id)->first();
         $this->authorize('delete', $tax_rate);
         $tax_rate->deleteEntity();
         return response()->json([], 200);
