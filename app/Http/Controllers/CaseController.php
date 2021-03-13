@@ -67,9 +67,8 @@ class CaseController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public function show(int $id)
+    public function show(Cases $case)
     {
-        $case = $this->case_repo->findCaseById($id);
         return response()->json($this->transform($case));
     }
 
@@ -78,9 +77,8 @@ class CaseController extends Controller
      * @param UpdateCaseRequest $request
      * @return JsonResponse
      */
-    public function update(int $id, UpdateCaseRequest $request)
+    public function update(UpdateCaseRequest $request, Cases $case)
     {
-        $case = $this->case_repo->findCaseById($id);
         $case = $this->case_repo->updateCase($request->all(), $case, auth()->user());
         return response()->json($this->transform($case->fresh()));
     }
@@ -108,9 +106,8 @@ class CaseController extends Controller
         return response()->json($this->transform($case));
     }
 
-    public function archive(int $id)
+    public function archive(Cases $case)
     {
-        $case = $this->case_repo->findCaseById($id);
         $case->archive();
         return response()->json([], 200);
     }
@@ -120,10 +117,8 @@ class CaseController extends Controller
      * @return mixed
      * @throws AuthorizationException
      */
-    public function destroy(int $id)
+    public function destroy(Cases $case)
     {
-        $case = Cases::withTrashed()->where('id', '=', $id)->first();
-
         $this->authorize('delete', $case);
 
         $case->deleteEntity();
