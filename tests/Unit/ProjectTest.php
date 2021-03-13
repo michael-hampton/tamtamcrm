@@ -8,6 +8,8 @@ use App\Models\Customer;
 use App\Models\Project;
 use App\Models\User;
 use App\Repositories\ProjectRepository;
+use App\Requests\SearchRequest;
+use App\Search\ProjectSearch;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -40,12 +42,9 @@ class ProjectTest extends TestCase
     /** @test */
     public function it_can_show_all_the_projects()
     {
-        $insertedproject = Project::factory()->create();
-        $projectRepo = new ProjectRepository(new Project);
-        $list = $projectRepo->listProjects()->toArray();
-        $myLastElement = end($list);
-        // $this->assertInstanceOf(Collection::class, $list);
-        $this->assertEquals($insertedproject->toArray(), $myLastElement);
+        Project::factory()->create();
+        $list = (new ProjectSearch(new ProjectRepository(new Project())))->filter(new SearchRequest(), $this->account);
+        $this->assertNotEmpty($list);
     }
 
     /** @test */
@@ -63,7 +62,7 @@ class ProjectTest extends TestCase
         $name = $this->faker->word;
         $data = ['name' => $name];
         $projectRepo = new ProjectRepository($project);
-        $updated = $projectRepo->save($data, $project);
+        $updated = $projectRepo->update($data, $project);
         $found = $projectRepo->findProjectById($project->id);
         $this->assertInstanceOf(Project::class, $updated);
         $this->assertEquals($data['name'], $found->name);
@@ -92,7 +91,7 @@ class ProjectTest extends TestCase
 
         $projectRepo = new ProjectRepository(new Project);
         $factory = (new ProjectFactory())->create($this->user, $this->customer, $this->account);
-        $project = $projectRepo->save($data, $factory);
+        $project = $projectRepo->create($data, $factory);
         $this->assertInstanceOf(Project::class, $project);
         $this->assertEquals($data['name'], $project->name);
     }

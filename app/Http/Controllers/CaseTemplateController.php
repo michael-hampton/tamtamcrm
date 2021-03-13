@@ -54,7 +54,7 @@ class CaseTemplateController extends Controller
      */
     public function store(CreateCaseTemplateRequest $request)
     {
-        $template = $this->template_repo->save(
+        $template = $this->template_repo->create(
             $request->all(),
             CaseTemplateFactory::create(auth()->user()->account_user()->account, auth()->user())
         );
@@ -66,11 +66,11 @@ class CaseTemplateController extends Controller
      * @param $id
      * @return JsonResponse
      */
-    public function update(UpdateCaseTemplateRequest $request, CaseTemplate $template)
+    public function update(UpdateCaseTemplateRequest $request, CaseTemplate $case_template)
     {
-        $template = $this->template_repo->save($request->all(), $template);
+        $case_template = $this->template_repo->update($request->all(), $case_template);
 
-        return response()->json($this->transformCaseTemplate($template));
+        return response()->json($this->transformCaseTemplate($case_template));
     }
 
     /**
@@ -78,9 +78,9 @@ class CaseTemplateController extends Controller
      * @return JsonResponse
      * @throws Exception
      */
-    public function destroy(CaseTemplate $template)
+    public function destroy(CaseTemplate $case_template)
     {
-        $template->deleteEntity();
+        $case_template->deleteEntity();
 
         return response()->json('deleted');
     }

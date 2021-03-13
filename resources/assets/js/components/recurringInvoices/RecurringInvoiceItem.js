@@ -53,6 +53,7 @@ export default class RecurringInvoiceItem extends Component {
 
     render () {
         const { invoices, custom_fields, customers, allInvoices, entities } = this.props
+
         if (invoices && invoices.length && customers.length) {
             return invoices.map((invoice, index) => {
                 const restoreButton = invoice.deleted_at

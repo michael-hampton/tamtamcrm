@@ -57,7 +57,7 @@ class PaymentTermsController extends Controller
     public function store(StorePaymentTermsRequest $request)
     {
         $payment_terms = PaymentTermsFactory::create(auth()->user()->account_user()->account, auth()->user());
-        $payment_terms = $this->payment_terms_repo->save($request->all(), $payment_terms);
+        $payment_terms = $this->payment_terms_repo->create($request->all(), $payment_terms);
 
         return response()->json($this->transformPaymentTerms($payment_terms));
     }
@@ -78,7 +78,7 @@ class PaymentTermsController extends Controller
      */
     public function update(UpdatePaymentTermsRequest $request, PaymentTerms $payment_term)
     {
-        $payment_term = $this->payment_terms_repo->save($request->all(), $payment_term);
+        $payment_term = $this->payment_terms_repo->update($request->all(), $payment_term);
         return response()->json($this->transformPaymentTerms($payment_term));
     }
 

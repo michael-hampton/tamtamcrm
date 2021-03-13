@@ -110,10 +110,6 @@ trait ImportMapper
     {
         $this->object = $this->buildObject($items);
 
-//        echo '<pre>';
-//        print_r($this->object);
-//        die;
-
         if (!$save_data) {
             $this->success[] = $this->transformObject($this->object);
             return true;
@@ -186,7 +182,7 @@ trait ImportMapper
 
         $repo = $this->repository();
 
-        return $repo->save($this->object, $factory);
+        return $repo->create($this->object, $factory);
     }
 
     /**

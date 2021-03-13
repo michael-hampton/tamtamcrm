@@ -48,7 +48,7 @@ class TaskStatusController extends Controller
      */
     public function store(CreateTaskStatusRequest $request)
     {
-        $status = $this->task_status_repo->save(
+        $status = $this->task_status_repo->create(
             $request->all(),
             TaskStatusFactory::create(auth()->user()->account_user()->account, auth()->user())
         );
@@ -61,11 +61,10 @@ class TaskStatusController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public function update(UpdateTaskStatusRequest $request, TaskStatus $status)
+    public function update(UpdateTaskStatusRequest $request, TaskStatus $task_status)
     {
-        $update = new TaskStatusRepository($status);
-        $status = $update->save($request->all(), $status);
-        return response()->json($this->transformTaskStatus($status));
+        $task_status = $this->task_status_repo->update($request->all(), $task_status);
+        return response()->json($this->transformTaskStatus($task_status));
     }
 
     /**

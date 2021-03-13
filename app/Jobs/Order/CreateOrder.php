@@ -182,7 +182,7 @@ class CreateOrder implements ShouldQueue
                 $this->customer = $contact->customer;
             }
 
-            $this->customer = $this->customer_repo->save(
+            $this->customer = $this->customer_repo->create(
                 [
                     'name'                   => $this->request->first_name . ' ' . $this->request->last_name,
                     'phone'                  => $this->request->phone,
@@ -315,7 +315,7 @@ class CreateOrder implements ShouldQueue
 
             $this->order = OrderFactory::create($this->account, $this->user, $customer);
 
-            $this->order = $this->order_repo->createOrder(
+            $this->order = $this->order_repo->create(
                 [
                     'is_amount_discount' => !empty($this->request->is_amount_discount) ? $this->request->is_amount_discount : false,
                     'voucher_code'       => !empty($this->request->voucher_code) ? $this->request->voucher_code : null,

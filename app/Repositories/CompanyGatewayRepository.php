@@ -46,12 +46,11 @@ class CompanyGatewayRepository extends BaseRepository
     }
 
     /**
-     * @param CompanyGateway $company_gateway
      * @param array $data
-     * @return CompanyGateway|null
-     * @return CompanyGateway|null
+     * @param CompanyGateway $company_gateway
+     * @return CompanyGateway
      */
-    public function save(CompanyGateway $company_gateway, array $data): ?CompanyGateway
+    public function create(array $data, CompanyGateway $company_gateway): CompanyGateway
     {
         if (!empty($data['charges'])) {
             $data['charges'] = $this->saveFees($company_gateway, $data['charges']);
@@ -59,6 +58,22 @@ class CompanyGatewayRepository extends BaseRepository
 
         $company_gateway->fill($data);
         $company_gateway->save();
+
+        return $company_gateway;
+    }
+
+    /**
+     * @param array $data
+     * @param CompanyGateway $company_gateway
+     * @return CompanyGateway
+     */
+    public function update(array $data, CompanyGateway $company_gateway): CompanyGateway
+    {
+        if (!empty($data['charges'])) {
+            $data['charges'] = $this->saveFees($company_gateway, $data['charges']);
+        }
+
+        $company_gateway->update($data);
 
         return $company_gateway;
     }

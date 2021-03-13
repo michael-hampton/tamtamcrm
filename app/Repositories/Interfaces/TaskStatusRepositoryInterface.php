@@ -15,13 +15,19 @@ interface TaskStatusRepositoryInterface
      */
     public function getAllStatusForTaskType(int $task_type);
 
-    public function createTaskStatus(array $orderStatusData): TaskStatus;
+    /**
+     * @param array $data
+     * @param TaskStatus $task_status
+     * @return TaskStatus
+     */
+    public function create(array $data, TaskStatus $task_status): TaskStatus;
 
-    public function updateTaskStatus(array $data): bool;
-
-    public function listTaskStatuses(string $order = 'id', string $sort = 'desc', array $columns = ['*']): Collection;
-
-    public function deleteTaskStatus(): bool;
+    /**
+     * @param array $data
+     * @param TaskStatus $task_status
+     * @return TaskStatus
+     */
+    public function update(array $data, TaskStatus $task_status): TaskStatus;
 
     public function findTasks(): Collection;
 

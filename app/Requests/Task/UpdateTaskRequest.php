@@ -14,8 +14,7 @@ class UpdateTaskRequest extends BaseFormRequest
      */
     public function authorize()
     {
-        $task = Task::find($this->task_id);
-        return auth()->user()->can('update', $task);
+        return auth()->user()->can('update', $this->task);
     }
 
     /**
@@ -33,7 +32,7 @@ class UpdateTaskRequest extends BaseFormRequest
             //'content'   => 'required',
             //'contributors' => 'required|array',
             'due_date'    => 'required',
-            'number'      => 'nullable|unique:tasks,number,' . $this->task_id . ',id,account_id,' . $this->account_id,
+            'number'      => 'nullable|unique:tasks,number,' . $this->task->id . ',id,account_id,' . $this->account_id,
         ];
     }
 

@@ -14,8 +14,7 @@ class UpdateOrderRequest extends FormRequest
      */
     public function authorize()
     {
-        $order = Order::find($this->order_id);
-        return auth()->user()->can('update', $order);
+        return auth()->user()->can('update', $this->order);
     }
 
     /**
@@ -33,7 +32,7 @@ class UpdateOrderRequest extends FormRequest
             'total'          => 'required',
             'tax_total'      => 'required',
             'line_items'     => 'required|array',
-            'number'         => 'nullable|unique:orders,number,' . $this->order_id . ',id,account_id,' . $this->account_id,
+            'number'         => 'nullable|unique:orders,number,' . $this->order->id . ',id,account_id,' . $this->account_id,
         ];
     }
 

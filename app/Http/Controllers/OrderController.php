@@ -70,7 +70,7 @@ class OrderController extends BaseController
      */
     public function update(UpdateOrderRequest $request, Order $order)
     {
-        $this->order_repo->updateOrder($request->all(), $order);
+        $this->order_repo->update($request->all(), $order);
         return response()->json($this->transformOrder($order));
     }
 
@@ -81,7 +81,7 @@ class OrderController extends BaseController
     public function store(CreateOrderRequest $request)
     {
         $customer = Customer::find($request->input('customer_id'));
-        $order = $this->order_repo->createOrder(
+        $order = $this->order_repo->create(
             $request->all(),
             OrderFactory::create(auth()->user()->account_user()->account, auth()->user(), $customer)
         );
@@ -123,8 +123,6 @@ class OrderController extends BaseController
      */
     public function destroy(Order $order)
     {
-        $this->authorize('delete', $order);
-
         $order->deleteEntity();
         return response()->json([], 200);
     }

@@ -78,7 +78,7 @@ export default class UserItem extends Component {
                     } text={translations.delete_message} button_color="btn-link"
                     button_label={translations.delete}/> : null
                 const editButton = !user.deleted_at
-                    ? <AddUser add={false} accounts={this.props.accounts} departments={departments} user_id={user.id}
+                    ? <AddUser add={false} accounts={this.props.accounts} departments={departments} user={user} user_id={user.id}
                         custom_fields={custom_fields} users={entities}
                         action={this.props.addUserToState}/> : null
 

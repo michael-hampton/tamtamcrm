@@ -55,15 +55,13 @@ class DealController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
      * @param CreateDealRequest $request
-     * @return Response
+     * @return \Illuminate\Http\JsonResponse
      * @throws Exception
      */
     public function store(CreateDealRequest $request)
     {
-        $deal = $this->deal_repo->createDeal(
+        $deal = $this->deal_repo->create(
             $request->all(),
             (new DealFactory)->create(auth()->user(), auth()->user()->account_user()->account)
         );
@@ -73,10 +71,8 @@ class DealController extends Controller
     }
 
     /**
-     *
-     * @param int $deal_id
-     * @return type
-     * @throws Exception
+     * @param Deal $deal
+     * @return \Illuminate\Http\JsonResponse
      */
     public function markAsCompleted(Deal $deal)
     {
@@ -87,15 +83,13 @@ class DealController extends Controller
 
     /**
      * @param UpdateDealRequest $request
-     * @param int $id
-     *
-     * @return Response
+     * @param Deal $deal
+     * @return \Illuminate\Http\JsonResponse
      * @throws Exception
      */
     public function update(UpdateDealRequest $request, Deal $deal)
     {
-        $deal = $this->deal_repo->updateDeal($request->all(), $deal);
-
+        $deal = $this->deal_repo->update($request->all(), $deal);
 
         return response()->json($deal);
     }
@@ -119,7 +113,6 @@ class DealController extends Controller
 
     public function destroy(Deal $deal)
     {
-
         $this->authorize('delete', $deal);
 
         $deal->deleteEntity();

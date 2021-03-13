@@ -71,7 +71,7 @@ class InvoiceController extends BaseController
     public function store(CreateInvoiceRequest $request)
     {
         $customer = Customer::find($request->input('customer_id'));
-        $invoice = $this->invoice_repo->createInvoice(
+        $invoice = $this->invoice_repo->create(
             $request->all(),
             InvoiceFactory::create(auth()->user()->account_user()->account, auth()->user(), $customer)
         );
@@ -123,7 +123,7 @@ class InvoiceController extends BaseController
             return response()->json(['message' => trans('texts.invoice_is_locked')], 422);
         }
 
-        $invoice = $this->invoice_repo->updateInvoice($request->all(), $invoice);
+        $invoice = $this->invoice_repo->update($request->all(), $invoice);
         return response()->json((new InvoiceTransformable())->transformInvoice($invoice));
     }
 

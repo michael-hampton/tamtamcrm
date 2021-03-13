@@ -37,7 +37,7 @@ class RecurringInvoiceRepository extends BaseRepository
      * @param RecurringInvoice $recurring_invoice
      * @return RecurringInvoice|null
      */
-    public function createInvoice(array $data, RecurringInvoice $recurring_invoice): ?RecurringInvoice
+    public function create(array $data, RecurringInvoice $recurring_invoice): ?RecurringInvoice
     {
         $recurring_invoice->date_to_send = $this->calculateDate($data['frequency']);
         $recurring_invoice = $this->save($data, $recurring_invoice);
@@ -55,13 +55,23 @@ class RecurringInvoiceRepository extends BaseRepository
 
     /**
      * @param array $data
+     * @param RecurringInvoice $recurring_invoice
+     */
+    public function update(array $data, RecurringInvoice $recurring_invoice)
+    {
+        $recurring_invoice = $this->save($data, $recurring_invoice);
+        event(new RecurringInvoiceWasUpdated($recurring_invoice));
+
+        return $recurring_invoice;
+    }
+
+    /**
+     * @param array $data
      * @param RecurringInvoice $invoice
      * @return RecurringInvoice|null
      */
     public function save(array $data, RecurringInvoice $invoice): ?RecurringInvoice
     {
-        $is_add = !empty($invoice->id);
-
         $invoice->fill($data);
         $invoice = $this->populateDefaults($invoice);
         $invoice = $this->formatNotes($invoice);
@@ -72,10 +82,6 @@ class RecurringInvoiceRepository extends BaseRepository
         $invoice->save();
 
         $this->saveInvitations($invoice, $data);
-
-        if (!$is_add) {
-            event(new RecurringInvoiceWasUpdated($invoice));
-        }
 
         return $invoice->fresh();
     }

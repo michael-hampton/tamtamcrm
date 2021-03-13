@@ -33,13 +33,13 @@ interface ExpenseRepositoryInterface
      * @param Expense $expense
      * @return Expense|null
      */
-    public function createExpense(array $data, Expense $expense): ?Expense;
+    public function create(array $data, Expense $expense): ?Expense;
 
     /**
      * @param array $data
      * @param Expense $expense
      * @return Expense|null
      */
-    public function updateExpense(array $data, Expense $expense): ?Expense;
+    public function update(array $data, Expense $expense): ?Expense;
 
 }

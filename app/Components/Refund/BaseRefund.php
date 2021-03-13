@@ -175,7 +175,7 @@ class BaseRefund
     {
         $credit_note = CreditFactory::create($this->payment->account, $this->payment->user, $this->payment->customer);
 
-        $credit_note = $this->credit_repo->createCreditNote(
+        $credit_note = $this->credit_repo->create(
             [
                 'line_items' => $this->line_items,
                 'total'      => $this->amount,

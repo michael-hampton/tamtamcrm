@@ -38,7 +38,7 @@ class FileRepository extends BaseRepository implements FileRepositoryInterface
     public function createFile(array $data): File
     {
         try {
-            return $this->create($data);
+            return $this->model->create($data);
         } catch (QueryException $e) {
             throw new CreateFileErrorException($e);
         }

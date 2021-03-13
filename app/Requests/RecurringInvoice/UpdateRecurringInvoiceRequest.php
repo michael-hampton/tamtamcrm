@@ -14,8 +14,7 @@ class UpdateRecurringInvoiceRequest extends BaseFormRequest
      */
     public function authorize()
     {
-        $recurring_invoice = RecurringInvoice::find($this->id);
-        return auth()->user()->can('update', $recurring_invoice);
+        return auth()->user()->can('update', $this->recurring_invoice);
     }
 
     /**

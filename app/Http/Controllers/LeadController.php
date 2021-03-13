@@ -65,9 +65,9 @@ class LeadController extends Controller
      */
     public function store(CreateLeadRequest $request)
     {
-        $lead = $this->lead_repo->createLead(
-            LeadFactory::create(auth()->user()->account_user()->account, auth()->user()),
-            $request->all()
+        $lead = $this->lead_repo->create(
+            $request->all(),
+            LeadFactory::create(auth()->user()->account_user()->account, auth()->user())
         );
 
         event(new LeadWasCreated($lead));
@@ -81,7 +81,7 @@ class LeadController extends Controller
      */
     public function update(UpdateLeadRequest $request, Lead $lead)
     {
-        $lead = $this->lead_repo->updateLead($lead, $request->all());
+        $lead = $this->lead_repo->update($request->all(), $lead);
         return response()->json($lead);
     }
 

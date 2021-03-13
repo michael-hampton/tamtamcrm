@@ -209,7 +209,7 @@ class CategoryRepository extends BaseRepository implements CategoryRepositoryInt
      */
     public function deleteFile(array $file, $disk = null): bool
     {
-        return $this->update(['cover' => null], $file['category']);
+        return $this->model->update(['cover' => null]);
     }
 
     /**

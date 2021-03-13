@@ -68,13 +68,11 @@ class CompanyController extends Controller
             $company->logo = $this->uploadLogo($request->file('company_logo'));
         }
 
-        $company = $this->company_repo->save($request->except('logo'), $company);
+        $company = $this->company_repo->create($request->except('logo'), $company);
 
         if (!empty($request->contacts)) {
             $this->company_contact_repo->save($request->contacts, $company);
         }
-
-        event(new CompanyWasCreated($company));
 
         return response()->json($this->transformCompany($company));
     }
@@ -106,7 +104,7 @@ class CompanyController extends Controller
             }
         }
 
-        $this->company_repo->save($request->except('logo'), $company);
+        $this->company_repo->update($request->except('logo'), $company);
 
         if (!empty($request->contacts)) {
             $this->company_contact_repo->save($request->contacts, $company);

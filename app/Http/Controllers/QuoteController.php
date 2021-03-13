@@ -82,7 +82,7 @@ class QuoteController extends BaseController
     public function store(CreateQuoteRequest $request)
     {
         $customer = Customer::find($request->input('customer_id'));
-        $quote = $this->quote_repo->createQuote(
+        $quote = $this->quote_repo->create(
             $request->all(),
             QuoteFactory::create(auth()->user()->account_user()->account, auth()->user(), $customer)
         );
@@ -97,7 +97,7 @@ class QuoteController extends BaseController
      */
     public function update(UpdateQuoteRequest $request, Quote $quote)
     {
-        $quote = $this->quote_repo->updateQuote($request->all(), $quote);
+        $quote = $this->quote_repo->update($request->all(), $quote);
 
         return response()->json((new QuoteTransformable())->transformQuote($quote));
     }

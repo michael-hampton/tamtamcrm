@@ -58,7 +58,7 @@ class TokenController extends Controller
      */
     public function update(UpdateTokenRequest $request, CompanyToken $token)
     {
-        $token = $this->token_repo->save($request->all(), $token);
+        $token = $this->token_repo->update($request->all(), $token);
 
         return response()->json($this->transform($token->fresh()));
     }
@@ -74,7 +74,7 @@ class TokenController extends Controller
             auth()->user()->id,
             auth()->user()->account_user()->account->domain_id
         );
-        $token = $this->token_repo->save($request->all(), $company_token);
+        $token = $this->token_repo->create($request->all(), $company_token);
         return response()->json($this->transform($token));
     }
 

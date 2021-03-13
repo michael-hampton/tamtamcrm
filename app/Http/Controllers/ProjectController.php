@@ -37,14 +37,12 @@ class ProjectController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
      * @param CreateProjectRequest $request
-     * @return Response
+     * @return JsonResponse
      */
     public function store(CreateProjectRequest $request)
     {
-        $project = $this->project_repo->save(
+        $project = $this->project_repo->create(
             $request->all(),
             ProjectFactory::create(
                 auth()->user(),
@@ -65,7 +63,7 @@ class ProjectController extends Controller
     public function update(UpdateProjectRequest $request, Project $project)
     {
         $project_repo = new ProjectRepository($project);
-        $project = $project_repo->save($request->all(), $project);
+        $project = $project_repo->update($request->all(), $project);
         return response()->json($this->transformProject($project));
     }
 

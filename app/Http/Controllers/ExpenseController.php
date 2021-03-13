@@ -69,7 +69,7 @@ class ExpenseController extends Controller
      */
     public function update(UpdateExpenseRequest $request, Expense $expense)
     {
-        $expense = $this->expense_repo->updateExpense($request->all(), $expense);
+        $expense = $this->expense_repo->update($request->all(), $expense);
 
         return response()->json($this->transformExpense($expense->fresh()));
     }
@@ -80,7 +80,7 @@ class ExpenseController extends Controller
      */
     public function store(CreateExpenseRequest $request)
     {
-        $expense = $this->expense_repo->createExpense(
+        $expense = $this->expense_repo->create(
             $request->all(),
             ExpenseFactory::create(auth()->user(), auth()->user()->account_user()->account)
         );

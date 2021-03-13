@@ -40,7 +40,7 @@ class AddressRepository extends BaseRepository implements AddressRepositoryInter
      */
     public function updateAddress(array $data): bool
     {
-        return $this->update($data);
+        return $this->model->update($data);
     }
 
     /**

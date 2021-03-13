@@ -99,7 +99,7 @@ class CaseController extends Controller
 
         if ($request->hasFile('file')) {
             foreach ($request->file('file') as $count => $file) {
-                UploadFile::dispatchNow($file, $user, $account, $case);
+                UploadFile::dispatchNow($file, auth()->user(), auth()->user()->account_user()->account, $case);
             }
         }
 

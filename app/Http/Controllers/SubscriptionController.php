@@ -62,7 +62,7 @@ class SubscriptionController extends Controller
      */
     public function update(UpdateSubscriptionRequest $request, Subscription $subscription)
     {
-        $subscription = $this->subscription_repo->save($request->all(), $subscription);
+        $subscription = $this->subscription_repo->update($request->all(), $subscription);
 
         return response()->json($this->transform($subscription));
     }
@@ -74,7 +74,7 @@ class SubscriptionController extends Controller
     public function store(CreateSubscriptionRequest $request)
     {
         $subscription = SubscriptionFactory::create(auth()->user()->account_user()->account, auth()->user());
-        $subscription = $this->subscription_repo->save($request->all(), $subscription);
+        $subscription = $this->subscription_repo->create($request->all(), $subscription);
         return response()->json($this->transform($subscription));
     }
 

@@ -260,7 +260,7 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
      */
     public function deleteFile(array $file, $disk = null): bool
     {
-        return $this->update(['cover' => null], $file['product']);
+        return $this->model->update(['cover' => null]);
     }
 
     /**
@@ -279,6 +279,18 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
     public function findProductImages(Product $product): Collection
     {
         return $product->images()->get();
+    }
+
+    public function create(array $data, Product $product)
+    {
+        if (!empty($product->id)) {
+            $this->addListingHistory($data, $product);
+        }
+
+        $product->fill($data);
+        $product->save();
+
+        return $product;
     }
 
     /**

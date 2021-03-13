@@ -108,7 +108,7 @@ class InvoiceUnitTest extends TestCase
         $customer_id = $this->customer->id;
         $data = ['customer_id' => $customer_id];
         $invoiceRepo = new InvoiceRepository($invoice);
-        $updated = $invoiceRepo->updateInvoice($data, $invoice);
+        $updated = $invoiceRepo->update($data, $invoice);
         $found = $invoiceRepo->findInvoiceById($invoice->id);
         $this->assertInstanceOf(Invoice::class, $updated);
         $this->assertEquals($data['customer_id'], $found->customer_id);
@@ -180,7 +180,7 @@ class InvoiceUnitTest extends TestCase
         ];
 
         $invoiceRepo = new InvoiceRepository(new Invoice);
-        $invoice = $invoiceRepo->createInvoice($data, $factory);
+        $invoice = $invoiceRepo->create($data, $factory);
         $this->assertInstanceOf(Invoice::class, $invoice);
         $this->assertEquals($data['customer_id'], $invoice->customer_id);
         $this->assertNotEmpty($invoice->invitations);
@@ -214,7 +214,7 @@ class InvoiceUnitTest extends TestCase
         ];
 
         $invoiceRepo = new InvoiceRepository(new Invoice);
-        $invoice = $invoiceRepo->createInvoice($data, $factory);
+        $invoice = $invoiceRepo->create($data, $factory);
 
         $arrRecurring = [];
 
@@ -234,7 +234,7 @@ class InvoiceUnitTest extends TestCase
     {
         $this->expectException(\Illuminate\Database\QueryException::class);
         $invoice = new InvoiceRepository(new Invoice);
-        $invoice->createInvoice([]);
+        $invoice->create([]);
     }
 
     /** @test */
@@ -646,7 +646,7 @@ class InvoiceUnitTest extends TestCase
         $line_item_count = count($invoice->line_items);
 
         $invoiceRepo = new InvoiceRepository(new Invoice);
-        $original_invoice = $invoiceRepo->createInvoice([], $invoice);
+        $original_invoice = $invoiceRepo->create([], $invoice);
 
         // auto bill
         AutobillInvoice::dispatchNow($original_invoice, $invoiceRepo);
@@ -677,7 +677,7 @@ class InvoiceUnitTest extends TestCase
         $line_item_count = count($invoice->line_items);
 
         $invoiceRepo = new InvoiceRepository(new Invoice);
-        $original_invoice = $invoiceRepo->createInvoice([], $invoice);
+        $original_invoice = $invoiceRepo->create([], $invoice);
         $this->assertEquals($total, $original_invoice->total);
         $this->assertEquals($line_item_count, count($original_invoice->line_items));
 

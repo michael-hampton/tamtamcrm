@@ -16,7 +16,7 @@ class UpdateCategoryRequest extends BaseFormRequest
     public function rules()
     {
         return [
-            'name' => ['required', Rule::unique('categories')->ignore(request()->segment(3))]
+            'name' => ['required', Rule::unique('categories')->ignore(request()->segment(2))]
         ];
     }
 

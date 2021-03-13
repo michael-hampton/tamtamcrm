@@ -94,6 +94,10 @@ class PaymentController extends Controller
      */
     public function update(UpdatePaymentRequest $request, Payment $payment)
     {
+        echo '<pre>';
+        print_r($payment);
+        die;
+
         $payment = (new ProcessPayment())->process($request->all(), $this->payment_repo, $payment);
         return response()->json($this->transformPayment($payment));
     }

@@ -15,8 +15,7 @@ class UpdateLeadRequest extends BaseFormRequest
      */
     public function authorize()
     {
-        $lead = Lead::find($this->lead_id);
-        return auth()->user()->can('update', $lead);
+        return auth()->user()->can('update', $this->lead);
     }
 
     /**
@@ -26,12 +25,13 @@ class UpdateLeadRequest extends BaseFormRequest
      */
     public function rules()
     {
+
         return [
             'first_name' => 'required|string',
             'last_name'  => 'required|string',
             'email'      => [
                 'required',
-                Rule::unique('leads')->ignore($this->route('lead_id'))
+                Rule::unique('leads')->ignore($this->lead->email)
             ],
             'name'       => 'required',
             'start_date' => 'nullable',

@@ -96,9 +96,9 @@ class PurchaseOrderController extends BaseController
      */
     public function update(UpdatePurchaseOrderRequest $request, PurchaseOrder $purchase_order)
     {
-        $po = $this->purchase_order_repo->updatePurchaseOrder($request->all(), $purchase_order);
+        $purchase_order = $this->purchase_order_repo->updatePurchaseOrder($request->all(), $purchase_order);
 
-        return response()->json($this->transformPurchaseOrder($po));
+        return response()->json($this->transformPurchaseOrder($purchase_order));
     }
 
     /**

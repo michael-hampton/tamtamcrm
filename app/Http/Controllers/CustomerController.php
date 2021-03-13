@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Components\Customer\ContactRegister;
-use App\Events\Customer\CustomerWasCreated;
-use App\Events\Customer\CustomerWasUpdated;
 use App\Factory\CustomerFactory;
 use App\Jobs\Customer\StoreCustomerAddress;
 use App\Models\Account;
@@ -71,7 +69,7 @@ class CustomerController extends Controller
      */
     public function update(UpdateCustomerRequest $request, Customer $customer)
     {
-        $customer = $this->customer_repo->save($request->except(['addresses', 'settings']), $customer);
+        $customer = $this->customer_repo->update($request->except(['addresses', 'settings']), $customer);
 
         $obj_merged = (object)array_merge((array)$customer->settings, (array)$request->settings);
         $customer = (new CustomerSettings)->save($customer, $obj_merged);
@@ -81,8 +79,6 @@ class CustomerController extends Controller
         if (!empty($request->contacts)) {
             $this->contact_repo->save($request->contacts, $customer);
         }
-
-        event(new CustomerWasUpdated($customer));
 
         return response()->json($this->transformCustomer($customer));
     }
@@ -100,7 +96,7 @@ class CustomerController extends Controller
     public function store(CreateCustomerRequest $request)
     {
         $customer = CustomerFactory::create(auth()->user()->account_user()->account, auth()->user());
-        $customer = $this->customer_repo->save($request->except('addresses', 'settings'), $customer);
+        $customer = $this->customer_repo->create($request->except('addresses', 'settings'), $customer);
 
         $obj_merged = (object)array_merge((array)$customer->settings, (array)$request->settings);
         $customer = (new CustomerSettings)->save($customer, $obj_merged);
@@ -109,8 +105,6 @@ class CustomerController extends Controller
         if (!empty($request->contacts)) {
             $this->contact_repo->save($request->contacts, $customer);
         }
-
-        event(new CustomerWasCreated($customer));
 
         return $this->transformCustomer($customer);
     }

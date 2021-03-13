@@ -76,7 +76,7 @@ class RecurringQuoteController extends BaseController
      */
     public function store(CreateRecurringQuoteRequest $request)
     {
-        $recurring_quote = (new RecurringQuoteRepository(new RecurringQuote))->createQuote(
+        $recurring_quote = (new RecurringQuoteRepository(new RecurringQuote))->create(
             $request->all(),
             RecurringQuoteFactory::create(
                 Customer::where('id', $request->customer_id)->first(),
@@ -94,7 +94,7 @@ class RecurringQuoteController extends BaseController
      */
     public function update(UpdateRecurringQuoteRequest $request, RecurringQuote $recurring_quote)
     {
-        $recurring_quote = $this->recurring_quote_repo->save($request->all(), $recurring_quote);
+        $recurring_quote = $this->recurring_quote_repo->update($request->all(), $recurring_quote);
         return response()->json($this->transformRecurringQuote($recurring_quote));
     }
 

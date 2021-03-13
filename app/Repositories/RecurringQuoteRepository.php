@@ -37,7 +37,7 @@ class RecurringQuoteRepository extends BaseRepository
      * @param RecurringQuote $recurring_quote
      * @return RecurringQuote|null
      */
-    public function createQuote(array $data, RecurringQuote $recurring_quote): ?RecurringQuote
+    public function create(array $data, RecurringQuote $recurring_quote): ?RecurringQuote
     {
         $recurring_quote->date_to_send = $this->calculateDate(
             !empty($data['frequency']) ? $data['frequency'] : 'MONTHLY'
@@ -55,6 +55,15 @@ class RecurringQuoteRepository extends BaseRepository
         return $recurring_quote;
     }
 
+    public function update(array $data, RecurringQuote $recurring_quote): ?RecurringQuote
+    {
+        $recurring_quote = $this->save($data, $recurring_quote);
+
+        event(new RecurringQuoteWasUpdated($recurring_quote));
+
+        return $recurring_quote;
+    }
+
     /**
      * @param array $data
      * @param RecurringQuote $quote
@@ -62,7 +71,6 @@ class RecurringQuoteRepository extends BaseRepository
      */
     public function save(array $data, RecurringQuote $quote): ?RecurringQuote
     {
-        $is_add = empty($quote->id);
         $quote->fill($data);
         $quote = $this->populateDefaults($quote);
         $quote = $this->formatNotes($quote);
@@ -73,10 +81,6 @@ class RecurringQuoteRepository extends BaseRepository
         $quote->save();
 
         $this->saveInvitations($quote, $data);
-
-        if (!$is_add) {
-            event(new RecurringQuoteWasUpdated($quote));
-        }
 
         return $quote->fresh();
     }

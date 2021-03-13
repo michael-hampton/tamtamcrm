@@ -78,7 +78,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
      * @return Order|null
      * @return Order|null
      */
-    public function updateOrder(array $data, Order $order): ?Order
+    public function update(array $data, Order $order): ?Order
     {
         $original_order = $order->line_items;
 
@@ -159,7 +159,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
      * @param Order $order
      * @return Order|null
      */
-    public function createOrder(array $data, Order $order): ?Order
+    public function create(array $data, Order $order): ?Order
     {
         $order->fill($data);
 

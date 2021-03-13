@@ -39,6 +39,10 @@ Route::group(
         Route::post('deals/{deal}/{action}', 'DealController@action')->name('invoices.action');
         Route::post('deals/sort', 'TaskController@sortTasks');
         Route::resource('deals', 'DealController');
+        Route::delete(
+            'deals/archive/{deal}',
+            'DealController@archive'
+        );
 
         // subscription
         Route::resource('subscriptions', 'SubscriptionController');
@@ -46,6 +50,10 @@ Route::group(
 
         // expense categories
         Route::resource('expense-categories', 'ExpenseCategoryController');
+        Route::delete(
+            'expense-categories/archive/{expense_category}',
+            'ExpenseCategoryController@archive'
+        );
 
         // brands
         Route::resource('brands', 'BrandController');
@@ -74,22 +82,28 @@ Route::group(
         Route::get('messages/{customer_id}', 'MessageController@index');
         Route::post('messages', 'MessageController@store');
 
+        // case categories
+        Route::resource('case-categories', 'CaseCategoryController');
+
+        // case templates
+        Route::resource('case_template', 'CaseTemplateController');
+
         //companies
         Route::get('companies', 'CompanyController@index');
         Route::post('companies/restore/{id}', 'CompanyController@restore');
         Route::post('companies', 'CompanyController@store');
-        Route::delete('companies/archive/{company_id}', 'CompanyController@archive');
-        Route::delete('companies/{company_id}', 'CompanyController@destroy');
-        Route::get('companies/{company_id}', 'CompanyController@show');
-        Route::put('companies/{company_id}', 'CompanyController@update');
+        Route::delete('companies/archive/{company}', 'CompanyController@archive');
+        Route::delete('companies/{company}', 'CompanyController@destroy');
+        Route::get('companies/{company}', 'CompanyController@show');
+        Route::put('companies/{company}', 'CompanyController@update');
         Route::get('industries', 'CompanyController@getIndustries');
 
 //categories
         Route::get('categories', 'CategoryController@index');
         Route::post('categories', 'CategoryController@store');
-        Route::delete('categories/{category_id}', 'CategoryController@destroy');
-        Route::get('categories/{category_id}', 'CategoryController@edit');
-        Route::put('categories/{category_id}', 'CategoryController@update');
+        Route::delete('categories/{category}', 'CategoryController@destroy');
+        Route::get('categories/{category}', 'CategoryController@edit');
+        Route::put('categories/{category}', 'CategoryController@update');
 
 // comments
         Route::get('comments/{entity}/{task_id}', 'CommentController@index');
@@ -118,10 +132,10 @@ Route::group(
         Route::get('products', 'ProductController@index');
         Route::post('products', 'ProductController@store');
         Route::post('products/bulk', 'ProductController@bulk');
-        Route::delete('products/archive/{product_id}', 'ProductController@archive');
-        Route::delete('products/{product_id}', 'ProductController@destroy');
+        Route::delete('products/archive/{product}', 'ProductController@archive');
+        Route::delete('products/{product}', 'ProductController@destroy');
         Route::post('products/removeImages', 'ProductController@removeThumbnail');
-        Route::put('products/{product_id}', 'ProductController@update');
+        Route::put('products/{product}', 'ProductController@update');
         Route::get('products/tasks/{task_id}/{status}', 'OrderController@getOrderForTask');
         Route::post('products/filterProducts', 'ProductController@filterProducts');
         Route::get('product/{slug}', 'ProductController@getProduct');
@@ -131,20 +145,20 @@ Route::group(
         Route::get('projects', 'ProjectController@index');
         Route::get('projects', 'ProjectController@index');
         Route::post('projects', 'ProjectController@store');
-        Route::get('projects/{id}', 'ProjectController@show');
-        Route::put('projects/{project_id}', 'ProjectController@update');
-        Route::delete('projects/archive/{project_id}', 'ProjectController@archive');
-        Route::delete('projects/{project_id}', 'ProjectController@destroy');
+        Route::get('projects/{project}', 'ProjectController@show');
+        Route::put('projects/{project}', 'ProjectController@update');
+        Route::delete('projects/archive/{project}', 'ProjectController@archive');
+        Route::delete('projects/{project}', 'ProjectController@destroy');
         Route::post('projects/restore/{id}', 'ProjectController@restore');
 
         //order
         Route::get('order', 'OrderController@index');
         Route::post('order/restore/{id}', 'OrderController@restore');
-        Route::put('order/{order_id}', 'OrderController@update');
+        Route::put('order/{order}', 'OrderController@update');
         Route::post('order', 'OrderController@store');
         Route::post('order/{order}/{action}', 'OrderController@action')->name('invoices.action');
-        Route::delete('order/archive/{order_id}', 'OrderController@archive');
-        Route::delete('order/{order_id}', 'OrderController@destroy');
+        Route::delete('order/archive/{order}', 'OrderController@archive');
+        Route::delete('order/{order}', 'OrderController@destroy');
         Route::post('order/restore/{id}', 'OrderController@restore');
 
 // uploads
@@ -155,13 +169,13 @@ Route::group(
         Route::get('taskStatus/search', 'TaskStatusController@search');
         Route::get('taskStatus', 'TaskStatusController@index');
         Route::post('taskStatus', 'TaskStatusController@store');
-        Route::put('taskStatus/{id}', 'TaskStatusController@update');
-        Route::delete('taskStatus/{status_id}', 'TaskStatusController@destroy');
+        Route::put('taskStatus/{task_status}', 'TaskStatusController@update');
+        Route::delete('statuses/{task_status}', 'TaskStatusController@destroy');
 
         // invoice
         Route::post('invoice', 'InvoiceController@store');
-        Route::delete('invoice/archive/{invoice_id}', 'InvoiceController@archive');
-        Route::delete('invoice/{invoice_id}', 'InvoiceController@destroy');
+        Route::delete('invoice/archive/{invoice}', 'InvoiceController@archive');
+        Route::delete('invoice/{invoice}', 'InvoiceController@destroy');
         Route::post('invoice/restore/{id}', 'InvoiceController@restore');
         Route::post('invoice/bulk', 'InvoiceController@bulk');
         Route::get('invoice', 'InvoiceController@index');
@@ -171,7 +185,7 @@ Route::group(
         );
         Route::get('invoice/{invoice_id}', 'InvoiceController@show');
 
-        Route::put('invoice/{invoice_id}', 'InvoiceController@update');
+        Route::put('invoice/{invoice}', 'InvoiceController@update');
         Route::get(
             'invoice/getInvoicesByStatus/{status}',
             'InvoiceController@getInvoicesByStatus'
@@ -189,15 +203,15 @@ Route::group(
             'RecurringInvoiceController@bulk'
         );
         Route::put(
-            'recurring-invoice/{id}',
+            'recurring-invoice/{recurring_invoice}',
             'RecurringInvoiceController@update'
         );
         Route::delete(
-            'recurring-invoice/archive/{id}',
+            'recurring-invoice/archive/{recurring_invoice}',
             'RecurringInvoiceController@archive'
         );
         Route::delete(
-            'recurring-invoice/{id}',
+            'recurring-invoice/{recurring_invoice}',
             'RecurringInvoiceController@destroy'
         );
         Route::get(
@@ -211,7 +225,7 @@ Route::group(
 
 //recurring quote
         Route::put(
-            'recurring-quote/{id}',
+            'recurring-quote/{recurring_quote}',
             'RecurringQuoteController@update'
         );
         Route::get('recurring-quote', 'RecurringQuoteController@index');
@@ -221,11 +235,11 @@ Route::group(
             'RecurringQuoteController@bulk'
         );
         Route::delete(
-            'recurring-quote/archive/{id}',
+            'recurring-quote/archive/{recurring_quote}',
             'RecurringQuoteController@archive'
         );
         Route::delete(
-            'recurring-quote/{id}',
+            'recurring-quote/{recurring_quote}',
             'RecurringQuoteController@destroy'
         );
         Route::post('recurringQuote/restore/{id}', 'RecurringQuoteController@restore');
@@ -235,11 +249,11 @@ Route::group(
 
 //credit
         Route::post('credit', 'CreditController@store');
-        Route::delete('credits/archive/{credit_id}', 'CreditController@archive');
-        Route::delete('credits/{credit_id}', 'CreditController@destroy');
+        Route::delete('credits/archive/{credit}', 'CreditController@archive');
+        Route::delete('credits/{credit}', 'CreditController@destroy');
         Route::get('credits', 'CreditController@index');
-        Route::put('credit/{credit_id}', 'CreditController@update');
-        Route::post('credits/restore/{id}', 'CreditController@restore');
+        Route::put('credit/{credit}', 'CreditController@update');
+        Route::post('credits/restore/{credit}', 'CreditController@restore');
         Route::post('credit/{credit}/{action}', 'CreditController@action')->name('credits.action');
         Route::get(
             'credits/getCreditsByStatus/{status}',
@@ -249,11 +263,11 @@ Route::group(
 
 //expenses
         Route::post('expense', 'ExpenseController@store');
-        Route::delete('expenses/archive/{expense_id}', 'ExpenseController@archive');
-        Route::delete('expenses/{expense_id}', 'ExpenseController@destroy');
+        Route::delete('expenses/archive/{expense}', 'ExpenseController@archive');
+        Route::delete('expenses/{expense}', 'ExpenseController@destroy');
         Route::get('expenses', 'ExpenseController@index');
-        Route::get('expenses/{expense_id}', 'ExpenseController@show');
-        Route::put('expense/{expense_id}', 'ExpenseController@update');
+        Route::get('expenses/{expense}', 'ExpenseController@show');
+        Route::put('expense/{expense}', 'ExpenseController@update');
         Route::post('expenses/restore/{id}', 'ExpenseController@restore');
         Route::post('expense/bulk', 'ExpenseController@bulk');
 
@@ -262,17 +276,17 @@ Route::group(
             'quotes/convert/{invoice_id}',
             'QuoteController@convert'
         );
-        Route::delete('quote/archive/{quote_id}', 'QuoteController@archive');
-        Route::delete('quote/{quote_id}', 'QuoteController@destroy');
+        Route::delete('quote/archive/{quote}', 'QuoteController@archive');
+        Route::delete('quote/{quote}', 'QuoteController@destroy');
         Route::get(
             'quotes/approve/{invoice_id}',
             'QuoteController@approve'
         );
         Route::post('quote', 'QuoteController@store');
 
-        Route::put('quote/{quote_id}', 'QuoteController@update');
+        Route::put('quote/{quote}', 'QuoteController@update');
         Route::get('quote', 'QuoteController@index');
-        Route::get('quote/{quote_id}', 'QuoteController@show');
+        Route::get('quote/{quote}', 'QuoteController@show');
         Route::post('quote/{quote}/{action}', 'QuoteController@action')->name('quotes.action');
         Route::get(
             'quotes/task/{task_id}',
@@ -281,11 +295,11 @@ Route::group(
         Route::post('quotes/restore/{id}', 'QuoteController@restore');
 
 // purchase orders
-        Route::delete('purchase_order/archive/{quote_id}', 'PurchaseOrderController@archive');
-        Route::delete('purchase_order/{quote_id}', 'PurchaseOrderController@destroy');
+        Route::delete('purchase_order/archive/{purchase_order}', 'PurchaseOrderController@archive');
+        Route::delete('purchase_order/{purchase_order}', 'PurchaseOrderController@destroy');
         Route::post('purchase_order', 'PurchaseOrderController@store');
 
-        Route::put('purchase_order/{purchase_order_id}', 'PurchaseOrderController@update');
+        Route::put('purchase_order/{purchase_order}', 'PurchaseOrderController@update');
         Route::get('purchase_order', 'PurchaseOrderController@index');
         Route::get('purchase_order/{quote_id}', 'PurchaseOrderController@show');
         Route::post('purchase_order/{purchase_order}/{action}', 'PurchaseOrderController@action')->name('quotes.action');
@@ -335,26 +349,25 @@ Route::group(
 // company gateways
         Route::get('company_gateways', 'CompanyGatewayController@index');
         Route::get('company_gateways/{id}', 'CompanyGatewayController@show');
-        Route::put('company_gateways/{id}', 'CompanyGatewayController@update');
+        Route::put('company_gateways/{company_gateway}', 'CompanyGatewayController@update');
         Route::post('company_gateways/', 'CompanyGatewayController@store');
 
 // tax rates
         Route::get('taxRates', 'TaxRateController@index');
         Route::post('taxRates', 'TaxRateController@store');
-        Route::delete('taxRates/archive/{taxRate_id}', 'TaxRateController@archive');
-        Route::delete('taxRates/{taxRate_id}', 'TaxRateController@destroy');
-        Route::get('taxRates/{taxRate_id}', 'TaxRateController@edit');
-        Route::put('taxRates/{taxRate_id}', 'TaxRateController@update');
+        Route::delete('taxRates/archive/{tax_rate}', 'TaxRateController@archive');
+        Route::delete('taxRates/{tax_rate}', 'TaxRateController@destroy');
+        Route::put('taxRates/{tax_rate}', 'TaxRateController@update');
         Route::post('taxRate/restore/{id}', 'TaxRateController@restore');
 
 //payments
         Route::get('payments', 'PaymentController@index');
-        Route::get('payments/{payment_id}', 'PaymentController@show');
+        Route::get('payments/{payment}', 'PaymentController@show');
         Route::post('payments', 'PaymentController@store');
         Route::post('payments/bulk', 'PaymentController@bulk');
-        Route::delete('payments/archive/{payment_id}', 'PaymentController@archive');
-        Route::delete('payments/{payment_id}', 'PaymentController@destroy');
-        Route::put('payments/{payment_id}', 'PaymentController@update');
+        Route::delete('payments/archive/{payment}', 'PaymentController@archive');
+        Route::delete('payments/{payment}', 'PaymentController@destroy');
+        Route::put('payments/{payment}', 'PaymentController@update');
         Route::post('payments/restore/{id}', 'PaymentController@restore');
         Route::post('payments/{payment}/{action}', 'PaymentController@action')->name('payments.action');
 
@@ -371,19 +384,19 @@ Route::group(
             'customers/dashboard',
             'CustomerController@dashboard'
         );
-        Route::get('customers/{customer_id}', 'CustomerController@show');
+        Route::get('customers/{customer}', 'CustomerController@show');
         Route::put(
-            'customers/{customer_id}',
+            'customers/{customer}',
             'CustomerController@update'
         );
         Route::post('customers', 'CustomerController@store');
         Route::post('customers/bulk', 'CustomerController@bulk');
         Route::delete(
-            'customers/archive/{customer_id}',
+            'customers/archive/{customer}',
             'CustomerController@archive'
         );
         Route::delete(
-            'customers/{customer_id}',
+            'customers/{customer}',
             'CustomerController@destroy'
         );
         Route::get(
@@ -394,7 +407,7 @@ Route::group(
 
 // tasks
         Route::post('tasks/restore/{id}', 'TaskController@restore');
-        Route::put('tasks/{task_id}', 'TaskController@update');
+        Route::put('tasks/{task}', 'TaskController@update');
         Route::post('tasks', 'TaskController@store');
         Route::get(
             'tasks/getTasksForProject/{project_id}',
@@ -424,8 +437,8 @@ Route::group(
         Route::get('tasks/source-types', 'TaskController@getSourceTypes');
         Route::get('tasks/task-types', 'TaskController@getTaskTypes');
         Route::get('tasks/convertToDeal/{task_id}', 'TaskController@convertToDeal');
-        Route::put('tasks/timer/{task_id}', 'TaskController@updateTimer');
-        Route::delete('tasks/archive/{task_id}', 'TaskController@archive');
+        Route::put('tasks/timer/{task}', 'TaskController@updateTimer');
+        Route::delete('tasks/archive/{task}', 'TaskController@archive');
         Route::post('tasks/{task}/{action}', 'TaskController@action')->name('invoices.action');
         Route::post('task/bulk', 'TaskController@bulk');
         Route::get('tasks/{task_id}', 'TaskController@show');
@@ -434,21 +447,21 @@ Route::group(
 
 // leads
         Route::get('leads', 'LeadController@index');
-        Route::put('lead/{lead_id}', 'LeadController@update');
-        Route::get('leads/{id}', 'LeadController@show');
-        Route::delete('leads/archive/{lead_id}', 'LeadController@archive');
+        Route::put('lead/{lead}', 'LeadController@update');
+        Route::get('leads/{lead}', 'LeadController@show');
+        Route::delete('leads/archive/{lead}', 'LeadController@archive');
         Route::delete('leads/{lead}', 'LeadController@destroy');
         Route::post('leads/restore/{id}', 'LeadController@restore');
         Route::post('lead/{lead}/{action}', 'LeadController@action')->name('invoices.action');
         Route::post('leads/sort', 'LeadController@sortTasks');
 
 // users
-        Route::delete('users/archive/{user_id}', 'UserController@archive');
-        Route::delete('users/{user_id}', 'UserController@destroy');
+        Route::delete('users/archive/{user}', 'UserController@archive');
+        Route::delete('users/{user}', 'UserController@destroy');
         Route::post('users', 'UserController@store');
         Route::get('users/dashboard', 'UserController@dashboard');
-        Route::get('users/edit/{user_id}', 'UserController@edit');
-        Route::put('users/{user_id}', 'UserController@update');
+        Route::get('users/edit/{user}', 'UserController@edit');
+        Route::put('users/{user}', 'UserController@update');
         Route::get('users', 'UserController@index');
         Route::post('user/upload', 'UserController@upload');
         Route::post('user/bulk', 'UserController@bulk');
@@ -530,7 +543,7 @@ Route::group(
         Route::post('recurring-invoice/cancel', 'RecurringInvoiceController@requestCancellation');
         Route::post('quote/bulk', 'QuoteController@bulk');
         Route::post('order/bulk', 'OrderController@bulk');
-        Route::get('products/{product_id}', 'ProductController@show');
+        Route::get('products/{product}', 'ProductController@show');
         Route::get('products/find/{slug}', 'ProductController@find');
         Route::get("category/{id}/products", 'ProductController@getProductsForCategory');
 
@@ -548,16 +561,9 @@ Route::group(
 
         // cases
         Route::resource('cases', 'CaseController');
-        Route::delete('cases/archive/{case_id}', 'CaseController@archive');
+        Route::delete('cases/archive/{case}', 'CaseController@archive');
         Route::post('cases/restore/{id}', 'CaseController@restore');
         Route::post('cases/{case}/{action}', 'CaseController@action')->name('invoices.action');
-
-
-        // case categories
-        Route::resource('case-categories', 'CaseCategoryController');
-
-        // case templates
-        Route::resource('case_template', 'CaseTemplateController');
 
         Route::post('uploads', 'UploadController@store');
 

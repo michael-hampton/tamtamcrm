@@ -4,17 +4,6 @@ namespace App\Repositories\Base;
 
 interface BaseRepositoryInterface
 {
-    /**
-     * @param array $attributes
-     * @return mixed
-     */
-    public function create(array $attributes);
-
-    /**
-     * @param array $attributes
-     * @return bool
-     */
-    public function update(array $attributes): bool;
 
     /**
      * @param array $columns

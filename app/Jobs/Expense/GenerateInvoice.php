@@ -76,7 +76,7 @@ class GenerateInvoice implements ShouldQueue
 
         $first_expense = $this->expenses->first();
         $invoice = CloneExpenseToInvoiceFactory::create($first_expense, $first_expense->user, $first_expense->account);
-        $invoice = $this->invoice_repo->createInvoice(['line_items' => $line_items], $invoice);
+        $invoice = $this->invoice_repo->create(['line_items' => $line_items], $invoice);
         Expense::whereIn('id', $created_expenses)->update(['invoice_id' => $invoice->id]);
 
         if (!empty($this->data) && !empty($this->data['payment_date'])) {

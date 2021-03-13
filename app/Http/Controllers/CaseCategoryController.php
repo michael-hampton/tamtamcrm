@@ -57,7 +57,7 @@ class CaseCategoryController extends Controller
      */
     public function store(CreateCategoryRequest $request)
     {
-        $category = $this->category_repo->save(
+        $category = $this->category_repo->create(
             $request->all(),
             CaseCategoryFactory::create(auth()->user()->account_user()->account, auth()->user())
         );
@@ -69,20 +69,19 @@ class CaseCategoryController extends Controller
      * @param UpdateCategoryRequest $request
      * @param int $id
      */
-    public function update(UpdateCategoryRequest $request, CaseCategory $category)
+    public function update(UpdateCategoryRequest $request, CaseCategory $case_category)
     {
-        $update = new CaseCategoryRepository($category);
-        $update->save($request->except('_token', '_method'), $category);
+        $this->category_repo->update($request->except('_token', '_method'), $case_category);
     }
 
     /**
      * @param int $id
      * @return JsonResponse
      */
-    public function destroy(CaseCategory $category)
+    public function destroy(CaseCategory $case_category)
     {
-        $category->deleteEntity();
-        return response()->json($category);
+        $case_category->deleteEntity();
+        return response()->json($case_category);
     }
 
     public function getRootCategories()

@@ -14,8 +14,7 @@ class UpdateCreditRequest extends BaseFormRequest
      */
     public function authorize()
     {
-        $credit = Credit::find($this->credit_id);
-        return auth()->user()->can('update', $credit);
+        return auth()->user()->can('update', $this->credit);
     }
 
     /**
@@ -34,7 +33,7 @@ class UpdateCreditRequest extends BaseFormRequest
             'total'          => 'required',
             'tax_total'      => 'required',
             'line_items'     => 'required|array',
-            'number'         => 'nullable|unique:credits,number,' . $this->credit_id . ',id,account_id,' . $this->account_id,
+            'number'         => 'nullable|unique:credits,number,' . $this->credit->id . ',id,account_id,' . $this->account_id,
         ];
     }
 }

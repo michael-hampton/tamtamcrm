@@ -163,8 +163,6 @@ class UserController extends Controller
                 $request->input('customized_permissions')
             );
         } else {
-            die('no');
-
             DB::table('permission_user')->where('user_id', $user->id)->where(
                 'account_id',
                 $account_user->account->id
