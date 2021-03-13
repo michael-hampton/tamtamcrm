@@ -72,7 +72,7 @@ class QuoteController extends BaseController
      */
     public function show(Quote $quote)
     {
-        return response()->json($invoice);
+        return response()->json($quote);
     }
 
     /**
