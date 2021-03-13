@@ -84,9 +84,8 @@ class InvoiceController extends BaseController
      * @return mixed
      * @throws Exception
      */
-    public function show(int $invoice_id)
+    public function show(Invoice $invoice)
     {
-        $invoice = $this->invoice_repo->findInvoiceById($invoice_id);
         return response()->json((new InvoiceTransformable())->transformInvoice($invoice));
     }
 
@@ -118,10 +117,8 @@ class InvoiceController extends BaseController
      * @return mixed
      * @throws Exception
      */
-    public function update(UpdateInvoiceRequest $request, int $id)
+    public function update(UpdateInvoiceRequest $request, Invoice $invoice)
     {
-        $invoice = $this->invoice_repo->findInvoiceById($id);
-
         if ($invoice->isLocked()) {
             return response()->json(['message' => trans('texts.invoice_is_locked')], 422);
         }
@@ -140,9 +137,8 @@ class InvoiceController extends BaseController
      * @return mixed
      * @throws Exception
      */
-    public function archive(int $id)
+    public function archive(Invoice $invoice)
     {
-        $invoice = $this->invoice_repo->findInvoiceById($id);
         $invoice->archive();
         return response()->json([], 200);
     }
@@ -152,10 +148,8 @@ class InvoiceController extends BaseController
      * @return JsonResponse
      * @throws Exception
      */
-    public function destroy(int $id)
+    public function destroy(Invoice $invoice)
     {
-        $invoice = $this->invoice_repo->findInvoiceById($id);
-
         $this->authorize('delete', $invoice);
         $invoice->deleteInvoice();
         return response()->json([], 200);
