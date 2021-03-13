@@ -140,7 +140,6 @@ class CompanyController extends Controller
      */
     public function archive(Company $company)
     {
-        $company = $this->company_repo->findCompanyById($id);
         $company->archive();
     }
 
