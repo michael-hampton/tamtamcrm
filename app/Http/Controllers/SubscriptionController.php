@@ -50,9 +50,8 @@ class SubscriptionController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public function show(int $id)
+    public function show(Subscription $subscription)
     {
-        $subscription = $this->subscription_repo->findSubscriptionById($id);
         return response()->json($subscription);
     }
 
@@ -61,10 +60,8 @@ class SubscriptionController extends Controller
      * @param UpdateSubscriptionRequest $request
      * @return JsonResponse
      */
-    public function update(int $id, UpdateSubscriptionRequest $request)
+    public function update(UpdateSubscriptionRequest $request, Subscription $subscription)
     {
-        $subscription = $this->subscription_repo->findSubscriptionById($id);
-
         $subscription = $this->subscription_repo->save($request->all(), $subscription);
 
         return response()->json($this->transform($subscription));
@@ -86,9 +83,8 @@ class SubscriptionController extends Controller
      * @return JsonResponse
      * @throws Exception
      */
-    public function destroy(int $id)
+    public function destroy(Subscription $subscription)
     {
-        $subscription = $this->subscription_repo->findSubscriptionById($id);
         $this->authorize('delete', $subscription);
         $subscription->deleteEntity();
 
