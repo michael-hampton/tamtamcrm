@@ -85,9 +85,8 @@ class ProductController extends Controller
         return $this->transformProduct($product);
     }
 
-    public function show(int $id)
+    public function show(Product $product)
     {
-        $product = $this->product_repo->findProductById($id);
         return response()->json($this->transformProduct($product));
     }
 
@@ -102,10 +101,8 @@ class ProductController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public function update(UpdateProductRequest $request, int $id)
+    public function update(UpdateProductRequest $request, Product $product)
     {
-        $product = $this->product_repo->findProductById($id);
-
         $product = (new CreateProduct($this->product_repo, $request->all(), $product))->execute();
 
         return response()->json($this->transformProduct($product));
@@ -115,9 +112,8 @@ class ProductController extends Controller
      * @param $id
      * @throws Exception
      */
-    public function archive($id)
+    public function archive(Product $product)
     {
-        $product = $this->product_repo->findProductById($id);
         $product->archive();
     }
 
@@ -126,10 +122,8 @@ class ProductController extends Controller
      * @return mixed
      * @throws AuthorizationException
      */
-    public function destroy(int $id)
+    public function destroy(Product $product)
     {
-        $product = Product::withTrashed()->where('id', '=', $id)->first();
-
         $this->authorize('delete', $product);
 
         $product->deleteEntity();
