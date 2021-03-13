@@ -11,6 +11,7 @@ use App\Search\ExpenseCategorySearch;
 use App\Transformations\ExpenseCategoryTransformable;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
+use App\Models\ExpenseCategory;
 
 class ExpenseCategoryController extends Controller
 {
@@ -64,9 +65,8 @@ class ExpenseCategoryController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public function update(UpdateCategoryRequest $request, int $id)
+    public function update(UpdateCategoryRequest $request, ExpenseCategory $category)
     {
-        $category = $this->category_repo->findCategoryById($id);
         $category = $this->category_repo->save($request->all(), $category);
         return response()->json($category);
     }
@@ -78,9 +78,8 @@ class ExpenseCategoryController extends Controller
      * @return void
      * @throws AuthorizationException
      */
-    public function destroy(int $id)
+    public function destroy(ExpenseCategory $category)
     {
-        $category = $this->category_repo->findCategoryById($id);
         $this->authorize('delete', $category);
         $category->deleteEntity();
     }
