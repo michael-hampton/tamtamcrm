@@ -10,6 +10,7 @@ use App\Requests\SearchRequest;
 use App\Requests\TaskStatus\CreateTaskStatusRequest;
 use App\Requests\TaskStatus\UpdateTaskStatusRequest;
 use App\Search\TaskStatusSearch;
+use App\Models\TaskStatus;
 use App\Transformations\TaskStatusTransformable;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
@@ -60,9 +61,8 @@ class TaskStatusController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public function update(UpdateTaskStatusRequest $request, int $id)
+    public function update(UpdateTaskStatusRequest $request, TaskStatus $status)
     {
-        $status = $this->task_status_repo->findTaskStatusById($id);
         $update = new TaskStatusRepository($status);
         $status = $update->save($request->all(), $status);
         return response()->json($this->transformTaskStatus($status));
@@ -75,9 +75,8 @@ class TaskStatusController extends Controller
      * @return void
      * @throws AuthorizationException
      */
-    public function destroy(int $id)
+    public function destroy(TaskStatus $task_status)
     {
-        $task_status = $this->task_status_repo->findTaskStatusById($id);
         $this->authorize('delete', $task_status);
         $task_status->delete();
     }
