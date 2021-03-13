@@ -57,9 +57,8 @@ class ExpenseController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public function show(int $id)
+    public function show(Expense $expense)
     {
-        $expense = $this->expense_repo->findExpenseById($id);
         return response()->json($this->transformExpense($expense));
     }
 
@@ -68,10 +67,8 @@ class ExpenseController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public function update(UpdateExpenseRequest $request, int $id)
+    public function update(UpdateExpenseRequest $request, Expense $expense)
     {
-        $expense = $this->expense_repo->findExpenseById($id);
-
         $expense = $this->expense_repo->updateExpense($request->all(), $expense);
 
         return response()->json($this->transformExpense($expense->fresh()));
@@ -96,9 +93,8 @@ class ExpenseController extends Controller
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function destroy(int $id)
+    public function destroy(Expense $expense)
     {
-        $expense = Expense::withTrashed()->where('id', '=', $id)->first();
         $this->authorize('delete', $expense);
         $expense->deleteEntity();
         return response()->json([], 200);
@@ -121,9 +117,8 @@ class ExpenseController extends Controller
      * @return RedirectResponse
      * @throws Exception
      */
-    public function archive(int $id)
+    public function archive(Expense $expense)
     {
-        $expense = $this->expense_repo->findExpenseById($id);
         $expense->archive();
         return response()->json([], 200);
     }
