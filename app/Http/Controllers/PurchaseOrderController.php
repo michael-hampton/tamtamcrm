@@ -69,10 +69,9 @@ class PurchaseOrderController extends BaseController
      * @param int $po_id
      * @return mixed
      */
-    public function show(int $po_id)
+    public function show(PurchaseOrder $purchase_order)
     {
-        $po = $this->purchase_order_repo->findPurchaseOrderById($po_id);
-        return response()->json($po);
+        return response()->json($purchase_order);
     }
 
     /**
@@ -95,11 +94,9 @@ class PurchaseOrderController extends BaseController
      * @param int $id
      * @return mixed
      */
-    public function update(UpdatePurchaseOrderRequest $request, int $id)
+    public function update(UpdatePurchaseOrderRequest $request, PurchaseOrder $purchase_order)
     {
-        $po = $this->purchase_order_repo->findPurchaseOrderById($id);
-
-        $po = $this->purchase_order_repo->updatePurchaseOrder($request->all(), $po);
+        $po = $this->purchase_order_repo->updatePurchaseOrder($request->all(), $purchase_order);
 
         return response()->json($this->transformPurchaseOrder($po));
     }
@@ -121,9 +118,8 @@ class PurchaseOrderController extends BaseController
      * @param int $id
      * @return mixed
      */
-    public function archive(int $id)
+    public function archive(PurchaseOrder $purchase_order)
     {
-        $purchase_order = $this->purchase_order_repo->findPurchaseOrderById($id);
         $purchase_order->archive();
         return response()->json([], 200);
     }
@@ -133,9 +129,8 @@ class PurchaseOrderController extends BaseController
      * @return mixed
      * @throws AuthorizationException
      */
-    public function destroy(int $id)
+    public function destroy(PurchaseOrder $purchase_order)
     {
-        $purchase_order = PurchaseOrder::withTrashed()->where('id', '=', $id)->first();
         $this->authorize('delete', $purchase_order);
         $purchase_order->deleteEntity();
         return response()->json([], 200);
