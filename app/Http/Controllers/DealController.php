@@ -78,9 +78,8 @@ class DealController extends Controller
      * @return type
      * @throws Exception
      */
-    public function markAsCompleted(int $deal_id)
+    public function markAsCompleted(Deal $deal)
     {
-        $objDeal = $this->deal_repo->findDealById(deal_id);
         $deal = $this->deal_repo->save(['is_completed' => true], $deal);
         return response()->json($deal);
     }
@@ -93,18 +92,16 @@ class DealController extends Controller
      * @return Response
      * @throws Exception
      */
-    public function update(UpdateDealRequest $request, int $id)
+    public function update(UpdateDealRequest $request, Deal $deal)
     {
-        $deal = $this->deal_repo->findDealById($id);
         $deal = $this->deal_repo->updateDeal($request->all(), $deal);
 
 
         return response()->json($deal);
     }
 
-    public function show(int $id)
+    public function show(Deal $deal)
     {
-        $deal = $this->deal_repo->getDealById($id);
         return response()->json($this->transformDeal($deal));
     }
 
@@ -115,15 +112,13 @@ class DealController extends Controller
      * @return void
      * @throws Exception
      */
-    public function archive(int $id)
+    public function archive(Deal $deal)
     {
-        $deal = $this->deal_repo->findDealById($id);
         $deal->archive();
     }
 
-    public function destroy(int $id)
+    public function destroy(Deal $deal)
     {
-        $deal = $this->deal_repo->findDealById($id);
 
         $this->authorize('delete', $deal);
 
