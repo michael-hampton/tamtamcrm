@@ -5,8 +5,6 @@ namespace App\Repositories;
 use App\Models\TaxRate;
 use App\Repositories\Base\BaseRepository;
 use App\Repositories\Interfaces\TaxRateRepositoryInterface;
-use Exception;
-use Illuminate\Support\Collection;
 
 class TaxRateRepository extends BaseRepository implements TaxRateRepositoryInterface
 {
@@ -21,12 +19,8 @@ class TaxRateRepository extends BaseRepository implements TaxRateRepositoryInter
     }
 
     /**
-     * Return the courier
-     *
      * @param int $id
-     *
      * @return TaxRate
-     * @throws CourierNotFoundException
      */
     public function findTaxRateById(int $id): TaxRate
     {
@@ -39,44 +33,26 @@ class TaxRateRepository extends BaseRepository implements TaxRateRepositoryInter
     }
 
     /**
-     * Return all the tax rates
-     *
-     * @param string[] $columns
-     * @param string $order
-     * @param string $sort
-     * @return Collection|mixed
+     * @param array $data
+     * @param TaxRate $tax_rate
+     * @return TaxRate
      */
-    public function listTaxRates($columns = ['*'], string $order = 'id', string $sort = 'desc'): Collection
+    public function update(array $data, TaxRate $tax_rate): TaxRate
     {
-        return $this->all($columns, $order, $sort);
+        $tax_rate->update($data);
+
+        return $tax_rate;
     }
 
     /**
-     * @return bool
-     * @throws Exception
+     * @param array $data
+     * @param TaxRate $tax_rate
+     * @return TaxRate
      */
-    public function deleteTaxRate()
+    public function create(array $data, TaxRate $tax_rate): TaxRate
     {
-        return $this->delete();
-    }
+        $tax_rate->fill($data)->save();
 
-    /**
-     * @param string $text
-     * @return mixed
-     */
-    public function searchTaxRate(string $text = null): Collection
-    {
-        if (is_null($text)) {
-            return $this->all();
-        }
-        return $this->model->searchTaxRate($text)->get();
-    }
-
-    public function save($data, TaxRate $taxRate): ?TaxRate
-    {
-        $taxRate->fill($data);
-        $taxRate->save();
-
-        return $taxRate;
+        return $tax_rate;
     }
 }

@@ -18,8 +18,7 @@ class UpdatePaymentRequest extends BaseFormRequest
      */
     public function authorize()
     {
-        $payment = Payment::find($this->payment_id);
-        return auth()->user()->can('update', $payment);
+        return auth()->user()->can('update', $this->payment);
     }
 
     /**
@@ -36,7 +35,7 @@ class UpdatePaymentRequest extends BaseFormRequest
                 new InvoicePaymentValidation($this->all()),
                 new CreditPaymentValidation($this->all())
             ],
-            'number'   => 'nullable|unique:payments,number,' . $this->payment_id . ',id,account_id,' . $this->account_id,
+            'number'   => 'nullable|unique:payments,number,' . $this->payment->id . ',id,account_id,' . $this->account_id,
         ];
     }
 

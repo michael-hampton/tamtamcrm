@@ -29,24 +29,6 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
     /**
-     * @param array $attributes
-     * @return mixed
-     */
-    public function create(array $attributes)
-    {
-        return $this->model->create($attributes);
-    }
-
-    /**
-     * @param array $data
-     * @return bool
-     */
-    public function update(array $data): bool
-    {
-        return $this->model->update($data);
-    }
-
-    /**
      * @param array $columns
      * @param string $orderBy
      * @param string $sortBy
@@ -115,7 +97,7 @@ class BaseRepository implements BaseRepositoryInterface
 
     /**
      * @param $entity
-     * @return |null |null |null
+     * @return |null |null |null |null
      * @throws ReflectionException
      */
     public function markSent($entity)

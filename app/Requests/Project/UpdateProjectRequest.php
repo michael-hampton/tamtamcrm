@@ -14,8 +14,7 @@ class UpdateProjectRequest extends BaseFormRequest
      */
     public function authorize()
     {
-        $project = Project::find($this->project_id);
-        return auth()->user()->can('update', $project);
+        return auth()->user()->can('update', $this->project);
     }
 
     /**

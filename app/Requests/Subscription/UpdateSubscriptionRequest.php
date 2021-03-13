@@ -14,8 +14,7 @@ class UpdateSubscriptionRequest extends BaseFormRequest
      */
     public function authorize()
     {
-        $subscription = Subscription::find(request()->segment(3));
-        return auth()->user()->can('update', $subscription);
+        return auth()->user()->can('update', $this->subscription);
     }
 
     /**

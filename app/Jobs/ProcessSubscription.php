@@ -103,7 +103,7 @@ class ProcessSubscription implements ShouldQueue
             ->toObject();
 
         $invoice_repo = new InvoiceRepository(new Invoice);
-        $invoice = $invoice_repo->save(['line_items' => $line_items], $invoice);
+        $invoice = $invoice_repo->create(['line_items' => $line_items], $invoice);
         $invoice_repo->markSent($invoice);
 
         return $invoice;

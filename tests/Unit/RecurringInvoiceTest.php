@@ -88,7 +88,7 @@ class RecurringInvoiceTest extends TestCase
         $recurring_invoice = RecurringInvoice::factory()->create();
         $data = ['due_date' => Carbon::today()->addDays(5)];
         $recurringInvoiceRepo = new RecurringInvoiceRepository($recurring_invoice);
-        $task = $recurringInvoiceRepo->save($data, $recurring_invoice);
+        $task = $recurringInvoiceRepo->update($data, $recurring_invoice);
         $found = $recurringInvoiceRepo->findInvoiceById($recurring_invoice->id);
         $this->assertInstanceOf(RecurringInvoice::class, $recurring_invoice);
         $this->assertEquals($data['due_date'], $found->due_date);
@@ -119,7 +119,7 @@ class RecurringInvoiceTest extends TestCase
             'frequency' => 'WEEKLY'
         ];
 
-        $recurring_invoice = $recurringInvoiceRepo->createInvoice($data, $recurring_invoice);
+        $recurring_invoice = $recurringInvoiceRepo->create($data, $recurring_invoice);
 
         $this->assertEquals($recurring_invoice->date_to_send, Carbon::today()->addWeek());
         $this->assertInstanceOf(RecurringInvoice::class, $recurring_invoice);

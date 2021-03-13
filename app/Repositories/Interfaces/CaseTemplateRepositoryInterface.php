@@ -9,10 +9,17 @@ interface CaseTemplateRepositoryInterface extends BaseRepositoryInterface
 {
     /**
      * @param array $data
-     * @param CaseTemplate $template
+     * @param CaseTemplate $case_template
      * @return CaseTemplate
      */
-    public function save(array $data, CaseTemplate $template): CaseTemplate;
+    public function create(array $data, CaseTemplate $case_template): CaseTemplate;
+
+    /**
+     * @param array $data
+     * @param CaseTemplate $case_template
+     * @return CaseTemplate
+     */
+    public function update(array $data, CaseTemplate $case_template): CaseTemplate;
 
     /**
      * @param int $id

@@ -42,7 +42,7 @@ export default class RecurringInvoices extends Component {
             dropdownButtonActions: ['download', 'start_recurring', 'stop_recurring'],
             filters: {
                 user_id: queryString.parse(this.props.location.search).user_id || '',
-                status_id: 'Draft',
+                status_id: 'active',
                 customer_id: queryString.parse(this.props.location.search).customer_id || '',
                 project_id: queryString.parse(this.props.location.search).project_id || '',
                 searchText: '',
@@ -125,6 +125,7 @@ export default class RecurringInvoices extends Component {
 
     userList (props) {
         const { pageLimit, custom_fields, customers, allInvoices, currentInvoices, cachedData } = this.state
+
         return <RecurringInvoiceItem showCheckboxes={props.showCheckboxes} allInvoices={allInvoices}
             invoices={currentInvoices}
             show_list={props.show_list} entities={cachedData}

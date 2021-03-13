@@ -18,11 +18,6 @@ interface CompanyRepositoryInterface extends BaseRepositoryInterface
      */
     public function findCompanyById(int $id): Company;
 
-    /**
-     *
-     */
-    public function deleteCompany(): bool;
-
 
     /**
      * @param SearchRequest $search_request
@@ -34,7 +29,14 @@ interface CompanyRepositoryInterface extends BaseRepositoryInterface
     /**
      * @param array $data
      * @param Company $company
-     * @return Company|null
+     * @return Company
      */
-    public function save(array $data, Company $company): ?Company;
+    public function create(array $data, Company $company): Company;
+
+    /**
+     * @param array $data
+     * @param Company $company
+     * @return Company
+     */
+    public function update(array $data, Company $company): Company;
 }

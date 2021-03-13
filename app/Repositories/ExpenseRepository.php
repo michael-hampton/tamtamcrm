@@ -54,7 +54,7 @@ class ExpenseRepository extends BaseRepository implements ExpenseRepositoryInter
         return (new ExpenseSearch($this))->filter($search_request, $account);
     }
 
-    public function createExpense(array $data, Expense $expense): ?Expense
+    public function create(array $data, Expense $expense): ?Expense
     {
         $expense = $this->save($data, $expense);
 
@@ -92,7 +92,7 @@ class ExpenseRepository extends BaseRepository implements ExpenseRepositoryInter
         return $expense;
     }
 
-    public function updateExpense(array $data, Expense $expense): ?Expense
+    public function update(array $data, Expense $expense): ?Expense
     {
         $expense = $this->save($data, $expense);
 

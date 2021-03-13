@@ -125,9 +125,8 @@ class TaskController extends Controller
      * @param int $task_id
      * @return type
      */
-    public function markAsCompleted(int $task_id)
+    public function markAsCompleted(Task $task)
     {
-        $task = $this->task_repo->findTaskById($task_id);
         $task = $this->task_repo->save(['is_completed' => true], $task);
         return response()->json($task);
     }
@@ -156,9 +155,8 @@ class TaskController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public function update(UpdateTaskRequest $request, int $id)
+    public function update(UpdateTaskRequest $request, Task $task)
     {
-        $task = $this->task_repo->findTaskById($id);
         $task = $this->task_repo->updateTask($request->all(), $task);
 
         if (!empty($request->input('timers'))) {
@@ -187,9 +185,8 @@ class TaskController extends Controller
      * @param int $id
      * @return mixed
      */
-    public function updateStatus(Request $request, int $id)
+    public function updateStatus(Request $request, Task $task)
     {
-        $task = $this->task_repo->findTaskById($id);
         $task = $this->task_repo->save(['task_status_id' => $request->task_status], $task);
         return response()->json($task);
     }
@@ -297,9 +294,8 @@ class TaskController extends Controller
         return response()->json('Unable to convert');
     }
 
-    public function show(int $id)
+    public function show(Task $task)
     {
-        $task = $this->task_repo->findTaskById($id);
         return response()->json($this->transformTask($task));
     }
 
@@ -308,15 +304,13 @@ class TaskController extends Controller
      *
      * @return void
      */
-    public function archive(int $id)
+    public function archive(Task $task)
     {
-        $task = $this->task_repo->findTaskById($id);
         $task->archive();
     }
 
-    public function destroy(int $id)
+    public function destroy(Task $task)
     {
-        $task = $this->task_repo->findTaskById($id);
         $this->authorize('delete', $task);
         $task->deleteEntity();
         return response()->json([], 200);

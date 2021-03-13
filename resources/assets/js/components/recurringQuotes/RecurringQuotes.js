@@ -43,7 +43,7 @@ export default class RecurringQuotes extends Component {
             dropdownButtonActions: ['download', 'start_recurring', 'stop_recurring'],
             filters: {
                 user_id: queryString.parse(this.props.location.search).user_id || '',
-                status_id: 'Draft',
+                status_id: 'active',
                 customer_id: queryString.parse(this.props.location.search).customer_id || '',
                 project_id: queryString.parse(this.props.location.search).project_id || '',
                 searchText: '',

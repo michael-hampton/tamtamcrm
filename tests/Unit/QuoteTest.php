@@ -83,7 +83,7 @@ class QuoteTest extends TestCase
         $customer_id = $this->customer->id;
         $data = ['customer_id' => $customer_id];
         $quoteRepo = new QuoteRepository($quote);
-        $updated = $quoteRepo->updateQuote($data, $quote);
+        $updated = $quoteRepo->update($data, $quote);
         $found = $quoteRepo->findQuoteById($quote->id);
         $this->assertInstanceOf(Quote::class, $updated);
         $this->assertEquals($data['customer_id'], $found->customer_id);
@@ -115,7 +115,7 @@ class QuoteTest extends TestCase
         ];
 
         $quoteRepo = new QuoteRepository(new Quote);
-        $quote = $quoteRepo->createQuote($data, $factory);
+        $quote = $quoteRepo->create($data, $factory);
         $this->assertInstanceOf(Quote::class, $quote);
         $this->assertEquals($data['customer_id'], $quote->customer_id);
         $this->assertNotEmpty($quote->invitations);
@@ -136,7 +136,7 @@ class QuoteTest extends TestCase
         ];
 
         $quoteRepo = new QuoteRepository(new Quote);
-        $quote = $quoteRepo->createQuote($data, $factory);
+        $quote = $quoteRepo->create($data, $factory);
 
         $arrRecurring = [];
 
@@ -155,7 +155,7 @@ class QuoteTest extends TestCase
     {
         $this->expectException(QueryException::class);
         $quote = new QuoteRepository(new Quote);
-        $quote->createQuote([]);
+        $quote->create([]);
     }
 
     /** @test */

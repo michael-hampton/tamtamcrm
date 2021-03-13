@@ -29,19 +29,30 @@ class BankAccountRepository extends BaseRepository implements BankAccountReposit
      * @param BankAccount $bank_account
      * @return BankAccount
      */
-    public function save(array $data, BankAccount $bank_account): BankAccount
+    public function update(array $data, BankAccount $bank_account): BankAccount
     {
-        $bank_account->fill($data);
-
         if (isset($data['password']) && !empty($data['password'])) {
-            $bank_account->password = Hash::make($data['password']);
+            $data['password'] = Hash::make($data['password']);
         }
 
-//        if (isset($data['username']) && !empty($data['username'])) {
-//            $bank_account->username = Hash::make($data['username']);
-//        }
+        $bank_account->update($data);
+        return $bank_account;
+    }
 
+    /**
+     * @param array $data
+     * @param BankAccount $bank_account
+     * @return BankAccount
+     */
+    public function create(array $data, BankAccount $bank_account): BankAccount
+    {
+        if (isset($data['password']) && !empty($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        }
+
+        $bank_account->fill($data);
         $bank_account->save();
+
         return $bank_account;
     }
 

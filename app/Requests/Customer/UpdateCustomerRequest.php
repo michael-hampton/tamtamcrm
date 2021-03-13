@@ -14,8 +14,7 @@ class UpdateCustomerRequest extends BaseFormRequest
      */
     public function authorize()
     {
-        $customer = Customer::find($this->customer_id);
-        return auth()->user()->can('update', $customer);
+        return auth()->user()->can('update', $this->customer);
     }
 
     /**

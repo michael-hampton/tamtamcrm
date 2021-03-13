@@ -39,13 +39,25 @@ class TokenRepository extends BaseRepository
     /**
      * @param array $data
      * @param CompanyToken $company_token
-     * @return CompanyToken|null
+     * @return CompanyToken
      */
-    public function save(array $data, CompanyToken $company_token): ?CompanyToken
+    public function create(array $data, CompanyToken $company_token): CompanyToken
     {
         $company_token->fill($data);
 
         $company_token->save();
+
+        return $company_token;
+    }
+
+    /**
+     * @param array $data
+     * @param CompanyToken $company_token
+     * @return CompanyToken
+     */
+    public function update(array $data, CompanyToken $company_token): CompanyToken
+    {
+        $company_token->update($data);
 
         return $company_token;
     }

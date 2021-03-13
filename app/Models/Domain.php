@@ -19,7 +19,7 @@ class Domain extends Model
     const SUBSCRIPTION_PERIOD_MONTH = 1;
 
     protected $casts = [
-        'subscription_expiry_date' => 'date'
+        //'subscription_expiry_date' => 'date'
     ];
 
     /**

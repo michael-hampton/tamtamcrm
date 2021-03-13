@@ -9,6 +9,7 @@ use App\Requests\CaseTemplate\UpdateCaseTemplateRequest;
 use App\Requests\SearchRequest;
 use App\Search\CaseTemplateSearch;
 use App\Transformations\CaseTemplateTransformable;
+use App\Models\CaseTemplate;
 use Exception;
 use Illuminate\Http\JsonResponse;
 
@@ -53,7 +54,7 @@ class CaseTemplateController extends Controller
      */
     public function store(CreateCaseTemplateRequest $request)
     {
-        $template = $this->template_repo->save(
+        $template = $this->template_repo->create(
             $request->all(),
             CaseTemplateFactory::create(auth()->user()->account_user()->account, auth()->user())
         );
@@ -65,12 +66,11 @@ class CaseTemplateController extends Controller
      * @param $id
      * @return JsonResponse
      */
-    public function update(UpdateCaseTemplateRequest $request, $id)
+    public function update(UpdateCaseTemplateRequest $request, CaseTemplate $case_template)
     {
-        $template = $this->template_repo->findCaseTemplateById($id);
-        $template = $this->template_repo->save($request->all(), $template);
+        $case_template = $this->template_repo->update($request->all(), $case_template);
 
-        return response()->json($this->transformCaseTemplate($template));
+        return response()->json($this->transformCaseTemplate($case_template));
     }
 
     /**
@@ -78,10 +78,9 @@ class CaseTemplateController extends Controller
      * @return JsonResponse
      * @throws Exception
      */
-    public function destroy($id)
+    public function destroy(CaseTemplate $case_template)
     {
-        $template = $this->template_repo->findCaseTemplateById($id);
-        $template->deleteEntity();
+        $case_template->deleteEntity();
 
         return response()->json('deleted');
     }

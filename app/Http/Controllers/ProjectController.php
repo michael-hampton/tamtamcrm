@@ -37,14 +37,12 @@ class ProjectController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
      * @param CreateProjectRequest $request
-     * @return Response
+     * @return JsonResponse
      */
     public function store(CreateProjectRequest $request)
     {
-        $project = $this->project_repo->save(
+        $project = $this->project_repo->create(
             $request->all(),
             ProjectFactory::create(
                 auth()->user(),
@@ -62,11 +60,10 @@ class ProjectController extends Controller
      *
      * @return Response
      */
-    public function update(UpdateProjectRequest $request, int $id)
+    public function update(UpdateProjectRequest $request, Project $project)
     {
-        $project = $this->project_repo->findProjectById($id);
         $project_repo = new ProjectRepository($project);
-        $project = $project_repo->save($request->all(), $project);
+        $project = $project_repo->update($request->all(), $project);
         return response()->json($this->transformProject($project));
     }
 
@@ -74,9 +71,8 @@ class ProjectController extends Controller
      * @param $id
      * @return JsonResponse
      */
-    public function show($id)
+    public function show(Project $project)
     {
-        $project = $this->project_repo->findProjectById($id);
         return response()->json($this->transformProject($project));
     }
 
@@ -104,16 +100,13 @@ class ProjectController extends Controller
      *
      * @return void
      */
-    public function archive(int $id)
+    public function archive(Project $project)
     {
-        $project = $this->project_repo->findProjectById($id);
         $project->archive();
     }
 
-    public function destroy(int $id)
+    public function destroy(Project $project)
     {
-        $project = Project::withTrashed()->where('id', '=', $id)->first();
-
         $this->authorize('delete', $project);
         $project->deleteEntity();
         return response()->json($this->transformProject($project), 200);

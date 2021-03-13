@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Factory\ExpenseCategoryFactory;
+use App\Models\Deal;
 use App\Repositories\ExpenseCategoryRepository;
 use App\Requests\ExpenseCategory\CreateCategoryRequest;
 use App\Requests\ExpenseCategory\UpdateCategoryRequest;
@@ -11,6 +12,7 @@ use App\Search\ExpenseCategorySearch;
 use App\Transformations\ExpenseCategoryTransformable;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
+use App\Models\ExpenseCategory;
 
 class ExpenseCategoryController extends Controller
 {
@@ -50,7 +52,7 @@ class ExpenseCategoryController extends Controller
      */
     public function store(CreateCategoryRequest $request)
     {
-        $category = $this->category_repo->save(
+        $category = $this->category_repo->create(
             $request->all(),
             ExpenseCategoryFactory::create(auth()->user()->account_user()->account, auth()->user())
         );
@@ -64,11 +66,10 @@ class ExpenseCategoryController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public function update(UpdateCategoryRequest $request, int $id)
+    public function update(UpdateCategoryRequest $request, ExpenseCategory $expense_category)
     {
-        $category = $this->category_repo->findCategoryById($id);
-        $category = $this->category_repo->save($request->all(), $category);
-        return response()->json($category);
+        $expense_category = $this->category_repo->update($request->all(), $expense_category);
+        return response()->json($expense_category);
     }
 
     /**
@@ -78,11 +79,18 @@ class ExpenseCategoryController extends Controller
      * @return void
      * @throws AuthorizationException
      */
-    public function destroy(int $id)
+    public function destroy(ExpenseCategory $expense_category)
     {
-        $category = $this->category_repo->findCategoryById($id);
-        $this->authorize('delete', $category);
-        $category->deleteEntity();
+        $this->authorize('delete', $expense_category);
+        $expense_category->deleteEntity();
+    }
+
+    /**
+     * @param ExpenseCategory $expense_category
+     */
+    public function archive(ExpenseCategory $expense_category)
+    {
+        $expense_category->archive();
     }
 
     public function getRootCategories()

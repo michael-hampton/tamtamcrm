@@ -80,7 +80,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
      * @param Invoice $invoice
      * @return Quote|null
      */
-    public function updateInvoice(array $data, Invoice $invoice): ?Invoice
+    public function update(array $data, Invoice $invoice): ?Invoice
     {
         $invoice = $this->save($data, $invoice);
         InvoiceOrders::dispatchNow($invoice);
@@ -187,7 +187,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
      * @return Invoice|null
      * @return Invoice|null
      */
-    public function createInvoice(array $data, Invoice $invoice): ?Invoice
+    public function create(array $data, Invoice $invoice): ?Invoice
     {
         $invoice = $this->save($data, $invoice);
 

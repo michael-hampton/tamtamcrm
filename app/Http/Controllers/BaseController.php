@@ -268,7 +268,7 @@ class BaseController extends Controller
                 break;
             case 'clone_to_quote': // done
                 $quote = CloneQuoteFactory::create($entity, auth()->user());
-                $this->quote_repo->createQuote($request->all(), $quote);
+                $this->quote_repo->create($request->all(), $quote);
                 $response = (new QuoteTransformable())->transformQuote($quote);
                 break;
             case 'mark_sent': //done
@@ -288,7 +288,7 @@ class BaseController extends Controller
                 break;
             case 'clone_credit_to_quote': //done
                 $quote = CloneCreditToQuoteFactory::create($entity, auth()->user());
-                (new QuoteRepository(new Quote))->createQuote($request->all(), $quote);
+                (new QuoteRepository(new Quote))->create($request->all(), $quote);
                 $response = (new QuoteTransformable())->transformQuote($quote);
                 break;
 
@@ -394,7 +394,7 @@ class BaseController extends Controller
                 break;
             case 'clone_invoice_to_quote': // done
                 $quote = CloneInvoiceToQuoteFactory::create($entity, auth()->user());
-                (new QuoteRepository(new Quote))->createQuote($request->all(), $quote);
+                (new QuoteRepository(new Quote))->create($request->all(), $quote);
                 $response = (new QuoteTransformable())->transformQuote($quote);
                 break;
             case 'create_payment': // done
@@ -412,7 +412,7 @@ class BaseController extends Controller
                 break;
             case 'clone_recurring_to_quote':
                 $quote = RecurringQuoteToQuoteFactory::create($entity, $entity->customer);
-                (new QuoteRepository(new Quote()))->createQuote([], $quote);
+                (new QuoteRepository(new Quote()))->create([], $quote);
                 $response = (new QuoteTransformable())->transformQuote($quote);
                 break;
 

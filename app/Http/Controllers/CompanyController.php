@@ -68,13 +68,11 @@ class CompanyController extends Controller
             $company->logo = $this->uploadLogo($request->file('company_logo'));
         }
 
-        $company = $this->company_repo->save($request->except('logo'), $company);
+        $company = $this->company_repo->create($request->except('logo'), $company);
 
         if (!empty($request->contacts)) {
             $this->company_contact_repo->save($request->contacts, $company);
         }
-
-        event(new CompanyWasCreated($company));
 
         return response()->json($this->transformCompany($company));
     }
@@ -83,10 +81,9 @@ class CompanyController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public function show(int $id)
+    public function show(Company $company)
     {
-        $brand = $this->company_repo->findCompanyById($id);
-        return response()->json($this->transformCompany($brand));
+        return response()->json($this->transformCompany($company));
     }
 
     /**
@@ -94,9 +91,8 @@ class CompanyController extends Controller
      * @param $id
      * @return JsonResponse
      */
-    public function update(UpdateCompanyRequest $request, $id)
+    public function update(UpdateCompanyRequest $request, Company $company)
     {
-        $company = $this->company_repo->findCompanyById($id);
         $logo = $company->logo;
 
         if ($request->company_logo !== null && $request->company_logo !== 'null') {
@@ -108,7 +104,7 @@ class CompanyController extends Controller
             }
         }
 
-        $this->company_repo->save($request->except('logo'), $company);
+        $this->company_repo->update($request->except('logo'), $company);
 
         if (!empty($request->contacts)) {
             $this->company_contact_repo->save($request->contacts, $company);
@@ -140,16 +136,13 @@ class CompanyController extends Controller
      *
      * @return void
      */
-    public function archive(int $id)
+    public function archive(Company $company)
     {
-        $company = $this->company_repo->findCompanyById($id);
         $company->archive();
     }
 
-    public function destroy(int $id)
+    public function destroy(Company $company)
     {
-        $company = Company::withTrashed()->where('id', '=', $id)->first();
-
         $this->authorize('delete', $company);
 
         $company->deleteEntity();

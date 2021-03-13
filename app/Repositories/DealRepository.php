@@ -153,26 +153,15 @@ class DealRepository extends BaseRepository implements DealRepositoryInterface
      * @return Deal|Task|null
      * @throws Exception
      */
-    public function createDeal(array $data, Deal $deal): ?Deal
+    public function create(array $data, Deal $deal): ?Deal
     {
         $data['source_type'] = empty($data['source_type']) ? 1 : $data['source_type'];
-        $deal = $this->save($data, $deal);
 
-        event(new DealWasCreated($deal));
-
-        return $deal;
-    }
-
-    /**
-     * @param $data
-     * @param Deal $deal
-     * @return Deal|null
-     */
-    public function save($data, Deal $deal): ?Deal
-    {
         $deal->fill($data);
         $deal->setNumber();
         $deal->save();
+
+        event(new DealWasCreated($deal));
 
         return $deal->fresh();
     }
@@ -183,9 +172,9 @@ class DealRepository extends BaseRepository implements DealRepositoryInterface
      * @return Deal|Task|null
      * @throws Exception
      */
-    public function updateDeal(array $data, Deal $deal): ?Deal
+    public function update(array $data, Deal $deal): ?Deal
     {
-        $deal = $this->save($data, $deal);
+        $deal->update($data);
 
         event(new DealWasUpdated($deal));
 

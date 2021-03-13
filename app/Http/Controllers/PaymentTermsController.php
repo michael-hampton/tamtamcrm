@@ -57,7 +57,7 @@ class PaymentTermsController extends Controller
     public function store(StorePaymentTermsRequest $request)
     {
         $payment_terms = PaymentTermsFactory::create(auth()->user()->account_user()->account, auth()->user());
-        $payment_terms = $this->payment_terms_repo->save($request->all(), $payment_terms);
+        $payment_terms = $this->payment_terms_repo->create($request->all(), $payment_terms);
 
         return response()->json($this->transformPaymentTerms($payment_terms));
     }
@@ -66,9 +66,9 @@ class PaymentTermsController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public function show(int $id)
+    public function show(PaymentTerms $payment_term)
     {
-        return response()->json($this->transformPaymentTerms($this->payment_terms_repo->findPaymentTermsById($id)));
+        return response()->json($this->transformPaymentTerms($payment_term));
     }
 
     /**
@@ -76,11 +76,10 @@ class PaymentTermsController extends Controller
      * @param UpdatePaymentTermsRequest $request
      * @return JsonResponse
      */
-    public function update(int $id, UpdatePaymentTermsRequest $request)
+    public function update(UpdatePaymentTermsRequest $request, PaymentTerms $payment_term)
     {
-        $payment_terms = $this->payment_terms_repo->findPaymentTermsById($id);
-        $payment_terms = $this->payment_terms_repo->save($request->all(), $payment_terms);
-        return response()->json($this->transformPaymentTerms($payment_terms));
+        $payment_term = $this->payment_terms_repo->update($request->all(), $payment_term);
+        return response()->json($this->transformPaymentTerms($payment_term));
     }
 
     /**
@@ -88,10 +87,9 @@ class PaymentTermsController extends Controller
      * @return JsonResponse
      * @throws Exception
      */
-    public function archive(int $id)
+    public function archive(PaymentTerms $payment_term)
     {
-        $payment_terms = $this->payment_terms_repo->findPaymentTermsById($id);
-        $payment_terms->archive();
+        $payment_term->archive();
         return response()->json([], 200);
     }
 
@@ -99,10 +97,9 @@ class PaymentTermsController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public function destroy(int $id)
+    public function destroy(PaymentTerms $payment_term)
     {
-        $payment_terms = PaymentTerms::withTrashed()->where('id', '=', $id)->first();
-        $payment_terms->deleteEntity($payment_terms);
+        $payment_term->deleteEntity($payment_term);
         return response()->json([], 200);
     }
 

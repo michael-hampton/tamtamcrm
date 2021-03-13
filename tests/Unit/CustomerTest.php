@@ -83,7 +83,7 @@ class CustomerTest extends TestCase
         ];
         $customer = new CustomerRepository(new Customer);
         $factory = (new CustomerFactory())->create($this->account, $this->user);
-        $created = $customer->save($data, $factory);
+        $created = $customer->create($data, $factory);
         $found = $customer->findCustomerById($created->id);
         $this->assertInstanceOf(Customer::class, $found);
         $this->assertEquals($data['name'], $found->name);
@@ -97,7 +97,7 @@ class CustomerTest extends TestCase
         $update = [
             'name' => $this->faker->firstName,
         ];
-        $updated = $customer->save($update, $cust);
+        $updated = $customer->update($update, $cust);
         $this->assertInstanceOf(Customer::class, $updated);
         //$this->assertEquals($update['name'], $cust->name);
         $this->assertDatabaseHas('customers', $update);
@@ -123,7 +123,7 @@ class CustomerTest extends TestCase
 
 
         $customer = new CustomerRepository(new Customer);
-        $created = $customer->save($data, $factory);
+        $created = $customer->create($data, $factory);
         $this->assertInstanceOf(Customer::class, $created);
         $this->assertEquals($data['name'], $created->name);
         $collection = collect($data)->except('password');
@@ -133,12 +133,12 @@ class CustomerTest extends TestCase
         $this->assertTrue($clients);
     }
 
-    public function it_errors_creating_the_customer_when_required_fields_are_not_passed()
-    {
-        $this->expectException(QueryException::class);
-        $task = new CustomerRepository(new Customer);
-        $task->createCustomer([]);
-    }
+//    public function it_errors_creating_the_customer_when_required_fields_are_not_passed()
+//    {
+//        $this->expectException(QueryException::class);
+//        $task = new CustomerRepository(new Customer);
+//        $task->create([]);
+//    }
 
     /** @test */
     public function it_can_list_all_customers()

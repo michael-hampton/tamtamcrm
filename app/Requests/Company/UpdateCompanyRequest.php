@@ -14,8 +14,7 @@ class UpdateCompanyRequest extends BaseFormRequest
      */
     public function authorize()
     {
-        $company = Company::find($this->company_id);
-        return auth()->user()->can('update', $company);
+        return auth()->user()->can('update', $this->company);
     }
 
 

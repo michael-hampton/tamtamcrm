@@ -14,8 +14,7 @@ class UpdateRecurringQuoteRequest extends BaseFormRequest
      */
     public function authorize()
     {
-        $recurring_quote = RecurringQuote::find($this->id);
-        return auth()->user()->can('update', $recurring_quote);
+        return auth()->user()->can('update', $this->recurring_quote);
     }
 
     /**
@@ -32,7 +31,7 @@ class UpdateRecurringQuoteRequest extends BaseFormRequest
             'expiry_date'              => 'required',
             'customer_id'              => 'required|exists:customers,id,account_id,' . auth()->user()->account_user(
                 )->account_id,
-            'number'                   => 'nullable|unique:recurring_quotes,number,' . $this->id . ',id,account_id,' . $this->account_id,
+            'number'                   => 'nullable|unique:recurring_quotes,number,' . $this->recurring_quote->id . ',id,account_id,' . $this->account_id,
         ];
     }
 

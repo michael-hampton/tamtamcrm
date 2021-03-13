@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Components\OFX\OFXImport;
 use App\Factory\BankAccountFactory;
+use App\Models\BankAccount;
 use App\Models\Company;
 use App\Models\CompanyContact;
 use App\Models\Expense;
@@ -61,7 +62,7 @@ class BankAccountController extends Controller
      */
     public function store(CreateBankAccountRequest $request)
     {
-        $bank_account = $this->bank_account_repo->save(
+        $bank_account = $this->bank_account_repo->create(
             $request->all(),
             BankAccountFactory::create(auth()->user()->account_user()->account, auth()->user())
         );
@@ -70,15 +71,12 @@ class BankAccountController extends Controller
 
     /**
      * @param UpdateBankAccountRequest $request
-     * @param $id
+     * @param BankAccount $bank_account
      * @return JsonResponse
      */
-    public function update(UpdateBankAccountRequest $request, $id)
+    public function update(UpdateBankAccountRequest $request, BankAccount $bank_account)
     {
-        $bank_account = $this->bank_account_repo->findBankAccountById($id);
-
-        $bank_account_repo = new BankAccountRepository($bank_account);
-        $bank_account = $bank_account_repo->save($request->all(), $bank_account);
+        $bank_account = $this->bank_account_repo->update($request->all(), $bank_account);
 
         return response()->json($this->transformBankAccount($bank_account));
     }
@@ -88,9 +86,8 @@ class BankAccountController extends Controller
      * @return JsonResponse
      * @throws Exception
      */
-    public function destroy($id)
+    public function destroy(BankAccount $bank_account)
     {
-        $bank_account = $this->bank_account_repo->findBankAccountById($id);
         $bank_account->deleteEntity();
 
         return response()->json($this->transformBankAccount($bank_account));

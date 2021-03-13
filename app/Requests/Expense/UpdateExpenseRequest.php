@@ -14,8 +14,7 @@ class UpdateExpenseRequest extends BaseFormRequest
      */
     public function authorize()
     {
-        $expense = Expense::find($this->expense_id);
-        return auth()->user()->can('update', $expense);
+        return auth()->user()->can('update', $this->expense);
     }
 
     /**

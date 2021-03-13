@@ -56,7 +56,7 @@ class QuoteRepository extends BaseRepository implements QuoteRepositoryInterface
      * @param Quote $quote
      * @return Quote
      */
-    public function createQuote(array $data, Quote $quote): ?Quote
+    public function create(array $data, Quote $quote): ?Quote
     {
         $quote = $this->save($data, $quote);
 
@@ -101,7 +101,7 @@ class QuoteRepository extends BaseRepository implements QuoteRepositoryInterface
      * @param Quote $quote
      * @return Quote|null
      */
-    public function updateQuote(array $data, Quote $quote): ?Quote
+    public function update(array $data, Quote $quote): ?Quote
     {
         $quote = $this->save($data, $quote);
         QuoteOrders::dispatchNow($quote);

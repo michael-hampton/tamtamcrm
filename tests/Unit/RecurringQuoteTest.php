@@ -91,7 +91,7 @@ class RecurringQuoteTest extends TestCase
         $recurring_quote = RecurringQuote::factory()->create();
         $data = ['due_date' => Carbon::today()->addDays(5)];
         $recurringQuoteRepo = new RecurringQuoteRepository($recurring_quote);
-        $task = $recurringQuoteRepo->save($data, $recurring_quote);
+        $task = $recurringQuoteRepo->update($data, $recurring_quote);
         $found = $recurringQuoteRepo->findQuoteById($recurring_quote->id);
         $this->assertInstanceOf(RecurringQuote::class, $recurring_quote);
         $this->assertEquals($data['due_date'], $found->due_date);
@@ -121,7 +121,7 @@ class RecurringQuoteTest extends TestCase
 
         $recurringQuoteRepo = new RecurringQuoteRepository(new RecurringQuote());
         $factory = (new RecurringQuoteFactory())->create($this->customer, $this->account, $this->user, 200);
-        $recurring_quote = $recurringQuoteRepo->createQuote($data, $factory);
+        $recurring_quote = $recurringQuoteRepo->create($data, $factory);
 
         $this->assertEquals($recurring_quote->date_to_send, Carbon::today()->addMonthNoOverflow());
         $this->assertInstanceOf(RecurringQuote::class, $recurring_quote);

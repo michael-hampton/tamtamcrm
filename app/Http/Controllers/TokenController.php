@@ -46,19 +46,8 @@ class TokenController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public function show(int $id)
+    public function show(CompanyToken $token)
     {
-        $token = $this->token_repo->findTokenById($id);
-        return response()->json($this->transform($token));
-    }
-
-    /**
-     * @param int $id
-     * @return JsonResponse
-     */
-    public function edit(int $id)
-    {
-        $token = $this->token_repo->findTokenById($id);
         return response()->json($this->transform($token));
     }
 
@@ -67,27 +56,11 @@ class TokenController extends Controller
      * @param UpdateTokenRequest $request
      * @return JsonResponse
      */
-    public function update(int $id, UpdateTokenRequest $request)
+    public function update(UpdateTokenRequest $request, CompanyToken $token)
     {
-        $token = $this->token_repo->findTokenById($id);
-
-        $token = $this->token_repo->save($request->all(), $token);
+        $token = $this->token_repo->update($request->all(), $token);
 
         return response()->json($this->transform($token->fresh()));
-    }
-
-    /**
-     * @return JsonResponse
-     */
-    public function create()
-    {
-        $token = CompanyTokenFactory::create(
-            auth()->user()->account_user()->account_id,
-            auth()->user()->id,
-            auth()->user()->account_user()->account->domain_id
-        );
-
-        return response()->json($this->transform($token));
     }
 
     /**
@@ -101,7 +74,7 @@ class TokenController extends Controller
             auth()->user()->id,
             auth()->user()->account_user()->account->domain_id
         );
-        $token = $this->token_repo->save($request->all(), $company_token);
+        $token = $this->token_repo->create($request->all(), $company_token);
         return response()->json($this->transform($token));
     }
 
@@ -110,12 +83,9 @@ class TokenController extends Controller
      * @return JsonResponse
      * @throws Exception
      */
-    public function destroy(int $id)
+    public function destroy(CompanyToken $token)
     {
-        $token = $this->token_repo->findTokenById($id);
-
-        //may not need these destroy routes as we are using actions to 'archive/delete'
-        $token->delete();
+        $token->deleteEntity();
 
         return response()->json($this->transform($token));
     }

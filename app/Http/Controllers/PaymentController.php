@@ -81,9 +81,8 @@ class PaymentController extends Controller
         return response()->json($this->transformPayment($payment));
     }
 
-    public function show(int $id)
+    public function show(Payment $payment)
     {
-        $payment = $this->payment_repo->findPaymentById($id);
         return response()->json($this->transformPayment($payment));
     }
 
@@ -93,9 +92,8 @@ class PaymentController extends Controller
      * @param $id
      * @return mixed
      */
-    public function update(UpdatePaymentRequest $request, $id)
+    public function update(UpdatePaymentRequest $request, Payment $payment)
     {
-        $payment = $this->payment_repo->findPaymentById($id);
         $payment = (new ProcessPayment())->process($request->all(), $this->payment_repo, $payment);
         return response()->json($this->transformPayment($payment));
     }
@@ -107,10 +105,8 @@ class PaymentController extends Controller
      * @return Response
      * @throws AuthorizationException
      */
-    public function destroy(int $id)
+    public function destroy(Payment $payment)
     {
-        $payment = $this->payment_repo->findPaymentById($id);
-
         $this->authorize('delete', $payment);
 
         (new DeletePayment($payment))->execute();
@@ -155,9 +151,8 @@ class PaymentController extends Controller
         }
     }
 
-    public function archive(int $id)
+    public function archive(Payment $payment)
     {
-        $payment = Payment::withTrashed()->where('id', '=', $id)->first();
         $payment->archive();
         return response()->json([], 200);
     }

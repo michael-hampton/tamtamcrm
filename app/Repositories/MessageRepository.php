@@ -42,7 +42,7 @@ class MessageRepository extends BaseRepository implements MessageRepositoryInter
      */
     public function createMessage(array $data): Message
     {
-        return $this->create($data);
+        return $this->model->create($data);
     }
 
     /**

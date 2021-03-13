@@ -69,7 +69,7 @@ class PaymentTermsTest extends TestCase
         $payment_term = PaymentTerms::factory()->create();
         $data = ['name' => $this->faker->word()];
         $payment_terms_repo = new PaymentTermsRepository($payment_term);
-        $updated = $payment_terms_repo->save($data, $payment_term);
+        $updated = $payment_terms_repo->update($data, $payment_term);
         $found = $payment_terms_repo->findPaymentTermsById($payment_term->id);
         $this->assertInstanceOf(PaymentTerms::class, $updated);
         $this->assertEquals($data['name'], $found->name);
@@ -98,7 +98,7 @@ class PaymentTermsTest extends TestCase
         ];
 
         $payment_terms_repo = new PaymentTermsRepository(new PaymentTerms);
-        $payment_term = $payment_terms_repo->save($data, $factory);
+        $payment_term = $payment_terms_repo->create($data, $factory);
         $this->assertInstanceOf(PaymentTerms::class, $payment_term);
         $this->assertEquals($data['name'], $payment_term->name);
     }

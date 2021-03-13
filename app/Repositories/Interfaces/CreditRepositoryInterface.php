@@ -33,14 +33,14 @@ interface CreditRepositoryInterface
      * @param Credit $credit
      * @return Credit|null
      */
-    public function createCreditNote(array $data, Credit $credit): ?Credit;
+    public function create(array $data, Credit $credit): ?Credit;
 
     /**
      * @param array $data
      * @param Credit $credit
      * @return Credit|null
      */
-    public function updateCreditNote(array $data, Credit $credit): ?Credit;
+    public function update(array $data, Credit $credit): ?Credit;
 
     /**
      * @param array $data

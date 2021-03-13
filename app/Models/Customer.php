@@ -231,4 +231,14 @@ class Customer extends Model implements HasLocalePreference
     {
         return is_object($var) && empty((array)$var);
     }
+
+    public function setNumber()
+    {
+        if (empty($this->number) || !isset($this->id)) {
+            $this->number = (new NumberGenerator)->getNextNumberForEntity($this);
+            return true;
+        }
+
+        return true;
+    }
 }

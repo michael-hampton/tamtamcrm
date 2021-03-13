@@ -14,8 +14,7 @@ class UpdateDealRequest extends BaseFormRequest
      */
     public function authorize()
     {
-        $deal = Deal::find(request()->segment(3));
-        return auth()->user()->can('update', $deal);
+        return auth()->user()->can('update', $this->deal);
     }
 
     /**

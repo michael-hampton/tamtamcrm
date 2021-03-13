@@ -61,7 +61,7 @@ class CreateInvoice implements ShouldQueue
             ->toObject();
 
 
-        $invoice = (new InvoiceRepository(new Invoice()))->createInvoice($data, $invoice);
+        $invoice = (new InvoiceRepository(new Invoice()))->create($data, $invoice);
 
         return $invoice;
     }

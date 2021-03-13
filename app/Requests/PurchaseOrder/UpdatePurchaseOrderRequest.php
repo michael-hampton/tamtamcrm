@@ -14,8 +14,7 @@ class UpdatePurchaseOrderRequest extends BaseFormRequest
      */
     public function authorize()
     {
-        $purchase_order = PurchaseOrder::find($this->purchase_order_id);
-        return auth()->user()->can('update', $purchase_order);
+        return auth()->user()->can('update', $this->purchase_order);
     }
 
     /**
@@ -34,7 +33,7 @@ class UpdatePurchaseOrderRequest extends BaseFormRequest
             'total'          => 'required',
             'tax_total'      => 'required',
             'line_items'     => 'required|array',
-            'number'         => 'nullable|unique:purchase_orders,number,' . $this->purchase_order_id . ',id,account_id,' . $this->account_id,
+            'number'         => 'nullable|unique:purchase_orders,number,' . $this->purchase_order->id . ',id,account_id,' . $this->account_id,
         ];
     }
 

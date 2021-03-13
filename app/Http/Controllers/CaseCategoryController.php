@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Factory\CaseCategoryFactory;
 use App\Models\CompanyToken;
+use App\Models\CaseCategory;
 use App\Repositories\CaseCategoryRepository;
 use App\Requests\CaseCategory\CreateCategoryRequest;
 use App\Requests\CaseCategory\UpdateCategoryRequest;
@@ -56,7 +57,7 @@ class CaseCategoryController extends Controller
      */
     public function store(CreateCategoryRequest $request)
     {
-        $category = $this->category_repo->save(
+        $category = $this->category_repo->create(
             $request->all(),
             CaseCategoryFactory::create(auth()->user()->account_user()->account, auth()->user())
         );
@@ -68,22 +69,19 @@ class CaseCategoryController extends Controller
      * @param UpdateCategoryRequest $request
      * @param int $id
      */
-    public function update(UpdateCategoryRequest $request, int $id)
+    public function update(UpdateCategoryRequest $request, CaseCategory $case_category)
     {
-        $category = $this->category_repo->findCategoryById($id);
-        $update = new CaseCategoryRepository($category);
-        $update->save($request->except('_token', '_method'), $category);
+        $this->category_repo->update($request->except('_token', '_method'), $case_category);
     }
 
     /**
      * @param int $id
      * @return JsonResponse
      */
-    public function destroy(int $id)
+    public function destroy(CaseCategory $case_category)
     {
-        $category = $this->category_repo->findCategoryById($id);
-        $category->deleteEntity();
-        return response()->json($category);
+        $case_category->deleteEntity();
+        return response()->json($case_category);
     }
 
     public function getRootCategories()

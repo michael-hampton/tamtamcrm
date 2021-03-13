@@ -31,6 +31,10 @@ class TaxRateController extends Controller
         $this->tax_rate_repo = $tax_rate_repo;
     }
 
+    /**
+     * @param SearchRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function index(SearchRequest $request)
     {
         $tax_rates =
@@ -39,54 +43,45 @@ class TaxRateController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
      * @param CreateTaxRateRequest $request
-     * @return Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(CreateTaxRateRequest $request)
     {
         $tax_rate = TaxRateFactory::create(auth()->user()->account_user()->account_id, auth()->user()->id);
-        $this->tax_rate_repo->save($request->all(), $tax_rate);
+        $this->tax_rate_repo->create($request->all(), $tax_rate);
 
         return response()->json($this->transformTaxRate($tax_rate));
     }
 
     /**
-     * Update the specified resource in storage.
-     *
      * @param UpdateTaxRateRequest $request
-     * @param int $id
-     * @return Response
+     * @param TaxRate $tax_rate
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(UpdateTaxRateRequest $request, $id)
+    public function update(UpdateTaxRateRequest $request, TaxRate $tax_rate)
     {
-        $taxRate = $this->tax_rate_repo->findTaxRateById($id);
-        $taxRate = $this->tax_rate_repo->save($request->all(), $taxRate);
-        return response()->json($this->transformTaxRate($taxRate));
+        $tax_rate = $this->tax_rate_repo->update($request->all(), $tax_rate);
+        return response()->json($this->transformTaxRate($tax_rate));
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param int $id
-     * @return Response
+     * @param TaxRate $tax_rate
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function archive(int $id)
+    public function archive(TaxRate $tax_rate)
     {
-        $tax_rate = $this->tax_rate_repo->findTaxRateById($id);
         $tax_rate->archive();
         return response()->json('deleted');
     }
 
     /**
-     * @param int $id
-     * @return mixed
+     * @param TaxRate $tax_rate
+     * @return \Illuminate\Http\JsonResponse
      * @throws AuthorizationException
      */
-    public function destroy(int $id)
+    public function destroy(TaxRate $tax_rate)
     {
-        $tax_rate = TaxRate::withTrashed()->where('id', '=', $id)->first();
         $this->authorize('delete', $tax_rate);
         $tax_rate->deleteEntity();
         return response()->json([], 200);
@@ -94,7 +89,7 @@ class TaxRateController extends Controller
 
     /**
      * @param int $id
-     * @return mixed
+     * @return \Illuminate\Http\JsonResponse
      */
     public function restore(int $id)
     {

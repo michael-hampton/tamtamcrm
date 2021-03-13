@@ -14,8 +14,7 @@ class UpdateInvoiceRequest extends FormRequest
      */
     public function authorize()
     {
-        $invoice = Invoice::find($this->invoice_id);
-        return auth()->user()->can('update', $invoice);
+        return auth()->user()->can('update', $this->invoice);
     }
 
     /**

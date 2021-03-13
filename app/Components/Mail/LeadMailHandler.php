@@ -23,7 +23,7 @@ class LeadMailHandler
         $data['description'] = $email->text();
 
         $lead = LeadFactory::create(auth()->user()->account_user()->account, auth()->user());
-        $lead = (new LeadRepository(new Lead()))->save($data, $lead);
+        $lead = (new LeadRepository(new Lead()))->create($data, $lead);
 
         return $lead;
     }

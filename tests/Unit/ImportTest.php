@@ -84,7 +84,7 @@ class ImportTest extends TestCase
                 'name'        => $data['name'],
                 'description' => $data['description'],
                 'quantity'    => $data['quantity'],
-                'price'       => $data['price']
+                //'price'       => $data['price']
             ]
         );
     }
@@ -99,7 +99,7 @@ class ImportTest extends TestCase
         ];
 
         $expenseRepo = new ExpenseCategoryRepository(new ExpenseCategory());
-        $expense_category = $expenseRepo->save($data, $factory);
+        $expense_category = $expenseRepo->create($data, $factory);
 
         $data = [
             'expense category name' => $expense_category->name,

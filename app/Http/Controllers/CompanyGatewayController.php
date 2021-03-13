@@ -20,7 +20,6 @@ class CompanyGatewayController extends Controller
 {
     use CompanyGatewayTransformable;
 
-    public $forced_includes = [];
     private $account_repo;
     private $company_gateway_repo;
 
@@ -48,9 +47,9 @@ class CompanyGatewayController extends Controller
 
     public function store(StoreCompanyGatewayRequest $request)
     {
-        $company_gateway = $this->company_gateway_repo->save(
-            CompanyGatewayFactory::create(auth()->user()->account_user()->account_id, auth()->user()->id),
-            $request->all()
+        $company_gateway = $this->company_gateway_repo->create(
+            $request->all(),
+            CompanyGatewayFactory::create(auth()->user()->account_user()->account_id, auth()->user()->id)
         );
 
         return response()->json($this->transformCompanyGateway($company_gateway));
@@ -61,10 +60,9 @@ class CompanyGatewayController extends Controller
      * @param int $id
      * @return mixed
      */
-    public function update(UpdateCompanyGatewayRequest $request, int $id)
+    public function update(UpdateCompanyGatewayRequest $request, CompanyGateway $company_gateway)
     {
-        $company_gateway = $this->company_gateway_repo->findCompanyGatewayById($id);
-        $company_gateway = $this->company_gateway_repo->save($company_gateway, $request->all());
+        $company_gateway = $this->company_gateway_repo->update($request->all(), $company_gateway);
 
         return response()->json($this->transformCompanyGateway($company_gateway));
     }
@@ -100,19 +98,17 @@ class CompanyGatewayController extends Controller
      *
      * @return void
      */
-    public function archive(int $id)
+    public function archive(CompanyGateway $company_gateway)
     {
-        $company_gateway = $this->company_gateway_repo->findCompanyGatewayById($id);
         $company_gateway->archive();
     }
 
-    public function destroy(int $id)
+    public function destroy(CompanyGateway $company_gateway)
     {
-        $company = CompanyGateway::withTrashed()->where('id', '=', $id)->first();
 
-        $this->authorize('delete', $company);
+        $this->authorize('delete', $company_gateway);
 
-        $company->deleteEntity();
+        $company_gateway->deleteEntity();
         return response()->json([], 200);
     }
 }
