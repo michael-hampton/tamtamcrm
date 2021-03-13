@@ -73,10 +73,8 @@ class BankAccountController extends Controller
      * @param $id
      * @return JsonResponse
      */
-    public function update(UpdateBankAccountRequest $request, $id)
+    public function update(UpdateBankAccountRequest $request, BankAccount $bank_account) {
     {
-        $bank_account = $this->bank_account_repo->findBankAccountById($id);
-
         $bank_account_repo = new BankAccountRepository($bank_account);
         $bank_account = $bank_account_repo->save($request->all(), $bank_account);
 
@@ -88,9 +86,8 @@ class BankAccountController extends Controller
      * @return JsonResponse
      * @throws Exception
      */
-    public function destroy($id)
+    public function destroy(BankAccount $bank_account)
     {
-        $bank_account = $this->bank_account_repo->findBankAccountById($id);
         $bank_account->deleteEntity();
 
         return response()->json($this->transformBankAccount($bank_account));
