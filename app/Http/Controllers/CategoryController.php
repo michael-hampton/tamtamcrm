@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Factory\CategoryFactory;
 use App\Models\CompanyToken;
+use App\Models\Category;
 use App\Repositories\CategoryRepository;
 use App\Repositories\Interfaces\CategoryRepositoryInterface;
 use App\Requests\Category\CreateCategoryRequest;
@@ -66,9 +67,8 @@ class CategoryController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public function update(UpdateCategoryRequest $request, int $id)
+    public function update(UpdateCategoryRequest $request, Category $category)
     {
-        $category = $this->category_repo->findCategoryById($id);
         $update = new CategoryRepository($category);
         $update->updateCategory($request->except('_token', '_method'), $category);
         return response()->json($category);
@@ -80,9 +80,8 @@ class CategoryController extends Controller
      * @param int $id
      * @return void
      */
-    public function destroy(int $id)
+    public function destroy(Category $category)
     {
-        $category = $this->category_repo->findCategoryById($id);
         $category->products()->sync([]);
         $category->deleteEntity();
     }
