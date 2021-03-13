@@ -61,9 +61,8 @@ class CreditController extends BaseController
      * @param int $id
      * @return mixed
      */
-    public function update(UpdateCreditRequest $request, int $id)
+    public function update(UpdateCreditRequest $request, Credit $credit)
     {
-        $credit = $this->credit_repo->findCreditById($id);
         $credit = $this->credit_repo->save($request->all(), $credit);
 
         return response()->json($this->transformCredit($credit));
@@ -88,9 +87,8 @@ class CreditController extends BaseController
      * @param int $id
      * @return mixed
      */
-    public function archive(int $id)
+    public function archive(Credit $credit)
     {
-        $credit = $this->credit_repo->findCreditById($id);
         $credit->archive();
         return response()->json([], 200);
     }
@@ -100,10 +98,8 @@ class CreditController extends BaseController
      * @return mixed
      * @throws AuthorizationException
      */
-    public function destroy(int $id)
+    public function destroy(Credit $credit)
     {
-        $credit = Credit::withTrashed()->where('id', '=', $id)->first();
-
         $this->authorize('delete', $credit);
 
         $credit->deleteEntity();
@@ -114,16 +110,14 @@ class CreditController extends BaseController
      * @param int $id
      * @return mixed
      */
-    public function restore(int $id)
+    public function restore(Credit $credit)
     {
-        $credit = Credit::withTrashed()->where('id', '=', $id)->first();
         $credit->restoreEntity();
         return response()->json([], 200);
     }
 
-    public function show(int $id)
+    public function show(Credit $credit)
     {
-        $credit = $this->credit_repo->findCreditById($id);
         return response()->json($this->transformCredit($credit));
     }
 
