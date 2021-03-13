@@ -78,7 +78,7 @@ class PaymentTermsController extends Controller
      */
     public function update(UpdatePaymentTermsRequest $request, PaymentTerms $payment_term)
     {
-        $payment_terms = $this->payment_terms_repo->save($request->all(), $payment_term);
+        $payment_term = $this->payment_terms_repo->save($request->all(), $payment_term);
         return response()->json($this->transformPaymentTerms($payment_term));
     }
 
@@ -99,7 +99,7 @@ class PaymentTermsController extends Controller
      */
     public function destroy(PaymentTerms $payment_term)
     {
-        $payment_terms->deleteEntity($payment_term);
+        $payment_term->deleteEntity($payment_term);
         return response()->json([], 200);
     }
 
