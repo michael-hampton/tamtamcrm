@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Factory\CaseCategoryFactory;
 use App\Models\CompanyToken;
+use App\Models\CaseCategory;
 use App\Repositories\CaseCategoryRepository;
 use App\Requests\CaseCategory\CreateCategoryRequest;
 use App\Requests\CaseCategory\UpdateCategoryRequest;
@@ -68,9 +69,8 @@ class CaseCategoryController extends Controller
      * @param UpdateCategoryRequest $request
      * @param int $id
      */
-    public function update(UpdateCategoryRequest $request, int $id)
+    public function update(UpdateCategoryRequest $request, CaseCategory $category)
     {
-        $category = $this->category_repo->findCategoryById($id);
         $update = new CaseCategoryRepository($category);
         $update->save($request->except('_token', '_method'), $category);
     }
@@ -79,9 +79,8 @@ class CaseCategoryController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public function destroy(int $id)
+    public function destroy(CaseCategory $category)
     {
-        $category = $this->category_repo->findCategoryById($id);
         $category->deleteEntity();
         return response()->json($category);
     }
