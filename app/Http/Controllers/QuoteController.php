@@ -70,9 +70,8 @@ class QuoteController extends BaseController
      * @param int $quote_id
      * @return mixed
      */
-    public function show(int $quote_id)
+    public function show(Quote $quote)
     {
-        $invoice = $this->quote_repo->findQuoteById($quote_id);
         return response()->json($invoice);
     }
 
@@ -96,10 +95,8 @@ class QuoteController extends BaseController
      * @param int $id
      * @return mixed
      */
-    public function update(UpdateQuoteRequest $request, int $id)
+    public function update(UpdateQuoteRequest $request, Quote $quote)
     {
-        $quote = $this->quote_repo->findQuoteById($id);
-
         $quote = $this->quote_repo->updateQuote($request->all(), $quote);
 
         return response()->json((new QuoteTransformable())->transformQuote($quote));
@@ -144,9 +141,8 @@ class QuoteController extends BaseController
      * @param int $id
      * @return mixed
      */
-    public function archive(int $id)
+    public function archive(Quote $quote)
     {
-        $quote = $this->quote_repo->findQuoteById($id);
         $quote->archive();
         return response()->json([], 200);
     }
@@ -156,9 +152,8 @@ class QuoteController extends BaseController
      * @return mixed
      * @throws AuthorizationException
      */
-    public function destroy(int $id)
+    public function destroy(Quote $quote)
     {
-        $quote = Quote::withTrashed()->where('id', '=', $id)->first();
         $this->authorize('delete', $quote);
         $quote->deleteEntity();
         return response()->json([], 200);
