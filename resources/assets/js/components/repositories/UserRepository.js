@@ -49,6 +49,26 @@ export default class UserRepository extends BaseRepository {
         }
     }
 
+    async setupTwoFactorAuthentication (user = {}) {
+        this.errors = []
+        this.error_message = ''
+
+        try {
+            const res = await axios.get(`/api/2fa/enable/${user}`)
+
+            if (res.status === 200) {
+                // test for status you want, etc
+                console.log(res.status)
+            }
+
+            // Don't forget to return something
+            return res.data
+        } catch (e) {
+            this.handleError(e)
+            return false
+        }
+    }
+
     async enableGoogle (data = {}) {
         this.errors = []
         this.error_message = ''
