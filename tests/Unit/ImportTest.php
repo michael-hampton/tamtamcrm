@@ -68,14 +68,14 @@ class ImportTest extends TestCase
             'category name' => $this->category->name,
             'brand name'    => $brand->name,
             'quantity'      => 100,
-            'price'         => $this->faker->randomFloat(2),
-            'cost'          => $this->faker->randomFloat(2),
+            'price'         => 9.99,
+            'cost'          => 7.25,
             'width'         => 2,
             'height'        => 2,
             'weight'        => 2,
             'length'        => 2
         ];
-
+        
         $this->doImport($data, 'product');
 
         $this->assertDatabaseHas(
@@ -84,7 +84,7 @@ class ImportTest extends TestCase
                 'name'        => $data['name'],
                 'description' => $data['description'],
                 'quantity'    => $data['quantity'],
-                //'price'       => $data['price']
+                'price'       => $data['price']
             ]
         );
     }

@@ -45,11 +45,36 @@ class TwoFactorController extends Controller
         return redirect('/2fa')->with('message', 'Incorrect code.');
     }
 
-    public function enableTwoFactorAuthentication (TwoFactorVerification $request)
+    public function getQrCode(User $user)
+    {
+//        if (!empty($user->google_secret) || empty($user->phone_number)) {
+//            return response()->json(['message' => 'Unable to setup'], 400);
+//        }
+
+        $google2fa = new Google2FA();
+        $secret = $google2fa->generateSecretKey();
+
+        $qr_code = $google2fa->getQRCodeUrl(
+            config('taskmanager.app_name'),
+            $user->email,
+            $secret
+        );
+
+
+        return response()->json(
+            [
+                'secret'  => $secret,
+                'qr_code' => $qr_code,
+            ],
+            200
+        );
+    }
+
+    public function enableTwoFactorAuthentication(TwoFactorVerification $request)
     {
         $token = (new Google2FA())->verifyKey($request->input('secret'), $request->input('one_time_password'));
 
-        if(empty($token)) {
+        if (empty($token)) {
             return response()->json('Unable to generate token');
         }
 

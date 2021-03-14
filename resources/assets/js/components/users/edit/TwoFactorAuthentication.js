@@ -1,7 +1,18 @@
 import React, { Component } from 'react'
-import { Button, Modal, ModalBody, ModalFooter, ModalHeader, UncontrolledTooltip, FormGroup, Input, Label } from 'reactstrap'
+import {
+    Button,
+    FormGroup,
+    Input,
+    Label,
+    Modal,
+    ModalBody,
+    ModalFooter,
+    ModalHeader,
+    UncontrolledTooltip
+} from 'reactstrap'
 import UserRepository from '../../repositories/UserRepository'
 import { translations } from '../../utils/_translations'
+import QRCode from 'react-qr-code'
 
 export default class TwoFactorAuthentication extends Component {
     constructor (props) {
@@ -9,11 +20,34 @@ export default class TwoFactorAuthentication extends Component {
         this.state = {
             modal: false,
             secret: '',
-            one_time_password: ''
+            one_time_password: '',
+            qr_code: '',
+            user_id: null
         }
 
         this.toggle = this.toggle.bind(this)
         this.enableTwoFactor = this.enableTwoFactor.bind(this)
+        this.setupTwoFactor = this.setupTwoFactor.bind(this)
+    }
+
+    static getDerivedStateFromProps (props, state) {
+        if (props.user.id && props.user.id !== state.user_id) {
+            return { user_id: props.user.id }
+        }
+
+        return null
+    }
+
+    componentDidMount () {
+        if (this.props.user.id) {
+            this.setupTwoFactor(this.props.user.id)
+        }
+    }
+
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.user.id && this.props.user.id !== prevProps.user.id) {
+            this.setupTwoFactor(this.props.user.id)
+        }
     }
 
     toggle () {
@@ -23,12 +57,33 @@ export default class TwoFactorAuthentication extends Component {
         })
     }
 
+    setupTwoFactor () {
+        const userRepository = new UserRepository()
+
+        console.log('props', this.props)
+
+        userRepository.setupTwoFactorAuthentication(this.props.user.id).then(response => {
+            if (!response) {
+                // this.props.callback(false, response)
+                return
+            }
+
+            this.setState({ secret: response.secret, qr_code: response.qr_code })
+
+            console.log('response', response)
+        })
+    }
+
     enableTwoFactor () {
         const userRepository = new UserRepository()
 
         console.log('props', this.props)
 
-        userRepository.enableTwoFactorAuthentication({ user: this.props.user.id, one_time_password: this.state.one_time_password, secret: this.state.secret }).then(response => {
+        userRepository.enableTwoFactorAuthentication({
+            user: this.props.user.id,
+            one_time_password: this.state.one_time_password,
+            secret: this.state.secret
+        }).then(response => {
             if (!response) {
                 this.props.callback(false, response)
                 return
@@ -67,18 +122,17 @@ export default class TwoFactorAuthentication extends Component {
                     className={this.props.className}>
                     <ModalHeader toggle={this.toggle}>{translations.enable_two_factor}</ModalHeader>
                     <ModalBody className={theme}>
+                        {this.state.qr_code.length && this.state.secret.length &&
+                        <div className="m-4 text-center">
+                            <QRCode value={this.state.qr_code}/>
+                        </div>
+                        }
+
                         <FormGroup>
                             <Label for="backdrop">{translations.one_time_password}</Label>{' '}
                             <Input type="text" name="one_time_password" id="one_time_password" onChange={(e) => {
                                 this.setState({ one_time_password: e.target.value })
-                            }} />
-                        </FormGroup>
-
-                        <FormGroup>
-                            <Label for="backdrop">{translations.secret}</Label>{' '}
-                            <Input type="text" name="secret" id="secret" onChange={(e) => {
-                                this.setState({ secret: e.target.value })
-                            }} />
+                            }}/>
                         </FormGroup>
                     </ModalBody>
 
