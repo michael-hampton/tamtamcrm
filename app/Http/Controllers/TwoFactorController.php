@@ -47,9 +47,9 @@ class TwoFactorController extends Controller
 
     public function getQrCode(User $user)
     {
-//        if (!empty($user->google_secret) || empty($user->phone_number)) {
-//            return response()->json(['message' => 'Unable to setup'], 400);
-//        }
+        if (!empty($user->google_secret) || empty($user->phone_number)) {
+            return response()->json(['message' => 'Unable to setup'], 400);
+        }
 
         $google2fa = new Google2FA();
         $secret = $google2fa->generateSecretKey();
