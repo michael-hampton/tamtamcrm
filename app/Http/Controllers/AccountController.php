@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Plan\UpgradePlan;
 use App\Factory\AccountFactory;
-use App\Jobs\ProcessSubscription;
 use App\Models\Account;
 use App\Models\CompanyToken;
 use App\Models\Domain;
 use App\Models\Licence;
+use App\Models\Plan;
 use App\Notifications\NewAccountCreated;
 use App\Repositories\AccountRepository;
 use App\Requests\Account\StoreAccountRequest;
@@ -18,7 +19,6 @@ use App\Transformations\AccountTransformable;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Http;
 
 /**
  * Class AccountController
@@ -209,28 +209,14 @@ class AccountController extends BaseController
     public function upgrade(Request $request)
     {
         $domain = auth()->user()->account_user()->account->domains;
-        $domain->subscription_plan = $request->input(
+        $plan = $request->input(
             'package'
-        ) === 'standard' ? Domain::SUBSCRIPTION_STANDARD : Domain::SUBSCRIPTION_ADVANCED;
-        $domain->subscription_period = $request->input(
+        ) === 'standard' ? Plan::PLAN_STANDARD : Plan::PLAN_ADVANCED;
+        $period = $request->input(
             'period'
-        ) === 'monthly' ? Domain::SUBSCRIPTION_PERIOD_MONTH : Domain::SUBSCRIPTION_PERIOD_YEAR;
-        $domain->subscription_expiry_date = now()->addDays(10);
-        $number_of_licences = $request->input('number_of_licences');
+        ) === 'monthly' ? Plan::PLAN_PERIOD_MONTH : Plan::PLAN_PERIOD_YEAR;
 
-        if (empty($number_of_licences)) {
-            $request->input('package') === 'standard'
-                ? env('STANDARD_NUMBER_OF_LICENCES')
-                : env(
-                'ADVANCED_NUMBER_OF_LICENCES'
-            );
-        }
-
-        $domain->number_of_licences = $number_of_licences;
-
-        $domain->save();
-
-        ProcessSubscription::dispatchNow();
+        (new UpgradePlan())->execute($domain, ['plan' => $plan, 'plan_period' => $period]);
     }
 
     public function apply(Request $request)

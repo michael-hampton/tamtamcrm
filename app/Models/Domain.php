@@ -11,17 +11,6 @@ class Domain extends Model
 {
     use SoftDeletes;
 
-    const SUBSCRIPTION_STANDARD = 1;
-    const SUBSCRIPTION_ADVANCED = 2;
-    const SUBSCRIPTION_FREE = 3;
-
-    const SUBSCRIPTION_PERIOD_YEAR = 2;
-    const SUBSCRIPTION_PERIOD_MONTH = 1;
-
-    protected $casts = [
-        //'subscription_expiry_date' => 'date'
-    ];
-
     /**
      * @var array
      */
@@ -29,10 +18,6 @@ class Domain extends Model
         'user_id',
         'customer_id',
         'default_account_id',
-        'subscription_expiry_date',
-        'subscription_plan',
-        'subscription_period',
-        'number_of_licences',
         'user_id',
         'customer_id'
     ];
@@ -75,5 +60,10 @@ class Domain extends Model
     public function user()
     {
         return $this->belongsTo(User::class)->withTrashed();
+    }
+
+    public function plans()
+    {
+        return $this->hasMany(Plan::class);
     }
 }

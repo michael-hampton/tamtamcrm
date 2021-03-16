@@ -21,6 +21,7 @@ class CreateCaseCategoriesTable extends Migration
             $table->unsignedInteger('user_id')->index('user_id');
             $table->timestamps();
             $table->string('column_color', 100)->nullable();
+            $table->tinyInteger('is_deleted')->default(0);
         });
     }
 

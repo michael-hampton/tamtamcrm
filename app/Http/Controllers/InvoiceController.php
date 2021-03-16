@@ -19,6 +19,7 @@ use App\Transformations\InvoiceTransformable;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class InvoiceController
@@ -164,5 +165,11 @@ class InvoiceController extends BaseController
         $invoice = Invoice::withTrashed()->where('id', '=', $id)->first();
         $invoice->restoreEntity();
         return response()->json([], 200);
+    }
+
+    public function createSubscriptionInvoice(Request $request)
+    {
+        //TODO
+        Log::emergency($request->all());
     }
 }

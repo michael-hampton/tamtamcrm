@@ -3,14 +3,17 @@
 namespace App\Actions\Account;
 
 
+use App\Actions\Plan\CreatePlan;
 use App\Factory\AccountFactory;
 use App\Factory\UserFactory;
 use App\Models\Account;
 use App\Models\Domain;
+use App\Models\Plan;
 use App\Models\User;
 use App\Notifications\Account\NewAccount;
 use App\Repositories\AccountRepository;
 use App\Repositories\DomainRepository;
+use App\Repositories\PlanRepository;
 use App\Repositories\UserRepository;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -32,10 +35,10 @@ class CreateAccount
 
         // set default account
         $domain->default_account_id = $account->id;
-        $domain->number_of_licences = 99999;
-        $domain->subscription_period = Domain::SUBSCRIPTION_PERIOD_MONTH;
-        $domain->subscription_expiry_date = now()->addMonthNoOverflow();
         $domain->save();
+
+        // create plan
+        (new CreatePlan())->execute($domain, ['plan_period' => 'MONTHLY', 'plan' => 'STANDARD']);
 
         $user_repo = new UserRepository(new User);
         $user = UserFactory::create($domain->id);

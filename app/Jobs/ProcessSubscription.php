@@ -3,12 +3,14 @@
 namespace App\Jobs;
 
 use App\Actions\Account\ConvertAccount;
+use App\Actions\Plan\UpgradePlan;
 use App\Components\InvoiceCalculator\LineItem;
+use App\Components\Promocodes\Promocodes;
 use App\Factory\InvoiceFactory;
 use App\Mail\Account\SubscriptionInvoice;
 use App\Models\Account;
-use App\Models\Domain;
 use App\Models\Invoice;
+use App\Models\Plan;
 use App\Repositories\InvoiceRepository;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
@@ -40,41 +42,88 @@ class ProcessSubscription implements ShouldQueue
     public function handle()
     {
         // send 10 days before
-        $domains = Domain::whereRaw('DATEDIFF(subscription_expiry_date, CURRENT_DATE) = 10')
-                         ->whereIn(
-                             'subscription_plan',
-                             array(Domain::SUBSCRIPTION_STANDARD, Domain::SUBSCRIPTION_ADVANCED)
-                         )
-                         ->get();
+        $plans = Plan::whereRaw('DATEDIFF(due_date, CURRENT_DATE) = 10')
+                     ->where('is_active', 1)
+            //->where('due_date', '<=', 'expiry_date')
+                     ->whereIn(
+                'plan',
+                array(Plan::PLAN_TRIAL, Plan::PLAN_STANDARD, Plan::PLAN_ADVANCED)
+            )
+                     ->get();
 
-        foreach ($domains as $domain) {
-            $account = $domain->default_company;
+        foreach ($plans as $plan) {
+            $account = $plan->domain->default_company;
 
-            if ($domain->subscription_plan === Domain::SUBSCRIPTION_STANDARD) {
-                $cost = $domain->subscription_period === Domain::SUBSCRIPTION_PERIOD_YEAR ? env(
+            if ($plan->plan === Plan::PLAN_TRIAL) {
+                $due_date = Carbon::parse($plan->due_date)->subDays(10)->format('Y-m-d');
+                $expiry_date = $plan->expiry_date;
+
+                if ($due_date === $expiry_date) {
+                    (new UpgradePlan())->execute($plan->domain);
+                }
+
+                continue;
+            }
+
+            if ($plan->plan === Plan::PLAN_STANDARD) {
+                $cost = $plan->plan_period === Plan::PLAN_PERIOD_YEAR ? env(
                     'STANDARD_YEARLY_ACCOUNT_PRICE'
                 ) : env('STANDARD_MONTHLY_ACCOUNT_PRICE');
             } else {
-                $cost = $domain->subscription_period === Domain::SUBSCRIPTION_PERIOD_YEAR ? env(
+                $cost = $plan->plan_period === Plan::PLAN_PERIOD_YEAR ? env(
                     'ADVANCED_YEARLY_ACCOUNT_PRICE'
                 ) : env('ADVANCED_MONTHLY_ACCOUNT_PRICE');
             }
 
-            $number_of_licences = $domain->number_of_licences;
+            $number_of_licences = $plan->number_of_licences;
 
             if ($number_of_licences > 1 && $number_of_licences !== 99999) {
                 $cost *= $number_of_licences;
             }
 
+            if (!empty($plan->promocode) && empty($plan->promocode_applied)) {
+                $cost = $this->applyPromocode($plan, $account, $cost);
+            }
+
             $due_date = Carbon::now()->addDays(10);
 
-            $invoice = $this->createInvoice($account, $cost, $due_date);
+            $invoice = $this->createInvoice($plan, $cost, $due_date);
 
-            Mail::to($account->support_email)->send(new SubscriptionInvoice($account, $invoice));
+            if (!empty($account->support_email)) {
+                Mail::to($account->support_email)->send(new SubscriptionInvoice($plan, $account, $invoice));
+            }
 
-            $domain->subscription_expiry_date = $domain->subscription_period === Domain::SUBSCRIPTION_PERIOD_YEAR ? now(
-            )->addDays(10)->addYearNoOverflow() : now()->addDays(10)->addMonthNoOverflow();
+            $plan->expiry_date = $plan->plan_period === Plan::PLAN_PERIOD_YEAR ? now()->addDays(10)->addYearNoOverflow(
+            ) : now()->addDays(10)->addMonthNoOverflow();
         }
+    }
+
+    /**
+     * @param Plan $plan
+     * @param Account $account
+     * @param float $cost
+     * @return float|int
+     * @throws \Exception
+     */
+    private function applyPromocode(Plan $plan, Account $account, float $cost)
+    {
+        $promocode = (new Promocodes)->checkPlan($account, $plan, $plan->domain->customer);
+
+        if (empty($promocode)) {
+            throw new \Exception('Invalid promocode');
+        }
+
+        $amount = $promocode->reward;
+        $amount_type = $promocode->amount_type;
+
+        $cost = $amount_type === 'pct' ? $cost * ((100 - $amount) / 100) : $cost - $amount;
+
+        $promocode->delete();
+
+        $plan->promocode_applied = true;
+        $plan->save();
+
+        return $cost;
     }
 
     /**
@@ -83,23 +132,24 @@ class ProcessSubscription implements ShouldQueue
      * @param $due_date
      * @return Invoice
      */
-    private function createInvoice(Account $account, float $total_to_pay, $due_date): Invoice
+    private function createInvoice(Plan $plan, float $total_to_pay, $due_date): Invoice
     {
-        if (empty($account->domains) || empty($account->domains->user_id)) {
-            $account = (new ConvertAccount($account))->execute();
-        }
+//        if (empty($account->domains) || empty($account->domains->user_id)) {
+//            $account = (new ConvertAccount($account))->execute();
+//        }
 
-        $customer = $account->domains->customer;
-        $user = $account->domains->user;
+        $customer = $plan->customer;
 
-        $invoice = InvoiceFactory::create($account, $user, $customer);
+        $user = $plan->user;
+
+        $invoice = InvoiceFactory::create($plan->domain->default_company, $user, $customer);
         $invoice->due_date = $due_date;
 
         $line_items[] = (new LineItem)
             ->setQuantity(1)
             ->setUnitPrice($total_to_pay)
             ->setTypeId(Invoice::SUBSCRIPTION_TYPE)
-            ->setNotes("Subscription charge for {$account->subdomain}")
+            ->setNotes("Subscription charge for {$plan->domain->default_company->subdomain}")
             ->toObject();
 
         $invoice_repo = new InvoiceRepository(new Invoice);

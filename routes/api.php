@@ -568,6 +568,9 @@ Route::group(
 
         Route::post('uploads', 'UploadController@store');
 
+        Route::post('invoice/subscription', 'InvoiceController@createSubscriptionInvoice');
+
+
         //statement
         Route::post('statement/{customer}/{action}', 'StatementController@download');
     }

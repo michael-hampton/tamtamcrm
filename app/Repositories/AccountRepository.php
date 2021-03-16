@@ -40,11 +40,9 @@ class AccountRepository extends BaseRepository
     }
 
     /**
-     * Saves the client and its contacts
-     *
-     * @param array $data The data
+     * @param array $data
      * @param Account $account
-     * @return     Client|Company|null  Company Object
+     * @return Account|null
      */
     public function save(array $data, Account $account): ?Account
     {
