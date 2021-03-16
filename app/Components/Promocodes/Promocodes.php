@@ -282,10 +282,6 @@ class Promocodes
 
         $promocode = Promocode::byCode($code)->where('account_id', '=', $account->id)->first();
 
-        echo '<pre>';
-        print_r($promocode);
-        die;
-
         if ($promocode === null) {
             return false;
         }
