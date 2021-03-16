@@ -21,11 +21,6 @@ class CreateDomainsTable extends Migration
             $table->softDeletes();
             $table->unsignedInteger('user_id')->nullable();
             $table->unsignedInteger('customer_id')->nullable();
-            $table->integer('subscription_period')->default(0);
-            $table->integer('subscription_plan')->nullable();
-            $table->date('subscription_expiry_date')->nullable();
-            $table->integer('number_of_licences')->default(99999);
-            $table->string('licence_number', 100)->nullable();
         });
     }
 

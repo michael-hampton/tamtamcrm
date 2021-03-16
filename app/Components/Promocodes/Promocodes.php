@@ -6,6 +6,7 @@ use App\Exceptions\InvalidPromocodeException;
 use App\Models\Account;
 use App\Models\Customer;
 use App\Models\Order;
+use App\Models\Plan;
 use App\Models\Promocode;
 use Carbon\Carbon;
 use Exception;
@@ -281,6 +282,10 @@ class Promocodes
 
         $promocode = Promocode::byCode($code)->where('account_id', '=', $account->id)->first();
 
+        echo '<pre>';
+        print_r($promocode);
+        die;
+
         if ($promocode === null) {
             return false;
         }
@@ -291,6 +296,21 @@ class Promocodes
         }
 
         if (!empty($promocode->data['scope']) && !$this->validateScope($promocode->data, $order, $customer)) {
+            return false;
+        }
+
+        return $promocode;
+    }
+
+    public function checkPlan(Account $account, Plan $plan, Customer $customer)
+    {
+        $promocode = Promocode::byCode($plan->promocode)->where('account_id', '=', $account->id)->first();
+
+        if ($promocode === null) {
+            return false;
+        }
+
+        if ($promocode->isExpired()|| $promocode->isOverAmount()) {
             return false;
         }
 

@@ -123,6 +123,7 @@ class OrderController extends BaseController
      */
     public function destroy(Order $order)
     {
+        $this->authorize('delete', $order);
         $order->deleteEntity();
         return response()->json([], 200);
     }
