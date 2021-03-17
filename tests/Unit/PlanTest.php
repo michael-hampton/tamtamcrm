@@ -149,6 +149,7 @@ class PlanTest extends TestCase
                 'support_email' => $this->faker->safeEmail
             ]
         );
+
         $account = Account::factory()->create(['domain_id' => $domain->id, 'support_email' => $this->faker->safeEmail]);
         $domain->default_account_id = $account->id;
         $domain->save();
@@ -226,32 +227,17 @@ class PlanTest extends TestCase
         $plan->due_date = now()->addDays(10);
         $plan->save();
 
-        if ($plan->plan === Plan::PLAN_STANDARD) {
-            $cost = $plan->plan_period === Plan::PLAN_PERIOD_YEAR ? env(
-                'STANDARD_YEARLY_ACCOUNT_PRICE'
-            ) : env('STANDARD_MONTHLY_ACCOUNT_PRICE');
-        } else {
-            $cost = $plan->plan_period === Plan::PLAN_PERIOD_YEAR ? env(
-                'ADVANCED_YEARLY_ACCOUNT_PRICE'
-            ) : env('ADVANCED_MONTHLY_ACCOUNT_PRICE');
-        }
-
-        $number_of_licences = $plan->number_of_licences;
-
-        if ($number_of_licences > 1 && $number_of_licences !== 99999) {
-            $cost *= $number_of_licences;
-        }
-
-        //subtract promocode amount
-        $cost -= 10;
+        $cost = env('STANDARD_MONTHLY_ACCOUNT_PRICE') * 10 - 10;
 
         ProcessSubscription::dispatchNow();
+
+        //$invoice = Invoice::where('customer_id', '=', $customer->id)->where('balance', '=', $cost)->first();
 
         $this->assertDatabaseHas(
             'invoices',
             [
                 'customer_id' => $customer->id,
-                'balance'     => $cost,
+                'balance'     => number_format($cost, 4),
                 //'due_date'    => $domain->subscription_expiry_date
             ]
         );
