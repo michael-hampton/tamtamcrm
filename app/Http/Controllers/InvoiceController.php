@@ -169,7 +169,23 @@ class InvoiceController extends BaseController
 
     public function createSubscriptionInvoice(Request $request)
     {
-        //TODO
-        Log::emergency($request->all());
+        $customer = Customer::find($request->input('customer_id'));
+         
+        $data = $request->input('invoice');
+
+        $line_items[] = (new LineItem)
+            ->setQuantity(1)
+            ->setUnitPrice($total_to_pay)
+            ->setTypeId(Invoice::SUBSCRIPTION_TYPE)
+            ->setNotes("Plan charge for {auth()->user()->account_user()->account->subdomain}")
+            ->toObject();
+
+        $data'line_items'] = $line_items;
+
+        $invoice_repo = new InvoiceRepository(new Invoice);
+        $invoice = $invoice_repo->create($data, InvoiceFactory::create(auth()->user()->account_user()->account, auth()->user(), $customer));
+        $invoice_repo->markSent($invoice);
+
+        return response()->json($invoice);
     }
 }
