@@ -54,7 +54,10 @@ class EditInvoice extends Component {
         const data = this.props.invoice ? this.props.invoice : null
         this.invoiceModel = new InvoiceModel(data, this.props.customers)
         this.initialState = this.invoiceModel.fields
+        this.initialState.customers = this.props.customers || []
         this.state = this.initialState
+
+        alert(this.state.customers.length)
 
         this.updateData = this.updateData.bind(this)
         this.saveData = this.saveData.bind(this)
@@ -116,7 +119,7 @@ class EditInvoice extends Component {
 
     componentDidUpdate (prevProps, prevState) {
         if (this.props.invoice && this.props.invoice_id && this.props.invoice.id !== prevProps.invoice.id) {
-            this.invoiceModel = new InvoiceModel(this.props.invoice, this.props.customers)
+            this.invoiceModel = new InvoiceModel(this.props.invoice, this.state.customers)
         }
     }
 
@@ -574,7 +577,7 @@ class EditInvoice extends Component {
     }
 
     reload (data) {
-        this.invoiceModel = new InvoiceModel(data, this.props.customers)
+        this.invoiceModel = new InvoiceModel(data, this.state.customers)
         this.initialState = this.invoiceModel.fields
         this.initialState.modalOpen = true
         this.setState(this.initialState)
@@ -647,15 +650,17 @@ class EditInvoice extends Component {
         </Nav>
 
         const details = this.state.is_mobile
-            ? <Detailsm address={this.state.address} customerName={this.state.customerName}
-                handleInput={this.handleInput}
-                customers={this.props.customers}
-                hide_customer={this.state.id === null}
-                errors={this.state.errors} invoice={this.state}
+            ? <Detailsm updateCustomers={(customers) => {
+                this.setState({ customers: customers })
+            }} address={this.state.address} customerName={this.state.customerName}
+            handleInput={this.handleInput}
+            customers={this.state.customers}
+            hide_customer={this.state.id === null}
+            errors={this.state.errors} invoice={this.state}
             />
             : <Details address={this.state.address} customerName={this.state.customerName}
                 handleInput={this.handleInput}
-                customers={this.props.customers}
+                customers={this.state.customers}
                 errors={this.state.errors} invoice={this.state}
             />
 
@@ -675,11 +680,13 @@ class EditInvoice extends Component {
                 contacts={this.state.contacts}
                 invitations={this.state.invitations}
                 handleContactChange={this.handleContactChange}/>
-            : <Contacts hide_customer={this.state.id === null} address={this.state.address}
-                customerName={this.state.customerName}
-                handleInput={this.handleInput} invoice={this.state} errors={this.state.errors}
-                contacts={this.state.contacts}
-                invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
+            : <Contacts updateCustomers={(customers) => {
+                this.setState({ customers: customers })
+            }} hide_customer={this.state.id === null} address={this.state.address}
+            customerName={this.state.customerName}
+            handleInput={this.handleInput} invoice={this.state} errors={this.state.errors}
+            contacts={this.state.contacts} customers={this.state.customers}
+            invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
 
         const settings = <InvoiceSettings entity="invoice" is_mobile={this.state.is_mobile}
             handleSurcharge={this.handleSurcharge}
@@ -690,7 +697,7 @@ class EditInvoice extends Component {
             is_amount_discount={this.state.is_amount_discount}
             design_id={this.state.design_id}/>
 
-        const items = <Items model={this.invoiceModel} line_type={this.state.line_type} customers={this.props.customers}
+        const items = <Items model={this.invoiceModel} line_type={this.state.line_type} customers={this.state.customers}
             invoice={this.state}
             errors={this.state.errors}
             handleFieldChange={this.handleFieldChange}
@@ -712,7 +719,7 @@ class EditInvoice extends Component {
         const email_editor = this.state.id
             ? <Emails model={this.invoiceModel} emails={this.state.emails} template="email_template_invoice"
                 show_editor={true}
-                customers={this.props.customers} entity_object={this.state} entity="invoice"
+                customers={this.state.customers} entity_object={this.state} entity="invoice"
                 entity_id={this.state.id}/> : null
 
         const documents = this.state.id ? <Documents invoice={this.state}/> : null

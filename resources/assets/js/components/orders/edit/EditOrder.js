@@ -52,6 +52,7 @@ export default class EditOrder extends Component {
         const data = this.props.order ? this.props.order : null
         this.orderModel = new OrderModel(data, this.props.customers)
         this.initialState = this.orderModel.fields
+        this.initialState.customers = this.props.customers || []
         this.orderModel.task_id = this.props.task_id
         this.state = this.initialState
 
@@ -115,7 +116,7 @@ export default class EditOrder extends Component {
 
     componentDidUpdate (prevProps, prevState) {
         if (this.props.order && this.props.order.id && this.props.order.id !== prevProps.order.id) {
-            this.orderModel = new OrderModel(this.props.order, this.props.customers)
+            this.orderModel = new OrderModel(this.props.order, this.state.customers)
         }
     }
 
@@ -357,7 +358,7 @@ export default class EditOrder extends Component {
         axios.get(`/api/products/tasks/${this.props.task_id}/1,2`)
             .then((r) => {
                 this.setState(r.data)
-                this.orderModel = new OrderModel(r.data, this.props.customers)
+                this.orderModel = new OrderModel(r.data, this.state.customers)
                 const contacts = this.orderModel.contacts
                 this.setState({ contacts: contacts })
             })
@@ -462,7 +463,7 @@ export default class EditOrder extends Component {
     }
 
     reload (data) {
-        this.orderModel = new OrderModel(data, this.props.customers)
+        this.orderModel = new OrderModel(data, this.state.customers)
         this.initialState = this.orderModel.fields
         this.initialState.modalOpen = true
         this.setState(this.initialState)
@@ -536,12 +537,14 @@ export default class EditOrder extends Component {
         </Nav>
 
         const details = this.state.is_mobile
-            ? <Detailsm hide_customer={this.state.id === null} address={this.state.address}
-                customerName={this.state.customerName} handleInput={this.handleInput}
-                customers={this.props.customers}
-                errors={this.state.errors} order={this.state}
+            ? <Detailsm updateCustomers={(customers) => {
+                this.setState({ customers: customers })
+            }} hide_customer={this.state.id === null} address={this.state.address}
+            customerName={this.state.customerName} handleInput={this.handleInput}
+            customers={this.state.customers}
+            errors={this.state.errors} order={this.state}
             /> : <Details handleInput={this.handleInput}
-                customers={this.props.customers}
+                customers={this.state.customers}
                 errors={this.state.errors} order={this.state}
             />
 
@@ -558,11 +561,13 @@ export default class EditOrder extends Component {
                 contacts={this.state.contacts}
                 invitations={this.state.invitations}
                 handleContactChange={this.handleContactChange}/>
-            : <Contacts hide_customer={this.state.id === null} address={this.state.address}
-                customerName={this.state.customerName}
-                handleInput={this.handleInput} invoice={this.state} errors={this.state.errors}
-                contacts={this.state.contacts}
-                invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
+            : <Contacts updateCustomers={(customers) => {
+                this.setState({ customers: customers })
+            }} hide_customer={this.state.id === null} address={this.state.address}
+            customerName={this.state.customerName}
+            handleInput={this.handleInput} invoice={this.state} errors={this.state.errors}
+            contacts={this.state.contacts} customers={this.state.customers}
+            invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
 
         const settings = <InvoiceSettings is_mobile={this.state.is_mobile} handleSurcharge={this.handleSurcharge}
             settings={this.state}
@@ -571,7 +576,7 @@ export default class EditOrder extends Component {
             is_amount_discount={this.state.is_amount_discount}
             design_id={this.state.design_id}/>
 
-        const items = <Items line_type={this.state.line_type} model={this.orderModel} customers={this.props.customers}
+        const items = <Items line_type={this.state.line_type} model={this.orderModel} customers={this.state.customers}
             order={this.state} errors={this.state.errors}
             handleFieldChange={this.handleFieldChange}
             handleAddFiled={this.handleAddFiled} setTotal={this.setTotal}
@@ -592,7 +597,7 @@ export default class EditOrder extends Component {
         const email_editor = this.state.id
             ? <Emails model={this.orderModel} emails={this.state.emails} template="email_template_order"
                 show_editor={true}
-                customers={this.props.customers} entity_object={this.state} entity="order"
+                customers={this.state.customers} entity_object={this.state} entity="order"
                 entity_id={this.state.id}/> : null
 
         const documents = this.state.id ? <Documents order={this.state}/> : null

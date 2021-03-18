@@ -14,6 +14,7 @@ import TaskRepository from '../repositories/TaskRepository'
 import ProjectRepository from '../repositories/ProjectRepository'
 import InvoiceReducer from '../invoice/InvoiceReducer'
 import { getEntityIcon } from '../utils/_icons'
+import AddProduct from "../products/edit/AddProduct";
 
 class LineItemEditor extends Component {
     constructor (props) {
@@ -390,6 +391,16 @@ class LineItemEditor extends Component {
 
                 <TabContent className="" activeTab={this.state.line_type || !this.props.model.entity === 'Invoice'}>
                     <TabPane tabId={consts.line_item_product}>
+                        <AddProduct
+                            custom_fields={[]}
+                            companies={[]}
+                            categories={[]}
+                            products={this.state.products}
+                            action={(products, update = false) => {
+                                this.setState({products: products})
+                            }}
+                        />
+
                         {this.state.products.length &&
                         <LineItem
                             invoice={this.props.invoice}

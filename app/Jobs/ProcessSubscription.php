@@ -64,19 +64,19 @@ class ProcessSubscription implements ShouldQueue
                 continue;
             }
 
-            $cost = $plan->calculateCost();
+            $unit_cost = $plan->calculateCost();
 
             $promocode = [];
 
             if (!empty($plan->promocode) && empty($plan->promocode_applied)) {
-                $promocode = $this->applyPromocode($plan, $account, $cost, $plan->number_of_licences);
+                $promocode = $this->applyPromocode($plan, $account, $unit_cost, $plan->number_of_licences);
 
                 $cost = $promocode['cost'];
             }
 
             $due_date = Carbon::now()->addDays(10);
 
-            $invoice = $this->createInvoice($plan, $cost, $plan->number_of_licences, $due_date, $promocode);
+            $invoice = $this->createInvoice($plan, $unit_cost, $plan->number_of_licences, $due_date, $promocode);
 
             if (!empty($account->support_email)) {
                 Mail::to($account->support_email)->send(new SubscriptionInvoice($plan, $account, $invoice));
@@ -156,6 +156,7 @@ class ProcessSubscription implements ShouldQueue
         if (!empty($promocode)) {
             $data['discount_total'] = $promocode['amount'];
             $data['voucher_code'] = $promocode['promocode'];
+            $data['is_amount_discount'] = false;
         }
 
         $invoice_repo = new InvoiceRepository(new Invoice);

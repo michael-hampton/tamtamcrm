@@ -55,6 +55,7 @@ class UpdateRecurringInvoice extends Component {
         const data = this.props.invoice ? this.props.invoice : null
         this.invoiceModel = new RecurringInvoiceModel(data, this.props.customers)
         this.initialState = this.invoiceModel.fields
+        this.initialState.customers = this.props.customers || []
         this.state = this.initialState
 
         this.updateData = this.updateData.bind(this)
@@ -118,7 +119,7 @@ class UpdateRecurringInvoice extends Component {
 
     componentDidUpdate (prevProps, prevState) {
         if (this.props.invoice && this.props.invoice.id && this.props.invoice.id !== prevProps.invoice.id) {
-            this.invoiceModel = new InvoiceModel(this.props.invoice, this.props.customers)
+            this.invoiceModel = new InvoiceModel(this.props.invoice, this.state.customers)
         }
     }
 
@@ -611,7 +612,7 @@ class UpdateRecurringInvoice extends Component {
     }
 
     reload (data) {
-        this.invoiceModel = new RecurringInvoiceModel(data, this.props.customers)
+        this.invoiceModel = new RecurringInvoiceModel(data, this.state.customers)
         this.initialState = this.invoiceModel.fields
         this.initialState.modalOpen = true
         this.setState(this.initialState)
@@ -694,7 +695,7 @@ class UpdateRecurringInvoice extends Component {
                 allInvoices={this.props.allInvoices} show_invoice={this.invoiceModel.isNew}
                 address={this.state.address} customerName={this.state.customerName}
                 handleInput={this.handleInput}
-                customers={this.props.customers}
+                customers={this.state.customers}
                 hide_customer={this.state.id === null}
                 errors={this.state.errors} recurring_invoice={this.state}
             />
@@ -717,11 +718,13 @@ class UpdateRecurringInvoice extends Component {
                 contacts={this.state.contacts}
                 invitations={this.state.invitations}
                 handleContactChange={this.handleContactChange}/>
-            : <Contacts hide_customer={this.state.id === null} address={this.state.address}
-                customerName={this.state.customerName}
-                handleInput={this.handleInput} invoice={this.state} errors={this.state.errors}
-                contacts={this.state.contacts}
-                invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
+            : <Contacts updateCustomers={(customers) => {
+                this.setState({ customers: customers })
+            }} hide_customer={this.state.id === null} address={this.state.address}
+            customerName={this.state.customerName}
+            handleInput={this.handleInput} invoice={this.state} errors={this.state.errors}
+            contacts={this.state.contacts} customers={this.state.customers}
+            invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
 
         const settings = <InvoiceSettings is_mobile={this.state.is_mobile} handleSurcharge={this.handleSurcharge}
             settings={this.state}
@@ -730,7 +733,7 @@ class UpdateRecurringInvoice extends Component {
             is_amount_discount={this.state.is_amount_discount}
             design_id={this.state.design_id}/>
 
-        const items = <Items line_type={this.state.line_type} model={this.invoiceModel} customers={this.props.customers}
+        const items = <Items line_type={this.state.line_type} model={this.invoiceModel} customers={this.state.customers}
             invoice={this.state} errors={this.state.errors}
             handleFieldChange={this.handleFieldChange}
             handleAddFiled={this.handleAddFiled} setTotal={this.setTotal}
@@ -751,7 +754,7 @@ class UpdateRecurringInvoice extends Component {
         const email_editor = this.state.id
             ? <Emails model={this.invoiceModel} emails={this.state.emails} template="email_template_invoice"
                 show_editor={true}
-                customers={this.props.customers} entity_object={this.state} entity="recurringInvoice"
+                customers={this.state.customers} entity_object={this.state} entity="recurringInvoice"
                 entity_id={this.state.id}/> : null
 
         const documents = this.state.id ? <Documents invoice={this.state}/> : null

@@ -54,6 +54,7 @@ class EditPurchaseOrder extends Component {
         const data = this.props.invoice ? this.props.invoice : null
         this.purchaseOrderModel = new PurchaseOrderModel(data, this.props.companies)
         this.initialState = this.purchaseOrderModel.fields
+        this.initialState.companies = this.props.companies || []
         this.state = this.initialState
 
         this.updateData = this.updateData.bind(this)
@@ -115,7 +116,7 @@ class EditPurchaseOrder extends Component {
 
     componentDidUpdate (prevProps, prevState) {
         if (this.props.invoice && this.props.invoice_id && this.props.invoice.id !== prevProps.invoice.id) {
-            this.purchaseOrderModel = new PurchaseOrderModel(this.props.invoice, this.props.companies)
+            this.purchaseOrderModel = new PurchaseOrderModel(this.props.invoice, this.state.companies)
         }
     }
 
@@ -518,7 +519,7 @@ class EditPurchaseOrder extends Component {
     }
 
     reload (data) {
-        this.purchaseOrderModel = new PurchaseOrderModel(data, this.props.companies)
+        this.purchaseOrderModel = new PurchaseOrderModel(data, this.state.companies)
         this.initialState = this.purchaseOrderModel.fields
         this.initialState.modalOpen = true
         this.setState(this.initialState)
@@ -591,13 +592,15 @@ class EditPurchaseOrder extends Component {
         </Nav>
 
         const details = this.state.is_mobile
-            ? <Detailsm hide_customer={this.state.id === null}
-                handleInput={this.handleInput}
-                companies={this.props.companies}
-                errors={this.state.errors}
-                purchase_order={this.state}
+            ? <Detailsm updateCustomers={(companies) => {
+                this.setState({ companies: companies })
+            }} hide_customer={this.state.id === null}
+            handleInput={this.handleInput}
+            companies={this.state.companies}
+            errors={this.state.errors}
+            purchase_order={this.state}
             /> : <Details handleInput={this.handleInput}
-                companies={this.props.companies}
+                companies={this.state.companies}
                 errors={this.state.errors}
                 purchase_order={this.state}
             />
@@ -615,11 +618,13 @@ class EditPurchaseOrder extends Component {
                 contacts={this.state.contacts}
                 invitations={this.state.invitations}
                 handleContactChange={this.handleContactChange}/>
-            : <Contacts hide_customer={this.state.id === null} address={this.state.address}
-                customerName={this.state.customerName}
-                handleInput={this.handleInput} invoice={this.state} errors={this.state.errors}
-                contacts={this.state.contacts}
-                invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
+            : <Contacts updateCustomers={(companies) => {
+                this.setState({ companies: companies })
+            }} hide_customer={this.state.id === null} address={this.state.address}
+            customerName={this.state.customerName}
+            handleInput={this.handleInput} invoice={this.state} errors={this.state.errors}
+            contacts={this.state.contacts} companies={this.state.companies}
+            invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
 
         const recurring = <Recurring setRecurring={this.setRecurring} handleInput={this.handleInput}
             errors={this.state.errors} invoice={this.state}/>
@@ -632,7 +637,7 @@ class EditPurchaseOrder extends Component {
             design_id={this.state.design_id}/>
 
         const items = <Items line_type={this.state.line_type} model={this.purchaseOrderModel}
-            companies={this.props.companies}
+            companies={this.state.companies}
             purchase_order={this.state} errors={this.state.errors}
             handleFieldChange={this.handleFieldChange}
             handleAddFiled={this.handleAddFiled} setTotal={this.setTotal}

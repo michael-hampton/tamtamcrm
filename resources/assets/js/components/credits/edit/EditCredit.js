@@ -52,6 +52,7 @@ export default class EditCredit extends Component {
         const data = this.props.credit ? this.props.credit : null
         this.creditModel = new CreditModel(data, this.props.customers)
         this.initialState = this.creditModel.fields
+        this.initialState.customers = this.props.customers || []
         this.state = this.initialState
 
         this.updateData = this.updateData.bind(this)
@@ -111,7 +112,7 @@ export default class EditCredit extends Component {
 
     componentDidUpdate (prevProps, prevState) {
         if (this.props.credit && this.props.credit.id && this.props.credit.id !== prevProps.credit.id) {
-            this.creditModel = new CreditModel(this.props.credit, this.props.customers)
+            this.creditModel = new CreditModel(this.props.credit, this.state.customers)
         }
     }
 
@@ -518,7 +519,7 @@ export default class EditCredit extends Component {
     }
 
     reload (data) {
-        this.creditModel = new CreditModel(data, this.props.customers)
+        this.creditModel = new CreditModel(data, this.state.customers)
         this.initialState = this.creditModel.fields
         this.initialState.modalOpen = true
         this.setState(this.initialState)
@@ -593,12 +594,14 @@ export default class EditCredit extends Component {
         </Nav>
 
         const details = this.state.is_mobile
-            ? <Detailsm hide_customer={this.state.id === null} address={this.state.address}
-                customerName={this.state.customerName} handleInput={this.handleInput}
-                customers={this.props.customers}
-                errors={this.state.errors} credit={this.state}/>
+            ? <Detailsm updateCustomers={(customers) => {
+                this.setState({ customers: customers })
+            }} hide_customer={this.state.id === null} address={this.state.address}
+            customerName={this.state.customerName} handleInput={this.handleInput}
+            customers={this.state.customers}
+            errors={this.state.errors} credit={this.state}/>
             : <Details address={this.state.address} customerName={this.state.customerName} handleInput={this.handleInput}
-                customers={this.props.customers}
+                customers={this.state.customers}
                 errors={this.state.errors} credit={this.state}/>
 
         const custom = <CustomFieldsForm handleInput={this.handleInput} custom_value1={this.state.custom_value1}
@@ -614,11 +617,13 @@ export default class EditCredit extends Component {
                 contacts={this.state.contacts}
                 invitations={this.state.invitations}
                 handleContactChange={this.handleContactChange}/>
-            : <Contacts address={this.state.address} hide_customer={this.state.id === null}
-                customerName={this.state.customerName}
-                handleInput={this.handleInput} invoice={this.state} errors={this.state.errors}
-                contacts={this.state.contacts}
-                invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
+            : <Contacts updateCustomers={(customers) => {
+                this.setState({ customers: customers })
+            }} address={this.state.address} hide_customer={this.state.id === null}
+            customerName={this.state.customerName}
+            handleInput={this.handleInput} invoice={this.state} errors={this.state.errors}
+            contacts={this.state.contacts} customers={this.state.customers}
+            invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
 
         const settings = <InvoiceSettings is_mobile={this.state.is_mobile} handleSurcharge={this.handleSurcharge}
             settings={this.state}
@@ -627,7 +632,7 @@ export default class EditCredit extends Component {
             is_amount_discount={this.state.is_amount_discount}
             design_id={this.state.design_id}/>
 
-        const items = <Items line_type={this.state.line_type} model={this.creditModel} customers={this.props.customers}
+        const items = <Items line_type={this.state.line_type} model={this.creditModel} customers={this.state.customers}
             credit={this.state} errors={this.state.errors}
             handleFieldChange={this.handleFieldChange}
             handleAddFiled={this.handleAddFiled} setTotal={this.setTotal}
@@ -648,7 +653,7 @@ export default class EditCredit extends Component {
         const email_editor = this.state.id
             ? <Emails model={this.creditModel} emails={this.state.emails} template="email_template_credit"
                 show_editor={true}
-                customers={this.props.customers} entity_object={this.state} entity="credit"
+                customers={this.state.customers} entity_object={this.state} entity="credit"
                 entity_id={this.state.id}/> : null
 
         const documents = this.state.id ? <Documents credit={this.state}/> : null

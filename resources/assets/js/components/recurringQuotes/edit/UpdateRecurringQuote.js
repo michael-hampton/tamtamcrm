@@ -54,6 +54,7 @@ class UpdateRecurringQuote extends Component {
         const data = this.props.invoice ? this.props.invoice : null
         this.quoteModel = new RecurringQuoteModel(data, this.props.customers)
         this.initialState = this.quoteModel.fields
+        this.initialState.customers = this.state.customers || []
         this.state = this.initialState
 
         this.updateData = this.updateData.bind(this)
@@ -119,7 +120,7 @@ class UpdateRecurringQuote extends Component {
 
     componentDidUpdate (prevProps, prevState) {
         if (this.props.invoice && this.props.invoice.id && this.props.invoice.id !== prevProps.invoice.id) {
-            this.quoteModel = new RecurringQuoteModel(this.props.invoice, this.props.customers)
+            this.quoteModel = new RecurringQuoteModel(this.props.invoice, this.state.customers)
         }
     }
 
@@ -564,7 +565,7 @@ class UpdateRecurringQuote extends Component {
     }
 
     reload (data) {
-        this.quoteModel = new RecurringQuoteModel(data, this.props.customers)
+        this.quoteModel = new RecurringQuoteModel(data, this.state.customers)
         this.initialState = this.quoteModel.fields
         this.initialState.modalOpen = true
         this.setState(this.initialState)
@@ -648,24 +649,28 @@ class UpdateRecurringQuote extends Component {
             custom_fields={this.props.custom_fields}/>
 
         const contacts = this.state.is_mobile
-            ? <Contactsm address={this.state.address} customerName={this.state.customerName}
-                handleInput={this.handleInput} invoice={this.state}
-                errors={this.state.errors}
-                contacts={this.state.contacts}
-                invitations={this.state.invitations}
-                handleContactChange={this.handleContactChange}/>
-            : <Contacts hide_customer={this.state.id === null} address={this.state.address}
-                customerName={this.state.customerName}
-                handleInput={this.handleInput} invoice={this.state} errors={this.state.errors}
-                contacts={this.state.contacts}
-                invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
+            ? <Contactsm updateCustomers={(customers) => {
+                this.setState({ customers: customers })
+            }} address={this.state.address} customerName={this.state.customerName}
+            handleInput={this.handleInput} invoice={this.state}
+            errors={this.state.errors}
+            contacts={this.state.contacts}
+            invitations={this.state.invitations}
+            handleContactChange={this.handleContactChange}/>
+            : <Contacts updateCustomers={(customers) => {
+                this.setState({ customers: customers })
+            }} hide_customer={this.state.id === null} address={this.state.address}
+            customerName={this.state.customerName}
+            handleInput={this.handleInput} invoice={this.state} errors={this.state.errors}
+            contacts={this.state.contacts} customers={this.state.customers}
+            invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
 
         const recurring = this.state.is_mobile
             ? <Recurringm renderErrorFor={this.renderErrorFor} hasErrorFor={this.hasErrorFor}
                 allQuotes={this.props.allQuotes} show_quote={this.quoteModel.isNew}
                 hide_customer={this.state.id === null} address={this.state.address}
                 customerName={this.state.customerName} handleInput={this.handleInput}
-                customers={this.props.customers}
+                customers={this.state.customers}
                 errors={this.state.errors}
                 recurring_quote={this.state}
             />
@@ -680,7 +685,7 @@ class UpdateRecurringQuote extends Component {
             is_amount_discount={this.state.is_amount_discount}
             design_id={this.state.design_id}/>
 
-        const items = <Items line_type={this.state.line_type} model={this.quoteModel} customers={this.props.customers}
+        const items = <Items line_type={this.state.line_type} model={this.quoteModel} customers={this.state.customers}
             quote={this.state}
             errors={this.state.errors}
             handleFieldChange={this.handleFieldChange}
@@ -705,7 +710,7 @@ class UpdateRecurringQuote extends Component {
         const email_editor = this.state.id
             ? <Emails model={this.quoteModel} emails={this.state.emails} template="email_template_quote"
                 show_editor={true}
-                customers={this.props.customers} entity_object={this.state} entity="recurringQuote"
+                customers={this.state.customers} entity_object={this.state} entity="recurringQuote"
                 entity_id={this.state.id}/> : null
 
         const dropdownMenu = this.state.id

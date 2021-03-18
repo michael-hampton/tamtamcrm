@@ -2,6 +2,7 @@ import React from 'react'
 import { Card, CardBody, CardHeader, FormGroup, Input, Label } from 'reactstrap'
 import { translations } from '../../utils/_translations'
 import CompanyDropdown from '../../common/dropdowns/CompanyDropdown'
+import AddCompany from '../../companies/edit/AddCompany'
 
 export default function Contacts (props) {
     const send_to = props.contacts.length ? props.contacts.map((contact, index) => {
@@ -21,7 +22,12 @@ export default function Contacts (props) {
             <CardBody>
                 {props.hide_customer === true &&
                 <FormGroup>
-                    <Label>{translations.company}</Label>
+                    <Label>{translations.company}
+                        <AddCompany brands={props.companies} users={[]} action={(companies, update = false) => {
+                            this.props.updateCustomers(companies)
+                        }}
+                        custom_fields={[]}/>
+                    </Label>
                     <CompanyDropdown
                         handleInputChanges={props.handleInput}
                         company_id={props.invoice.company_id}

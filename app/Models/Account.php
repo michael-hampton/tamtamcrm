@@ -226,6 +226,8 @@ class Account extends Model
 
     public function getNumberOfAllowedCustomers()
     {
-        return $this->domains->subscription_plan === Domain::SUBSCRIPTION_FREE ? 100 : 99999;
+        return 99999;
+
+        //return $this->domains->subscription_plan === Domain::SUBSCRIPTION_FREE ? 100 : 99999;
     }
 }

@@ -269,7 +269,6 @@ export default function CustomerTabs (props) {
                 this.setState({ errors: customerModel.errors, message: customerModel.error_message })
                 return
             }
-
             props.customers.push(response)
             props.action(props.customers, true)
             toast.success('user mappings updated successfully')
