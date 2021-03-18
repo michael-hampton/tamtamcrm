@@ -69,12 +69,6 @@ class Plan extends Model
             ) : env('ADVANCED_MONTHLY_ACCOUNT_PRICE');
         }
 
-        $number_of_licences = $this->number_of_licences;
-
-        if ($number_of_licences > 1 && $number_of_licences !== 99999) {
-            $cost *= $number_of_licences;
-        }
-
         return $cost;
     }
 }
