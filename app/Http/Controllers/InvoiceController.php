@@ -183,7 +183,7 @@ class InvoiceController extends BaseController
         $data = $request->input('invoice');
 
         $line_items[] = (new LineItem())
-            ->setQuantity(1)
+            ->setQuantity($request->input('quantity'))
             ->setUnitPrice($plan->calculateCost())
             ->setTypeId(Invoice::SUBSCRIPTION_TYPE)
             ->setNotes("Plan charge for " . auth()->user()->account_user()->account->subdomain)
