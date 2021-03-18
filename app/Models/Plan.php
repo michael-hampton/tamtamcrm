@@ -33,7 +33,8 @@ class Plan extends Model
         'due_date',
         'plan_started',
         'plan_ended',
-        'is_active'
+        'is_active',
+        'price_paid'
     ];
 
     protected $dates = [
@@ -54,5 +55,26 @@ class Plan extends Model
     public function user()
     {
         return $this->belongsTo(User::class)->withTrashed();
+    }
+
+    public function calculateCost()
+    {
+        if ($this->plan === self::PLAN_STANDARD) {
+            $cost = $this->plan_period === self::PLAN_PERIOD_YEAR ? env(
+                'STANDARD_YEARLY_ACCOUNT_PRICE'
+            ) : env('STANDARD_MONTHLY_ACCOUNT_PRICE');
+        } else {
+            $cost = $this->plan_period === self::PLAN_PERIOD_YEAR ? env(
+                'ADVANCED_YEARLY_ACCOUNT_PRICE'
+            ) : env('ADVANCED_MONTHLY_ACCOUNT_PRICE');
+        }
+
+        $number_of_licences = $this->number_of_licences;
+
+        if ($number_of_licences > 1 && $number_of_licences !== 99999) {
+            $cost *= $number_of_licences;
+        }
+
+        return $cost;
     }
 }

@@ -64,21 +64,7 @@ class ProcessSubscription implements ShouldQueue
                 continue;
             }
 
-            if ($plan->plan === Plan::PLAN_STANDARD) {
-                $cost = $plan->plan_period === Plan::PLAN_PERIOD_YEAR ? env(
-                    'STANDARD_YEARLY_ACCOUNT_PRICE'
-                ) : env('STANDARD_MONTHLY_ACCOUNT_PRICE');
-            } else {
-                $cost = $plan->plan_period === Plan::PLAN_PERIOD_YEAR ? env(
-                    'ADVANCED_YEARLY_ACCOUNT_PRICE'
-                ) : env('ADVANCED_MONTHLY_ACCOUNT_PRICE');
-            }
-
-            $number_of_licences = $plan->number_of_licences;
-
-            if ($number_of_licences > 1 && $number_of_licences !== 99999) {
-                $cost *= $number_of_licences;
-            }
+            $cost = $plan->calculateCost();
 
             $promocode = [];
 

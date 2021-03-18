@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Components\InvoiceCalculator\LineItem;
 use App\Factory\InvoiceFactory;
 use App\Models\Customer;
 use App\Models\Invoice;
+use App\Models\Plan;
 use App\Models\Task;
 use App\Repositories\CreditRepository;
 use App\Repositories\Interfaces\InvoiceRepositoryInterface;
@@ -12,6 +14,7 @@ use App\Repositories\InvoiceRepository;
 use App\Repositories\QuoteRepository;
 use App\Repositories\TaskRepository;
 use App\Requests\Invoice\CreateInvoiceRequest;
+use App\Requests\Invoice\CreateSubscriptionInvoiceRequest;
 use App\Requests\Invoice\UpdateInvoiceRequest;
 use App\Requests\SearchRequest;
 use App\Search\InvoiceSearch;
@@ -167,23 +170,36 @@ class InvoiceController extends BaseController
         return response()->json([], 200);
     }
 
-    public function createSubscriptionInvoice(Request $request)
+    /**
+     * @param CreateSubscriptionInvoiceRequest $request
+     * @return JsonResponse
+     * @throws \ReflectionException
+     */
+    public function createSubscriptionInvoice(CreateSubscriptionInvoiceRequest $request)
     {
         $customer = Customer::find($request->input('customer_id'));
-         
+        $plan = Plan::find($request->input('plan_id'));
+
         $data = $request->input('invoice');
 
-        $line_items[] = (new LineItem)
+        $line_items[] = (new LineItem())
             ->setQuantity(1)
-            ->setUnitPrice($total_to_pay)
+            ->setUnitPrice($plan->calculateCost())
             ->setTypeId(Invoice::SUBSCRIPTION_TYPE)
-            ->setNotes("Plan charge for {auth()->user()->account_user()->account->subdomain}")
+            ->setNotes("Plan charge for " . auth()->user()->account_user()->account->subdomain)
             ->toObject();
 
-        $data'line_items'] = $line_items;
+        $data['line_items'] = $line_items;
 
         $invoice_repo = new InvoiceRepository(new Invoice);
-        $invoice = $invoice_repo->create($data, InvoiceFactory::create(auth()->user()->account_user()->account, auth()->user(), $customer));
+        $invoice = $invoice_repo->create(
+            $data,
+            InvoiceFactory::create(
+                auth()->user()->account_user()->account,
+                auth()->user(),
+                $customer
+            )
+        );
         $invoice_repo->markSent($invoice);
 
         return response()->json($invoice);
