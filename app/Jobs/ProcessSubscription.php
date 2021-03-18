@@ -105,9 +105,9 @@ class ProcessSubscription implements ShouldQueue
         $amount = $promocode->reward;
         $amount_type = $promocode->amount_type;
 
-        if($quantity > 1) {
+        /* if($quantity > 1) {
             $cost *= $quantity;
-        }
+        } */
 
         $cost = $amount_type === 'pct' ? $cost * ((100 - $amount) / 100) : $cost - $amount;
 
