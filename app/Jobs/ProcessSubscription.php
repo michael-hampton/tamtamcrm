@@ -69,14 +69,14 @@ class ProcessSubscription implements ShouldQueue
             $promocode = [];
 
             if (!empty($plan->promocode) && empty($plan->promocode_applied)) {
-                $promocode = $this->applyPromocode($plan, $account, $cost);
+                $promocode = $this->applyPromocode($plan, $account, $cost, $plan->number_of_licences);
 
                 $cost = $promocode['cost'];
             }
 
             $due_date = Carbon::now()->addDays(10);
 
-            $invoice = $this->createInvoice($plan, $cost, $due_date, $promocode);
+            $invoice = $this->createInvoice($plan, $cost, $plan->number_of_licences, $due_date, $promocode);
 
             if (!empty($account->support_email)) {
                 Mail::to($account->support_email)->send(new SubscriptionInvoice($plan, $account, $invoice));
@@ -94,7 +94,7 @@ class ProcessSubscription implements ShouldQueue
      * @return array
      * @throws \Exception
      */
-    private function applyPromocode(Plan $plan, Account $account, float $cost)
+    private function applyPromocode(Plan $plan, Account $account, float $cost, int $quantity)
     {
         $promocode = (new Promocodes)->checkPlan($account, $plan, $plan->domain->customer);
 
@@ -104,6 +104,10 @@ class ProcessSubscription implements ShouldQueue
 
         $amount = $promocode->reward;
         $amount_type = $promocode->amount_type;
+
+        if($quantity > 1) {
+            $cost *= $quantity;
+        }
 
         $cost = $amount_type === 'pct' ? $cost * ((100 - $amount) / 100) : $cost - $amount;
 
@@ -127,7 +131,7 @@ class ProcessSubscription implements ShouldQueue
      * @return Invoice
      * @throws \ReflectionException
      */
-    private function createInvoice(Plan $plan, float $total_to_pay, $due_date, array $promocode = []): Invoice
+    private function createInvoice(Plan $plan, float $total_to_pay, int $quantity, $due_date, array $promocode = []): Invoice
     {
 //        if (empty($account->domains) || empty($account->domains->user_id)) {
 //            $account = (new ConvertAccount($account))->execute();
@@ -141,7 +145,7 @@ class ProcessSubscription implements ShouldQueue
         $invoice->due_date = $due_date;
 
         $line_items[] = (new LineItem)
-            ->setQuantity(1)
+            ->setQuantity($quantity)
             ->setUnitPrice($total_to_pay)
             ->setTypeId(Invoice::SUBSCRIPTION_TYPE)
             ->setNotes("Plan charge for {$plan->domain->default_company->subdomain}")
