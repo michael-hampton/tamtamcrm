@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Plan\ApplyCode;
 use App\Components\InvoiceCalculator\LineItem;
 use App\Factory\InvoiceFactory;
 use App\Models\Customer;
@@ -22,7 +23,6 @@ use App\Transformations\InvoiceTransformable;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class InvoiceController
@@ -179,12 +179,22 @@ class InvoiceController extends BaseController
     {
         $customer = Customer::find($request->input('customer_id'));
         $plan = Plan::find($request->input('plan_id'));
+        $account = auth()->user()->account_user()->account;
+        $unit_cost = $plan->calculateCost();
 
         $data = $request->input('invoice');
 
+        if (!empty($request->input('promocode')) && empty($plan->promocode_applied)) {
+            $promocode = (new ApplyCode())->execute($plan, $account, $unit_cost, $plan->number_of_licences);
+            $data['discount_total'] = $promocode['amount'];
+            $data['voucher_code'] = $promocode['promocode'];
+            $data['is_amount_discount'] = $promocode['is_amount_discount'];
+        }
+
         $line_items[] = (new LineItem())
+            ->setProductId($plan->id)
             ->setQuantity($request->input('quantity'))
-            ->setUnitPrice($plan->calculateCost())
+            ->setUnitPrice($unit_cost)
             ->setTypeId(Invoice::SUBSCRIPTION_TYPE)
             ->setNotes("Plan charge for " . auth()->user()->account_user()->account->subdomain)
             ->toObject();
@@ -195,7 +205,7 @@ class InvoiceController extends BaseController
         $invoice = $invoice_repo->create(
             $data,
             InvoiceFactory::create(
-                auth()->user()->account_user()->account,
+                $account,
                 auth()->user(),
                 $customer
             )

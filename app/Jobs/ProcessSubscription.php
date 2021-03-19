@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Actions\Plan\ApplyCode;
 use App\Actions\Plan\UpgradePlan;
 use App\Components\InvoiceCalculator\LineItem;
 use App\Components\Promocodes\Promocodes;
@@ -69,9 +70,7 @@ class ProcessSubscription implements ShouldQueue
             $promocode = [];
 
             if (!empty($plan->promocode) && empty($plan->promocode_applied)) {
-                $promocode = $this->applyPromocode($plan, $account, $unit_cost, $plan->number_of_licences);
-
-                $cost = $promocode['cost'];
+                $promocode = (new ApplyCode())->execute($plan, $account, $unit_cost, $plan->number_of_licences);
             }
 
             $due_date = Carbon::now()->addDays(10);
@@ -89,50 +88,19 @@ class ProcessSubscription implements ShouldQueue
 
     /**
      * @param Plan $plan
-     * @param Account $account
-     * @param float $cost
-     * @return array
-     * @throws \Exception
-     */
-    private function applyPromocode(Plan $plan, Account $account, float $cost, int $quantity)
-    {
-        $promocode = (new Promocodes)->checkPlan($account, $plan, $plan->domain->customer);
-
-        if (empty($promocode)) {
-            throw new \Exception('Invalid promocode');
-        }
-
-        $amount = $promocode->reward;
-        $amount_type = $promocode->amount_type;
-
-        /* if($quantity > 1) {
-            $cost *= $quantity;
-        } */
-
-        $cost = $amount_type === 'pct' ? $cost * ((100 - $amount) / 100) : $cost - $amount;
-
-        $promocode->delete();
-
-        $plan->promocode_applied = true;
-        $plan->save();
-
-        return [
-            'promocode' => $promocode->code,
-            'amount'    => $amount_type === 'pct' ? ($amount / 100) * $cost : $amount,
-            'cost'      => $cost
-        ];
-    }
-
-    /**
-     * @param Plan $plan
      * @param float $total_to_pay
      * @param $due_date
      * @param array|bool $promocode
      * @return Invoice
      * @throws \ReflectionException
      */
-    private function createInvoice(Plan $plan, float $total_to_pay, int $quantity, $due_date, array $promocode = []): Invoice
-    {
+    private function createInvoice(
+        Plan $plan,
+        float $total_to_pay,
+        int $quantity,
+        $due_date,
+        array $promocode = []
+    ): Invoice {
 //        if (empty($account->domains) || empty($account->domains->user_id)) {
 //            $account = (new ConvertAccount($account))->execute();
 //        }
@@ -145,6 +113,7 @@ class ProcessSubscription implements ShouldQueue
         $invoice->due_date = $due_date;
 
         $line_items[] = (new LineItem)
+            ->setProductId($plan->id)
             ->setQuantity($quantity)
             ->setUnitPrice($total_to_pay)
             ->setTypeId(Invoice::SUBSCRIPTION_TYPE)
@@ -156,7 +125,7 @@ class ProcessSubscription implements ShouldQueue
         if (!empty($promocode)) {
             $data['discount_total'] = $promocode['amount'];
             $data['voucher_code'] = $promocode['promocode'];
-            $data['is_amount_discount'] = false;
+            $data['is_amount_discount'] = $promocode['is_amount_discount'];
         }
 
         $invoice_repo = new InvoiceRepository(new Invoice);

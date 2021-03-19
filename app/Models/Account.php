@@ -221,13 +221,15 @@ class Account extends Model
 
     public function getNumberOfAllowedUsers()
     {
-        return $this->domains->number_of_licences;
+        $plan = $this->domains->plans()->where('is_active', '=', 1)->first();
+
+        return $plan->number_of_licences;
     }
 
     public function getNumberOfAllowedCustomers()
     {
-        return 99999;
+       $plan = $this->domains->plans()->where('is_active', '=', 1)->first();
 
-        //return $this->domains->subscription_plan === Domain::SUBSCRIPTION_FREE ? 100 : 99999;
+       return $plan->plan === Plan::SUBSCRIPTION_FREE ? 100 : 99999;
     }
 }

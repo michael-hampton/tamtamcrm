@@ -15,9 +15,9 @@ class CreatePlansTable extends Migration
     {
         Schema::create('plans', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->unsignedInteger('user_id');
-            $table->unsignedInteger('customer_id');
-            $table->unsignedInteger('domain_id');
+            $table->unsignedInteger('user_id')->index('user_id');
+            $table->unsignedInteger('customer_id')->index('customer_id');
+            $table->unsignedInteger('domain_id')->index('domain_id');
             $table->date('expiry_date');
             $table->enum('plan', ['STANDARD', 'ADVANCED', 'TRIAL', '']);
             $table->enum('plan_period', ['YEARLY', 'MONTHLY', '', '']);
@@ -26,11 +26,12 @@ class CreatePlansTable extends Migration
             $table->tinyInteger('promocode_applied')->default(0);
             $table->date('due_date');
             $table->date('plan_started');
-            $table->date('plan_ended');
+            $table->date('plan_ended')->nullable();
             $table->tinyInteger('is_active')->default(0);
             $table->timestamps();
             $table->softDeletes();
             $table->string('licence_number', 100)->nullable();
+            $table->decimal('price_paid', 12)->default(0.00);
         });
     }
 
