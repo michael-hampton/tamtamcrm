@@ -2,33 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Credit;
-use App\Models\Customer;
 use App\Models\Deal;
-use App\Models\Expense;
-use App\Models\Invoice;
-use App\Models\Lead;
-use App\Models\Order;
-use App\Models\Payment;
-use App\Models\Project;
-use App\Models\Quote;
-use App\Models\Task;
-use App\Repositories\CreditRepository;
-use App\Repositories\CustomerRepository;
 use App\Repositories\DealRepository;
-use App\Repositories\ExpenseRepository;
 use App\Repositories\Interfaces\CustomerRepositoryInterface;
 use App\Repositories\Interfaces\TaskRepositoryInterface;
-use App\Repositories\InvoiceRepository;
-use App\Repositories\LeadRepository;
-use App\Repositories\OrderRepository;
-use App\Repositories\PaymentRepository;
-use App\Repositories\ProjectRepository;
-use App\Repositories\QuoteRepository;
-use App\Repositories\TaskRepository;
 use App\Requests\SearchRequest;
-use App\Search\LeadSearch;
+use App\Transformations\DashboardTransformer;
 use App\Transformations\TaskTransformable;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -67,19 +48,89 @@ class DashboardController extends Controller
 
         $account = auth()->user()->account_user()->account;
 
+        $test = $account->with(
+            [
+                'customers' => function ($query) {
+                    $query->orderBy('created_at', 'desc')->cacheFor(now()->addMonthNoOverflow())->cacheTags(['customers']);
+                }
+            ]
+        )->with(
+            [
+                'invoices' => function ($query) {
+                    $query->orderBy('created_at', 'desc')->cacheFor(now()->addMonthNoOverflow())->cacheTags(['invoices']);
+                }
+            ]
+        )->with(
+            [
+                'credits' => function ($query) {
+                    $query->orderBy('created_at', 'desc')->cacheFor(now()->addMonthNoOverflow())->cacheTags(['credits']);
+                }
+            ]
+        )->with(
+            [
+                'payments' => function ($query) {
+                    $query->orderBy('created_at', 'desc')->cacheFor(now()->addMonthNoOverflow())->cacheTags(['payments']);
+                }
+            ]
+        )->with(
+            [
+                'quotes' => function ($query) {
+                    $query->orderBy('created_at', 'desc')->cacheFor(now()->addMonthNoOverflow())->cacheTags(['quotes']);
+                }
+            ]
+        )->with(
+            [
+                'orders' => function ($query) {
+                    $query->orderBy('created_at', 'desc')->cacheFor(now()->addMonthNoOverflow())->cacheTags(['orders']);
+                }
+            ]
+        )->with(
+            [
+                'expenses' => function ($query) {
+                    $query->orderBy('created_at', 'desc')->cacheFor(now()->addMonthNoOverflow())->cacheTags(['expenses']);
+                }
+            ]
+        )->with(
+            [
+                'tasks' => function ($query) {
+                    $query->orderBy('created_at', 'desc')->cacheFor(now()->addMonthNoOverflow())->cacheTags(['tasks']);
+                }
+            ]
+        )->with(
+            [
+                'leads' => function ($query) {
+                    $query->orderBy('created_at', 'desc')->cacheFor(now()->addMonthNoOverflow())->cacheTags(['leads']);
+                }
+            ]
+        )->with(
+            [
+                'deals' => function ($query) {
+                    $query->orderBy('created_at', 'desc');
+                }
+            ]
+        )->first();
+
+        $data = (new DashboardTransformer())->transformDashboardData($test);
+
+        $date = Carbon::today()->subDays(3);
+
         $deal_repo = new DealRepository(new Deal);
         $arrSources = $this->taskRepository->getSourceTypeCounts(3, $account->id);
         $arrStatuses = $this->taskRepository->getStatusCounts($account->id);
-        $leadsToday = $this->taskRepository->getRecentTasks(3, $account->id);
-        $customersToday = $this->customerRepository->getRecentCustomers(3, $account->id);
-        $newDeals = $deal_repo->getNewDeals(3, $account->id);
-        $leads = (new LeadSearch(new LeadRepository(new Lead())))->filter(
-            $search_request,
-            $account
-        );
-        $totalEarnt = $deal_repo->getTotalEarnt($account->id);
+        $leadsToday = $test->tasks->where('created_at', '>=', $date)->count();
+        $customersToday = $test->customers->where('created_at', '>=', $date)->count();
+        $newDeals = $test->deals->where('created_at', '>=', $date)->count();
+        $totalEarnt = $test->deals->sum('valued_at');
 
-        $arrOutput = [
+        $data['sources'] = $arrSources->toArray();
+        $data['leadCounts'] = $arrStatuses->toArray();
+        $data['totalBudget'] = number_format($totalEarnt, 2);
+        $data['totalEarnt'] = number_format($totalEarnt, 2);
+        $data['leadsToday'] = number_format($leadsToday, 2);
+        $data['newDeals'] = number_format($newDeals, 2);
+        $data['newCustomers'] = number_format($customersToday, 2);
+
+        /*$arrOutput = [
             'customers'    => (new CustomerRepository(new Customer()))->getAll(
                 $search_request,
                 $account
@@ -120,9 +171,9 @@ class DashboardController extends Controller
                 $search_request,
                 $account
             )
-        ];
+        ]; */
 
-        return response()->json($arrOutput);
+        return response()->json($data);
     }
 
 }

@@ -158,6 +158,31 @@ class Account extends Model
         return $this->hasMany(Product::class);
     }
 
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function expenses()
+    {
+        return $this->hasMany(Expense::class);
+    }
+
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
+
+    public function leads()
+    {
+        return $this->hasMany(Lead::class);
+    }
+
+    public function deals()
+    {
+        return $this->hasMany(Deal::class);
+    }
+
     /**
      * @return BelongsTo
      */

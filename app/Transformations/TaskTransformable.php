@@ -12,7 +12,7 @@ use Exception;
 
 trait TaskTransformable
 {
-    use CustomerTransformable;
+    //use CustomerTransformable;
 
     /**
      * @param Task $task
@@ -35,7 +35,7 @@ trait TaskTransformable
             'task_status'          => $task->taskStatus,
             'task_status_id'       => (int)$task->task_status_id,
             'deleted_at'           => $task->deleted_at,
-            'customer'             => $this->transformCustomer($task->customer),
+            'customer'             => $task->customer,
             'customer_id'          => $task->customer_id,
             'assigned_to'          => $task->assigned_to,
             'users'                => $task->users,

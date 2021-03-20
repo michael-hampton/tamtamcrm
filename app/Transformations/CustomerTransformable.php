@@ -18,23 +18,26 @@ trait CustomerTransformable
      * @return array
      * @throws Exception
      */
-    protected function transformCustomer(Customer $customer)
+    protected function transformCustomer(Customer $customer, $exclude = [])
     {
         $company = !empty($customer->company_id) ? $customer->company->toArray() : '';
         $credit = $customer->credits()->count() > 0 ? $customer->credits->first()->amount : 0;
 
-        $addresses = $this->transformAddress($customer->addresses);
-
         $billing = null;
         $shipping = null;
 
-        foreach ($addresses as $address) {
-            if ($address->address_type === 1) {
-                $billing = $address;
-            } elseif ($address->address_type === 2) {
-                $shipping = $address;
+        if(empty($exclude) || (!empty($exclude) && in_array('addresses', $exclude))) {
+            $addresses = $this->transformAddress($customer->addresses);
+
+            foreach ($addresses as $address) {
+                if ($address->address_type === 1) {
+                    $billing = $address;
+                } elseif ($address->address_type === 2) {
+                    $shipping = $address;
+                }
             }
         }
+
 
         return [
             'id'                     => (int)$customer->id,
@@ -47,7 +50,7 @@ trait CustomerTransformable
             'deleted_at'             => $customer->deleted_at,
             'company'                => $company,
             'credit'                 => $credit,
-            'contacts'               => $this->transformContacts($customer->contacts),
+            'contacts'               => empty($exclude) || !in_array('contacts', $exclude) ? $this->transformContacts($customer->contacts) : [],
             'default_payment_method' => $customer->default_payment_method,
             'group_settings_id'      => $customer->group_settings_id,
             'shipping'               => $shipping,
@@ -65,7 +68,7 @@ trait CustomerTransformable
             'assigned_to'            => $customer->assigned_to,
             'settings'               => $customer->settings,
             'transactions'           => $this->transformTransactions($customer->transactions),
-            'error_logs'             => $this->transformErrorLogs($customer->error_logs),
+            'error_logs'             => empty($exclude) || !in_array('logs', $exclude) ? $this->transformErrorLogs($customer->error_logs): [],
             'custom_value1'          => $customer->custom_value1 ?: '',
             'custom_value2'          => $customer->custom_value2 ?: '',
             'custom_value3'          => $customer->custom_value3 ?: '',
@@ -73,7 +76,7 @@ trait CustomerTransformable
             'private_notes'          => $customer->private_notes ?: '',
             'public_notes'           => $customer->public_notes ?: '',
             'files'                  => $this->transformCustomerFiles($customer->files),
-            'gateway_tokens'         => $this->transformGatewayTokens($customer->gateways),
+            'gateway_tokens'         => empty($exclude) || !in_array('gateways', $exclude) ? $this->transformGatewayTokens($customer->gateways) : [],
             'is_deleted'             => (bool)$customer->is_deleted,
         ];
     }
@@ -118,6 +121,8 @@ trait CustomerTransformable
      */
     private function transformTransactions($transactions)
     {
+        return [];
+
         if (empty($transactions)) {
             return [];
         }
