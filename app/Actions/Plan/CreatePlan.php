@@ -3,6 +3,7 @@
 namespace App\Actions\Plan;
 
 
+use App\Models\CustomerPlan;
 use App\Models\Domain;
 use App\Models\Plan;
 use App\Repositories\PlanRepository;
@@ -41,12 +42,25 @@ class CreatePlan
             $data['expiry_date'] = now()->addYearNoOverflow();
         }
 
-        if($data['plan'] === 'STANDARD') {
-            $data['price_paid'] = $data['plan_period'] === 'MONTHLY' ? env('STANDARD_MONTHLY_ACCOUNT_PRICE') : env('STANDARD_YEARLY_ACCOUNT_PRICE');
+        if ($data['plan'] === 'STANDARD') {
+            $data['price_paid'] = $data['plan_period'] === 'MONTHLY'
+                ? env('STANDARD_MONTHLY_ACCOUNT_PRICE')
+                : env(
+                    'STANDARD_YEARLY_ACCOUNT_PRICE'
+                );
         } else {
-            $data['price_paid'] = $data['plan_period'] === 'MONTHLY' ? env('ADVANCED_MONTHLY_ACCOUNT_PRICE') : env('ADVANCED_YEARLY_ACCOUNT_PRICE');
+            $data['price_paid'] = $data['plan_period'] === 'MONTHLY'
+                ? env('ADVANCED_MONTHLY_ACCOUNT_PRICE')
+                : env(
+                    'ADVANCED_YEARLY_ACCOUNT_PRICE'
+                );
         }
 
-        return (new PlanRepository(new Plan()))->create($data);
+        $plan = (new PlanRepository(new Plan()))->create($data);
+
+
+        //CustomerPlan::create(['customer_id' => $domain->customer_id, 'plan_id' => $plan->id, 'invoice_id' => $invoice->id]);
+
+        return $plan;
     }
 }

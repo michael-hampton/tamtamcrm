@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class AccountUser extends Pivot
 {
     use SoftDeletes;
+    use QueryCacheable;
 
     //   protected $guarded = ['id'];
     /**
@@ -29,6 +31,21 @@ class AccountUser extends Pivot
         'is_locked',
         'slack_webhook_url',
     ];
+
+    protected static $flushCacheOnUpdate = true;
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'account_user',
+        ];
+    }
 
     public function account()
     {

@@ -14,11 +14,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Laracasts\Presenter\PresentableTrait;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Invoice extends Model
 {
 
-    use PresentableTrait, SoftDeletes, Money, Balancer, HasFactory, Archiveable, Taxable;
+    use PresentableTrait, SoftDeletes, Money, Balancer, HasFactory, Archiveable, Taxable, QueryCacheable;
 
     const STATUS_DRAFT = 1;
     const STATUS_SENT = 2;
@@ -112,9 +113,25 @@ class Invoice extends Model
         'late_fee_reminder',
         'project_id'
     ];
+
     protected $dates = [
         'date_to_send',
     ];
+
+    protected static $flushCacheOnUpdate = true;
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'invoices',
+        ];
+    }
 
     /**
      * @return bool

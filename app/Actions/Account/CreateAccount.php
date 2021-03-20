@@ -8,12 +8,10 @@ use App\Factory\AccountFactory;
 use App\Factory\UserFactory;
 use App\Models\Account;
 use App\Models\Domain;
-use App\Models\Plan;
 use App\Models\User;
 use App\Notifications\Account\NewAccount;
 use App\Repositories\AccountRepository;
 use App\Repositories\DomainRepository;
-use App\Repositories\PlanRepository;
 use App\Repositories\UserRepository;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -28,6 +26,10 @@ class CreateAccount
         // create domain
         $domain = (new DomainRepository(new Domain))->create($data);
 
+        if (!empty($data['email'])) {
+            $data['support_email'] = $data['email'];
+        }
+
         // create account
         $account = AccountFactory::create($domain->id);
 
@@ -36,6 +38,11 @@ class CreateAccount
         // set default account
         $domain->default_account_id = $account->id;
         $domain->save();
+
+        if (empty($domain->customer_id)) {
+            (new ConvertAccount($account))->execute();
+            $domain = $domain->fresh();
+        }
 
         // create plan
         (new CreatePlan())->execute($domain, ['plan_period' => 'MONTHLY', 'plan' => 'STANDARD']);

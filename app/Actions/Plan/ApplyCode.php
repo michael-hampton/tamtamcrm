@@ -16,7 +16,7 @@ class ApplyCode
      * @return array
      * @throws \Exception
      */
-    public function execute(Plan $plan, Account $account, float $cost, int $quantity)
+    public function execute(Plan $plan, Account $account, float $cost)
     {
         $promocode = (new Promocodes)->checkPlan($account, $plan, $plan->domain->customer);
 
@@ -27,9 +27,11 @@ class ApplyCode
         $amount = $promocode->reward;
         $amount_type = $promocode->amount_type;
 
-        /* if($quantity > 1) {
+        $quantity = $plan->number_of_licences;
+
+        if ($quantity > 1) {
             $cost *= $quantity;
-        } */
+        }
 
         $cost = $amount_type === 'pct' ? $cost * ((100 - $amount) / 100) : $cost - $amount;
 

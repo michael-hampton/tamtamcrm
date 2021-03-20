@@ -132,10 +132,11 @@ export default class Detailsm extends Component {
                     {this.props.hide_customer === true &&
                     <FormGroup>
                         <Label>{translations.company}
-                            <AddCompany brands={this.props.companies} users={[]} action={(companies, update = false) => {
-                                this.props.updateCustomers(companies)
-                            }}
-                            custom_fields={[]}/>
+                            <AddCompany small_button={true} brands={this.props.companies} users={[]}
+                                action={(companies, update = false) => {
+                                    this.props.updateCustomers(companies)
+                                }}
+                                custom_fields={[]}/>
                         </Label>
                         <CompanyDropdown
                             handleInputChanges={this.props.handleInput}

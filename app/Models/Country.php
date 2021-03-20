@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Country extends Model
 {
+    use QueryCacheable;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -25,5 +28,9 @@ class Country extends Model
      * @var array
      */
     protected $hidden = [];
+
+    public $cacheFor = -1;
+
+    protected static $flushCacheOnUpdate = true;
 
 }

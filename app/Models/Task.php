@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Task extends Model
 {
@@ -17,6 +18,7 @@ class Task extends Model
     use PresentableTrait;
     use HasFactory;
     use Archiveable;
+    use QueryCacheable;
 
     const TASK_TYPE_DEAL = 3;
     const STATUS_IN_PROGRESS = 7;
@@ -62,6 +64,21 @@ class Task extends Model
 
 
     protected $presenter = 'App\Presenters\TaskPresenter';
+
+    protected static $flushCacheOnUpdate = true;
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'tasks',
+        ];
+    }
 
     public function project()
     {

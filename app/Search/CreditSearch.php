@@ -116,7 +116,7 @@ class CreditSearch extends BaseSearch
      */
     private function transformList()
     {
-        $list = $this->query->get();
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['credits'])->get();
         $credits = $list->map(
             function (Credit $credit) {
                 return $this->transformCredit($credit);

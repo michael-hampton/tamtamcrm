@@ -107,7 +107,7 @@ class PaymentSearch extends BaseSearch
 
     private function transformList()
     {
-        $list = $this->query->get();
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['payments'])->get();
         $payments = $list->map(
             function (Payment $payment) {
                 return $this->transformPayment($payment);

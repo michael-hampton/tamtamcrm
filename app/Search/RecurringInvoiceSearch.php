@@ -102,7 +102,7 @@ class RecurringInvoiceSearch extends BaseSearch
 
     private function transformList()
     {
-        $list = $this->query->get();
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['recurring_invoices'])->get();
         $invoices = $list->map(
             function (RecurringInvoice $invoice) {
                 return $this->transformRecurringInvoice($invoice);

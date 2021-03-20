@@ -124,7 +124,7 @@ class ExpenseSearch extends BaseSearch
      */
     private function transformList()
     {
-        $list = $this->query->get();
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['expenses'])->get();
         $expenses = $list->map(
             function (Expense $expense) {
                 return $this->transformExpense($expense);

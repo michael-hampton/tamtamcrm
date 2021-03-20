@@ -107,7 +107,7 @@ class UserSearch extends BaseSearch
      */
     private function transformList()
     {
-        $list = $this->query->get();
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['users'])->get();
         $users = $list->map(
             function (User $user) {
                 return $this->transformUser($user);

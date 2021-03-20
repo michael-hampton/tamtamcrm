@@ -28,7 +28,7 @@ class CreateTaskRequest extends BaseFormRequest
         return [
             'source_type' => 'nullable|numeric',
             'rating'      => 'nullable|numeric',
-            'customer_id' => 'nullable|numeric',
+            'customer_id' => 'required|exists:customers,id,account_id,' . auth()->user()->account_user()->account_id,
             'name'        => 'required',
             'description' => 'required',
             //'contributors' => 'required|array',
@@ -38,7 +38,7 @@ class CreateTaskRequest extends BaseFormRequest
             'number'      => [
                 Rule::unique('tasks', 'number')->where(
                     function ($query) {
-                        return $query->where('customer_id', $this->customer_id)->where('account_id', $this->account_id);
+                        return $query->where('customer_id', $this->customer_id)->where('account_id', auth()->user()->account_user()->account_id);
                     }
                 )
             ],

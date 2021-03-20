@@ -114,7 +114,7 @@ class QuoteSearch extends BaseSearch
      */
     private function transformList()
     {
-        $list = $this->query->get();
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['quotes'])->get();
         $quotes = $list->map(
             function (Quote $quote) {
                 return (new QuoteTransformable())->transformQuote($quote);

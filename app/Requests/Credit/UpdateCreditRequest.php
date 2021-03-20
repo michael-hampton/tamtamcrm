@@ -4,6 +4,7 @@ namespace App\Requests\Credit;
 
 use App\Models\Credit;
 use App\Repositories\Base\BaseFormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateCreditRequest extends BaseFormRequest
 {
@@ -33,7 +34,14 @@ class UpdateCreditRequest extends BaseFormRequest
             'total'          => 'required',
             'tax_total'      => 'required',
             'line_items'     => 'required|array',
-            'number'         => 'nullable|unique:credits,number,' . $this->credit->id . ',id,account_id,' . $this->account_id,
+            'number'       => [
+                'nullable',
+                Rule::unique('credits')->where(
+                    function ($query) {
+                        return $query->where('account_id', $this->credit->account_id);
+                    }
+                )->ignore($this->credit),
+            ],
         ];
     }
 }

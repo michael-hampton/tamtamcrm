@@ -104,7 +104,8 @@ class LeadSearch extends BaseSearch
      */
     private function transformList()
     {
-        $list = $this->query->get();
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['leads'])->get();
+
         $leads = $list->map(
             function (Lead $lead) {
                 return $this->transformLead($lead);

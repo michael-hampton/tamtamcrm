@@ -111,7 +111,7 @@ class ProjectSearch extends BaseSearch
      */
     private function transformList()
     {
-        $list = $this->query->get();
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['projects'])->get();
         $projects = $list->map(
             function (Project $project) {
                 return $this->transformProject($project);

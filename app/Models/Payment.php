@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Payment extends Model
 {
@@ -19,6 +20,7 @@ class Payment extends Model
     use Money;
     use HasFactory;
     use Archiveable;
+    use QueryCacheable;
 
     const STATUS_PENDING = 1;
     const STATUS_VOIDED = 2;
@@ -30,6 +32,7 @@ class Payment extends Model
     const TYPE_CUSTOMER_CREDIT = 2;
 
     protected $presenter = 'App\Presenters\OrderPresenter';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -53,15 +56,33 @@ class Payment extends Model
         'custom_value3',
         'custom_value4'
     ];
+
     protected $casts = [
         'exchange_rate' => 'float',
         'updated_at'    => 'timestamp',
         'deleted_at'    => 'timestamp',
         'is_deleted'    => 'boolean',
     ];
+
     protected $with = [
         'paymentables',
     ];
+
+    protected static $flushCacheOnUpdate = true;
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'payments',
+        ];
+    }
+    
     /**
      * The attributes that should be hidden for arrays.
      *

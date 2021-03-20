@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Credit extends Model
 {
@@ -22,6 +23,7 @@ class Credit extends Model
     use HasFactory;
     use Archiveable;
     use Taxable;
+    use QueryCacheable;
 
     const STATUS_DRAFT = 1;
     const STATUS_SENT = 2;
@@ -39,6 +41,8 @@ class Credit extends Model
     const PAYMENT_TYPE = 12;
 
     protected $presenter = 'App\Presenters\CreditPresenter';
+
+    protected static $flushCacheOnUpdate = true;
     /**
      * @var array
      */
@@ -93,6 +97,19 @@ class Credit extends Model
         'deleted_at'  => 'timestamp',
         'viewed'      => 'boolean'
     ];
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'credits',
+        ];
+    }
 
     /**
      * @return BelongsTo

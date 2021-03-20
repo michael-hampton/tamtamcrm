@@ -124,7 +124,7 @@ class CustomerSearch extends BaseSearch
      */
     private function transformList()
     {
-        $list = $this->query->get();
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['customers'])->get();
 
         $customers = $list->map(
             function (Customer $customer) {

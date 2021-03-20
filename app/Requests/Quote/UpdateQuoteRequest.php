@@ -2,8 +2,8 @@
 
 namespace App\Requests\Quote;
 
-use App\Models\Quote;
 use App\Repositories\Base\BaseFormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateQuoteRequest extends BaseFormRequest
 {
@@ -33,7 +33,14 @@ class UpdateQuoteRequest extends BaseFormRequest
             'total'          => 'required',
             'tax_total'      => 'required',
             'line_items'     => 'required|array',
-            'number'         => 'nullable|unique:quotes,number,' . $this->quote->id . ',id,account_id,' . $this->account_id,
+            'number'         => [
+                'nullable',
+                Rule::unique('quotes')->where(
+                    function ($query) {
+                        return $query->where('account_id', $this->quote->account_id);
+                    }
+                )->ignore($this->quote),
+            ],
         ];
     }
 

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Cases extends Model
 {
@@ -15,6 +16,7 @@ class Cases extends Model
     use PresentableTrait;
     use HasFactory;
     use Archiveable;
+    use QueryCacheable;
 
     const STATUS_DRAFT = 1;
     const STATUS_OPEN = 2;
@@ -25,6 +27,7 @@ class Cases extends Model
     const PRIORITY_HIGH = 3;
     const CASE_LINK_TYPE_PRODUCT = 1;
     const CASE_LINK_TYPE_PROJECT = 2;
+
     protected $fillable = [
         'status_id',
         'priority_id',
@@ -51,7 +54,11 @@ class Cases extends Model
         'custom_value3',
         'custom_value4'
     ];
+
     protected $presenter = 'App\Presenters\CasesPresenter';
+
+    protected static $flushCacheOnUpdate = true;
+
     private $arrStatuses = [
         1 => 'Draft',
         2 => 'Open',
@@ -63,6 +70,19 @@ class Cases extends Model
         2 => 'Medium',
         3 => 'High'
     ];
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'cases',
+        ];
+    }
 
     public function account()
     {

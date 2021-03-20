@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laracasts\Presenter\PresentableTrait;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use stdClass;
 use Tymon\JWTAuth\Contracts\JWTSubject;
@@ -26,10 +27,13 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, CanRe
     use Notifiable, SoftDeletes, HasPermissionsTrait, PresentableTrait, HasFactory;
     use HasRelationships;
     use Archiveable;
+    use QueryCacheable;
 
     public $account;
     protected $presenter = 'App\Presenters\UserPresenter';
     protected $with = ['accounts'];
+
+    protected static $flushCacheOnUpdate = true;
 
     protected $casts = [
         'two_factor_authentication_enabled' => 'boolean'
@@ -74,6 +78,19 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, CanRe
         'updated_at',
         'is_active'
     ];
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'users',
+        ];
+    }
 
     public function events()
     {
@@ -161,7 +178,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, CanRe
                     ->where('company_tokens.is_web', '=', true)
                     ->where('company_tokens.token', '=', $this->auth_token)->select(
                 'account_user.*'
-            )->first();
+            )->cacheFor(now()->addMonthNoOverflow())->cacheTags(['account_user'])->first();
     }
 
 

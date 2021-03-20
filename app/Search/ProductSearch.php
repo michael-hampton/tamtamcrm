@@ -114,7 +114,7 @@ class ProductSearch extends BaseSearch
      */
     private function transformList()
     {
-        $list = $this->query->get();
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['products'])->get();
         $products = $list->map(
             function (Product $product) {
                 return $this->transformProduct($product);

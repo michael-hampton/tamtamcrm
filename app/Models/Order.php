@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Laracasts\Presenter\PresentableTrait;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 /**
  * Class Order
@@ -29,6 +30,7 @@ class Order extends Model
     use Balancer;
     use HasFactory;
     use Archiveable;
+    use QueryCacheable;
 
     const STATUS_DRAFT = 1;
     const STATUS_SENT = 2;
@@ -45,6 +47,7 @@ class Order extends Model
     const STATUS_EXPIRED = -1;
 
     protected $presenter = 'App\Presenters\OrderPresenter';
+
     protected $casts = [
         'account_id'    => 'integer',
         'user_id'       => 'integer',
@@ -103,6 +106,21 @@ class Order extends Model
         'voucher_code',
         'assigned_to'
     ];
+
+    protected static $flushCacheOnUpdate = true;
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'orders',
+        ];
+    }
 
     public function task()
     {

@@ -2,8 +2,8 @@
 
 namespace App\Requests\Project;
 
-use App\Models\Project;
 use App\Repositories\Base\BaseFormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateProjectRequest extends BaseFormRequest
 {
@@ -28,6 +28,14 @@ class UpdateProjectRequest extends BaseFormRequest
             'name'        => 'string|required',
             'description' => 'string|required',
             'customer_id' => 'numeric|required',
+            'number'      => [
+                'nullable',
+                Rule::unique('projects')->where(
+                    function ($query) {
+                        return $query->where('account_id', $this->project->account_id);
+                    }
+                )->ignore($this->project),
+            ],
         ];
     }
 

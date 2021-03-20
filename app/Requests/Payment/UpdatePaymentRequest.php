@@ -2,12 +2,12 @@
 
 namespace App\Requests\Payment;
 
-use App\Models\Payment;
 use App\Repositories\Base\BaseFormRequest;
 use App\Rules\Payment\CreditPaymentValidation;
 use App\Rules\Payment\InvoicePaymentValidation;
 use App\Rules\PaymentAppliedValidAmount;
 use App\Rules\ValidCreditsPresentRule;
+use Illuminate\Validation\Rule;
 
 class UpdatePaymentRequest extends BaseFormRequest
 {
@@ -35,7 +35,14 @@ class UpdatePaymentRequest extends BaseFormRequest
                 new InvoicePaymentValidation($this->all()),
                 new CreditPaymentValidation($this->all())
             ],
-            'number'   => 'nullable|unique:payments,number,' . $this->payment->id . ',id,account_id,' . $this->account_id,
+            'number'   => [
+                'nullable',
+                Rule::unique('payments')->where(
+                    function ($query) {
+                        return $query->where('account_id', $this->payment->account_id);
+                    }
+                )->ignore($this->payment),
+            ],
         ];
     }
 

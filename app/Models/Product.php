@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Product extends Model
 {
@@ -17,6 +18,7 @@ class Product extends Model
     use ManageStock;
     use HasFactory;
     use Archiveable;
+    use QueryCacheable;
 
     public const MASS_UNIT = [
         'OUNCES' => 'oz',
@@ -72,6 +74,21 @@ class Product extends Model
         'custom_value4',
         'brand_id'
     ];
+
+    protected static $flushCacheOnUpdate = true;
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'products',
+        ];
+    }
 
     /**
      * @return BelongsTo

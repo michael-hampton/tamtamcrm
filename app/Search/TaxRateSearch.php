@@ -88,7 +88,7 @@ class TaxRateSearch extends BaseSearch
      */
     private function transformList()
     {
-        $list = $this->query->get();
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['tax_rates'])->get();
         $companies = $list->map(
             function (TaxRate $tax_rate) {
                 return $this->transformTaxRate($tax_rate);

@@ -65,22 +65,24 @@ class DashboardController extends Controller
         $search_request = new SearchRequest();
         $search_request->replace(['column' => 'created_at', 'order' => 'desc']);
 
+        $account = auth()->user()->account_user()->account;
+
         $deal_repo = new DealRepository(new Deal);
-        $arrSources = $this->taskRepository->getSourceTypeCounts(3, auth()->user()->account_user()->account_id);
-        $arrStatuses = $this->taskRepository->getStatusCounts(auth()->user()->account_user()->account_id);
-        $leadsToday = $this->taskRepository->getRecentTasks(3, auth()->user()->account_user()->account_id);
-        $customersToday = $this->customerRepository->getRecentCustomers(3, auth()->user()->account_user()->account_id);
-        $newDeals = $deal_repo->getNewDeals(3, auth()->user()->account_user()->account_id);
+        $arrSources = $this->taskRepository->getSourceTypeCounts(3, $account->id);
+        $arrStatuses = $this->taskRepository->getStatusCounts($account->id);
+        $leadsToday = $this->taskRepository->getRecentTasks(3, $account->id);
+        $customersToday = $this->customerRepository->getRecentCustomers(3, $account->id);
+        $newDeals = $deal_repo->getNewDeals(3, $account->id);
         $leads = (new LeadSearch(new LeadRepository(new Lead())))->filter(
             $search_request,
-            auth()->user()->account_user()->account
+            $account
         );
-        $totalEarnt = $deal_repo->getTotalEarnt(auth()->user()->account_user()->account_id);
+        $totalEarnt = $deal_repo->getTotalEarnt($account->id);
 
         $arrOutput = [
             'customers'    => (new CustomerRepository(new Customer()))->getAll(
                 $search_request,
-                auth()->user()->account_user()->account
+                $account
             ),
             'sources'      => $arrSources->toArray(),
             'leadCounts'   => $arrStatuses->toArray(),
@@ -92,31 +94,31 @@ class DashboardController extends Controller
             'deals'        => $leads,
             'invoices'     => (new InvoiceRepository(new Invoice()))->getAll(
                 $search_request,
-                auth()->user()->account_user()->account
+                $account
             ),
             'quotes'       => (new QuoteRepository(new Quote()))->getAll(
                 $search_request,
-                auth()->user()->account_user()->account
+                $account
             ),
             'credits'      => (new CreditRepository(new Credit()))->getAll(
                 $search_request,
-                auth()->user()->account_user()->account
+                $account
             ),
             'payments'     => (new PaymentRepository(new Payment()))->getAll(
                 $search_request,
-                auth()->user()->account_user()->account
+                $account
             ),
             'orders'       => (new OrderRepository(new Order()))->getAll(
                 $search_request,
-                auth()->user()->account_user()->account
+                $account
             ),
             'expenses'     => (new ExpenseRepository(new Expense()))->getAll(
                 $search_request,
-                auth()->user()->account_user()->account
+                $account
             ),
             'tasks'        => (new TaskRepository(new Task(), new ProjectRepository(new Project())))->getAll(
                 $search_request,
-                auth()->user()->account_user()->account
+                $account
             )
         ];
 

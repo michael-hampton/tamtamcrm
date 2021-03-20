@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Project extends Model
 {
@@ -17,6 +18,7 @@ class Project extends Model
     use SoftDeletes;
     use HasFactory;
     use Archiveable;
+    use QueryCacheable;
 
     protected $fillable = [
         'name',
@@ -40,6 +42,8 @@ class Project extends Model
         'updated_at' => 'timestamp',
     ];
 
+    protected static $flushCacheOnUpdate = true;
+
     /**
      * Searchable rules.
      *
@@ -57,6 +61,19 @@ class Project extends Model
             'projects.title' => 10,
         ]
     ];
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'projects',
+        ];
+    }
 
     /**
      * @return HasMany

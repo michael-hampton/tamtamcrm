@@ -23,10 +23,11 @@ export default function Contacts (props) {
                 {props.hide_customer === true &&
                 <FormGroup>
                     <Label>{translations.company}
-                        <AddCompany brands={props.companies} users={[]} action={(companies, update = false) => {
-                            this.props.updateCustomers(companies)
-                        }}
-                        custom_fields={[]}/>
+                        <AddCompany small_button={true} brands={props.companies} users={[]}
+                            action={(companies, update = false) => {
+                                this.props.updateCustomers(companies)
+                            }}
+                            custom_fields={[]}/>
                     </Label>
                     <CompanyDropdown
                         handleInputChanges={props.handleInput}

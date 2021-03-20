@@ -4,6 +4,7 @@ namespace App\Requests\RecurringInvoice;
 
 use App\Models\RecurringInvoice;
 use App\Repositories\Base\BaseFormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateRecurringInvoiceRequest extends BaseFormRequest
 {
@@ -31,7 +32,14 @@ class UpdateRecurringInvoiceRequest extends BaseFormRequest
             'expiry_date'              => 'required',
             'customer_id'              => 'required|exists:customers,id,account_id,' . auth()->user()->account_user(
                 )->account_id,
-            'number'                   => 'nullable|unique:recurring_invoices,number,' . $this->id . ',id,account_id,' . $this->account_id,
+            'number'         => [
+                'nullable',
+                Rule::unique('recurring_invoices')->where(
+                    function ($query) {
+                        return $query->where('account_id', $this->recurring_invoice->account_id);
+                    }
+                )->ignore($this->recurring_invoice),
+            ],
         ];
     }
 

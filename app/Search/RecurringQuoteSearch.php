@@ -102,7 +102,7 @@ class RecurringQuoteSearch extends BaseSearch
 
     private function transformList()
     {
-        $list = $this->query->get();
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['recurring_quotes'])->get();
 
         $quotes = $list->map(
             function (RecurringQuote $quote) {

@@ -12,14 +12,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Customer extends Model implements HasLocalePreference
 {
 
-    use SoftDeletes, PresentableTrait, Balancer, Money, HasFactory, Archiveable;
+    use SoftDeletes, PresentableTrait, Balancer, Money, HasFactory, Archiveable, QueryCacheable;
 
     const CUSTOMER_TYPE_WON = 1;
+
     protected $presenter = 'App\Presenters\CustomerPresenter';
+
+    protected static $flushCacheOnUpdate = true;
     /**
      * The attributes that are mass assignable.
      *
@@ -58,6 +62,19 @@ class Customer extends Model implements HasLocalePreference
         'is_deleted' => 'boolean',
     ];
     private $merged_settings;
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'customers',
+        ];
+    }
 
     /**
      * @return HasMany

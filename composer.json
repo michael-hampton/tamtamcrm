@@ -40,6 +40,7 @@
         "omnipay/stripe": "^3.1",
         "pragmarx/google2fa-laravel": "^1.4",
         "predis/predis": "^1.1",
+        "rennokki/laravel-eloquent-query-cache": "2.4.2",
         "sentry/sentry-laravel": "^1.7",
         "shippo/shippo-php": "^1.4",
         "spatie/browsershot": "^3.33",
@@ -49,6 +50,7 @@
         "vimeo/psalm": "^4.0"
     },
     "require-dev": {
+        "barryvdh/laravel-debugbar": "^3.5",
         "filp/whoops": "~2.0",
         "fzaninotto/faker": "~1.4",
         "kitloong/laravel-migrations-generator": "^4.4",

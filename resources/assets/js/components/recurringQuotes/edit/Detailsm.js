@@ -146,6 +146,7 @@ export default class Detailsm extends Component {
                     <FormGroup>
                         <Label>{translations.customer}
                             <AddCustomer
+                                small_button={true}
                                 custom_fields={[]}
                                 action={(customers, update = false) => {
                                     this.props.updateCustomers(customers)

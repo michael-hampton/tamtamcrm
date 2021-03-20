@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class File extends Model
 {
-    use SoftDeletes, HasFactory;
+    use SoftDeletes, HasFactory, QueryCacheable;
 
     /**
      * @var array
@@ -76,6 +77,21 @@ class File extends Model
         'uploaded_by_customer',
         'customer_can_view'
     ];
+
+    protected static $flushCacheOnUpdate = true;
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'files',
+        ];
+    }
 
     public function task()
     {

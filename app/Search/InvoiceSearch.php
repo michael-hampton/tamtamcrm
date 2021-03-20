@@ -120,7 +120,7 @@ class InvoiceSearch extends BaseSearch
      */
     private function transformList()
     {
-        $list = $this->query->get();
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['invoices'])->get();
 
         $invoices = $list->map(
             function (Invoice $invoice) {

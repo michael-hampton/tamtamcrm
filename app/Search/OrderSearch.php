@@ -117,7 +117,7 @@ class OrderSearch extends BaseSearch
 
     private function transformList()
     {
-        $list = $this->query->get();
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['orders'])->get();
 
         $orders = $list->map(
             function (Order $order) {

@@ -128,7 +128,7 @@ class TaskSearch extends BaseSearch
      */
     private function transformList()
     {
-        $list = $this->query->get();
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['tasks'])->get();
         $tasks = $list->map(
             function (Task $task) {
                 return $this->transformTask($task);

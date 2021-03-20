@@ -70,7 +70,7 @@ class ProcessSubscription implements ShouldQueue
             $promocode = [];
 
             if (!empty($plan->promocode) && empty($plan->promocode_applied)) {
-                $promocode = (new ApplyCode())->execute($plan, $account, $unit_cost, $plan->number_of_licences);
+                $promocode = (new ApplyCode())->execute($plan, $account, $unit_cost);
             }
 
             $due_date = Carbon::now()->addDays(10);

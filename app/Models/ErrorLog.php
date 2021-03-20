@@ -5,10 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class ErrorLog extends Authenticatable
 {
-    use Notifiable, SoftDeletes;
+    use Notifiable, SoftDeletes, QueryCacheable;
+
+    protected static $flushCacheOnUpdate = true;
 
     /**
      * type
@@ -42,4 +45,17 @@ class ErrorLog extends Authenticatable
         'data' => 'object'
     ];
     protected $table = 'error_log';
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'error_log',
+        ];
+    }
 }

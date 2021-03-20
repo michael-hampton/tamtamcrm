@@ -109,7 +109,7 @@ class CompanySearch extends BaseSearch
      */
     private function transformList()
     {
-        $list = $this->query->get();
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['companies'])->get();
         $companies = $list->map(
             function (Company $company) {
                 return $this->transformCompany($company);

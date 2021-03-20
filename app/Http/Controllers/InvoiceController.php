@@ -6,6 +6,7 @@ use App\Actions\Plan\ApplyCode;
 use App\Components\InvoiceCalculator\LineItem;
 use App\Factory\InvoiceFactory;
 use App\Models\Customer;
+use App\Models\CustomerPlan;
 use App\Models\Invoice;
 use App\Models\Plan;
 use App\Models\Task;
@@ -185,7 +186,7 @@ class InvoiceController extends BaseController
         $data = $request->input('invoice');
 
         if (!empty($request->input('promocode')) && empty($plan->promocode_applied)) {
-            $promocode = (new ApplyCode())->execute($plan, $account, $unit_cost, $plan->number_of_licences);
+            $promocode = (new ApplyCode())->execute($plan, $account, $unit_cost);
             $data['discount_total'] = $promocode['amount'];
             $data['voucher_code'] = $promocode['promocode'];
             $data['is_amount_discount'] = $promocode['is_amount_discount'];
@@ -211,6 +212,8 @@ class InvoiceController extends BaseController
             )
         );
         $invoice_repo->markSent($invoice);
+
+        CustomerPlan::create(['customer_id' => $customer->id, 'plan_id' => $plan->id, 'invoice_id' => $invoice->id]);
 
         return response()->json($invoice);
     }

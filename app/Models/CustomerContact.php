@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Laracasts\Presenter\PresentableTrait;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class CustomerContact extends Model implements ContactInterface
 {
@@ -17,8 +18,11 @@ class CustomerContact extends Model implements ContactInterface
     use Notifiable;
     use HasFactory;
     use Archiveable;
+    use QueryCacheable;
 
     protected $presenter = 'App\Presenters\ClientContactPresenter';
+
+    protected static $flushCacheOnUpdate = true;
 
     protected $dates = [
         'deleted_at'
@@ -51,6 +55,19 @@ class CustomerContact extends Model implements ContactInterface
         'is_primary',
         'password'
     ];
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'customer_contact',
+        ];
+    }
 
     /**/
     public function getRouteKeyName()

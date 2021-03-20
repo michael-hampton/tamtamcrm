@@ -116,7 +116,7 @@ class PurchaseOrderSearch extends BaseSearch
      */
     private function transformList()
     {
-        $list = $this->query->get();
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['purchase_orders'])->get();
         $pos = $list->map(
             function (PurchaseOrder $po) {
                 return $this->transformPurchaseOrder($po);

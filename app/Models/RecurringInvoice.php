@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Laracasts\Presenter\PresentableTrait;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 /**
  * Class for Recurring Invoices.
@@ -25,6 +26,7 @@ class RecurringInvoice extends Model
     use Money;
     use HasFactory;
     use Archiveable;
+    use QueryCacheable;
 
     const STATUS_DRAFT = 1;
     const STATUS_PENDING = 2;
@@ -34,6 +36,7 @@ class RecurringInvoice extends Model
     const STATUS_VIEWED = 6;
 
     protected $presenter = 'App\Presenters\InvoicePresenter';
+
     protected $fillable = [
         'is_never_ending',
         'status_id',
@@ -92,6 +95,21 @@ class RecurringInvoice extends Model
         'start_date',
         'expiry_date'
     ];
+
+    protected static $flushCacheOnUpdate = true;
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'recurring_invoices',
+        ];
+    }
 
     public function customer()
     {

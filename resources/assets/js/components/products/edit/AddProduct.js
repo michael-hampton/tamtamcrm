@@ -159,7 +159,7 @@ class AddProduct extends React.Component {
 
         return (
             <React.Fragment>
-                <AddButtons toggle={this.toggle}/>
+                <AddButtons small_button={this.props.small_button} toggle={this.toggle}/>
                 <Modal size="lg" isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
                     <DefaultModalHeader toggle={this.toggle} title={translations.add_product}/>
 

@@ -108,7 +108,7 @@ class CaseSearch extends BaseSearch
      */
     private function transformList()
     {
-        $list = $this->query->get();
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['cases'])->get();
         $cases = $list->map(
             function (Cases $case) {
                 return $this->transform($case);

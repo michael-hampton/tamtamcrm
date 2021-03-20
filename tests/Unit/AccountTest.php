@@ -10,6 +10,7 @@ use App\Models\Customer;
 use App\Models\CustomerContact;
 use App\Models\Domain;
 use App\Models\Invoice;
+use App\Models\Plan;
 use App\Models\User;
 use App\Repositories\DomainRepository;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -32,6 +33,7 @@ class AccountTest extends TestCase
     {
         $account = Account::factory()->create();
         $account = (new ConvertAccount($account))->execute();
+
         $this->assertInstanceOf(Account::class, $account);
         $this->assertInstanceOf(Customer::class, $account->domains->customer);
         $this->assertInstanceOf(User::class, $account->domains->user);
@@ -44,9 +46,11 @@ class AccountTest extends TestCase
         $account = (new CreateAccount())->execute(
             ['email' => $this->faker->safeEmail, 'password' => $this->faker->password]
         );
+
         $domain = $account->domain;
-        $this->assertEquals($domain->subscription_expiry_date, now()->addMonthNoOverflow()->format('Y-m-d'));
-        $this->assertEquals($domain->subscription_period, Domain::SUBSCRIPTION_PERIOD_MONTH);
+        $plan = $domain->plans()->where('is_active', true)->first();
+        $this->assertEquals($plan->due_date, now()->addMonthNoOverflow()->format('Y-m-d'));
+        $this->assertEquals($plan->plan_period, Plan::PLAN_PERIOD_MONTH);
     }
 
     public function tearDown(): void

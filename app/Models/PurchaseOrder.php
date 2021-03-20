@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Laracasts\Presenter\PresentableTrait;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class PurchaseOrder extends Model
 {
@@ -19,6 +20,7 @@ class PurchaseOrder extends Model
     use Balancer;
     use HasFactory;
     use Archiveable;
+    use QueryCacheable;
 
     const STATUS_DRAFT = 1;
     const STATUS_SENT = 2;
@@ -29,6 +31,7 @@ class PurchaseOrder extends Model
     const STATUS_CHANGE_REQUESTED = 6;
 
     protected $presenter = 'App\Presenters\QuotePresenter';
+
     protected $casts = [
         'company_id' => 'integer',
         'account_id' => 'integer',
@@ -97,6 +100,21 @@ class PurchaseOrder extends Model
         'gateway_fee',
         'gateway_percentage',
     ];
+
+    protected static $flushCacheOnUpdate = true;
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'purchase_orders',
+        ];
+    }
 
     public function tasks()
     {

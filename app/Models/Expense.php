@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Expense extends Model
 {
-    use SoftDeletes, HasFactory, Archiveable;
+    use SoftDeletes, HasFactory, Archiveable, QueryCacheable;
 
     const STATUS_LOGGED = 1;
     const STATUS_PENDING = 2;
@@ -69,6 +70,21 @@ class Expense extends Model
         'updated_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];
+
+    protected static $flushCacheOnUpdate = true;
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'expenses',
+        ];
+    }
 
     public function files()
     {

@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Laracasts\Presenter\PresentableTrait;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Lead extends Model
 {
@@ -22,12 +23,15 @@ class Lead extends Model
     use Notifiable;
     use HasFactory;
     use Archiveable;
+    use QueryCacheable;
 
     const NEW_LEAD = 98;
     const IN_PROGRESS = 99;
     const STATUS_COMPLETED = 100;
     const UNQUALIFIED = 100;
+
     protected $presenter = 'App\Presenters\LeadPresenter';
+
     protected $fillable = [
         'task_sort_order',
         'design_id',
@@ -57,6 +61,21 @@ class Lead extends Model
         'task_status_id',
         'column_color'
     ];
+
+    protected static $flushCacheOnUpdate = true;
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'leads',
+        ];
+    }
 
     public function setNumber()
     {

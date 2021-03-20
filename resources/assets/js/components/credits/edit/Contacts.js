@@ -24,6 +24,7 @@ export default function Contacts (props) {
                 <FormGroup>
                     <Label>{translations.customer}
                         <AddCustomer
+                            small_button={true}
                             custom_fields={[]}
                             action={(customers, update = false) => {
                                 props.updateCustomers(customers)
