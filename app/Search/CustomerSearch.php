@@ -43,7 +43,33 @@ class CustomerSearch extends BaseSearch
         $orderBy = !$request->column ? 'name' : $request->column;
         $orderDir = !$request->order ? 'asc' : $request->order;
 
-        $this->query = $this->model->select('*');
+        $this->query = $this->model->select(
+            'customers.*',
+            'billing.address_1',
+            'billing.address_2',
+            'billing.city',
+            'billing.state_code AS state',
+            'billing.zip',
+            'billing.country_id AS country_id',
+            'shipping.address_1 AS shipping_address_1',
+            'shipping.address_2 AS shipping_address_2',
+            'shipping.city AS shipping_city',
+            'shipping.state_code AS shipping_town',
+            'shipping.zip AS shipping_zip',
+            'shipping.country_id AS shipping_country_id'
+        )->leftJoin(
+            'addresses as billing',
+            function ($join) {
+                $join->on('billing.customer_id', '=', 'customers.id');
+                $join->where('billing.address_type', '=', 1);
+            }
+        )->leftJoin(
+            'addresses as shipping',
+            function ($join) {
+                $join->on('shipping.customer_id', '=', 'customers.id');
+                $join->where('shipping.address_type', '=', 2);
+            }
+        );
 
         if ($request->has('status')) {
             $this->status('customers', $request->status);
@@ -76,6 +102,8 @@ class CustomerSearch extends BaseSearch
         $this->checkPermissions('customercontroller.index');
 
         $this->orderBy($orderBy, $orderDir);
+
+        $this->query->groupBy('customers.id');
 
         $customers = $this->transformList();
 

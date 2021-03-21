@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Card, CardBody, CardHeader, Col, FormGroup, Input, Label, Row } from 'reactstrap'
+import { Card, CardBody, CardHeader, Col, FormGroup, Input, Label, Row } from 'reactstrap'
 import FormBuilder from '../../settings/FormBuilder'
 import DropdownDate from '../../common/DropdownDate'
 import { translations } from '../../utils/_translations'
@@ -183,11 +183,11 @@ export default class DetailsForm extends React.Component {
 
                     <TwoFactorAuthentication user={this.props.user} callback={(e) => {
                         console.log('e', e)
-                    }} />
+                    }}/>
 
                     <Google user={this.props.user} callback={(e) => {
                         console.log('e', e)
-                    }} />
+                    }}/>
                 </Row>
                 {customForm}
             </CardBody>

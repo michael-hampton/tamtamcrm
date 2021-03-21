@@ -35,7 +35,8 @@ export default class ConfirmEmail extends Component {
 
     render () {
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
-        const button = <Button onClick={this.confirmEmail.bind(this)} color="primary">{translations.confirm_email}</Button>
+        const button = <Button onClick={this.confirmEmail.bind(this)}
+            color="primary">{translations.confirm_email}</Button>
 
         if (this.props.button_only) {
             return button

@@ -149,7 +149,7 @@ export default class UserList extends Component {
             })
     }
 
-    addUserToState (users, do_filter = false) {
+    addUserToState (users, do_filter = false, filters = null) {
         const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? users : this.state.cachedData
 
@@ -158,6 +158,7 @@ export default class UserList extends Component {
         }
 
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             users: users,
             cachedData: cachedData
         }, () => {
@@ -217,7 +218,7 @@ export default class UserList extends Component {
                                 <UserFilters
                                     pageLimit={pageLimit}
                                     cachedData={cachedData}
-                                    updateList={this.onPageChanged.bind(this)}
+                                    updateList={this.addUserToState}
                                     setFilterOpen={this.setFilterOpen.bind(this)} users={users}
                                     departments={departments}
                                     filters={filters} filter={this.filterUsers}

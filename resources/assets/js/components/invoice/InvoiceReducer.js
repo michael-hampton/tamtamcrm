@@ -1,8 +1,3 @@
-import { formatDate } from '../common/FormatDate'
-import { consts } from '../utils/_consts'
-import TaskModel from '../models/TaskModel'
-import ExpenseModel from '../models/ExpenseModel'
-import ProjectModel from '../models/ProjectModel'
 import convertProjectToInvoiceItem from '../projects/edit/ProjectReducer'
 import convertTaskToInvoiceItem from '../tasks/edit/TaskReducer'
 import convertExpenseToInvoiceItem from '../expenses/edit/ExpenseReducer'

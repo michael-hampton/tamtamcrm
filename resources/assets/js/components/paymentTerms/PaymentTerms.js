@@ -47,7 +47,7 @@ export default class PaymentTerms extends Component {
         this.filterPaymentTerms = this.filterPaymentTerms.bind(this)
     }
 
-    addUserToState (paymentTerms, do_filter = false) {
+    addUserToState (paymentTerms, do_filter = false, filters = null) {
         const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? paymentTerms : this.state.cachedData
 
@@ -56,6 +56,7 @@ export default class PaymentTerms extends Component {
         }
 
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             paymentTerms: paymentTerms,
             cachedData: cachedData
         }, () => {
@@ -156,7 +157,7 @@ export default class PaymentTerms extends Component {
                                 <PaymentTermFilters
                                     pageLimit={pageLimit}
                                     cachedData={cachedData}
-                                    updateList={this.onPageChanged.bind(this)}
+                                    updateList={this.addUserToState}
                                     setFilterOpen={this.setFilterOpen.bind(this)}
                                     paymentTerms={paymentTerms}
                                     filters={this.state.filters} filter={this.filterPaymentTerms}

@@ -63,7 +63,7 @@ export default class PurchaseOrders extends Component {
         this.getCustomFields()
     }
 
-    updateInvoice (purchase_orders, do_filter = false) {
+    updateInvoice (purchase_orders, do_filter = false, filters = null) {
         const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? purchase_orders : this.state.cachedData
 
@@ -72,6 +72,7 @@ export default class PurchaseOrders extends Component {
         }
 
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             purchase_orders: purchase_orders,
             cachedData: cachedData
         }, () => {
@@ -207,7 +208,7 @@ export default class PurchaseOrders extends Component {
                                 <PurchaseOrderFilters
                                     pageLimit={pageLimit}
                                     cachedData={cachedData}
-                                    updateList={this.onPageChanged.bind(this)}
+                                    updateList={this.updateInvoice}
                                     setFilterOpen={this.setFilterOpen.bind(this)}
                                     purchase_orders={purchase_orders}
                                     companies={companies}

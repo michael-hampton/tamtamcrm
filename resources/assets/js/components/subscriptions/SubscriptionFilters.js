@@ -64,12 +64,7 @@ export default class SubscriptionFilters extends Component {
                     <TableSearch onChange={(e) => {
                         const value = typeof e.target.value === 'string' ? e.target.value.toLowerCase() : e.target.value
                         const search_results = this.props.cachedData.filter(obj => Object.keys(obj).some(key => obj[key] && obj[key].length ? obj[key].toString().toLowerCase().includes(value) : false))
-                        const totalPages = search_results && search_results.length ? Math.ceil(search_results.length / this.props.pageLimit) : 0
-                        this.props.updateList({
-                            invoices: search_results && search_results.length ? search_results : [],
-                            currentPage: 1,
-                            totalPages: totalPages
-                        })
+                        this.props.updateList(search_results || [], false, this.state.filters)
                     }}/>
                 </Col>
 
@@ -83,13 +78,7 @@ export default class SubscriptionFilters extends Component {
                                 }
                             }), () => {
                                 const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
-                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
-                                this.props.updateList({
-                                    invoices: results,
-                                    currentPage: 1,
-                                    totalPages: totalPages,
-                                    filters: this.state.filters
-                                })
+                                this.props.updateList(results || [], false, this.state.filters)
                             })
                         }} statuses={this.statuses}/>
                     </FormGroup>

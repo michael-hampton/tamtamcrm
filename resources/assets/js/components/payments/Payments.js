@@ -156,7 +156,7 @@ export default class Payments extends Component {
         })
     }
 
-    updateCustomers (payments, do_filter = false) {
+    updateCustomers (payments, do_filter = false, filters = null) {
         const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? payments : this.state.cachedData
 
@@ -165,6 +165,7 @@ export default class Payments extends Component {
         }
 
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             payments: payments,
             cachedData: cachedData
         }, () => {
@@ -235,7 +236,7 @@ export default class Payments extends Component {
                             <PaymentFilters
                                 pageLimit={pageLimit}
                                 cachedData={cachedData}
-                                updateList={this.onPageChanged.bind(this)}
+                                updateList={this.updateCustomers}
                                 setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
                                 payments={payments} invoices={invoices}
                                 filters={filters} filter={this.filterPayments}

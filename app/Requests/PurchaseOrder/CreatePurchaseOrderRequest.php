@@ -36,6 +36,7 @@ class CreatePurchaseOrderRequest extends BaseFormRequest
             'line_items'     => 'required|array',
             //'number'         => 'nullable|unique:invoices,number,customer,' . $this->customer_id,
             'number'         => [
+                'nullable',
                 Rule::unique('purchase_orders', 'number')->where(
                     function ($query) {
                         return $query->where('company_id', $this->company_id)->where('account_id', $this->account_id);

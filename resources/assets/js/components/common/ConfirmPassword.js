@@ -70,7 +70,8 @@ export default class ConfirmPassword extends Component {
     render () {
         const { message } = this.state
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
-        const icon = this.props.icon ? <i style={this.props.icon_style || null} className={`fa ${this.props.icon} mr-2`}/> : null
+        const icon = this.props.icon
+            ? <i style={this.props.icon_style || null} className={`fa ${this.props.icon} mr-2`}/> : null
         const button = this.props.dropdown
             ? <DropdownItem onClick={this.toggle}>{icon}{this.props.button_label}
             </DropdownItem> : <button className={`btn ${this.props.button_color}`}

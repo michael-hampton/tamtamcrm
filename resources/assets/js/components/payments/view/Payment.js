@@ -7,6 +7,7 @@ import BottomNavigationButtons from '../../common/BottomNavigationButtons'
 import GatewayModel from '../../models/GatewayModel'
 import Overview from './Overview'
 import AlertPopup from '../../common/AlertPopup'
+import CompanyGatewayRepository from '../../repositories/CompanyGatewayRepository'
 
 export default class Payment extends Component {
     constructor (props) {
@@ -37,7 +38,8 @@ export default class Payment extends Component {
     }
 
     getGateways () {
-        this.gatewayModel.getGateways().then(response => {
+        const gatewayRepository = new CompanyGatewayRepository()
+        gatewayRepository.getGateways().then(response => {
             if (!response) {
                 this.setState({ show_alert: true })
             }
@@ -117,7 +119,7 @@ export default class Payment extends Component {
 
                 <AlertPopup is_open={this.state.show_alert} message={this.state.error_message} onClose={(e) => {
                     this.setState({ show_alert: false })
-                }} />
+                }}/>
             </React.Fragment>
         )
     }

@@ -69,7 +69,7 @@ export default class RecurringQuotes extends Component {
         this.getQuotes()
     }
 
-    updateInvoice (invoices, do_filter = false) {
+    updateInvoice (invoices, do_filter = false, filters = null) {
         const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? invoices : this.state.cachedData
 
@@ -78,6 +78,7 @@ export default class RecurringQuotes extends Component {
         }
 
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             invoices: invoices,
             cachedData: cachedData
         }, () => {
@@ -227,7 +228,7 @@ export default class RecurringQuotes extends Component {
                                 <RecurringQuoteFilters
                                     pageLimit={pageLimit}
                                     cachedData={cachedData}
-                                    updateList={this.onPageChanged.bind(this)}
+                                    updateList={this.updateInvoice}
                                     customers={customers}
                                     setFilterOpen={this.setFilterOpen.bind(this)}
                                     invoices={invoices}

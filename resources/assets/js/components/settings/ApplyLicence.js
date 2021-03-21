@@ -77,7 +77,7 @@ export default class ApplyLicence extends Component {
         return (
             <React.Fragment>
                 <BlockButton icon={icons.cloud_upload} button_text={translations.apply_licence}
-                    onClick={this.toggle} />
+                    onClick={this.toggle}/>
 
                 <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
                     <DefaultModalHeader toggle={this.toggle} title={translations.apply_licence}/>
@@ -90,7 +90,8 @@ export default class ApplyLicence extends Component {
 
                         <FormGroup>
                             <Label for="exampleEmail">{translations.licence_number}</Label>
-                            <Input onChange={this.handleInput} type="number" name="licence_number" id="licence_number" placeholder={translations.licence_number} />
+                            <Input onChange={this.handleInput} type="number" name="licence_number" id="licence_number"
+                                placeholder={translations.licence_number}/>
                         </FormGroup>
 
                     </ModalBody>

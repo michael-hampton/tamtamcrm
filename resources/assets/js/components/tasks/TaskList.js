@@ -22,7 +22,7 @@ export default class TaskList extends Component {
             currentPage: 1,
             totalPages: null,
             pageLimit: 2,
-            //pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            // pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
             currentInvoices: [],
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
@@ -71,7 +71,7 @@ export default class TaskList extends Component {
         this.getCustomFields()
     }
 
-    addUserToState (tasks, do_filter = false) {
+    addUserToState (tasks, do_filter = false, filters = null) {
         const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? tasks : this.state.cachedData
 
@@ -79,7 +79,11 @@ export default class TaskList extends Component {
             tasks = filterStatuses(tasks, '', this.state.filters)
         }
 
-        this.setState({ tasks: tasks, cachedData: cachedData }, () => {
+        this.setState({
+            filters: filters !== null ? filters : this.state.filters,
+            tasks: tasks,
+            cachedData: cachedData
+        }, () => {
             const totalPages = Math.ceil(tasks.length / this.state.pageLimit)
             this.onPageChanged({ invoices: tasks, currentPage: this.state.currentPage, totalPages: totalPages })
         })
@@ -237,7 +241,7 @@ export default class TaskList extends Component {
                                 <TaskFilters
                                     pageLimit={pageLimit}
                                     cachedData={cachedData}
-                                    updateList={this.onPageChanged.bind(this)}
+                                    updateList={this.addUserToState}
                                     customers={customers} setFilterOpen={this.setFilterOpen.bind(this)}
                                     users={users}
                                     tasks={tasks}
@@ -288,7 +292,11 @@ export default class TaskList extends Component {
                                     userList={this.userList}
                                     fetchUrl={fetchUrl}
                                     updateState={this.addUserToState}
-                                    columnMapping={{ calculated_task_rate: translations.task_rate.toUpperCase(), customer_id: 'CUSTOMER', status_name: 'Status' }}
+                                    columnMapping={{
+                                        calculated_task_rate: translations.task_rate.toUpperCase(),
+                                        customer_id: 'CUSTOMER',
+                                        status_name: 'Status'
+                                    }}
                                 />
 
                                 {total > 0 &&

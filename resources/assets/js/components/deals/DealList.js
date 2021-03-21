@@ -69,7 +69,7 @@ export default class DealList extends Component {
         this.getCustomFields()
     }
 
-    addUserToState (deals, do_filter = false) {
+    addUserToState (deals, do_filter = false, filters = null) {
         const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? deals : this.state.cachedData
 
@@ -77,7 +77,11 @@ export default class DealList extends Component {
             deals = filterStatuses(deals, '', this.state.filters)
         }
 
-        this.setState({ deals: deals, cachedData: cachedData }, () => {
+        this.setState({
+            filters: filters !== null ? filters : this.state.filters,
+            deals: deals,
+            cachedData: cachedData
+        }, () => {
             const totalPages = Math.ceil(deals.length / this.state.pageLimit)
             this.onPageChanged({ invoices: deals, currentPage: this.state.currentPage, totalPages: totalPages })
         })
@@ -224,7 +228,7 @@ export default class DealList extends Component {
                                 <DealFilters
                                     pageLimit={pageLimit}
                                     cachedData={cachedData}
-                                    updateList={this.onPageChanged.bind(this)}
+                                    updateList={this.addUserToState}
                                     setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
                                     users={users}
                                     deals={deals}

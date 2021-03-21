@@ -1,5 +1,4 @@
 import React from 'react'
-import { translations } from '../utils/_translations'
 
 export function getDefaultTableFields () {
     return [

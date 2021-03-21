@@ -1,6 +1,19 @@
 import React, { Component } from 'react'
 import FileUploads from '../../documents/FileUploads'
-import { Alert, Card, CardBody, CardHeader, Col, Nav, NavItem, NavLink, Row, TabContent, TabPane } from 'reactstrap'
+import {
+    Alert,
+    Card,
+    CardBody,
+    CardHeader,
+    Col,
+    Nav,
+    NavItem,
+    NavLink,
+    Row,
+    Spinner,
+    TabContent,
+    TabPane
+} from 'reactstrap'
 import { translations } from '../../utils/_translations'
 import RecurringQuoteModel from '../../models/RecurringQuoteModel'
 import BottomNavigationButtons from '../../common/BottomNavigationButtons'
@@ -10,6 +23,7 @@ import ViewSchedule from '../../common/entityContainers/ViewSchedule'
 import Overview from './Overview'
 import QuoteRepository from '../../repositories/QuoteRepository'
 import AlertPopup from '../../common/AlertPopup'
+import InvoiceRepository from '../../repositories/InvoiceRepository'
 
 export default class RecurringQuote extends Component {
     constructor (props) {
@@ -20,7 +34,8 @@ export default class RecurringQuote extends Component {
             obj_url: null,
             show_success: false,
             show_alert: true,
-            file_count: this.props.entity.files.length || 0
+            file_count: this.props.entity.files.length || 0,
+            audits: []
         }
 
         this.quoteModel = new RecurringQuoteModel(this.state.entity)
@@ -33,6 +48,20 @@ export default class RecurringQuote extends Component {
 
     componentDidMount () {
         this.getQuotes()
+    }
+
+    getAudits () {
+        const invoiceRepository = new InvoiceRepository()
+        invoiceRepository.audits('RecurringQuote', this.props.entity.id).then(response => {
+            if (!response) {
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
+            }
+
+            this.setState({ audits: response }, () => {
+                console.log('audits', this.state.audits)
+            })
+        })
     }
 
     getQuotes () {
@@ -79,7 +108,11 @@ export default class RecurringQuote extends Component {
     toggleTab (tab) {
         if (this.state.activeTab !== tab) {
             this.setState({ activeTab: tab }, () => {
-                if (this.state.activeTab === '5') {
+                if (tab === '5' && !this.state.audits.length) {
+                    this.getAudits()
+                }
+
+                if (this.state.activeTab === '6') {
                     this.loadPdf()
                 }
             })
@@ -183,7 +216,11 @@ export default class RecurringQuote extends Component {
                     <TabPane tabId="5">
                         <Row>
                             <Col>
-                                <Audit entity="RecurringQuote" audits={this.state.entity.audits}/>
+                                {this.state.audits.length ? <Audit entity="Invoice" audits={this.state.audits}/>
+                                    : <Spinner style={{
+                                        width: '3rem',
+                                        height: '3rem'
+                                    }}/>}
                             </Col>
                         </Row>
                     </TabPane>

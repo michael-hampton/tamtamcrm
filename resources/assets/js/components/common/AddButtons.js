@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { Button, UncontrolledTooltip } from 'reactstrap'
 import { icons } from '../utils/_icons'
 import Fab from '@material-ui/core/Fab'
@@ -16,7 +16,8 @@ export default function AddButtons (props) {
             </UncontrolledTooltip>
 
             <Button id="addButtonTooltip" style={style}
-                className={`d-none d-md-inline-block ${class_name}`} color="primary" onClick={props.toggle}>+</Button>
+                className={`d-none d-md-inline-block ${class_name}`} color="primary"
+                onClick={props.toggle}>+</Button>
             {/* <Button id="addButtonTooltip" className="d-md-none float" color="primary" onClick={props.toggle}><i */}
             {/*    className={`fa ${icons.add} my-float`}/></Button> */}
             <Fab

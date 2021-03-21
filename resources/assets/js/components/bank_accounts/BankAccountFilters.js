@@ -68,21 +68,16 @@ export default class BankAccountFilters extends Component {
                     <TableSearch onChange={(e) => {
                         const value = typeof e.target.value === 'string' ? e.target.value.toLowerCase() : e.target.value
                         const search_results = this.props.cachedData.filter(obj => Object.keys(obj).some(key => obj[key] && obj[key].length ? obj[key].toString().toLowerCase().includes(value) : false))
-                        const totalPages = search_results && search_results.length ? Math.ceil(search_results.length / this.props.pageLimit) : 0
-                        this.props.updateList({
-                            invoices: search_results && search_results.length ? search_results : [],
-                            currentPage: 1,
-                            totalPages: totalPages
-                        })
+                        this.props.updateList(search_results || [], false, this.state.filters)
                     }}/>
                 </Col>
 
                 <Col sm={12} md={3} className="mt-3 mt-md-0">
-                     <BankDropdown
-                         banks={this.props.banks}
-                         bank_id={this.props.filters.bank_id}
-                         handleInputChanges={this.filterBankAccounts}
-                     />
+                    <BankDropdown
+                        banks={this.props.banks}
+                        bank_id={this.props.filters.bank_id}
+                        handleInputChanges={this.filterBankAccounts}
+                    />
                 </Col>
 
                 <Col sm={12} md={2} className="mt-3 mt-md-0">
@@ -95,13 +90,7 @@ export default class BankAccountFilters extends Component {
                                 }
                             }), () => {
                                 const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
-                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
-                                this.props.updateList({
-                                    invoices: results,
-                                    currentPage: 1,
-                                    totalPages: totalPages,
-                                    filters: this.state.filters
-                                })
+                                this.props.updateList(results || [], false, this.state.filters)
                             })
                         }} statuses={this.statuses}/>
                     </FormGroup>
@@ -114,9 +103,9 @@ export default class BankAccountFilters extends Component {
                 </Col>
 
                 <Col sm={12} md={1} className="mt-3 mt-md-0">
-                     <CsvImporter filename="bank_account.csv"
-                         url={`/api/bank_accounts?search_term=${searchText}&status=${status_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
-                 </Col>
+                    <CsvImporter filename="bank_account.csv"
+                        url={`/api/bank_accounts?search_term=${searchText}&status=${status_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
+                </Col>
             </Row>
         )
     }

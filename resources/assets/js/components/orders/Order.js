@@ -77,8 +77,8 @@ export default class Order extends Component {
         this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
-    updateOrder (orders, do_filter = false) {
-        const should_filter = !this.state.cachedData.length || do_filter == true
+    updateOrder (orders, do_filter = false, filters = null) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? orders : this.state.cachedData
 
         if (should_filter) {
@@ -86,6 +86,7 @@ export default class Order extends Component {
         }
 
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             orders: orders,
             cachedData: cachedData
         }, () => {
@@ -200,7 +201,7 @@ export default class Order extends Component {
                                 <OrderFilters
                                     pageLimit={pageLimit}
                                     cachedData={cachedData}
-                                    updateList={this.onPageChanged.bind(this)}
+                                    updateList={this.updateOrder}
                                     setFilterOpen={this.setFilterOpen.bind(this)} orders={orders}
                                     customers={customers}
                                     filters={filters} filter={this.filterOrders}

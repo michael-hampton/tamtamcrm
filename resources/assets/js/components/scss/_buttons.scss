@@ -16677,10 +16677,11 @@
 }
 
 
-input[type="checkbox"]:disabled, input[type="checkbox"]:disabled + label::before{
+input[type="checkbox"]:disabled, input[type="checkbox"]:disabled + label::before {
   background: gray;
 }
-input[type="checkbox"]:disabled + label:hover::before{
+
+input[type="checkbox"]:disabled + label:hover::before {
   background: gray;
   border: 1px solid #d4d4d5;
 }

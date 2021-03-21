@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use App\Actions\Plan\ApplyCode;
 use App\Components\InvoiceCalculator\LineItem;
 use App\Factory\InvoiceFactory;
+use App\Models\Audit;
 use App\Models\Customer;
 use App\Models\CustomerPlan;
+use App\Models\ErrorLog;
 use App\Models\Invoice;
-use App\Models\Plan;
 use App\Models\PlanSubscription;
 use App\Models\Task;
 use App\Repositories\CreditRepository;
@@ -21,6 +22,8 @@ use App\Requests\Invoice\CreateSubscriptionInvoiceRequest;
 use App\Requests\Invoice\UpdateInvoiceRequest;
 use App\Requests\SearchRequest;
 use App\Search\InvoiceSearch;
+use App\Transformations\AuditTransformable;
+use App\Transformations\ErrorLogTransformable;
 use App\Transformations\InvoiceTransformable;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -215,5 +218,22 @@ class InvoiceController extends BaseController
         $invoice_repo->markSent($invoice);
 
         return response()->json($invoice);
+    }
+
+    public function audits($model, int $id)
+    {
+        $class = "App\\Models\\{$model}";
+
+        $invoice = $class::where('id', '=', $id)->first();
+
+        $audits = $invoice->audits;
+
+        $audits = $audits->map(
+            function (Audit $audit) {
+                return (new AuditTransformable())->transformAudit($audit);
+            }
+        )->all();
+
+        return response()->json($audits);
     }
 }

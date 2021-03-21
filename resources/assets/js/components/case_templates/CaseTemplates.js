@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import axios from 'axios'
 import { Alert, Card, CardBody, Row } from 'reactstrap'
 import DataTable from '../common/DataTable'
 import Snackbar from '@material-ui/core/Snackbar'
@@ -49,7 +48,7 @@ export default class CaseTemplates extends Component {
         this.filterTemplates = this.filterTemplates.bind(this)
     }
 
-    addUserToState (templates, do_filter = false) {
+    addUserToState (templates, do_filter = false, filters = null) {
         const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? templates : this.state.cachedData
 
@@ -58,6 +57,7 @@ export default class CaseTemplates extends Component {
         }
 
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             templates: templates,
             cachedData: cachedData
         }, () => {
@@ -139,7 +139,7 @@ export default class CaseTemplates extends Component {
                                 <CaseTemplateFilters
                                     pageLimit={pageLimit}
                                     cachedData={cachedData}
-                                    updateList={this.onPageChanged.bind(this)}
+                                    updateList={this.addUserToState}
                                     setFilterOpen={this.setFilterOpen.bind(this)} templates={templates}
                                     updateIgnoredColumns={this.updateIgnoredColumns}
                                     filters={this.state.filters} filter={this.filterTokens}

@@ -143,7 +143,7 @@ class EditUser extends React.Component {
             selectedAccounts: {
                 ...prevState.selectedAccounts,
                 notifications: { email: notifications },
-                account_id: this.account_id,
+                account_id: this.account_id
             }
         }))
     }
@@ -395,7 +395,8 @@ class EditUser extends React.Component {
 
                             <TabPane tabId="2">
                                 {this.state.username && this.state.username.length &&
-                                <PermissionsForm has_custom_permissions={this.state.has_custom_permissions} setPermissions={this.setPermissions.bind(this)}
+                                <PermissionsForm has_custom_permissions={this.state.has_custom_permissions}
+                                    setPermissions={this.setPermissions.bind(this)}
                                     handleInput={this.handleInput} errors={this.state.errors}
                                     setAccounts={this.setSelectedAccounts}
                                     departments={this.props.departments} accounts={this.props.accounts}

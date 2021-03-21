@@ -131,7 +131,7 @@ export default class NestedCheckboxTree extends React.Component {
         group.checked = !group.checked
 
         Object.keys(group.children).forEach((key) => {
-	        group.children[key].checked = group.checked
+            group.children[key].checked = group.checked
         })
 
         this.setState({ permissions: newState }, () => {
@@ -178,9 +178,10 @@ export default class NestedCheckboxTree extends React.Component {
                 {this.state.customize &&
                 <div className="row">
                     <div className="col-12">
-                        <div className="col-md-4" />
+                        <div className="col-md-4"/>
                         {sections.map((section) => (
-                            <CheckboxSection customize={this.state.customize} name={section} key={section} onSectionChange={this.onSectionChange} />
+                            <CheckboxSection customize={this.state.customize} name={section} key={section}
+                                onSectionChange={this.onSectionChange}/>
                         ))}
                     </div>
                 </div>
@@ -189,7 +190,9 @@ export default class NestedCheckboxTree extends React.Component {
                 <div className="row">
                     <div className="col-md-12">
                         {Object.keys(this.state.permissions).map((item) => (
-                            <CheckboxGroup customize={this.state.customize} key={this.state.permissions[item].name} onGroupChange={this.onGroupChange} onItemChange={this.onChildChange} {...this.state.permissions[item]} />
+                            <CheckboxGroup customize={this.state.customize} key={this.state.permissions[item].name}
+                                onGroupChange={this.onGroupChange}
+                                onItemChange={this.onChildChange} {...this.state.permissions[item]} />
                         ))}
                     </div>
                 </div>
@@ -200,10 +203,12 @@ export default class NestedCheckboxTree extends React.Component {
 }
 
 function CheckboxSection (props) {
-    let input = <input type="checkbox" checked={props.checked} onChange={props.onSectionChange.bind(null, props.name)} />
+    let input = <input type="checkbox" checked={props.checked}
+        onChange={props.onSectionChange.bind(null, props.name)}/>
 
     if (!props.customize) {
-        input = props.checked ? <span className="fa fa-check" style={{ fontSize: 20 }} /> : <span className="fa fa-times" style={{ fontSize: 20 }} />
+        input = props.checked ? <span className="fa fa-check" style={{ fontSize: 20 }}/>
+            : <span className="fa fa-times" style={{ fontSize: 20 }}/>
     }
 
     return (
@@ -216,10 +221,12 @@ function CheckboxSection (props) {
 }
 
 function CheckboxGroup (props) {
-    let input = <input type="checkbox" checked={props.checked} onChange={props.onGroupChange.bind(null, props.name)} />
+    let input = <input type="checkbox" checked={props.checked}
+        onChange={props.onGroupChange.bind(null, props.name)}/>
 
     if (!props.customize) {
-        input = props.checked ? <span className="fa fa-check" style={{ fontSize: 20 }} /> : <span className="fa fa-times" style={{ fontSize: 20 }} />
+        input = props.checked ? <span className="fa fa-check" style={{ fontSize: 20 }}/>
+            : <span className="fa fa-times" style={{ fontSize: 20 }}/>
     }
 
     return (
@@ -234,7 +241,8 @@ function CheckboxGroup (props) {
             {Object.keys(props.children).map((key) => {
                 return (
                     <div className="col-md-2">
-                        <Checkbox customize={props.customize} key={props.children[key].name} group={props.name} onChange={props.onItemChange.bind(null, props.name)} {...props.children[key]} />
+                        <Checkbox customize={props.customize} key={props.children[key].name} group={props.name}
+                            onChange={props.onItemChange.bind(null, props.name)} {...props.children[key]} />
                     </div>
                 )
             })}
@@ -247,10 +255,11 @@ function Checkbox (props, group) {
     const name = labels[props.name]
     const value = props.group + 'controller.' + props.name
 
-    let input = <input type="checkbox" checked={props.checked} onChange={props.onChange.bind(null, props.name)} />
+    let input = <input type="checkbox" checked={props.checked} onChange={props.onChange.bind(null, props.name)}/>
 
     if (!props.customize) {
-        input = props.checked ? <span className="fa fa-check" style={{ fontSize: 20 }} /> : <span className="fa fa-times" style={{ fontSize: 20 }} />
+        input = props.checked ? <span className="fa fa-check" style={{ fontSize: 20 }}/>
+            : <span className="fa fa-times" style={{ fontSize: 20 }}/>
     }
 
     return (

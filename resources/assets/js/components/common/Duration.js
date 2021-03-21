@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
-import { FormGroup, Input, InputGroup, InputGroupButtonDropdown, DropdownItem, DropdownToggle, DropdownMenu } from 'reactstrap'
+import { DropdownItem, DropdownMenu, DropdownToggle, Input, InputGroup, InputGroupButtonDropdown } from 'reactstrap'
 import { translations } from '../utils/_translations'
-import moment from 'moment'
 
 export default class Duration extends Component {
     constructor (props) {
@@ -39,11 +38,11 @@ export default class Duration extends Component {
             <Input style={{ width: '80%' }} type="text" onChange={(e) => {
                 this.props.onChange(e)
                 this.setState({ placeholder: e.target.value })
-            }} />
+            }}/>
             <InputGroupButtonDropdown addonType="append" isOpen={this.state.dropdownOpen} toggle={(e) => {
                 this.setState({ dropdownOpen: !this.state.dropdownOpen })
             }}>
-                <DropdownToggle caret />
+                <DropdownToggle caret/>
                 <DropdownMenu>
                     <DropdownItem>{translations.change_duration}</DropdownItem>
                     {options}

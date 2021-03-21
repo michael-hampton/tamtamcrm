@@ -49,7 +49,7 @@ export default class TaxRates extends Component {
         this.handleClose = this.handleClose.bind(this)
     }
 
-    addUserToState (taxRates, do_filter = false) {
+    addUserToState (taxRates, do_filter = false, filters = null) {
         const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? taxRates : this.state.cachedData
 
@@ -58,6 +58,7 @@ export default class TaxRates extends Component {
         }
 
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             taxRates: taxRates,
             cachedData: cachedData
         }, () => {
@@ -141,7 +142,7 @@ export default class TaxRates extends Component {
                                 <TaxRateFilters
                                     pageLimit={pageLimit}
                                     cachedData={cachedData}
-                                    updateList={this.onPageChanged.bind(this)}
+                                    updateList={this.addUserToState}
                                     setFilterOpen={this.setFilterOpen.bind(this)} taxRates={taxRates}
                                     filters={filters} filter={this.filterTaxRates}
                                     saveBulk={this.saveBulk}/>

@@ -60,7 +60,7 @@ trait RecurringQuoteTransformable
             'gateway_percentage'    => (bool)$quote->gateway_percentage,
             'transaction_fee_tax'   => (bool)$quote->transaction_fee_tax,
             'shipping_cost_tax'     => (bool)$quote->shipping_cost_tax,
-            'audits'                => $this->transformAuditsForRecurringQuote($quote->audits),
+            //'audits'                => $this->transformAuditsForRecurringQuote($quote->audits),
             'files'                 => $this->transformRecurringQuoteFiles($quote->files),
             'invitations'           => $this->transformRecurringQuoteInvitations($quote->invitations),
             'quotes'                => $this->transformQuotesCreated($quote->quotes),

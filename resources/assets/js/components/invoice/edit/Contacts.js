@@ -2,7 +2,7 @@ import React from 'react'
 import { Card, CardBody, CardHeader, FormGroup, Input, Label } from 'reactstrap'
 import { translations } from '../../utils/_translations'
 import CustomerDropdown from '../../common/dropdowns/CustomerDropdown'
-import AddCustomer from "../../customers/edit/AddCustomer";
+import AddCustomer from '../../customers/edit/AddCustomer'
 
 export default function Contacts (props) {
     const send_to = props.contacts.length ? props.contacts.map((contact, index) => {

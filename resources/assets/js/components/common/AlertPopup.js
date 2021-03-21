@@ -1,11 +1,5 @@
-import React, { Component } from 'react'
-import {
-    Button,
-    Modal,
-    ModalBody,
-    ModalFooter,
-    ModalHeader
-} from 'reactstrap'
+import React from 'react'
+import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap'
 import { translations } from '../utils/_translations'
 
 export default function AlertPopup (props) {

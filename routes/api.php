@@ -192,6 +192,8 @@ Route::group(
         );
         Route::post('invoice/{invoice}/{action}', 'InvoiceController@action')->name('invoices.action');
 
+        Route::get('invoice/audits/{model}/{id}', 'InvoiceController@audits');
+
 
 //recurring invoice
         Route::post(
@@ -351,6 +353,8 @@ Route::group(
         Route::get('company_gateways/{id}', 'CompanyGatewayController@show');
         Route::put('company_gateways/{company_gateway}', 'CompanyGatewayController@update');
         Route::post('company_gateways/', 'CompanyGatewayController@store');
+        Route::get('company_gateways/error_logs/{company_gateway}', 'CompanyGatewayController@getErrorLogs');
+
 
 // tax rates
         Route::get('taxRates', 'TaxRateController@index');
@@ -399,6 +403,12 @@ Route::group(
             'customers/{customer}',
             'CustomerController@destroy'
         );
+
+        Route::get('customers/transactions/{customer}', 'CustomerController@getTransactions');
+        Route::get('customers/error_logs/{customer}', 'CustomerController@getErrorLogs');
+        Route::get('customers/gateway_tokens/{customer}', 'CustomerController@gateways');
+
+
         Route::get(
             'customer-types',
             'CustomerController@getCustomerTypes'

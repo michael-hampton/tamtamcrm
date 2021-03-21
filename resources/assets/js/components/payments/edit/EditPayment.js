@@ -262,7 +262,8 @@ class EditPayment extends React.Component {
 
                         {!this.paymentModel.isCompleted &&
                         <InvoiceLine payment={this.state} credit_lines={this.state.payable_credits}
-                            payments={this.props.payments} lines={this.state.payable_invoices} handleAmountChange={this.setAmount}
+                            payments={this.props.payments} lines={this.state.payable_invoices}
+                            handleAmountChange={this.setAmount}
                             errors={this.state.errors}
                             hideEmpty={false}
                             invoices={this.props.invoices}

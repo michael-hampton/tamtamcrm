@@ -58,7 +58,7 @@ class QuoteTransformable
             'transaction_fee_tax' => (bool)$quote->transaction_fee_tax,
             'shipping_cost_tax'   => (bool)$quote->shipping_cost_tax,
             'emails'              => $this->transformQuoteEmails($quote->emails()),
-            'audits'              => $this->transformAuditsForQuote($quote->audits),
+            //'audits'              => $this->transformAuditsForQuote($quote->audits),
             'files'               => $this->transformQuoteFiles($quote->files),
             'recurring'           => $quote->recurring_quote,
             'recurring_quote_id'  => $quote->recurring_quote_id,

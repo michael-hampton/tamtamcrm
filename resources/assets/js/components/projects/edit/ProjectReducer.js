@@ -1,4 +1,3 @@
-import { consts } from '../../utils/_consts'
 import convertTaskToInvoiceItem from '../../tasks/edit/TaskReducer'
 
 function _sortTaskByTime (task) {

@@ -4,6 +4,7 @@ namespace App\Requests\Expense;
 
 use App\Models\Expense;
 use App\Repositories\Base\BaseFormRequest;
+use Illuminate\Validation\Rule;
 
 class CreateExpenseRequest extends BaseFormRequest
 {
@@ -27,7 +28,15 @@ class CreateExpenseRequest extends BaseFormRequest
         $rules = [
             'date'                => 'required',
             'expense_category_id' => 'required',
-            'amount'              => 'required'
+            'amount'              => 'required',
+            'number'      => [
+                'nullable',
+                Rule::unique('expenses', 'number')->where(
+                    function ($query) {
+                        return $query->where('customer_id', $this->customer_id)->where('account_id', auth()->user()->account_user()->account_id);
+                    }
+                )
+            ],
         ];
 
         return $rules;

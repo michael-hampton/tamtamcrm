@@ -120,7 +120,7 @@ export default class Excuspenses extends Component {
         this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
-    updateExpenses (expenses, do_filter = false) {
+    updateExpenses (expenses, do_filter = false, filters = null) {
         const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? expenses : this.state.cachedData
 
@@ -129,6 +129,7 @@ export default class Excuspenses extends Component {
         }
 
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             expenses: expenses,
             cachedData: cachedData
         }, () => {
@@ -220,7 +221,7 @@ export default class Excuspenses extends Component {
                                 <ExpenseFilters
                                     pageLimit={pageLimit}
                                     cachedData={cachedData}
-                                    updateList={this.onPageChanged.bind(this)}
+                                    updateList={this.updateExpenses}
                                     setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
                                     expenses={expenses} companies={companies}
                                     filters={this.state.filters} filter={this.filterExpenses}
@@ -265,7 +266,11 @@ export default class Excuspenses extends Component {
                                     entity_type="Expense"
                                     bulk_save_url="/api/expense/bulk"
                                     view={view}
-                                    columnMapping={{ customer_id: 'CUSTOMER', company_id: 'COMPANY', status_id: 'status' }}
+                                    columnMapping={{
+                                        customer_id: 'CUSTOMER',
+                                        company_id: 'COMPANY',
+                                        status_id: 'status'
+                                    }}
                                     disableSorting={['id']}
                                     defaultColumn='amount'
                                     userList={this.expenseList}

@@ -180,14 +180,16 @@ class Login extends Component {
                                                         <i className="icon-lock"/>
                                                     </InputGroupText>
                                                 </InputGroupAddon>
-                                                <Input type="password" name="password" placeholder={translations.password}
+                                                <Input type="password" name="password"
+                                                    placeholder={translations.password}
                                                     autoComplete="current-password"
                                                     onChange={this.handleChange.bind(this)}/>
                                             </InputGroup>
                                             <Row>
                                                 <div className="col-12 d-flex justify-content-between">
                                                     <div>
-                                                        <Button disabled={this.state.loading} type="submit" color="primary"
+                                                        <Button disabled={this.state.loading} type="submit"
+                                                            color="primary"
                                                             className="px-4">{translations.login}</Button>
                                                         {this.state.loading &&
                                                         <span style={{ fontSize: '36px' }}
@@ -195,7 +197,7 @@ class Login extends Component {
                                                         }
                                                     </div>
                                                     {!this.state.loading && social_login_button}
-                                                    <ForgotPassword />
+                                                    <ForgotPassword/>
                                                 </div>
                                             </Row>
                                         </Form>

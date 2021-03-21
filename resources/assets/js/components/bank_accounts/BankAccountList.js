@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import axios from 'axios'
 import { Alert, Card, CardBody, Row } from 'reactstrap'
 import DataTable from '../common/DataTable'
 import Snackbar from '@material-ui/core/Snackbar'
@@ -56,7 +55,7 @@ export default class BankAccountList extends Component {
         this.getBanks()
     }
 
-    addUserToState (bank_accounts, do_filter = false) {
+    addUserToState (bank_accounts, do_filter = false, filters = null) {
         const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? bank_accounts : this.state.cachedData
 
@@ -65,6 +64,7 @@ export default class BankAccountList extends Component {
         }
 
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             bank_accounts: bank_accounts,
             cachedData: cachedData
         }, () => {
@@ -115,7 +115,8 @@ export default class BankAccountList extends Component {
 
     userList (props) {
         const { custom_fields, banks, pageLimit, users, currentInvoices, cachedData } = this.state
-        return <BankAccountItem custom_fields={custom_fields} banks={banks} showCheckboxes={props.showCheckboxes} bank_accounts={currentInvoices} users={users}
+        return <BankAccountItem custom_fields={custom_fields} banks={banks} showCheckboxes={props.showCheckboxes}
+            bank_accounts={currentInvoices} users={users}
             viewId={props.viewId} entities={cachedData}
             pageLimit={pageLimit}
             show_list={props.show_list}
@@ -178,7 +179,7 @@ export default class BankAccountList extends Component {
                                     banks={banks}
                                     pageLimit={pageLimit}
                                     cachedData={cachedData}
-                                    updateList={this.onPageChanged.bind(this)}
+                                    updateList={this.addUserToState}
                                     setFilterOpen={this.setFilterOpen.bind(this)} bank_accounts={bank_accounts}
                                     updateIgnoredColumns={this.updateIgnoredColumns}
                                     filters={this.state.filters} filter={this.filterTokens}

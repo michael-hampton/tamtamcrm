@@ -23,7 +23,6 @@ import AccountRepository from '../repositories/AccountRepository'
 import FormBuilder from './FormBuilder'
 import ConfirmPassword from '../common/ConfirmPassword'
 import UpgradeAccount from './UpgradeAccount'
-import App from '../App'
 import ApplyLicence from './ApplyLicence'
 
 class ModuleSettings extends Component {
@@ -412,10 +411,10 @@ class ModuleSettings extends Component {
                                     <div className="d-flex justify-content-between">
                                         <UpgradeAccount callback={(e) => {
                                             console.log('upgrade', e)
-                                        }} />
+                                        }}/>
                                         <ApplyLicence callback={(e) => {
                                             console.log('apply', e)
-                                        }} />
+                                        }}/>
                                     </div>
 
                                     <BlockButton icon={icons.link} button_text={translations.subscriptions}
@@ -428,7 +427,11 @@ class ModuleSettings extends Component {
                                     }
                                     } text={translations.delete_account_message} icon={icons.delete}
                                     button_color="btn-danger btn-lg btn-block"
-                                    button_label={translations.delete_account} icon_style={{ transform: 'rotate(20deg)', marginRight: '14px', fontSize: '24px' }}/>
+                                    button_label={translations.delete_account} icon_style={{
+                                        transform: 'rotate(20deg)',
+                                        marginRight: '14px',
+                                        fontSize: '24px'
+                                    }}/>
                                 </CardBody>
                             </Card>
                         </TabPane>

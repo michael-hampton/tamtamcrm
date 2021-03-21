@@ -2,7 +2,8 @@ import React from 'react'
 import {
     Card,
     CardBody,
-    CardHeader, DropdownItem,
+    CardHeader,
+    DropdownItem,
     FormGroup,
     Modal,
     ModalBody,
@@ -342,7 +343,7 @@ class AddUser extends React.Component {
             if (!this.state.modal) {
                 localStorage.removeItem('userForm')
 
-                if(this.props.add) {
+                if (this.props.add) {
                     this.setState(this.initialState)
                 }
             }
@@ -368,7 +369,8 @@ class AddUser extends React.Component {
             <React.Fragment>
                 {button}
                 <Modal size="lg" isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
-                    <DefaultModalHeader toggle={this.toggle} title={this.state.id ? translations.edit_user : translations.add_user}/>
+                    <DefaultModalHeader toggle={this.toggle}
+                        title={this.state.id ? translations.edit_user : translations.add_user}/>
 
                     <ModalBody className={theme}>
                         <ToastContainer
@@ -434,7 +436,8 @@ class AddUser extends React.Component {
                             </TabPane>
 
                             <TabPane tabId="2">
-                                <PermissionsForm has_custom_permissions={this.state.has_custom_permissions} setPermissions={this.setPermissions.bind(this)}
+                                <PermissionsForm has_custom_permissions={this.state.has_custom_permissions}
+                                    setPermissions={this.setPermissions.bind(this)}
                                     handleInput={this.handleInput} errors={this.state.errors}
                                     setAccounts={this.setSelectedAccounts}
                                     departments={this.props.departments} accounts={this.props.accounts}

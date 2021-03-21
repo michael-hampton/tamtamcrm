@@ -8,7 +8,11 @@ use App\Jobs\Customer\StoreCustomerAddress;
 use App\Models\Account;
 use App\Models\CompanyToken;
 use App\Models\Customer;
+use App\Models\CustomerGateway;
 use App\Models\CustomerType;
+use App\Models\ErrorLog;
+use App\Models\Invoice;
+use App\Models\Transaction;
 use App\Repositories\CustomerContactRepository;
 use App\Repositories\CustomerTypeRepository;
 use App\Repositories\Interfaces\CustomerRepositoryInterface;
@@ -18,7 +22,11 @@ use App\Requests\Customer\UpdateCustomerRequest;
 use App\Requests\SearchRequest;
 use App\Search\CustomerSearch;
 use App\Settings\CustomerSettings;
+use App\Transformations\CustomerGatewayTransformable;
 use App\Transformations\CustomerTransformable;
+use App\Transformations\ErrorLogTransformable;
+use App\Transformations\InvoiceTransformable;
+use App\Transformations\TransactionTransformable;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -183,5 +191,42 @@ class CustomerController extends Controller
         $contact = (new ContactRegister($request->all(), $account, $user))->create();
 
         return response()->json(['contact' => $contact]);
+    }
+
+    public function getTransactions(Customer $customer) {
+
+        $transactions = $customer->transactions;
+
+        $transactions = $transactions->map(
+            function (Transaction $transaction) {
+                return (new TransactionTransformable())->transformTransaction($transaction);
+            }
+        )->all();
+
+        return response()->json($transactions);
+    }
+
+    public function getErrorLogs(Customer $customer) {
+
+        $error_logs = $customer->error_logs;
+
+        $error_logs = $error_logs->map(
+            function (ErrorLog $error_log) {
+                return (new ErrorLogTransformable())->transformErrorLog($error_log);
+            }
+        )->all();
+
+        return response()->json($error_logs);
+    }
+
+    public function gateways(Customer $customer)
+    {
+        $gateway_tokens = $customer->gateways;
+
+        return $gateway_tokens->map(
+            function (CustomerGateway $gateway) {
+                return (new CustomerGatewayTransformable())->transformGateway($gateway);
+            }
+        )->all();
     }
 }

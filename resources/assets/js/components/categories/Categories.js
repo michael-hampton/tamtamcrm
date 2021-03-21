@@ -48,7 +48,7 @@ export default class Categories extends Component {
         this.filterCategories = this.filterCategories.bind(this)
     }
 
-    addUserToState (categories, do_filter = false) {
+    addUserToState (categories, do_filter = false, filters = null) {
         const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? categories : this.state.cachedData
 
@@ -57,6 +57,7 @@ export default class Categories extends Component {
         }
 
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             categories: categories,
             cachedData: cachedData
         }, () => {
@@ -138,7 +139,7 @@ export default class Categories extends Component {
                                 <CategoryFilters
                                     pageLimit={pageLimit}
                                     cachedData={cachedData}
-                                    updateList={this.onPageChanged.bind(this)}
+                                    updateList={this.addUserToState}
                                     setFilterOpen={this.setFilterOpen.bind(this)} categories={categories}
                                     updateIgnoredColumns={this.updateIgnoredColumns}
                                     filters={this.state.filters} filter={this.filterTokens}

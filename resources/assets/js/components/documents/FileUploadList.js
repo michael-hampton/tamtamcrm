@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React from 'react'
 import FileUpload from './FileUpload'
-import axios from "axios";
+import axios from 'axios'
 
 export default class FileUploadList extends React.Component {
     constructor (props) {

@@ -7,9 +7,9 @@ const TaskTimeItem = {
     date: moment(new Date()).format('YYYY-MM-DD'),
     start_time: '',
     end_time: '',
-    //start_time: moment().format('HH:MM:ss'),
-    end_date: moment(new Date()).format('YYYY-MM-DD'),
-    //end_time: moment().add('1', 'hour').format('HH:MM:ss')
+    // start_time: moment().format('HH:MM:ss'),
+    end_date: moment(new Date()).format('YYYY-MM-DD')
+    // end_time: moment().add('1', 'hour').format('HH:MM:ss')
 }
 
 export default class TimerModel extends BaseModel {

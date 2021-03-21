@@ -28,7 +28,7 @@ trait CompanyGatewayTransformable
             'settings'              => $company_gateway->settings,
             'mode'                  => $company_gateway->getMode(),
             'charges'               => $company_gateway->charges ?: '',
-            'error_logs'            => $this->transformErrorLogs($company_gateway->error_logs()),
+            //'error_logs'            => $this->transformErrorLogs($company_gateway->error_logs()),
             'updated_at'            => $company_gateway->updated_at,
             'deleted_at'            => $company_gateway->deleted_at,
         ];

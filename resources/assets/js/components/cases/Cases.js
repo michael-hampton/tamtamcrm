@@ -74,7 +74,7 @@ export default class Cases extends Component {
         this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
-    addUserToState (cases, do_filter = false) {
+    addUserToState (cases, do_filter = false, filters = null) {
         const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? cases : this.state.cachedData
 
@@ -83,6 +83,7 @@ export default class Cases extends Component {
         }
 
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             cases: cases,
             cachedData: cachedData
         }, () => {
@@ -179,7 +180,7 @@ export default class Cases extends Component {
                                 <CaseFilters
                                     pageLimit={pageLimit}
                                     cachedData={cachedData}
-                                    updateList={this.onPageChanged.bind(this)}
+                                    updateList={this.addUserToState}
                                     setFilterOpen={this.setFilterOpen.bind(this)} cases={cases}
                                     customers={customers}
                                     filters={this.state.filters} filter={this.filterCases}

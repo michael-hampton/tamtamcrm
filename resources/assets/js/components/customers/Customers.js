@@ -76,7 +76,7 @@ export default class Customers extends Component {
         this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
-    updateCustomers (customers, do_filter = false) {
+    updateCustomers (customers, do_filter = false, filters = null) {
         const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? customers : this.state.cachedData
 
@@ -85,6 +85,7 @@ export default class Customers extends Component {
         }
 
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             customers: customers,
             cachedData: cachedData
         }, () => {
@@ -174,6 +175,8 @@ export default class Customers extends Component {
             : 'fixed-margin-datatable-large fixed-margin-datatable-large-mobile'
         const total = customers.length
 
+        alert(total)
+
         return (
             <Row>
                 <div className="col-12">
@@ -183,7 +186,7 @@ export default class Customers extends Component {
                                 <CustomerFilters
                                     pageLimit={pageLimit}
                                     cachedData={this.state.cachedData}
-                                    updateList={this.onPageChanged.bind(this)}
+                                    updateList={this.updateCustomers}
                                     setFilterOpen={this.setFilterOpen.bind(this)}
                                     customers={customers}
                                     filters={filters} filter={this.filterCustomers}

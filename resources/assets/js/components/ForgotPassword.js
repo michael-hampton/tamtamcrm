@@ -78,8 +78,7 @@ export default class ForgotPassword extends Component {
             setTimeout(
                 () => this.setState({ modal: false }),
                 5000
-            );
-
+            )
         })
     }
 

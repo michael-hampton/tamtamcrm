@@ -126,7 +126,7 @@ export default class Credits extends Component {
             }) */
     }
 
-    updateCustomers (credits, do_filter = false) {
+    updateCustomers (credits, do_filter = false, filters = null) {
         const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? credits : this.state.cachedData
 
@@ -135,6 +135,7 @@ export default class Credits extends Component {
         }
 
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             credits: credits,
             cachedData: cachedData
         }, () => {
@@ -199,7 +200,7 @@ export default class Credits extends Component {
                                 <CreditFilters
                                     pageLimit={pageLimit}
                                     cachedData={cachedData}
-                                    updateList={this.onPageChanged.bind(this)}
+                                    updateList={this.updateCustomers}
                                     setFilterOpen={this.setFilterOpen.bind(this)} credits={credits}
                                     customers={customers}
                                     filters={filters} filter={this.filterCredits}

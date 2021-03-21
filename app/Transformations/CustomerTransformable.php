@@ -2,7 +2,6 @@
 
 namespace App\Transformations;
 
-use App\Models\Address;
 use App\Models\Customer;
 use App\Models\CustomerContact;
 use App\Models\CustomerGateway;
@@ -23,21 +22,8 @@ trait CustomerTransformable
         $company = !empty($customer->company_id) ? $customer->company->toArray() : '';
         $credit = $customer->credits()->count() > 0 ? $customer->credits->first()->amount : 0;
 
-        $billing = null;
-        $shipping = null;
-
-        if(empty($exclude) || (!empty($exclude) && in_array('addresses', $exclude))) {
-            $addresses = $this->transformAddress($customer->addresses);
-
-            foreach ($addresses as $address) {
-                if ($address->address_type === 1) {
-                    $billing = $address;
-                } elseif ($address->address_type === 2) {
-                    $shipping = $address;
-                }
-            }
-        }
-
+        $billing = $this->transformAddress($customer, true);
+        $shipping = $this->transformAddress($customer);
 
         return [
             'id'                     => (int)$customer->id,
@@ -50,12 +36,14 @@ trait CustomerTransformable
             'deleted_at'             => $customer->deleted_at,
             'company'                => $company,
             'credit'                 => $credit,
-            'contacts'               => empty($exclude) || !in_array('contacts', $exclude) ? $this->transformContacts($customer->contacts) : [],
+            'contacts'               => empty($exclude) || !in_array('contacts', $exclude) ? $this->transformContacts(
+                $customer->contacts
+            ) : [],
             'default_payment_method' => $customer->default_payment_method,
             'group_settings_id'      => $customer->group_settings_id,
             'shipping'               => $shipping,
             'billing'                => $billing,
-            'country_id'             => !empty($billing) ? $billing->country_id : null,
+            'country_id'             => !empty($billing) ? $billing['country_id'] : null,
             'website'                => $customer->website ?: '',
             'vat_number'             => $customer->vat_number ?: '',
             'industry_id'            => (int)$customer->industry_id ?: null,
@@ -67,8 +55,8 @@ trait CustomerTransformable
             'credit_balance'         => (float)$customer->credit_balance,
             'assigned_to'            => $customer->assigned_to,
             'settings'               => $customer->settings,
-            'transactions'           => $this->transformTransactions($customer->transactions),
-            'error_logs'             => empty($exclude) || !in_array('logs', $exclude) ? $this->transformErrorLogs($customer->error_logs): [],
+            //'transactions'           => $this->transformTransactions($customer->transactions),
+            //'error_logs'             => empty($exclude) || !in_array('logs', $exclude) ? $this->transformErrorLogs($customer->error_logs): [],
             'custom_value1'          => $customer->custom_value1 ?: '',
             'custom_value2'          => $customer->custom_value2 ?: '',
             'custom_value3'          => $customer->custom_value3 ?: '',
@@ -76,7 +64,7 @@ trait CustomerTransformable
             'private_notes'          => $customer->private_notes ?: '',
             'public_notes'           => $customer->public_notes ?: '',
             'files'                  => $this->transformCustomerFiles($customer->files),
-            'gateway_tokens'         => empty($exclude) || !in_array('gateways', $exclude) ? $this->transformGatewayTokens($customer->gateways) : [],
+            //'gateway_tokens'         => empty($exclude) || !in_array('gateways', $exclude) ? $this->transformGatewayTokens($customer->gateways) : [],
             'is_deleted'             => (bool)$customer->is_deleted,
         ];
     }
@@ -85,17 +73,27 @@ trait CustomerTransformable
      * @param $addresses
      * @return array
      */
-    private function transformAddress($addresses)
+    private function transformAddress($customer, $billing = false)
     {
-        if (empty($addresses)) {
-            return [];
+        if ($billing === true) {
+            return [
+                'address_1'    => !empty($customer->address_1) ? $customer->address_1 : '',
+                'address_2'    => !empty($customer->address_2) ? $customer->address_2 : '',
+                'zip'          => !empty($customer->zip) ? $customer->zip : '',
+                'city'         => !empty($customer->city) ? $customer->city : '',
+                'country_id'   => !empty($customer->country_id) ? $customer->country_id : 2,
+                'address_type' => 1
+            ];
         }
 
-        return $addresses->map(
-            function (Address $address) {
-                return (new AddressTransformable())->transformAddress($address);
-            }
-        )->all();
+        return [
+            'address_1'    => !empty($customer->shipping_address_1) ? $customer->shipping_address_1 : '',
+            'address_2'    => !empty($customer->shipping_address_2) ? $customer->shipping_address_2 : '',
+            'zip'          => !empty($customer->shipping_zip) ? $customer->shipping_zip : '',
+            'city'         => !empty($customer->shipping_city) ? $customer->shipping_city : '',
+            'country_id'   => !empty($customer->shipping_country_id) ? $customer->shipping_country_id : 2,
+            'address_type' => 2
+        ];
     }
 
     /**

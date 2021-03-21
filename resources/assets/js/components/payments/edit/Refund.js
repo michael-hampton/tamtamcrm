@@ -320,7 +320,7 @@ class Refund extends React.Component {
 
                 <AlertPopup is_open={this.state.show_alert} message={this.state.error_message} onClose={(e) => {
                     this.setState({ show_alert: false })
-                }} />
+                }}/>
             </React.Fragment>
         ) : this.getForm()
     }

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Card, CardBody, CardHeader, Col, Nav, NavItem, NavLink, Row, TabContent, TabPane } from 'reactstrap'
+import { Card, CardBody, CardHeader, Col, Nav, NavItem, NavLink, Row, Spinner, TabContent, TabPane } from 'reactstrap'
 import { icons } from '../../utils/_icons'
 import { translations } from '../../utils/_translations'
 import PaymentModel from '../../models/PaymentModel'
@@ -15,6 +15,8 @@ import Overview from './Overview'
 import Details from './Details'
 import ErrorLog from './ErrorLog'
 import AlertPopup from '../../common/AlertPopup'
+import CustomerRepository from '../../repositories/CustomerRepository'
+import CompanyGatewayRepository from '../../repositories/CompanyGatewayRepository'
 
 export default class Customer extends Component {
     constructor (props) {
@@ -25,6 +27,9 @@ export default class Customer extends Component {
             show_success: false,
             show_alert: false,
             gateways: [],
+            transactions: [],
+            gateway_tokens: [],
+            error_logs: [],
             file_count: this.props.entity.files.length || 0
         }
 
@@ -43,10 +48,12 @@ export default class Customer extends Component {
 
     componentDidMount () {
         this.getGateways()
+        this.getGatewayTokens()
     }
 
     getGateways () {
-        this.gatewayModel.getGateways().then(response => {
+        const gatewayRepository = new CompanyGatewayRepository()
+        gatewayRepository.getGateways().then(response => {
             if (!response) {
                 this.setState({ show_alert: true })
                 return
@@ -58,6 +65,48 @@ export default class Customer extends Component {
         })
     }
 
+    getGatewayTokens () {
+        const customerRepository = new CustomerRepository()
+        customerRepository.gatewayTokens(this.props.entity.id).then(response => {
+            if (!response) {
+                this.setState({ show_alert: true })
+                return
+            }
+
+            this.setState({ gateway_tokens: response }, () => {
+                console.log('gateway_tokens', this.state.gateway_tokens)
+            })
+        })
+    }
+
+    getTransactions () {
+        const customerRepository = new CustomerRepository()
+        customerRepository.transactions(this.props.entity.id).then(response => {
+            if (!response) {
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
+            }
+
+            this.setState({ transactions: response }, () => {
+                console.log('transactions', this.state.transactions)
+            })
+        })
+    }
+
+    getErrorLogs () {
+        const customerRepository = new CustomerRepository()
+        customerRepository.error_logs(this.props.entity.id).then(response => {
+            if (!response) {
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
+            }
+
+            this.setState({ error_logs: response }, () => {
+                console.log('error_logs', this.state.error_logs)
+            })
+        })
+    }
+
     triggerAction (action) {
         const paymentModel = new PaymentModel(null, this.props.entity)
         paymentModel.completeAction(this.props.entity, action)
@@ -65,12 +114,22 @@ export default class Customer extends Component {
 
     toggleTab (tab) {
         if (this.state.activeTab !== tab) {
-            this.setState({ activeTab: tab })
+            this.setState({ activeTab: tab }, () => {
+                if (tab === '3' && !this.state.transactions.length) {
+                    this.getTransactions()
+                }
+
+                if (tab === '7' && !this.state.error_logs.length) {
+                    this.getErrorLogs()
+                }
+            })
         }
     }
 
     render () {
-        const gateway_tokens = this.state.gateways.length ? this.customerModel.gateway_tokens.map((gatewayToken) => {
+        const gateway_tokens = this.state.gateways.length && this.state.gateway_tokens.length ? this.state.gateway_tokens.map((gatewayToken) => {
+            console.log('gateways', this.state.gateways)
+            console.log('gateway tokens', this.state.gateway_tokens)
             const companyGateway = this.state.gateways.filter(gateway => gateway.id === parseInt(gatewayToken.company_gateway_id))
 
             console.log('meta', gatewayToken.meta)
@@ -154,7 +213,11 @@ export default class Customer extends Component {
                     </TabPane>
 
                     <TabPane tabId="3">
-                        <Transaction transactions={this.props.entity.transactions}/>
+                        {this.state.transactions.length ? <Transaction transactions={this.state.transactions}/>
+                            : <Spinner style={{
+                                width: '3rem',
+                                height: '3rem'
+                            }}/>}
                     </TabPane>
 
                     <TabPane tabId="4">
@@ -178,7 +241,10 @@ export default class Customer extends Component {
                     </TabPane>
 
                     <TabPane tabId="7">
-                        <ErrorLog error_logs={this.props.entity.error_logs}/>
+                        {this.state.error_logs ? <ErrorLog error_logs={this.state.error_logs}/> : <Spinner style={{
+                            width: '3rem',
+                            height: '3rem'
+                        }}/>}
                     </TabPane>
                 </TabContent>
 

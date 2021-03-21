@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Factory\CompanyGatewayFactory;
 use App\Models\CompanyGateway;
+use App\Models\ErrorLog;
 use App\Repositories\AccountRepository;
 use App\Repositories\CompanyGatewayRepository;
 use App\Requests\CompanyGateway\StoreCompanyGatewayRequest;
@@ -11,6 +12,7 @@ use App\Requests\CompanyGateway\UpdateCompanyGatewayRequest;
 use App\Requests\SearchRequest;
 use App\Search\CompanyGatewaySearch;
 use App\Transformations\CompanyGatewayTransformable;
+use App\Transformations\ErrorLogTransformable;
 
 /**
  * Class CompanyGatewayController
@@ -105,10 +107,22 @@ class CompanyGatewayController extends Controller
 
     public function destroy(CompanyGateway $company_gateway)
     {
-
         $this->authorize('delete', $company_gateway);
 
         $company_gateway->deleteEntity();
         return response()->json([], 200);
+    }
+
+    public function getErrorLogs(CompanyGateway $company_gateway)
+    {
+        $error_logs = $company_gateway->error_logs();
+
+        $error_logs = $error_logs->map(
+            function (ErrorLog $error_log) {
+                return (new ErrorLogTransformable())->transformErrorLog($error_log);
+            }
+        )->all();
+
+        return response()->json($error_logs);
     }
 }

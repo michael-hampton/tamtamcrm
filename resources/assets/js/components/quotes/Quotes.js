@@ -63,7 +63,7 @@ export default class Quotes extends Component {
         this.getCustomFields()
     }
 
-    updateInvoice (quotes, do_filter = false) {
+    updateInvoice (quotes, do_filter = false, filters = null) {
         const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? quotes : this.state.cachedData
 
@@ -72,6 +72,7 @@ export default class Quotes extends Component {
         }
 
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             quotes: quotes,
             cachedData: cachedData
         }, () => {
@@ -203,7 +204,7 @@ export default class Quotes extends Component {
                                 <QuoteFilters
                                     pageLimit={pageLimit}
                                     cachedData={cachedData}
-                                    updateList={this.onPageChanged.bind(this)}
+                                    updateList={this.updateInvoice}
                                     setFilterOpen={this.setFilterOpen.bind(this)} quotes={quotes}
                                     customers={customers}
                                     filters={filters} filter={this.filterInvoices}

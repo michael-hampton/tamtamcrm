@@ -1,9 +1,9 @@
 import React from 'react'
 import { Button, Card, CardBody } from 'reactstrap'
 import { translations } from '../utils/_translations'
-import GatewayModel from '../models/GatewayModel'
 import { icons } from '../utils/_icons'
 import { toast, ToastContainer } from 'react-toastify'
+import CompanyGatewayRepository from '../repositories/CompanyGatewayRepository'
 
 export default class CustomerGateways extends React.Component {
     constructor (props) {
@@ -47,8 +47,8 @@ export default class CustomerGateways extends React.Component {
     }
 
     getCompanyGateways () {
-        const gatewayModel = new GatewayModel()
-        gatewayModel.getGateways().then(response => {
+        const gatewayRepository = new CompanyGatewayRepository()
+        gatewayRepository.getGateways().then(response => {
             if (!response) {
                 this.setState({ error: true, error_message: translations.unexpected_error })
                 return

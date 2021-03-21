@@ -61,7 +61,7 @@ export default class ProjectList extends Component {
         this.getCustomFields()
     }
 
-    addUserToState (projects, do_filter = false) {
+    addUserToState (projects, do_filter = false, filters = null) {
         const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? projects : this.state.cachedData
 
@@ -70,6 +70,7 @@ export default class ProjectList extends Component {
         }
 
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             projects: projects,
             cachedData: cachedData
         }, () => {
@@ -186,7 +187,7 @@ export default class ProjectList extends Component {
                                 <ProjectFilters
                                     pageLimit={pageLimit}
                                     cachedData={cachedData}
-                                    updateList={this.onPageChanged.bind(this)}
+                                    updateList={this.addUserToState}
                                     setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
                                     projects={projects}
                                     filters={this.state.filters} filter={this.filterProjects}

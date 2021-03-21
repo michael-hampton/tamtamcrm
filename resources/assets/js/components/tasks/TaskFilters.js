@@ -79,12 +79,7 @@ export default class TaskFilters extends Component {
                 <Col md={2}>
                     <TableSearch onChange={(e) => {
                         const myArrayFiltered = filterSearchResults(e.target.value, this.props.cachedData, this.props.customers)
-                        const totalPages = myArrayFiltered && myArrayFiltered.length ? Math.ceil(myArrayFiltered.length / this.props.pageLimit) : 0
-                        this.props.updateList({
-                            invoices: myArrayFiltered.length,
-                            currentPage: 1,
-                            totalPages: totalPages
-                        })
+                        this.props.updateList(myArrayFiltered || [], false, this.state.filters)
                     }}/>
                 </Col>
 
@@ -100,13 +95,7 @@ export default class TaskFilters extends Component {
                                 }
                             }), () => {
                                 const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
-                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
-                                this.props.updateList({
-                                    invoices: results,
-                                    currentPage: 1,
-                                    totalPages: totalPages,
-                                    filters: this.state.filters
-                                })
+                                this.props.updateList(results || [], false, this.state.filters)
                             })
                         }}
                         name="customer_id"
@@ -125,13 +114,7 @@ export default class TaskFilters extends Component {
                                 }
                             }), () => {
                                 const results = filterStatuses(this.props.cachedData, value, this.state.filters)
-                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
-                                this.props.updateList({
-                                    invoices: results,
-                                    currentPage: 1,
-                                    totalPages: totalPages,
-                                    filters: this.state.filters
-                                })
+                                this.props.updateList(results || [], false, this.state.filters)
                             })
                         }}
                         users={this.props.users}
@@ -153,13 +136,7 @@ export default class TaskFilters extends Component {
                                 }
                             }), () => {
                                 const results = filterStatuses(this.props.cachedData, value, this.state.filters)
-                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
-                                this.props.updateList({
-                                    invoices: results,
-                                    currentPage: 1,
-                                    totalPages: totalPages,
-                                    filters: this.state.filters
-                                })
+                                this.props.updateList(results || [], false, this.state.filters)
                             })
                         }}
                     />
@@ -175,13 +152,7 @@ export default class TaskFilters extends Component {
                                 }
                             }), () => {
                                 const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
-                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
-                                this.props.updateList({
-                                    invoices: results,
-                                    currentPage: 1,
-                                    totalPages: totalPages,
-                                    filters: this.state.filters
-                                })
+                                this.props.updateList(results || [], false, this.state.filters)
                             })
                         }}/>
                     </FormGroup>
@@ -204,13 +175,7 @@ export default class TaskFilters extends Component {
                                 }
                             }), () => {
                                 const results = filterStatuses(this.props.cachedData, value, this.state.filters)
-                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
-                                this.props.updateList({
-                                    invoices: results,
-                                    currentPage: 1,
-                                    totalPages: totalPages,
-                                    filters: this.state.filters
-                                })
+                                this.props.updateList(results || [], false, this.state.filters)
                             })
                         }}
                         name="project_id"

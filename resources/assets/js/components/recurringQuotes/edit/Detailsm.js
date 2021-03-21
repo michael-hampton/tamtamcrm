@@ -7,7 +7,7 @@ import { translations } from '../../utils/_translations'
 import UserDropdown from '../../common/dropdowns/UserDropdown'
 import ProjectDropdown from '../../common/dropdowns/ProjectDropdown'
 import QuoteDropdown from '../../common/dropdowns/QuoteDropdown'
-import AddCustomer from "../../customers/edit/AddCustomer";
+import AddCustomer from '../../customers/edit/AddCustomer'
 
 export default class Detailsm extends Component {
     constructor (props, context) {

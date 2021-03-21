@@ -62,7 +62,7 @@ class InvoiceTransformable
             'last_sent_date'       => $invoice->last_sent_date ?: '',
             'emails'               => $this->transformEmails($invoice->emails()),
             'paymentables'         => $this->transformInvoicePayments($invoice->payments),
-            'audits'               => $this->transformAuditsForInvoice($invoice->audits),
+            //'audits'               => $this->transformAuditsForInvoice($invoice->audits),
             'files'                => $this->transformInvoiceFiles($invoice->files),
             'recurring_invoice_id' => $invoice->recurring_invoice_id,
             'recurring'            => $invoice->recurring_invoice,

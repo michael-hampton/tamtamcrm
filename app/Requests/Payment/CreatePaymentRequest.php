@@ -39,6 +39,7 @@ class CreatePaymentRequest extends BaseFormRequest
             'invoices'              => new InvoicePaymentValidation($this->all()),
             'credits'               => new CreditPaymentValidation($this->all()),
             'number'                => [
+                'nullable',
                 Rule::unique('recurring_quotes', 'number')->where(
                     function ($query) {
                         return $query->where('customer_id', $this->customer_id)->where('account_id', $this->account_id);

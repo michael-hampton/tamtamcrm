@@ -11,7 +11,7 @@ import {
 } from 'reactstrap'
 import axios from 'axios'
 import { translations } from '../utils/_translations'
-import { consts } from "../utils/_consts";
+import { consts } from '../utils/_consts'
 
 export default class AboutModal extends Component {
     constructor (props) {

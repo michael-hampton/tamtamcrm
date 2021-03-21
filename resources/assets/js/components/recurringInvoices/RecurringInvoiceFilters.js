@@ -74,8 +74,7 @@ export default class RecurringInvoiceFilters extends Component {
                 <Col md={3}>
                     <TableSearch onChange={(e) => {
                         const myArrayFiltered = filterSearchResults(e.target.value, this.props.cachedData, this.props.customers)
-                        const totalPages = myArrayFiltered && myArrayFiltered.length ? Math.ceil(myArrayFiltered.length / this.props.pageLimit) : 0
-                        this.props.updateList({ invoices: myArrayFiltered, currentPage: 1, totalPages: totalPages })
+                        this.props.updateList(myArrayFiltered || [], false, this.state.filters)
                     }}/>
                 </Col>
 
@@ -91,13 +90,7 @@ export default class RecurringInvoiceFilters extends Component {
                                 }
                             }), () => {
                                 const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
-                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
-                                this.props.updateList({
-                                    invoices: results,
-                                    currentPage: 1,
-                                    totalPages: totalPages,
-                                    filters: this.state.filters
-                                })
+                                this.props.updateList(results || [], false, this.state.filters)
                             })
                         }}
                         customers={this.props.customers}
@@ -115,13 +108,7 @@ export default class RecurringInvoiceFilters extends Component {
                                 }
                             }), () => {
                                 const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
-                                const totalPages = results && results.length ? Math.ceil(results.length / this.props.pageLimit) : 0
-                                this.props.updateList({
-                                    invoices: results,
-                                    currentPage: 1,
-                                    totalPages: totalPages,
-                                    filters: this.state.filters
-                                })
+                                this.props.updateList(results || [], false, this.state.filters)
                             })
                         }} statuses={this.statuses}/>
                     </FormGroup>

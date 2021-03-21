@@ -56,7 +56,7 @@ class EditInvoice extends Component {
         this.initialState = this.invoiceModel.fields
         this.initialState.customers = this.props.customers || []
         this.state = this.initialState
-        
+
         this.updateData = this.updateData.bind(this)
         this.saveData = this.saveData.bind(this)
         this.setTotal = this.setTotal.bind(this)
