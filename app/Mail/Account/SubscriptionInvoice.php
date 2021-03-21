@@ -6,6 +6,7 @@ use App\Models\Account;
 use App\Models\Domain;
 use App\Models\Invoice;
 use App\Models\Plan;
+use App\Models\PlanSubscription;
 use App\Traits\Money;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -25,7 +26,7 @@ class SubscriptionInvoice extends Mailable
      */
     private Invoice $invoice;
 
-    private Plan $plan;
+    private PlanSubscription $plan;
 
     private $message;
 
@@ -40,7 +41,7 @@ class SubscriptionInvoice extends Mailable
      * @param Account $account
      * @param Invoice $invoice
      */
-    public function __construct(Plan $plan, Account $account, Invoice $invoice)
+    public function __construct(PlanSubscription $plan, Account $account, Invoice $invoice)
     {
         $this->account = $account;
         $this->invoice = $invoice;
@@ -77,12 +78,10 @@ class SubscriptionInvoice extends Mailable
     private function getDataArray()
     {
 
-        $cost = $this->plan->plan_period === Plan::PLAN_PERIOD_YEAR ? env(
-            'YEARLY_ACCOUNT_PRICE'
-        ) : env('MONTHLY_ACCOUNT_PRICE');
+        $cost = $this->plan->plan->price * $this->plan->number_of_licences;
 
         return [
-            'term'     => $this->plan->plan_period === Plan::PLAN_PERIOD_YEAR ? 'Yearly' : 'Monthly',
+            'term'     => $this->plan->plan->invoice_interval === 'year' ? 'Yearly' : 'Monthly',
             'number'   => $this->invoice->getNumber(),
             'due_date' => date('d-m-Y', strtotime($this->plan->due_date)),
             'amount'   => self::formatCurrency($cost, $this->invoice->customer)

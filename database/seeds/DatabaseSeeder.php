@@ -12,6 +12,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        $this->call(PlanSeeder::class);
+
+        die('here');
+
         //$this->call(BankSeeder::class);
         $this->call(PaymentTermsSeeder::class);
         $this->call(EventTypeSeeder::class);

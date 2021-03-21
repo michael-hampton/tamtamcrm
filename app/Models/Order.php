@@ -119,6 +119,7 @@ class Order extends Model
     {
         return [
             'orders',
+            'dashboard_orders'
         ];
     }
 

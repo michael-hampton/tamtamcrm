@@ -80,6 +80,7 @@ class Payment extends Model
     {
         return [
             'payments',
+            'dashboard_payments'
         ];
     }
     

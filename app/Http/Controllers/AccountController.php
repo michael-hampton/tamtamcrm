@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Plan\UpgradePlan;
 use App\Factory\AccountFactory;
 use App\Models\Account;
 use App\Models\CompanyToken;
@@ -16,6 +15,7 @@ use App\Requests\Account\UpdateAccountRequest;
 use App\Settings\AccountSettings;
 use App\Traits\UploadableTrait;
 use App\Transformations\AccountTransformable;
+use Carbon\Carbon;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -211,12 +211,19 @@ class AccountController extends BaseController
         $domain = auth()->user()->account_user()->account->domains;
         $plan = $request->input(
             'package'
-        ) === 'standard' ? Plan::PLAN_STANDARD : Plan::PLAN_ADVANCED;
+        ) === 'standard' ? 'STD' : 'PRO';
         $period = $request->input(
             'period'
-        ) === 'monthly' ? Plan::PLAN_PERIOD_MONTH : Plan::PLAN_PERIOD_YEAR;
+        ) === 'monthly' ? 'M' : 'Y';
 
-        (new UpgradePlan())->execute($domain, ['plan' => $plan, 'plan_period' => $period]);
+        $code = $plan.$period;
+
+        $customer = $domain->customer;
+        $subscription = $customer->subscriptions->first();
+
+        // Change subscription plan
+        $plan = Plan::where('code', '=', $code)->first();
+        $subscription->changePlan($plan);
     }
 
     public function apply(Request $request)
@@ -237,13 +244,13 @@ class AccountController extends BaseController
             $package === 'standard' ? env('STANDARD_NUMBER_OF_LICENCES') : env('ADVANCED_NUMBER_OF_LICENCES');
         }
 
+        $plan = $package === 'standard' ? 'STD' : 'PRO';
+        $period = $period === 'monthly' ? 'M' : 'Y';
+        $code = $plan.$period;
+        $plan = Plan::where('code', '=', $code)->first();
         $domain = auth()->user()->account_user()->account->domains;
-        $domain->subscription_plan = $package === 'standard' ? Domain::SUBSCRIPTION_STANDARD : Domain::SUBSCRIPTION_ADVANCED;
-        $domain->subscription_period = $period === 'monthly' ? Domain::SUBSCRIPTION_PERIOD_MONTH : Domain::SUBSCRIPTION_PERIOD_YEAR;
-        $domain->subscription_expiry_date = $period === 'monthly' ? now()->addMonthNoOverflow()
-            : now()->addYearNoOverflow();
-        $domain->number_of_licences = $number_of_licences;
-        $domain->licence_number = $request->input('licence_number');
-        $domain->save();
+        $customer = $domain->customer;
+
+        $customer->newSubscription('main', $plan, $domain. $number_of_licences);
     }
 }

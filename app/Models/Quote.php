@@ -119,6 +119,7 @@ class Quote extends Model
     {
         return [
             'quotes',
+            'dashboard_quotes'
         ];
     }
 

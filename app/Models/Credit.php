@@ -108,6 +108,7 @@ class Credit extends Model
     {
         return [
             'credits',
+            'dashboard_credits'
         ];
     }
 

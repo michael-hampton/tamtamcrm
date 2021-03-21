@@ -3,8 +3,6 @@
 namespace Tests\Unit;
 
 use App\Actions\Account\CreateAccount;
-use App\Actions\Plan\CreatePlan;
-use App\Actions\Plan\UpgradePlan;
 use App\Components\Promocodes\Promocodes;
 use App\Jobs\ProcessSubscription;
 use App\Models\Account;
@@ -47,93 +45,134 @@ class PlanTest extends TestCase
         $account = (new CreateAccount())->execute($data);
         $domain = $account->domain;
 
-        $plans = $domain->plans;
+        $subscription_plans = $domain->plans;
 
-        $this->assertNotNull($plans);
-        $this->assertEquals(1, $plans->count());
+        $this->assertNotNull($subscription_plans);
 
-        $plan = $plans->first();
+        $this->assertEquals(1, $subscription_plans->count());
 
-        $this->assertEquals('MONTHLY', $plan->plan_period);
-        $this->assertEquals('STANDARD', $plan->plan);
-        $this->assertEquals(now()->addYearNoOverflow()->format('Y-m-d'), $plan->expiry_date);
-        $this->assertEquals(now()->addMonthNoOverflow()->format('Y-m-d'), $plan->due_date);
-        $this->assertEquals(now()->format('Y-m-d'), $plan->plan_started);
+        $subscription_plan = $subscription_plans->first();
+
+        $plan = $subscription_plan->plan;
+
+        $this->assertEquals('month', $plan->invoice_interval);
+        $this->assertEquals('STDM', $plan->code);
+        $this->assertEquals(now()->addYearNoOverflow()->format('Y-m-d'), $subscription_plan->ends_at->format('Y-m-d'));
+        $this->assertEquals(
+            now()->addMonthNoOverflow()->format('Y-m-d'),
+            $subscription_plan->due_date->format('Y-m-d')
+        );
+        $this->assertEquals(now()->format('Y-m-d'), $subscription_plan->starts_at->format('Y-m-d'));
+    }
+
+    public function test_renewal()
+    {
+        $customer = Customer::factory()->create();
+        $contact = CustomerContact::factory()->create(['customer_id' => $customer->id]);
+        $customer->contacts()->save($contact);
+        $user = User::factory()->create();
+
+        $domain = (new DomainRepository(new Domain))->create(
+            [
+                'user_id'       => $user->id,
+                'customer_id'   => $customer->id,
+                'support_email' => $this->faker->safeEmail
+            ]
+        );
+
+        $account = Account::factory()->create(['domain_id' => $domain->id, 'support_email' => $this->faker->safeEmail]);
+        $domain->default_account_id = $account->id;
+        $domain->save();
+
+        //Standard Monthly by default
+        $plan = Plan::where('code', '=', 'STDM')->first();
+
+        $customer->newSubscription('main', $plan, $domain);
+
+        $subscription = $customer->subscriptions->first();
+
+        $subscription->ends_at = now();
+        $subscription->save();
+        
+        $subscription->renew();
+
+        $subscription = $subscription->fresh();
+
+        $this->assertEquals(now()->addYearNoOverflow()->format('Y-m-d'), $subscription->ends_at->format('Y-m-d'));
     }
 
     public function test_upgrade_trial()
     {
-        $data = [
-            'plan_period' => 'TRIAL',
-            'plan'        => 'TRIAL'
-        ];
+        $account = Account::factory()->create();
+        $customer = Customer::factory()->create();
 
-        $plan = (new CreatePlan())->execute($this->account->domains, $data);
+        $domain = $account->domains;
 
-        $this->assertEquals(99999, $plan->number_of_licences);
+        //Standard Monthly by default
+        $plan = Plan::where('code', '=', 'STDMT')->first();
+
+        $customer->newSubscription('main', $plan, $domain);
+
+        $subscription = $customer->subscriptions->first();
+
+        $expected_due_date = $subscription->starts_at->addMonth();
+
         $this->assertEquals(
-            now()->addMonthNoOverflow()->format('Y-m-d'),
-            Carbon::parse($plan->due_date)->format('Y-m-d')
+            $subscription->trial_ends_at->format('Y-m-d'),
+            now()->addDays($subscription->plan->trial_period)->format('Y-m-d')
         );
+
+        //$this->assertEquals(99999, $plan->number_of_licences);
         $this->assertEquals(
-            now()->addMonthNoOverflow()->format('Y-m-d'),
-            Carbon::parse($plan->expiry_date)->format('Y-m-d')
+            $expected_due_date->format('Y-m-d'),
+           $subscription->due_date->format('Y-m-d')
         );
 
-        $plan->due_date = now()->addDays(10);
-        $plan->expiry_date = now();
-        $plan->save();
-
-        ProcessSubscription::dispatchNow();
-
-        $domain = $plan->domain->fresh();
-
-        //$this->assertEquals($domain->plans->count(), 2);
-
-        $first_plan = $domain->plans->first();
-        $latest_plan = $domain->plans->last();
-
-        $this->assertEquals(now()->format('Y-m-d'), $first_plan->plan_ended);
-        $this->assertEquals(false, $first_plan->is_active);
-
-        $this->assertEquals(now()->format('Y-m-d'), $latest_plan->plan_started);
-        $this->assertEquals('MONTHLY', $latest_plan->plan_period);
-        $this->assertEquals('STANDARD', $latest_plan->plan);
+        // 1 month plus length of trial
+        $this->assertEquals(
+            now()->addMonthNoOverflow()->addDays(10)->format('Y-m-d'),
+            Carbon::parse($subscription->ends_at)->format('Y-m-d')
+        );
     }
 
     public function test_upgrade()
     {
-        $data = [
-            'plan_period' => 'MONTHLY',
-            'plan'        => 'STANDARD'
-        ];
+        $account = Account::factory()->create();
+        $customer = Customer::factory()->create();
 
-        $plan = (new CreatePlan())->execute($this->account->domains, $data);
+        $domain = $account->domains;
+
+        //Standard Monthly by default
+        $plan = Plan::where('code', '=', 'STDM')->first();
+
+        $customer->newSubscription('main', $plan, $domain);
+
+        $subscription = $customer->subscriptions->first();
 
         $this->assertEquals(
             now()->addMonthNoOverflow()->format('Y-m-d'),
-            Carbon::parse($plan->due_date)->format('Y-m-d')
+            Carbon::parse($subscription->due_date)->format('Y-m-d')
         );
+
         $this->assertEquals(
             now()->addYearNoOverflow()->format('Y-m-d'),
-            Carbon::parse($plan->expiry_date)->format('Y-m-d')
+            Carbon::parse($subscription->ends_at)->format('Y-m-d')
         );
 
-        (new UpgradePlan())->execute($plan->domain, ['plan' => 'ADVANCED', 'plan_period' => 'MONTHLY']);
+        // Change subscription plan
+        $plan = Plan::where('code', '=', 'PROY')->first();
+        $subscription->changePlan($plan);
 
-        $domain = $plan->domain->fresh();
+        $subscription = $subscription->fresh();
 
-        //$this->assertEquals($domain->plans->count(), 2);
+        $this->assertEquals($subscription->due_date->format('Y-m-d'), now()->addYearNoOverflow()->format('Y-m-d'));
 
-        $first_plan = $domain->plans->first();
-        $latest_plan = $domain->plans->last();
+        $this->assertEquals($subscription->plan->code, 'PROY');
 
-        $this->assertEquals(now()->format('Y-m-d'), $first_plan->plan_ended);
-        $this->assertEquals(false, $first_plan->is_active);
-
-        $this->assertEquals(now()->format('Y-m-d'), $latest_plan->plan_started);
-        $this->assertEquals('MONTHLY', $latest_plan->plan_period);
-        $this->assertEquals('ADVANCED', $latest_plan->plan);
+        $this->assertEquals(
+            Carbon::now()->addYearNoOverflow()->format('Y-m-d'),
+            $subscription->ends_at->format('Y-m-d')
+        );
     }
 
     public function test_send_subscription()
@@ -155,35 +194,21 @@ class PlanTest extends TestCase
         $domain->default_account_id = $account->id;
         $domain->save();
 
-        $plan = (new CreatePlan())->execute(
-            $domain,
-            [
-                'plan_period'        => Plan::PLAN_PERIOD_MONTH,
-                'plan'               => Plan::PLAN_STANDARD,
-                'number_of_licences' => 10,
-            ]
-        );
+        //Standard Monthly by default
+        $plan = Plan::where('code', '=', 'STDM')->first();
 
-        $plan->due_date = now()->addDays(10);
-        $plan->save();
+        $customer->newSubscription('main', $plan, $domain);
 
-        if ($plan->plan === Plan::PLAN_STANDARD) {
-            $cost = $plan->plan_period === Plan::PLAN_PERIOD_YEAR ? env(
-                'STANDARD_YEARLY_ACCOUNT_PRICE'
-            ) : env('STANDARD_MONTHLY_ACCOUNT_PRICE');
-        } else {
-            $cost = $plan->plan_period === Plan::PLAN_PERIOD_YEAR ? env(
-                'ADVANCED_YEARLY_ACCOUNT_PRICE'
-            ) : env('ADVANCED_MONTHLY_ACCOUNT_PRICE');
-        }
+        $subscription = $customer->subscriptions->first();
 
-        $number_of_licences = $plan->number_of_licences;
-
-        if ($number_of_licences > 1 && $number_of_licences !== 99999) {
-            $cost *= $number_of_licences;
-        }
+        $subscription->due_date = now()->addDays(10);
+        $subscription->trial_ends_at = null;
+        $subscription->number_of_licences = 10;
+        $subscription->save();
 
         ProcessSubscription::dispatchNow();
+
+        $cost = $subscription->plan->price * $subscription->number_of_licences;
 
         $this->assertDatabaseHas(
             'invoices',
@@ -195,7 +220,7 @@ class PlanTest extends TestCase
         );
     }
 
-    public function test_send_subscription_with_promocode()
+    public function test_subscription_with_promocode()
     {
         $customer = Customer::factory()->create();
         $contact = CustomerContact::factory()->create(['customer_id' => $customer->id]);
@@ -215,20 +240,21 @@ class PlanTest extends TestCase
 
         $promocode = (new Promocodes)->createDisposable($this->account, 1, 10, [], Carbon::now()->addDays(10), 1);
 
-        $plan = (new CreatePlan())->execute(
-            $domain,
-            [
-                'promocode'          => $promocode->first()['code'],
-                'plan_period'        => Plan::PLAN_PERIOD_MONTH,
-                'plan'               => Plan::PLAN_STANDARD,
-                'number_of_licences' => 10,
-            ]
-        );
+        //Standard Monthly by default
+        $plan = Plan::where('code', '=', 'STDM')->first();
 
-        $plan->due_date = now()->addDays(10);
-        $plan->save();
+        $customer->newSubscription('main', $plan, $domain);
 
-        $cost = env('STANDARD_MONTHLY_ACCOUNT_PRICE') * 10 - 10;
+        $subscription = $customer->subscriptions->first();
+
+        $subscription->due_date = now()->addDays(10);
+        $subscription->trial_ends_at = null;
+        $subscription->number_of_licences = 10;
+        $subscription->promocode = $promocode->first()['code'];
+
+        $subscription->save();
+
+        $cost = $subscription->plan->price * $subscription->number_of_licences - $promocode->first()['reward'];
 
         ProcessSubscription::dispatchNow();
 
@@ -243,9 +269,9 @@ class PlanTest extends TestCase
             ]
         );
 
-        $plan = $plan->fresh();
+        $subscription = $subscription->fresh();
 
-        $this->assertEquals($plan->promocode_applied, true);
-        $this->assertEquals($plan->promocode, $promocode->first()['code']);
+        //$this->assertEquals($subscription->promocode_applied, true);
+        $this->assertEquals($subscription->promocode, $promocode->first()['code']);
     }
 }

@@ -3,14 +3,12 @@
 namespace App\Jobs;
 
 use App\Actions\Plan\ApplyCode;
-use App\Actions\Plan\UpgradePlan;
 use App\Components\InvoiceCalculator\LineItem;
-use App\Components\Promocodes\Promocodes;
 use App\Factory\InvoiceFactory;
 use App\Mail\Account\SubscriptionInvoice;
-use App\Models\Account;
 use App\Models\Invoice;
 use App\Models\Plan;
+use App\Models\PlanSubscription;
 use App\Repositories\InvoiceRepository;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
@@ -42,35 +40,38 @@ class ProcessSubscription implements ShouldQueue
     public function handle()
     {
         // send 10 days before
-        $plans = Plan::whereRaw('DATEDIFF(due_date, CURRENT_DATE) = 10')
-                     ->where('is_active', 1)
-            //->where('due_date', '<=', 'expiry_date')
-                     ->whereIn(
-                'plan',
-                array(Plan::PLAN_TRIAL, Plan::PLAN_STANDARD, Plan::PLAN_ADVANCED)
-            )
-                     ->get();
+        $plans = PlanSubscription::join('plans', 'plans.id', '=', 'plan_subscriptions.plan_id')
+                                 ->where('due_date', '=', now()->addDays(10))
+                                 ->where('plans.is_active', '=', 1)
+                                 ->whereNull('cancelled_at')
+                                 ->where('ends_at', '>', now())
+                                 ->get();
+
 
         foreach ($plans as $plan) {
             $account = $plan->domain->default_company;
 
-            if ($plan->plan === Plan::PLAN_TRIAL) {
-                $due_date = Carbon::parse($plan->due_date)->subDays(10)->format('Y-m-d');
-                $expiry_date = $plan->expiry_date;
-
-                if ($due_date === $expiry_date) {
-                    (new UpgradePlan())->execute($plan->domain);
-                }
-
+            if ($plan->onTrial() || (!empty($plan->trial_ends_at) && $plan->trial_ends_at <= now()->addDays(10)->format('Y-m-d'))) {
                 continue;
             }
 
-            $unit_cost = $plan->calculateCost();
+//                $due_date = Carbon::parse($plan->due_date)->subDays(10)->format('Y-m-d');
+//                $expiry_date = $plan->ends_at;
+//
+//                if ($due_date === $expiry_date) {
+//                    (new UpgradePlan())->execute($plan->domain);
+//                }
+
+//                continue;
+
+            $unit_cost = $plan->plan->price;
 
             $promocode = [];
+            $promocode_applied = false;
 
             if (!empty($plan->promocode) && empty($plan->promocode_applied)) {
                 $promocode = (new ApplyCode())->execute($plan, $account, $unit_cost);
+                $promocode_applied = true;
             }
 
             $due_date = Carbon::now()->addDays(10);
@@ -81,8 +82,10 @@ class ProcessSubscription implements ShouldQueue
                 Mail::to($account->support_email)->send(new SubscriptionInvoice($plan, $account, $invoice));
             }
 
-            $plan->expiry_date = $plan->plan_period === Plan::PLAN_PERIOD_YEAR ? now()->addDays(10)->addYearNoOverflow(
+            $due_date = $plan->plan->invoice_interval === 'year' ? now()->addDays(10)->addYearNoOverflow(
             ) : now()->addDays(10)->addMonthNoOverflow();
+
+            $plan->update(['due_date' => $due_date, 'promocode_applied' => $promocode_applied]);
         }
     }
 
@@ -95,7 +98,7 @@ class ProcessSubscription implements ShouldQueue
      * @throws \ReflectionException
      */
     private function createInvoice(
-        Plan $plan,
+        PlanSubscription $plan,
         float $total_to_pay,
         int $quantity,
         $due_date,
@@ -107,7 +110,7 @@ class ProcessSubscription implements ShouldQueue
 
         $customer = $plan->customer;
 
-        $user = $plan->user;
+        $user = $customer->user;
 
         $invoice = InvoiceFactory::create($plan->domain->default_company, $user, $customer);
         $invoice->due_date = $due_date;

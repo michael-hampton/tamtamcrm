@@ -64,6 +64,6 @@ class Domain extends Model
 
     public function plans()
     {
-        return $this->hasMany(Plan::class);
+        return $this->hasMany(PlanSubscription::class);
     }
 }

@@ -74,6 +74,7 @@ class Lead extends Model
     {
         return [
             'leads',
+            'dashboard_leads'
         ];
     }
 

@@ -2,12 +2,12 @@
 
 namespace App\Actions\Account;
 
-
-use App\Actions\Plan\CreatePlan;
 use App\Factory\AccountFactory;
 use App\Factory\UserFactory;
 use App\Models\Account;
+use App\Models\Customer;
 use App\Models\Domain;
+use App\Models\Plan;
 use App\Models\User;
 use App\Notifications\Account\NewAccount;
 use App\Repositories\AccountRepository;
@@ -45,7 +45,12 @@ class CreateAccount
         }
 
         // create plan
-        (new CreatePlan())->execute($domain, ['plan_period' => 'MONTHLY', 'plan' => 'STANDARD']);
+        $customer = Customer::find($domain->customer_id);
+
+        //Standard Monthly by default
+        $plan = Plan::where('code', '=', 'STDM')->first();
+
+        $customer->newSubscription('main', $plan, $domain);
 
         $user_repo = new UserRepository(new User);
         $user = UserFactory::create($domain->id);

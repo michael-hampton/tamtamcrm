@@ -9,6 +9,7 @@ use App\Models\Customer;
 use App\Models\CustomerPlan;
 use App\Models\Invoice;
 use App\Models\Plan;
+use App\Models\PlanSubscription;
 use App\Models\Task;
 use App\Repositories\CreditRepository;
 use App\Repositories\Interfaces\InvoiceRepositoryInterface;
@@ -179,9 +180,9 @@ class InvoiceController extends BaseController
     public function createSubscriptionInvoice(CreateSubscriptionInvoiceRequest $request)
     {
         $customer = Customer::find($request->input('customer_id'));
-        $plan = Plan::find($request->input('plan_id'));
+        $plan = PlanSubscription::find($request->input('plan_id'));
         $account = auth()->user()->account_user()->account;
-        $unit_cost = $plan->calculateCost();
+        $unit_cost = $plan->plan->price;
 
         $data = $request->input('invoice');
 
@@ -212,8 +213,6 @@ class InvoiceController extends BaseController
             )
         );
         $invoice_repo->markSent($invoice);
-
-        CustomerPlan::create(['customer_id' => $customer->id, 'plan_id' => $plan->id, 'invoice_id' => $invoice->id]);
 
         return response()->json($invoice);
     }

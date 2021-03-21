@@ -130,6 +130,7 @@ class Invoice extends Model
     {
         return [
             'invoices',
+            'dashboard_invoices'
         ];
     }
 

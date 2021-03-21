@@ -6,6 +6,7 @@ namespace App\Actions\Plan;
 use App\Components\Promocodes\Promocodes;
 use App\Models\Account;
 use App\Models\Plan;
+use App\Models\PlanSubscription;
 
 class ApplyCode
 {
@@ -16,7 +17,7 @@ class ApplyCode
      * @return array
      * @throws \Exception
      */
-    public function execute(Plan $plan, Account $account, float $cost)
+    public function execute(PlanSubscription $plan, Account $account, float $cost)
     {
         $promocode = (new Promocodes)->checkPlan($account, $plan, $plan->domain->customer);
 
@@ -36,9 +37,6 @@ class ApplyCode
         $cost = $amount_type === 'pct' ? $cost * ((100 - $amount) / 100) : $cost - $amount;
 
         $promocode->delete();
-
-        $plan->promocode_applied = true;
-        $plan->save();
 
         return [
             'promocode'          => $promocode->code,

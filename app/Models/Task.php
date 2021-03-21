@@ -77,6 +77,7 @@ class Task extends Model
     {
         return [
             'tasks',
+            'dashboard_tasks'
         ];
     }
 

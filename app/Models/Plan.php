@@ -21,54 +21,138 @@ class Plan extends Model
     ];
 
     protected $fillable = [
-        'user_id',
-        'customer_id',
-        'domain_id',
-        'expiry_date',
-        'plan',
-        'plan_period',
-        'number_of_licences',
-        'promocode',
-        'promocode_applied',
-        'due_date',
-        'plan_started',
-        'plan_ended',
-        'is_active',
-        'price_paid'
+       'name',
+       'code',
+       'description',
+       'price',
+       'interval_unit',
+       'interval_count',
+       'trial_period',
+       'trial_interval',
+       'invoice_period',
+       'invoice_interval',
+       'grace_period',
+       'grace_interval',
+       'prorate_day',
+       'prorate_period',
+       'prorate_extend_due',
+       'active_subscribers_limit',
+       'sort_order',
+       'is_active',
+       'currency',
+       'signup_fee',
     ];
 
     protected $dates = [
-        //'plan_started',
-        //'expiry_date'
+        'created_at',
+        'updated_at'
     ];
 
-    public function domain()
+    /**
+     * Boot function for using with User Events.
+     *
+     * @return void
+     */
+    protected static function boot()
     {
-        return $this->belongsTo(Domain::class);
+        parent::boot();
+
+        // Default interval is 1 month
+        static::saving(function ($model) {
+            if (!$model->interval_unit) {
+                $model->interval_unit = 'month';
+            }
+
+            if (!$model->interval_count) {
+                $model->interval_count = 1;
+            }
+        });
     }
 
-    public function customer()
+    /**
+     * Get plan features.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function features()
     {
-        return $this->belongsTo(Customer::class)->withTrashed();
+        return $this
+            ->belongsToMany(
+                Feature::class,
+                'plan_features',
+                'plan_id',
+                'feature_id'
+            )
+            ->using('plan_feature')
+            ->withPivot(['value', 'note'])
+            ->orderBy('sort_order');
     }
 
-    public function user()
+    /**
+     * Get plan subscriptions.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function subscriptions()
     {
-        return $this->belongsTo(User::class)->withTrashed();
+        return $this->hasMany(
+            PlanSubscription::class,
+            'plan_id',
+            'id'
+        );
     }
 
-    public function calculateCost()
+    /**
+     * Check if plan is free.
+     *
+     * @return bool
+     */
+    public function isFree(): bool
     {
-        if ($this->plan === self::PLAN_STANDARD) {
-            $cost = $this->plan_period === self::PLAN_PERIOD_YEAR ? env(
-                'STANDARD_YEARLY_ACCOUNT_PRICE'
-            ) : env('STANDARD_MONTHLY_ACCOUNT_PRICE');
-        } else {
-            $cost = $this->plan_period === self::PLAN_PERIOD_YEAR ? env(
-                'ADVANCED_YEARLY_ACCOUNT_PRICE'
-            ) : env('ADVANCED_MONTHLY_ACCOUNT_PRICE');
-        }
+        return ((float)$this->price <= 0.00);
+    }
 
-        return $cost;
+    /**
+     * Check if plan has trial.
+     *
+     * @return bool
+     */
+    public function hasTrial(): bool
+    {
+        return $this->trial_period && $this->trial_interval;
+    }
+
+    /**
+     * Check if plan has grace.
+     *
+     * @return bool
+     */
+    public function hasGrace(): bool
+    {
+        return $this->grace_period && $this->grace_interval;
+    }
+
+    /**
+     * Activate the plan.
+     *
+     * @return $this
+     */
+    public function activate()
+    {
+        $this->update(['is_active' => true]);
+
+        return $this;
+    }
+
+    /**
+     * Deactivate the plan.
+     *
+     * @return $this
+     */
+    public function deactivate()
+    {
+        $this->update(['is_active' => false]);
+
+        return $this;
     }
 }

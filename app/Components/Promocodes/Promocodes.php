@@ -7,6 +7,7 @@ use App\Models\Account;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Plan;
+use App\Models\PlanSubscription;
 use App\Models\Promocode;
 use Carbon\Carbon;
 use Exception;
@@ -298,7 +299,7 @@ class Promocodes
         return $promocode;
     }
 
-    public function checkPlan(Account $account, Plan $plan, Customer $customer)
+    public function checkPlan(Account $account, PlanSubscription $plan, Customer $customer)
     {
         $promocode = Promocode::byCode($plan->promocode)->where('account_id', '=', $account->id)->first();
 

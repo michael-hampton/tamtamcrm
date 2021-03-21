@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\Archiveable;
 use App\Traits\Balancer;
+use App\Traits\HasSubscriptions;
 use App\Traits\Money;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,7 +18,7 @@ use Rennokki\QueryCache\Traits\QueryCacheable;
 class Customer extends Model implements HasLocalePreference
 {
 
-    use SoftDeletes, PresentableTrait, Balancer, Money, HasFactory, Archiveable, QueryCacheable;
+    use SoftDeletes, PresentableTrait, Balancer, Money, HasFactory, Archiveable, QueryCacheable, HasSubscriptions;
 
     const CUSTOMER_TYPE_WON = 1;
 
@@ -73,6 +74,7 @@ class Customer extends Model implements HasLocalePreference
     {
         return [
             'customers',
+            'dashboard_customers'
         ];
     }
 

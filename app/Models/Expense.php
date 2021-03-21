@@ -83,6 +83,7 @@ class Expense extends Model
     {
         return [
             'expenses',
+            'dashboard_expenses'
         ];
     }
 

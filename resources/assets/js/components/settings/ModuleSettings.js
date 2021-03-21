@@ -22,9 +22,9 @@ import CompanyModel from '../models/CompanyModel'
 import AccountRepository from '../repositories/AccountRepository'
 import FormBuilder from './FormBuilder'
 import ConfirmPassword from '../common/ConfirmPassword'
-import UpgradeAccount from "./UpgradeAccount";
-import App from "../App";
-import ApplyLicence from "./ApplyLicence";
+import UpgradeAccount from './UpgradeAccount'
+import App from '../App'
+import ApplyLicence from './ApplyLicence'
 
 class ModuleSettings extends Component {
     constructor (props) {
