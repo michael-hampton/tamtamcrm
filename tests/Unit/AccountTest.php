@@ -48,9 +48,12 @@ class AccountTest extends TestCase
         );
 
         $domain = $account->domain;
-        $plan = $domain->plans()->where('is_active', true)->first();
-        $this->assertEquals($plan->due_date, now()->addMonthNoOverflow()->format('Y-m-d'));
-        $this->assertEquals($plan->plan_period, Plan::PLAN_PERIOD_MONTH);
+        $plan = $domain->plans->first();
+
+        $this->assertEquals($plan->starts_at->format('Y-m-d'), now()->format('Y-m-d'));
+        $this->assertEquals($plan->ends_at->format('Y-m-d'), now()->addYearNoOverflow()->format('Y-m-d'));
+        $this->assertEquals($plan->due_date->format('Y-m-d'), now()->addMonthNoOverflow()->format('Y-m-d'));
+        $this->assertEquals($plan->plan->code, 'STDM');
     }
 
     public function tearDown(): void

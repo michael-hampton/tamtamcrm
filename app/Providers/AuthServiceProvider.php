@@ -13,6 +13,7 @@ use App\Models\Deal;
 use App\Models\Event;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
+use App\Models\File;
 use App\Models\Group;
 use App\Models\Invoice;
 use App\Models\Lead;
@@ -37,6 +38,7 @@ use App\Policies\CompanyPolicy;
 use App\Policies\CreditPolicy;
 use App\Policies\CustomerPolicy;
 use App\Policies\DealPolicy;
+use App\Policies\DocumentPolicy;
 use App\Policies\EventPolicy;
 use App\Policies\ExpenseCategoryPolicy;
 use App\Policies\ExpensePolicy;
@@ -96,7 +98,8 @@ class AuthServiceProvider extends ServiceProvider
         PurchaseOrder::class    => PurchaseOrderPolicy::class,
         Cases::class            => CasePolicy::class,
         Event::class            => EventPolicy::class,
-        Order::class            => OrderPolicy::class
+        Order::class            => OrderPolicy::class,
+        File::class             => DocumentPolicy::class
     ];
 
     /**

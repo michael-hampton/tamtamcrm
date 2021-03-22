@@ -14,6 +14,14 @@ export default class FileUploadList extends React.Component {
         this.deleteFile = this.deleteFile.bind(this)
     }
 
+    static getDerivedStateFromProps (props, state) {
+        if (props.files && props.files.length !== state.files.length) {
+            return { files: props.files }
+        }
+
+        return null
+    }
+
     deleteFile (id, password) {
         const data = {
             password: password

@@ -15,16 +15,5 @@ class DeleteFile extends BaseFormRequest
     public function rules()
     {
         $user = auth()->user();
-
-        return [
-            'password' => [
-                'required',
-                function ($attribute, $value, $fail) use ($user) {
-                    if (!Hash::check($value, $user->password)) {
-                        return $fail(__('The password is incorrect.'));
-                    }
-                }
-            ],
-        ];
     }
 }

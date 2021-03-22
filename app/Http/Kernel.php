@@ -5,6 +5,7 @@ namespace App\Http;
 use App\Http\Middleware\API;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\jwtMiddleware;
+use App\Http\Middleware\Reauthenticate;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\RedirectIfNotUser;
 use App\Http\Middleware\TrimStrings;
@@ -88,6 +89,7 @@ class Kernel extends HttpKernel
         'jwt-auth'         => jwtMiddleware::class,
         'api-header'       => API::class,
         //'role'             => RoleMiddleware::class,
+        'reauthenticate'   => Reauthenticate::class,
         'password.confirm' => RequirePassword::class,
         'two_factor_auth'  => TwoFactorVerification::class,
         'verified'         => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,

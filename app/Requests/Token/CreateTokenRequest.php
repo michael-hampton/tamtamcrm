@@ -29,15 +29,7 @@ class CreateTokenRequest extends BaseFormRequest
         $user = auth()->user();
 
         return [
-            'name'     => 'required',
-            'password' => [
-                'nullable',
-                function ($attribute, $value, $fail) use ($user) {
-                    if (!Hash::check($value, $user->password)) {
-                        return $fail(__('The password is incorrect.'));
-                    }
-                }
-            ],
+            'name'     => 'required'
         ];
     }
 }

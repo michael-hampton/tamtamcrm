@@ -246,15 +246,31 @@ class Account extends Model
 
     public function getNumberOfAllowedUsers()
     {
-        $plan = $this->domains->plans()->where('is_active', '=', 1)->first();
+        $plan = $this->getActiveSubscription();
 
         return $plan->number_of_licences;
     }
 
+    public function getActiveSubscription()
+    {
+        return $this->domains->plans()->where('ends_at', '>', now())->first();
+    }
+
+    public function getNumberOfAllowedDocuments()
+    {
+        $subscription = $this->getActiveSubscription();
+
+        $plan_feature = $subscription->plan->features->where('slug', '=', 'DOCUMENT')->first();
+
+        return $plan_feature->value;
+    }
+
     public function getNumberOfAllowedCustomers()
     {
-       $plan = $this->domains->plans()->where('is_active', '=', 1)->first();
+        $subscription = $this->getActiveSubscription();
 
-       return $plan->plan === Plan::SUBSCRIPTION_FREE ? 100 : 99999;
+        $plan_feature = $subscription->plan->features->where('slug', '=', 'CUSTOMER')->first();
+
+        return $plan_feature->value;
     }
 }

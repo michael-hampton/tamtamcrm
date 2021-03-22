@@ -19,14 +19,14 @@ class DeleteUserRequest extends BaseFormRequest
         $user = auth()->user();
 
         return [
-            'password' => [
+            /*'password' => [
                 'nullable',
                 function ($attribute, $value, $fail) use ($user) {
                     if (!Hash::check($value, $user->password)) {
                         return $fail(__('The password is incorrect.'));
                     }
                 }
-            ],
+            ],*/
         ];
     }
 }

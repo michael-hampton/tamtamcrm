@@ -75,9 +75,17 @@ class UploadController extends Controller
                 $arrAddedFiles[$count] = $file;
                 $arrAddedFiles[$count]['user'] = $user->toArray();
             }
-
-            return collect($arrAddedFiles)->toJson();
         }
+
+        $uploads = $this->fileRepository->getFilesForEntity($obj);
+
+        $uploads = $uploads->map(
+            function (File $file) {
+                return (new FileTransformable())->transformFile($file);
+            }
+        )->all();
+
+        return response()->json($uploads);
     }
 
     /**

@@ -112,14 +112,10 @@ class FileUpload extends Component {
         })
             .then(response => { // then print response status
                 if (response.data && response.data.length) {
-                    let count = 0
-                    response.data.map((file, index) => {
-                        this.props.addFile(file)
-                        count++
-                    })
+                    this.props.addFile(response.data)
 
                     if (this.props.updateCount) {
-                        this.props.updateCount(count)
+                        this.props.updateCount(response.data.length)
                     }
                 }
 

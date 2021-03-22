@@ -32,7 +32,7 @@ Route::group(
         Route::resource(
             'tokens',
             'TokenController'
-        );// name = (tokens. index / create / show / update / destroy / edi
+        )->middleware('reauthenticate');// name = (tokens. index / create / show / update / destroy / edi
 
         Route::resource('promocodes', 'PromocodeController');
 
@@ -163,7 +163,7 @@ Route::group(
 
 // uploads
         Route::get('uploads/{entity}/{entity_id}', 'UploadController@index');
-        Route::delete('uploads/{file_id}', 'UploadController@destroy');
+        Route::delete('uploads/{file_id}', 'UploadController@destroy')->middleware('reauthenticate');
 
 // task status
         Route::get('taskStatus/search', 'TaskStatusController@search');
@@ -467,7 +467,7 @@ Route::group(
 
 // users
         Route::delete('users/archive/{user}', 'UserController@archive');
-        Route::delete('users/{user}', 'UserController@destroy');
+        Route::delete('users/{user}', 'UserController@destroy')->middleware('reauthenticate');
         Route::post('users', 'UserController@store');
         Route::get('users/dashboard', 'UserController@dashboard');
         Route::get('users/edit/{user}', 'UserController@edit');

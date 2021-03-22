@@ -21,26 +21,26 @@ class Plan extends Model
     ];
 
     protected $fillable = [
-       'name',
-       'code',
-       'description',
-       'price',
-       'interval_unit',
-       'interval_count',
-       'trial_period',
-       'trial_interval',
-       'invoice_period',
-       'invoice_interval',
-       'grace_period',
-       'grace_interval',
-       'prorate_day',
-       'prorate_period',
-       'prorate_extend_due',
-       'active_subscribers_limit',
-       'sort_order',
-       'is_active',
-       'currency',
-       'signup_fee',
+        'name',
+        'code',
+        'description',
+        'price',
+        'interval_unit',
+        'interval_count',
+        'trial_period',
+        'trial_interval',
+        'invoice_period',
+        'invoice_interval',
+        'grace_period',
+        'grace_interval',
+        'prorate_day',
+        'prorate_period',
+        'prorate_extend_due',
+        'active_subscribers_limit',
+        'sort_order',
+        'is_active',
+        'currency',
+        'signup_fee',
     ];
 
     protected $dates = [
@@ -58,34 +58,32 @@ class Plan extends Model
         parent::boot();
 
         // Default interval is 1 month
-        static::saving(function ($model) {
-            if (!$model->interval_unit) {
-                $model->interval_unit = 'month';
-            }
+        static::saving(
+            function ($model) {
+                if (!$model->interval_unit) {
+                    $model->interval_unit = 'month';
+                }
 
-            if (!$model->interval_count) {
-                $model->interval_count = 1;
+                if (!$model->interval_count) {
+                    $model->interval_count = 1;
+                }
             }
-        });
+        );
     }
 
     /**
-     * Get plan features.
+     * The plan may have many features.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function features()
     {
         return $this
-            ->belongsToMany(
-                Feature::class,
-                'plan_features',
+            ->hasMany(
+                PlanFeature::class,
                 'plan_id',
-                'feature_id'
-            )
-            ->using('plan_feature')
-            ->withPivot(['value', 'note'])
-            ->orderBy('sort_order');
+                'id'
+            );
     }
 
     /**

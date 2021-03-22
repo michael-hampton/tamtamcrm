@@ -12,6 +12,7 @@ export default class FileUploads extends Component {
             loading: false
         }
         this.addFile = this.addFile.bind(this)
+        this.resetFiles = this.resetFiles.bind(this)
 
         if (this.props.entity.id) {
             this.getFiles = this.getFiles.bind(this)
@@ -41,6 +42,10 @@ export default class FileUploads extends Component {
             })
     }
 
+    resetFiles (files) {
+        this.setState({ files: files })
+    }
+
     /**
      * Add new file
      * @param {Object} file
@@ -64,7 +69,7 @@ export default class FileUploads extends Component {
                 {<FileUploadForm
                     updateCount={this.props.updateCount}
                     // entity={this.props.entity}
-                    addFile={this.addFile}
+                    addFile={this.resetFiles}
                     hide_checkbox={this.props.hide_checkbox}
                     user_id={this.props.user_id}
                     entity={this.props.entity}

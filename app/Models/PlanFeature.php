@@ -6,10 +6,11 @@ namespace App\Models;
 use App\Components\Subscriptions\Period;
 use App\Models\Concerns\BelongsToPlanModel;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class PlanFeature extends Pivot
+class PlanFeature extends Model
 {
     use BelongsToPlanModel;
 

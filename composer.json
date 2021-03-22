@@ -38,6 +38,7 @@
         "michael_hampton/metrics": "dev-master",
         "omnipay/paypal": "^3.0",
         "omnipay/stripe": "^3.1",
+        "orangehill/iseed": "^3.0",
         "pragmarx/google2fa-laravel": "^1.4",
         "predis/predis": "^1.1",
         "rennokki/laravel-eloquent-query-cache": "2.4.2",
@@ -60,7 +61,7 @@
     },
     "autoload": {
         "classmap": [
-            "database/seeds",
+            "database/seeders",
             "database/factories"
         ],
         "psr-4": {
