@@ -3,6 +3,7 @@
 namespace App\Search;
 
 use App\Models\Account;
+use App\Models\File;
 use App\Models\Project;
 use App\Repositories\ProjectRepository;
 use App\Transformations\ProjectTransformable;
@@ -112,9 +113,11 @@ class ProjectSearch extends BaseSearch
     private function transformList()
     {
         $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['projects'])->get();
+        $files = File::where('fileable_type', '=', 'App\Models\Project')->get()->groupBy('fileable_id');
+
         $projects = $list->map(
-            function (Project $project) {
-                return $this->transformProject($project);
+            function (Project $project) use ($files) {
+                return $this->transformProject($project, $files);
             }
         )->all();
 

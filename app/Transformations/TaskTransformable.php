@@ -19,7 +19,7 @@ trait TaskTransformable
      * @return array
      * @throws Exception
      */
-    protected function transformTask(Task $task)
+    protected function transformTask(Task $task, $files = null)
     {
         return [
             'id'                   => (int)$task->id,
@@ -54,7 +54,9 @@ trait TaskTransformable
             'calculated_task_rate' => $task->getTaskRate(),
             'task_rate'            => $task->task_rate,
             'task_sort_order'      => (int)$task->task_status_sort_order,
-            'files'                => $this->transformTaskFiles($task->files),
+            'files'                => !empty($files) && !empty($files[$task->id]) ? $this->transformTaskFiles(
+                $files[$task->id]
+            ) : [],
             'emails'               => $this->transformTaskEmails($task->emails()),
             'is_recurring'         => (bool)$task->is_recurring ?: false,
             'recurring_start_date' => $task->recurring_start_date ?: '',

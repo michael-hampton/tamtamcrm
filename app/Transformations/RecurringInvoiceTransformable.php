@@ -16,7 +16,7 @@ trait RecurringInvoiceTransformable
      * @param RecurringInvoice $invoice
      * @return array
      */
-    protected function transformRecurringInvoice(RecurringInvoice $invoice)
+    protected function transformRecurringInvoice(RecurringInvoice $invoice, $files = null)
     {
         return [
             'id'                    => (int)$invoice->id,
@@ -61,7 +61,9 @@ trait RecurringInvoiceTransformable
             'transaction_fee_tax'   => (bool)$invoice->transaction_fee_tax,
             'shipping_cost_tax'     => (bool)$invoice->shipping_cost_tax,
             //'audits'                => $this->transformAuditsForRecurringInvoice($invoice->audits),
-            'files'                 => $this->transformRecurringInvoiceFiles($invoice->files),
+            'files'                 => !empty($files) && !empty($files[$invoice->id]) ? $this->transformRecurringInvoiceFiles(
+                $files[$invoice->id]
+            ) : [],
             'invitations'           => $this->transformRecurringInvoiceInvitations($invoice->invitations),
             'invoices'              => $this->transformInvoicesCreated($invoice->invoices),
             'schedule'              => $invoice->calculateDateRanges(),

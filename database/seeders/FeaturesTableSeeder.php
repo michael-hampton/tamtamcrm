@@ -68,6 +68,18 @@ class FeaturesTableSeeder extends Seeder
                 'created_at' => NULL,
                 'updated_at' => NULL,
             ),
+            4 => 
+            array (
+                'id' => 5,
+                'name' => 'Number of Emails',
+                'code' => 'EMAIL',
+                'description' => 'Number of emails that can be sent on an account',
+                'interval_unit' => 'month',
+                'interval_count' => 1,
+                'sort_order' => NULL,
+                'created_at' => NULL,
+                'updated_at' => NULL,
+            ),
         ));
         
         

@@ -4,6 +4,7 @@ namespace App\Search;
 
 use App\Models\Account;
 use App\Models\Deal;
+use App\Models\File;
 use App\Repositories\DealRepository;
 use App\Requests\SearchRequest;
 use App\Transformations\DealTransformable;
@@ -123,9 +124,11 @@ class DealSearch extends BaseSearch
     private function transformList()
     {
         $list = $this->query->get();
+        $files = File::where('fileable_type', '=', 'App\Models\Deal')->get()->groupBy('fileable_id');
+
         $deals = $list->map(
-            function (Deal $deal) {
-                return $this->transformDeal($deal);
+            function (Deal $deal) use ($files) {
+                return $this->transformDeal($deal, $files);
             }
         )->all();
 

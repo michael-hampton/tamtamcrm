@@ -17,13 +17,22 @@ trait CustomerTransformable
      * @return array
      * @throws Exception
      */
-    protected function transformCustomer(Customer $customer, $exclude = [])
+    protected function transformCustomer(Customer $customer, $contacts = null, $files = null)
     {
         $company = !empty($customer->company_id) ? $customer->company->toArray() : '';
-        $credit = $customer->credits()->count() > 0 ? $customer->credits->first()->amount : 0;
 
         $billing = $this->transformAddress($customer, true);
         $shipping = $this->transformAddress($customer);
+
+        $contacts = [];
+
+        if ($contacts !== null) {
+            if (!empty($contacts[$customer->id])) {
+                $contacts = $this->transformContacts($contacts);
+            }
+        } else {
+            $contacts = $this->transformContacts($customer->contacts);
+        }
 
         return [
             'id'                     => (int)$customer->id,
@@ -35,10 +44,8 @@ trait CustomerTransformable
             'company_id'             => $customer->company_id,
             'deleted_at'             => $customer->deleted_at,
             'company'                => $company,
-            'credit'                 => $credit,
-            'contacts'               => empty($exclude) || !in_array('contacts', $exclude) ? $this->transformContacts(
-                $customer->contacts
-            ) : [],
+            'credit'                 => $customer->credit_balance,
+            'contacts'               => $contacts,
             'default_payment_method' => $customer->default_payment_method,
             'group_settings_id'      => $customer->group_settings_id,
             'shipping'               => $shipping,
@@ -63,7 +70,7 @@ trait CustomerTransformable
             'custom_value4'          => $customer->custom_value4 ?: '',
             'private_notes'          => $customer->private_notes ?: '',
             'public_notes'           => $customer->public_notes ?: '',
-            'files'                  => $this->transformCustomerFiles($customer->files),
+            'files'                  => !empty($files) && !empty($files[$customer->id]) ? $this->transformCustomerFiles($files[$customer->id]) : [],
             //'gateway_tokens'         => empty($exclude) || !in_array('gateways', $exclude) ? $this->transformGatewayTokens($customer->gateways) : [],
             'is_deleted'             => (bool)$customer->is_deleted,
         ];

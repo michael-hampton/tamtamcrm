@@ -23,6 +23,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use JWTAuth;
@@ -99,6 +100,8 @@ class LoginController extends Controller
                 ]
             ];
 
+            Cache::put('reauthenticate_last_authentication', strtotime('now'));
+
             return response()->json($response, 201);
         }
 
@@ -172,6 +175,7 @@ class LoginController extends Controller
 
             if ($finduser) {
                 Auth::login($finduser);
+                Cache::put('reauthenticate_last_authentication', strtotime('now'));
                 $response = $this->executeLogin(Str::random(64));
                 return view('google-login')->with($response);
             } else {

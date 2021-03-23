@@ -22,7 +22,7 @@ trait CreditTransformable
      * @param Credit $credit
      * @return array
      */
-    protected function transformCredit(Credit $credit)
+    protected function transformCredit(Credit $credit, $files = null)
     {
         return [
             'id'                  => (int)$credit->id,
@@ -65,7 +65,9 @@ trait CreditTransformable
             'shipping_cost_tax'   => (bool)$credit->shipping_cost_tax,
             'emails'              => $this->transformCreditEmails($credit->emails()),
             //'audits'              => $this->transformAuditsForCredit($credit->audits),
-            'files'               => $this->transformCreditFiles($credit->files),
+            'files'               => !empty($files) && !empty($files[$credit->id]) ? $this->transformCreditFiles(
+                $files[$credit->id]
+            ) : [],
             'tax_rate'            => (float)$credit->tax_rate,
             'tax_2'               => (float)$credit->tax_2,
             'tax_3'               => (float)$credit->tax_3,

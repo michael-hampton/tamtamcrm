@@ -15,7 +15,7 @@ trait OrderTransformable
      * @param Order $order
      * @return array
      */
-    protected function transformOrder(Order $order)
+    protected function transformOrder(Order $order, $files = null)
     {
         return [
             'id'                  => (int)$order->id,
@@ -59,7 +59,9 @@ trait OrderTransformable
             'shipping_cost_tax'   => (bool)$order->shipping_cost_tax,
             'emails'              => $this->transformOrderEmails($order->emails()),
             //'audits'              => $this->transformAuditsForOrder($order->audits),
-            'files'               => $this->transformOrderFiles($order->files),
+            'files'               => !empty($files) && !empty($files[$order->id]) ? $this->transformOrderFiles(
+                $files[$order->id]
+            ) : [],
             'tax_rate'            => (float)$order->tax_rate,
             'tax_2'               => (float)$order->tax_2,
             'tax_3'               => (float)$order->tax_3,

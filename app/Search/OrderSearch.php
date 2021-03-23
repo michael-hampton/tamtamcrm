@@ -3,6 +3,7 @@
 namespace App\Search;
 
 use App\Models\Account;
+use App\Models\File;
 use App\Models\Order;
 use App\Models\Task;
 use App\Repositories\OrderRepository;
@@ -118,10 +119,11 @@ class OrderSearch extends BaseSearch
     private function transformList()
     {
         $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['orders'])->get();
+        $files = File::where('fileable_type', '=', 'App\Models\Order')->get()->groupBy('fileable_id');
 
         $orders = $list->map(
-            function (Order $order) {
-                return $this->transformOrder($order);
+            function (Order $order) use ($files) {
+                return $this->transformOrder($order, $files);
             }
         )->all();
         return $orders;

@@ -3,6 +3,7 @@
 namespace App\Search;
 
 use App\Models\Account;
+use App\Models\File;
 use App\Models\Quote;
 use App\Repositories\QuoteRepository;
 use App\Requests\SearchRequest;
@@ -115,9 +116,11 @@ class QuoteSearch extends BaseSearch
     private function transformList()
     {
         $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['quotes'])->get();
+        $files = File::where('fileable_type', '=', 'App\Models\Quote')->get()->groupBy('fileable_id');
+
         $quotes = $list->map(
-            function (Quote $quote) {
-                return (new QuoteTransformable())->transformQuote($quote);
+            function (Quote $quote) use ($files) {
+                return (new QuoteTransformable())->transformQuote($quote, $files);
             }
         )->all();
 

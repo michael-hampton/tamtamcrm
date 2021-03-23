@@ -6,7 +6,9 @@ namespace App\Transformations;
 use App\Models\Account;
 use App\Models\Credit;
 use App\Models\Customer;
+use App\Models\CustomerContact;
 use App\Models\Expense;
+use App\Models\File;
 use App\Models\Invoice;
 use App\Models\Lead;
 use App\Models\Order;
@@ -41,9 +43,12 @@ class DashboardTransformer
 
     private function transformCustomers($customers)
     {
+        $contacts = CustomerContact::all()->groupBy('customer_id');
+        $files = File::where('fileable_type', '=', 'App\Models\Customer')->get()->groupBy('fileable_id');
+
         $customers = $customers->map(
-            function (Customer $customer) {
-                return $this->transformCustomer($customer, ['addresses', 'contacts', 'logs', 'gateways']);
+            function (Customer $customer) use ($contacts, $files) {
+                return $this->transformCustomer($customer, $contacts, $files);
             }
         )->all();
 
@@ -52,9 +57,11 @@ class DashboardTransformer
 
     private function transformCredits($credits)
     {
+        $files = File::where('fileable_type', '=', 'App\Models\Credit')->get()->groupBy('fileable_id');
+
         $credits = $credits->map(
-            function (Credit $credit) {
-                return $this->transformCredit($credit);
+            function (Credit $credit) use ($files) {
+                return $this->transformCredit($credit, $files);
             }
         )->all();
 
@@ -63,9 +70,11 @@ class DashboardTransformer
 
     private function transformExpenses($expenses)
     {
+        $files = File::where('fileable_type', '=', 'App\Models\Expense')->get()->groupBy('fileable_id');
+
         $expenses = $expenses->map(
-            function (Expense $expense) {
-                return $this->transformExpense($expense);
+            function (Expense $expense) use ($files) {
+                return $this->transformExpense($expense, $files);
             }
         )->all();
 
@@ -74,9 +83,11 @@ class DashboardTransformer
 
     private function transformInvoices($invoices)
     {
+        $files = File::where('fileable_type', '=', 'App\Models\Invoice')->get()->groupBy('fileable_id');
+
         $invoices = $invoices->map(
-            function (Invoice $invoice) {
-                return (new InvoiceTransformable())->transformInvoice($invoice);
+            function (Invoice $invoice) use ($files) {
+                return (new InvoiceTransformable())->transformInvoice($invoice, $files);
             }
         )->all();
 
@@ -85,9 +96,11 @@ class DashboardTransformer
 
     private function transformLeads($leads)
     {
+        $files = File::where('fileable_type', '=', 'App\Models\Lead')->get()->groupBy('fileable_id');
+
         $leads = $leads->map(
-            function (Lead $lead) {
-                return $this->transformLead($lead);
+            function (Lead $lead) use ($files) {
+                return $this->transformLead($lead, $files);
             }
         )->all();
 
@@ -96,9 +109,11 @@ class DashboardTransformer
 
     private function transformOrders($orders)
     {
+        $files = File::where('fileable_type', '=', 'App\Models\Order')->get()->groupBy('fileable_id');
+
         $orders = $orders->map(
-            function (Order $order) {
-                return $this->transformOrder($order);
+            function (Order $order) use ($files) {
+                return $this->transformOrder($order, $files);
             }
         )->all();
         return $orders;
@@ -106,9 +121,11 @@ class DashboardTransformer
 
     private function transformPayments($payments)
     {
+        $files = File::where('fileable_type', '=', 'App\Models\Payment')->get()->groupBy('fileable_id');
+
         $payments = $payments->map(
-            function (Payment $payment) {
-                return $this->transformPayment($payment);
+            function (Payment $payment) use ($files) {
+                return $this->transformPayment($payment, $files);
             }
         )->all();
 
@@ -117,9 +134,11 @@ class DashboardTransformer
 
     private function transformQuotes($quotes)
     {
+        $files = File::where('fileable_type', '=', 'App\Models\Quote')->get()->groupBy('fileable_id');
+
         $quotes = $quotes->map(
-            function (Quote $quote) {
-                return (new QuoteTransformable())->transformQuote($quote);
+            function (Quote $quote) use ($files) {
+                return (new QuoteTransformable())->transformQuote($quote, $files);
             }
         )->all();
 
@@ -128,9 +147,11 @@ class DashboardTransformer
 
     private function transformTasks($tasks)
     {
+        $files = File::where('fileable_type', '=', 'App\Models\Task')->get()->groupBy('fileable_id');
+
         $tasks = $tasks->map(
-            function (Task $task) {
-                return $this->transformTask($task);
+            function (Task $task) use ($files) {
+                return $this->transformTask($task, $files);
             }
         )->all();
 

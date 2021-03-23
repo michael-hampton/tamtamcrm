@@ -43,12 +43,15 @@ class AccountTest extends TestCase
     /** @test */
     public function it_can_create_an_account()
     {
-        $account = (new CreateAccount())->execute(
+        $user = (new CreateAccount())->execute(
             ['email' => $this->faker->safeEmail, 'password' => $this->faker->password]
         );
 
-        $domain = $account->domain;
-        $plan = $domain->plans->first();
+        $domain = $user->domain;
+
+        $this->assertNotNull($domain->plan_id);
+
+        $plan = $domain->plan;
 
         $this->assertEquals($plan->starts_at->format('Y-m-d'), now()->format('Y-m-d'));
         $this->assertEquals($plan->ends_at->format('Y-m-d'), now()->addYearNoOverflow()->format('Y-m-d'));

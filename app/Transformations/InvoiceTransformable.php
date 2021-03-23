@@ -18,7 +18,7 @@ class InvoiceTransformable
      * @param Invoice $invoice
      * @return array
      */
-    public function transformInvoice(Invoice $invoice)
+    public function transformInvoice(Invoice $invoice, $files = null)
     {
         return [
             'id'                   => (int)$invoice->id,
@@ -63,7 +63,9 @@ class InvoiceTransformable
             'emails'               => $this->transformEmails($invoice->emails()),
             'paymentables'         => $this->transformInvoicePayments($invoice->payments),
             //'audits'               => $this->transformAuditsForInvoice($invoice->audits),
-            'files'                => $this->transformInvoiceFiles($invoice->files),
+            'files'                => !empty($files) && !empty($files[$invoice->id]) ? $this->transformInvoiceFiles(
+                $files[$invoice->id]
+            ) : [],
             'recurring_invoice_id' => $invoice->recurring_invoice_id,
             'recurring'            => $invoice->recurring_invoice,
             'tax_rate'             => (float)$invoice->tax_rate,

@@ -3,6 +3,7 @@
 namespace App\Search;
 
 use App\Models\Account;
+use App\Models\File;
 use App\Models\PurchaseOrder;
 use App\Repositories\PurchaseOrderRepository;
 use App\Requests\SearchRequest;
@@ -117,9 +118,11 @@ class PurchaseOrderSearch extends BaseSearch
     private function transformList()
     {
         $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['purchase_orders'])->get();
+        $files = File::where('fileable_type', '=', 'App\Models\PurchaseOrder')->get()->groupBy('fileable_id');
+
         $pos = $list->map(
-            function (PurchaseOrder $po) {
-                return $this->transformPurchaseOrder($po);
+            function (PurchaseOrder $po) use ($files) {
+                return $this->transformPurchaseOrder($po, $files);
             }
         )->all();
 

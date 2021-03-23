@@ -16,7 +16,7 @@ trait RecurringQuoteTransformable
      * @param RecurringQuote $quote
      * @return array
      */
-    protected function transformRecurringQuote(RecurringQuote $quote)
+    protected function transformRecurringQuote(RecurringQuote $quote, $files = null)
     {
         return [
             'id'                    => (int)$quote->id,
@@ -61,7 +61,9 @@ trait RecurringQuoteTransformable
             'transaction_fee_tax'   => (bool)$quote->transaction_fee_tax,
             'shipping_cost_tax'     => (bool)$quote->shipping_cost_tax,
             //'audits'                => $this->transformAuditsForRecurringQuote($quote->audits),
-            'files'                 => $this->transformRecurringQuoteFiles($quote->files),
+            'files'                 => !empty($files) && !empty($files[$quote->id]) ? $this->transformRecurringQuoteFiles(
+                $files[$quote->id]
+            ) : [],
             'invitations'           => $this->transformRecurringQuoteInvitations($quote->invitations),
             'quotes'                => $this->transformQuotesCreated($quote->quotes),
             'schedule'              => $quote->calculateDateRanges(),

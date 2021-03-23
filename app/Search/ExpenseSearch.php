@@ -4,6 +4,7 @@ namespace App\Search;
 
 use App\Models\Account;
 use App\Models\Expense;
+use App\Models\File;
 use App\Repositories\ExpenseRepository;
 use App\Requests\SearchRequest;
 use App\Transformations\ExpenseTransformable;
@@ -125,9 +126,11 @@ class ExpenseSearch extends BaseSearch
     private function transformList()
     {
         $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['expenses'])->get();
+        $files = File::where('fileable_type', '=', 'App\Models\Expense')->get()->groupBy('fileable_id');
+
         $expenses = $list->map(
-            function (Expense $expense) {
-                return $this->transformExpense($expense);
+            function (Expense $expense) use ($files) {
+                return $this->transformExpense($expense, $files);
             }
         )->all();
 

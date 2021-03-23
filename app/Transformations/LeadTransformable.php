@@ -3,6 +3,7 @@
 namespace App\Transformations;
 
 use App\Models\Email;
+use App\Models\File;
 use App\Models\Lead;
 
 trait LeadTransformable
@@ -11,7 +12,7 @@ trait LeadTransformable
      * @param Lead $lead
      * @return array
      */
-    protected function transformLead(Lead $lead)
+    protected function transformLead(Lead $lead, $files = null)
     {
         return [
             'id'             => (int)$lead->id,
@@ -46,6 +47,9 @@ trait LeadTransformable
             'emails'         => $this->transformLeadEmails($lead->emails()),
             'is_deleted'     => (bool)$lead->is_deleted,
             'column_color'   => $lead->column_color ?: '',
+            'files'          => !empty($files) && !empty($files[$lead->id]) ? $this->transformLeadFiles(
+                $files[$lead->id]
+            ) : [],
         ];
     }
 
@@ -62,6 +66,19 @@ trait LeadTransformable
         return $emails->map(
             function (Email $email) {
                 return (new EmailTransformable())->transformEmail($email);
+            }
+        )->all();
+    }
+
+    private function transformLeadFiles($files)
+    {
+        if (empty($files)) {
+            return [];
+        }
+
+        return $files->map(
+            function (File $file) {
+                return (new FileTransformable())->transformFile($file);
             }
         )->all();
     }

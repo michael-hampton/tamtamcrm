@@ -4,6 +4,7 @@ namespace App\Search;
 
 use App\Models\Account;
 use App\Models\Credit;
+use App\Models\File;
 use App\Repositories\CreditRepository;
 use App\Requests\SearchRequest;
 use App\Transformations\CreditTransformable;
@@ -117,9 +118,11 @@ class CreditSearch extends BaseSearch
     private function transformList()
     {
         $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['credits'])->get();
+        $files = File::where('fileable_type', '=', 'App\Models\Credit')->get()->groupBy('fileable_id');
+
         $credits = $list->map(
-            function (Credit $credit) {
-                return $this->transformCredit($credit);
+            function (Credit $credit) use ($files) {
+                return $this->transformCredit($credit, $files);
             }
         )->all();
 

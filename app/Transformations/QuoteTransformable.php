@@ -15,7 +15,7 @@ class QuoteTransformable
      * @param Quote $quote
      * @return array
      */
-    public function transformQuote(Quote $quote)
+    public function transformQuote(Quote $quote, $files = null)
     {
         return [
             'id'                  => (int)$quote->id,
@@ -59,7 +59,9 @@ class QuoteTransformable
             'shipping_cost_tax'   => (bool)$quote->shipping_cost_tax,
             'emails'              => $this->transformQuoteEmails($quote->emails()),
             //'audits'              => $this->transformAuditsForQuote($quote->audits),
-            'files'               => $this->transformQuoteFiles($quote->files),
+            'files'               => !empty($files) && !empty($files[$quote->id]) ? $this->transformQuoteFiles(
+                $files[$files->id]
+            ) : [],
             'recurring'           => $quote->recurring_quote,
             'recurring_quote_id'  => $quote->recurring_quote_id,
             'tax_rate'            => (float)$quote->tax_rate,

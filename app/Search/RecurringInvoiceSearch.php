@@ -3,6 +3,7 @@
 namespace App\Search;
 
 use App\Models\Account;
+use App\Models\File;
 use App\Models\RecurringInvoice;
 use App\Repositories\RecurringInvoiceRepository;
 use App\Requests\SearchRequest;
@@ -103,9 +104,11 @@ class RecurringInvoiceSearch extends BaseSearch
     private function transformList()
     {
         $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['recurring_invoices'])->get();
+        $files = File::where('fileable_type', '=', 'App\Models\RecurringInvoice')->get()->groupBy('fileable_id');
+
         $invoices = $list->map(
-            function (RecurringInvoice $invoice) {
-                return $this->transformRecurringInvoice($invoice);
+            function (RecurringInvoice $invoice) use ($files) {
+                return $this->transformRecurringInvoice($invoice, $files);
             }
         )->all();
 

@@ -14,7 +14,7 @@ trait ProjectTransformable
      * @param Project $project
      * @return array
      */
-    protected function transformProject(Project $project)
+    protected function transformProject(Project $project, $files = null)
     {
         return [
             'number'         => $project->number ?: '',
@@ -42,7 +42,9 @@ trait ProjectTransformable
             'custom_value3'  => $project->custom_value3 ?: '',
             'custom_value4'  => $project->custom_value4 ?: '',
             'tasks'          => $this->transformProjectTasks($project->tasks),
-            'files'          => $this->transformTaskFiles($project->files),
+            'files'          => !empty($files) && !empty($files[$project->id]) ? $this->transformProjectFiles(
+                $files[$project->id]
+            ) : [],
             'column_color'   => $project->column_color ?: '',
         ];
     }

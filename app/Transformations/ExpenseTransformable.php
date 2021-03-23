@@ -11,7 +11,7 @@ trait ExpenseTransformable
      * @param Expense $expense
      * @return array
      */
-    protected function transformExpense(Expense $expense)
+    protected function transformExpense(Expense $expense, $files = null)
     {
         return [
             'id'                   => $expense->id,
@@ -50,7 +50,9 @@ trait ExpenseTransformable
             'updated_at'           => $expense->updated_at,
             'archived_at'          => $expense->deleted_at,
             'created_at'           => $expense->created_at,
-            'files'                => $this->transformExpenseFiles($expense->files),
+            'files'                => !empty($files) && !empty($files[$expense->id]) ? $this->transformExpenseFiles(
+                $files[$expense->id]
+            ) : [],
             'is_recurring'         => (bool)$expense->is_recurring ?: false,
             'status_id'            => (int)$expense->status_id,
             'recurring_start_date' => $expense->recurring_start_date ?: '',

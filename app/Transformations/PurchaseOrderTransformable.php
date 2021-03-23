@@ -15,7 +15,7 @@ trait PurchaseOrderTransformable
      * @param PurchaseOrder $po
      * @return array
      */
-    protected function transformPurchaseOrder(PurchaseOrder $po)
+    protected function transformPurchaseOrder(PurchaseOrder $po, $files = null)
     {
         return [
             'number'              => $po->number ?: '',
@@ -59,7 +59,9 @@ trait PurchaseOrderTransformable
             'shipping_cost_tax'   => (bool)$po->shipping_cost_tax,
             'emails'              => $this->transformPurchaseOrderEmails($po->emails()),
             //'audits'              => $this->transformAuditsForPurchaseOrder($po->audits),
-            'files'               => $this->transformPurchaseOrderFiles($po->files),
+            'files'               => !empty($files) && !empty($files[$po->id]) ? $this->transformPurchaseOrderFiles(
+                $files[$po->id]
+            ) : [],
             'tax_rate'            => (float)$po->tax_rate,
             'tax_2'               => (float)$po->tax_2,
             'tax_3'               => (float)$po->tax_3,

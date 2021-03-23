@@ -5,11 +5,12 @@ namespace App\Traits;
 
 
 use App\Components\Subscriptions\Period;
-use App\Models\Domain;
+use App\Models\Account;
 use App\Models\Plan;
 use App\Models\PlanSubscription;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Collection;
 
 trait HasSubscriptions
 {
@@ -88,13 +89,15 @@ trait HasSubscriptions
      *
      * @param $subscription
      * @param Plan $plan
+     * @param Account $account
+     * @param int $number_of_licences
      * @param Carbon|null $startDate
      * @return PlanSubscription
      */
     public function newSubscription(
         $subscription,
         Plan $plan,
-        Domain $domain,
+        Account $account,
         int $number_of_licences = 1,
         Carbon $startDate = null
     ): PlanSubscription {
@@ -106,7 +109,8 @@ trait HasSubscriptions
             [
                 'name'               => $subscription,
                 'plan_id'            => $plan->getKey(),
-                'domain_id'          => $domain->id,
+                'domain_id'          => $account->domains->id,
+                'account_id'         => $account->id,
                 'trial_ends_at'      => $trial->getEndDate(),
                 'starts_at'          => $period->getStartDate(),
                 'ends_at'            => $period->getEndDate(),

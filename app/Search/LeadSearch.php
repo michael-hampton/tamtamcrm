@@ -3,6 +3,7 @@
 namespace App\Search;
 
 use App\Models\Account;
+use App\Models\File;
 use App\Models\Lead;
 use App\Repositories\LeadRepository;
 use App\Transformations\LeadTransformable;
@@ -105,10 +106,11 @@ class LeadSearch extends BaseSearch
     private function transformList()
     {
         $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['leads'])->get();
+        $files = File::where('fileable_type', '=', 'App\Models\Lead')->get()->groupBy('fileable_id');
 
         $leads = $list->map(
-            function (Lead $lead) {
-                return $this->transformLead($lead);
+            function (Lead $lead) use ($files) {
+                return $this->transformLead($lead, $files);
             }
         )->all();
 

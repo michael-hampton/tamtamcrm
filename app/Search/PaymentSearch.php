@@ -3,6 +3,7 @@
 namespace App\Search;
 
 use App\Models\Account;
+use App\Models\File;
 use App\Models\Payment;
 use App\Repositories\PaymentRepository;
 use App\Requests\SearchRequest;
@@ -108,9 +109,11 @@ class PaymentSearch extends BaseSearch
     private function transformList()
     {
         $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['payments'])->get();
+        $files = File::where('fileable_type', '=', 'App\Models\Payment')->get()->groupBy('fileable_id');
+
         $payments = $list->map(
-            function (Payment $payment) {
-                return $this->transformPayment($payment);
+            function (Payment $payment) use ($files) {
+                return $this->transformPayment($payment, $files);
             }
         )->all();
 

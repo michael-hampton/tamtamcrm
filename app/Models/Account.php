@@ -251,25 +251,45 @@ class Account extends Model
         return $plan->number_of_licences;
     }
 
+    public function plans()
+    {
+        return $this->hasMany(PlanSubscription::class);
+    }
+
     public function getActiveSubscription()
     {
-        return $this->domains->plans()->where('ends_at', '>', now())->first();
+        return $this->plans()->where('ends_at', '>', now())->where('plan_id', $this->domains->plan_id)->first();
     }
 
     public function getNumberOfAllowedDocuments()
     {
-        $subscription = $this->getActiveSubscription();
+        if (empty($this->domains->plan)) {
+            return 99999;
+        }
 
-        $plan_feature = $subscription->plan->features->where('slug', '=', 'DOCUMENT')->first();
+        $plan_feature = $this->domains->plan->features->where('slug', '=', 'DOCUMENT')->first();
 
         return $plan_feature->value;
     }
 
     public function getNumberOfAllowedCustomers()
     {
-        $subscription = $this->getActiveSubscription();
+        if (empty($this->domains->plan)) {
+            return 99999;
+        }
 
-        $plan_feature = $subscription->plan->features->where('slug', '=', 'CUSTOMER')->first();
+        $plan_feature = $this->domains->plan->features->where('slug', '=', 'CUSTOMER')->first();
+
+        return $plan_feature->value;
+    }
+
+    public function getNumberOfAllowedEmails()
+    {
+        if (empty($this->domains->plan)) {
+            return 99999;
+        }
+
+        $plan_feature = $this->domains->plan->features->where('slug', '=', 'EMAIL')->first();
 
         return $plan_feature->value;
     }

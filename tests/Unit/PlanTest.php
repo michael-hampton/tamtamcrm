@@ -87,7 +87,7 @@ class PlanTest extends TestCase
         //Standard Monthly by default
         $plan = Plan::where('code', '=', 'STDM')->first();
 
-        $customer->newSubscription('main', $plan, $domain);
+        $customer->newSubscription('main', $plan, $account);
 
         $subscription = $customer->subscriptions->first();
 
@@ -111,7 +111,7 @@ class PlanTest extends TestCase
         //Standard Monthly by default
         $plan = Plan::where('code', '=', 'STDMT')->first();
 
-        $customer->newSubscription('main', $plan, $domain);
+        $customer->newSubscription('main', $plan, $account);
 
         $subscription = $customer->subscriptions->first();
 
@@ -145,7 +145,7 @@ class PlanTest extends TestCase
         //Standard Monthly by default
         $plan = Plan::where('code', '=', 'STDM')->first();
 
-        $customer->newSubscription('main', $plan, $domain);
+        $customer->newSubscription('main', $plan, $account);
 
         $subscription = $customer->subscriptions->first();
 
@@ -197,7 +197,7 @@ class PlanTest extends TestCase
         //Standard Monthly by default
         $plan = Plan::where('code', '=', 'STDM')->first();
 
-        $customer->newSubscription('main', $plan, $domain);
+        $customer->newSubscription('main', $plan, $account);
 
         $subscription = $customer->subscriptions->first();
 
@@ -243,7 +243,7 @@ class PlanTest extends TestCase
         //Standard Monthly by default
         $plan = Plan::where('code', '=', 'STDM')->first();
 
-        $customer->newSubscription('main', $plan, $domain);
+        $customer->newSubscription('main', $plan, $this->account);
 
         $subscription = $customer->subscriptions->first();
 

@@ -4,6 +4,8 @@ namespace App\Search;
 
 use App\Models\Account;
 use App\Models\Customer;
+use App\Models\CustomerContact;
+use App\Models\File;
 use App\Repositories\CustomerRepository;
 use App\Requests\SearchRequest;
 use App\Transformations\CustomerTransformable;
@@ -153,10 +155,12 @@ class CustomerSearch extends BaseSearch
     private function transformList()
     {
         $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['customers'])->get();
+        $contacts = CustomerContact::all()->groupBy('customer_id');
+        $files = File::where('fileable_type', '=', 'App\Models\Customer')->get()->groupBy('fileable_id');
 
         $customers = $list->map(
-            function (Customer $customer) {
-                return $this->transformCustomer($customer);
+            function (Customer $customer) use ($contacts, $files) {
+                return $this->transformCustomer($customer, $contacts, $files);
             }
         )->all();
 

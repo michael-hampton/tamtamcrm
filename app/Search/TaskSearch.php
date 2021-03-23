@@ -3,6 +3,7 @@
 namespace App\Search;
 
 use App\Models\Account;
+use App\Models\File;
 use App\Models\Task;
 use App\Repositories\TaskRepository;
 use App\Requests\SearchRequest;
@@ -129,9 +130,11 @@ class TaskSearch extends BaseSearch
     private function transformList()
     {
         $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['tasks'])->get();
+        $files = File::where('fileable_type', '=', 'App\Models\Task')->get()->groupBy('fileable_id');
+
         $tasks = $list->map(
-            function (Task $task) {
-                return $this->transformTask($task);
+            function (Task $task) use ($files) {
+                return $this->transformTask($task, $files);
             }
         )->all();
 

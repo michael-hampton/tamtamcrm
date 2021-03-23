@@ -3,6 +3,7 @@
 namespace App\Search;
 
 use App\Models\Account;
+use App\Models\File;
 use App\Models\Invoice;
 use App\Repositories\InvoiceRepository;
 use App\Requests\SearchRequest;
@@ -121,10 +122,11 @@ class InvoiceSearch extends BaseSearch
     private function transformList()
     {
         $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['invoices'])->get();
+        $files = File::where('fileable_type', '=', 'App\Models\Invoice')->get()->groupBy('fileable_id');
 
         $invoices = $list->map(
-            function (Invoice $invoice) {
-                return (new InvoiceTransformable())->transformInvoice($invoice);
+            function (Invoice $invoice) use ($files) {
+                return (new InvoiceTransformable())->transformInvoice($invoice, $files);
             }
         )->all();
 

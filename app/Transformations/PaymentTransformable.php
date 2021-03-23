@@ -2,6 +2,7 @@
 
 namespace App\Transformations;
 
+use App\Models\File;
 use App\Models\Payment;
 use App\Models\Paymentable;
 
@@ -11,7 +12,7 @@ trait PaymentTransformable
      * @param Payment $payment
      * @return array
      */
-    public function transformPayment(Payment $payment)
+    public function transformPayment(Payment $payment, $files = null)
     {
         return [
             'id'                   => (int)$payment->id,
@@ -50,7 +51,23 @@ trait PaymentTransformable
             'custom_value2'        => $payment->custom_value2 ?: '',
             'custom_value3'        => $payment->custom_value3 ?: '',
             'custom_value4'        => $payment->custom_value4 ?: '',
+            'files'                => !empty($files) && !empty($files[$payment->id]) ? $this->transformPaymentFiles(
+                $files[$payment->id]
+            ) : [],
         ];
+    }
+
+    private function transformPaymentFiles($files)
+    {
+        if (empty($files)) {
+            return [];
+        }
+
+        return $files->map(
+            function (File $file) {
+                return (new FileTransformable())->transformFile($file);
+            }
+        )->all();
     }
 
     public function transformPaymentables($paymentables)

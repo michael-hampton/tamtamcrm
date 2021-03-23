@@ -175,8 +175,6 @@ export default class Customers extends Component {
             : 'fixed-margin-datatable-large fixed-margin-datatable-large-mobile'
         const total = customers.length
 
-        alert(total)
-
         return (
             <Row>
                 <div className="col-12">

@@ -35,6 +35,7 @@ class PlanSubscription extends Model
         'subscriber_type',
         'plan_id',
         'domain_id',
+        'account_id',
         'slug',
         'name',
         'description',

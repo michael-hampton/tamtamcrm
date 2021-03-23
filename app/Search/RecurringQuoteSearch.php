@@ -3,6 +3,7 @@
 namespace App\Search;
 
 use App\Models\Account;
+use App\Models\File;
 use App\Models\RecurringQuote;
 use App\Repositories\RecurringQuoteRepository;
 use App\Requests\SearchRequest;
@@ -103,10 +104,11 @@ class RecurringQuoteSearch extends BaseSearch
     private function transformList()
     {
         $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['recurring_quotes'])->get();
+        $files = File::where('fileable_type', '=', 'App\Models\RecurringQuote')->get()->groupBy('fileable_id');
 
         $quotes = $list->map(
-            function (RecurringQuote $quote) {
-                return $this->transformRecurringQuote($quote);
+            function (RecurringQuote $quote) use ($files) {
+                return $this->transformRecurringQuote($quote, $files);
             }
         )->all();
 

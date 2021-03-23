@@ -19,7 +19,8 @@ class Domain extends Model
         'customer_id',
         'default_account_id',
         'user_id',
-        'customer_id'
+        'customer_id',
+        'plan_id'
     ];
     /**
      * @return HasOne
@@ -60,6 +61,11 @@ class Domain extends Model
     public function user()
     {
         return $this->belongsTo(User::class)->withTrashed();
+    }
+
+    public function plan()
+    {
+        return $this->belongsTo(Plan::class);
     }
 
     public function plans()

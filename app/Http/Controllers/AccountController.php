@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Factory\AccountFactory;
 use App\Models\Account;
 use App\Models\CompanyToken;
-use App\Models\Domain;
 use App\Models\Licence;
 use App\Models\Plan;
 use App\Notifications\NewAccountCreated;
@@ -15,7 +14,6 @@ use App\Requests\Account\UpdateAccountRequest;
 use App\Settings\AccountSettings;
 use App\Traits\UploadableTrait;
 use App\Transformations\AccountTransformable;
-use Carbon\Carbon;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -216,7 +214,7 @@ class AccountController extends BaseController
             'period'
         ) === 'monthly' ? 'M' : 'Y';
 
-        $code = $plan.$period;
+        $code = $plan . $period;
 
         $customer = $domain->customer;
         $subscription = $customer->subscriptions->first();
@@ -224,6 +222,9 @@ class AccountController extends BaseController
         // Change subscription plan
         $plan = Plan::where('code', '=', $code)->first();
         $subscription->changePlan($plan);
+
+        $domain->plan_id = $plan->id;
+        $domain->save();
     }
 
     public function apply(Request $request)
@@ -246,11 +247,15 @@ class AccountController extends BaseController
 
         $plan = $package === 'standard' ? 'STD' : 'PRO';
         $period = $period === 'monthly' ? 'M' : 'Y';
-        $code = $plan.$period;
+        $code = $plan . $period;
         $plan = Plan::where('code', '=', $code)->first();
         $domain = auth()->user()->account_user()->account->domains;
+
+        $domain->plan_id = $plan->id;
+        $domain->save();
+
         $customer = $domain->customer;
 
-        $customer->newSubscription('main', $plan, $domain. $number_of_licences);
+        $customer->newSubscription('main', $plan, auth()->user()->account_user()->account, $number_of_licences);
     }
 }

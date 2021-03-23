@@ -116,6 +116,54 @@ class PlanFeaturesTableSeeder extends Seeder
                 'deleted_at' => NULL,
                 'slug' => 'DOCUMENT',
             ),
+            8 => 
+            array (
+                'id' => 9,
+                'plan_id' => 9,
+                'feature_id' => 5,
+                'value' => '1000',
+                'note' => NULL,
+                'created_at' => NULL,
+                'updated_at' => NULL,
+                'deleted_at' => NULL,
+                'slug' => 'EMAIL',
+            ),
+            9 => 
+            array (
+                'id' => 10,
+                'plan_id' => 10,
+                'feature_id' => 5,
+                'value' => '1000',
+                'note' => NULL,
+                'created_at' => NULL,
+                'updated_at' => NULL,
+                'deleted_at' => NULL,
+                'slug' => 'EMAIL',
+            ),
+            10 => 
+            array (
+                'id' => 11,
+                'plan_id' => 8,
+                'feature_id' => 5,
+                'value' => '500',
+                'note' => NULL,
+                'created_at' => NULL,
+                'updated_at' => NULL,
+                'deleted_at' => NULL,
+                'slug' => 'EMAIL',
+            ),
+            11 => 
+            array (
+                'id' => 12,
+                'plan_id' => 7,
+                'feature_id' => 5,
+                'value' => '500',
+                'note' => NULL,
+                'created_at' => NULL,
+                'updated_at' => NULL,
+                'deleted_at' => NULL,
+                'slug' => 'EMAIL',
+            ),
         ));
         
         

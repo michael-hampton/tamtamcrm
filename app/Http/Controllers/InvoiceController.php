@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Actions\Plan\ApplyCode;
 use App\Components\InvoiceCalculator\LineItem;
+use App\Events\Plan\PlanWasInvoiced;
 use App\Factory\InvoiceFactory;
 use App\Models\Audit;
 use App\Models\Customer;
 use App\Models\CustomerPlan;
-use App\Models\ErrorLog;
 use App\Models\Invoice;
-use App\Models\PlanSubscription;
+use App\Models\Plan;
 use App\Models\Task;
 use App\Repositories\CreditRepository;
 use App\Repositories\Interfaces\InvoiceRepositoryInterface;
@@ -23,12 +23,10 @@ use App\Requests\Invoice\UpdateInvoiceRequest;
 use App\Requests\SearchRequest;
 use App\Search\InvoiceSearch;
 use App\Transformations\AuditTransformable;
-use App\Transformations\ErrorLogTransformable;
 use App\Transformations\InvoiceTransformable;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class InvoiceController
@@ -183,12 +181,24 @@ class InvoiceController extends BaseController
      */
     public function createSubscriptionInvoice(CreateSubscriptionInvoiceRequest $request)
     {
-        $customer = Customer::find($request->input('customer_id'));
-        $plan = PlanSubscription::find($request->input('plan_id'));
         $account = auth()->user()->account_user()->account;
-        $unit_cost = $plan->plan->price;
+        $customer = Customer::find($request->input('customer_id'));
+
+        // get plan and create subscription
+        $plan = Plan::find($request->input('plan_id'));
+        $customer->newSubscription('main', $plan, $account, $request->input('quantity'));
+        $subscription = $customer->activeSubscriptions()->first();
+
+        if (!empty($plan->trial_period)) {
+            return response()->json($subscription);
+        }
+
+        $due_date = $subscription->due_date->format('Y-m-d');
+
+        $unit_cost = $plan->price;
 
         $data = $request->input('invoice');
+        $data['due_date'] = $due_date;
 
         if (!empty($request->input('promocode')) && empty($plan->promocode_applied)) {
             $promocode = (new ApplyCode())->execute($plan, $account, $unit_cost);
@@ -198,7 +208,7 @@ class InvoiceController extends BaseController
         }
 
         $line_items[] = (new LineItem())
-            ->setProductId($plan->id)
+            ->setProductId($subscription->id)
             ->setQuantity($request->input('quantity'))
             ->setUnitPrice($unit_cost)
             ->setTypeId(Invoice::SUBSCRIPTION_TYPE)
@@ -217,6 +227,15 @@ class InvoiceController extends BaseController
             )
         );
         $invoice_repo->markSent($invoice);
+
+        $event_data = [
+            'plan_id'         => $plan->id,
+            'subscription_id' => $subscription->id,
+            'invoice_id'      => $invoice->id,
+            'voucher_code'    => !empty($data['voucher_code']) ? $data['voucher_code'] : ''
+        ];
+
+        event(new PlanWasInvoiced($subscription, $event_data));
 
         return response()->json($invoice);
     }
