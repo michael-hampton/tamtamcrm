@@ -16,6 +16,8 @@ export default class EditPlan extends React.Component {
         this.initialState = this.planModel.fields
         this.state = this.initialState
 
+        this.renew = this.renew.bind(this)
+        this.cancel = this.cancel.bind(this)
         this.toggle = this.toggle.bind(this)
         this.hasErrorFor = this.hasErrorFor.bind(this)
         this.renderErrorFor = this.renderErrorFor.bind(this)
