@@ -15,6 +15,13 @@ export default class Details extends Component {
                 </FormGroup>
 
                 <FormGroup className="mb-3">
+                    <Label>{translations. number_of_licences}</Label>
+                    <Input className={this.props.hasErrorFor('number_of_licences') ? 'is-invalid' : ''} type="text" name="number_of_licences"
+                        value={this.props.plan. number_of_licences} onChange={this.props.handleInput}/>
+                    {this.props.renderErrorFor('number_of_licences')}
+                </FormGroup>
+
+                <FormGroup className="mb-3">
                     <Label>{translations.plan}</Label>
                     <PlanDropdown handleInputChanges={this.props.handleInput} plan={this.props.plan.plan_id}
                         plans={this.props.plan_types}/>
