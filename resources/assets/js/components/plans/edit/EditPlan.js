@@ -36,6 +36,48 @@ export default class EditPlan extends React.Component {
         }
     }
 
+    cancel () {
+        const userRepository = new UserRepository()
+
+        console.log('props', this.props)
+
+        userRepository.enableGoogle({
+            user: this.props.user.id,
+            user_id: this.state.user_id,
+            secret: this.state.secret,
+            password: password
+        }).then(response => {
+            if (!response) {
+                this.props.callback(false, response)
+                return
+            }
+
+            this.props.callback(true, response)
+            this.toggle()
+        })
+    }
+
+    renew () {
+        const userRepository = new UserRepository()
+
+        console.log('props', this.props)
+
+        userRepository.enableGoogle({
+            user: this.props.user.id,
+            user_id: this.state.user_id,
+            secret: this.state.secret,
+            password: password
+        }).then(response => {
+            if (!response) {
+                this.props.callback(false, response)
+                return
+            }
+
+            this.props.callback(true, response)
+            this.toggle()
+        })
+    }
+
     handleInput (e) {
         this.setState({
             [e.target.name]: e.target.value,
