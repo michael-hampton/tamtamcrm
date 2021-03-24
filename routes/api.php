@@ -96,7 +96,18 @@ Route::group(
         Route::delete('companies/{company}', 'CompanyController@destroy');
         Route::get('companies/{company}', 'CompanyController@show');
         Route::put('companies/{company}', 'CompanyController@update');
+        Route::post('companies/restore/{id}', 'CompanyController@restore');
         Route::get('industries', 'CompanyController@getIndustries');
+
+        Route::apiResources(
+            [
+                'plans'              => 'PlanController',
+                'plan_subscriptions' => 'PlanSubscriptionController',
+            ]
+        );
+
+        Route::delete('plan_subscriptions/archive/{plan_subscription}', 'PlanSubscriptionController@archive');
+        Route::post('plan_subscriptions/restore/{id}', 'PlanSubscriptionController@restore');
 
 //categories
         Route::get('categories', 'CategoryController@index');
@@ -304,7 +315,9 @@ Route::group(
         Route::put('purchase_order/{purchase_order}', 'PurchaseOrderController@update');
         Route::get('purchase_order', 'PurchaseOrderController@index');
         Route::get('purchase_order/{quote_id}', 'PurchaseOrderController@show');
-        Route::post('purchase_order/{purchase_order}/{action}', 'PurchaseOrderController@action')->name('quotes.action');
+        Route::post('purchase_order/{purchase_order}/{action}', 'PurchaseOrderController@action')->name(
+            'quotes.action'
+        );
         Route::post('purchase_order/restore/{id}', 'PurchaseOrderController@restore');
 
 //accounts

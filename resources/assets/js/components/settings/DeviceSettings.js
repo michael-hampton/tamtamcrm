@@ -147,6 +147,10 @@ export default class DeviceSettings extends Component {
                     localStorage.setItem('tax_rates', JSON.stringify(response.data.data.tax_rates))
                     localStorage.setItem('users', JSON.stringify(response.data.data.users))
                     localStorage.setItem('number_of_accounts', response.data.data.number_of_accounts)
+                    localStorage.setItem('industries', JSON.stringify(response.data.data.industries))
+                    localStorage.setItem('require_login', response.data.data.require_login)
+                    localStorage.setItem('allowed_permissions', JSON.stringify(response.data.data.allowed_permissions))
+                    localStorage.setItem('plan', JSON.stringify(response.data.data.plan))
 
                     this.setState({ success_message: 'Refresh completed', success: true })
                 }

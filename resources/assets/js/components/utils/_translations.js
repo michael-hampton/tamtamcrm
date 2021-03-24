@@ -920,7 +920,10 @@ _localizedValues.en = {
     user_id: 'User ID',
     default_logout_time: 'Default Logout Time',
     github: 'Github',
-    alert: 'Alert'
+    alert: 'Alert',
+    add_plan: 'Add Subscription',
+    edit_plan: 'Edit Subscription',
+    plan: 'Subscription'
 }
 
 let language = []

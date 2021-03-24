@@ -22,8 +22,8 @@ class PlanRepository extends BaseRepository
 {
 
     /**
-     * MessageRepository constructor.
-     * @param Lead $lead
+     * PlanRepository constructor.
+     * @param Plan $plan
      */
     public function __construct(Plan $plan)
     {

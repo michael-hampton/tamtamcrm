@@ -93,23 +93,24 @@ class Login extends Component {
                     d2.setMinutes(d1.getMinutes() + 154.8)
 
                     // save app state with user date in local storage
-                    localStorage.appState = JSON.stringify(appState)
                     localStorage.setItem('allowed_permissions', JSON.stringify(response.data.data.allowed_permissions))
+                    localStorage.appState = JSON.stringify(appState)
+                    localStorage.setItem('account_id', response.data.data.account_id)
                     localStorage.setItem('currencies', JSON.stringify(response.data.data.currencies))
                     localStorage.setItem('languages', JSON.stringify(response.data.data.languages))
-                    localStorage.setItem('industries', JSON.stringify(response.data.data.industries))
+                    localStorage.setItem('custom_fields', JSON.stringify(response.data.data.custom_fields))
                     localStorage.setItem('countries', JSON.stringify(response.data.data.countries))
                     localStorage.setItem('payment_types', JSON.stringify(response.data.data.payment_types))
                     localStorage.setItem('gateways', JSON.stringify(response.data.data.gateways))
                     localStorage.setItem('tax_rates', JSON.stringify(response.data.data.tax_rates))
-                    localStorage.setItem('custom_fields', JSON.stringify(response.data.data.custom_fields))
                     localStorage.setItem('users', JSON.stringify(response.data.data.users))
-                    localStorage.setItem('access_token', userData.auth_token)
                     localStorage.setItem('number_of_accounts', response.data.data.number_of_accounts)
+                    localStorage.setItem('industries', JSON.stringify(response.data.data.industries))
+                    localStorage.setItem('plan', JSON.stringify(response.data.data.plan))
+                    localStorage.setItem('access_token', userData.auth_token)
                     localStorage.setItem('expires', d2)
                     localStorage.setItem('last_login', d1)
                     localStorage.setItem('require_login', response.data.data.require_login)
-                    localStorage.setItem('account_id', response.data.data.account_id)
 
                     this.setState({
                         isLoggedIn: appState.isLoggedIn,

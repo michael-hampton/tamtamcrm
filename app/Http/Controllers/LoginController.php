@@ -5,14 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Account;
 use App\Models\AccountUser;
 use App\Models\CompanyToken;
-use App\Models\Country;
-use App\Models\Currency;
-use App\Models\Industry;
-use App\Models\Language;
-use App\Models\PaymentGateway;
-use App\Models\PaymentMethod;
-use App\Models\Permission;
-use App\Models\TaxRate;
 use App\Models\User;
 use App\Requests\LoginRequest;
 use Illuminate\Contracts\Foundation\Application;
@@ -30,7 +22,7 @@ use JWTAuth;
 use JWTAuthException;
 use Laravel\Socialite;
 
-class LoginController extends Controller
+class LoginController extends BaseController
 {
     use AuthenticatesUsers;
 
@@ -66,38 +58,9 @@ class LoginController extends Controller
                 ]
             );
 
-            $permissions = Permission::getRolePermissions($user);
-
-            $allowed_permissions = [];
-
-            foreach ($permissions as $permission) {
-                $allowed_permissions[$permission->role_id][$permission->name] = $permission->has_permission;
-            }
-
             $response = [
                 'success' => true,
-                'data'    => [
-                    'account_id'          => $default_account->id,
-                    'require_login'       => (bool)$default_account->settings->require_admin_password,
-                    'id'                  => $user->id,
-                    'auth_token'          => $user->auth_token,
-                    'name'                => $user->name,
-                    'email'               => $user->email,
-                    'accounts'            => $accounts,
-                    'allowed_permissions' => $allowed_permissions,
-                    'number_of_accounts'  => $user->accounts->count(),
-                    'currencies'          => Currency::all()->toArray(),
-                    'languages'           => Language::all()->toArray(),
-                    'industries'          => Industry::all()->toArray(),
-                    'countries'           => Country::all()->toArray(),
-                    'payment_types'       => PaymentMethod::all()->toArray(),
-                    'gateways'            => PaymentGateway::all()->toArray(),
-                    'tax_rates'           => TaxRate::all()->toArray(),
-                    'custom_fields'       => $user->account_user()->account->custom_fields,
-                    'users'               => User::where('is_active', '=', 1)->get(
-                        ['first_name', 'last_name', 'phone_number', 'id', 'email']
-                    )->toArray()
-                ]
+                'data'    => $this->getIncludes()
             ];
 
             Cache::put('reauthenticate_last_authentication', strtotime('now'));
@@ -243,42 +206,12 @@ class LoginController extends Controller
             ]
         );
 
-        $permissions = Permission::getRolePermissions($user);
-
-        $allowed_permissions = [];
-
-        foreach ($permissions as $permission) {
-            $allowed_permissions[$permission->role_id][$permission->name] = $permission->has_permission;
-        }
-
-        return [
+        $response = [
             'success' => true,
-            'data'    => [
-                'redirect'            => 'http://taskman2.develop',
-                'account_id'          => $default_account->id,
-                'require_login'       => (bool)$default_account->settings->require_admin_password,
-                'id'                  => $user->id,
-                'auth_token'          => $user->auth_token,
-                'name'                => $user->first_name . ' ' . $user->last_name,
-                'email'               => $user->email,
-                'accounts'            => json_encode($accounts),
-                'allowed_permissions' => json_encode($allowed_permissions),
-                'number_of_accounts'  => $user->accounts->count(),
-                'currencies'          => json_encode(Currency::all()->toArray()),
-                'languages'           => json_encode(Language::all()->toArray()),
-                'countries'           => json_encode(Country::all()->toArray()),
-                'payment_types'       => json_encode(PaymentMethod::all()->toArray()),
-                'gateways'            => json_encode(PaymentGateway::all()->toArray()),
-                'industries'          => json_encode(Industry::all()->toArray()),
-                'tax_rates'           => json_encode(TaxRate::all()->toArray()),
-                'custom_fields'       => json_encode(auth()->user()->account_user()->account->custom_fields),
-                'users'               => json_encode(
-                    User::where('is_active', '=', 1)->get(
-                        ['first_name', 'last_name', 'phone_number', 'id']
-                    )->toArray()
-                )
-            ]
+            'data'    => $this->getIncludes()
         ];
+
+        return response()->json($response, 201);
     }
 
 }

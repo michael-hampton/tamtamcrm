@@ -6,6 +6,26 @@ import { translations } from '../utils/_translations'
 export default class Menu extends Component {
     render () {
         const modules = JSON.parse(localStorage.getItem('modules'))
+        const plan = JSON.parse(localStorage.getItem('plan'))
+
+        const advanced_menu = plan === 'null' || plan.code.includes('PRO')
+            ? <React.Fragment>
+                <DropdownItem divider/>
+                <DropdownItem header>{translations.advanced_settings}</DropdownItem>
+                <MenuItem section="group-settings"/>
+                <MenuItem section="number-settings"/>
+                <MenuItem section="field-settings"/>
+                <MenuItem section="invoice-settings"/>
+                <MenuItem section="workflow-settings"/>
+                <MenuItem section="tax-settings"/>
+                <MenuItem section="portal-settings"/>
+                <MenuItem section="email-settings"/>
+                <MenuItem section="template-settings"/>
+                <MenuItem section="import-settings"/>
+                <DropdownItem tag="a" href="/#/users"><i className={`fa ${icons.user}`}/>{translations.users}
+                </DropdownItem>
+            </React.Fragment>
+            : null
 
         return (
             <UncontrolledDropdown className="mr-3 pt-2 pl-3">
@@ -36,20 +56,9 @@ export default class Menu extends Component {
 
                     <MenuItem section="account-management"/>
                     <MenuItem section="device-settings"/>
-                    <DropdownItem divider/>
-                    <DropdownItem header>{translations.advanced_settings}</DropdownItem>
-                    <MenuItem section="group-settings"/>
-                    <MenuItem section="number-settings"/>
-                    <MenuItem section="field-settings"/>
-                    <MenuItem section="invoice-settings"/>
-                    <MenuItem section="workflow-settings"/>
-                    <MenuItem section="tax-settings"/>
-                    <MenuItem section="portal-settings"/>
-                    <MenuItem section="email-settings"/>
-                    <MenuItem section="template-settings"/>
-                    <MenuItem section="import-settings"/>
-                    <DropdownItem tag="a" href="/#/users"><i className={`fa ${icons.user}`}/>{translations.users}
-                    </DropdownItem>
+
+                    {advanced_menu}
+
                 </DropdownMenu>
             </UncontrolledDropdown>
         )

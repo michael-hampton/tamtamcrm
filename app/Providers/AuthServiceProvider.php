@@ -20,6 +20,7 @@ use App\Models\Lead;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentTerms;
+use App\Models\PlanSubscription;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\Promocode;
@@ -48,6 +49,7 @@ use App\Policies\LeadPolicy;
 use App\Policies\OrderPolicy;
 use App\Policies\PaymentPolicy;
 use App\Policies\PaymentTermPolicy;
+use App\Policies\PlanSubscriptionPolicy;
 use App\Policies\ProductPolicy;
 use App\Policies\ProjectPolicy;
 use App\Policies\PromocodePolicy;
@@ -99,7 +101,8 @@ class AuthServiceProvider extends ServiceProvider
         Cases::class            => CasePolicy::class,
         Event::class            => EventPolicy::class,
         Order::class            => OrderPolicy::class,
-        File::class             => DocumentPolicy::class
+        File::class             => DocumentPolicy::class,
+        PlanSubscription::class => PlanSubscriptionPolicy::class
     ];
 
     /**

@@ -10,13 +10,17 @@ use App\Events\Plan\SubscriptionCanceled;
 use App\Events\Plan\SubscriptionPlanChanged;
 use App\Events\Plan\SubscriptionRenewed;
 use App\Models\Concerns\BelongsToPlanModel;
+use App\Traits\Archiveable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 class PlanSubscription extends Model
 {
     use BelongsToPlanModel;
+    use Archiveable;
+    use SoftDeletes;
 
     /**
      * Subscription statuses
