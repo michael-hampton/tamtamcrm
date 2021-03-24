@@ -11,10 +11,17 @@ export default class SettingsWizard extends Component {
             currentStep: 1,
             settings: {},
             success: false,
-            error: false
+            error: false,
+            domain: '',
+            first_name: '',
+            last_name: '',
+            email: '',
+            country_id: null,
+            checked: false
         }
 
         this.handleChange = this.handleChange.bind(this)
+        this.checkDomain = this.checkDomain.bind(this)
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
         this._prev = this._prev.bind(this)
@@ -38,6 +45,10 @@ export default class SettingsWizard extends Component {
         this.setState({
             [name]: value
         })
+    }
+
+    checkDomain () {
+
     }
 
     handleSubmit (event) {
