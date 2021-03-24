@@ -29,6 +29,46 @@ export default class PlanRepository extends BaseRepository {
         }
     }
 
+    async cancel () {
+        this.errors = []
+        this.error_message = ''
+
+        try {
+            const res = await axios.get(this._url + '/cancel')
+
+            if (res.status === 200) {
+                // test for status you want, etc
+                console.log(res.status)
+            }
+
+            // Don't forget to return something
+            return res.data
+        } catch (e) {
+            this.handleError(e)
+            return false
+        }
+    }
+
+    async renew () {
+        this.errors = []
+        this.error_message = ''
+
+        try {
+            const res = await axios.get(this._url + '/renew')
+
+            if (res.status === 200) {
+                // test for status you want, etc
+                console.log(res.status)
+            }
+
+            // Don't forget to return something
+            return res.data
+        } catch (e) {
+            this.handleError(e)
+            return false
+        }
+    }
+
     async plans () {
         this.errors = []
         this.error_message = ''
