@@ -22,6 +22,7 @@ export default class Menu extends Component {
                 <MenuItem section="email-settings"/>
                 <MenuItem section="template-settings"/>
                 <MenuItem section="import-settings"/>
+                <MenuItem section="plan-settings"/>
                 <DropdownItem tag="a" href="/#/users"><i className={`fa ${icons.user}`}/>{translations.users}
                 </DropdownItem>
             </React.Fragment>
