@@ -108,6 +108,8 @@ Route::group(
 
         Route::delete('plan_subscriptions/archive/{plan_subscription}', 'PlanSubscriptionController@archive');
         Route::post('plan_subscriptions/restore/{id}', 'PlanSubscriptionController@restore');
+        Route::get('plan_subscriptions/renew/{plan_subscription}', 'PlanSubscriptionController@renew');
+        Route::get('plan_subscriptions/cancel/{plan_subscription}', 'PlanSubscriptionController@cancel');
 
 //categories
         Route::get('categories', 'CategoryController@index');
