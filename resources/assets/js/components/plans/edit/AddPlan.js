@@ -50,7 +50,8 @@ export default class AddPlan extends React.Component {
     handleClick () {
         const data = {
             name: this.state.name,
-            plan_id: this.state.plan_id
+            plan_id: this.state.plan_id,
+            number_of_licences: this.state.number_of_licences
         }
 
         this.planModel.save(data).then(response => {
