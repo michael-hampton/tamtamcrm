@@ -61,7 +61,8 @@ export default class EditPlan extends React.Component {
         const formData = {
             name: this.state.name,
             account_id: this.state.account_id,
-            plan_id: this.state.plan_id
+            plan_id: this.state.plan_id,
+            number_of_licences: this.state.number_of_licences
         }
 
         this.planModel.save(formData).then(response => {
