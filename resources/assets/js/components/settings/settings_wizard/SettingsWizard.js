@@ -40,6 +40,27 @@ export default class SettingsWizard extends Component {
         }))
     }
 
+    checkDomain () {
+        const userRepository = new UserRepository()
+
+        console.log('props', this.props)
+
+        userRepository.enableGoogle({
+            user: this.props.user.id,
+            user_id: this.state.user_id,
+            secret: this.state.secret,
+            password: password
+        }).then(response => {
+            if (!response) {
+                this.props.callback(false, response)
+                return
+            }
+
+            this.props.callback(true, response)
+            this.toggle()
+        })
+    }
+
     handleChange (event) {
         const { name, value } = event.target
         this.setState({
