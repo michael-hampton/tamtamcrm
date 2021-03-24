@@ -90,6 +90,26 @@ class PlanSubscriptionController extends Controller
         return response()->json([], 200);
     }
 
+     /**
+     * @param PlanSubscription $plan_subscription
+     * @return JsonResponse
+     */
+    public function renew(PlanSubscription $plan_subscription)
+    {
+        
+        return response()->json([], 200);
+    }
+
+     /**
+     * @param PlanSubscription $plan_subscription
+     * @return JsonResponse
+     */
+    public function cancel(PlanSubscription $plan_subscription)
+    {
+        
+        return response()->json([], 200);
+    }
+
 
     /**
      * @param int $id
