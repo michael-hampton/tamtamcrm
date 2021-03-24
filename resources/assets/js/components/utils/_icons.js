@@ -208,6 +208,8 @@ export function getSettingsIcon (section) {
             return icons.payment_terms
         case 'account-settings':
             return icons.building
+        case 'plan-settings':
+            return icons.order
         case 'import-settings':
             return icons.cloud_upload
     }
