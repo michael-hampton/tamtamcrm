@@ -1,5 +1,5 @@
 import React from 'react'
-import { DropdownItem, Modal, ModalBody } from 'reactstrap'
+import { DropdownItem, Modal, ModalBody, Button } from 'reactstrap'
 import { icons } from '../../utils/_icons'
 import { translations } from '../../utils/_translations'
 import Details from './Details'
@@ -193,6 +193,9 @@ export default class EditPlan extends React.Component {
 
                         <Details plan_types={this.props.plan_types} hasErrorFor={this.hasErrorFor} plan={this.state}
                             renderErrorFor={this.renderErrorFor} handleInput={this.handleInput.bind(this)}/>
+
+                        <Button color="danger" onClick={this.cancel} />
+                        <Button color="primary" onClick={this.renew} />
                     </ModalBody>
 
                     <DefaultModalFooter show_success={true} toggle={this.toggle}
