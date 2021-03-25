@@ -3,6 +3,10 @@ import Step3 from './Step3'
 import Step2 from './Step2'
 import Step1 from './Step1'
 import axios from 'axios'
+import AccountRepository from '../../repositories/AccountRepository'
+import { toast, ToastContainer } from 'react-toastify'
+import { translations } from '../../utils/_translations'
+import ConfirmPassword from '../../common/ConfirmPassword'
 
 export default class SettingsWizard extends Component {
     constructor (props) {
@@ -17,7 +21,8 @@ export default class SettingsWizard extends Component {
             last_name: '',
             email: '',
             country_id: null,
-            checked: false
+            checking: true,
+            domain_valid: false
         }
 
         this.handleChange = this.handleChange.bind(this)
@@ -41,23 +46,51 @@ export default class SettingsWizard extends Component {
     }
 
     checkDomain () {
-        const userRepository = new UserRepository()
+        const accountRepository = new AccountRepository()
 
-        console.log('props', this.props)
+        this.setState({ checking: true })
 
-        userRepository.enableGoogle({
-            user: this.props.user.id,
-            user_id: this.state.user_id,
-            secret: this.state.secret,
-            password: password
-        }).then(response => {
+        accountRepository.checkDomain(this.state.subdomain).then(response => {
             if (!response) {
-                this.props.callback(false, response)
-                return
+                alert(a)
+                this.setState({ checking: false, domain_valid: false }, () => {
+                    toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.plan), {
+                        position: 'top-center',
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined
+                    })
+                })
             }
 
-            this.props.callback(true, response)
-            this.toggle()
+            if (Object.keys(response).length && response.subdomain === this.state.subdomain) {
+                this.setState({ checking: false, domain_valid: false }, () => {
+                    toast.success(translations.updated_successfully.replace('{entity}', translations.plan), {
+                        position: 'top-center',
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined
+                    })
+                })
+            } else {
+                this.setState({ checking: false, domain_valid: true }, () => {
+                    toast.success(translations.updated_successfully.replace('{entity}', translations.plan), {
+                        position: 'top-center',
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined
+                    })
+                })
+            }
         })
     }
 
@@ -68,12 +101,9 @@ export default class SettingsWizard extends Component {
         })
     }
 
-    checkDomain () {
-
-    }
-
-    handleSubmit (event) {
-        event.preventDefault()
+    handleSubmit (event) { 
+        alert('save')
+        return false
 
         const formData = new FormData()
         formData.append('settings', JSON.stringify(this.state.settings))
@@ -128,6 +158,7 @@ export default class SettingsWizard extends Component {
 
     nextButton () {
         const currentStep = this.state.currentStep
+
         if (currentStep < 3) {
             return (
                 <button
@@ -137,7 +168,9 @@ export default class SettingsWizard extends Component {
                 </button>
             )
         }
-        return null
+
+        return <ConfirmPassword callback={this.handleSubmit} button_color="btn-success"
+            button_label={translations.save}/>
     }
 
     render () {
@@ -145,8 +178,23 @@ export default class SettingsWizard extends Component {
             <React.Fragment>
                 <p>Step {this.state.currentStep} </p>
 
-                <form onSubmit={this.handleSubmit}>
+                <ToastContainer
+                    position="top-center"
+                    autoClose={5000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                />
+
+                <div>
                     <Step1
+                        checkDomain={this.checkDomain}
+                        domain_valid={this.state.domain_valid}
+                        checking={this.state.checking}
                         handleSettingsChange={this.handleSettingsChange}
                         settings={this.state.settings}
                         currentStep={this.state.currentStep}
@@ -167,10 +215,10 @@ export default class SettingsWizard extends Component {
                         handleChange={this.handleChange}
                         password={this.state.password}
                     />
-                    {this.previousButton()}
-                    {this.nextButton()}
+                    {this.state.domain_valid === true && this.previousButton()}
+                    {this.state.domain_valid === true && this.nextButton()}
 
-                </form>
+                </div>
             </React.Fragment>
         )
     }

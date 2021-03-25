@@ -29,12 +29,12 @@ export default class PlanRepository extends BaseRepository {
         }
     }
 
-    async cancel () {
+    async cancel (subscription) {
         this.errors = []
         this.error_message = ''
 
         try {
-            const res = await axios.get(this._url + '/cancel')
+            const res = await axios.get(`${this._url}/cancel/${subscription}`)
 
             if (res.status === 200) {
                 // test for status you want, etc
@@ -49,12 +49,12 @@ export default class PlanRepository extends BaseRepository {
         }
     }
 
-    async renew () {
+    async renew (subscription) {
         this.errors = []
         this.error_message = ''
 
         try {
-            const res = await axios.get(this._url + '/renew')
+            const res = await axios.get(`${this._url}/renew/${subscription}`)
 
             if (res.status === 200) {
                 // test for status you want, etc

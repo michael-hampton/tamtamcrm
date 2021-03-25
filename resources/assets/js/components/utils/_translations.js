@@ -923,7 +923,9 @@ _localizedValues.en = {
     alert: 'Alert',
     add_plan: 'Add Subscription',
     edit_plan: 'Edit Subscription',
-    plan: 'Subscription'
+    plan: 'Subscription',
+    renew: 'Renew',
+    subdomain: 'Subdomain'
 }
 
 let language = []

@@ -620,7 +620,7 @@ class BaseController extends Controller
             'number_of_accounts'  => $user->accounts->count(),
             'currencies'          => Currency::all(),
             'languages'           => Language::all(),
-            'industries'          => Industry::all()->toArray(),
+            'industries'          => Industry::all(),
             'countries'           => Country::all(),
             'payment_types'       => PaymentMethod::all(),
             'gateways'            => PaymentGateway::all(),

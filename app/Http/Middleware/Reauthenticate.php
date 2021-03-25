@@ -15,7 +15,7 @@ class Reauthenticate
             return response()->json('User not found', 412);
         }
 
-        $default_logout_time = auth()->user()->account_user()->account->settings->default_logout_time;
+        $default_logout_time = auth()->user()->account_user()->account->settings->password_timeout;
         $logout_time = $default_logout_time * 60; // to seconds
 
         if (strtotime('now') - Cache::get('reauthenticate_last_authentication', 0) > $logout_time) {

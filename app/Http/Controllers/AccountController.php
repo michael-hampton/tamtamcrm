@@ -258,4 +258,11 @@ class AccountController extends BaseController
 
         $customer->newSubscription('main', $plan, auth()->user()->account_user()->account, $number_of_licences);
     }
+
+    public function checkDomain(string $domain)
+    {
+        $domain = Account::where('subdomain', '=', $domain)->first();
+
+        return response()->json($domain);
+    }
 }

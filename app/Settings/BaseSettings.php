@@ -1571,6 +1571,18 @@ class BaseSettings
             'default_value'    => true,
             'type'             => 'bool'
         ],
+        'password_timeout'                     => [
+            'required'         => false,
+            'translated_value' => '',
+            'default_value'    => 480,
+            'type'             => 'string'
+        ],
+        'default_logout_time'                  => [
+            'required'         => false,
+            'translated_value' => '',
+            'default_value'    => null,
+            'type'             => 'string'
+        ],
     ];
 
     protected function validate($saved_settings, $actual_settings)

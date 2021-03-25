@@ -334,13 +334,14 @@ Route::group(
             'accounts/fields/getAllCustomFields',
             'AccountController@getAllCustomFields'
         );
-        Route::get('accounts/fields/{entity}', 'AccountController@getCustomFields');
+        Route::get('/fields/{entity}', 'AccountController@getCustomFields');
         Route::get('accounts', 'AccountController@index');
         Route::get('accounts/{id}', 'AccountController@show');
-        Route::get('dates', 'AccountController@getDateFormats');
+        Route::get('dates', 'accountsAccountController@getDateFormats');
         Route::delete('account/{account_id}', 'AccountController@destroy');
         Route::post('account/upgrade/{account_id}', 'AccountController@upgrade')->name('email.send');
         Route::post('account/apply/{account_id}', 'AccountController@apply')->name('email.send');
+        Route::get('accounts/check-domain/{domain}', 'AccountController@checkDomain');
 
 
 // email

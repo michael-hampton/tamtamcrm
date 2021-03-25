@@ -314,7 +314,7 @@ class PlanSubscription extends Model
 
         event(new SubscriptionRenewed($this));
 
-        return $this;
+        return $subscription->fresh();
     }
 
     /**

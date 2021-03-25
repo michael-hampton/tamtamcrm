@@ -7,6 +7,7 @@ import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
 import { toast, ToastContainer } from 'react-toastify'
 import PlanSubscriptionModel from '../../models/PlanSubscriptionModel'
+import PlanRepository from '../../repositories/PlanRepository'
 
 export default class EditPlan extends React.Component {
     constructor (props) {
@@ -25,7 +26,7 @@ export default class EditPlan extends React.Component {
 
     static getDerivedStateFromProps (props, state) {
         if (props.plan && props.plan.id !== state.id) {
-            const planModel = new PlanModel(props.plan)
+            const planModel = new PlanSubscriptionModel(props.plan)
             return planModel.fields
         }
 
@@ -34,39 +35,63 @@ export default class EditPlan extends React.Component {
 
     componentDidUpdate (prevProps, prevState) {
         if (this.props.plan && this.props.plan.id !== prevProps.plan.id) {
-            this.planModel = new PlanModel(this.props.plan)
+            this.planModel = new PlanSubscriptionModel(this.props.plan)
         }
     }
 
     cancel () {
         const planRepository = new PlanRepository()
 
-        console.log('props', this.props)
-
         planRepository.cancel(this.state.id).then(response => {
             if (!response) {
-                //this.props.callback(false, response)
-                return
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.plan), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
             }
 
-            //this.props.callback(true, response)
-            //this.toggle()
+            toast.success(translations.updated_successfully.replace('{entity}', translations.plan), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
         })
     }
 
     renew () {
-       const planRepository = new PlanRepository()
-
-        console.log('props', this.props)
+        const planRepository = new PlanRepository()
 
         planRepository.renew(this.state.id).then(response => {
             if (!response) {
-                this.props.callback(false, response)
-                return
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.plan), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
             }
 
-            this.props.callback(true, response)
-            this.toggle()
+            toast.success(translations.updated_successfully.replace('{entity}', translations.plan), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
         })
     }
 
@@ -184,8 +209,8 @@ export default class EditPlan extends React.Component {
                         <Details plan_types={this.props.plan_types} hasErrorFor={this.hasErrorFor} plan={this.state}
                             renderErrorFor={this.renderErrorFor} handleInput={this.handleInput.bind(this)}/>
 
-                        <Button color="danger" onClick={this.cancel} />
-                        <Button color="primary" onClick={this.renew} />
+                        <Button color="danger" onClick={this.cancel}>{translations.cancel}</Button>
+                        <Button color="primary" className="ml-2" onClick={this.renew}>{translations.renew}</Button>
                     </ModalBody>
 
                     <DefaultModalFooter show_success={true} toggle={this.toggle}

@@ -1,5 +1,5 @@
 import React from 'react'
-import { CustomInput, FormGroup, Input, Label } from 'reactstrap'
+import { CustomInput, FormGroup, Input, Label, InputGroup, InputGroupAddon, InputGroupText } from 'reactstrap'
 import CountryDropdown from '../common/dropdowns/CountryDropdown'
 import CurrencyDropdown from '../common/dropdowns/CurrencyDropdown'
 import Switch from '../common/Switch'
@@ -99,6 +99,19 @@ class FormBuilder extends React.Component {
         )
     }
 
+    buildInputGroup (field) {
+        const icon = field.onClick ? <span onClick={field.onClick}><i style={{ fontSize: '20px' }} className={`fa ${field.icon}`} /></span> : <i style={{ fontSize: '20px' }} className={`fa ${field.icon}`} />
+        return <FormGroup>
+            <Label>{field.label}</Label>
+            <InputGroup>
+                <Input style={{ width: '90%' }} value={field.value} type="text" name={field.name} onChange={this.props.handleChange} />
+                <InputGroupAddon addonType="append">
+                    <InputGroupText>{icon}</InputGroupText>
+                </InputGroupAddon>
+            </InputGroup>
+        </FormGroup>
+    }
+
     renderTextInput (field) {
         let returnedField = null
 
@@ -191,6 +204,9 @@ class FormBuilder extends React.Component {
 
             case 'select':
                 returnedField = this.buildSelectList(field)
+                break
+            case 'input_group':
+                returnedField = this.buildInputGroup(field)
                 break
             case 'switch':
                 returnedField = this.buildSwitch(field)

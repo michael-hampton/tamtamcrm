@@ -370,7 +370,7 @@ export default class Dashboard extends Component {
     componentDidMount () {
         this.fetchData()
 
-        if (!this.settings.name.length) {
+        //if (!this.settings.name.length) {
             setTimeout(
                 function () {
                     this.setState({ modal2: true })
@@ -378,7 +378,7 @@ export default class Dashboard extends Component {
                     .bind(this),
                 3000
             )
-        }
+        //}
 
         // window.setInterval(() => {
         //     this.fetchData()
@@ -1610,6 +1610,7 @@ export default class Dashboard extends Component {
     render () {
         const dashboard_minimized = this.state.dashboard_minimized
         const dashboardFilterEntities = Object.keys(this.state.dashboard_filters)
+        const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
 
         const dashboardBody = dashboardFilterEntities.map((entity, index) => {
             return (
@@ -2435,7 +2436,7 @@ export default class Dashboard extends Component {
 
             <Modal isOpen={this.state.modal2} toggle={this.toggleModal2}>
                 <ModalHeader toggle={this.toggleModal2}>Configure Dashboard</ModalHeader>
-                <ModalBody>
+                <ModalBody className={theme}>
                     <SettingsWizard/>
                 </ModalBody>
                 <ModalFooter>

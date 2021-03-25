@@ -11,7 +11,6 @@ use App\Requests\PlanSubscriptions\UpdatePlanSubscription;
 use App\Requests\SearchRequest;
 use App\Search\PlanSubscriptionSearch;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class PlanSubscriptionController extends Controller
 {
@@ -24,7 +23,8 @@ class PlanSubscriptionController extends Controller
      * PlanSubscriptionController constructor.
      * @param PlanSubscriptionRepository $plan_subscription_repository
      */
-    public function __construct(PlanSubscriptionRepository $plan_subscription_repository) {
+    public function __construct(PlanSubscriptionRepository $plan_subscription_repository)
+    {
         $this->plan_subscription_repository = $plan_subscription_repository;
     }
 
@@ -35,7 +35,10 @@ class PlanSubscriptionController extends Controller
     public function index(SearchRequest $request)
     {
         $plan_subscriptions =
-            (new PlanSubscriptionSearch($this->plan_subscription_repository))->filter($request, auth()->user()->account_user()->account);
+            (new PlanSubscriptionSearch($this->plan_subscription_repository))->filter(
+                $request,
+                auth()->user()->account_user()->account
+            );
 
         return response()->json($plan_subscriptions);
     }
@@ -45,7 +48,15 @@ class PlanSubscriptionController extends Controller
      */
     public function store(CreatePlanSubscription $request)
     {
+        $plan = Plan::where('plan_id', '=', $request->input('plan_id'))->first();
+
         //TODO
+//        newSubscription(
+//            $request->input('name'),
+//            $plan,
+//            auth()->user()->account_user()->account,
+//            $request->input('number_of_licences')
+//        );
     }
 
     /**
@@ -90,24 +101,25 @@ class PlanSubscriptionController extends Controller
         return response()->json([], 200);
     }
 
-     /**
+    /**
      * @param PlanSubscription $plan_subscription
      * @return JsonResponse
      */
     public function renew(PlanSubscription $plan_subscription)
     {
-        
-        return response()->json([], 200);
+        $plan_subscription = $plan_subscription->renew();
+        return response()->json($plan_subscription, 200);
     }
 
-     /**
+    /**
      * @param PlanSubscription $plan_subscription
      * @return JsonResponse
      */
     public function cancel(PlanSubscription $plan_subscription)
     {
-        
-        return response()->json([], 200);
+        $plan_subscription = $plan_subscription->cancel(true);
+
+        return response()->json($plan_subscription, 200);
     }
 
 
