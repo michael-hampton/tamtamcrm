@@ -7,6 +7,10 @@ import AccountRepository from '../../repositories/AccountRepository'
 import { toast, ToastContainer } from 'react-toastify'
 import { translations } from '../../utils/_translations'
 import ConfirmPassword from '../../common/ConfirmPassword'
+import UserModel from '../../models/UserModel'
+import AccountModel from '../../models/AccountModel'
+import { Button } from 'reactstrap'
+
 
 export default class SettingsWizard extends Component {
     constructor (props) {
@@ -101,7 +105,21 @@ export default class SettingsWizard extends Component {
         })
     }
 
-    handleSubmit (event) { 
+    handleSubmit (event) {
+        const userModel = new UserModel()
+        const accountModel = new AccountModel()
+
+        const account_data = this.state
+        account_data.settings = JSON.stringify(this.state.settings)
+
+        try {
+            userModel.save(this.state).then(() => {
+                accountModel.save(account_data)
+            })
+        } catch (e) {
+            alert('error')
+        }
+
         alert('save')
         return false
 
@@ -169,8 +187,11 @@ export default class SettingsWizard extends Component {
             )
         }
 
-        return <ConfirmPassword callback={this.handleSubmit} button_color="btn-success"
+        const show_password = false
+
+        return show_password === true ? <ConfirmPassword callback={this.handleSubmit} button_color="btn-success"
             button_label={translations.save}/>
+            : <Button color="success" onClick={this.handleSubmit}>{translations.save}</Button>
     }
 
     render () {

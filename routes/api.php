@@ -110,6 +110,7 @@ Route::group(
         Route::post('plan_subscriptions/restore/{id}', 'PlanSubscriptionController@restore');
         Route::get('plan_subscriptions/renew/{plan_subscription}', 'PlanSubscriptionController@renew');
         Route::get('plan_subscriptions/cancel/{plan_subscription}', 'PlanSubscriptionController@cancel');
+        Route::post('plan_subscriptions/change/{plan_subscription}', 'PlanSubscriptionController@change');
 
 //categories
         Route::get('categories', 'CategoryController@index');

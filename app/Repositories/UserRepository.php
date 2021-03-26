@@ -46,15 +46,6 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     }
 
     /**
-     * @return bool
-     * @throws Exception
-     */
-    public function deleteUser(): bool
-    {
-        return $this->delete();
-    }
-
-    /**
      * @param array $columns
      * @param string $orderBy
      * @param string $sortBy
@@ -225,8 +216,12 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
      * @return User|null
      * @throws Exception
      */
-    public function destroy(User $user, $delete_account = false)
+    public function deleteUser(User $user, $delete_account = false): ?User
     {
+        if ($user->isOwner()) {
+            return null;
+        }
+
         if ($delete_account === true) {
             $this->deleteUserAccount($user);
         }

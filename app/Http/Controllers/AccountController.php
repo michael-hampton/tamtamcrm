@@ -56,6 +56,10 @@ class AccountController extends BaseController
      */
     public function store(StoreAccountRequest $request)
     {
+        echo '<pre>';
+        print_r($request->all());
+        die;
+
         $account = AccountFactory::create(auth()->user()->account_user()->account->domain_id);
         $this->account_repo->save($request->except('settings'), $account);
 

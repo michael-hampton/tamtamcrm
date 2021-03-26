@@ -248,6 +248,10 @@ class Account extends Model
     {
         $plan = $this->getActiveSubscription();
 
+        if (empty($plan)) {
+            return 99999;
+        }
+
         return $plan->number_of_licences;
     }
 

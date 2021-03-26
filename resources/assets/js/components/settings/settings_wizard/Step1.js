@@ -50,6 +50,22 @@ export default function Step1 (props) {
                 group: 1
             },
             {
+                name: 'password',
+                label: translations.password,
+                type: 'password',
+                placeholder: translations.password,
+                // value: settings.email,
+                group: 1
+            },
+            {
+                name: 'confirm_password',
+                label: translations.confirm_password,
+                type: 'password',
+                placeholder: translations.confirm_password,
+                // value: settings.email,
+                group: 1
+            },
+            {
                 name: 'currency_id',
                 label: translations.currency,
                 type: 'currency',

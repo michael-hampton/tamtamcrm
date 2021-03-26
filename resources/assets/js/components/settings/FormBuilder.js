@@ -1,5 +1,5 @@
 import React from 'react'
-import { CustomInput, FormGroup, Input, Label, InputGroup, InputGroupAddon, InputGroupText } from 'reactstrap'
+import { CustomInput, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, Label } from 'reactstrap'
 import CountryDropdown from '../common/dropdowns/CountryDropdown'
 import CurrencyDropdown from '../common/dropdowns/CurrencyDropdown'
 import Switch from '../common/Switch'
@@ -10,6 +10,7 @@ import LanguageDropdown from '../common/dropdowns/LanguageDropdown'
 import { LearnMoreUrl } from '../common/LearnMore'
 import Datepicker from '../common/Datepicker'
 import UserDropdown from '../common/dropdowns/UserDropdown'
+import PasswordField from '../common/PasswordField'
 
 /**
  * A component which renders a form based on a given list of fields.
@@ -99,12 +100,23 @@ class FormBuilder extends React.Component {
         )
     }
 
+    buildPassword (field) {
+        return <FormGroup>
+            <PasswordField password={field.value}
+                handleChange={this.props.handleInput}
+            />
+        </FormGroup>
+    }
+
     buildInputGroup (field) {
-        const icon = field.onClick ? <span onClick={field.onClick}><i style={{ fontSize: '20px' }} className={`fa ${field.icon}`} /></span> : <i style={{ fontSize: '20px' }} className={`fa ${field.icon}`} />
+        const icon = field.onClick
+            ? <span onClick={field.onClick}><i style={{ fontSize: '20px' }} className={`fa ${field.icon}`}/></span>
+            : <i style={{ fontSize: '20px' }} className={`fa ${field.icon}`}/>
         return <FormGroup>
             <Label>{field.label}</Label>
             <InputGroup>
-                <Input style={{ width: '90%' }} value={field.value} type="text" name={field.name} onChange={this.props.handleChange} />
+                <Input style={{ width: '90%' }} value={field.value} type="text" name={field.name}
+                    onChange={this.props.handleChange}/>
                 <InputGroupAddon addonType="append">
                     <InputGroupText>{icon}</InputGroupText>
                 </InputGroupAddon>

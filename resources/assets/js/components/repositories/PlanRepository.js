@@ -69,6 +69,26 @@ export default class PlanRepository extends BaseRepository {
         }
     }
 
+    async change (subscription, plan) {
+        this.errors = []
+        this.error_message = ''
+
+        try {
+            const res = await axios.post(`${this._url}/change/${subscription}`, { plan: plan })
+
+            if (res.status === 200) {
+                // test for status you want, etc
+                console.log(res.status)
+            }
+
+            // Don't forget to return something
+            return res.data
+        } catch (e) {
+            this.handleError(e)
+            return false
+        }
+    }
+
     async plans () {
         this.errors = []
         this.error_message = ''

@@ -39,6 +39,34 @@ export default class EditPlan extends React.Component {
         }
     }
 
+    change () {
+        const planRepository = new PlanRepository()
+
+        planRepository.change(this.state.id, this.state.plan_id).then(response => {
+            if (!response) {
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.plan), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+            }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.plan), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
+        })
+    }
+
     cancel () {
         const planRepository = new PlanRepository()
 
@@ -214,7 +242,7 @@ export default class EditPlan extends React.Component {
                     </ModalBody>
 
                     <DefaultModalFooter show_success={true} toggle={this.toggle}
-                        saveData={this.handleClick.bind(this)}
+                        saveData={this.change.bind(this)}
                         loading={false}/>
                 </Modal>
             </React.Fragment>

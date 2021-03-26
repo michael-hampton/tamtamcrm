@@ -76,6 +76,10 @@ class UserController extends Controller
      */
     public function store(CreateUserRequest $request)
     {
+        echo '<pre>';
+        print_r($request->all());
+        die;
+
         $user = $this->user_repo->save(
             $request->except('customized_permissions'),
             UserFactory::create(auth()->user()->account_user()->account->domains->id)
@@ -142,7 +146,7 @@ class UserController extends Controller
     public function destroy(DeleteUserRequest $request, User $user)
     {
         $this->authorize('delete', $user);
-        $this->user_repo->destroy($user);
+        $this->user_repo->deleteUser($user);
         return response()->json([], 200);
     }
 

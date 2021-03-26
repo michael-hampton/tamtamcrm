@@ -11,6 +11,7 @@ use App\Requests\PlanSubscriptions\UpdatePlanSubscription;
 use App\Requests\SearchRequest;
 use App\Search\PlanSubscriptionSearch;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class PlanSubscriptionController extends Controller
 {
@@ -108,6 +109,18 @@ class PlanSubscriptionController extends Controller
     public function renew(PlanSubscription $plan_subscription)
     {
         $plan_subscription = $plan_subscription->renew();
+        return response()->json($plan_subscription, 200);
+    }
+
+    /**
+     * @param Request $request
+     * @param PlanSubscription $plan_subscription
+     * @return JsonResponse
+     */
+    public function change(Request $request, PlanSubscription $plan_subscription)
+    {
+        $plan = Plan::where('id', '=', $request->input('plan'))->first();
+        $plan_subscription = $plan_subscription->changePlan($plan);
         return response()->json($plan_subscription, 200);
     }
 

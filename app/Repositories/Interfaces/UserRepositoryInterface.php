@@ -2,7 +2,6 @@
 
 namespace App\Repositories\Interfaces;
 
-use App\Models\Account;
 use App\Models\AccountUser;
 use App\Models\Department;
 use App\Models\User;
@@ -28,10 +27,11 @@ interface UserRepositoryInterface extends BaseRepositoryInterface
     public function listUsers($columns = array('*'), string $orderBy = 'id', string $sortBy = 'asc'): Collection;
 
     /**
-     *
+     * @param User $user
+     * @param bool $delete_account
+     * @return User
      */
-    public function deleteUser(): bool;
-
+    public function deleteUser(User $user, $delete_account = false): ?User;
     /**
      *
      * @param array $data
