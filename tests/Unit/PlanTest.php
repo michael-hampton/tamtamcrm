@@ -9,7 +9,6 @@ use App\Models\Account;
 use App\Models\Customer;
 use App\Models\CustomerContact;
 use App\Models\Domain;
-use App\Models\Invoice;
 use App\Models\Plan;
 use App\Models\User;
 use App\Repositories\DomainRepository;
@@ -72,11 +71,15 @@ class PlanTest extends TestCase
         $customer->contacts()->save($contact);
         $user = User::factory()->create();
 
+        //Standard Monthly by default
+        $plan = Plan::where('code', '=', 'STDM')->first();
+
         $domain = (new DomainRepository(new Domain))->create(
             [
                 'user_id'       => $user->id,
                 'customer_id'   => $customer->id,
-                'support_email' => $this->faker->safeEmail
+                'support_email' => $this->faker->safeEmail,
+                'plan_id'       => $plan->id
             ]
         );
 
@@ -84,16 +87,13 @@ class PlanTest extends TestCase
         $domain->default_account_id = $account->id;
         $domain->save();
 
-        //Standard Monthly by default
-        $plan = Plan::where('code', '=', 'STDM')->first();
-
         $customer->newSubscription('main', $plan, $account);
 
         $subscription = $customer->subscriptions->first();
 
         $subscription->ends_at = now();
         $subscription->save();
-        
+
         $subscription->renew();
 
         $subscription = $subscription->fresh();
@@ -111,11 +111,15 @@ class PlanTest extends TestCase
         //Standard Monthly by default
         $plan = Plan::where('code', '=', 'STDMT')->first();
 
+        $trial_ends = now()->addDays($plan->trial_period);
+
         $customer->newSubscription('main', $plan, $account);
 
         $subscription = $customer->subscriptions->first();
 
         $expected_due_date = $subscription->starts_at->addMonth();
+
+        $this->assertEquals($trial_ends->format('Y-m-d'), $subscription->trial_ends_at->format('Y-m-d'));
 
         $this->assertEquals(
             $subscription->trial_ends_at->format('Y-m-d'),
@@ -125,13 +129,13 @@ class PlanTest extends TestCase
         //$this->assertEquals(99999, $plan->number_of_licences);
         $this->assertEquals(
             $expected_due_date->format('Y-m-d'),
-           $subscription->due_date->format('Y-m-d')
+            $subscription->due_date->format('Y-m-d')
         );
 
         // 1 month plus length of trial
         $this->assertEquals(
-            now()->addMonthNoOverflow()->addDays(10)->format('Y-m-d'),
-            Carbon::parse($subscription->ends_at)->format('Y-m-d')
+            $subscription->trial_ends_at->addMonthNoOverflow()->format('Y-m-d'),
+            $subscription->ends_at->format('Y-m-d')
         );
     }
 
@@ -182,20 +186,21 @@ class PlanTest extends TestCase
         $customer->contacts()->save($contact);
         $user = User::factory()->create();
 
+        //Standard Monthly by default
+        $plan = Plan::where('code', '=', 'STDM')->first();
+
         $domain = (new DomainRepository(new Domain))->create(
             [
                 'user_id'       => $user->id,
                 'customer_id'   => $customer->id,
-                'support_email' => $this->faker->safeEmail
+                'support_email' => $this->faker->safeEmail,
+                'plan_id'       => $plan->id
             ]
         );
 
         $account = Account::factory()->create(['domain_id' => $domain->id, 'support_email' => $this->faker->safeEmail]);
         $domain->default_account_id = $account->id;
         $domain->save();
-
-        //Standard Monthly by default
-        $plan = Plan::where('code', '=', 'STDM')->first();
 
         $customer->newSubscription('main', $plan, $account);
 
@@ -227,11 +232,15 @@ class PlanTest extends TestCase
         $customer->contacts()->save($contact);
         $user = User::factory()->create();
 
+        //Standard Monthly by default
+        $plan = Plan::where('code', '=', 'STDM')->first();
+
         $domain = (new DomainRepository(new Domain))->create(
             [
                 'user_id'       => $user->id,
                 'customer_id'   => $customer->id,
-                'support_email' => $this->faker->safeEmail
+                'support_email' => $this->faker->safeEmail,
+                'plan_id'       => $plan->id
             ]
         );
 
@@ -239,9 +248,6 @@ class PlanTest extends TestCase
         $domain->save();
 
         $promocode = (new Promocodes)->createDisposable($this->account, 1, 10, [], Carbon::now()->addDays(10), 1);
-
-        //Standard Monthly by default
-        $plan = Plan::where('code', '=', 'STDM')->first();
 
         $customer->newSubscription('main', $plan, $this->account);
 

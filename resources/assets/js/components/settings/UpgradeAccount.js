@@ -27,6 +27,7 @@ export default class UpgradeAccount extends Component {
         this.hasErrorFor = this.hasErrorFor.bind(this)
         this.renderErrorFor = this.renderErrorFor.bind(this)
         this.handleInput = this.handleInput.bind(this)
+        this.handleClick = this.handleClick.bind(this)
     }
 
     handleInput (e) {
@@ -148,7 +149,7 @@ export default class UpgradeAccount extends Component {
                     </ModalBody>
 
                     <DefaultModalFooter show_success={true} toggle={this.toggle}
-                        saveData={this.handleClick.bind(this)}
+                        saveData={this.handleClick}
                         loading={false}/>
                 </Modal>
             </React.Fragment>

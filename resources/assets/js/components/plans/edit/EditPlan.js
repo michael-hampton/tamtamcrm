@@ -1,5 +1,5 @@
 import React from 'react'
-import { DropdownItem, Modal, ModalBody, Button } from 'reactstrap'
+import { Button, DropdownItem, Modal, ModalBody } from 'reactstrap'
 import { icons } from '../../utils/_icons'
 import { translations } from '../../utils/_translations'
 import Details from './Details'
@@ -15,10 +15,13 @@ export default class EditPlan extends React.Component {
 
         this.planModel = new PlanSubscriptionModel(this.props.plan)
         this.initialState = this.planModel.fields
+        this.initialState.original_plan_id = parseInt(this.props.plan.plan_id)
+        this.initialState.plan_changed = false
         this.state = this.initialState
 
         this.renew = this.renew.bind(this)
         this.cancel = this.cancel.bind(this)
+        this.change = this.change.bind(this)
         this.toggle = this.toggle.bind(this)
         this.hasErrorFor = this.hasErrorFor.bind(this)
         this.renderErrorFor = this.renderErrorFor.bind(this)
@@ -42,7 +45,7 @@ export default class EditPlan extends React.Component {
     change () {
         const planRepository = new PlanRepository()
 
-        planRepository.change(this.state.id, this.state.plan_id).then(response => {
+        planRepository.change(this.state.id, this.state.plan_id, this.state.number_of_licences).then(response => {
             if (!response) {
                 toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.plan), {
                     position: 'top-center',
@@ -124,7 +127,10 @@ export default class EditPlan extends React.Component {
     }
 
     handleInput (e) {
+        const plan_changed = e.target.name === 'plan_id' && parseInt(e.target.value) !== parseInt(this.state.original_plan_id)
+
         this.setState({
+            plan_changed: plan_changed,
             [e.target.name]: e.target.value,
             changesMade: true
         })
@@ -242,7 +248,7 @@ export default class EditPlan extends React.Component {
                     </ModalBody>
 
                     <DefaultModalFooter show_success={true} toggle={this.toggle}
-                        saveData={this.change.bind(this)}
+                        saveData={this.state.plan_changed === true ? this.change : this.handleClick}
                         loading={false}/>
                 </Modal>
             </React.Fragment>

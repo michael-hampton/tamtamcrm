@@ -225,6 +225,7 @@ class AccountController extends BaseController
 
         // Change subscription plan
         $plan = Plan::where('code', '=', $code)->first();
+
         $subscription->changePlan($plan);
 
         $domain->plan_id = $plan->id;
@@ -253,6 +254,7 @@ class AccountController extends BaseController
         $period = $period === 'monthly' ? 'M' : 'Y';
         $code = $plan . $period;
         $plan = Plan::where('code', '=', $code)->first();
+
         $domain = auth()->user()->account_user()->account->domains;
 
         $domain->plan_id = $plan->id;

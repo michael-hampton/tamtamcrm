@@ -69,12 +69,12 @@ export default class PlanRepository extends BaseRepository {
         }
     }
 
-    async change (subscription, plan) {
+    async change (subscription, plan, number_of_licences = 1) {
         this.errors = []
         this.error_message = ''
 
         try {
-            const res = await axios.post(`${this._url}/change/${subscription}`, { plan: plan })
+            const res = await axios.post(`${this._url}/change/${subscription}`, { plan: plan, number_of_licences: number_of_licences })
 
             if (res.status === 200) {
                 // test for status you want, etc

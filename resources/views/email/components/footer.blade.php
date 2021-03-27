@@ -1,6 +1,4 @@
-<div class="mt-4 text-center">
-    <p class="text-center">{{ $slot }}</p>
-
+<div class="px-4 py-4 d-flex flex-column justify-content-center text-center">
     @isset($url)
         <a href="{{ $url }}" class="text-primary">
             @isset($url_text)

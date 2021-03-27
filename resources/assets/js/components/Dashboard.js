@@ -370,7 +370,7 @@ export default class Dashboard extends Component {
     componentDidMount () {
         this.fetchData()
 
-        //if (!this.settings.name.length) {
+        if (!this.settings.name.length) {
             setTimeout(
                 function () {
                     this.setState({ modal2: true })
@@ -378,7 +378,7 @@ export default class Dashboard extends Component {
                     .bind(this),
                 3000
             )
-        //}
+        }
 
         // window.setInterval(() => {
         //     this.fetchData()

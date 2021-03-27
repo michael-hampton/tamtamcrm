@@ -97,6 +97,10 @@ class ForgotPassword extends Mailable
             'logo'        => $account->present()->logo(),
             'url'         => $this->url,
             'button_text' => trans('texts.forgot_password_button'),
+            'show_footer' => empty($this->user->domain->plan) || !in_array(
+                    $this->user->domain->plan->code,
+                    ['PROM', 'PROY']
+                )
         ];
     }
 

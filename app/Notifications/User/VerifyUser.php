@@ -38,7 +38,11 @@ class VerifyUser extends Notification implements ShouldQueue
                         'title'       => trans('texts.user_confirmed_subject'),
                         'message'     => trans('texts.user_confirmed_body'),
                         'button_text' => trans('texts.user_confirmed_button'),
-                        'url'         => url("/user/confirm/{$this->user->confirmation_code}")
+                        'url'         => url("/user/confirm/{$this->user->confirmation_code}"),
+                        'show_footer' => empty($this->user->domain->plan) || !in_array(
+                                $this->user->domain->plan->code,
+                                ['PROM', 'PROY']
+                            )
                     ]
                 ]
             );

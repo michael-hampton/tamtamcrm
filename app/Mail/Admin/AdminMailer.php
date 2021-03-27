@@ -76,13 +76,17 @@ class AdminMailer extends Mailable
      */
     protected function execute(array $message_array)
     {
-
         $template = !in_array(
             get_class($this->entity),
             ['App\Models\Lead', 'App\Models\PurchaseOrder']
         ) ? $this->entity->customer->getSetting(
             'email_style'
         ) : $this->entity->account->settings->email_style;
+
+        $message_array['show_footer'] = empty($this->entity->account->domains->plan) || !in_array(
+                $this->entity->account->domains->plan->code,
+                ['PROM', 'PROY']
+            );
 
         try {
             return $this->to($this->user->email)

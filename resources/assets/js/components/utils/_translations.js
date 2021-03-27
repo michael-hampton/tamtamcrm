@@ -925,7 +925,12 @@ _localizedValues.en = {
     edit_plan: 'Edit Subscription',
     plan: 'Subscription',
     renew: 'Renew',
-    subdomain: 'Subdomain'
+    subdomain: 'Subdomain',
+    ends_at: 'Ends at',
+    starts_at: 'Starts at',
+    trial_starts_at: 'Trial starts at',
+    trial_ends_at: 'Trial ends at',
+    plan_name: 'Plan name'
 }
 
 let language = []

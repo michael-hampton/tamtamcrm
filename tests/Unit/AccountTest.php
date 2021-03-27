@@ -51,7 +51,7 @@ class AccountTest extends TestCase
 
         $this->assertNotNull($domain->plan_id);
 
-        $plan = $domain->plan;
+        $plan = $domain->plans->first();
 
         $this->assertEquals($plan->starts_at->format('Y-m-d'), now()->format('Y-m-d'));
         $this->assertEquals($plan->ends_at->format('Y-m-d'), now()->addYearNoOverflow()->format('Y-m-d'));

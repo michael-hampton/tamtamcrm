@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\Account;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -12,14 +13,17 @@ class SupportMessage extends Mailable
 
     private $message;
 
+    private Account $account;
+
     /**
-     * Create a new message instance.
-     *
+     * SupportMessage constructor.
+     * @param Account $account
      * @param $message
      */
-    public function __construct($message)
+    public function __construct(Account $account, $message)
     {
         $this->message = $message;
+        $this->account = $account;
     }
 
     /**
@@ -35,8 +39,12 @@ class SupportMessage extends Mailable
                         'email.admin.new',
                         [
                             'data' => [
-                                'title'   => trans('texts.support_ticket_subject'),
-                                'message' => $this->message
+                                'title'       => trans('texts.support_ticket_subject'),
+                                'message'     => $this->message,
+                                'show_footer' => empty($this->account->domains->plan) || !in_array(
+                                        $this->account->domains->plan->code,
+                                        ['PROM', 'PROY']
+                                    )
                             ]
                         ]
                     );

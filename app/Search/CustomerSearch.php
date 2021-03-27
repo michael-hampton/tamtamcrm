@@ -92,7 +92,7 @@ class CustomerSearch extends BaseSearch
         }
 
         if ($request->filled('id')) {
-            $this->query->whereId($request->id);
+            $this->query->where('customers.id', '=', $request->id);
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {

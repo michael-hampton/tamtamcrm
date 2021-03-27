@@ -5,14 +5,9 @@ namespace App\Search;
 use App\Models\Account;
 use App\Models\Plan;
 use App\Models\PlanSubscription;
-use App\Models\TaskStatus;
-use App\Repositories\PlanRepository;
 use App\Repositories\PlanSubscriptionRepository;
-use App\Repositories\TaskStatusRepository;
 use App\Requests\SearchRequest;
 use App\Transformations\PlanSubscriptionTransformable;
-use App\Transformations\PlanTransformable;
-use App\Transformations\TaskStatusTransformable;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
@@ -53,7 +48,13 @@ class PlanSubscriptionSearch extends BaseSearch
         $orderBy = !$request->column ? 'created_at' : $request->column;
         $orderDir = !$request->order ? 'asc' : $request->order;
 
-        $this->query = $this->model->select('plan_subscriptions.*');
+        $this->query = $this->model->select('plan_subscriptions.*', 'plans.name AS plan_name')->join(
+            'plans',
+            'plans.id',
+            '=',
+            'plan_subscriptions.plan_id'
+        );
+
 
         if ($request->has('status')) {
             $this->status('plan_subscriptions', $request->status);

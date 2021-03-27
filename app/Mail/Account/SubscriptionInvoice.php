@@ -3,9 +3,7 @@
 namespace App\Mail\Account;
 
 use App\Models\Account;
-use App\Models\Domain;
 use App\Models\Invoice;
-use App\Models\Plan;
 use App\Models\PlanSubscription;
 use App\Traits\Money;
 use Illuminate\Bus\Queueable;
@@ -77,7 +75,6 @@ class SubscriptionInvoice extends Mailable
 
     private function getDataArray()
     {
-
         $cost = $this->plan->plan->price * $this->plan->number_of_licences;
 
         return [
@@ -97,6 +94,10 @@ class SubscriptionInvoice extends Mailable
             'button_text' => trans('texts.view_invoice'),
             //'signature'   => isset($this->invoice->account->settings->email_signature) ? $this->order->account->settings->email_signature : '',
             'logo'        => $this->invoice->account->present()->logo(),
+            'show_footer' => empty($this->account->domains->plan) || !in_array(
+                    $this->account->domains->plan->code,
+                    ['PROM', 'PROY']
+                )
         ];
     }
 }

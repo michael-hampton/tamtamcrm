@@ -41,6 +41,10 @@ class NewAccount extends Notification implements ShouldQueue
                         'url'         => url(config('taskmanager.site_url')),
                         'signature'   => isset($this->account->settings->email_signature) ? $this->account->settings->email_signature : '',
                         'logo'        => $this->account->present()->logo(),
+                        'show_footer' => empty($this->account->domains->plan) || !in_array(
+                                $this->account->domains->plan->code,
+                                ['PROM', 'PROY']
+                            )
                     ]
                 ]
             );
