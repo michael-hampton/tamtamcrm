@@ -66,7 +66,7 @@ trait RecurringInvoiceTransformable
             ) : [],
             'invitations'           => $this->transformRecurringInvoiceInvitations($invoice->invitations),
             'invoices'              => $this->transformInvoicesCreated($invoice->invoices),
-            'schedule'              => $invoice->calculateDateRanges(),
+            'schedule'              => !empty($invoice->frequency) ? $invoice->calculateDateRanges() : [],
             'tax_rate'              => (float)$invoice->tax_rate,
             'tax_2'                 => (float)$invoice->tax_2,
             'tax_3'                 => (float)$invoice->tax_3,

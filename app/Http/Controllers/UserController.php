@@ -76,10 +76,6 @@ class UserController extends Controller
      */
     public function store(CreateUserRequest $request)
     {
-        echo '<pre>';
-        print_r($request->all());
-        die;
-
         $user = $this->user_repo->save(
             $request->except('customized_permissions'),
             UserFactory::create(auth()->user()->account_user()->account->domains->id)

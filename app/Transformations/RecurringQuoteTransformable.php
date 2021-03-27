@@ -66,7 +66,7 @@ trait RecurringQuoteTransformable
             ) : [],
             'invitations'           => $this->transformRecurringQuoteInvitations($quote->invitations),
             'quotes'                => $this->transformQuotesCreated($quote->quotes),
-            'schedule'              => $quote->calculateDateRanges(),
+            'schedule'              => !empty($quote->frequency) ? $quote->calculateDateRanges() : [],
             'tax_rate'              => (float)$quote->tax_rate,
             'tax_2'                 => (float)$quote->tax_2,
             'tax_3'                 => (float)$quote->tax_3,

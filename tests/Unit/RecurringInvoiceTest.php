@@ -55,7 +55,7 @@ class RecurringInvoiceTest extends TestCase
     }
 
     /** @test */
-    public function it_can_show_all_the_invoices()
+    public function it_can_show_all_the_recurring_invoices()
     {
         RecurringInvoice::factory()->create();
         $list = (new RecurringInvoiceSearch(new RecurringInvoiceRepository(new RecurringInvoice())))->filter(
