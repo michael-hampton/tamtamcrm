@@ -156,6 +156,7 @@ class CustomerSearch extends BaseSearch
     {
         $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['customers'])->get();
         $contacts = CustomerContact::all()->groupBy('customer_id');
+
         $files = File::where('fileable_type', '=', 'App\Models\Customer')->get()->groupBy('fileable_id');
 
         $customers = $list->map(

@@ -31,15 +31,20 @@ class ExpenseRestored implements ShouldQueue
      */
     public function handle($event)
     {
-        $fields = [];
-        $fields['data']['id'] = $event->expense->id;
-        $fields['data']['customer_id'] = $event->expense->customer_id;
-        $fields['data']['message'] = 'A expense was restored';
-        $fields['notifiable_id'] = $event->expense->user_id;
-        $fields['account_id'] = $event->expense->account_id;
-        $fields['notifiable_type'] = get_class($event->expense);
-        $fields['type'] = get_class($this);
-        $fields['data'] = json_encode($fields['data']);
+        $data = [
+            'id'          => $event->expense->id,
+            'customer_id' => $event->expense->customer_id,
+            'message'     => 'A expense was restored'
+        ];
+
+        $fields = [
+            'notifiable_id'   => $event->expense->user_id,
+            'account_id'      => $event->expense->account_id,
+            'notifiable_type' => get_class($event->expense),
+            'type'            => get_class($this),
+            'data'            => json_encode($data),
+            'action'          => 'restored'
+        ];
 
         $notification = NotificationFactory::create($event->expense->account_id, $event->expense->user_id);
         $notification->entity_id = $event->expense->id;

@@ -199,6 +199,7 @@ class InvoiceController extends BaseController
 
         $data = $request->input('invoice');
         $data['due_date'] = $due_date;
+        $data['plan_subscription_id'] = $subscription->id;
 
         if (!empty($request->input('promocode')) && empty($plan->promocode_applied)) {
             $promocode = (new ApplyCode())->execute($plan, $account, $unit_cost);

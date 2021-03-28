@@ -22,7 +22,8 @@ class Notification extends Model
         'notifiable_id',
         'data',
         'read_at',
-        'account_id'
+        'account_id',
+        'action'
     ];
 
     protected static $flushCacheOnUpdate = true;

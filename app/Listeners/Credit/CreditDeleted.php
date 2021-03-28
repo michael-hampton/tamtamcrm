@@ -28,15 +28,20 @@ class CreditDeleted implements ShouldQueue
      */
     public function handle($event)
     {
-        $fields = [];
-        $fields['data']['id'] = $event->credit->id;
-        $fields['data']['customer_id'] = $event->credit->customer_id;
-        $fields['data']['message'] = 'A credit was deleted';
-        $fields['notifiable_id'] = $event->credit->user_id;
-        $fields['account_id'] = $event->credit->account_id;
-        $fields['notifiable_type'] = get_class($event->credit);
-        $fields['type'] = get_class($this);
-        $fields['data'] = json_encode($fields['data']);
+        $data = [
+            'id'          => $event->credit->id,
+            'customer_id' => $event->credit->customer_id,
+            'message'     => 'A credit was deleted'
+        ];
+
+        $fields = [
+            'notifiable_id'   => $event->credit->user_id,
+            'account_id'      => $event->credit->account_id,
+            'notifiable_type' => get_class($event->credit),
+            'type'            => get_class($this),
+            'data'            => json_encode($data),
+            'action'          => 'deleted'
+        ];
 
         $notification = NotificationFactory::create($event->credit->account_id, $event->credit->user_id);
         $notification->entity_id = $event->credit->id;

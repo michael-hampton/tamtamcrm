@@ -32,15 +32,20 @@ class CaseUpdated implements ShouldQueue
      */
     public function handle($event)
     {
-        $fields = [];
-        $fields['data']['id'] = $event->case->id;
-        $fields['data']['customer_id'] = $event->case->customer_id;
-        $fields['data']['message'] = 'A case was updated';
-        $fields['notifiable_id'] = $event->case->user_id;
-        $fields['account_id'] = $event->case->account_id;
-        $fields['notifiable_type'] = get_class($event->case);
-        $fields['type'] = get_class($this);
-        $fields['data'] = json_encode($fields['data']);
+        $data = [
+            'id'          => $event->case->id,
+            'customer_id' => $event->case->customer_id,
+            'message'     => 'A case was updated'
+        ];
+
+        $fields = [
+            'notifiable_id'   => $event->case->user_id,
+            'account_id'      => $event->case->account_id,
+            'notifiable_type' => get_class($event->case),
+            'type'            => get_class($this),
+            'data'            => json_encode($data),
+            'action'          => 'updated'
+        ];
 
         $notification = NotificationFactory::create($event->case->account_id, $event->case->user_id);
         $notification->entity_id = $event->case->id;

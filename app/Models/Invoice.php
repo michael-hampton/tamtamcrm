@@ -111,7 +111,8 @@ class Invoice extends Model
         'gateway_percentage',
         'recurring_invoice_id',
         'late_fee_reminder',
-        'project_id'
+        'project_id',
+        'plan_subscription_id'
     ];
 
     protected $dates = [

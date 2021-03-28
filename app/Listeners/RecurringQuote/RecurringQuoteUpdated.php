@@ -32,24 +32,29 @@ class RecurringQuoteUpdated implements ShouldQueue
      */
     public function handle($event)
     {
-        $fields = [];
-        $fields['data']['id'] = $event->recurringQuote->id;
-        $fields['data']['customer_id'] = $event->recurringQuote->customer_id;
-        $fields['data']['message'] = 'A recurringQuote was updated';
-        $fields['notifiable_id'] = $event->recurringQuote->user_id;
-        $fields['account_id'] = $event->recurringQuote->account_id;
-        $fields['notifiable_type'] = get_class($event->recurringQuote);
-        $fields['type'] = get_class($this);
-        $fields['data'] = json_encode($fields['data']);
+        $data = [
+            'id'          => $event->recurring_quote->id,
+            'customer_id' => $event->recurring_quote->customer_id,
+            'message'     => 'A recurring quote was updated'
+        ];
+
+        $fields = [
+            'notifiable_id'   => $event->recurring_quote->user_id,
+            'account_id'      => $event->recurring_quote->account_id,
+            'notifiable_type' => get_class($event->recurring_quote),
+            'type'            => get_class($this),
+            'data'            => json_encode($data),
+            'action'          => 'updated'
+        ];
 
         $notification = NotificationFactory::create(
-            $event->recurringQuote->account_id,
-            $event->recurringQuote->user_id
+            $event->recurring_quote->account_id,
+            $event->recurring_quote->user_id
         );
-        $notification->entity_id = $event->recurringQuote->id;
+        $notification->entity_id = $event->recurring_quote->id;
         $this->notification_repo->save($notification, $fields);
 
         // regenerate pdf
-        (new GeneratePdf($event->recurringQuote))->execute(null, true);
+        (new GeneratePdf($event->recurring_quote))->execute(null, true);
     }
 }

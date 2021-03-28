@@ -31,15 +31,20 @@ class ProjectDeleted implements ShouldQueue
      */
     public function handle($event)
     {
-        $fields = [];
-        $fields['data']['id'] = $event->project->id;
-        $fields['data']['customer_id'] = $event->project->customer_id;
-        $fields['data']['message'] = 'A project was deleted';
-        $fields['notifiable_id'] = $event->project->user_id;
-        $fields['account_id'] = $event->project->account_id;
-        $fields['notifiable_type'] = get_class($event->project);
-        $fields['type'] = get_class($this);
-        $fields['data'] = json_encode($fields['data']);
+        $data = [
+            'id'          => $event->project->id,
+            'customer_id' => $event->project->customer_id,
+            'message'     => 'A project was deleted'
+        ];
+
+        $fields = [
+            'notifiable_id'   => $event->project->user_id,
+            'account_id'      => $event->project->account_id,
+            'notifiable_type' => get_class($event->project),
+            'type'            => get_class($this),
+            'data'            => json_encode($data),
+            'action'          => 'deleted'
+        ];
 
         $notification = NotificationFactory::create($event->project->account_id, $event->project->user_id);
         $notification->entity_id = $event->project->id;

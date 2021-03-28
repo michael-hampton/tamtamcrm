@@ -17,7 +17,7 @@ trait CustomerTransformable
      * @return array
      * @throws Exception
      */
-    protected function transformCustomer(Customer $customer, $contacts = null, $files = null)
+    protected function transformCustomer(Customer $customer, $customer_contacts = null, $files = null)
     {
         $company = !empty($customer->company_id) ? $customer->company->toArray() : '';
 
@@ -26,9 +26,9 @@ trait CustomerTransformable
 
         $contacts = [];
 
-        if ($contacts !== null) {
-            if (!empty($contacts[$customer->id])) {
-                $contacts = $this->transformContacts($contacts);
+        if ($customer_contacts !== null) {
+            if (!empty($customer_contacts[$customer->id])) {
+                $contacts = $this->transformContacts($customer_contacts[$customer->id]);
             }
         } else {
             $contacts = $this->transformContacts($customer->contacts);

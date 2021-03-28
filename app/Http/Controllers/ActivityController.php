@@ -63,7 +63,7 @@ class ActivityController extends Controller
         $currentUser = auth()->user();
         $comments = $account->comments()->with('user')->get();
         //$list = $this->notification_repo->listNotifications('*', 'created_at', 'DESC');
-        $list = Notification::where('account_id',  $account)->orderBy('created_at', 'DESC')->cacheFor(now()->addMonthNoOverflow())->cacheTags(['activity'])->get();
+        $list = Notification::where('account_id',  $account->id)->orderBy('created_at', 'DESC')->get();
 
         if (!empty($request->input('read_only'))) {
             $list = $list->filter(

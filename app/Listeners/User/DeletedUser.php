@@ -36,20 +36,26 @@ class DeletedUser implements ShouldQueue
         $fields = [];
 
         if (!empty(auth()->user()) && auth()->user()->id) {
-            $fields['data']['id'] = auth()->user()->id;
-            $fields['notifiable_id'] = auth()->user()->id;
+            $user_id = auth()->user()->id;
             $account_id = auth()->user()->account_user()->account->id;
         } else {
-            $fields['data']['id'] = $event->user->id;
-            $fields['notifiable_id'] = $event->user->id;
+            $user_id = $event->user->id;
             $account_id = $event->user->domain->default_company->id;
         }
 
-        $fields['data']['message'] = 'A user was deleted';
-        $fields['account_id'] = $event->user->account_id;
-        $fields['notifiable_type'] = get_class($event->user);
-        $fields['type'] = get_class($this);
-        $fields['data'] = json_encode($fields['data']);
+        $data = [
+            'id'      => $user_id,
+            'message' => 'A user was deleted'
+        ];
+
+        $fields = [
+            'notifiable_id'   => $user_id,
+            'account_id'      => $account_id,
+            'notifiable_type' => get_class($event->user),
+            'type'            => get_class($this),
+            'data'            => json_encode($data),
+            'action'          => 'deleted'
+        ];
 
         $notification = NotificationFactory::create($account_id, $event->user->id);
         $notification->entity_id = $event->user->id;

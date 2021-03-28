@@ -30,22 +30,26 @@ class UpdatedUser
         $fields = [];
 
         if (auth()->user()) {
-            $fields['data']['id'] = auth()->user()->id;
-            $fields['notifiable_id'] = auth()->user()->id;
             $user = auth()->user();
         } else {
-            $fields['data']['id'] = $event->user->id;
-            $fields['notifiable_id'] = $event->user->id;
             $user = $event->user;
         }
 
         $account_id = !empty($user->account_user()) ? $user->account_user()->account_id : $user->accounts->first()->id;
 
-        $fields['data']['message'] = 'A user was updated';
-        $fields['account_id'] = $account_id;
-        $fields['notifiable_type'] = get_class($event->user);
-        $fields['type'] = get_class($this);
-        $fields['data'] = json_encode($fields['data']);
+        $data = [
+            'id'      => $user->id,
+            'message' => 'A user was updated'
+        ];
+
+        $fields = [
+            'notifiable_id'   => $user->id,
+            'account_id'      => $account_id,
+            'notifiable_type' => get_class($event->user),
+            'type'            => get_class($this),
+            'data'            => json_encode($data),
+            'action'          => 'updated'
+        ];
 
         $notification = NotificationFactory::create($account_id, $event->user->id);
         $notification->entity_id = $event->user->id;

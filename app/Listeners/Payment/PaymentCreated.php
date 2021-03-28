@@ -32,29 +32,29 @@ class PaymentCreated implements ShouldQueue
 
         $invoices = $payment->invoices;
 
-        $fields = [];
-        $fields['data']['id'] = $payment->id;
-        $fields['data']['customer_id'] = $event->payment->customer_id;
-        $fields['data']['message'] = 'A new payment was created';
-        $fields['notifiable_id'] = $payment->user_id;
-        $fields['account_id'] = $payment->account_id;
-        $fields['notifiable_type'] = get_class($payment);
-        $fields['type'] = get_class($this);
+        $data = [
+            'id'          => $event->payment->id,
+            'customer_id' => $event->payment->customer_id,
+            'message'     => 'A payment was created'
+        ];
+
+        if (!empty($invoices)) {
+            foreach ($invoices as $invoice) {
+                $data['invoices'][] = $invoice->id;
+            }
+        }
+
+        $fields = [
+            'notifiable_id'   => $event->payment->user_id,
+            'account_id'      => $event->payment->account_id,
+            'notifiable_type' => get_class($event->payment),
+            'type'            => get_class($this),
+            'data'            => json_encode($data),
+            'action'          => 'created'
+        ];
 
         $notification = NotificationFactory::create($payment->account_id, $payment->user_id);
         $notification->entity_id = $event->payment->id;
-
-        foreach ($invoices as $invoice) { //todo we may need to add additional logic if in the future we apply payments to other entity Types, not just invoices
-            $fields2 = $fields;
-
-            $fields2['data']['invoice_id'] = $invoice->id;
-            $fields2['data'] = json_encode($fields2['data']);
-            $this->notification_repo->save($notification, $fields2);
-        }
-
-        if (count($invoices) == 0) {
-            $fields['data'] = json_encode($fields['data']);
-            $this->notification_repo->save($notification, $fields);
-        }
+        $this->notification_repo->save($notification, $fields);
     }
 }

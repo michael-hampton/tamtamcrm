@@ -15,14 +15,14 @@ class RecurringInvoiceWasRestored
     /**
      * @var RecurringInvoice
      */
-    public RecurringInvoice $recurringInvoice;
+    public RecurringInvoice $recurring_invoice;
 
     /**
      * RecurringInvoiceWasRestored constructor.
-     * @param RecurringInvoice $recurringInvoice
+     * @param RecurringInvoice $recurring_invoice
      */
-    public function __construct(RecurringInvoice $recurringInvoice)
+    public function __construct(RecurringInvoice $recurring_invoice)
     {
-        $this->recurringInvoice = $recurringInvoice;
+        $this->recurring_invoice = $recurring_invoice;
     }
 }

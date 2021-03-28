@@ -31,14 +31,19 @@ class CompanyUpdated implements ShouldQueue
      */
     public function handle($event)
     {
-        $fields = [];
-        $fields['data']['id'] = $event->company->id;
-        $fields['data']['message'] = 'A company was updated';
-        $fields['notifiable_id'] = $event->company->user_id;
-        $fields['account_id'] = $event->company->account_id;
-        $fields['notifiable_type'] = get_class($event->company);
-        $fields['type'] = get_class($this);
-        $fields['data'] = json_encode($fields['data']);
+        $data = [
+            'id'      => $event->company->id,
+            'message' => 'A company was updated'
+        ];
+
+        $fields = [
+            'notifiable_id'   => $event->company->user_id,
+            'account_id'      => $event->company->account_id,
+            'notifiable_type' => get_class($event->company),
+            'type'            => get_class($this),
+            'data'            => json_encode($data),
+            'action'          => 'updated'
+        ];
 
         $notification = NotificationFactory::create($event->company->account_id, $event->company->user_id);
         $notification->entity_id = $event->company->id;

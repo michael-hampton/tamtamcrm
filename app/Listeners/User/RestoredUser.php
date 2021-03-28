@@ -30,18 +30,24 @@ class RestoredUser
         $fields = [];
 
         if (auth()->user()->id) {
-            $fields['data']['id'] = auth()->user()->id;
-            $fields['notifiable_id'] = auth()->user()->id;
+            $user_id = auth()->user()->id;
         } else {
-            $fields['data']['id'] = $event->user->id;
-            $fields['notifiable_id'] = $event->user->id;
+            $user_id = $event->user->id;
         }
 
-        $fields['data']['message'] = 'A user was restored';
-        $fields['account_id'] = $event->user->account_id;
-        $fields['notifiable_type'] = get_class($event->user);
-        $fields['type'] = get_class($this);
-        $fields['data'] = json_encode($fields['data']);
+        $data = [
+            'id'      => $user_id,
+            'message' => 'A user was restored'
+        ];
+
+        $fields = [
+            'notifiable_id'   => $user_id,
+            'account_id'      => $event->user->account_id,
+            'notifiable_type' => get_class($event->user),
+            'type'            => get_class($this),
+            'data'            => json_encode($data),
+            'action'          => 'restored'
+        ];
 
         $notification = NotificationFactory::create($event->user->account_id, $event->user->user_id);
         $notification->entity_id = $event->user->id;

@@ -32,15 +32,20 @@ class PaymentUpdated implements ShouldQueue
 
         $invoices = $payment->invoices;
 
-        $fields = [];
-        $fields['data']['id'] = $payment->id;
-        $fields['data']['customer_id'] = $event->payment->customer_id;
-        $fields['data']['message'] = 'A payment was updated';
-        $fields['notifiable_id'] = $payment->user_id;
-        $fields['account_id'] = $payment->account_id;
-        $fields['notifiable_type'] = get_class($payment);
-        $fields['type'] = get_class($this);
-        $fields['data'] = json_encode($fields['data']);
+        $data = [
+            'id'          => $event->payment->id,
+            'customer_id' => $event->payment->customer_id,
+            'message'     => 'A payment updated',
+        ];
+
+        $fields = [
+            'notifiable_id'   => $event->payment->user_id,
+            'account_id'      => $event->payment->account_id,
+            'notifiable_type' => get_class($event->payment),
+            'type'            => get_class($this),
+            'data'            => json_encode($data),
+            'action'          => 'updated'
+        ];
 
         $notification = NotificationFactory::create($payment->account_id, $payment->user_id);
         $notification->entity_id = $event->payment->id;

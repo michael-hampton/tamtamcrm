@@ -51,7 +51,9 @@ class ProcessSubscription implements ShouldQueue
         foreach ($plans as $plan) {
             $account = $plan->domain->default_company;
 
-            if ($plan->onTrial() || (!empty($plan->trial_ends_at) && $plan->trial_ends_at <= now()->addDays(10)->format('Y-m-d'))) {
+            if ($plan->onTrial() || (!empty($plan->trial_ends_at) && $plan->trial_ends_at <= now()->addDays(10)->format(
+                        'Y-m-d'
+                    ))) {
                 continue;
             }
 
@@ -82,8 +84,8 @@ class ProcessSubscription implements ShouldQueue
                 Mail::to($account->support_email)->send(new SubscriptionInvoice($plan, $account, $invoice));
             }
 
-            $due_date = $plan->plan->invoice_interval === 'year' ? now()->addDays(10)->addYearNoOverflow(
-            ) : now()->addDays(10)->addMonthNoOverflow();
+            $due_date = $plan->plan->invoice_interval === 'year' ? now()->addDays(10)->addYearNoOverflow()
+                : now()->addDays(10)->addMonthNoOverflow();
 
             $plan->update(['due_date' => $due_date, 'promocode_applied' => $promocode_applied]);
         }
@@ -114,6 +116,7 @@ class ProcessSubscription implements ShouldQueue
 
         $invoice = InvoiceFactory::create($plan->domain->default_company, $user, $customer);
         $invoice->due_date = $due_date;
+        $invoice->plan_subscription_id = $plan->id;
 
         $line_items[] = (new LineItem)
             ->setProductId($plan->id)

@@ -15,14 +15,14 @@ class RecurringQuoteWasArchived
     /**
      * @var RecurringQuote
      */
-    public RecurringQuote $recurringQuote;
+    public RecurringQuote $recurring_quote;
 
     /**
      * RecurringQuoteWasArchived constructor.
-     * @param RecurringQuote $recurringQuote
+     * @param RecurringQuote $recurring_quote
      */
-    public function __construct(RecurringQuote $recurringQuote)
+    public function __construct(RecurringQuote $recurring_quote)
     {
-        $this->recurringQuote = $recurringQuote;
+        $this->recurring_quote = $recurring_quote;
     }
 }
