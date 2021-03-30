@@ -38,9 +38,8 @@ class Quote extends Model
     const SUBSCRIPTION_TYPE = 5;
     const EXPENSE_TYPE = 6;
     const GATEWAY_FEE_TYPE = 7;
-
+    protected static $flushCacheOnUpdate = true;
     protected $presenter = 'App\Presenters\QuotePresenter';
-
     protected $casts = [
         'customer_id' => 'integer',
         'account_id'  => 'integer',
@@ -51,7 +50,6 @@ class Quote extends Model
         'is_deleted'  => 'boolean',
         'viewed'      => 'boolean'
     ];
-
     /**
      * The attributes that are mass assignable.
      *
@@ -106,8 +104,6 @@ class Quote extends Model
         'gateway_fee',
         'gateway_percentage',
     ];
-
-    protected static $flushCacheOnUpdate = true;
 
     /**
      * When invalidating automatically on update, you can specify
@@ -255,5 +251,19 @@ class Quote extends Model
     public function canBeSent()
     {
         return $this->status_id === self::STATUS_DRAFT;
+    }
+
+    public function scopePermissions($query, User $user)
+    {
+        if ($user->isAdmin() || $user->isOwner() || $user->hasPermissionTo('quotecontroller.index')) {
+            return $query;
+        }
+
+        $query->where(
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('assigned_to', auth()->user($user)->id);
+            }
+        );
     }
 }

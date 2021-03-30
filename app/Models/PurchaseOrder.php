@@ -29,9 +29,8 @@ class PurchaseOrder extends Model
     const STATUS_EXPIRED = -1;
     const STATUS_REJECTED = 5;
     const STATUS_CHANGE_REQUESTED = 6;
-
+    protected static $flushCacheOnUpdate = true;
     protected $presenter = 'App\Presenters\QuotePresenter';
-
     protected $casts = [
         'company_id' => 'integer',
         'account_id' => 'integer',
@@ -42,7 +41,6 @@ class PurchaseOrder extends Model
         'is_deleted' => 'boolean',
         'viewed'     => 'boolean'
     ];
-
     /**
      * The attributes that are mass assignable.
      *
@@ -100,8 +98,6 @@ class PurchaseOrder extends Model
         'gateway_fee',
         'gateway_percentage',
     ];
-
-    protected static $flushCacheOnUpdate = true;
 
     /**
      * When invalidating automatically on update, you can specify
@@ -243,5 +239,19 @@ class PurchaseOrder extends Model
     public function canBeSent()
     {
         return $this->status_id === self::STATUS_DRAFT;
+    }
+
+    public function scopePermissions($query, User $user)
+    {
+        if ($user->isAdmin() || $user->isOwner() || $user->hasPermissionTo('purchaseordercontroller.index')) {
+            return $query;
+        }
+
+        $query->where(
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('assigned_to', auth()->user($user)->id);
+            }
+        );
     }
 }

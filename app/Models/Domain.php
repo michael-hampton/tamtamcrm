@@ -22,6 +22,7 @@ class Domain extends Model
         'customer_id',
         'plan_id'
     ];
+
     /**
      * @return HasOne
      */

@@ -57,19 +57,6 @@ trait PaymentTransformable
         ];
     }
 
-    private function transformPaymentFiles($files)
-    {
-        if (empty($files)) {
-            return [];
-        }
-
-        return $files->map(
-            function (File $file) {
-                return (new FileTransformable())->transformFile($file);
-            }
-        )->all();
-    }
-
     public function transformPaymentables($paymentables)
     {
         if (empty($paymentables)) {
@@ -79,6 +66,19 @@ trait PaymentTransformable
         return $paymentables->map(
             function (Paymentable $paymentable) {
                 return (new PaymentableTransformer())->transform($paymentable);
+            }
+        )->all();
+    }
+
+    private function transformPaymentFiles($files)
+    {
+        if (empty($files)) {
+            return [];
+        }
+
+        return $files->map(
+            function (File $file) {
+                return (new FileTransformable())->transformFile($file);
             }
         )->all();
     }

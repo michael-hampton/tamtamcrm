@@ -4,7 +4,6 @@ namespace App\Policies;
 
 
 use App\Models\File;
-use App\Models\PaymentTerms;
 use App\Models\User;
 
 class DocumentPolicy

@@ -258,7 +258,7 @@ class MessageContainer extends React.Component {
                                             message = message.replace('{status}', translations[notification.data.status])
                                             message = message.replace('{entity}', translations[notification.entity.toLowerCase()])
                                         } else if (notification.data.message.includes('email failed')) {
-                                            message = translations.failed_to_send_email
+                                            message = `${username} - ${translations.failed_to_send_email}`
                                         } else {
                                             title = ''
                                             message = `${username} - ${translations.status_updated_to}`

@@ -68,6 +68,7 @@ class File extends Model
         'jpg' => 'jpeg',
         'tif' => 'tiff',
     ];
+    protected static $flushCacheOnUpdate = true;
     protected $fillable = [
         'task_id',
         'name',
@@ -77,8 +78,6 @@ class File extends Model
         'uploaded_by_customer',
         'customer_can_view'
     ];
-
-    protected static $flushCacheOnUpdate = true;
 
     /**
      * When invalidating automatically on update, you can specify

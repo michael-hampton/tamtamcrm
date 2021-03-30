@@ -30,9 +30,8 @@ class Payment extends Model
     const STATUS_REFUNDED = 6;
 
     const TYPE_CUSTOMER_CREDIT = 2;
-
+    protected static $flushCacheOnUpdate = true;
     protected $presenter = 'App\Presenters\OrderPresenter';
-
     /**
      * The attributes that are mass assignable.
      *
@@ -56,19 +55,21 @@ class Payment extends Model
         'custom_value3',
         'custom_value4'
     ];
-
     protected $casts = [
         'exchange_rate' => 'float',
         'updated_at'    => 'timestamp',
         'deleted_at'    => 'timestamp',
         'is_deleted'    => 'boolean',
     ];
-
     protected $with = [
         'paymentables',
     ];
-
-    protected static $flushCacheOnUpdate = true;
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [];
 
     /**
      * When invalidating automatically on update, you can specify
@@ -83,13 +84,6 @@ class Payment extends Model
             'dashboard_payments'
         ];
     }
-    
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    protected $hidden = [];
 
     /**
      * @return BelongsTo
@@ -251,5 +245,19 @@ class Payment extends Model
         $url = rtrim($url, '/') . '/portal/payments/' . $this->id;
 
         return $url;
+    }
+
+    public function scopePermissions($query, User $user)
+    {
+        if ($user->isAdmin() || $user->isOwner() || $user->hasPermissionTo('paymentcontroller.index')) {
+            return $query;
+        }
+
+        $query->where(
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('assigned_to', auth()->user($user)->id);
+            }
+        );
     }
 }

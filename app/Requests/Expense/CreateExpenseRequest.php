@@ -29,11 +29,14 @@ class CreateExpenseRequest extends BaseFormRequest
             'date'                => 'required',
             'expense_category_id' => 'required',
             'amount'              => 'required',
-            'number'      => [
+            'number'              => [
                 'nullable',
                 Rule::unique('expenses', 'number')->where(
                     function ($query) {
-                        return $query->where('customer_id', $this->customer_id)->where('account_id', auth()->user()->account_user()->account_id);
+                        return $query->where('customer_id', $this->customer_id)->where(
+                            'account_id',
+                            auth()->user()->account_user()->account_id
+                        );
                     }
                 )
             ],

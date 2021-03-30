@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateQuotesTable extends Migration
+class CreatePurchaseOrdersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,13 @@ class CreateQuotesTable extends Migration
      */
     public function up()
     {
-        Schema::create('quotes', function (Blueprint $table) {
+        Schema::create('purchase_orders', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('customer_id')->index();
             $table->unsignedInteger('user_id')->index('quotes_user_id_foreign');
             $table->unsignedInteger('assigned_to')->nullable();
-            $table->unsignedInteger('account_id')->index();
+            $table->unsignedInteger('account_id')->index('quotes_account_id_index');
             $table->unsignedInteger('status_id');
-            $table->unsignedInteger('recurring_quote_id')->nullable();
+            $table->unsignedInteger('recurring_purchase_order_id')->nullable();
             $table->unsignedInteger('design_id')->nullable();
             $table->string('number')->nullable();
             $table->double('discount', 8, 2)->default(0.00);
@@ -67,8 +66,6 @@ class CreateQuotesTable extends Migration
             $table->integer('currency_id')->nullable();
             $table->decimal('exchange_rate', 12)->default(0.00);
             $table->tinyInteger('gateway_fee_applied')->default(0);
-            $table->date('start_date')->nullable();
-            $table->date('recurring_due_date')->nullable();
             $table->unsignedInteger('project_id')->nullable();
             $table->decimal('tax_2', 13, 3)->nullable()->default(0.000);
             $table->decimal('tax_3', 13, 3)->nullable()->default(0.000);
@@ -79,6 +76,7 @@ class CreateQuotesTable extends Migration
             $table->dateTime('date_rejected')->nullable();
             $table->decimal('amount_paid', 16, 4)->default(0.0000);
             $table->dateTime('date_notification_last_sent')->nullable();
+            $table->unsignedInteger('exchange_currency_id')->nullable();
         });
     }
 
@@ -89,6 +87,6 @@ class CreateQuotesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('quotes');
+        Schema::dropIfExists('purchase_orders');
     }
 }

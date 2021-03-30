@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Factory\CategoryFactory;
-use App\Models\CompanyToken;
 use App\Models\Category;
+use App\Models\CompanyToken;
 use App\Repositories\CategoryRepository;
 use App\Repositories\Interfaces\CategoryRepositoryInterface;
 use App\Requests\Category\CreateCategoryRequest;

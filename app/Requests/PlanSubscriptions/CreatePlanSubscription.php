@@ -25,7 +25,8 @@ class CreatePlanSubscription extends BaseFormRequest
     public function rules()
     {
         return [
-            'name'    => ['required', 'unique:plan_subscriptions'],
+            'name'    => 'required|unique:plan_subscriptions,name,null,null,account_id,' .
+                auth()->user()->account_user()->account_id,
             'plan_id' => 'required'
         ];
     }

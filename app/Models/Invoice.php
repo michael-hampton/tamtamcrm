@@ -38,7 +38,7 @@ class Invoice extends Model
     const PROJECT_TYPE = 9;
     const GATEWAY_FEE_TYPE = 7;
     const PROMOCODE_TYPE = 8;
-
+    protected static $flushCacheOnUpdate = true;
     protected $presenter = 'App\Presenters\InvoicePresenter';
     protected $casts = [
         'customer_id' => 'integer',
@@ -114,12 +114,9 @@ class Invoice extends Model
         'project_id',
         'plan_subscription_id'
     ];
-
     protected $dates = [
         'date_to_send',
     ];
-
-    protected static $flushCacheOnUpdate = true;
 
     /**
      * When invalidating automatically on update, you can specify
@@ -404,5 +401,19 @@ class Invoice extends Model
     public function canBeSent()
     {
         return $this->status_id === self::STATUS_DRAFT;
+    }
+
+    public function scopePermissions($query, User $user)
+    {
+        if ($user->isAdmin() || $user->isOwner() || $user->hasPermissionTo('invoicecontroller.index')) {
+            return $query;
+        }
+
+        $query->where(
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('assigned_to', auth()->user($user)->id);
+            }
+        );
     }
 }

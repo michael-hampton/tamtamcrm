@@ -255,14 +255,14 @@ class Account extends Model
         return $plan->number_of_licences;
     }
 
-    public function plans()
-    {
-        return $this->hasMany(PlanSubscription::class);
-    }
-
     public function getActiveSubscription()
     {
         return $this->plans()->where('ends_at', '>', now())->where('plan_id', $this->domains->plan_id)->first();
+    }
+
+    public function plans()
+    {
+        return $this->hasMany(PlanSubscription::class);
     }
 
     public function getNumberOfAllowedDocuments()

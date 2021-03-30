@@ -2,18 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Actions\Account\ConvertAccount;
-use App\Components\InvoiceCalculator\LineItem;
-use App\Factory\InvoiceFactory;
 use App\Jobs\ProcessSubscription;
-use App\Mail\Account\SubscriptionInvoice;
-use App\Models\Account;
-use App\Models\Domain;
-use App\Models\Invoice;
-use App\Repositories\InvoiceRepository;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Mail;
 
 class SendSubscriptionRenewals extends Command
 {

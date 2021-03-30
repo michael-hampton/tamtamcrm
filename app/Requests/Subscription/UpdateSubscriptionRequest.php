@@ -2,7 +2,6 @@
 
 namespace App\Requests\Subscription;
 
-use App\Models\Subscription;
 use App\Repositories\Base\BaseFormRequest;
 
 class UpdateSubscriptionRequest extends BaseFormRequest

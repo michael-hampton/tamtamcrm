@@ -75,6 +75,7 @@ class CreateOrdersTable extends Migration
             $table->decimal('amount_paid', 16, 4)->default(0.0000);
             $table->text('cached_data')->nullable();
             $table->dateTime('date_notification_last_sent')->nullable();
+            $table->unsignedInteger('exchange_currency_id')->nullable();
         });
     }
 

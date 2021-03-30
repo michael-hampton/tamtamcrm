@@ -12,14 +12,14 @@ interface BankAccountRepositoryInterface extends BaseRepositoryInterface
      * @param BankAccount $bank_account
      * @return BankAccount
      */
-    public function create(array $data, BankAccount $bank_account) :BankAccount;
+    public function create(array $data, BankAccount $bank_account): BankAccount;
 
     /**
      * @param array $data
      * @param BankAccount $bank_account
      * @return BankAccount
      */
-    public function update(array $data, BankAccount $bank_account) :BankAccount;
+    public function update(array $data, BankAccount $bank_account): BankAccount;
 
     /**
      * @param int $id

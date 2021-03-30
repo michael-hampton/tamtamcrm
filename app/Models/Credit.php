@@ -39,10 +39,8 @@ class Credit extends Model
     const EXPENSE_TYPE = 6;
     const GATEWAY_FEE_TYPE = 7;
     const PAYMENT_TYPE = 12;
-
-    protected $presenter = 'App\Presenters\CreditPresenter';
-
     protected static $flushCacheOnUpdate = true;
+    protected $presenter = 'App\Presenters\CreditPresenter';
     /**
      * @var array
      */
@@ -265,6 +263,20 @@ class Credit extends Model
     public function canBeSent()
     {
         return $this->status_id === self::STATUS_DRAFT;
+    }
+
+    public function scopePermissions($query, User $user)
+    {
+        if ($user->isAdmin() || $user->isOwner() || $user->hasPermissionTo('creditcontroller.index')) {
+            return $query;
+        }
+
+        $query->where(
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('assigned_to', auth()->user($user)->id);
+            }
+        );
     }
 
 }

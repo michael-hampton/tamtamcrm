@@ -10,7 +10,6 @@ use App\Repositories\Base\BaseRepository;
 use App\Repositories\Interfaces\CompanyRepositoryInterface;
 use App\Requests\SearchRequest;
 use App\Search\CompanySearch;
-use Exception;
 use Illuminate\Support\Collection as Support;
 
 class CompanyRepository extends BaseRepository implements CompanyRepositoryInterface

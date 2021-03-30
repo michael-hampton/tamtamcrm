@@ -2,7 +2,6 @@
 
 namespace App\Requests\Lead;
 
-use App\Models\Lead;
 use App\Repositories\Base\BaseFormRequest;
 use Illuminate\Validation\Rule;
 
@@ -25,7 +24,6 @@ class UpdateLeadRequest extends BaseFormRequest
      */
     public function rules()
     {
-
         return [
             'first_name' => 'required|string',
             'last_name'  => 'required|string',

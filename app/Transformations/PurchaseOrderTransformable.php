@@ -11,6 +11,19 @@ use App\Models\PurchaseOrderInvitation;
 
 trait PurchaseOrderTransformable
 {
+    public function transformAuditsForPurchaseOrder($audits)
+    {
+        if (empty($audits)) {
+            return [];
+        }
+
+        return $audits->map(
+            function (Audit $audit) {
+                return (new AuditTransformable)->transformAudit($audit);
+            }
+        )->all();
+    }
+
     /**
      * @param PurchaseOrder $po
      * @return array
@@ -103,19 +116,6 @@ trait PurchaseOrderTransformable
         return $emails->map(
             function (Email $email) {
                 return (new EmailTransformable())->transformEmail($email);
-            }
-        )->all();
-    }
-
-    public function transformAuditsForPurchaseOrder($audits)
-    {
-        if (empty($audits)) {
-            return [];
-        }
-
-        return $audits->map(
-            function (Audit $audit) {
-                return (new AuditTransformable)->transformAudit($audit);
             }
         )->all();
     }

@@ -32,8 +32,8 @@ class LeadDeleted implements ShouldQueue
     public function handle($event)
     {
         $data = [
-            'id'          => $event->lead->id,
-            'message'     => 'A lead was deleted'
+            'id'      => $event->lead->id,
+            'message' => 'A lead was deleted'
         ];
 
         $fields = [

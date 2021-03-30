@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\Company\CompanyWasCreated;
 use App\Factory\CompanyFactory;
 use App\Models\Company;
 use App\Models\Industry;

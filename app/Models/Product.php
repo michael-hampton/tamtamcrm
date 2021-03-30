@@ -34,11 +34,10 @@ class Product extends Model
         'FOOT'       => 'ft',
         'YARD'       => 'yd'
     ];
-
+    protected static $flushCacheOnUpdate = true;
     protected $casts = [
         'is_featured' => 'boolean'
     ];
-
     /**
      * The attributes that are mass assignable.
      *
@@ -74,8 +73,6 @@ class Product extends Model
         'custom_value4',
         'brand_id'
     ];
-
-    protected static $flushCacheOnUpdate = true;
 
     /**
      * When invalidating automatically on update, you can specify

@@ -32,9 +32,9 @@ class CaseArchived implements ShouldQueue
     public function handle($event)
     {
         $data = [
-            'id' => $event->case->id,
+            'id'          => $event->case->id,
             'customer_id' => $event->case->customer_id,
-            'message' => 'A case was archived'
+            'message'     => 'A case was archived'
         ];
 
         $fields = [

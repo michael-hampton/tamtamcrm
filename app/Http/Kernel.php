@@ -15,6 +15,7 @@ use App\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
 use Illuminate\Auth\Middleware\Authorize;
+use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
 use Illuminate\Auth\Middleware\RequirePassword;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
@@ -24,6 +25,7 @@ use Illuminate\Foundation\Http\Middleware\ValidatePostSize;
 use Illuminate\Http\Middleware\SetCacheHeaders;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Routing\Middleware\ValidateSignature;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
@@ -92,8 +94,8 @@ class Kernel extends HttpKernel
         'reauthenticate'   => Reauthenticate::class,
         'password.confirm' => RequirePassword::class,
         'two_factor_auth'  => TwoFactorVerification::class,
-        'verified'         => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'signed'           => \Illuminate\Routing\Middleware\ValidateSignature::class,
+        'verified'         => EnsureEmailIsVerified::class,
+        'signed'           => ValidateSignature::class,
     ];
 
 }

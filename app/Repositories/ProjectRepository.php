@@ -12,9 +12,7 @@ use App\Requests\SearchRequest;
 use App\Search\InvoiceSearch;
 use App\Search\ProjectSearch;
 use Exception;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection as Support;
 
 class ProjectRepository extends BaseRepository implements ProjectRepositoryInterface
 {

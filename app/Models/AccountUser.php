@@ -12,6 +12,7 @@ class AccountUser extends Pivot
     use QueryCacheable;
 
     //   protected $guarded = ['id'];
+    protected static $flushCacheOnUpdate = true;
     /**
      * The attributes that should be cast to native types.
      *
@@ -31,8 +32,6 @@ class AccountUser extends Pivot
         'is_locked',
         'slack_webhook_url',
     ];
-
-    protected static $flushCacheOnUpdate = true;
 
     /**
      * When invalidating automatically on update, you can specify

@@ -18,7 +18,7 @@ class Expense extends Model
     const STATUS_PENDING = 2;
     const STATUS_INVOICED = 3;
     const STATUS_APPROVED = 4;
-
+    protected static $flushCacheOnUpdate = true;
     protected $fillable = [
         'assigned_to',
         'number',
@@ -64,14 +64,11 @@ class Expense extends Model
         'tax_is_amount',
         'amount_includes_tax'
     ];
-
     protected $casts = [
         'is_deleted' => 'boolean',
         'updated_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];
-
-    protected static $flushCacheOnUpdate = true;
 
     /**
      * When invalidating automatically on update, you can specify
@@ -141,5 +138,19 @@ class Expense extends Model
     {
         $this->status_id = $status_id;
         return true;
+    }
+
+    public function scopePermissions($query, User $user)
+    {
+        if ($user->isAdmin() || $user->isOwner() || $user->hasPermissionTo('expensecontroller.index')) {
+            return $query;
+        }
+
+        $query->where(
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('assigned_to', auth()->user($user)->id);
+            }
+        );
     }
 }

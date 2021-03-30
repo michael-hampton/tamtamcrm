@@ -11,6 +11,19 @@ use App\Models\OrderInvitation;
 
 trait OrderTransformable
 {
+    public function transformAuditsForOrder($audits)
+    {
+        if (empty($audits)) {
+            return [];
+        }
+
+        return $audits->map(
+            function (Audit $audit) {
+                return (new AuditTransformable)->transformAudit($audit);
+            }
+        )->all();
+    }
+
     /**
      * @param Order $order
      * @return array
@@ -103,19 +116,6 @@ trait OrderTransformable
         return $emails->map(
             function (Email $email) {
                 return (new EmailTransformable())->transformEmail($email);
-            }
-        )->all();
-    }
-
-    public function transformAuditsForOrder($audits)
-    {
-        if (empty($audits)) {
-            return [];
-        }
-
-        return $audits->map(
-            function (Audit $audit) {
-                return (new AuditTransformable)->transformAudit($audit);
             }
         )->all();
     }

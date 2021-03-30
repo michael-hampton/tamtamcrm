@@ -15,29 +15,6 @@ use Illuminate\Support\Collection;
 trait HasSubscriptions
 {
     /**
-     * Define a polymorphic one-to-many relationship.
-     *
-     * @param string $related
-     * @param string $name
-     * @param string $type
-     * @param string $id
-     * @param string $localKey
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
-     */
-    abstract public function morphMany($related, $name, $type = null, $id = null, $localKey = null);
-
-    /**
-     * The subscriber may have many subscriptions.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
-     */
-    public function subscriptions(): MorphMany
-    {
-        return $this->morphMany(PlanSubscription::class, 'subscriber', 'subscriber_type', 'subscriber_id');
-    }
-
-    /**
      * A model may have many active subscriptions.
      *
      * @return \Illuminate\Database\Eloquent\Collection
@@ -57,6 +34,29 @@ trait HasSubscriptions
     {
         return $this->subscriptions()->where('slug', $subscriptionSlug)->first();
     }
+
+    /**
+     * The subscriber may have many subscriptions.
+     *
+     * @return MorphMany
+     */
+    public function subscriptions(): MorphMany
+    {
+        return $this->morphMany(PlanSubscription::class, 'subscriber', 'subscriber_type', 'subscriber_id');
+    }
+
+    /**
+     * Define a polymorphic one-to-many relationship.
+     *
+     * @param string $related
+     * @param string $name
+     * @param string $type
+     * @param string $id
+     * @param string $localKey
+     *
+     * @return MorphMany
+     */
+    abstract public function morphMany($related, $name, $type = null, $id = null, $localKey = null);
 
     /**
      * Get subscribed plans.

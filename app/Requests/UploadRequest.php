@@ -2,7 +2,6 @@
 
 namespace App\Requests;
 
-use App\Models\Customer;
 use App\Models\File;
 use App\Models\User;
 use App\Repositories\Base\BaseFormRequest;
@@ -18,14 +17,13 @@ class UploadRequest extends BaseFormRequest
      */
     public function authorize()
     {
-
-        if(empty(auth()->user())) {
+        if (empty(auth()->user())) {
             $user = User::where('id', '=', $this->user_id)->first();
             Auth::login($user);
         }
 
-        if (File::where('account_id', auth()->user()->account_user()->account->id)->count() >= auth()->user()->account_user(
-            )->account->getNumberOfAllowedDocuments()) {
+        if (File::where('account_id', auth()->user()->account_user()->account->id)->count() >= auth()->user(
+            )->account_user()->account->getNumberOfAllowedDocuments()) {
             return false;
         }
 

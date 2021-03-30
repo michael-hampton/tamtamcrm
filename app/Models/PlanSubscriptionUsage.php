@@ -5,6 +5,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PlanSubscriptionUsage extends Model
 {
@@ -33,7 +34,7 @@ class PlanSubscriptionUsage extends Model
     /**
      * Get feature.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function feature()
     {
@@ -47,7 +48,7 @@ class PlanSubscriptionUsage extends Model
     /**
      * Get subscription.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function subscription()
     {

@@ -11,8 +11,6 @@ class ErrorLog extends Authenticatable
 {
     use Notifiable, SoftDeletes, QueryCacheable;
 
-    protected static $flushCacheOnUpdate = true;
-
     /**
      * type
      */
@@ -25,6 +23,7 @@ class ErrorLog extends Authenticatable
     const SUCCESS = 'success';
     const NEUTRAL = 'neutral';
     const FAILURE = 'failure';
+    protected static $flushCacheOnUpdate = true;
     /**
      * The attributes that are mass assignable.
      *

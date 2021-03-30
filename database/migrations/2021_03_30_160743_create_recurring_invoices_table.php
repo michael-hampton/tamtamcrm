@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateRecurringQuotesTable extends Migration
+class CreateRecurringInvoicesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,19 +13,19 @@ class CreateRecurringQuotesTable extends Migration
      */
     public function up()
     {
-        Schema::create('recurring_quotes', function (Blueprint $table) {
+        Schema::create('recurring_invoices', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('customer_id')->index();
-            $table->unsignedInteger('user_id')->index('recurring_quotes_user_id_foreign');
+            $table->unsignedInteger('user_id')->index('recurring_invoices_user_id_foreign');
             $table->unsignedInteger('assigned_user_id')->nullable();
             $table->unsignedInteger('account_id')->index();
             $table->unsignedInteger('status_id')->index();
+            $table->text('number')->nullable();
             $table->double('discount', 8, 2)->default(0.00);
             $table->decimal('sub_total', 16, 4)->default(0.0000);
             $table->decimal('tax_total', 16, 4)->default(0.0000);
             $table->decimal('discount_total', 16, 4)->default(0.0000);
             $table->tinyInteger('is_amount_discount')->default(0);
-            $table->string('number')->nullable();
             $table->string('po_number')->nullable();
             $table->date('date')->nullable();
             $table->dateTime('due_date')->nullable();
@@ -34,11 +34,12 @@ class CreateRecurringQuotesTable extends Migration
             $table->text('footer')->nullable();
             $table->text('public_notes')->nullable();
             $table->text('terms')->nullable();
-            $table->decimal('total', 16, 4)->default(0.0000);
-            $table->decimal('balance', 16, 4)->default(0.0000);
+            $table->decimal('total', 16, 4);
+            $table->decimal('balance', 16, 4);
+            $table->decimal('partial', 16, 4)->nullable();
             $table->dateTime('last_viewed')->nullable();
             $table->enum('frequency', ['DAILY', 'MONTHLY', 'WEEKLY', 'FORTNIGHT', 'TWO_MONTHS', 'THREE_MONTHS', 'FOUR_MONTHS', 'SIX_MONTHS', 'YEARLY'])->nullable()->default('MONTHLY');
-            $table->date('start_date')->nullable();
+            $table->dateTime('start_date')->nullable();
             $table->dateTime('last_sent_date')->nullable();
             $table->dateTime('date_to_send')->nullable();
             $table->unsignedInteger('number_of_occurrances')->nullable();
@@ -51,12 +52,11 @@ class CreateRecurringQuotesTable extends Migration
             $table->string('custom_value3')->nullable();
             $table->string('custom_value4')->nullable();
             $table->text('private_notes')->nullable();
-            $table->string('tax_rate_name')->nullable();
             $table->decimal('tax_rate', 13, 3)->nullable()->default(0.000);
-            $table->decimal('partial', 16, 4)->nullable();
+            $table->string('tax_rate_name')->nullable();
             $table->date('expiry_date')->nullable();
-            $table->decimal('transaction_fee', 16, 4)->nullable();
             $table->decimal('shipping_cost', 16, 4)->nullable();
+            $table->decimal('transaction_fee', 16, 4)->nullable();
             $table->tinyInteger('transaction_fee_tax')->default(0);
             $table->tinyInteger('shipping_cost_tax')->default(0);
             $table->decimal('gateway_fee', 16, 4)->nullable();
@@ -76,6 +76,7 @@ class CreateRecurringQuotesTable extends Migration
             $table->tinyInteger('viewed')->default(0);
             $table->decimal('amount_paid', 16, 4)->default(0.0000);
             $table->dateTime('date_notification_last_sent')->nullable();
+            $table->unsignedInteger('exchange_currency_id')->nullable();
         });
     }
 
@@ -86,6 +87,6 @@ class CreateRecurringQuotesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('recurring_quotes');
+        Schema::dropIfExists('recurring_invoices');
     }
 }

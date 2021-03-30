@@ -4,6 +4,7 @@ namespace App\Components\Subscriptions;
 
 
 use App\Models\PlanSubscription;
+use Laravel\PricingPlans\Models\PlanSubscriptionUsage;
 
 class SubscriptionAbility
 {
@@ -54,32 +55,25 @@ class SubscriptionAbility
     }
 
     /**
-     * Get how many times the feature has been used.
+     * Get feature value.
      *
      * @param string $featureCode
-     * @return int
+     * @param mixed $default
+     * @return mixed
      */
-    public function consumed(string $featureCode): int
+    public function value(string $featureCode, $default = null)
     {
-        /** @var \Laravel\PricingPlans\Models\PlanSubscriptionUsage $usage */
-        foreach ($this->subscription->usage as $usage) {
-            if ($usage->feature_code === $featureCode && !$usage->isExpired()) {
-                return (int) $usage->used;
+        if (!$this->subscription->plan->relationLoaded('features')) {
+            $this->subscription->plan->features()->getEager();
+        }
+
+        foreach ($this->subscription->plan->features as $feature) {
+            if ($featureCode === $feature->code) {
+                return $feature->pivot->value;
             }
         }
 
-        return 0;
-    }
-
-    /**
-     * Get the available uses.
-     *
-     * @param string $featureCode
-     * @return int
-     */
-    public function remainings(string $featureCode): int
-    {
-        return (int)$this->value($featureCode) - $this->consumed($featureCode);
+        return $default;
     }
 
     /**
@@ -106,24 +100,31 @@ class SubscriptionAbility
     }
 
     /**
-     * Get feature value.
+     * Get the available uses.
      *
-     * @param string$featureCode
-     * @param  mixed $default
-     * @return mixed
+     * @param string $featureCode
+     * @return int
      */
-    public function value(string $featureCode, $default = null)
+    public function remainings(string $featureCode): int
     {
-        if (!$this->subscription->plan->relationLoaded('features')) {
-            $this->subscription->plan->features()->getEager();
-        }
+        return (int)$this->value($featureCode) - $this->consumed($featureCode);
+    }
 
-        foreach ($this->subscription->plan->features as $feature) {
-            if ($featureCode === $feature->code) {
-                return $feature->pivot->value;
+    /**
+     * Get how many times the feature has been used.
+     *
+     * @param string $featureCode
+     * @return int
+     */
+    public function consumed(string $featureCode): int
+    {
+        /** @var PlanSubscriptionUsage $usage */
+        foreach ($this->subscription->usage as $usage) {
+            if ($usage->feature_code === $featureCode && !$usage->isExpired()) {
+                return (int)$usage->used;
             }
         }
 
-        return $default;
+        return 0;
     }
 }

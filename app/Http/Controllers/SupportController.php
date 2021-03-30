@@ -23,7 +23,9 @@ class SupportController extends Controller
             ]
         );
 
-        Mail::to(config('taskmanager.support_email'))->send(new SupportMessage(auth()->user()->account_user()->account, $request->message));
+        Mail::to(config('taskmanager.support_email'))->send(
+            new SupportMessage(auth()->user()->account_user()->account, $request->message)
+        );
 
         return response()->json(
             [

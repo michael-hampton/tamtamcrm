@@ -12,9 +12,15 @@ use App\Events\Plan\SubscriptionRenewed;
 use App\Models\Concerns\BelongsToPlanModel;
 use App\Traits\Archiveable;
 use Carbon\Carbon;
+use DateTime;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use LogicException;
+use Throwable;
 
 class PlanSubscription extends Model
 {
@@ -113,7 +119,7 @@ class PlanSubscription extends Model
     /**
      * Get subscriber.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function subscriber()
     {
@@ -123,7 +129,7 @@ class PlanSubscription extends Model
     /**
      * Get subscription usage.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function usage()
     {
@@ -160,13 +166,15 @@ class PlanSubscription extends Model
     }
 
     /**
-     * Check if subscription is active.
+     * Check if subscription period has ended.
      *
      * @return bool
      */
-    public function active(): bool
+    public function isEnded(): bool
     {
-        return !$this->ended() || $this->onTrial();
+        $endsAt = Carbon::instance($this->ends_at);
+
+        return Carbon::now()->gte($endsAt);
     }
 
     /**
@@ -180,23 +188,13 @@ class PlanSubscription extends Model
     }
 
     /**
-     * Check if subscription is currently on trial.
+     * Check if subscription is active.
      *
      * @return bool
      */
-    public function onTrial(): bool
+    public function active(): bool
     {
-        return $this->trial_ends_at ? Carbon::now()->lt($this->trial_ends_at) : false;
-    }
-
-    /**
-     * Check if subscription is canceled.
-     *
-     * @return bool
-     */
-    public function canceled(): bool
-    {
-        return $this->canceled_at ? Carbon::now()->gte($this->canceled_at) : false;
+        return !$this->ended() || $this->onTrial();
     }
 
     /**
@@ -210,6 +208,16 @@ class PlanSubscription extends Model
     }
 
     /**
+     * Check if subscription is currently on trial.
+     *
+     * @return bool
+     */
+    public function onTrial(): bool
+    {
+        return $this->trial_ends_at ? Carbon::now()->lt($this->trial_ends_at) : false;
+    }
+
+    /**
      * Check if subscription is canceled immediately.
      *
      * @return bool
@@ -220,23 +228,11 @@ class PlanSubscription extends Model
     }
 
     /**
-     * Check if subscription period has ended.
-     *
-     * @return bool
-     */
-    public function isEnded(): bool
-    {
-        $endsAt = Carbon::instance($this->ends_at);
-
-        return Carbon::now()->gte($endsAt);
-    }
-
-    /**
      * Cancel subscription.
      *
      * @param bool $immediately
      * @return PlanSubscription
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function cancel($immediately = false)
     {
@@ -286,118 +282,11 @@ class PlanSubscription extends Model
     }
 
     /**
-     * Renew subscription period.
-     *
-     * @return self
-     * @throws LogicException
-     */
-    public function renew()
-    {
-        if ($this->ended() && $this->canceled()) {
-            throw new \LogicException('Unable to renew canceled ended subscription.');
-        }
-
-        $subscription = $this;
-
-        DB::transaction(
-            function () use ($subscription) {
-                // Clear usage data
-                $usageManager = new SubscriptionUsageManager($subscription);
-                $usageManager->clear();
-
-                // Renew period
-                $subscription->setNewPeriod();
-                $subscription->cancelled_at = null;
-                $subscription->save();
-            }
-        );
-
-        event(new SubscriptionRenewed($this));
-
-        return $subscription->fresh();
-    }
-
-    /**
-     * @return SubscriptionAbility
-     */
-    public function ability()
-    {
-        if (is_null($this->ability)) {
-            return new SubscriptionAbility($this);
-        }
-
-        return $this->ability;
-    }
-
-    /**
-     * @param $query
-     * @param $subscriber
-     * @return mixed
-     */
-    public function scopeBySubscriber($query, $subscriber)
-    {
-        return $query->where('subscriber_id', $subscriber->getKey())
-                     ->where('subscriber_type', get_class($subscriber));
-    }
-
-    /**
-     * Find subscription with an ending trial.
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $dayRange
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeFindEndingTrial($query, $dayRange = 3)
-    {
-        $from = Carbon::now();
-        $to = Carbon::now()->addDays($dayRange);
-
-        return $query->whereBetween('trial_ends_at', [$from, $to]);
-    }
-
-    /**
-     * Find subscription with an ended trial.
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeFindEndedTrial($query)
-    {
-        return $query->where('trial_ends_at', '<=', Carbon::now());
-    }
-
-    /**
-     * Find ending subscriptions.
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $dayRange
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeFindEndingPeriod($query, $dayRange = 3)
-    {
-        $from = Carbon::now();
-        $to = Carbon::now()->addDays($dayRange);
-
-        return $query->whereBetween('ends_at', [$from, $to]);
-    }
-
-    /**
-     * Find ended subscriptions.
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeFindEndedPeriod($query)
-    {
-        return $query->where('ends_at', '<=', Carbon::now());
-    }
-
-    /**
      * Set subscription period.
      *
      * @param string $intervalUnit
      * @param int $intervalCount
-     * @param null|int|string|\DateTime $startAt Start time
+     * @param null|int|string|DateTime $startAt Start time
      * @return  PlanSubscription
      */
     protected function setNewPeriod(
@@ -433,6 +322,123 @@ class PlanSubscription extends Model
         $this->due_date = $period->getEndDate();
 
         return $this;
+    }
+
+    /**
+     * Renew subscription period.
+     *
+     * @return self
+     * @throws LogicException
+     */
+    public function renew()
+    {
+        if ($this->ended() && $this->canceled()) {
+            throw new LogicException('Unable to renew canceled ended subscription.');
+        }
+
+        $subscription = $this;
+
+        DB::transaction(
+            function () use ($subscription) {
+                // Clear usage data
+                $usageManager = new SubscriptionUsageManager($subscription);
+                $usageManager->clear();
+
+                // Renew period
+                $subscription->setNewPeriod();
+                $subscription->cancelled_at = null;
+                $subscription->save();
+            }
+        );
+
+        event(new SubscriptionRenewed($this));
+
+        return $subscription->fresh();
+    }
+
+    /**
+     * Check if subscription is canceled.
+     *
+     * @return bool
+     */
+    public function canceled(): bool
+    {
+        return $this->canceled_at ? Carbon::now()->gte($this->canceled_at) : false;
+    }
+
+    /**
+     * @return SubscriptionAbility
+     */
+    public function ability()
+    {
+        if (is_null($this->ability)) {
+            return new SubscriptionAbility($this);
+        }
+
+        return $this->ability;
+    }
+
+    /**
+     * @param $query
+     * @param $subscriber
+     * @return mixed
+     */
+    public function scopeBySubscriber($query, $subscriber)
+    {
+        return $query->where('subscriber_id', $subscriber->getKey())
+                     ->where('subscriber_type', get_class($subscriber));
+    }
+
+    /**
+     * Find subscription with an ending trial.
+     *
+     * @param Builder $query
+     * @param int $dayRange
+     * @return Builder
+     */
+    public function scopeFindEndingTrial($query, $dayRange = 3)
+    {
+        $from = Carbon::now();
+        $to = Carbon::now()->addDays($dayRange);
+
+        return $query->whereBetween('trial_ends_at', [$from, $to]);
+    }
+
+    /**
+     * Find subscription with an ended trial.
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeFindEndedTrial($query)
+    {
+        return $query->where('trial_ends_at', '<=', Carbon::now());
+    }
+
+    /**
+     * Find ending subscriptions.
+     *
+     * @param Builder $query
+     * @param int $dayRange
+     * @return Builder
+     */
+    public function scopeFindEndingPeriod($query, $dayRange = 3)
+    {
+        $from = Carbon::now();
+        $to = Carbon::now()->addDays($dayRange);
+
+        return $query->whereBetween('ends_at', [$from, $to]);
+    }
+
+    /**
+     * Find ended subscriptions.
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeFindEndedPeriod($query)
+    {
+        return $query->where('ends_at', '<=', Carbon::now());
     }
 
     public function domain()

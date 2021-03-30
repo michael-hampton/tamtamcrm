@@ -127,19 +127,6 @@ class InvoiceTransformable
         )->all();
     }
 
-    public function transformAuditsForInvoice($audits)
-    {
-        if (empty($audits)) {
-            return [];
-        }
-
-        return $audits->map(
-            function (Audit $audit) {
-                return (new AuditTransformable)->transformAudit($audit);
-            }
-        )->all();
-    }
-
     /**
      * @param $files
      * @return array
@@ -153,6 +140,19 @@ class InvoiceTransformable
         return $files->map(
             function (File $file) {
                 return (new FileTransformable())->transformFile($file);
+            }
+        )->all();
+    }
+
+    public function transformAuditsForInvoice($audits)
+    {
+        if (empty($audits)) {
+            return [];
+        }
+
+        return $audits->map(
+            function (Audit $audit) {
+                return (new AuditTransformable)->transformAudit($audit);
             }
         )->all();
     }

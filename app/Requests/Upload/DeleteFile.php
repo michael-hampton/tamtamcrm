@@ -3,7 +3,6 @@
 namespace App\Requests\Upload;
 
 use App\Repositories\Base\BaseFormRequest;
-use Illuminate\Support\Facades\Hash;
 
 class DeleteFile extends BaseFormRequest
 {

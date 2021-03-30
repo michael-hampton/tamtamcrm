@@ -2,7 +2,6 @@
 
 namespace App\Requests\Deal;
 
-use App\Models\Deal;
 use App\Repositories\Base\BaseFormRequest;
 
 class UpdateDealRequest extends BaseFormRequest

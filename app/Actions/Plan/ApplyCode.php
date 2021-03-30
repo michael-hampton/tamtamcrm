@@ -7,6 +7,7 @@ use App\Components\Promocodes\Promocodes;
 use App\Models\Account;
 use App\Models\Plan;
 use App\Models\PlanSubscription;
+use Exception;
 
 class ApplyCode
 {
@@ -15,14 +16,14 @@ class ApplyCode
      * @param Account $account
      * @param float $cost
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function execute(PlanSubscription $plan, Account $account, float $cost)
     {
         $promocode = (new Promocodes)->checkPlan($account, $plan, $plan->domain->customer);
 
         if (empty($promocode)) {
-            throw new \Exception('Invalid promocode');
+            throw new Exception('Invalid promocode');
         }
 
         $amount = $promocode->reward;

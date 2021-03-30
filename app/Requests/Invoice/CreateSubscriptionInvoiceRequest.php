@@ -4,11 +4,8 @@ namespace App\Requests\Invoice;
 
 use App\Models\CompanyToken;
 use App\Models\Invoice;
-use App\Rules\Invoice\ValidateProjectCustomer;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rule;
 
 class CreateSubscriptionInvoiceRequest extends FormRequest
 {
@@ -39,7 +36,7 @@ class CreateSubscriptionInvoiceRequest extends FormRequest
     public function rules()
     {
         return [
-            'customer_id'    => 'required|exists:customers,id,account_id,' . $this->account_id,
+            'customer_id' => 'required|exists:customers,id,account_id,' . $this->account_id,
         ];
     }
 }

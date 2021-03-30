@@ -29,9 +29,8 @@ class Lead extends Model
     const IN_PROGRESS = 99;
     const STATUS_COMPLETED = 100;
     const UNQUALIFIED = 100;
-
+    protected static $flushCacheOnUpdate = true;
     protected $presenter = 'App\Presenters\LeadPresenter';
-
     protected $fillable = [
         'task_sort_order',
         'design_id',
@@ -61,8 +60,6 @@ class Lead extends Model
         'task_status_id',
         'column_color'
     ];
-
-    protected static $flushCacheOnUpdate = true;
 
     /**
      * When invalidating automatically on update, you can specify
@@ -144,5 +141,19 @@ class Lead extends Model
         }
 
         return 0;
+    }
+
+    public function scopePermissions($query, User $user)
+    {
+        if ($user->isAdmin() || $user->isOwner() || $user->hasPermissionTo('leadcontroller.index')) {
+            return $query;
+        }
+
+        $query->where(
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('assigned_to', auth()->user($user)->id);
+            }
+        );
     }
 }

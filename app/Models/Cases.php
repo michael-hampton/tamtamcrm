@@ -27,7 +27,7 @@ class Cases extends Model
     const PRIORITY_HIGH = 3;
     const CASE_LINK_TYPE_PRODUCT = 1;
     const CASE_LINK_TYPE_PROJECT = 2;
-
+    protected static $flushCacheOnUpdate = true;
     protected $fillable = [
         'status_id',
         'priority_id',
@@ -54,11 +54,7 @@ class Cases extends Model
         'custom_value3',
         'custom_value4'
     ];
-
     protected $presenter = 'App\Presenters\CasesPresenter';
-
-    protected static $flushCacheOnUpdate = true;
-
     private $arrStatuses = [
         1 => 'Draft',
         2 => 'Open',

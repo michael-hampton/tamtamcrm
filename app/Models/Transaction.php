@@ -11,6 +11,7 @@ class Transaction extends Model
     use Archiveable;
     use QueryCacheable;
 
+    protected static $flushCacheOnUpdate = true;
     protected $fillable = [
         'customer_id',
         'updated_balance',
@@ -19,8 +20,6 @@ class Transaction extends Model
         'account_id',
         'user_id'
     ];
-
-    protected static $flushCacheOnUpdate = true;
 
     /**
      * When invalidating automatically on update, you can specify

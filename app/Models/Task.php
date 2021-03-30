@@ -23,7 +23,7 @@ class Task extends Model
     const TASK_TYPE_DEAL = 3;
     const STATUS_IN_PROGRESS = 7;
     const STATUS_INVOICED = 2000;
-
+    protected static $flushCacheOnUpdate = true;
     protected $fillable = [
         'task_sort_order',
         'design_id',
@@ -61,11 +61,7 @@ class Task extends Model
         'task_rate',
         'column_color'
     ];
-
-
     protected $presenter = 'App\Presenters\TaskPresenter';
-
-    protected static $flushCacheOnUpdate = true;
 
     /**
      * When invalidating automatically on update, you can specify
@@ -193,5 +189,19 @@ class Task extends Model
         }
 
         return 0;
+    }
+
+    public function scopePermissions($query, User $user)
+    {
+        if ($user->isAdmin() || $user->isOwner() || $user->hasPermissionTo('taskcontroller.index')) {
+            return $query;
+        }
+
+        $query->where(
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('assigned_to', auth()->user($user)->id);
+            }
+        );
     }
 }

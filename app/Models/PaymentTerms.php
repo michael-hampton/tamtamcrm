@@ -18,9 +18,8 @@ class PaymentTerms extends Model
     use Archiveable;
     use QueryCacheable;
 
-    protected $fillable = ['name', 'number_of_days'];
-
     protected static $flushCacheOnUpdate = true;
+    protected $fillable = ['name', 'number_of_days'];
 
     /**
      * When invalidating automatically on update, you can specify

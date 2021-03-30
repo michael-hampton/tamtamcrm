@@ -4,9 +4,13 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Contracts\Auth\CanResetPassword;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Auth\ResetsPasswords;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 
@@ -23,8 +27,8 @@ class ResetPasswordController extends Controller
     /**
      * Reset the given user's password.
      *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
+     * @param Request $request
+     * @return RedirectResponse|JsonResponse
      */
     public function updatePassword(Request $request)
     {
@@ -40,10 +44,10 @@ class ResetPasswordController extends Controller
                     'confirmed',
                     'string',
                     'min:10',             // must be at least 10 characters in length
-//                    'regex:/[a-z]/',      // must contain at least one lowercase letter
-//                    'regex:/[A-Z]/',      // must contain at least one uppercase letter
-//                    'regex:/[0-9]/',      // must contain at least one digit
-//                    'regex:/[@$!%*#?&]/', // must contain a special character
+                    //                    'regex:/[a-z]/',      // must contain at least one lowercase letter
+                    //                    'regex:/[A-Z]/',      // must contain at least one uppercase letter
+                    //                    'regex:/[0-9]/',      // must contain at least one digit
+                    //                    'regex:/[@$!%*#?&]/', // must contain a special character
                 ],
                 'password_confirmation' => 'required'
             ]
@@ -68,7 +72,7 @@ class ResetPasswordController extends Controller
     /**
      * Reset the given user's password.
      *
-     * @param \Illuminate\Contracts\Auth\CanResetPassword $user
+     * @param CanResetPassword $user
      * @param string $password
      * @return void
      */
@@ -87,7 +91,7 @@ class ResetPasswordController extends Controller
     /**
      * @param Request $request
      * @param $response
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return Application|RedirectResponse|Redirector
      */
     protected function sendResetResponse(Request $request, $response)
     {
@@ -97,7 +101,7 @@ class ResetPasswordController extends Controller
     /**
      * @param Request $request
      * @param $response
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     protected function sendResetFailedResponse(Request $request, $response)
     {

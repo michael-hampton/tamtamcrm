@@ -3,7 +3,6 @@
 namespace App\Requests\Email;
 
 use App\Models\Email;
-use App\Models\File;
 use App\Models\User;
 use App\Repositories\Base\BaseFormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -17,14 +16,13 @@ class SendEmailRequest extends BaseFormRequest
      */
     public function authorize()
     {
-
-        if(empty(auth()->user())) {
+        if (empty(auth()->user())) {
             $user = User::where('id', '=', $this->user_id)->first();
             Auth::login($user);
         }
 
-        if (Email::where('account_id', auth()->user()->account_user()->account->id)->count() >= auth()->user()->account_user(
-            )->account->getNumberOfAllowedEmails()) {
+        if (Email::where('account_id', auth()->user()->account_user()->account->id)->count() >= auth()->user(
+            )->account_user()->account->getNumberOfAllowedEmails()) {
             return false;
         }
 

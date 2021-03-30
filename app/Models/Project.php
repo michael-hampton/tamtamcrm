@@ -20,6 +20,7 @@ class Project extends Model
     use Archiveable;
     use QueryCacheable;
 
+    protected static $flushCacheOnUpdate = true;
     protected $fillable = [
         'name',
         'description',
@@ -37,13 +38,9 @@ class Project extends Model
         'task_rate',
         'column_color'
     ];
-
     protected $casts = [
         'updated_at' => 'timestamp',
     ];
-
-    protected static $flushCacheOnUpdate = true;
-
     /**
      * Searchable rules.
      *

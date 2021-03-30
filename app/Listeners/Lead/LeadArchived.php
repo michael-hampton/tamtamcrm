@@ -29,8 +29,8 @@ class LeadArchived implements ShouldQueue
     public function handle($event)
     {
         $data = [
-            'id'          => $event->lead->id,
-            'message'     => 'A lead was archived'
+            'id'      => $event->lead->id,
+            'message' => 'A lead was archived'
         ];
 
         $fields = [

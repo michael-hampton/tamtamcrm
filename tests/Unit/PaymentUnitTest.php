@@ -242,6 +242,45 @@ class PaymentUnitTest extends TestCase
     }
 
     /** @test */
+    /*public function it_can_create_a_payment_with_a_different_currency()
+    {
+        $customer = Customer::factory()->create(['currency_id' => 1]);
+        $invoice = Invoice::factory()->create();
+        $factory = (new PaymentFactory())->create($customer, $this->user, $this->account);
+        $amount_paid = $customer->amount_paid;
+        $balance = $customer->balance;
+
+        $data = [
+            'customer_id'       => $customer->id,
+            'payment_method_id' => 1,
+            'amount'            => $invoice->total
+        ];
+
+        $data['invoices'][0]['invoice_id'] = $invoice->id;
+        $data['invoices'][0]['amount'] = $invoice->total;
+
+        $paymentRepo = new PaymentRepository(new Payment);
+        $created = (new ProcessPayment())->process($data, $paymentRepo, $factory);
+
+        $this->assertEquals($created->currency_id, 2);
+        $this->assertEquals($created->exchange_currency_id, 1);
+
+        $invoice = $invoice->fresh();
+        $customer = $created->customer->fresh();
+
+        $this->assertEquals($created->amount, $invoice->total);
+        $this->assertEquals($created->amount, $invoice->total);
+        $this->assertEquals($invoice->balanace, 0);
+        $this->assertEquals((float)$customer->balance, (float)($balance - $created->amount));
+        $this->assertEquals($customer->amount_paid, ($amount_paid + $created->amount));
+        $this->assertEquals($data['customer_id'], $created->customer_id);
+        $this->assertEquals($data['payment_method_id'], $created->payment_method_id);
+        $this->assertEquals($invoice->amount_paid, $created->amount);
+        $this->assertEquals($created->status_id, Payment::STATUS_COMPLETED);
+
+    } */
+
+    /** @test */
     public function it_can_apply_a_payment()
     {
         $factory = (new PaymentFactory())->create($this->customer, $this->user, $this->account);

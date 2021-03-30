@@ -163,24 +163,6 @@ class LoginController extends BaseController
         }
     }
 
-    public function enable($provider, Request $request)
-    {
-        $key = "{$provider}_id";
-        $key2 = "{$provider}_secret";
-
-        $user = User::where('id', $request->input('user'))->first();
-
-        if (!empty($user->{$key}) || !empty($user->{$key2})) {
-            return response()->json('User already has account');
-        }
-
-        $user->{$key} = $request->input('user_id');
-        $user->{$key2} = $request->input('secret');
-        $user->save();
-
-        return response()->json('success');
-    }
-
     private function executeLogin($token)
     {
         $this->forced_includes = ['company_users'];
@@ -212,6 +194,24 @@ class LoginController extends BaseController
         ];
 
         return response()->json($response, 201);
+    }
+
+    public function enable($provider, Request $request)
+    {
+        $key = "{$provider}_id";
+        $key2 = "{$provider}_secret";
+
+        $user = User::where('id', $request->input('user'))->first();
+
+        if (!empty($user->{$key}) || !empty($user->{$key2})) {
+            return response()->json('User already has account');
+        }
+
+        $user->{$key} = $request->input('user_id');
+        $user->{$key2} = $request->input('secret');
+        $user->save();
+
+        return response()->json('success');
     }
 
 }

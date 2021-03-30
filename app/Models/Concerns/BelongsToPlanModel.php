@@ -4,13 +4,15 @@ namespace App\Models\Concerns;
 
 
 use App\Models\Plan;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 trait BelongsToPlanModel
 {
     /**
      * Get plan.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function plan()
     {
@@ -24,9 +26,9 @@ trait BelongsToPlanModel
     /**
      * Scope by plan id.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder
-     * @param  int $planId
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param Builder
+     * @param int $planId
+     * @return Builder
      */
     public function scopeByPlan($query, $planId)
     {

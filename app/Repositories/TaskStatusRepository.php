@@ -5,7 +5,6 @@ namespace App\Repositories;
 use App\Models\TaskStatus;
 use App\Repositories\Base\BaseRepository;
 use App\Repositories\Interfaces\TaskStatusRepositoryInterface;
-use Exception;
 use Illuminate\Support\Collection;
 
 class TaskStatusRepository extends BaseRepository implements TaskStatusRepositoryInterface
@@ -73,6 +72,7 @@ class TaskStatusRepository extends BaseRepository implements TaskStatusRepositor
     {
         return $this->findOneOrFail($id);
     }
+
     /**
      * @return Collection
      */

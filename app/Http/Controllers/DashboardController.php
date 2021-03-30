@@ -51,61 +51,79 @@ class DashboardController extends Controller
         $test = $account->with(
             [
                 'customers' => function ($query) {
-                    $query->orderBy('created_at', 'desc')->cacheFor(now()->addMonthNoOverflow())->cacheTags(['dashboard_customers']);
+                    $query->orderBy('created_at', 'desc')->permissions(auth()->user())->cacheFor(
+                        now()->addMonthNoOverflow()
+                    )->cacheTags(['dashboard_customers']);
                 }
             ]
         )->with(
             [
                 'invoices' => function ($query) {
-                    $query->orderBy('created_at', 'desc')->cacheFor(now()->addMonthNoOverflow())->cacheTags(['dashboard_invoices']);
+                    $query->orderBy('created_at', 'desc')->permissions(auth()->user())->cacheFor(
+                        now()->addMonthNoOverflow()
+                    )->cacheTags(['dashboard_invoices']);
                 }
             ]
         )->with(
             [
                 'credits' => function ($query) {
-                    $query->orderBy('created_at', 'desc')->cacheFor(now()->addMonthNoOverflow())->cacheTags(['dashboard_credits']);
+                    $query->orderBy('created_at', 'desc')->permissions(auth()->user())->cacheFor(
+                        now()->addMonthNoOverflow()
+                    )->cacheTags(['dashboard_credits']);
                 }
             ]
         )->with(
             [
                 'payments' => function ($query) {
-                    $query->orderBy('created_at', 'desc')->cacheFor(now()->addMonthNoOverflow())->cacheTags(['dashboard_payments']);
+                    $query->orderBy('created_at', 'desc')->permissions(auth()->user())->cacheFor(
+                        now()->addMonthNoOverflow()
+                    )->cacheTags(['dashboard_payments']);
                 }
             ]
         )->with(
             [
                 'quotes' => function ($query) {
-                    $query->orderBy('created_at', 'desc')->cacheFor(now()->addMonthNoOverflow())->cacheTags(['dashboard_quotes']);
+                    $query->orderBy('created_at', 'desc')->permissions(auth()->user())->cacheFor(
+                        now()->addMonthNoOverflow()
+                    )->cacheTags(['dashboard_quotes']);
                 }
             ]
         )->with(
             [
                 'orders' => function ($query) {
-                    $query->orderBy('created_at', 'desc')->cacheFor(now()->addMonthNoOverflow())->cacheTags(['dashboard_orders']);
+                    $query->orderBy('created_at', 'desc')->permissions(auth()->user())->cacheFor(
+                        now()->addMonthNoOverflow()
+                    )->cacheTags(['dashboard_orders']);
                 }
             ]
         )->with(
             [
                 'expenses' => function ($query) {
-                    $query->orderBy('created_at', 'desc')->cacheFor(now()->addMonthNoOverflow())->cacheTags(['dashboard_expenses']);
+                    $query->orderBy('created_at', 'desc')->permissions(auth()->user())->cacheFor(
+                        now()->addMonthNoOverflow()
+                    )->cacheTags(['dashboard_expenses']);
                 }
             ]
         )->with(
             [
                 'tasks' => function ($query) {
-                    $query->orderBy('created_at', 'desc')->cacheFor(now()->addMonthNoOverflow())->cacheTags(['dashboard_tasks']);
+                    $query->orderBy('created_at', 'desc')->permissions(auth()->user())->cacheFor(
+                        now()->addMonthNoOverflow()
+                    )->cacheTags(['dashboard_tasks']);
                 }
             ]
         )->with(
             [
                 'leads' => function ($query) {
-                    $query->orderBy('created_at', 'desc')->cacheFor(now()->addMonthNoOverflow())->cacheTags(['dashboard_leads']);
+                    $query->orderBy('created_at', 'desc')->permissions(auth()->user())->cacheFor(
+                        now()->addMonthNoOverflow()
+                    )->cacheTags(['dashboard_leads']);
                 }
             ]
         )->with(
             [
                 'deals' => function ($query) {
-                    $query->orderBy('created_at', 'desc');
+                    $query->orderBy('created_at', 'desc')->permissions(auth()->user());
                 }
             ]
         )->first();

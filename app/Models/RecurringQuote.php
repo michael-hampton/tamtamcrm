@@ -33,9 +33,8 @@ class RecurringQuote extends Model
     const STATUS_STOPPED = 4;
     const STATUS_COMPLETED = 5;
     const STATUS_VIEWED = 6;
-
+    protected static $flushCacheOnUpdate = true;
     protected $presenter = 'App\Presenters\QuotePresenter';
-
     protected $fillable = [
         'is_never_ending',
         'account_id',
@@ -80,7 +79,6 @@ class RecurringQuote extends Model
         'tax_rate',
         'date_to_send'
     ];
-
     protected $casts = [
         'date_to_send' => 'datetime',
         'settings'     => 'object',
@@ -90,15 +88,12 @@ class RecurringQuote extends Model
         'viewed'       => 'boolean',
         'is_deleted'   => 'boolean',
     ];
-
     protected $dates = [
         'date_to_send',
         'last_sent_date',
         'start_date',
         'expiry_date'
     ];
-
-    protected static $flushCacheOnUpdate = true;
 
     /**
      * When invalidating automatically on update, you can specify
@@ -201,5 +196,19 @@ class RecurringQuote extends Model
     public function getDesignId()
     {
         return !empty($this->design_id) ? $this->design_id : $this->customer->getSetting('quote_design_id');
+    }
+
+    public function scopePermissions($query, User $user)
+    {
+        if ($user->isAdmin() || $user->isOwner() || $user->hasPermissionTo('recurringquotecontroller.index')) {
+            return $query;
+        }
+
+        $query->where(
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('assigned_to', auth()->user($user)->id);
+            }
+        );
     }
 }

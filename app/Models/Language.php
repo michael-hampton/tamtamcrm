@@ -9,9 +9,7 @@ class Language extends Model
 {
     use QueryCacheable;
 
-    public $cacheFor = -1;
-
     protected static $flushCacheOnUpdate = true;
-
+    public $cacheFor = -1;
     public $timestamps = false;
 }

@@ -7,8 +7,8 @@ use App\Components\Subscriptions\Period;
 use App\Models\Concerns\BelongsToPlanModel;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class PlanFeature extends Model
 {
@@ -41,7 +41,7 @@ class PlanFeature extends Model
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function feature()
     {
@@ -55,7 +55,7 @@ class PlanFeature extends Model
     /**
      * The plan feature may have many subscription usage.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function usage(): HasMany
     {
@@ -67,7 +67,7 @@ class PlanFeature extends Model
      *
      * @param string $dateFrom
      *
-     * @return \Carbon\Carbon
+     * @return Carbon
      */
     public function getResetDate(Carbon $dateFrom): Carbon
     {

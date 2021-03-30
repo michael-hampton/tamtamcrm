@@ -20,10 +20,8 @@ class CustomerContact extends Model implements ContactInterface
     use Archiveable;
     use QueryCacheable;
 
-    protected $presenter = 'App\Presenters\ClientContactPresenter';
-
     protected static $flushCacheOnUpdate = true;
-
+    protected $presenter = 'App\Presenters\ClientContactPresenter';
     protected $dates = [
         'deleted_at'
     ];

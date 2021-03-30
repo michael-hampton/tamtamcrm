@@ -70,7 +70,9 @@ trait CustomerTransformable
             'custom_value4'          => $customer->custom_value4 ?: '',
             'private_notes'          => $customer->private_notes ?: '',
             'public_notes'           => $customer->public_notes ?: '',
-            'files'                  => !empty($files) && !empty($files[$customer->id]) ? $this->transformCustomerFiles($files[$customer->id]) : [],
+            'files'                  => !empty($files) && !empty($files[$customer->id]) ? $this->transformCustomerFiles(
+                $files[$customer->id]
+            ) : [],
             //'gateway_tokens'         => empty($exclude) || !in_array('gateways', $exclude) ? $this->transformGatewayTokens($customer->gateways) : [],
             'is_deleted'             => (bool)$customer->is_deleted,
         ];
@@ -120,6 +122,19 @@ trait CustomerTransformable
         )->all();
     }
 
+    private function transformCustomerFiles($files)
+    {
+        if (empty($files)) {
+            return [];
+        }
+
+        return $files->map(
+            function (File $file) {
+                return (new FileTransformable())->transformFile($file);
+            }
+        )->all();
+    }
+
     /**
      * @param $transactions
      * @return array
@@ -152,19 +167,6 @@ trait CustomerTransformable
         return $error_logs->map(
             function (ErrorLog $error_log) {
                 return (new ErrorLogTransformable())->transformErrorLog($error_log);
-            }
-        )->all();
-    }
-
-    private function transformCustomerFiles($files)
-    {
-        if (empty($files)) {
-            return [];
-        }
-
-        return $files->map(
-            function (File $file) {
-                return (new FileTransformable())->transformFile($file);
             }
         )->all();
     }

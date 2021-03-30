@@ -24,6 +24,7 @@ class Address extends Model
 
     use SoftDeletes, SearchableTrait, HasFactory, QueryCacheable;
 
+    protected static $flushCacheOnUpdate = true;
     /**
      * The attributes that are mass assignable.
      *
@@ -42,16 +43,12 @@ class Address extends Model
         'status',
         'address_type'
     ];
-
     public $relation = [
         'belongsTo' => [
             'customer' => 'App\Models\Customer',
             'country'  => 'App\Models\Country',
         ],
     ];
-
-    protected static $flushCacheOnUpdate = true;
-
     /**
      * The attributes that should be hidden for arrays.
      *

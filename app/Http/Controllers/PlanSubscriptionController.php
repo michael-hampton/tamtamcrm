@@ -10,6 +10,7 @@ use App\Requests\PlanSubscriptions\CreatePlanSubscription;
 use App\Requests\PlanSubscriptions\UpdatePlanSubscription;
 use App\Requests\SearchRequest;
 use App\Search\PlanSubscriptionSearch;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -83,7 +84,7 @@ class PlanSubscriptionController extends Controller
     /**
      * @param PlanSubscription $plan_subscription
      * @return JsonResponse
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function destroy(PlanSubscription $plan_subscription)
     {

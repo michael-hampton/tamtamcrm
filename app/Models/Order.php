@@ -45,9 +45,8 @@ class Order extends Model
     const STATUS_VIEWED = 11;
 
     const STATUS_EXPIRED = -1;
-
+    protected static $flushCacheOnUpdate = true;
     protected $presenter = 'App\Presenters\OrderPresenter';
-
     protected $casts = [
         'account_id'    => 'integer',
         'user_id'       => 'integer',
@@ -59,7 +58,6 @@ class Order extends Model
         'payment_taken' => 'boolean',
         'viewed'        => 'boolean'
     ];
-
     protected $fillable = [
         'number',
         'customer_id',
@@ -106,8 +104,6 @@ class Order extends Model
         'voucher_code',
         'assigned_to'
     ];
-
-    protected static $flushCacheOnUpdate = true;
 
     /**
      * When invalidating automatically on update, you can specify
@@ -291,5 +287,19 @@ class Order extends Model
     public function canBeSent()
     {
         return in_array($this->status_id, [self::STATUS_DRAFT, self::STATUS_PARTIAL, self::STATUS_COMPLETE]);
+    }
+
+    public function scopePermissions($query, User $user)
+    {
+        if ($user->isAdmin() || $user->isOwner() || $user->hasPermissionTo('ordercontroller.index')) {
+            return $query;
+        }
+
+        $query->where(
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('assigned_to', auth()->user($user)->id);
+            }
+        );
     }
 }

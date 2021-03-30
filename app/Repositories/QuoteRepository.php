@@ -79,11 +79,11 @@ class QuoteRepository extends BaseRepository implements QuoteRepositoryInterface
     public function save(array $data, Quote $quote): ?Quote
     {
         $quote->fill($data);
+        $quote = $this->calculateTotals($quote);
+        $quote = $this->convertCurrencies($quote, $quote->total, config('taskmanager.use_live_exchange_rates'));
         $quote = $this->populateDefaults($quote);
         $quote = $this->formatNotes($quote);
-        $quote = $this->calculateTotals($quote);
         $quote->setNumber();
-        $quote->setExchangeRate();
 
         $quote->save();
 

@@ -2,11 +2,8 @@
 
 namespace App\Repositories;
 
-use App\Models\Account;
 use App\Models\CaseCategory;
 use App\Repositories\Base\BaseRepository;
-use Exception;
-use Illuminate\Support\Collection;
 
 class CaseCategoryRepository extends BaseRepository
 {

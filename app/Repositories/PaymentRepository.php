@@ -3,7 +3,6 @@
 namespace App\Repositories;
 
 use App\Actions\Transaction\TriggerTransaction;
-use App\Components\Currency\CurrencyConverter;
 use App\Events\Payment\PaymentWasCreated;
 use App\Events\Payment\PaymentWasUpdated;
 use App\Models\Account;
@@ -96,7 +95,7 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
             $payment->fill($data);
         }
 
-        $payment = $this->convertCurrencies($payment);
+        $payment = $this->convertCurrencies($payment, $payment->amount);
 
         $payment->setNumber();
         $payment->setStatus(empty($data['status_id']) ? Payment::STATUS_COMPLETED : $data['status_id']);
@@ -113,27 +112,5 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
         event(new PaymentWasCreated($payment));
 
         return $payment->fresh();
-    }
-
-    /**
-     * @param Payment $payment
-     * @return Payment
-     */
-    private function convertCurrencies(Payment $payment)
-    {
-        $converted_amount = $objCurrencyConverter = (new CurrencyConverter())
-            ->setAmount($payment->amount)
-            ->setBaseCurrency($payment->account->getCurrency())
-            ->setExchangeCurrency($payment->customer->currency)
-            ->setDate($payment->date)
-            ->calculate();
-
-        if ($converted_amount) {
-            $payment->exchange_rate = $converted_amount;
-            $payment->currency_id = $payment->account->getCurrency()->id;
-            $payment->exchange_currency_id = $payment->customer->currency;
-        }
-
-        return $payment;
     }
 }

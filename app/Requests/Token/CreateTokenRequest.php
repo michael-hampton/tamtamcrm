@@ -4,7 +4,6 @@ namespace App\Requests\Token;
 
 use App\Models\CompanyToken;
 use App\Repositories\Base\BaseFormRequest;
-use Illuminate\Support\Facades\Hash;
 
 class CreateTokenRequest extends BaseFormRequest
 {
@@ -29,7 +28,7 @@ class CreateTokenRequest extends BaseFormRequest
         $user = auth()->user();
 
         return [
-            'name'     => 'required'
+            'name' => 'required'
         ];
     }
 }

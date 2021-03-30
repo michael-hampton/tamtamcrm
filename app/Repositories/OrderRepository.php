@@ -100,12 +100,11 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     public function save(array $data, Order $order): Order
     {
         $order->fill($data);
+        $order = $this->calculateTotals($order);
+        $order = $this->convertCurrencies($order, $order->total, config('taskmanager.use_live_exchange_rates'));
         $order = $this->populateDefaults($order);
         $order = $this->formatNotes($order);
-
-        $order = $this->calculateTotals($order);
         $order->setNumber();
-        $order->setExchangeRate();
 
         $order->save();
 

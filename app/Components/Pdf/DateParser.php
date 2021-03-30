@@ -2,6 +2,9 @@
 
 namespace App\Components\Pdf;
 
+use DateTime;
+use RuntimeException;
+
 class DateParser
 {
     private $variables = [];
@@ -56,14 +59,76 @@ class DateParser
         return $output;
     }
 
+    private function tokenize($string)
+    {
+        $parts = preg_split(
+            '((\d+\.?\d+|\+|-|\(|\)|\*|/)|\s+)',
+            $string,
+            null,
+            PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE
+        );
+        $parts = array_map('trim', $parts);
+        foreach ($parts as $key => &$value) {
+            //if this is the first token or we've already had an operator or open paren, this is unary
+            if ($value == '-') {
+                if ($key - 1 < 0 || in_array($parts[$key - 1], array('+', '-', '*', '/', '('))) {
+                    $value = 'u';
+                }
+            }
+        }
+
+        return $parts;
+    }
+
+    private function extractVariables($token)
+    {
+        if ($token[0] == '$') {
+            //$key = substr($token, 1);
+
+            return isset($this->variables[$token]) ? $this->variables[$token] : 0;
+        }
+
+        return $token;
+    }
+
+    private function parseOperator($expression, Stack $output, Stack $operators)
+    {
+        $end = $operators->poke();
+
+        if (!$end) {
+            $operators->push($expression);
+        } elseif (in_array($end, ['+', '-', '/', '*'])) {
+            do {
+                $output->push($operators->pop());
+            } while (($end = $operators->poke()) && in_array($end, ['+', '-', '/', '*']));
+            $operators->push($expression);
+        } else {
+            $operators->push($expression);
+        }
+    }
+
     private function isParenthesis($expression)
     {
         return $expression === 'to';
     }
 
-    private function registerVariable($name, $value)
+    private function parseParenthesis($expression, Stack $output, Stack $operators)
     {
-        $this->variables[$name] = $value;
+        $type = $output->pop();
+
+        if ($type === 'QUARTER') {
+            $month = date("n");
+
+            //Calculate the year quarter.
+            $yearQuarter = ceil($month / 3);
+
+            //Print it out
+            $output->push("Q$yearQuarter-" . date('y'));
+        } else {
+            $output->push(date($type));
+        }
+
+        $output->push($expression);
     }
 
     private function run(Stack $stack)
@@ -73,7 +138,7 @@ class DateParser
             $type = $stack->pop();
 
             $date = date('Y-m-d');
-            $date = new \DateTime($date);
+            $date = new DateTime($date);
 
             switch ($type) {
                 case 'F':
@@ -120,17 +185,6 @@ class DateParser
         return $quarters[$numerator];
     }
 
-    private function extractVariables($token)
-    {
-        if ($token[0] == '$') {
-            //$key = substr($token, 1);
-
-            return isset($this->variables[$token]) ? $this->variables[$token] : 0;
-        }
-
-        return $token;
-    }
-
     private function render(Stack $stack)
     {
         $output = '';
@@ -140,63 +194,12 @@ class DateParser
         if ($output) {
             return $output;
         }
-        throw new \RuntimeException('Could not render output');
+        throw new RuntimeException('Could not render output');
     }
 
-    private function parseParenthesis($expression, Stack $output, Stack $operators)
+    private function registerVariable($name, $value)
     {
-        $type = $output->pop();
-
-        if ($type === 'QUARTER') {
-            $month = date("n");
-
-            //Calculate the year quarter.
-            $yearQuarter = ceil($month / 3);
-
-            //Print it out
-            $output->push("Q$yearQuarter-" . date('y'));
-        } else {
-            $output->push(date($type));
-        }
-
-        $output->push($expression);
-    }
-
-    private function parseOperator($expression, Stack $output, Stack $operators)
-    {
-        $end = $operators->poke();
-
-        if (!$end) {
-            $operators->push($expression);
-        } elseif (in_array($end, ['+', '-', '/', '*'])) {
-            do {
-                $output->push($operators->pop());
-            } while (($end = $operators->poke()) && in_array($end, ['+', '-', '/', '*']));
-            $operators->push($expression);
-        } else {
-            $operators->push($expression);
-        }
-    }
-
-    private function tokenize($string)
-    {
-        $parts = preg_split(
-            '((\d+\.?\d+|\+|-|\(|\)|\*|/)|\s+)',
-            $string,
-            null,
-            PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE
-        );
-        $parts = array_map('trim', $parts);
-        foreach ($parts as $key => &$value) {
-            //if this is the first token or we've already had an operator or open paren, this is unary
-            if ($value == '-') {
-                if ($key - 1 < 0 || in_array($parts[$key - 1], array('+', '-', '*', '/', '('))) {
-                    $value = 'u';
-                }
-            }
-        }
-
-        return $parts;
+        $this->variables[$name] = $value;
     }
 }
 

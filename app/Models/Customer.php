@@ -21,10 +21,8 @@ class Customer extends Model implements HasLocalePreference
     use SoftDeletes, PresentableTrait, Balancer, Money, HasFactory, Archiveable, QueryCacheable, HasSubscriptions;
 
     const CUSTOMER_TYPE_WON = 1;
-
-    protected $presenter = 'App\Presenters\CustomerPresenter';
-
     protected static $flushCacheOnUpdate = true;
+    protected $presenter = 'App\Presenters\CustomerPresenter';
     /**
      * The attributes that are mass assignable.
      *
@@ -246,11 +244,6 @@ class Customer extends Model implements HasLocalePreference
         return $this->formatCurrency($this->amount_paid, $this);
     }
 
-    private function checkObjectEmpty($var)
-    {
-        return is_object($var) && empty((array)$var);
-    }
-
     public function setNumber()
     {
         if (empty($this->number) || !isset($this->id)) {
@@ -259,5 +252,24 @@ class Customer extends Model implements HasLocalePreference
         }
 
         return true;
+    }
+
+    public function scopePermissions($query, User $user)
+    {
+        if ($user->isAdmin() || $user->isOwner() || $user->hasPermissionTo('customercontroller.index')) {
+            return $query;
+        }
+
+        $query->where(
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('assigned_to', auth()->user($user)->id);
+            }
+        );
+    }
+
+    private function checkObjectEmpty($var)
+    {
+        return is_object($var) && empty((array)$var);
     }
 }

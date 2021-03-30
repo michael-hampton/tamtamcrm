@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Factory\CaseTemplateFactory;
+use App\Models\CaseTemplate;
 use App\Repositories\CaseTemplateRepository;
 use App\Requests\CaseTemplate\CreateCaseTemplateRequest;
 use App\Requests\CaseTemplate\UpdateCaseTemplateRequest;
 use App\Requests\SearchRequest;
 use App\Search\CaseTemplateSearch;
 use App\Transformations\CaseTemplateTransformable;
-use App\Models\CaseTemplate;
 use Exception;
 use Illuminate\Http\JsonResponse;
 

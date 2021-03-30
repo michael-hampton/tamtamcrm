@@ -12,7 +12,7 @@ class SubscriptionBuilder
     /**
      * The subscriber model that is subscribing.
      *
-     * @var \Illuminate\Database\Eloquent\Model
+     * @var Model
      */
     protected $subscriber;
 
@@ -60,7 +60,7 @@ class SubscriptionBuilder
     /**
      * Specify the trial duration period in days.
      *
-     * @param  int $trialDays
+     * @param int $trialDays
      * @return self
      */
     public function trialDays(int $trialDays)
@@ -100,10 +100,15 @@ class SubscriptionBuilder
             $trialEndsAt = null;
         }
 
-        return $this->subscriber->subscriptions()->create(array_replace([
-                                                                            'plan_id' => $this->plan->id,
-                                                                            'trial_ends_at' => $trialEndsAt,
-                                                                            'name' => $this->name
-                                                                        ], $attributes));
+        return $this->subscriber->subscriptions()->create(
+            array_replace(
+                [
+                    'plan_id'       => $this->plan->id,
+                    'trial_ends_at' => $trialEndsAt,
+                    'name'          => $this->name
+                ],
+                $attributes
+            )
+        );
     }
 }

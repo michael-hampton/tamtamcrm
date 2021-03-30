@@ -60,12 +60,13 @@ class CreditRepository extends BaseRepository implements CreditRepositoryInterfa
     public function save(array $data, Credit $credit): ?Credit
     {
         $original_amount = $credit->total;
+
         $credit->fill($data);
+        $credit = $this->calculateTotals($credit);
+        $credit = $this->convertCurrencies($credit, $credit->total, config('taskmanager.use_live_exchange_rates'));
         $credit = $this->populateDefaults($credit);
         $credit = $this->formatNotes($credit);
-        $credit = $this->calculateTotals($credit);
         $credit->setNumber();
-        $credit->setExchangeRate();
 
         $credit->save();
 

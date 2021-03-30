@@ -2,7 +2,6 @@
 
 namespace App\Requests\Credit;
 
-use App\Models\Credit;
 use App\Repositories\Base\BaseFormRequest;
 use Illuminate\Validation\Rule;
 
@@ -34,7 +33,7 @@ class UpdateCreditRequest extends BaseFormRequest
             'total'          => 'required',
             'tax_total'      => 'required',
             'line_items'     => 'required|array',
-            'number'       => [
+            'number'         => [
                 'nullable',
                 Rule::unique('credits')->where(
                     function ($query) {

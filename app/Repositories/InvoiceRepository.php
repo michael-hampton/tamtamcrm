@@ -99,10 +99,10 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
         $original_amount = $invoice->total;
         $invoice->fill($data);
         $invoice = $this->calculateTotals($invoice);
+        $invoice = $this->convertCurrencies($invoice, $invoice->total, config('taskmanager.use_live_exchange_rates'));
         $invoice = $this->populateDefaults($invoice);
         $invoice = $this->formatNotes($invoice);
         $invoice->setNumber();
-        $invoice->setExchangeRate();
 
         $invoice->save();
 

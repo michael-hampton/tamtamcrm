@@ -2,7 +2,6 @@
 
 namespace App\Requests\Product;
 
-use App\Models\Product;
 use App\Repositories\Base\BaseFormRequest;
 use Illuminate\Validation\Rule;
 

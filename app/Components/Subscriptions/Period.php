@@ -4,7 +4,8 @@ namespace App\Components\Subscriptions;
 
 
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Lang;
+use DateTime;
+use InvalidArgumentException;
 
 class Period
 {
@@ -22,23 +23,23 @@ class Period
      * @var array
      */
     protected static $intervalMapping = [
-        self::DAY => 'addDays',
-        self::WEEK => 'addWeeks',
+        self::DAY   => 'addDays',
+        self::WEEK  => 'addWeeks',
         self::MONTH => 'addMonths',
-        self::YEAR => 'addYears',
+        self::YEAR  => 'addYears',
     ];
 
     /**
      * Starting date of the period.
      *
-     * @var \Carbon\Carbon
+     * @var Carbon
      */
     protected $startAt;
 
     /**
      * Ending date of the period.
      *
-     * @var \Carbon\Carbon
+     * @var Carbon
      */
     protected $endAt;
 
@@ -64,7 +65,7 @@ class Period
      */
     public function __construct(string $intervalUnit = 'month', int $intervalCount = 1, $startAt = null)
     {
-        if ($startAt instanceof \DateTime) {
+        if ($startAt instanceof DateTime) {
             $this->startAt = Carbon::instance($startAt);
         } elseif (is_int($startAt)) {
             $this->startAt = Carbon::createFromTimestamp($startAt);
@@ -77,7 +78,7 @@ class Period
         if (!self::isValidIntervalUnit($intervalUnit)) {
             echo 'here ' . $intervalUnit;
             die;
-            throw new \InvalidArgumentException("Interval unit `{$intervalUnit}` is invalid");
+            throw new InvalidArgumentException("Interval unit `{$intervalUnit}` is invalid");
         }
 
         $this->intervalUnit = $intervalUnit;
@@ -90,43 +91,14 @@ class Period
     }
 
     /**
-     * Get start date.
+     * Check if a given interval is valid.
      *
-     * @return \Carbon\Carbon
+     * @param string $intervalUnit
+     * @return bool
      */
-    public function getStartDate()
+    public static function isValidIntervalUnit($intervalUnit): bool
     {
-        return $this->startAt;
-    }
-
-    /**
-     * Get end date.
-     *
-     * @return \Carbon\Carbon
-     */
-    public function getEndDate()
-    {
-        return $this->endAt;
-    }
-
-    /**
-     * Get period interval.
-     *
-     * @return string
-     */
-    public function getIntervalUnit()
-    {
-        return $this->intervalUnit;
-    }
-
-    /**
-     * Get period interval count.
-     *
-     * @return int
-     */
-    public function getIntervalCount()
-    {
-        return $this->intervalCount;
+        return array_key_exists($intervalUnit, self::$intervalMapping);
     }
 
     /**
@@ -167,13 +139,42 @@ class Period
     }
 
     /**
-     * Check if a given interval is valid.
+     * Get start date.
      *
-     * @param  string $intervalUnit
-     * @return bool
+     * @return Carbon
      */
-    public static function isValidIntervalUnit($intervalUnit): bool
+    public function getStartDate()
     {
-        return array_key_exists($intervalUnit, self::$intervalMapping);
+        return $this->startAt;
+    }
+
+    /**
+     * Get end date.
+     *
+     * @return Carbon
+     */
+    public function getEndDate()
+    {
+        return $this->endAt;
+    }
+
+    /**
+     * Get period interval.
+     *
+     * @return string
+     */
+    public function getIntervalUnit()
+    {
+        return $this->intervalUnit;
+    }
+
+    /**
+     * Get period interval count.
+     *
+     * @return int
+     */
+    public function getIntervalCount()
+    {
+        return $this->intervalCount;
     }
 }

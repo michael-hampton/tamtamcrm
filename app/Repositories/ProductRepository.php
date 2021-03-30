@@ -293,23 +293,6 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         return $product;
     }
 
-    /**
-     * @param $data
-     * @param Product $product
-     * @return Product|null
-     */
-    public function save(array $data, Product $product): ?Product
-    {
-        if (!empty($product->id)) {
-            $this->addListingHistory($data, $product);
-        }
-
-        $product->fill($data);
-        $product->save();
-
-        return $product;
-    }
-
     private function addListingHistory(array $data, Product $product)
     {
         $relevant_fields_for_history = [
@@ -332,6 +315,23 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
                 ]
             );
         }
+    }
+
+    /**
+     * @param $data
+     * @param Product $product
+     * @return Product|null
+     */
+    public function save(array $data, Product $product): ?Product
+    {
+        if (!empty($product->id)) {
+            $this->addListingHistory($data, $product);
+        }
+
+        $product->fill($data);
+        $product->save();
+
+        return $product;
     }
 
 

@@ -2,7 +2,6 @@
 
 namespace App\Requests\TaxRate;
 
-use App\Models\TaxRate;
 use App\Repositories\Base\BaseFormRequest;
 
 class UpdateTaxRateRequest extends BaseFormRequest

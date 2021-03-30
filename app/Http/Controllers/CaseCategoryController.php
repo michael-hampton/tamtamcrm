@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Factory\CaseCategoryFactory;
-use App\Models\CompanyToken;
 use App\Models\CaseCategory;
+use App\Models\CompanyToken;
 use App\Repositories\CaseCategoryRepository;
 use App\Requests\CaseCategory\CreateCategoryRequest;
 use App\Requests\CaseCategory\UpdateCategoryRequest;

@@ -16,6 +16,7 @@ class TaxRate extends Model
     use Archiveable;
     use QueryCacheable;
 
+    protected static $flushCacheOnUpdate = true;
     /**
      * The attributes that are mass assignable.
      *
@@ -25,8 +26,12 @@ class TaxRate extends Model
         'name',
         'rate'
     ];
-
-    protected static $flushCacheOnUpdate = true;
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [];
 
     /**
      * When invalidating automatically on update, you can specify
@@ -40,13 +45,6 @@ class TaxRate extends Model
             'tax_rates',
         ];
     }
-
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    protected $hidden = [];
 
     /**
      * @param $term

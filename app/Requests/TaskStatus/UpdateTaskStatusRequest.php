@@ -2,7 +2,6 @@
 
 namespace App\Requests\TaskStatus;
 
-use App\Models\TaskStatus;
 use App\Repositories\Base\BaseFormRequest;
 
 class UpdateTaskStatusRequest extends BaseFormRequest

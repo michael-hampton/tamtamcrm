@@ -18,6 +18,19 @@ use App\Models\Invitation;
 
 trait CreditTransformable
 {
+    public function transformAuditsForCredit($audits)
+    {
+        if (empty($audits)) {
+            return [];
+        }
+
+        return $audits->map(
+            function (Audit $audit) {
+                return (new AuditTransformable)->transformAudit($audit);
+            }
+        )->all();
+    }
+
     /**
      * @param Credit $credit
      * @return array
@@ -109,19 +122,6 @@ trait CreditTransformable
         return $emails->map(
             function (Email $email) {
                 return (new EmailTransformable())->transformEmail($email);
-            }
-        )->all();
-    }
-
-    public function transformAuditsForCredit($audits)
-    {
-        if (empty($audits)) {
-            return [];
-        }
-
-        return $audits->map(
-            function (Audit $audit) {
-                return (new AuditTransformable)->transformAudit($audit);
             }
         )->all();
     }

@@ -8,7 +8,6 @@ use App\Repositories\Base\BaseRepositoryInterface;
 use App\Requests\SearchRequest;
 use App\Search\InvoiceSearch;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
 
 interface ProjectRepositoryInterface extends BaseRepositoryInterface
 {

@@ -12,6 +12,19 @@ use App\Models\RecurringInvoiceInvitation;
 
 trait RecurringInvoiceTransformable
 {
+    public function transformAuditsForRecurringInvoice($audits)
+    {
+        if (empty($audits)) {
+            return [];
+        }
+
+        return $audits->map(
+            function (Audit $audit) {
+                return (new AuditTransformable)->transformAudit($audit);
+            }
+        )->all();
+    }
+
     /**
      * @param RecurringInvoice $invoice
      * @return array
@@ -76,19 +89,6 @@ trait RecurringInvoiceTransformable
             'viewed'                => (bool)$invoice->viewed,
             'is_deleted'            => (bool)$invoice->is_deleted,
         ];
-    }
-
-    public function transformAuditsForRecurringInvoice($audits)
-    {
-        if (empty($audits)) {
-            return [];
-        }
-
-        return $audits->map(
-            function (Audit $audit) {
-                return (new AuditTransformable)->transformAudit($audit);
-            }
-        )->all();
     }
 
     /**

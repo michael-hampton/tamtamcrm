@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateInvoicesTable extends Migration
+class CreateRecurringQuotesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,40 +13,37 @@ class CreateInvoicesTable extends Migration
      */
     public function up()
     {
-        Schema::create('invoices', function (Blueprint $table) {
+        Schema::create('recurring_quotes', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('customer_id')->index();
-            $table->unsignedInteger('user_id')->index('invoices_user_id_foreign');
-            $table->unsignedInteger('assigned_to')->nullable();
-            $table->unsignedInteger('status_id');
-            $table->unsignedInteger('recurring_invoice_id')->nullable();
-            $table->string('number')->nullable();
+            $table->unsignedInteger('user_id')->index('recurring_quotes_user_id_foreign');
+            $table->unsignedInteger('assigned_user_id')->nullable();
+            $table->unsignedInteger('account_id')->index();
+            $table->unsignedInteger('status_id')->index();
+            $table->double('discount', 8, 2)->default(0.00);
+            $table->decimal('sub_total', 16, 4)->default(0.0000);
+            $table->decimal('tax_total', 16, 4)->default(0.0000);
+            $table->decimal('discount_total', 16, 4)->default(0.0000);
             $table->tinyInteger('is_amount_discount')->default(0);
-            $table->integer('is_recurring')->nullable();
+            $table->string('number')->nullable();
             $table->string('po_number')->nullable();
             $table->date('date')->nullable();
             $table->dateTime('due_date')->nullable();
-            $table->date('start_date')->nullable();
-            $table->date('expiry_date')->nullable();
-            $table->date('recurring_due_date')->nullable();
             $table->tinyInteger('is_deleted')->default(0);
             $table->text('line_items')->nullable();
             $table->text('footer')->nullable();
             $table->text('public_notes')->nullable();
             $table->text('terms')->nullable();
-            $table->decimal('total', 16, 4);
-            $table->decimal('sub_total', 16, 4);
-            $table->decimal('tax_total', 16, 4);
-            $table->decimal('discount_total', 16, 4);
-            $table->integer('parent_id')->nullable();
-            $table->integer('frequency')->nullable();
-            $table->decimal('balance', 16, 4);
-            $table->decimal('partial', 16, 4)->nullable();
-            $table->dateTime('partial_due_date')->nullable();
+            $table->decimal('total', 16, 4)->default(0.0000);
+            $table->decimal('balance', 16, 4)->default(0.0000);
             $table->dateTime('last_viewed')->nullable();
+            $table->enum('frequency', ['DAILY', 'MONTHLY', 'WEEKLY', 'FORTNIGHT', 'TWO_MONTHS', 'THREE_MONTHS', 'FOUR_MONTHS', 'SIX_MONTHS', 'YEARLY'])->nullable()->default('MONTHLY');
+            $table->date('start_date')->nullable();
+            $table->dateTime('last_sent_date')->nullable();
+            $table->dateTime('date_to_send')->nullable();
+            $table->unsignedInteger('number_of_occurrances')->nullable();
             $table->timestamps();
             $table->softDeletes();
-            $table->unsignedInteger('account_id')->index('account_id');
             $table->unsignedInteger('task_id')->nullable();
             $table->unsignedInteger('company_id')->nullable();
             $table->string('custom_value1')->nullable();
@@ -54,40 +51,32 @@ class CreateInvoicesTable extends Migration
             $table->string('custom_value3')->nullable();
             $table->string('custom_value4')->nullable();
             $table->text('private_notes')->nullable();
-            $table->tinyInteger('uses_inclusive_taxes')->default(0);
-            $table->decimal('tax_rate', 13, 3)->nullable()->default(0.000);
             $table->string('tax_rate_name')->nullable();
-            $table->unsignedInteger('design_id')->nullable();
+            $table->decimal('tax_rate', 13, 3)->nullable()->default(0.000);
+            $table->decimal('partial', 16, 4)->nullable();
+            $table->date('expiry_date')->nullable();
             $table->decimal('transaction_fee', 16, 4)->nullable();
             $table->decimal('shipping_cost', 16, 4)->nullable();
             $table->tinyInteger('transaction_fee_tax')->default(0);
-            $table->tinyInteger('shipping_cost_tax')->nullable()->default(0);
-            $table->unsignedInteger('order_id');
-            $table->decimal('gateway_fee', 16, 4)->nullable()->default(0.0000);
-            $table->string('voucher_code')->nullable();
-            $table->tinyInteger('commission_paid')->default(0);
-            $table->dateTime('commission_paid_date')->nullable();
-            $table->dateTime('date_cancelled')->nullable();
+            $table->tinyInteger('shipping_cost_tax')->default(0);
+            $table->decimal('gateway_fee', 16, 4)->nullable();
             $table->tinyInteger('gateway_percentage')->default(0);
-            $table->dateTime('date_reminder_last_sent')->nullable();
-            $table->integer('currency_id')->nullable();
+            $table->unsignedInteger('currency_id')->nullable();
             $table->decimal('exchange_rate', 12)->default(0.00);
             $table->tinyInteger('gateway_fee_applied')->default(0);
-            $table->decimal('late_fee_charge', 12)->default(0.00);
-            $table->dateTime('date_to_send')->nullable();
-            $table->text('temp_data')->nullable();
             $table->tinyInteger('auto_billing_enabled')->default(0);
-            $table->integer('project_id')->nullable();
+            $table->integer('grace_period')->default(0);
+            $table->unsignedInteger('project_id')->nullable();
             $table->decimal('tax_2', 13, 3)->nullable()->default(0.000);
             $table->decimal('tax_3', 13, 3)->nullable()->default(0.000);
             $table->string('tax_rate_name_2', 100)->nullable();
             $table->string('tax_rate_name_3', 100)->nullable();
+            $table->dateTime('partial_due_date')->nullable();
+            $table->tinyInteger('is_never_ending')->default(0);
             $table->tinyInteger('viewed')->default(0);
             $table->decimal('amount_paid', 16, 4)->default(0.0000);
-            $table->text('cached_data')->nullable();
-            $table->integer('late_fee_reminder')->nullable();
             $table->dateTime('date_notification_last_sent')->nullable();
-            $table->unsignedInteger('plan_subscription_id');
+            $table->unsignedInteger('exchange_currency_id')->nullable();
         });
     }
 
@@ -98,6 +87,6 @@ class CreateInvoicesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('invoices');
+        Schema::dropIfExists('recurring_quotes');
     }
 }

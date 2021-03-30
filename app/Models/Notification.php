@@ -11,6 +11,7 @@ class Notification extends Model
 
     use QueryCacheable;
 
+    protected static $flushCacheOnUpdate = true;
     /**
      * The attributes that are mass assignable.
      *
@@ -25,8 +26,6 @@ class Notification extends Model
         'account_id',
         'action'
     ];
-
-    protected static $flushCacheOnUpdate = true;
 
     /**
      * When invalidating automatically on update, you can specify

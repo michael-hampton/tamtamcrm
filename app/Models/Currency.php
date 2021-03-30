@@ -9,6 +9,8 @@ class Currency extends Model
 {
     use QueryCacheable;
 
+    protected static $flushCacheOnUpdate = true;
+    public $cacheFor = -1;
     /**
      * The attributes that are mass assignable.
      *
@@ -26,8 +28,4 @@ class Currency extends Model
      * @var array
      */
     protected $hidden = [];
-
-    public $cacheFor = -1;
-
-    protected static $flushCacheOnUpdate = true;
 }

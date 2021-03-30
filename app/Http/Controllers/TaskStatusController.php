@@ -4,13 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Factory\TaskStatusFactory;
 use App\Models\CompanyToken;
+use App\Models\TaskStatus;
 use App\Repositories\Interfaces\TaskStatusRepositoryInterface;
-use App\Repositories\TaskStatusRepository;
 use App\Requests\SearchRequest;
 use App\Requests\TaskStatus\CreateTaskStatusRequest;
 use App\Requests\TaskStatus\UpdateTaskStatusRequest;
 use App\Search\TaskStatusSearch;
-use App\Models\TaskStatus;
 use App\Transformations\TaskStatusTransformable;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;

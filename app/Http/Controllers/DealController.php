@@ -22,6 +22,7 @@ use App\Transformations\DealTransformable;
 use App\Transformations\LeadTransformable;
 use App\Transformations\TaskTransformable;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -56,7 +57,7 @@ class DealController extends Controller
 
     /**
      * @param CreateDealRequest $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      * @throws Exception
      */
     public function store(CreateDealRequest $request)
@@ -72,7 +73,7 @@ class DealController extends Controller
 
     /**
      * @param Deal $deal
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function markAsCompleted(Deal $deal)
     {
@@ -84,7 +85,7 @@ class DealController extends Controller
     /**
      * @param UpdateDealRequest $request
      * @param Deal $deal
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      * @throws Exception
      */
     public function update(UpdateDealRequest $request, Deal $deal)

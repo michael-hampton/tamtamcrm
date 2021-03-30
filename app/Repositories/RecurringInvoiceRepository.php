@@ -55,6 +55,27 @@ class RecurringInvoiceRepository extends BaseRepository
 
     /**
      * @param array $data
+     * @param RecurringInvoice $invoice
+     * @return RecurringInvoice|null
+     */
+    public function save(array $data, RecurringInvoice $invoice): ?RecurringInvoice
+    {
+        $invoice->fill($data);
+        $invoice = $this->calculateTotals($invoice);
+        $invoice = $this->convertCurrencies($invoice, $invoice->total, config('taskmanager.use_live_exchange_rates'));
+        $invoice = $this->populateDefaults($invoice);
+        $invoice = $this->formatNotes($invoice);
+        $invoice->setNumber();
+
+        $invoice->save();
+
+        $this->saveInvitations($invoice, $data);
+
+        return $invoice->fresh();
+    }
+
+    /**
+     * @param array $data
      * @param RecurringInvoice $recurring_invoice
      */
     public function update(array $data, RecurringInvoice $recurring_invoice)
@@ -63,27 +84,6 @@ class RecurringInvoiceRepository extends BaseRepository
         event(new RecurringInvoiceWasUpdated($recurring_invoice));
 
         return $recurring_invoice;
-    }
-
-    /**
-     * @param array $data
-     * @param RecurringInvoice $invoice
-     * @return RecurringInvoice|null
-     */
-    public function save(array $data, RecurringInvoice $invoice): ?RecurringInvoice
-    {
-        $invoice->fill($data);
-        $invoice = $this->populateDefaults($invoice);
-        $invoice = $this->formatNotes($invoice);
-        $invoice = $this->calculateTotals($invoice);
-        $invoice->setNumber();
-        $invoice->setExchangeRate();
-
-        $invoice->save();
-
-        $this->saveInvitations($invoice, $data);
-
-        return $invoice->fresh();
     }
 
     /**

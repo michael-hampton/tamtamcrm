@@ -5,6 +5,8 @@ namespace App\Components\Subscriptions;
 
 use App\Models\Feature;
 use App\Models\PlanSubscription;
+use Illuminate\Database\Eloquent\Model;
+use Throwable;
 
 class SubscriptionUsageManager
 {
@@ -23,19 +25,32 @@ class SubscriptionUsageManager
     }
 
     /**
+     * @param $featureId
+     * @param int $uses
+     * @return Model
+     * @throws Throwable
+     */
+    public function reduce($featureId, $uses = 1)
+    {
+        return $this->record($featureId, -$uses);
+    }
+
+    /**
      * @param string $featureCode
      * @param int $uses
      * @param bool $incremental
-     * @return \Illuminate\Database\Eloquent\Model
-     * @throws \Throwable
+     * @return Model
+     * @throws Throwable
      */
     public function record(string $featureCode, $uses = 1, $incremental = true)
     {
         $feature = Feature::code($featureCode)->first();
 
-        $usage = $this->subscription->usage()->firstOrNew([
-                                                              'feature_code' => $feature->code,
-                                                          ]);
+        $usage = $this->subscription->usage()->firstOrNew(
+            [
+                'feature_code' => $feature->code,
+            ]
+        );
 
         if ($feature->isResettable()) {
             // Set expiration date when the usage record is new or doesn't have one.
@@ -56,17 +71,6 @@ class SubscriptionUsageManager
         $usage->saveOrFail();
 
         return $usage;
-    }
-
-    /**
-     * @param $featureId
-     * @param int $uses
-     * @return \Illuminate\Database\Eloquent\Model
-     * @throws \Throwable
-     */
-    public function reduce($featureId, $uses = 1)
-    {
-        return $this->record($featureId, -$uses);
     }
 
     /**

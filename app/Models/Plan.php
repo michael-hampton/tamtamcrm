@@ -4,6 +4,7 @@ namespace App\Models;
 
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Plan extends Model
@@ -77,7 +78,7 @@ class Plan extends Model
     /**
      * The plan may have many features.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function features()
     {
@@ -92,7 +93,7 @@ class Plan extends Model
     /**
      * Get plan subscriptions.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function subscriptions()
     {

@@ -4,16 +4,13 @@ namespace App\Repositories;
 
 use App\Events\Customer\CustomerWasCreated;
 use App\Events\Customer\CustomerWasUpdated;
-use App\Factory\CustomerFactory;
 use App\Models\Account;
 use App\Models\Customer;
-use App\Models\NumberGenerator;
 use App\Repositories\Base\BaseRepository;
 use App\Repositories\Interfaces\CustomerRepositoryInterface;
 use App\Requests\SearchRequest;
 use App\Search\CustomerSearch;
 use Carbon\Carbon;
-use Exception;
 use Illuminate\Support\Collection as Support;
 use Illuminate\Support\Facades\DB;
 

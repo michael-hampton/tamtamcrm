@@ -11,7 +11,7 @@ use App\Requests\TaxRate\UpdateTaxRateRequest;
 use App\Search\TaxRateSearch;
 use App\Transformations\TaxRateTransformable;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Http\Response;
+use Illuminate\Http\JsonResponse;
 
 class TaxRateController extends Controller
 {
@@ -33,7 +33,7 @@ class TaxRateController extends Controller
 
     /**
      * @param SearchRequest $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function index(SearchRequest $request)
     {
@@ -44,7 +44,7 @@ class TaxRateController extends Controller
 
     /**
      * @param CreateTaxRateRequest $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function store(CreateTaxRateRequest $request)
     {
@@ -57,7 +57,7 @@ class TaxRateController extends Controller
     /**
      * @param UpdateTaxRateRequest $request
      * @param TaxRate $tax_rate
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function update(UpdateTaxRateRequest $request, TaxRate $tax_rate)
     {
@@ -67,7 +67,7 @@ class TaxRateController extends Controller
 
     /**
      * @param TaxRate $tax_rate
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function archive(TaxRate $tax_rate)
     {
@@ -77,7 +77,7 @@ class TaxRateController extends Controller
 
     /**
      * @param TaxRate $tax_rate
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      * @throws AuthorizationException
      */
     public function destroy(TaxRate $tax_rate)
@@ -89,7 +89,7 @@ class TaxRateController extends Controller
 
     /**
      * @param int $id
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function restore(int $id)
     {

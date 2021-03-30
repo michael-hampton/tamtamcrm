@@ -41,7 +41,9 @@ trait DealTransformable
             'custom_value4'  => $deal->custom_value4 ?: '',
             'public_notes'   => $deal->public_notes ?: '',
             'private_notes'  => $deal->private_notes ?: '',
-            'files'                  => !empty($files) && !empty($files[$deal->id]) ? $this->transformDealFiles($files[$deal->id]) : [],
+            'files'          => !empty($files) && !empty($files[$deal->id]) ? $this->transformDealFiles(
+                $files[$deal->id]
+            ) : [],
             'emails'         => $this->transformDealEmails($deal->emails()),
             'status_name'    => !empty($deal->taskStatus) ? $deal->taskStatus->name : '',
             'task_status'    => $deal->taskStatus

@@ -12,6 +12,19 @@ use App\Models\RecurringQuoteInvitation;
 
 trait RecurringQuoteTransformable
 {
+    public function transformAuditsForRecurringQuote($audits)
+    {
+        if (empty($audits)) {
+            return [];
+        }
+
+        return $audits->map(
+            function (Audit $audit) {
+                return (new AuditTransformable)->transformAudit($audit);
+            }
+        )->all();
+    }
+
     /**
      * @param RecurringQuote $quote
      * @return array
@@ -77,19 +90,6 @@ trait RecurringQuoteTransformable
             'is_deleted'            => (bool)$quote->is_deleted,
 
         ];
-    }
-
-    public function transformAuditsForRecurringQuote($audits)
-    {
-        if (empty($audits)) {
-            return [];
-        }
-
-        return $audits->map(
-            function (Audit $audit) {
-                return (new AuditTransformable)->transformAudit($audit);
-            }
-        )->all();
     }
 
     /**

@@ -21,6 +21,7 @@ class Company extends Model
     use Archiveable;
     use QueryCacheable;
 
+    protected static $flushCacheOnUpdate = true;
     protected $fillable = [
         'logo',
         'number',
@@ -49,21 +50,16 @@ class Company extends Model
         'custom_value4',
         'vat_number'
     ];
-
     protected $casts = [
         'settings'   => 'object',
         'is_deleted' => 'boolean',
         'updated_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];
-
     protected $with = [
         'contacts',
     ];
-
     protected $presenter = 'App\Presenters\CompanyPresenter';
-
-    protected static $flushCacheOnUpdate = true;
 
     /**
      * When invalidating automatically on update, you can specify

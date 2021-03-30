@@ -109,19 +109,6 @@ class QuoteTransformable
         )->all();
     }
 
-    public function transformAuditsForQuote($audits)
-    {
-        if (empty($audits)) {
-            return [];
-        }
-
-        return $audits->map(
-            function (Audit $audit) {
-                return (new AuditTransformable)->transformAudit($audit);
-            }
-        )->all();
-    }
-
     /**
      * @param $files
      * @return array
@@ -135,6 +122,19 @@ class QuoteTransformable
         return $files->map(
             function (File $file) {
                 return (new FileTransformable())->transformFile($file);
+            }
+        )->all();
+    }
+
+    public function transformAuditsForQuote($audits)
+    {
+        if (empty($audits)) {
+            return [];
+        }
+
+        return $audits->map(
+            function (Audit $audit) {
+                return (new AuditTransformable)->transformAudit($audit);
             }
         )->all();
     }

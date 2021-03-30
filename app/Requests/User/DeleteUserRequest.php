@@ -4,7 +4,6 @@ namespace App\Requests\User;
 
 
 use App\Repositories\Base\BaseFormRequest;
-use Illuminate\Support\Facades\Hash;
 
 class DeleteUserRequest extends BaseFormRequest
 {

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Factory\ExpenseCategoryFactory;
-use App\Models\Deal;
+use App\Models\ExpenseCategory;
 use App\Repositories\ExpenseCategoryRepository;
 use App\Requests\ExpenseCategory\CreateCategoryRequest;
 use App\Requests\ExpenseCategory\UpdateCategoryRequest;
@@ -12,7 +12,6 @@ use App\Search\ExpenseCategorySearch;
 use App\Transformations\ExpenseCategoryTransformable;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
-use App\Models\ExpenseCategory;
 
 class ExpenseCategoryController extends Controller
 {

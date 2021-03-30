@@ -17,6 +17,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
+use ReflectionException;
 
 class ProcessSubscription implements ShouldQueue
 {
@@ -41,7 +42,7 @@ class ProcessSubscription implements ShouldQueue
     {
         // send 10 days before
         $plans = PlanSubscription::join('plans', 'plans.id', '=', 'plan_subscriptions.plan_id')
-                                 ->where('due_date', '=', now()->addDays(10))
+            //->where('due_date', '=', now()->addDays(10))
                                  ->where('plans.is_active', '=', 1)
                                  ->whereNull('cancelled_at')
                                  ->where('ends_at', '>', now())
@@ -51,11 +52,21 @@ class ProcessSubscription implements ShouldQueue
         foreach ($plans as $plan) {
             $account = $plan->domain->default_company;
 
+            // skip if on trial
             if ($plan->onTrial() || (!empty($plan->trial_ends_at) && $plan->trial_ends_at <= now()->addDays(10)->format(
                         'Y-m-d'
                     ))) {
                 continue;
             }
+
+            // skip if not due date - grace period
+            $date_to_send = $plan->due_date->subDays($plan->plan->grace_period)->startOfDay();
+
+            if ($date_to_send->ne(now()->startOfDay())) {
+                continue;
+            }
+
+            //echo $plan->plan->grace_period . ' - ' . $date_to_send->format('Y-m-d') . ' - ' . $plan->due_date->format('Y-m-d');
 
 //                $due_date = Carbon::parse($plan->due_date)->subDays(10)->format('Y-m-d');
 //                $expiry_date = $plan->ends_at;
@@ -97,7 +108,7 @@ class ProcessSubscription implements ShouldQueue
      * @param $due_date
      * @param array|bool $promocode
      * @return Invoice
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     private function createInvoice(
         PlanSubscription $plan,

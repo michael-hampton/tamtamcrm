@@ -9,7 +9,8 @@ use Illuminate\Http\Request;
 class VerificationController
 {
 
-    public function verify(int $user_id, Request $request) {
+    public function verify(int $user_id, Request $request)
+    {
         if (!$request->hasValidSignature()) {
             return response()->json(["msg" => "Invalid/Expired url provided."], 401);
         }
@@ -25,7 +26,8 @@ class VerificationController
         return redirect()->to('/');
     }
 
-    public function resend() {
+    public function resend()
+    {
         //https://dev.to/chandreshhere/laravel-email-verification-apis-246c
 
         if (auth()->user()->hasVerifiedEmail()) {

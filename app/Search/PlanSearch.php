@@ -4,12 +4,9 @@ namespace App\Search;
 
 use App\Models\Account;
 use App\Models\Plan;
-use App\Models\TaskStatus;
 use App\Repositories\PlanRepository;
-use App\Repositories\TaskStatusRepository;
 use App\Requests\SearchRequest;
 use App\Transformations\PlanTransformable;
-use App\Transformations\TaskStatusTransformable;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 /**

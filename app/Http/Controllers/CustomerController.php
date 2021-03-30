@@ -11,7 +11,6 @@ use App\Models\Customer;
 use App\Models\CustomerGateway;
 use App\Models\CustomerType;
 use App\Models\ErrorLog;
-use App\Models\Invoice;
 use App\Models\Transaction;
 use App\Repositories\CustomerContactRepository;
 use App\Repositories\CustomerTypeRepository;
@@ -25,7 +24,6 @@ use App\Settings\CustomerSettings;
 use App\Transformations\CustomerGatewayTransformable;
 use App\Transformations\CustomerTransformable;
 use App\Transformations\ErrorLogTransformable;
-use App\Transformations\InvoiceTransformable;
 use App\Transformations\TransactionTransformable;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -193,8 +191,8 @@ class CustomerController extends Controller
         return response()->json(['contact' => $contact]);
     }
 
-    public function getTransactions(Customer $customer) {
-
+    public function getTransactions(Customer $customer)
+    {
         $transactions = $customer->transactions;
 
         $transactions = $transactions->map(
@@ -206,8 +204,8 @@ class CustomerController extends Controller
         return response()->json($transactions);
     }
 
-    public function getErrorLogs(Customer $customer) {
-
+    public function getErrorLogs(Customer $customer)
+    {
         $error_logs = $customer->error_logs;
 
         $error_logs = $error_logs->map(

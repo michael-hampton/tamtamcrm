@@ -27,6 +27,7 @@ use App\Transformations\InvoiceTransformable;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use ReflectionException;
 
 /**
  * Class InvoiceController
@@ -177,7 +178,7 @@ class InvoiceController extends BaseController
     /**
      * @param CreateSubscriptionInvoiceRequest $request
      * @return JsonResponse
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function createSubscriptionInvoice(CreateSubscriptionInvoiceRequest $request)
     {

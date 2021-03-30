@@ -2,11 +2,8 @@
 
 namespace App\Repositories;
 
-use App\Models\Account;
 use App\Models\ExpenseCategory;
 use App\Repositories\Base\BaseRepository;
-use Exception;
-use Illuminate\Support\Collection;
 
 class ExpenseCategoryRepository extends BaseRepository
 {

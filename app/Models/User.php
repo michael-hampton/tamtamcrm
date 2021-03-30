@@ -29,12 +29,10 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, CanRe
     use Archiveable;
     use QueryCacheable;
 
+    protected static $flushCacheOnUpdate = true;
     public $account;
     protected $presenter = 'App\Presenters\UserPresenter';
     protected $with = ['accounts'];
-
-    protected static $flushCacheOnUpdate = true;
-
     protected $casts = [
         'two_factor_authentication_enabled' => 'boolean'
     ];
@@ -204,12 +202,12 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, CanRe
      */
     public function isAdmin(): bool
     {
-        return $this->account_user->is_admin;
+        return $this->account_user()->is_admin;
     }
 
     public function isOwner(): bool
     {
-        return $this->account_user->is_owner;
+        return $this->account_user()->is_owner;
     }
 
     public function uploads()
@@ -225,9 +223,9 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, CanRe
         $this->accounts()->attach(
             $account->id,
             [
-                'account_id' => $account->id,
-                'is_owner' => $is_admin,
-                'is_admin' => $is_admin,
+                'account_id'    => $account->id,
+                'is_owner'      => $is_admin,
+                'is_admin'      => $is_admin,
                 'notifications' => !empty($notifications) ? $notifications : $this->notificationDefaults()
             ]
         );

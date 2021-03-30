@@ -8,8 +8,6 @@
 
 namespace App\Repositories;
 
-use App\Events\Plan\PlanWasCreated;
-use App\Models\Domain;
 use App\Models\Lead;
 use App\Models\Plan;
 use App\Models\PlanSubscription;
