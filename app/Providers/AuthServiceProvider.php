@@ -20,6 +20,7 @@ use App\Models\Lead;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentTerms;
+use App\Models\Plan;
 use App\Models\PlanSubscription;
 use App\Models\Product;
 use App\Models\Project;
@@ -49,6 +50,7 @@ use App\Policies\LeadPolicy;
 use App\Policies\OrderPolicy;
 use App\Policies\PaymentPolicy;
 use App\Policies\PaymentTermPolicy;
+use App\Policies\PlanPolicy;
 use App\Policies\PlanSubscriptionPolicy;
 use App\Policies\ProductPolicy;
 use App\Policies\ProjectPolicy;
@@ -102,7 +104,8 @@ class AuthServiceProvider extends ServiceProvider
         Event::class            => EventPolicy::class,
         Order::class            => OrderPolicy::class,
         File::class             => DocumentPolicy::class,
-        PlanSubscription::class => PlanSubscriptionPolicy::class
+        PlanSubscription::class => PlanSubscriptionPolicy::class,
+        Plan::class             => PlanPolicy::class
     ];
 
     /**

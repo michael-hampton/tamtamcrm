@@ -76,7 +76,8 @@ class InvoiceTransformable
             'tax_rate_name_3'      => $invoice->tax_rate_name_3,
             'viewed'               => (bool)$invoice->viewed,
             'is_deleted'           => (bool)$invoice->is_deleted,
-            'late_fee_reminder'    => (int)$invoice->late_fee_reminder
+            'late_fee_reminder'    => (int)$invoice->late_fee_reminder,
+            'plan_subscription_id' => (int)$invoice->plan_subscription_id
         ];
     }
 

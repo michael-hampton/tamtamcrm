@@ -3,6 +3,7 @@
 namespace App\Models;
 
 
+use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -11,6 +12,7 @@ class Plan extends Model
 {
 
     use SoftDeletes;
+    use Archiveable;
 
     const PLAN_STANDARD = 'STANDARD';
     const PLAN_ADVANCED = 'ADVANCED';
@@ -45,6 +47,11 @@ class Plan extends Model
         'is_active',
         'currency',
         'signup_fee',
+        'account_id',
+        'auto_billing_enabled',
+        'can_cancel_plan',
+        'user_id',
+        'assigned_to'
     ];
 
     protected $dates = [

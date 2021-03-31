@@ -6,30 +6,25 @@ import Details from './Details'
 import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
 import { toast, ToastContainer } from 'react-toastify'
-import PlanSubscriptionModel from '../../models/PlanSubscriptionModel'
-import PlanRepository from '../../repositories/PlanRepository'
+import PlanModel from '../../models/PlanModel'
 
 export default class EditPlan extends React.Component {
     constructor (props) {
         super(props)
 
-        this.planModel = new PlanSubscriptionModel(this.props.plan)
+        this.planModel = new PlanModel(this.props.plan)
         this.initialState = this.planModel.fields
-        this.initialState.original_plan_id = parseInt(this.props.plan.plan_id)
-        this.initialState.plan_changed = false
         this.state = this.initialState
 
-        this.renew = this.renew.bind(this)
-        this.cancel = this.cancel.bind(this)
-        this.change = this.change.bind(this)
         this.toggle = this.toggle.bind(this)
+        this.handleClick = this.handleClick.bind(this)
         this.hasErrorFor = this.hasErrorFor.bind(this)
         this.renderErrorFor = this.renderErrorFor.bind(this)
     }
 
     static getDerivedStateFromProps (props, state) {
         if (props.plan && props.plan.id !== state.id) {
-            const planModel = new PlanSubscriptionModel(props.plan)
+            const planModel = new PlanModel(props.plan)
             return planModel.fields
         }
 
@@ -38,101 +33,17 @@ export default class EditPlan extends React.Component {
 
     componentDidUpdate (prevProps, prevState) {
         if (this.props.plan && this.props.plan.id !== prevProps.plan.id) {
-            this.planModel = new PlanSubscriptionModel(this.props.plan)
+            this.planModel = new PlanModel(this.props.plan)
         }
     }
 
-    change () {
-        const planRepository = new PlanRepository()
-
-        planRepository.change(this.state.id, this.state.plan_id, this.state.number_of_licences).then(response => {
-            if (!response) {
-                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.plan), {
-                    position: 'top-center',
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined
-                })
-            }
-
-            toast.success(translations.updated_successfully.replace('{entity}', translations.plan), {
-                position: 'top-center',
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined
-            })
-        })
-    }
-
-    cancel () {
-        const planRepository = new PlanRepository()
-
-        planRepository.cancel(this.state.id).then(response => {
-            if (!response) {
-                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.plan), {
-                    position: 'top-center',
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined
-                })
-            }
-
-            toast.success(translations.updated_successfully.replace('{entity}', translations.plan), {
-                position: 'top-center',
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined
-            })
-        })
-    }
-
-    renew () {
-        const planRepository = new PlanRepository()
-
-        planRepository.renew(this.state.id).then(response => {
-            if (!response) {
-                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.plan), {
-                    position: 'top-center',
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined
-                })
-            }
-
-            toast.success(translations.updated_successfully.replace('{entity}', translations.plan), {
-                position: 'top-center',
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined
-            })
-        })
-    }
-
     handleInput (e) {
-        const plan_changed = e.target.name === 'plan_id' && parseInt(e.target.value) !== parseInt(this.state.original_plan_id)
+        const name = event.target.name
+        let value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
+        value = (value === 'true') ? true : ((value === 'false') ? false : (value))
 
         this.setState({
-            plan_changed: plan_changed,
-            [e.target.name]: e.target.value,
-            changesMade: true
+            [name]: value
         })
     }
 
@@ -154,8 +65,21 @@ export default class EditPlan extends React.Component {
         const formData = {
             name: this.state.name,
             account_id: this.state.account_id,
-            plan_id: this.state.plan_id,
-            number_of_licences: this.state.number_of_licences
+            code: this.state.code,
+            description: this.state.description,
+            price: this.state.price,
+            interval_unit: this.state.interval_unit,
+            interval_count: this.state.interval_count,
+            trial_period: this.state.trial_period,
+            invoice_period: this.state.invoice_period,
+            invoice_interval: this.state.invoice_interval,
+            grace_period: this.state.grace_period,
+            grace_interval: this.state.grace_interval,
+            active_subscribers_limit: this.state.active_subscribers_limit,
+            trial_interval: this.state.trial_interval,
+            assigned_to: this.state.assigned_to,
+            auto_billing_enabled: this.state.auto_billing_enabled,
+            can_cancel_plan: this.state.can_cancel_plan
         }
 
         this.planModel.save(formData).then(response => {
@@ -240,11 +164,8 @@ export default class EditPlan extends React.Component {
                             {message}
                         </div>}
 
-                        <Details plan_types={this.props.plan_types} hasErrorFor={this.hasErrorFor} plan={this.state}
+                        <Details hasErrorFor={this.hasErrorFor} plan={this.state}
                             renderErrorFor={this.renderErrorFor} handleInput={this.handleInput.bind(this)}/>
-
-                        <Button color="danger" onClick={this.cancel}>{translations.cancel}</Button>
-                        <Button color="primary" className="ml-2" onClick={this.renew}>{translations.renew}</Button>
                     </ModalBody>
 
                     <DefaultModalFooter show_success={true} toggle={this.toggle}

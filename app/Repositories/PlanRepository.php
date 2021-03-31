@@ -31,12 +31,14 @@ class PlanRepository extends BaseRepository
     }
 
     /**
+     * @param Plan $plan
      * @param array $data
      * @return Plan|null
      */
-    public function create(array $data): ?Plan
+    public function create(Plan $plan, array $data): ?Plan
     {
-        $plan = Plan::create($data);
+        $plan->fill($data);
+        $plan->save();
 
         event(new PlanWasCreated($plan));
 

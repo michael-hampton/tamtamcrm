@@ -936,7 +936,11 @@ _localizedValues.en = {
     starts_at: 'Starts at',
     trial_starts_at: 'Trial starts at',
     trial_ends_at: 'Trial ends at',
-    plan_name: 'Plan name'
+    plan_name: 'Plan name',
+    trial_period: 'Trial Period',
+    active_subscribers_limit: 'Number of Subscribers allowed',
+    can_cancel_plan: 'Plan Can be cancelled',
+    invoice_frequency: 'Invoice Frequency'
 }
 
 let language = []

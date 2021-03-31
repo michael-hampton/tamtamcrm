@@ -48,6 +48,10 @@ Route::group(
         Route::resource('subscriptions', 'SubscriptionController');
         Route::post('subscriptions/restore/{id}', 'SubscriptionController@restore');
 
+        // plans
+        Route::resource('plans', 'PlanController');
+        Route::post('plans/restore/{id}', 'PlanController@restore');
+
         // expense categories
         Route::resource('expense-categories', 'ExpenseCategoryController');
         Route::delete(

@@ -26,6 +26,7 @@ import Deal from '../deals/view/Deal'
 import PurchaseOrder from '../purchase_orders/view/PurchaseOrder'
 import ViewExpenseCategory from '../expense_categories/view/ViewExpenseCategory'
 import BankAccount from '../bank_accounts/view/BankAccount'
+import PlanSubscription from '../plan_subscriptions/view/PlanSubscription'
 
 export default class ViewEntity extends Component {
     constructor (props) {
@@ -189,6 +190,10 @@ export default class ViewEntity extends Component {
 
                         {this.props.entity && this.props.entity_type && ['BankAccount'].includes(this.props.entity_type) &&
                         <BankAccount entities={this.props.entities} entity={this.props.entity}
+                            updateState={this.updateState}/>}
+
+                        {this.props.entity && this.props.entity_type && ['PlanSubscription'].includes(this.props.entity_type) &&
+                        <PlanSubscription entities={this.props.entities} entity={this.props.entity}
                             updateState={this.updateState}/>}
 
                     </ModalBody>

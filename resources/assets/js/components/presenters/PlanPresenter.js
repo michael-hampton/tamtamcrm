@@ -1,19 +1,19 @@
 import React from 'react'
 import FormatDate from '../common/FormatDate'
+import FormatMoney from "../common/FormatMoney";
 
 export function getDefaultTableFields () {
     return [
-        'plan_name',
         'name',
-        'starts_at',
-        'ends_at',
-        'due_date',
-        'trial_ends_at',
-        'number_of_licences'
+        'description',
+        'code',
+        'trial_period',
+        'price',
+        'active_subscribers_limit',
     ]
 }
 
-export default function PlanPresenter (props) {
+export default function PlanPresenter ( props) {
     const { field, entity } = props
 
     switch (field) {
@@ -25,6 +25,8 @@ export default function PlanPresenter (props) {
         case 'trial_ends_at':
         case 'cancelled_at':
             return <FormatDate date={entity[field]}/>
+        case 'price':
+            return <FormatMoney amount={entity.price} />
         default:
             return typeof entity[field] === 'object' ? JSON.stringify(entity[field]) : entity[field]
     }

@@ -12,6 +12,7 @@ trait PlanTransformable
         return [
             'id'                       => (int)$plan->id,
             'name'                     => $plan->name,
+            'description'              => $plan->description,
             'code'                     => $plan->code,
             'price'                    => $plan->price,
             'interval_unit'            => $plan->interval_unit,
@@ -30,7 +31,11 @@ trait PlanTransformable
             'prorate_extend_due'       => $plan->prorate_extend_due,
             'active_subscribers_limit' => $plan->active_subscribers_limit,
             'trial_interval'           => $plan->trial_interval,
-            'description'              => $plan->description
+            'user_id'                  => (int)$plan->user_id,
+            'account_id'               => (int)$plan->account_id,
+            'assigned_to'              => (int)$plan->assigned_to,
+            'can_cancel_plan'          => (bool)$plan->can_cancel_plan,
+            'auto_billing_enabled'     => (bool)$plan->auto_billing_enabled
         ];
     }
 }

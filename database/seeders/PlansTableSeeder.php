@@ -15,6 +15,8 @@ class PlansTableSeeder extends Seeder
      */
     public function run()
     {
+        
+
         DB::table('plans')->delete();
         
         DB::table('plans')->insert(array (
@@ -36,13 +38,20 @@ class PlansTableSeeder extends Seeder
                 'currency' => 'GBP',
                 'invoice_period' => 1,
                 'invoice_interval' => 'year',
-                'grace_period' => 0,
+                'grace_period' => 10,
                 'grace_interval' => 'day',
                 'prorate_day' => NULL,
                 'prorate_period' => NULL,
                 'prorate_extend_due' => NULL,
-                'active_subscribers_limit' => NULL,
+                'active_subscribers_limit' => 10,
                 'trial_interval' => 'day',
+                'deleted_at' => NULL,
+                'is_locked' => 1,
+                'user_id' => NULL,
+                'assigned_to' => NULL,
+                'auto_billing_enabled' => 0,
+                'can_cancel_plan' => 1,
+                'account_id' => NULL,
             ),
             1 => 
             array (
@@ -62,13 +71,20 @@ class PlansTableSeeder extends Seeder
                 'currency' => 'GBP',
                 'invoice_period' => 1,
                 'invoice_interval' => 'month',
-                'grace_period' => 0,
+                'grace_period' => 10,
                 'grace_interval' => 'day',
                 'prorate_day' => NULL,
                 'prorate_period' => NULL,
                 'prorate_extend_due' => NULL,
-                'active_subscribers_limit' => NULL,
+                'active_subscribers_limit' => 10,
                 'trial_interval' => 'day',
+                'deleted_at' => NULL,
+                'is_locked' => 1,
+                'user_id' => NULL,
+                'assigned_to' => NULL,
+                'auto_billing_enabled' => 0,
+                'can_cancel_plan' => 1,
+                'account_id' => NULL,
             ),
             2 => 
             array (
@@ -88,13 +104,20 @@ class PlansTableSeeder extends Seeder
                 'currency' => 'GBP',
                 'invoice_period' => 1,
                 'invoice_interval' => 'month',
-                'grace_period' => 0,
+                'grace_period' => 10,
                 'grace_interval' => 'day',
                 'prorate_day' => NULL,
                 'prorate_period' => NULL,
                 'prorate_extend_due' => NULL,
-                'active_subscribers_limit' => NULL,
+                'active_subscribers_limit' => 10,
                 'trial_interval' => 'day',
+                'deleted_at' => NULL,
+                'is_locked' => 1,
+                'user_id' => NULL,
+                'assigned_to' => NULL,
+                'auto_billing_enabled' => 0,
+                'can_cancel_plan' => 1,
+                'account_id' => NULL,
             ),
             3 => 
             array (
@@ -114,13 +137,20 @@ class PlansTableSeeder extends Seeder
                 'currency' => 'GBP',
                 'invoice_period' => 1,
                 'invoice_interval' => 'year',
-                'grace_period' => 0,
+                'grace_period' => 10,
                 'grace_interval' => 'day',
                 'prorate_day' => NULL,
                 'prorate_period' => NULL,
                 'prorate_extend_due' => NULL,
-                'active_subscribers_limit' => NULL,
+                'active_subscribers_limit' => 10,
                 'trial_interval' => 'day',
+                'deleted_at' => NULL,
+                'is_locked' => 1,
+                'user_id' => NULL,
+                'assigned_to' => NULL,
+                'auto_billing_enabled' => 0,
+                'can_cancel_plan' => 1,
+                'account_id' => NULL,
             ),
             4 => 
             array (
@@ -140,14 +170,21 @@ class PlansTableSeeder extends Seeder
                 'currency' => 'GBP',
                 'invoice_period' => 1,
                 'invoice_interval' => 'month',
-                'grace_period' => 0,
+                'grace_period' => 10,
                 'grace_interval' => 'day',
                 'prorate_day' => NULL,
                 'prorate_period' => NULL,
                 'prorate_extend_due' => NULL,
-                'active_subscribers_limit' => NULL,
+                'active_subscribers_limit' => 10,
                 'trial_interval' => 'day',
-            ),
+                'deleted_at' => NULL,
+                'is_locked' => 1,
+                'user_id' => NULL,
+                'assigned_to' => NULL,
+                'auto_billing_enabled' => 0,
+                'can_cancel_plan' => 1,
+                'account_id' => NULL,
+            )
         ));
         
         

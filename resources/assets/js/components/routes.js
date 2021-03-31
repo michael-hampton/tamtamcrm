@@ -12,6 +12,7 @@ import Order from './orders/Order'
 import Companies from './companies/Companies'
 import Categories from './categories/Categories'
 import CaseCategories from './case_categories/Categories'
+import PlanSubscriptions from './plan_subscriptions/PlanSubscriptions'
 import Plans from './plans/Plans'
 import Brands from './brands/Brands'
 import ProjectList from './projects/ProjectList'
@@ -133,6 +134,11 @@ const routes = [
         exact: true,
         name: 'Calendar',
         component: Calendar
+    },
+    {
+        path: '/plan-subscriptions',
+        name: 'Plans',
+        component: PlanSubscriptions
     },
     {
         path: '/plans',

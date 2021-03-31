@@ -60,7 +60,9 @@ class PlanSearch extends BaseSearch
             $this->filterDates($request);
         }
 
-        //$this->addAccount($account);
+        $this->addAccount($account);
+
+        $this->query->where('is_locked', '=', false);
 
         $this->orderBy($orderBy, $orderDir);
 

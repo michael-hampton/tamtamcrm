@@ -3,7 +3,7 @@ import { CustomInput } from 'reactstrap'
 
 export default function SwitchWithIcon (props) {
     return (
-        <a href="#"
+        <span
             className="border-0 mt-2 mb-2 list-group-item-dark list-group-item list-group-item-action flex-column align-items-start">
             <div className="d-flex w-100 justify-content-between">
                 <h5 className="mb-1">
@@ -23,6 +23,6 @@ export default function SwitchWithIcon (props) {
             <h6 id="passwordHelpBlock" className="form-text text-muted">
                 {props.help_text}
             </h6>
-        </a>
+        </span>
     )
 }

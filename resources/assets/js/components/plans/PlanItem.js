@@ -32,7 +32,7 @@ export default class PlanItem extends Component {
     }
 
     deletePlan (id, archive = false) {
-        const url = archive === true ? `/api/plan_subscriptions/archive/${id}` : `/api/plan_subscriptions/${id}`
+        const url = archive === true ? `/api/plans/archive/${id}` : `/api/plans/${id}`
         const self = this
         axios.delete(url)
             .then(function (response) {
@@ -57,7 +57,7 @@ export default class PlanItem extends Component {
             return plans.map((plan, index) => {
                 const restoreButton = plan.deleted_at
                     ? <RestoreModal id={plan.id} entities={entities} updateState={this.props.addUserToState}
-                        url={`/api/plan/restore/${plan.id}`}/> : null
+                        url={`/api/plans/restore/${plan.id}`}/> : null
 
                 const deleteButton = !plan.deleted_at
                     ? <DeleteModal archive={false} deleteFunction={this.deletePlan} id={plan.id}/> : null
@@ -118,11 +118,11 @@ export default class PlanItem extends Component {
                                 entity={plan}
                                 toggleViewedEntity={this.props.toggleViewedEntity}
                                 edit={editButton}/>}
-                            {<PlanPresenter field="starts_at"
+                            {<PlanPresenter field="price"
                                 entity={plan}
                                 toggleViewedEntity={this.props.toggleViewedEntity}
                                 edit={editButton}/>}
-                            {<PlanPresenter field="ends_at"
+                            {<PlanPresenter field="trial_period"
                                 entity={plan}
                                 toggleViewedEntity={this.props.toggleViewedEntity}
                                 edit={editButton}/>}
@@ -146,11 +146,11 @@ export default class PlanItem extends Component {
                                 entity={plan}
                                 toggleViewedEntity={this.props.toggleViewedEntity}
                                 edit={editButton}/>} .
-                            {<PlanPresenter field="starts_at"
+                            {<PlanPresenter field="price"
                                 entity={plan}
                                 toggleViewedEntity={this.props.toggleViewedEntity}
                                 edit={editButton}/>}
-                            {<PlanPresenter field="ends_at"
+                            {<PlanPresenter field="trial_period"
                                 entity={plan}
                                 toggleViewedEntity={this.props.toggleViewedEntity}
                                 edit={editButton}/>}

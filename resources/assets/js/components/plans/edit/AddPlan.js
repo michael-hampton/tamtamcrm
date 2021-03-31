@@ -5,13 +5,13 @@ import { translations } from '../../utils/_translations'
 import Details from './Details'
 import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
-import PlanSubscriptionModel from '../../models/PlanSubscriptionModel'
+import PlanModel from '../../models/PlanModel'
 
 export default class AddPlan extends React.Component {
     constructor (props) {
         super(props)
 
-        this.planModel = new PlanSubscriptionModel(null)
+        this.planModel = new PlanModel(null)
         this.initialState = this.planModel.fields
         this.state = this.initialState
 
@@ -27,9 +27,13 @@ export default class AddPlan extends React.Component {
         }
     }
 
-    handleInput (e) {
+    handleInput (event) {
+        const name = event.target.name
+        let value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
+        value = (value === 'true') ? true : ((value === 'false') ? false : (value))
+
         this.setState({
-            [e.target.name]: e.target.value
+            [name]: value
         }, () => localStorage.setItem('planForm', JSON.stringify(this.state)))
     }
 
@@ -50,8 +54,22 @@ export default class AddPlan extends React.Component {
     handleClick () {
         const data = {
             name: this.state.name,
-            plan_id: this.state.plan_id,
-            number_of_licences: this.state.number_of_licences
+            account_id: this.state.account_id,
+            code: this.state.code,
+            description: this.state.description,
+            price: this.state.price,
+            interval_unit: this.state.interval_unit,
+            interval_count: this.state.interval_count,
+            trial_period: this.state.trial_period,
+            invoice_period: this.state.invoice_period,
+            invoice_interval: this.state.invoice_interval,
+            grace_period: this.state.grace_period,
+            grace_interval: this.state.grace_interval,
+            active_subscribers_limit: this.state.active_subscribers_limit,
+            trial_interval: this.state.trial_interval,
+            assigned_to: this.state.assigned_to,
+            auto_billing_enabled: this.state.auto_billing_enabled,
+            can_cancel_plan: this.state.can_cancel_plan
         }
 
         this.planModel.save(data).then(response => {
@@ -93,7 +111,7 @@ export default class AddPlan extends React.Component {
                             {message}
                         </div>}
 
-                        <Details plan_types={this.props.plan_types} hasErrorFor={this.hasErrorFor} plan={this.state}
+                        <Details hasErrorFor={this.hasErrorFor} plan={this.state}
                             renderErrorFor={this.renderErrorFor} handleInput={this.handleInput.bind(this)}/>
 
                     </ModalBody>

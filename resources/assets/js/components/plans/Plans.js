@@ -8,9 +8,8 @@ import { filterStatuses } from '../utils/_search'
 import PlanItem from './PlanItem'
 import AddPlan from './edit/AddPlan'
 import PlanFilters from './PlanFilters'
-import { getDefaultTableFields } from '../presenters/PlanPresenter'
-import BankRepository from "../repositories/BankRepository";
-import PlanRepository from "../repositories/PlanRepository";
+import PlanRepository from '../repositories/PlanRepository'
+import { getDefaultTableFields } from "../presenters/PlanPresenter";
 
 export default class Plans extends Component {
     constructor (props) {
@@ -23,7 +22,6 @@ export default class Plans extends Component {
             currentInvoices: [],
             isOpen: window.innerWidth > 670,
             plans: [],
-            plan_types: [],
             cachedData: [],
             dropdownButtonActions: ['download'],
             filters: {
@@ -50,25 +48,6 @@ export default class Plans extends Component {
         this.userList = this.userList.bind(this)
         this.filterPlans = this.filterPlans.bind(this)
         this.handleClose = this.handleClose.bind(this)
-        this.getPlans = this.getPlans.bind(this)
-    }
-
-    componentDidMount () {
-        this.getPlans()
-    }
-
-    getPlans () {
-        const planRepository = new PlanRepository()
-        planRepository.plans().then(response => {
-            if (!response) {
-                this.setState({ error: true, error_message: translations.unexpected_error })
-                return
-            }
-
-            this.setState({ plan_types: response }, () => {
-                console.log('plans', this.state.plan_types)
-            })
-        })
     }
 
     addUserToState (plans, do_filter = false, filters = null) {
@@ -115,7 +94,7 @@ export default class Plans extends Component {
 
     userList (props) {
         const { pageLimit, currentInvoices, cachedData } = this.state
-        return <PlanItem plan_types={this.state.plan_types} showCheckboxes={props.showCheckboxes} plans={currentInvoices}
+        return <PlanItem showCheckboxes={props.showCheckboxes} plans={currentInvoices}
             show_list={props.show_list} entities={cachedData}
             onPageChanged={this.onPageChanged.bind(this)}
             pageLimit={pageLimit}
@@ -148,8 +127,8 @@ export default class Plans extends Component {
     render () {
         const { plan_types, cachedData, plans, error, view, filters, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
         const { start_date, end_date } = this.state.filters
-        const fetchUrl = `/api/plan_subscriptions?start_date=${start_date}&end_date=${end_date}`
-        const addButton = <AddPlan plan_types={plan_types} plans={cachedData} action={this.addUserToState}/>
+        const fetchUrl = `/api/plans?start_date=${start_date}&end_date=${end_date}`
+        const addButton = <AddPlan plans={cachedData} action={this.addUserToState}/>
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable fixed-margin-datatable-mobile'

@@ -52,7 +52,7 @@ class FormBuilder extends React.Component {
         const class_name = field.class_name ? field.class_name : 'col-md-8'
 
         return (
-            <a href="#"
+            <span
                 className={`${class_name} list-group-item-dark list-group-item list-group-item-action flex-column align-items-start`}>
                 <div className="d-flex w-100 justify-content-between">
                     <h5 className="mb-1">
@@ -74,7 +74,7 @@ class FormBuilder extends React.Component {
                     {field.help_text}
                 </h6>
                 }
-            </a>
+            </span>
         )
     }
 
