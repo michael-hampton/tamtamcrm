@@ -6,8 +6,8 @@ use App\Models\Plan;
 use App\Models\PlanSubscription;
 use App\Repositories\PlanRepository;
 use App\Repositories\PlanSubscriptionRepository;
-use App\Requests\PlanSubscriptions\CreatePlan;
-use App\Requests\PlanSubscriptions\UpdatePlan;
+use App\Requests\PlanSubscriptions\CreatePlanSubscription;
+use App\Requests\PlanSubscriptions\UpdatePlanSubscription;
 use App\Requests\SearchRequest;
 use App\Search\PlanSubscriptionSearch;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -46,9 +46,9 @@ class PlanSubscriptionController extends Controller
     }
 
     /**
-     * @param CreatePlan $request
+     * @param CreatePlanSubscription $request
      */
-    public function store(CreatePlan $request)
+    public function store(CreatePlanSubscription $request)
     {
         $plan = Plan::where('plan_id', '=', $request->input('plan_id'))->first();
 
@@ -71,11 +71,11 @@ class PlanSubscriptionController extends Controller
     }
 
     /**
-     * @param UpdatePlan $request
+     * @param UpdatePlanSubscription $request
      * @param PlanSubscription $plan_subscription
      * @return JsonResponse
      */
-    public function update(UpdatePlan $request, PlanSubscription $plan_subscription)
+    public function update(UpdatePlanSubscription $request, PlanSubscription $plan_subscription)
     {
         $plan_subscription = $this->plan_subscription_repository->update($request->all(), $plan_subscription);
         return response()->json($plan_subscription);
