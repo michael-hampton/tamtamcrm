@@ -89,6 +89,12 @@ export default class SubscriptionFilters extends Component {
                         <DateFilter onChange={this.filterSubscriptions}/>
                     </FormGroup>
                 </Col>
+
+                <Col sm={12} md={1} className="mt-3 mt-md-0">
+                    <Button color="primary" onClick={() => {
+                        location.href = '/#/plans'
+                    }}>{translations.plans}</Button>
+                </Col>
             </Row>
         )
     }

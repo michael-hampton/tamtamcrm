@@ -1037,6 +1037,12 @@ class BaseSettings
             'default_value'    => 30,
             'type'             => 'integer'
         ],
+        'quote_payment_terms'                  => [
+            'required'         => false,
+            'translated_value' => '',
+            'default_value'    => 30,
+            'type'             => 'integer'
+        ],
         'payment_method_id'                    => [
             'required'         => false,
             'translated_value' => '',

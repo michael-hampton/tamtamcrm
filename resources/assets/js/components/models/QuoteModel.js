@@ -35,7 +35,7 @@ export default class QuoteModel extends BaseModel {
             number: '',
             user_id: null,
             contacts: [],
-            due_date: moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
+            due_date: this.settings.quote_payment_terms && this.settings.quote_payment_terms.toString().length ? moment(new Date()).add(this.settings.quote_payment_terms, 'days').format('YYYY-MM-DD') : moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
             quantity: '',
             id: null,
             account_id: JSON.parse(localStorage.getItem('appState')).user.account_id,

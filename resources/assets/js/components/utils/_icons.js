@@ -90,7 +90,8 @@ export const icons = {
     deal: 'fa-dollar',
     credit: 'fa-undo',
     invoice: 'fa-area-chart',
-    promocode: 'fa-badge-percent'
+    promocode: 'fa-badge-percent',
+    briefcase: 'fa-briefcase'
 }
 
 export function getEntityIcon (entity) {
@@ -164,6 +165,8 @@ export function getFileTypeIcon (type) {
 
 export function getSettingsIcon (section) {
     switch (section) {
+        case 'plans':
+            return icons.briefcase
         case 'designs':
             return icons.pencil
         case 'integration-settings':

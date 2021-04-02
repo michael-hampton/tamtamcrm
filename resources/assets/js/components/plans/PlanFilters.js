@@ -1,11 +1,12 @@
 import React, { Component } from 'react'
-import { Col, FormGroup, Row } from 'reactstrap'
+import { Col, FormGroup, Row, Button } from 'reactstrap'
 import TableSearch from '../common/TableSearch'
 import FilterTile from '../common/FilterTile'
 import DateFilter from '../common/DateFilter'
 import CsvImporter from '../common/CsvImporter'
 import StatusDropdown from '../common/StatusDropdown'
 import { filterStatuses } from '../utils/_search'
+import { translations } from "../utils/_translations";
 
 export default class PlanFilters extends Component {
     constructor (props) {
@@ -97,6 +98,12 @@ export default class PlanFilters extends Component {
                     <FormGroup>
                         <DateFilter onChange={this.filterPlans}/>
                     </FormGroup>
+                </Col>
+
+                <Col sm={12} md={1} className="mt-3 mt-md-0">
+                    <Button color="primary" onClick={() => {
+                        location.href = '/#/plan-subscriptions'
+                    }}>{translations.subscriptions}</Button>
                 </Col>
             </Row>
         )

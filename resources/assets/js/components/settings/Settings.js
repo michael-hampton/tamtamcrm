@@ -22,6 +22,7 @@ import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
 import FileUploads from '../documents/FileUploads'
 import CompanyModel from '../models/CompanyModel'
+import DesignFields from "./DesignFields";
 
 class Settings extends Component {
     constructor (props) {
@@ -358,9 +359,24 @@ class Settings extends Component {
                     placeholder: translations.payment_terms,
                     value: settings.payment_terms,
                     group: 1
+                },
+                {
+                    name: 'quote_payment_terms',
+                    label: translations.quote_payment_terms,
+                    type: 'payment_terms',
+                    placeholder: translations.quote_payment_terms,
+                    value: settings.quote_payment_terms,
+                    group: 1
                 }
             ]
         ]
+    }
+
+    getDesignFields () {
+        const settings = this.state.settings
+        const design_fields = DesignFields(settings)
+
+        return [design_fields]
     }
 
     getPaymentEmailFields () {
@@ -620,6 +636,15 @@ class Settings extends Component {
                                     <FormBuilder
                                         handleChange={this.handleSettingsChange}
                                         formFieldsRows={this.getDefaultFields()}
+                                    />
+                                </CardBody>
+                            </Card>
+
+                            <Card>
+                                <CardBody>
+                                    <FormBuilder
+                                        handleChange={this.handleSettingsChange}
+                                        formFieldsRows={this.getDesignFields()}
                                     />
                                 </CardBody>
                             </Card>

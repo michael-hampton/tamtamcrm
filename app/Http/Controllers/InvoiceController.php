@@ -199,6 +199,7 @@ class InvoiceController extends BaseController
         $unit_cost = $plan->price;
 
         $data = $request->input('invoice');
+        $data['date'] = now();
         $data['due_date'] = $due_date;
         $data['plan_subscription_id'] = $subscription->id;
 
