@@ -92,8 +92,8 @@ export default class Payments extends Component {
         const all_custom_fields = JSON.parse(localStorage.getItem('custom_fields'))
         const custom_fields = []
 
-        if (all_custom_fields.Plan) {
-            custom_fields[0] = all_custom_fields.Plan
+        if (all_custom_fields.Payment) {
+            custom_fields[0] = all_custom_fields.Payment
         }
 
         this.setState({
