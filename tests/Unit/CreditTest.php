@@ -112,8 +112,7 @@ class CreditTest extends TestCase
 
     public function testEmail()
     {
-        $credit = CreditFactory::create($this->account, $this->user, $this->customer);
-        $credit = (new CreditRepository(new Credit()))->save([], $credit);
+        $credit = Credit::factory()->create(['account_id' => $this->account->id, 'user_id' => $this->user->id, 'customer_id' => $this->customer->id]);
 
         $template = strtolower('credit');
         $subject = $credit->customer->getSetting('email_subject_' . $template);

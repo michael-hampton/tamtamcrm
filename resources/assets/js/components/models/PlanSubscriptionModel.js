@@ -17,6 +17,7 @@ export default class PlanSubscriptionModel extends BaseModel {
             ends_at: null,
             cancelled_at: null,
             domain_id: null,
+            customer_id: null,
             due_date: null,
             number_of_licences: 1,
             promocode: '',

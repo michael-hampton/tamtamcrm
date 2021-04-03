@@ -59,11 +59,9 @@ class CreditRepository extends BaseRepository implements CreditRepositoryInterfa
      */
     public function save(array $data, Credit $credit): ?Credit
     {
-        $original_amount = $credit->total;
-
         $credit->fill($data);
         $credit = $this->calculateTotals($credit);
-        $credit = $this->convertCurrencies($credit, $credit->total, config('taskmanager.use_live_exchange_rates'));
+        $credit = $credit->convertCurrencies($credit, $credit->total, config('taskmanager.use_live_exchange_rates'));
         $credit = $this->populateDefaults($credit);
         $credit = $this->formatNotes($credit);
         $credit->setNumber();
@@ -71,12 +69,6 @@ class CreditRepository extends BaseRepository implements CreditRepositoryInterfa
         $credit->save();
 
         $this->saveInvitations($credit, $data);
-
-        $updated_amount = $credit->total - $original_amount;
-
-        if ($credit->status_id !== Credit::STATUS_DRAFT && $original_amount !== $credit->total) {
-            (new TriggerTransaction($credit))->execute($updated_amount, $credit->customer->balance);
-        }
 
         return $credit->fresh();
     }

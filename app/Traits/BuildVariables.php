@@ -41,4 +41,54 @@ trait BuildVariables
 
         return $content;
     }
+
+    protected function populateDefaults($entity)
+    {
+        $class = strtolower((new \ReflectionClass($entity))->getShortName());
+
+        if (empty($entity->terms) && !empty($entity->customer->getSetting($class . '_terms'))) {
+            $entity->terms = $entity->customer->getSetting($class . '_terms');
+        }
+        if (empty($entity->footer) && !empty($entity->customer->getSetting($class . '_footer'))) {
+            $entity->footer = $entity->customer->getSetting($class . '_footer');
+        }
+        if (empty($entity->public_notes) && !empty($entity->customer->public_notes)) {
+            $entity->public_notes = $entity->customer->public_notes;
+        }
+
+        return $entity;
+    }
+
+    protected function parseCaseVariables(string $content, $entity)
+    {
+        $variables = [];
+
+        $variables['$status'] = $entity->getStatusName();
+
+        if (!empty($entity->description)) {
+            $variables['$description'] = $entity->description;
+        }
+
+        if (!empty($entity->number)) {
+            $variables['$number'] = $entity->number;
+        }
+
+        if (!empty($entity->due_date)) {
+            $variables['$due_date'] = $entity->due_date;
+        }
+
+        if (!empty($entity->priority_id) && method_exists($entity, 'getPriorityName')) {
+            $variables['$priority'] = $entity->getPriorityName();
+        }
+
+        if (!empty($entity->customer_id)) {
+            $variables['$customer'] = $entity->customer->name;
+        }
+
+        if (!empty($entity->assigned_to)) {
+            $variables['$agent'] = $entity->assignee->first_name . ' ' . $entity->assignee->last_name;
+        }
+
+        return str_replace(array_keys($variables), array_values($variables), $content);
+    }
 }

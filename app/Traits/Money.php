@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Components\Currency\CurrencyConverter;
 use NumberFormatter;
 
 /**
@@ -61,5 +62,36 @@ trait Money
                 $this->balance,
                 $this->customer
             );
+    }
+
+    /**
+     * @param $entity
+     * @param float $amount
+     * @return mixed
+     */
+    public function convertCurrencies($entity, float $amount, bool $use_live_currencies = true)
+    {
+        if (!$use_live_currencies) {
+            return $entity->setExchangeRate();
+        }
+
+        if ((int)$entity->account->getCurrency()->id === (int)$entity->customer->currency->id) {
+            return $entity;
+        }
+
+        $converted_amount = $objCurrencyConverter = (new CurrencyConverter())
+            ->setAmount($amount)
+            ->setBaseCurrency($entity->account->getCurrency())
+            ->setExchangeCurrency($entity->customer->currency)
+            ->setDate(now())
+            ->calculate();
+
+        if ($converted_amount) {
+            $entity->exchange_rate = $converted_amount;
+            $entity->currency_id = $entity->account->getCurrency()->id;
+            $entity->exchange_currency_id = $entity->customer->currency->id;
+        }
+
+        return $entity;
     }
 }

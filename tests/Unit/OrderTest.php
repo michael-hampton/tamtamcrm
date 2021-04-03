@@ -262,6 +262,7 @@ class OrderTest extends TestCase
         $settings->should_convert_order = true;
         $settings->should_email_order = true;
         $settings->should_archive_order = true;
+        $settings->inventory_enabled = false;
         $account->settings = $settings;
         $account->save();
 
@@ -421,13 +422,43 @@ class OrderTest extends TestCase
     public function testEmail()
     {
         $order = OrderFactory::create($this->account, $this->user, $this->customer);
-        $order = (new OrderRepository(new Order()))->save([], $order);
+        $order = (new OrderRepository(new Order()))->save(['total' => 200], $order);
 
         $template = strtolower('order');
         $subject = $order->customer->getSetting('email_subject_' . $template);
         $body = $order->customer->getSetting('email_template_' . $template);
         $result = (new DispatchEmail($order))->execute(null, $subject, $body);
         $this->assertInstanceOf(Order::class, $result);
+    }
+
+    public function test_inventory() {
+
+        $order = Order::factory()->create(['account_id' => $this->account->id, 'user_id' => $this->user->id, 'customer_id' => $this->customer->id]);
+
+        $line_items = $order->line_items;
+
+        $line_items[0]->quantity = $line_items[0]->quantity + 2;
+        $line_items[1]->quantity = $line_items[1]->quantity + 2;
+        $product = Product::find($line_items[0]->product_id);
+
+        $original_quantity = $product->quantity;
+
+        $order = (new OrderRepository($order))->save(['line_items' => $line_items], $order);
+
+        $this->assertEquals($product->fresh()->quantity, $original_quantity - 2);
+
+        $line_items = $order->line_items;
+
+        $line_items[0]->quantity = $line_items[0]->quantity - 2;
+        $line_items[1]->quantity = $line_items[1]->quantity - 2;
+        $product = Product::find($line_items[0]->product_id);
+
+        $original_quantity = $product->quantity;
+
+        $order = (new OrderRepository($order))->save(['line_items' => $line_items], $order);
+
+        $this->assertEquals($product->fresh()->quantity, $original_quantity + 2);
+
     }
 
     public function tearDown(): void

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
 use App\Models\Plan;
 use App\Models\PlanSubscription;
 use App\Repositories\PlanRepository;
@@ -51,14 +52,14 @@ class PlanSubscriptionController extends Controller
     public function store(CreatePlanSubscription $request)
     {
         $plan = Plan::where('plan_id', '=', $request->input('plan_id'))->first();
+        $customer = Customer::where('id', '=', $request->input('customer_id'))->first();
 
-        //TODO
-//        newSubscription(
-//            $request->input('name'),
-//            $plan,
-//            auth()->user()->account_user()->account,
-//            $request->input('number_of_licences')
-//        );
+        $customer->newSubscription(
+            $request->input('name'),
+            $plan,
+            auth()->user()->account_user()->account,
+            $request->input('number_of_licences')
+        );
     }
 
     /**

@@ -802,19 +802,23 @@ class InvoiceUnitTest extends TestCase
         $invoice->date_to_send = Carbon::now();
         $invoice->save();
 
-        $settings = $invoice->customer->account->settings;
+        $customer = $invoice->customer;
+
+        $settings = $customer->account->settings;
         $settings->amount_to_charge_1 = 0;
         $settings->percent_to_charge_1 = 5;
         $settings->reminder1_enabled = true;
         $settings->number_of_days_after_1 = 1;
         $settings->scheduled_to_send_1 = 'after_invoice_date';
         $settings->inclusive_taxes = false;
-        $invoice->customer->account->settings = $settings;
-        $invoice->customer->account->save();
-
-        $original_customer_balance = $invoice->customer->balance;
+        $customer->account->settings = $settings;
+        $customer->account->save();
 
         $invoiceRepo = new InvoiceRepository(new Invoice);
+
+        $invoiceRepo->markSent($invoice);
+
+        $original_customer_balance = $customer->fresh()->balance;
 
         ProcessReminders::dispatchNow($invoiceRepo);
 
@@ -822,10 +826,9 @@ class InvoiceUnitTest extends TestCase
 
         $new_balance = $original_customer_balance < 0 ? $original_customer_balance + 40 * -1 : $original_customer_balance + 40;
 
-
         $this->assertEquals(($invoice->total + 40), $updated_invoice->total);
         $this->assertEquals(($invoice->balance + 40), $updated_invoice->balance);
-        $this->assertEquals($new_balance, $updated_invoice->customer->balance);
+        $this->assertEquals($new_balance, $customer->fresh()->balance);
 
         $date_to_send = Carbon::parse($invoice->date)->addDays($settings->number_of_days_after_1)->format('Y-m-d');
 

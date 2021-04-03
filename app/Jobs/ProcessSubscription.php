@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Actions\Plan\ApplyCode;
 use App\Components\InvoiceCalculator\LineItem;
 use App\Factory\InvoiceFactory;
+use App\Jobs\Invoice\AutobillInvoice;
 use App\Mail\Account\SubscriptionInvoice;
 use App\Models\Invoice;
 use App\Models\Plan;
@@ -41,16 +42,25 @@ class ProcessSubscription implements ShouldQueue
     public function handle()
     {
         // send 10 days before
-        $plans = PlanSubscription::join('plans', 'plans.id', '=', 'plan_subscriptions.plan_id')
-            //->where('due_date', '=', now()->addDays(10))
-                                 ->where('plans.is_active', '=', 1)
-                                 ->whereNull('cancelled_at')
-                                 ->where('ends_at', '>', now())
-                                 ->get();
+        $plans = PlanSubscription::all();
 
 
         foreach ($plans as $plan) {
             $account = $plan->domain->default_company;
+
+            // if expires today renew
+            if($plan->ends_at->isToday()) {
+                $plan->renew();
+                continue;
+            }
+
+            if ($plan->isCanceled()) {
+                continue;
+            }
+
+            if (!$plan->isActive()) {
+                continue;
+            }
 
             // skip if on trial
             if ($plan->onTrial() || (!empty($plan->trial_ends_at) && $plan->trial_ends_at <= now()->addDays(10)->format(
@@ -59,7 +69,7 @@ class ProcessSubscription implements ShouldQueue
                 continue;
             }
 
-            // skip if not due date - grace period
+
             $date_to_send = $plan->due_date->subDays($plan->plan->grace_period)->startOfDay();
 
             if ($date_to_send->ne(now()->startOfDay())) {
@@ -126,8 +136,6 @@ class ProcessSubscription implements ShouldQueue
         $user = $customer->user;
 
         $invoice = InvoiceFactory::create($plan->domain->default_company, $user, $customer);
-        $invoice->due_date = $due_date;
-        $invoice->plan_subscription_id = $plan->id;
 
         $line_items[] = (new LineItem)
             ->setProductId($plan->id)
@@ -137,7 +145,7 @@ class ProcessSubscription implements ShouldQueue
             ->setNotes("Plan charge for {$plan->domain->default_company->subdomain}")
             ->toObject();
 
-        $data = ['line_items' => $line_items];
+        $data = ['line_items' => $line_items, 'plan_subscription_id' => $plan->id, 'due_date' => $due_date];
 
         if (!empty($promocode)) {
             $data['discount_total'] = $promocode['amount'];
@@ -147,7 +155,12 @@ class ProcessSubscription implements ShouldQueue
 
         $invoice_repo = new InvoiceRepository(new Invoice);
         $invoice = $invoice_repo->create($data, $invoice);
+
         $invoice_repo->markSent($invoice);
+
+        if($plan->plan->auto_billing_enabled === true) {
+            AutobillInvoice::dispatchNow($invoice, $invoice_repo);
+        }
 
         return $invoice;
     }

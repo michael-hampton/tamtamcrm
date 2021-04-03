@@ -96,10 +96,10 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
      */
     public function save(array $data, Invoice $invoice): ?Invoice
     {
-        $original_amount = $invoice->total;
+        $original_amount = $invoice->total * 1;
         $invoice->fill($data);
         $invoice = $this->calculateTotals($invoice);
-        $invoice = $this->convertCurrencies($invoice, $invoice->total, config('taskmanager.use_live_exchange_rates'));
+        $invoice = $invoice->convertCurrencies($invoice, $invoice->total, config('taskmanager.use_live_exchange_rates'));
         $invoice = $this->populateDefaults($invoice);
         $invoice = $this->formatNotes($invoice);
         $invoice->setNumber();
@@ -108,77 +108,14 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
 
         $this->saveInvitations($invoice, $data);
 
-        $entities_added = $this->updateEntities($invoice);
+        $invoice_total = $invoice->total * 1;
 
-        if (!empty($entities_added['expenses'])) {
-            $this->saveDocuments($invoice, $entities_added['expenses']);
-        }
-
-        if ($invoice->status_id !== Invoice::STATUS_DRAFT && $original_amount !== $invoice->total) {
+        if ($invoice->status_id !== Invoice::STATUS_DRAFT && $original_amount !== $invoice_total) {
             $updated_amount = $invoice->total - $original_amount;
             $invoice->updateCustomerBalance($updated_amount);
         }
 
         return $invoice->fresh();
-    }
-
-    private function updateEntities(Invoice $invoice)
-    {
-        if (empty($invoice->line_items)) {
-            return true;
-        }
-
-        $entities_added = [];
-
-        foreach ($invoice->line_items as $line_item) {
-            if ($line_item->type_id === Invoice::EXPENSE_TYPE) {
-                $expense = Expense::where('id', '=', $line_item->product_id)->first();
-
-                if (!$expense || $expense->status_id === Expense::STATUS_INVOICED) {
-                    continue;
-                }
-
-                $expense->setStatus(Expense::STATUS_INVOICED);
-                $expense->invoice_id = $invoice->id;
-                $expense->save();
-
-                $entities_added['expenses'][] = $expense;
-            }
-
-            if ($line_item->type_id === Invoice::TASK_TYPE) {
-                $task = Task::where('id', '=', $line_item->product_id)->first();
-
-                if (!$task || $task->task_status_id === Task::STATUS_INVOICED) {
-                    continue;
-                }
-
-                //$task->setStatus(Task::STATUS_INVOICED);
-                $task->invoice_id = $invoice->id;
-                $task->save();
-
-                $entities_added['tasks'][] = $task;
-            }
-        }
-
-        return $entities_added;
-    }
-
-    /**
-     * @param Invoice $invoice
-     * @param $expenses
-     * @return bool
-     */
-    private function saveDocuments(Invoice $invoice, $expenses): bool
-    {
-        foreach ($expenses as $expense) {
-            foreach ($expense->files as $file) {
-                $clone = $file->replicate();
-
-                $invoice->files()->save($clone);
-            }
-        }
-
-        return true;
     }
 
     /**

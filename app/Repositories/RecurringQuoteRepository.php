@@ -64,7 +64,7 @@ class RecurringQuoteRepository extends BaseRepository
     {
         $quote->fill($data);
         $quote = $this->calculateTotals($quote);
-        $quote = $this->convertCurrencies($quote, $quote->total, config('taskmanager.use_live_exchange_rates'));
+        $quote = $quote->convertCurrencies($quote, $quote->total, config('taskmanager.use_live_exchange_rates'));
         $quote = $this->populateDefaults($quote);
         $quote = $this->formatNotes($quote);
         $quote->setNumber();

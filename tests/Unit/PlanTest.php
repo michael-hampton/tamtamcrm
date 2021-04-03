@@ -9,6 +9,7 @@ use App\Models\Account;
 use App\Models\Customer;
 use App\Models\CustomerContact;
 use App\Models\Domain;
+use App\Models\Invoice;
 use App\Models\Plan;
 use App\Models\User;
 use App\Repositories\DomainRepository;
@@ -223,6 +224,84 @@ class PlanTest extends TestCase
                 //'due_date'    => $domain->subscription_expiry_date
             ]
         );
+    }
+
+    public function test_expires()
+    {
+        $customer = Customer::find(5);
+        $user = User::factory()->create();
+
+        //Standard Monthly by default
+        $plan = Plan::where('code', '=', 'PROM')->first();
+
+        $domain = (new DomainRepository(new Domain))->create(
+            [
+                'user_id'       => $user->id,
+                'customer_id'   => $customer->id,
+                'support_email' => $this->faker->safeEmail,
+                'plan_id'       => $plan->id
+            ]
+        );
+
+        $account = Account::factory()->create(['domain_id' => $domain->id, 'support_email' => $this->faker->safeEmail]);
+        $domain->default_account_id = $account->id;
+        $domain->save();
+
+        $customer->newSubscription('main', $plan, $account);
+
+        $subscription = $customer->subscriptions()->latest()->first();
+
+        $subscription->due_date = now()->addDays(10);
+        $subscription->ends_at = now();
+        $subscription->trial_ends_at = null;
+        $subscription->number_of_licences = 10;
+        $subscription->save();
+
+        ProcessSubscription::dispatchNow();
+
+        $subscription = $subscription->fresh();
+
+        $this->assertEquals($subscription->ends_at->format('Y-m-d'), now()->addYearNoOverflow()->format('Y-m-d'));
+    }
+
+    public function test_autobill()
+    {
+        $customer = Customer::find(5);
+        $user = User::factory()->create();
+
+        //Standard Monthly by default
+        $plan = Plan::where('code', '=', 'PROM')->first();
+
+        $domain = (new DomainRepository(new Domain))->create(
+            [
+                'user_id'       => $user->id,
+                'customer_id'   => $customer->id,
+                'support_email' => $this->faker->safeEmail,
+                'plan_id'       => $plan->id
+            ]
+        );
+
+        $account = Account::factory()->create(['domain_id' => $domain->id, 'support_email' => $this->faker->safeEmail]);
+        $domain->default_account_id = $account->id;
+        $domain->save();
+
+        $customer->newSubscription('main', $plan, $account);
+
+        $subscription = $customer->subscriptions()->latest()->first();
+
+        $subscription->due_date = now()->addDays(10);
+        $subscription->trial_ends_at = null;
+        $subscription->number_of_licences = 10;
+        $subscription->save();
+
+        ProcessSubscription::dispatchNow();
+
+        $cost = $subscription->plan->price * $subscription->number_of_licences;
+
+        $invoice = Invoice::where('plan_subscription_id', '=', $subscription->id)->first();
+
+        $this->assertInstanceOf(Invoice::class, $invoice);
+        $this->assertEquals($invoice->payments->count(), 1);
     }
 
     public function test_subscription_with_promocode()

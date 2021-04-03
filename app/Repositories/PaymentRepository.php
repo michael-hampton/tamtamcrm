@@ -95,7 +95,7 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
             $payment->fill($data);
         }
 
-        $payment = $this->convertCurrencies($payment, $payment->amount);
+        $payment = $payment->convertCurrencies($payment, $payment->amount);
 
         $payment->setNumber();
         $payment->setStatus(empty($data['status_id']) ? Payment::STATUS_COMPLETED : $data['status_id']);

@@ -62,7 +62,7 @@ class RecurringInvoiceRepository extends BaseRepository
     {
         $invoice->fill($data);
         $invoice = $this->calculateTotals($invoice);
-        $invoice = $this->convertCurrencies($invoice, $invoice->total, config('taskmanager.use_live_exchange_rates'));
+        $invoice = $invoice->convertCurrencies($invoice, $invoice->total, config('taskmanager.use_live_exchange_rates'));
         $invoice = $this->populateDefaults($invoice);
         $invoice = $this->formatNotes($invoice);
         $invoice->setNumber();

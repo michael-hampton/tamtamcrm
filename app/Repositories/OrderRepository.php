@@ -87,8 +87,6 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
         event(new OrderWasUpdated($order));
 
-        $this->updateInventory($original_order, $data);
-
         return $order;
     }
 
@@ -101,7 +99,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     {
         $order->fill($data);
         $order = $this->calculateTotals($order);
-        $order = $this->convertCurrencies($order, $order->total, config('taskmanager.use_live_exchange_rates'));
+        $order = $order->convertCurrencies($order, $order->total, config('taskmanager.use_live_exchange_rates'));
         $order = $this->populateDefaults($order);
         $order = $this->formatNotes($order);
         $order->setNumber();
@@ -113,46 +111,6 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         return $order->fresh();
     }
 
-    private function updateInventory($line_items, $data)
-    {
-        if (empty($data['line_items'])) {
-            return true;
-        }
-
-        $new_lines = collect($data['line_items'])->keyBy('product_id')->toArray();
-
-        foreach ($line_items as $line_item) {
-            if ($line_item->type_id !== Invoice::PRODUCT_TYPE) {
-                continue;
-            }
-
-            if (empty($new_lines[$line_item->product_id])) {
-                $difference = $line_item->quantity;
-                $product->increment('quantity', $difference);
-                $product->save();
-                continue;
-            }
-
-            $new_line = $new_lines[$line_item->product_id];
-
-            $product = Product::where('id', '=', $line_item->product_id)->first();
-
-            if ($new_line['quantity'] > $line_item->quantity) {
-                $difference = $new_line['quantity'] - $line_item->quantity;
-                $product->increment('quantity', $difference);
-                $product->save();
-            }
-
-            if ($new_line['quantity'] < $line_item->quantity) {
-                $difference = $line_item->quantity - $new_line['quantity'];
-                $product->decrement('quantity', $difference);
-                $product->save();
-            }
-        }
-
-        return true;
-    }
-
     /**
      * @param array $data
      * @param Order $order
@@ -161,16 +119,6 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     public function create(array $data, Order $order): ?Order
     {
         $order->fill($data);
-
-        if ($order->customer->getSetting('inventory_enabled') === true) {
-            $order = (new FulfilOrder($order))->execute();
-
-            /************** hold stock ***************************/
-            // if the order hasnt been failed at this point then reserve stock
-            if ($order->status_id !== Order::STATUS_ORDER_FAILED) {
-                (new HoldStock($order))->execute();
-            }
-        }
 
         // save the order
         $order = $this->save($data, $order);

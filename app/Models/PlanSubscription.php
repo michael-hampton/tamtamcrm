@@ -75,7 +75,8 @@ class PlanSubscription extends Model
     ];
 
     protected $casts = [
-        'promocode_applied' => 'bool'
+        'promocode_applied' => 'bool',
+        'auto_renew' => 'bool'
     ];
 
     /**
@@ -215,6 +216,25 @@ class PlanSubscription extends Model
     public function onTrial(): bool
     {
         return $this->trial_ends_at ? Carbon::now()->lt($this->trial_ends_at) : false;
+    }
+
+    /**
+     * Check if subscription is canceled.
+     *
+     * @return bool
+     */
+    public function isCanceled(): bool
+    {
+        return !is_null($this->canceled_at);
+    }
+
+    public function isActive(): bool
+    {
+        if (!$this->isEnded() || $this->onTrial()) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

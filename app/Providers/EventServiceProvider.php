@@ -257,6 +257,14 @@ use App\Listeners\User\RestoredUser;
 use App\Listeners\User\SendUserEmailChangedEmail;
 use App\Listeners\User\UpdatedUser;
 use App\Listeners\User\UserEmailHasChanged;
+use App\Models\Cases;
+use App\Models\Expense;
+use App\Models\Invoice;
+use App\Models\Order;
+use App\Observers\CaseObserver;
+use App\Observers\ExpenseObserver;
+use App\Observers\InvoiceObserver;
+use App\Observers\OrderObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -682,5 +690,9 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         parent::boot();
+        Invoice::observe(InvoiceObserver::class);
+        Cases::observe(CaseObserver::class);
+        Order::observe(OrderObserver::class);
+        Expense::observe(ExpenseObserver::class);
     }
 }

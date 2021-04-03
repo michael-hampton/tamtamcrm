@@ -93,7 +93,8 @@ class CheckStock
         if ((count($no_stock) > 1 && !$this->allow_partial_orders) || count(
                 $no_stock
             ) > 0 && !$this->allow_backorders) {
-            return null;
+            $this->order->setStatus(Order::STATUS_ORDER_FAILED);
+            return $this->order;
         }
 
         if (count($no_stock) > 0 && !$this->allow_partial_orders) {

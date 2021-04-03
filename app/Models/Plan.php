@@ -23,7 +23,7 @@ class Plan extends Model
     const PLAN_PERIOD_MONTH = 'MONTHLY';
 
     protected $casts = [
-        //'subscription_expiry_date' => 'date'
+        'auto_billing_enabled' => 'bool'
     ];
 
     protected $fillable = [
