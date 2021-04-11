@@ -67,7 +67,8 @@ class PlanSubscriptionRepository extends BaseRepository
     {
         return Invoice::where('plan_subscription_id', '=', $subscription->id)
             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
-            ->where('balance', '>', 0);
+            ->where('balance', '>', 0)
+            ->get();
     }
 
 }
