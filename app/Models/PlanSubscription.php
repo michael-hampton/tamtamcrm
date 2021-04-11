@@ -54,7 +54,7 @@ class PlanSubscription extends Model
         'ends_at',
         'due_date',
         'cancels_at',
-        'canceled_at',
+        'cancelled_at',
         'number_of_licences',
         'promocode_applied'
     ];
@@ -70,7 +70,7 @@ class PlanSubscription extends Model
         'starts_at',
         'ends_at',
         'due_date',
-        'canceled_at',
+        'cancelled_at',
         'trial_ends_at',
     ];
 
@@ -225,7 +225,7 @@ class PlanSubscription extends Model
      */
     public function isCanceled(): bool
     {
-        return !is_null($this->canceled_at);
+        return !is_null($this->cancelled_at);
     }
 
     public function isActive(): bool
@@ -237,6 +237,11 @@ class PlanSubscription extends Model
         return false;
     }
 
+    public function isRefundable()
+    {
+        return $this->isActive() && !$this->canceled() && !$this->onTrial();
+    }
+
     /**
      * Check if subscription is canceled immediately.
      *
@@ -244,7 +249,7 @@ class PlanSubscription extends Model
      */
     public function isCanceledImmediately(): bool
     {
-        return !is_null($this->canceled_at) && $this->canceled_immediately === true;
+        return !is_null($this->cancelled_at) && $this->cancelled_immediately === true;
     }
 
     /**
@@ -256,28 +261,23 @@ class PlanSubscription extends Model
      */
     public function cancel($immediately = false)
     {
-        $this->canceled_at = Carbon::now();
-
         if ($immediately) {
-            $this->canceled_immediately = true;
-            $this->ends_at = $this->canceled_at;
+            $this->cancelled_immediately = true;
+
+            if($this->isRefundable()) {
+	        $this->refund();
+            }
+
+            $this->ends_at = $this->cancelled_at;
         }
+
+	$this->cancelled_at = Carbon::now();
 
         $this->saveOrFail();
 
         event(new SubscriptionCanceled($this));
 
         return $this;
-    }
-
-    public function refund()
-    {
-        $start_date = Carbon::createFromFormat('d-m-Y', '1-5-2015');
-        $end_date = Carbon::now();
-        $different_days = $start_date->diffInDays($end_date);
-        $daily_rate = 25;
-        $should_pay = $different_days * $daily_rate;
-        $total -= $should_pay;
     }
 
     /**
@@ -393,7 +393,7 @@ class PlanSubscription extends Model
      */
     public function canceled(): bool
     {
-        return $this->canceled_at ? Carbon::now()->gte($this->canceled_at) : false;
+        return $this->cancelled_at ? Carbon::now()->gte($this->cancelled_at) : false;
     }
 
     /**
@@ -469,6 +469,16 @@ class PlanSubscription extends Model
     public function scopeFindEndedPeriod($query)
     {
         return $query->where('ends_at', '<=', Carbon::now());
+    }
+
+    public function refund()
+    {
+        $days_remaining = $this->starts_at->diffInDays(Carbon::now());
+	$price = $this->plan->price;
+	$days = $this->invoice_interval === 'year' ?  now()->diffInDays(now()->addYear()) : now()->diffInDays(now()->addMonthNoOverflow());
+	$amount_to_refund = round(($days_remaining/$days) * $price ,2);
+	
+	return $amount_to_refund;
     }
 
     public function domain()

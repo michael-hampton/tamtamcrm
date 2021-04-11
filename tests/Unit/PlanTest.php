@@ -359,4 +359,36 @@ class PlanTest extends TestCase
         //$this->assertEquals($subscription->promocode_applied, true);
         $this->assertEquals($subscription->promocode, $promocode->first()['code']);
     }
+
+    /*public function test_refund_subscription()
+    {
+        $customer = Customer::factory()->create();
+        $contact = CustomerContact::factory()->create(['customer_id' => $customer->id]);
+        $customer->contacts()->save($contact);
+        $user = User::factory()->create();
+
+        //Standard Monthly by default
+        $plan = Plan::where('code', '=', 'STDM')->first();
+
+        $domain = (new DomainRepository(new Domain))->create(
+            [
+                'user_id'       => $user->id,
+                'customer_id'   => $customer->id,
+                'support_email' => $this->faker->safeEmail,
+                'plan_id'       => $plan->id
+            ]
+        );
+
+        $domain->default_account_id = $this->account->id;
+        $domain->save();
+
+        $customer->newSubscription('main', $plan, $this->account);
+
+        $subscription = $customer->subscriptions->first();
+	$subscription->starts_at = Carbon::now()->subMonthNoOverflow();
+        $subscription->trial_ends_at = Carbon::now()->subMonths(2);
+	$subscription->save();
+
+        $subscription->cancel(true);
+    }*/
 }
