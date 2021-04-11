@@ -270,6 +270,16 @@ class PlanSubscription extends Model
         return $this;
     }
 
+    public function refund()
+    {
+        $start_date = Carbon::createFromFormat('d-m-Y', '1-5-2015');
+        $end_date = Carbon::now();
+        $different_days = $start_date->diffInDays($end_date);
+        $daily_rate = 25;
+        $should_pay = $different_days * $daily_rate;
+        $total -= $should_pay;
+    }
+
     /**
      * @param $plan
      * @return $this
