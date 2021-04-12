@@ -28,6 +28,7 @@ class VerifyCsrfToken extends Middleware
         '/api/payment/completePayment',
         '/api/refund/*',
         '/api/cases/*',
+        '/api/plan_subscriptions/*',
         '/api/cases',
         '/api/uploads',
         '/api/case-categories/*',

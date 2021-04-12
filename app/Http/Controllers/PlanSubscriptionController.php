@@ -14,6 +14,7 @@ use App\Search\PlanSubscriptionSearch;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PlanSubscriptionController extends Controller
 {
@@ -119,9 +120,8 @@ class PlanSubscriptionController extends Controller
      * @param PlanSubscription $plan_subscription
      * @return JsonResponse
      */
-    public function change(Request $request, PlanSubscription $plan_subscription)
+    public function change(Request $request, PlanSubscription $plan_subscription, Plan $plan)
     {
-        $plan = Plan::where('id', '=', $request->input('plan'))->first();
         $plan_subscription = $plan_subscription->changePlan($plan);
         return response()->json($plan_subscription, 200);
     }

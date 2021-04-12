@@ -10,7 +10,7 @@ class PaymentTermsSeeder extends Seeder
     {
         $user = \App\Models\User::first();
 
-        Eloquent::unguard();
+        //Eloquent::unguard();
         $paymentTerms = [
             ['name' => 'Immediate', 'number_of_days' => 1, 'account_id' => 1, 'user_id' => $user->id],
             ['name' => 'Net 30', 'number_of_days' => 30, 'account_id' => 1, 'user_id' => $user->id],
