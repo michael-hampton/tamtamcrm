@@ -99,7 +99,8 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
         $original_amount = $invoice->total * 1;
         $invoice->fill($data);
         $invoice = $this->calculateTotals($invoice);
-        $invoice = $invoice->convertCurrencies($invoice, $invoice->total, config('taskmanager.use_live_exchange_rates'));
+        $invoice = $invoice->convertCurrencies($invoice, $invoice->total,
+            config('taskmanager.use_live_exchange_rates'));
         $invoice = $this->populateDefaults($invoice);
         $invoice = $this->formatNotes($invoice);
         $invoice->setNumber();
@@ -143,12 +144,12 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
     public function getInvoicesForAutoBilling()
     {
         return Invoice::where('is_deleted', 0)
-                      ->whereNull('deleted_at')
-                      ->whereNull('is_recurring')
-                      ->whereNotNull('recurring_invoice_id')
-                      ->where('balance', '>', 0)
-                      ->where('due_date', Carbon::today())
-                      ->get();
+            ->whereNull('deleted_at')
+            ->whereNull('is_recurring')
+            ->whereNotNull('recurring_invoice_id')
+            ->where('balance', '>', 0)
+            ->where('due_date', Carbon::today())
+            ->get();
     }
 
     /**
@@ -157,22 +158,30 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
     public function getInvoiceReminders()
     {
         return Invoice::whereDate('date_to_send', '=', Carbon::today()->toDateString())
-                      ->where('is_deleted', '=', false)
-                      ->where('balance', '>', 0)
-                      ->whereIn(
-                          'status_id',
-                          [Invoice::STATUS_DRAFT, Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL]
-                      )->get();
+            ->where('is_deleted', '=', false)
+            ->where('balance', '>', 0)
+            ->whereIn(
+                'status_id',
+                [Invoice::STATUS_DRAFT, Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL]
+            )->get();
     }
 
     public function getExpiredInvoices()
     {
         return Invoice::whereDate('due_date', '<', Carbon::today()->subDay()->toDateString())
-                      ->where('is_deleted', '=', false)
-                      ->where('balance', '>', 0)
-                      ->whereIn(
-                          'status_id',
-                          [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL]
-                      )->get();
+            ->where('is_deleted', '=', false)
+            ->where('balance', '>', 0)
+            ->whereIn(
+                'status_id',
+                [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL]
+            )->get();
+    }
+
+    public function scopeOutstandingInvoices()
+    {
+        return Invoice::where('is_deleted', false)
+            ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+            ->where('balance', '>', 0);
+
     }
 }

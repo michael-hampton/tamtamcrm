@@ -4,16 +4,23 @@ namespace App\Jobs;
 
 use App\Actions\Plan\ApplyCode;
 use App\Components\InvoiceCalculator\LineItem;
+use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
 use App\Jobs\Invoice\AutobillInvoice;
 use App\Mail\Account\SubscriptionInvoice;
+use App\Models\Account;
+use App\Models\Credit;
+use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\Plan;
 use App\Models\PlanSubscription;
+use App\Models\User;
+use App\Repositories\CreditRepository;
 use App\Repositories\InvoiceRepository;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -49,7 +56,7 @@ class ProcessSubscription implements ShouldQueue
             $account = $plan->domain->default_company;
 
             // if expires today renew
-            if($plan->ends_at->isToday()) {
+            if ($plan->ends_at->isToday()) {
                 $plan->renew();
                 continue;
             }
@@ -113,6 +120,25 @@ class ProcessSubscription implements ShouldQueue
     }
 
     /**
+     * @param PlanSubscription $plan_subscription
+     * @param $unit_cost
+     * @return int|mixed
+     */
+    private function calculateAmountOwing(PlanSubscription $plan_subscription, $unit_cost)
+    {
+        $amount = $unit_cost - $plan_subscription->amount_owing;
+
+        if ($plan_subscription->amount_owing > $unit_cost) {
+            $amount = 0;
+        }
+
+        $plan_subscription->amount_owing = $unit_cost > $plan_subscription->amount_owing ? 0 : $plan_subscription->amount_owing - $unit_cost;
+        $plan_subscription->save();
+
+        return $amount;
+    }
+
+    /**
      * @param Plan $plan
      * @param float $total_to_pay
      * @param $due_date
@@ -135,6 +161,14 @@ class ProcessSubscription implements ShouldQueue
 
         $user = $customer->user;
 
+        $credit_applied = false;
+
+        if ($plan->amount_owing > 0) {
+            $original_unit_cost = $total_to_pay;
+            $total_to_pay = $this->calculateAmountOwing($plan, $total_to_pay);
+            $credit_applied = true;
+        }
+
         $invoice = InvoiceFactory::create($plan->domain->default_company, $user, $customer);
 
         $line_items[] = (new LineItem)
@@ -144,6 +178,12 @@ class ProcessSubscription implements ShouldQueue
             ->setTypeId(Invoice::SUBSCRIPTION_TYPE)
             ->setNotes("Plan charge for {$plan->domain->default_company->subdomain}")
             ->toObject();
+
+        if ($credit_applied === true) {
+            $refunded_amount = $original_unit_cost - $total_to_pay;
+
+            $this->createCreditNote($plan, $invoice->account, $invoice->user, $invoice->customer, $refunded_amount);
+        }
 
         $data = ['line_items' => $line_items, 'plan_subscription_id' => $plan->id, 'due_date' => $due_date];
 
@@ -158,10 +198,44 @@ class ProcessSubscription implements ShouldQueue
 
         $invoice_repo->markSent($invoice);
 
-        if($plan->plan->auto_billing_enabled === true) {
+        if ($plan->plan->auto_billing_enabled === true) {
             AutobillInvoice::dispatchNow($invoice, $invoice_repo);
         }
 
         return $invoice;
+    }
+
+    /**
+     * @param PlanSubscription $plan_subscription
+     * @param Account $account
+     * @param User $user
+     * @param Customer $customer
+     * @param float $amount_to_refund
+     * @return Credit
+     */
+    private function createCreditNote(
+        PlanSubscription $plan_subscription,
+        Account $account,
+        User $user,
+        Customer $customer,
+        float $amount_to_refund
+    ): Credit {
+        $credit = CreditFactory::create($account, $user, $customer);
+
+        $credit_line_items[] = (new LineItem)
+            ->setProductId($plan_subscription->id)
+            ->setQuantity(1)
+            ->setUnitPrice($amount_to_refund)
+            ->setTypeId(Invoice::SUBSCRIPTION_TYPE)
+            ->setNotes("Plan refund for {$account->subdomain}")
+            ->toObject();
+
+        $credit = (new CreditRepository(new Credit()))->create([
+            'line_items' => $credit_line_items,
+            'plan_subscription_id' => $plan_subscription->id,
+            'total' => $amount_to_refund
+        ], $credit);
+
+        return $credit;
     }
 }

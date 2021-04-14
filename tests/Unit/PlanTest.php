@@ -6,6 +6,7 @@ use App\Actions\Account\CreateAccount;
 use App\Components\Promocodes\Promocodes;
 use App\Jobs\ProcessSubscription;
 use App\Models\Account;
+use App\Models\Credit;
 use App\Models\Customer;
 use App\Models\CustomerContact;
 use App\Models\Domain;
@@ -14,6 +15,7 @@ use App\Models\Plan;
 use App\Models\User;
 use App\Repositories\DomainRepository;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -391,4 +393,65 @@ class PlanTest extends TestCase
 
         $subscription->cancel(true);
     }*/
+
+    public function test_change_plan()
+    {
+        $customer = Customer::factory()->create();
+        $contact = CustomerContact::factory()->create(['customer_id' => $customer->id]);
+        $customer->contacts()->save($contact);
+        $user = User::factory()->create();
+
+        //Standard Monthly by default
+        $plan = Plan::where('code', '=', 'STDM')->first();
+
+        $domain = (new DomainRepository(new Domain))->create(
+            [
+                'user_id'       => $user->id,
+                'customer_id'   => $customer->id,
+                'support_email' => $this->faker->safeEmail,
+                'plan_id'       => $plan->id
+            ]
+        );
+
+        $account = Account::factory()->create(['domain_id' => $domain->id, 'support_email' => $this->faker->safeEmail]);
+        $domain->default_account_id = $account->id;
+        $domain->save();
+
+        $customer->newSubscription('main', $plan, $account);
+
+        $subscription = $customer->subscriptions->first();
+
+        $subscription->due_date = now()->addDays(10);
+        $subscription->trial_ends_at = null;
+        $subscription->number_of_licences = 1;
+        $subscription->save();
+
+        ProcessSubscription::dispatchNow();
+
+        $cost = $subscription->plan->price * $subscription->number_of_licences;
+
+        $invoice = Invoice::where('customer_id', '=', $customer->id)->where('balance', '=', $cost)->first();
+
+        $invoice->date = now()->subMonthsNoOverflow(3);
+        //$invoice->balance = 0;
+        $invoice->save();
+
+        $new_plan = Plan::where('code', '=', 'PROY')->first();
+        $subscription->changePlan($new_plan);
+
+        $subscription->due_date = now()->addDays(10);
+        $subscription->trial_ends_at = null;
+        $subscription->number_of_licences = 1;
+        $subscription->save();
+
+        ProcessSubscription::dispatchNow();
+
+        $credit = Credit::where('plan_subscription_id', '=', $subscription->id)->get();
+
+        $this->assertEquals($credit->count(), 1);
+
+        $subscription = $subscription->fresh();
+
+        $this->assertEquals($subscription->amount_owing, 0);
+    }
 }

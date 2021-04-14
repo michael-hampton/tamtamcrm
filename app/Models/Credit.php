@@ -84,7 +84,8 @@ class Credit extends Model
         'gateway_percentage',
         'transaction_fee_tax',
         'shipping_cost_tax',
-        'design_id'
+        'design_id',
+        'plan_subscription_id'
     ];
     protected $casts = [
         'account_id'  => 'integer',

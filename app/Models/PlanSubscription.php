@@ -3,6 +3,8 @@
 namespace App\Models;
 
 
+use App\Actions\Plan\CalculateUpgradePrice;
+use App\Actions\Plan\ChangePlan;
 use App\Components\Subscriptions\Period;
 use App\Components\Subscriptions\SubscriptionAbility;
 use App\Components\Subscriptions\SubscriptionUsageManager;
@@ -264,14 +266,14 @@ class PlanSubscription extends Model
         if ($immediately) {
             $this->cancelled_immediately = true;
 
-            if($this->isRefundable()) {
-	        $this->refund();
+            if ($this->isRefundable()) {
+                $this->refund();
             }
 
             $this->ends_at = $this->cancelled_at;
         }
 
-	$this->cancelled_at = Carbon::now();
+        $this->cancelled_at = Carbon::now();
 
         $this->saveOrFail();
 
@@ -303,6 +305,8 @@ class PlanSubscription extends Model
             $usageManager = new SubscriptionUsageManager($this);
             $usageManager->clear();
         }
+
+        (new ChangePlan())->execute($this);
 
         // Attach new plan to subscription
         $this->plan_id = $plan->id;
@@ -416,7 +420,7 @@ class PlanSubscription extends Model
     public function scopeBySubscriber($query, $subscriber)
     {
         return $query->where('subscriber_id', $subscriber->getKey())
-                     ->where('subscriber_type', get_class($subscriber));
+            ->where('subscriber_type', get_class($subscriber));
     }
 
     /**
@@ -471,14 +475,15 @@ class PlanSubscription extends Model
         return $query->where('ends_at', '<=', Carbon::now());
     }
 
-    public function refund()
+    public function calculateRefundAmount(Invoice $invoice, $charge = false)
     {
-        $days_remaining = $this->starts_at->diffInDays(Carbon::now());
-	$price = $this->plan->price;
-	$days = $this->invoice_interval === 'year' ?  now()->diffInDays(now()->addYear()) : now()->diffInDays(now()->addMonthNoOverflow());
-	$amount_to_refund = round(($days_remaining/$days) * $price ,2);
-	
-	return $amount_to_refund;
+        $start_date = Carbon::parse($invoice->date);
+
+        $days_remaining = $start_date->diffInDays(now());
+
+        $days = $this->invoice_interval === 'year' ? now()->diffInDays(now()->addYear()) : now()->diffInDays(now()->addMonthNoOverflow());
+
+        return $charge === true ? round(($days_remaining/$days) * $invoice->total ,2) :  round((($days - $days_remaining)/$days) * $invoice->total ,2);
     }
 
     public function domain()

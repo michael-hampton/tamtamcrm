@@ -15,7 +15,6 @@ class AddForeignKeysToDomainsTable extends Migration
     {
         Schema::table('domains', function (Blueprint $table) {
             $table->foreign('plan_id', 'domains_ibfk_1')->references('id')->on('plans')->onUpdate('NO ACTION')->onDelete('NO ACTION');
-            $table->foreign('customer_id', 'domains_ibfk_2')->references('id')->on('customers')->onUpdate('NO ACTION')->onDelete('NO ACTION');
         });
     }
 
@@ -28,7 +27,6 @@ class AddForeignKeysToDomainsTable extends Migration
     {
         Schema::table('domains', function (Blueprint $table) {
             $table->dropForeign('domains_ibfk_1');
-            $table->dropForeign('domains_ibfk_2');
         });
     }
 }

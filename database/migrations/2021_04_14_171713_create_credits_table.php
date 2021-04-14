@@ -68,6 +68,7 @@ class CreateCreditsTable extends Migration
             $table->decimal('amount_paid', 16, 4)->default(0.0000);
             $table->dateTime('date_notification_last_sent')->nullable();
             $table->unsignedInteger('exchange_currency_id')->nullable();
+            $table->unsignedInteger('plan_subscription_id')->nullable();
             $table->unique(['account_id', 'number']);
         });
     }

@@ -6,6 +6,7 @@ namespace App\Traits;
 
 use App\Components\Subscriptions\Period;
 use App\Models\Account;
+use App\Models\Invoice;
 use App\Models\Plan;
 use App\Models\PlanSubscription;
 use Carbon\Carbon;

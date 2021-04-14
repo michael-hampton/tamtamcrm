@@ -33,6 +33,7 @@ class CreatePlanSubscriptionsTable extends Migration
             $table->unsignedInteger('account_id');
             $table->softDeletes();
             $table->tinyInteger('auto_renew')->default(1);
+            $table->decimal('amount_owing', 12);
             $table->unique(['subscriber_type', 'subscriber_id', 'plan_id'], 'subscriber_type');
         });
     }
