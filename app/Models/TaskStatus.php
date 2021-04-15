@@ -26,7 +26,8 @@ class TaskStatus extends Model
         'description',
         'icon',
         'column_color',
-        'task_type'
+        'task_type',
+        'order_id'
     ];
 
     protected $searchable = [

@@ -258,8 +258,10 @@ export default class KanbanNew extends Component {
 
     formatColumns () {
         const columns = []
+        const statuses = this.state.statuses
+        statuses.sort((a, b) => (a.order_id - b.order_id))
 
-        this.state.statuses.map((entity, index) => {
+        statuses.map((entity, index) => {
             if (!columns[entity.id]) {
                 columns[entity.id] = {
                     name: entity.name,

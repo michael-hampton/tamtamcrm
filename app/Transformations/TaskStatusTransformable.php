@@ -18,7 +18,8 @@ trait TaskStatusTransformable
             'name'         => $taskStatus->name,
             'description'  => $taskStatus->description,
             'task_count'   => $taskStatus->tasks->count(),
-            'column_color' => $taskStatus->column_color
+            'column_color' => $taskStatus->column_color,
+            'order_id'     => $taskStatus->order_id
         ];
     }
 
