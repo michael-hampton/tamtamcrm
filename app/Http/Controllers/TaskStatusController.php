@@ -31,7 +31,9 @@ class TaskStatusController extends Controller
     public function index(SearchRequest $request)
     {
         $token_sent = request()->bearerToken();
+
         $token = CompanyToken::whereToken($token_sent)->first();
+
         $account = $token->account;
 
         $statuses = (new TaskStatusSearch($this->task_status_repo))->filter(

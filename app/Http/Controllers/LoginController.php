@@ -60,7 +60,7 @@ class LoginController extends BaseController
 
             $response = [
                 'success' => true,
-                'data'    => $this->getIncludes()
+                'data'    => $this->getIncludes($user)
             ];
 
             Cache::put('reauthenticate_last_authentication', strtotime('now'));
@@ -79,6 +79,7 @@ class LoginController extends BaseController
 
         try {
             if (!$token = JWTAuth::attempt(['email' => $request->email, 'password' => $request->password])) {
+
                 return response()->json(
                     [
                         'response' => 'error',
@@ -95,6 +96,7 @@ class LoginController extends BaseController
                 ]
             );
         }
+
         return $token;
     }
 
@@ -190,7 +192,7 @@ class LoginController extends BaseController
 
         $response = [
             'success' => true,
-            'data'    => $this->getIncludes()
+            'data'    => $this->getIncludes($user)
         ];
 
         return response()->json($response, 201);

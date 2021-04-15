@@ -198,7 +198,7 @@ class AccountController extends BaseController
     {
         $response = [
             'success' => true,
-            'data'    => $this->getIncludes()
+            'data'    => $this->getIncludes(auth()->user())
         ];
 
         return response()->json($response, 201);

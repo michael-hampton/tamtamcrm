@@ -94,7 +94,7 @@ export default class AddSubscription extends React.Component {
             <React.Fragment>
                 <AddButtons toggle={this.toggle}/>
                 <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
-                    <DefaultModalHeader toggle={this.toggle} title={translations.add_subscription}/>
+                    <DefaultModalHeader toggle={this.toggle} title={translations.add_webhook}/>
 
                     <ModalBody className={theme}>
                         <Details hasErrorFor={this.hasErrorFor} subscription={this.state}

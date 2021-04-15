@@ -15,7 +15,7 @@ class ChangePlan
     {
         $invoice = Invoice::where('plan_subscription_id', '=', $plan_subscription->id)->latest()->first();
 
-        $amount = $invoice->balance > 0 ? $plan_subscription->calculateRefundAmount($invoice, true) : $plan_subscription->calculateRefundAmount($invoice, false) * -1;
+        $amount = $plan_subscription->calculateRefundAmount($invoice);
 
         $amount = $amount + $plan_subscription->plan->price;
 

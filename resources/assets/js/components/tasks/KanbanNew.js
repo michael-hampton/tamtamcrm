@@ -15,6 +15,7 @@ import CustomerRepository from '../repositories/CustomerRepository'
 import ProjectDropdown from '../common/dropdowns/ProjectDropdown'
 import AddTaskStatus from '../taskStatus/edit/AddTaskStatus'
 import TaskStatusRepository from '../repositories/TaskStatusRepository'
+import DraggableTaskItem from './DraggableTaskItem'
 
 export default class KanbanNew extends Component {
     constructor (props) {
@@ -407,39 +408,12 @@ export default class KanbanNew extends Component {
                                                                 }}
                                                             >
                                                                 {column.items.map((item, index) => {
-                                                                    return (
-                                                                        <Draggable
-                                                                            key={item.id}
-                                                                            draggableId={item.id}
-                                                                            index={index}
-                                                                        >
-                                                                            {(provided, snapshot) => {
-                                                                                return (
-                                                                                    <div
-                                                                                        ref={provided.innerRef}
-                                                                                        {...provided.draggableProps}
-                                                                                        {...provided.dragHandleProps}
-                                                                                        style={{
-                                                                                            userSelect: 'none',
-                                                                                            padding: 16,
-                                                                                            margin: '0 0 8px 0',
-                                                                                            minHeight: '50px',
-                                                                                            backgroundColor: snapshot.isDragging
-                                                                                                ? '#263B4A'
-                                                                                                : '#456C86',
-                                                                                            color: 'white',
-                                                                                            ...provided.draggableProps.style
-                                                                                        }}
-                                                                                    >
-                                                                                        <a style={{ padding: '12px' }}
-                                                                                            onClick={(e) => {
-                                                                                                this.toggleViewedEntity(null, null, false, item)
-                                                                                            }}>{item.name}</a>
-                                                                                    </div>
-                                                                                )
-                                                                            }}
-                                                                        </Draggable>
-                                                                    )
+                                                                    return <DraggableTaskItem provided={provided}
+                                                                        snapshot={snapshot}
+                                                                        item={item} index={index}
+                                                                        toggleViewedEntity={this.toggleViewedEntity}
+                                                                        type={this.state.type}
+                                                                    />
                                                                 })}
                                                                 {provided.placeholder}
                                                             </div>

@@ -586,10 +586,8 @@ class BaseController extends Controller
         return response()->json(['data' => base64_encode($content)]);
     }
 
-    protected function getIncludes()
+    protected function getIncludes(User $user)
     {
-        $user = auth()->user();
-
         $default_account = $user->accounts->first()->domains->default_company;
         //$user->setAccount($default_account);
 

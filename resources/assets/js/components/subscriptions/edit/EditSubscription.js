@@ -71,7 +71,7 @@ export default class EditSubscription extends React.Component {
                     message: this.subscriptionModel.error_message
                 })
 
-                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.subscription), {
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.webhook), {
                     position: 'top-center',
                     autoClose: 5000,
                     hideProgressBar: false,
@@ -84,7 +84,7 @@ export default class EditSubscription extends React.Component {
                 return
             }
 
-            toast.success(translations.updated_successfully.replace('{entity}', translations.subscription), {
+            toast.success(translations.updated_successfully.replace('{entity}', translations.webhook), {
                 position: 'top-center',
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -125,10 +125,10 @@ export default class EditSubscription extends React.Component {
 
         return (
             <React.Fragment>
-                <DropdownItem onClick={this.toggle}><i className={`fa ${icons.edit}`}/>{translations.edit_subscription}
+                <DropdownItem onClick={this.toggle}><i className={`fa ${icons.edit}`}/>{translations.edit_webhook}
                 </DropdownItem>
                 <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
-                    <DefaultModalHeader toggle={this.toggle} title={translations.edit_subscription}/>
+                    <DefaultModalHeader toggle={this.toggle} title={translations.edit_webhook}/>
 
                     <ModalBody className={theme}>
                         <ToastContainer

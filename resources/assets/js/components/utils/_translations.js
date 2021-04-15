@@ -592,12 +592,12 @@ _localizedValues.en = {
     images: 'Images',
     variations: 'Variations',
     variation: 'ProductVariation',
-    add_subscription: 'Add Subscription',
+    add_webhook: 'Add Webhook',
     add_attribute: 'Add Attribute',
     edit_attribute: 'Edit Attribute',
-    edit_subscription: 'Edit Subscription',
-    subscriptions: 'Webhooks',
-    subscription: 'Webhook',
+    edit_webhook: 'Edit Webhook',
+    webhooks: 'Webhooks',
+    webhook: 'Webhook',
     name: 'Name',
     change_duration: 'Change Duration',
     add_department: 'Add Department',
@@ -946,7 +946,8 @@ _localizedValues.en = {
     trial_period: 'Trial Period',
     active_subscribers_limit: 'Number of Subscribers allowed',
     can_cancel_plan: 'Plan Can be cancelled',
-    invoice_frequency: 'Invoice Frequency'
+    invoice_frequency: 'Invoice Frequency',
+    hide: 'Hide'
 }
 
 let language = []

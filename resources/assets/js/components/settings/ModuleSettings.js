@@ -417,7 +417,7 @@ class ModuleSettings extends Component {
                                         }}/>
                                     </div>
 
-                                    <BlockButton icon={icons.link} button_text={translations.subscriptions}
+                                    <BlockButton icon={icons.link} button_text={translations.webhooks}
                                         button_link="/#/subscriptions"/>
                                     <BlockButton icon={icons.token} button_text={translations.tokens}
                                         button_link="/#/tokens"/>

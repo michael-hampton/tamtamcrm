@@ -475,7 +475,7 @@ class PlanSubscription extends Model
         return $query->where('ends_at', '<=', Carbon::now());
     }
 
-    public function calculateRefundAmount(Invoice $invoice, $charge = false)
+    public function calculateRefundAmount(Invoice $invoice)
     {
         $start_date = Carbon::parse($invoice->date);
 
@@ -483,7 +483,7 @@ class PlanSubscription extends Model
 
         $days = $this->invoice_interval === 'year' ? now()->diffInDays(now()->addYear()) : now()->diffInDays(now()->addMonthNoOverflow());
 
-        return $charge === true ? round(($days_remaining/$days) * $invoice->total ,2) :  round((($days - $days_remaining)/$days) * $invoice->total ,2);
+        return $invoice->balance > 0 ? round(($days_remaining/$days) * $invoice->total, 2) : round((($days - $days_remaining)/$days) * $invoice->total, 2) * -1;
     }
 
     public function domain()
