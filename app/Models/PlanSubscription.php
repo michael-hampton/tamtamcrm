@@ -12,7 +12,9 @@ use App\Events\Plan\SubscriptionCanceled;
 use App\Events\Plan\SubscriptionPlanChanged;
 use App\Events\Plan\SubscriptionRenewed;
 use App\Models\Concerns\BelongsToPlanModel;
+use App\Notifications\PlanSubscription\CancelSubscription;
 use App\Traits\Archiveable;
+use App\Traits\WebhookNotifiable;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,6 +31,7 @@ class PlanSubscription extends Model
     use BelongsToPlanModel;
     use Archiveable;
     use SoftDeletes;
+    use WebhookNotifiable;
 
     /**
      * Subscription statuses
@@ -58,7 +61,9 @@ class PlanSubscription extends Model
         'cancels_at',
         'cancelled_at',
         'number_of_licences',
-        'promocode_applied'
+        'promocode_applied',
+        'api_key',
+        'webhook_url'
     ];
 
     /**
@@ -267,7 +272,7 @@ class PlanSubscription extends Model
             $this->cancelled_immediately = true;
 
             if ($this->isRefundable()) {
-                $this->refund();
+                //$this->refund();
             }
 
             $this->ends_at = $this->cancelled_at;
@@ -276,6 +281,8 @@ class PlanSubscription extends Model
         $this->cancelled_at = Carbon::now();
 
         $this->saveOrFail();
+
+        \Illuminate\Support\Facades\Notification::send($this, new CancelSubscription($this, 'CANCEL'));
 
         event(new SubscriptionCanceled($this));
 
@@ -483,7 +490,8 @@ class PlanSubscription extends Model
 
         $days = $this->invoice_interval === 'year' ? now()->diffInDays(now()->addYear()) : now()->diffInDays(now()->addMonthNoOverflow());
 
-        return $invoice->balance > 0 ? round(($days_remaining/$days) * $invoice->total, 2) : round((($days - $days_remaining)/$days) * $invoice->total, 2) * -1;
+        return $invoice->balance > 0 ? round(($days_remaining / $days) * $invoice->total,
+            2) : round((($days - $days_remaining) / $days) * $invoice->total, 2) * -1;
     }
 
     public function domain()

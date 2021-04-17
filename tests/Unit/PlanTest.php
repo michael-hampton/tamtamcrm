@@ -36,12 +36,12 @@ class PlanTest extends TestCase
     public function test_it_creates_plan_on_setup()
     {
         $data = [
-            'first_name'  => $this->faker->firstName,
-            'last_name'   => $this->faker->lastName,
-            'email'       => $this->faker->safeEmail,
-            'password'    => $this->faker->word,
+            'first_name' => $this->faker->firstName,
+            'last_name' => $this->faker->lastName,
+            'email' => $this->faker->safeEmail,
+            'password' => $this->faker->word,
             'customer_id' => $this->customer->id,
-            'user_id'     => $this->user->id,
+            'user_id' => $this->user->id,
         ];
 
         $account = (new CreateAccount())->execute($data);
@@ -79,10 +79,10 @@ class PlanTest extends TestCase
 
         $domain = (new DomainRepository(new Domain))->create(
             [
-                'user_id'       => $user->id,
-                'customer_id'   => $customer->id,
+                'user_id' => $user->id,
+                'customer_id' => $customer->id,
                 'support_email' => $this->faker->safeEmail,
-                'plan_id'       => $plan->id
+                'plan_id' => $plan->id
             ]
         );
 
@@ -194,10 +194,10 @@ class PlanTest extends TestCase
 
         $domain = (new DomainRepository(new Domain))->create(
             [
-                'user_id'       => $user->id,
-                'customer_id'   => $customer->id,
+                'user_id' => $user->id,
+                'customer_id' => $customer->id,
                 'support_email' => $this->faker->safeEmail,
-                'plan_id'       => $plan->id
+                'plan_id' => $plan->id
             ]
         );
 
@@ -222,7 +222,7 @@ class PlanTest extends TestCase
             'invoices',
             [
                 'customer_id' => $customer->id,
-                'balance'     => $cost,
+                'balance' => $cost,
                 //'due_date'    => $domain->subscription_expiry_date
             ]
         );
@@ -238,10 +238,10 @@ class PlanTest extends TestCase
 
         $domain = (new DomainRepository(new Domain))->create(
             [
-                'user_id'       => $user->id,
-                'customer_id'   => $customer->id,
+                'user_id' => $user->id,
+                'customer_id' => $customer->id,
                 'support_email' => $this->faker->safeEmail,
-                'plan_id'       => $plan->id
+                'plan_id' => $plan->id
             ]
         );
 
@@ -276,10 +276,10 @@ class PlanTest extends TestCase
 
         $domain = (new DomainRepository(new Domain))->create(
             [
-                'user_id'       => $user->id,
-                'customer_id'   => $customer->id,
+                'user_id' => $user->id,
+                'customer_id' => $customer->id,
                 'support_email' => $this->faker->safeEmail,
-                'plan_id'       => $plan->id
+                'plan_id' => $plan->id
             ]
         );
 
@@ -318,10 +318,10 @@ class PlanTest extends TestCase
 
         $domain = (new DomainRepository(new Domain))->create(
             [
-                'user_id'       => $user->id,
-                'customer_id'   => $customer->id,
+                'user_id' => $user->id,
+                'customer_id' => $customer->id,
                 'support_email' => $this->faker->safeEmail,
-                'plan_id'       => $plan->id
+                'plan_id' => $plan->id
             ]
         );
 
@@ -351,7 +351,7 @@ class PlanTest extends TestCase
             'invoices',
             [
                 'customer_id' => $customer->id,
-                'balance'     => number_format($cost, 4),
+                'balance' => number_format($cost, 4),
                 //'due_date'    => $domain->subscription_expiry_date
             ]
         );
@@ -362,7 +362,7 @@ class PlanTest extends TestCase
         $this->assertEquals($subscription->promocode, $promocode->first()['code']);
     }
 
-    /*public function test_refund_subscription()
+    public function test_refund_subscription()
     {
         $customer = Customer::factory()->create();
         $contact = CustomerContact::factory()->create(['customer_id' => $customer->id]);
@@ -374,10 +374,10 @@ class PlanTest extends TestCase
 
         $domain = (new DomainRepository(new Domain))->create(
             [
-                'user_id'       => $user->id,
-                'customer_id'   => $customer->id,
+                'user_id' => $user->id,
+                'customer_id' => $customer->id,
                 'support_email' => $this->faker->safeEmail,
-                'plan_id'       => $plan->id
+                'plan_id' => $plan->id
             ]
         );
 
@@ -387,12 +387,14 @@ class PlanTest extends TestCase
         $customer->newSubscription('main', $plan, $this->account);
 
         $subscription = $customer->subscriptions->first();
-	$subscription->starts_at = Carbon::now()->subMonthNoOverflow();
+        $subscription->starts_at = Carbon::now()->subMonthNoOverflow();
         $subscription->trial_ends_at = Carbon::now()->subMonths(2);
-	$subscription->save();
+        $subscription->api_key = 'test123';
+        $subscription->webhook_url = 'http://taskman2.develop/api/invoice';
+        $subscription->save();
 
         $subscription->cancel(true);
-    }*/
+    }
 
     public function test_change_plan()
     {
@@ -406,10 +408,10 @@ class PlanTest extends TestCase
 
         $domain = (new DomainRepository(new Domain))->create(
             [
-                'user_id'       => $user->id,
-                'customer_id'   => $customer->id,
+                'user_id' => $user->id,
+                'customer_id' => $customer->id,
                 'support_email' => $this->faker->safeEmail,
-                'plan_id'       => $plan->id
+                'plan_id' => $plan->id
             ]
         );
 
