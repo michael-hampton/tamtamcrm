@@ -403,6 +403,22 @@ class Invoice extends Model
         return $this->status_id === self::STATUS_DRAFT;
     }
 
+
+    public function scopeSubscriptions($query, PlanSubscription $plan_subscription)
+    {
+        $query->where('plan_subscription_id', '=', $plan_subscription->id);
+    }
+
+    public function scopeHasBalance($query)
+    {
+        $query->where('balance', '>', 0);
+    }
+
+    public function scopePaid($query)
+    {
+        $query->where('balance', '=', 0);
+    }
+
     public function scopePermissions($query, User $user)
     {
         if ($user->isAdmin() || $user->isOwner() || $user->hasPermissionTo('invoicecontroller.index')) {

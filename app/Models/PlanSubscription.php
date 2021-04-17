@@ -4,6 +4,7 @@ namespace App\Models;
 
 
 use App\Actions\Plan\CalculateUpgradePrice;
+use App\Actions\Plan\CancelPlan;
 use App\Actions\Plan\ChangePlan;
 use App\Components\Subscriptions\Period;
 use App\Components\Subscriptions\SubscriptionAbility;
@@ -272,7 +273,7 @@ class PlanSubscription extends Model
             $this->cancelled_immediately = true;
 
             if ($this->isRefundable()) {
-                //$this->refund();
+                (new CancelPlan())->execute($this);
             }
 
             $this->ends_at = $this->cancelled_at;

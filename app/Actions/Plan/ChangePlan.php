@@ -13,7 +13,7 @@ class ChangePlan
 
     public function execute(PlanSubscription $plan_subscription)
     {
-        $invoice = Invoice::where('plan_subscription_id', '=', $plan_subscription->id)->latest()->first();
+        $invoice = Invoice::subscriptions($plan_subscription)->latest()->first();
 
         $amount = $plan_subscription->calculateRefundAmount($invoice);
 

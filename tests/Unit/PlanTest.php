@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Actions\Account\CreateAccount;
+use App\Actions\Invoice\CreatePayment;
 use App\Components\Promocodes\Promocodes;
 use App\Jobs\ProcessSubscription;
 use App\Models\Account;
@@ -11,9 +12,12 @@ use App\Models\Customer;
 use App\Models\CustomerContact;
 use App\Models\Domain;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\User;
 use App\Repositories\DomainRepository;
+use App\Repositories\InvoiceRepository;
+use App\Repositories\PaymentRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -391,9 +395,26 @@ class PlanTest extends TestCase
         $subscription->trial_ends_at = Carbon::now()->subMonths(2);
         $subscription->api_key = 'test123';
         $subscription->webhook_url = 'http://taskman2.develop/api/invoice';
+        $subscription->due_date = now()->addDays(10);
+        $subscription->trial_ends_at = null;
+        $subscription->number_of_licences = 1;
         $subscription->save();
 
+        ProcessSubscription::dispatchNow();
+
+        $original_invoice = Invoice::subscriptions($subscription)->first();
+
+        (new CreatePayment($original_invoice, new InvoiceRepository(new Invoice()),
+            new PaymentRepository(new Payment())))->execute();
+
         $subscription->cancel(true);
+
+        $invoice = $original_invoice->fresh();
+        $payment = $invoice->payments->first()->fresh();
+
+        $this->assertEquals($invoice->balance, $original_invoice->total);
+        $this->assertEquals($payment->refunded, $invoice->total);
+        $this->assertEquals($payment->status_id, 6);
     }
 
     public function test_change_plan()

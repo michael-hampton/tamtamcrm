@@ -317,7 +317,10 @@ export default class KanbanNew extends Component {
             })
         })
 
-        this.state.entities.map((entity, index) => {
+        const entities = this.state.entities
+        entities.sort((a, b) => (a.task_sort_order - b.task_sort_order))
+
+        entities.map((entity, index) => {
             entity.id = entity.id.toString()
 
             const statusIndex = columns.findIndex(column => parseInt(column.id) === parseInt(entity.task_status_id))
