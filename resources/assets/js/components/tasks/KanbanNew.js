@@ -17,6 +17,8 @@ import AddTaskStatus from '../taskStatus/edit/AddTaskStatus'
 import TaskStatusRepository from '../repositories/TaskStatusRepository'
 import Columns from './kanban/Columns'
 import Header from './kanban/Header'
+import { toast, ToastContainer } from 'react-toastify'
+import { translations } from '../utils/_translations'
 
 export default class KanbanNew extends Component {
     constructor (props) {
@@ -191,7 +193,29 @@ export default class KanbanNew extends Component {
                     errors: this.model.errors,
                     message: this.model.error_message
                 })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.task), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
+                return
             }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.task), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
         })
     }
 
@@ -220,10 +244,32 @@ export default class KanbanNew extends Component {
                 this.setState({
                     showErrorMessage: true,
                     loading: false,
-                    errors: this.model.errors,
-                    message: this.model.error_message
+                    errors: repo.errors,
+                    message: repo.error_message
                 })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.task), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
+                return
             }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.task), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
         })
     }
 
@@ -282,16 +328,50 @@ export default class KanbanNew extends Component {
     }
 
     updateStatuses (result) {
-        alert(result.destination.index)
         const items = [...this.state.columns]
-        console.log('items 2', items)
         const [reorderedItem] = items.splice(result.source.index, 1)
         items.splice(result.destination.index, 0, reorderedItem)
 
-        console.log('items 3', items)
+        const statusIds = []
 
-        this.setState({ columns: items }, () => {
-            console.log('columns', items)
+        items.map((entity, index) => {
+            items[index].order_id = (index + 1)
+            statusIds.push(entity.id)
+        })
+
+        const repo = new TaskStatusRepository()
+        repo.updateSortOrder(items).then(response => {
+            if (!response) {
+                this.setState({
+                    showErrorMessage: true,
+                    loading: false,
+                    errors: repo.errors,
+                    message: repo.error_message
+                })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.task_status), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+                return
+            }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.task_status), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
+
+            this.setState({ columns: items })
         })
     }
 
@@ -300,8 +380,8 @@ export default class KanbanNew extends Component {
         const { source, destination, type } = result
 
         if (source.droppableId !== destination.droppableId) {
-            const sourceIndex = columns.findIndex(column => column.id === source.droppableId)
-            const destIndex = columns.findIndex(column => column.id === destination.droppableId)
+            const sourceIndex = columns.findIndex(column => parseInt(column.id) === parseInt(source.droppableId))
+            const destIndex = columns.findIndex(column => parseInt(column.id) === parseInt(destination.droppableId))
 
             const sourceColumn = columns[sourceIndex]
             const destColumn = columns[destIndex]
@@ -327,8 +407,7 @@ export default class KanbanNew extends Component {
                 this.save(entity, destination.droppableId)
             })
         } else {
-            const sourceIndex = columns.findIndex(column => column.id === source.droppableId)
-            const destIndex = columns.findIndex(column => column.id === destination.droppableId)
+            const sourceIndex = columns.findIndex(column => parseInt(column.id) === parseInt(source.droppableId))
             const column = columns[sourceIndex]
             const copiedItems = [...column.items]
             const [removed] = copiedItems.splice(source.index, 1)
@@ -369,6 +448,18 @@ export default class KanbanNew extends Component {
 
         return customers.length && columns.length && entities.length ? (
             <React.Fragment>
+                <ToastContainer
+                    position="top-center"
+                    autoClose={5000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                />
+
                 <Row>
                     <Col sm={12} className="mt-2 mb-3">
                         <div className="d-flex justify-content-between align-items-center">

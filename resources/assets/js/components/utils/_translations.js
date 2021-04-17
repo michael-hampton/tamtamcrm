@@ -113,6 +113,7 @@ _localizedValues.en = {
     product_settings: 'Product Settings',
     edit_task_status: 'Edit Status',
     add_task_status: 'Add Status',
+    task_status: 'Task Status',
     stripe: 'Stripe',
     provider: 'Provider',
     authorize: 'Authorize',

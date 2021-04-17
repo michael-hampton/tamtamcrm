@@ -417,5 +417,7 @@ class TaskController extends Controller
             $task->task_sort_order = $data['task_sort_order'];
             $task->save();
         }
+
+        return response()->json(['message' => 'success']);
     }
 }

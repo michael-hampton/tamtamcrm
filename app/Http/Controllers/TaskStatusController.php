@@ -14,6 +14,7 @@ use App\Transformations\TaskStatusTransformable;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 
+use Illuminate\Http\Request;
 use function request;
 
 class TaskStatusController extends Controller
@@ -79,6 +80,18 @@ class TaskStatusController extends Controller
     {
         $this->authorize('delete', $task_status);
         $task_status->delete();
+    }
+
+    public function sort(Request $request)
+    {
+        foreach ($request->input('statuses') as $data) {
+            $task_status = $this->task_status_repo->findTaskStatusById($data['id']);
+
+            $task_status->order_id = $data['order_id'];
+            $task_status->save();
+        }
+
+        return response()->json(['message' => 'success']);
     }
 
 }

@@ -185,6 +185,7 @@ Route::group(
         Route::get('taskStatus/search', 'TaskStatusController@search');
         Route::get('taskStatus', 'TaskStatusController@index');
         Route::post('taskStatus', 'TaskStatusController@store');
+        Route::post('taskStatus/sort', 'TaskStatusController@sort');
         Route::put('taskStatus/{task_status}', 'TaskStatusController@update');
         Route::delete('statuses/{task_status}', 'TaskStatusController@destroy');
 
