@@ -57,7 +57,7 @@ export default class StatusItem extends Component {
                                 minHeight: '50px',
                                 backgroundColor: snapshot.isDragging
                                     ? '#263B4A'
-                                    : '#456C86',
+                                    : this.props.item.color.length ? this.props.item.color : '#456C86',
                                 color: 'white',
                                 ...provided.draggableProps.style
                             }}

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Droppable } from 'react-beautiful-dnd'
-import DraggableTaskItem from "./DraggableTaskItem";
+import DraggableTaskItem from './DraggableTaskItem'
 
 export default class Column extends Component {
     render () {
@@ -20,7 +20,8 @@ export default class Column extends Component {
                         }}
                     >
                         {this.props.column.items.map((item, index) => {
-                            return <DraggableTaskItem provided={provided}
+                            return <DraggableTaskItem projects={this.props.projects} customers={this.props.customers}
+                                provided={provided}
                                 snapshot={snapshot}
                                 item={item} index={index}
                                 toggleViewedEntity={this.props.toggleViewedEntity}

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
+import { DragDropContext, Droppable } from 'react-beautiful-dnd'
 import DealModel from '../models/DealModel'
 import LeadModel from '../models/LeadModel'
 import TaskModel from '../models/TaskModel'
@@ -19,6 +19,7 @@ import Columns from './kanban/Columns'
 import Header from './kanban/Header'
 import { toast, ToastContainer } from 'react-toastify'
 import { translations } from '../utils/_translations'
+import ProjectRepository from '../repositories/ProjectRepository'
 
 export default class KanbanNew extends Component {
     constructor (props) {
@@ -27,6 +28,7 @@ export default class KanbanNew extends Component {
         this.state = {
             type: queryString.parse(this.props.location.search).type || 'task',
             project_id: queryString.parse(this.props.location.search).project_id || '',
+            projects: [],
             columns: {},
             entities: {},
             statuses: {},
@@ -53,6 +55,7 @@ export default class KanbanNew extends Component {
         this.save = this.save.bind(this)
         this.load = this.load.bind(this)
         this.getCustomers = this.getCustomers.bind(this)
+        this.getProjects = this.getProjects.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
         this.addUserToState = this.addUserToState.bind(this)
         this.handleInput = this.handleInput.bind(this)
@@ -62,6 +65,7 @@ export default class KanbanNew extends Component {
     componentDidMount () {
         this.load()
         this.getCustomers()
+        this.getProjects()
     }
 
     handleInput (e) {
@@ -131,6 +135,19 @@ export default class KanbanNew extends Component {
             this.setState({ entities: response }, () => {
                 console.log('entities', this.state.entities)
                 this.formatColumns()
+            })
+        })
+    }
+
+    getProjects () {
+        const projectRepository = new ProjectRepository()
+        projectRepository.get().then(response => {
+            if (!response) {
+                alert('error')
+            }
+
+            this.setState({ projects: response }, () => {
+                console.log('projects', this.state.projects)
             })
         })
     }
@@ -313,6 +330,7 @@ export default class KanbanNew extends Component {
             columns.push({
                 name: entity.name,
                 id: entity.id.toString(),
+                color: entity.column_color.length ? entity.column_color : '',
                 items: []
             })
         })
@@ -467,7 +485,7 @@ export default class KanbanNew extends Component {
                     <Col sm={12} className="mt-2 mb-3">
                         <div className="d-flex justify-content-between align-items-center">
                             {type === 'task' &&
-                            <ProjectDropdown handleInputChanges={this.handleInput}
+                            <ProjectDropdown projects={this.state.projects} handleInputChanges={this.handleInput}
                                 project={project_id} name="project_id"
                             />
                             }
@@ -499,7 +517,9 @@ export default class KanbanNew extends Component {
                                         return <div {...provided.droppableProps}
                                             ref={provided.innerRef} className="d-flex">
                                             {columns.map((column, index) => {
-                                                return <Columns columnId={column.id} column={column} index={index}
+                                                return <Columns projects={this.state.projects}
+                                                    customers={this.state.customers} columnId={column.id}
+                                                    column={column} index={index}
                                                     colorArray={this.colorArray} type={this.state.type}
                                                     toggleViewedEntity={this.toggleViewedEntity}/>
                                             })}

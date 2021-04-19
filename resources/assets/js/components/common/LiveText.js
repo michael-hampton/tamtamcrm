@@ -17,8 +17,11 @@ export default class LiveText extends Component {
     }
 
     startTimer () {
+        console.log('duration 5', this.props.duration)
         this.setState({
             duration: !this.props.duration && this.props.task_automation_enabled ? formatSecondsToTime(1) : this.props.duration
+        }, () => {
+            console.log('duration 3', this.state.duration)
         })
 
         this.timer = setInterval(() => {
