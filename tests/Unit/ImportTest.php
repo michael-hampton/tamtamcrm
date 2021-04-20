@@ -75,7 +75,7 @@ class ImportTest extends TestCase
             'weight'        => 2,
             'length'        => 2
         ];
-        
+
         $this->doImport($data, 'product');
 
         $this->assertDatabaseHas(
@@ -205,9 +205,9 @@ class ImportTest extends TestCase
             'project name'  => $this->project->name,
             'date'          => $this->faker->date(),
             'due date'      => $this->faker->date(),
-            'exchange_rate' => 1,
+            'exchange_rate' => 2,
             'terms'         => $this->faker->sentence,
-            //'private notes' => $this->faker->sentence,
+            'private notes' => $this->faker->sentence,
             'public notes'  => $this->faker->sentence,
             'custom value1' => $this->faker->sentence,
             'custom value2' => $this->faker->sentence,
@@ -220,14 +220,15 @@ class ImportTest extends TestCase
         $this->assertDatabaseHas(
             'invoices',
             [
+                'number'        => $data['number'],
                 'customer_id'   => $this->customer->id,
                 'project_id'    => $this->project->id,
-                'exchange_rate' => $data['exchange_rate'],
+                //'exchange_rate' => $data['exchange_rate'],
                 'terms'         => $data['terms'],
                 'date'          => $data['date'],
                 'due_date'      => $data['due date'],
                 'public_notes'  => $data['public notes'],
-                //'private_notes' => $data['private notes']
+                'private_notes' => $data['private notes']
             ]
         );
 
