@@ -150,8 +150,7 @@ class DealRepository extends BaseRepository implements DealRepositoryInterface
     /**
      * @param array $data
      * @param Deal $deal
-     * @return Deal|Task|null
-     * @throws Exception
+     * @return Deal|null
      */
     public function create(array $data, Deal $deal): ?Deal
     {
@@ -169,8 +168,7 @@ class DealRepository extends BaseRepository implements DealRepositoryInterface
     /**
      * @param array $data
      * @param Deal $deal
-     * @return Deal|Task|null
-     * @throws Exception
+     * @return Deal|null
      */
     public function update(array $data, Deal $deal): ?Deal
     {

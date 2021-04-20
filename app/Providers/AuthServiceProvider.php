@@ -9,6 +9,7 @@ use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\Credit;
 use App\Models\Customer;
+use App\Models\CustomerGatewayToken;
 use App\Models\Deal;
 use App\Models\Event;
 use App\Models\Expense;
@@ -38,6 +39,7 @@ use App\Policies\CasePolicy;
 use App\Policies\CompanyGatewayPolicy;
 use App\Policies\CompanyPolicy;
 use App\Policies\CreditPolicy;
+use App\Policies\CustomerGatewayTokenPolicy;
 use App\Policies\CustomerPolicy;
 use App\Policies\DealPolicy;
 use App\Policies\DocumentPolicy;
@@ -76,36 +78,37 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         //'App\Model'             => 'App\Policies\ModelPolicy',
-        Customer::class         => CustomerPolicy::class,
-        CompanyGateway::class   => CompanyGatewayPolicy::class,
-        Lead::class             => LeadPolicy::class,
-        Deal::class             => DealPolicy::class,
-        Credit::class           => CreditPolicy::class,
-        Expense::class          => ExpensePolicy::class,
-        ExpenseCategory::class  => ExpenseCategoryPolicy::class,
-        Group::class            => GroupPolicy::class,
-        Invoice::class          => InvoicePolicy::class,
-        Payment::class          => PaymentPolicy::class,
-        PaymentTerms::class     => PaymentTermPolicy::class,
-        Product::class          => ProductPolicy::class,
-        Project::class          => ProjectPolicy::class,
-        Quote::class            => QuotePolicy::class,
-        RecurringInvoice::class => RecurringInvoicePolicy::class,
-        RecurringQuote::class   => RecurringQuotePolicy::class,
-        Subscription::class     => SubscriptionPolicy::class,
-        Task::class             => TaskPolicy::class,
-        TaskStatus::class       => TaskStatusPolicy::class,
-        TaxRate::class          => TaxRatePolicy::class,
-        User::class             => UserPolicy::class,
-        Company::class          => CompanyPolicy::class,
-        Promocode::class        => PromocodePolicy::class,
-        PurchaseOrder::class    => PurchaseOrderPolicy::class,
-        Cases::class            => CasePolicy::class,
-        Event::class            => EventPolicy::class,
-        Order::class            => OrderPolicy::class,
-        File::class             => DocumentPolicy::class,
-        PlanSubscription::class => PlanSubscriptionPolicy::class,
-        Plan::class             => PlanPolicy::class
+        Customer::class             => CustomerPolicy::class,
+        CompanyGateway::class       => CompanyGatewayPolicy::class,
+        Lead::class                 => LeadPolicy::class,
+        Deal::class                 => DealPolicy::class,
+        Credit::class               => CreditPolicy::class,
+        Expense::class              => ExpensePolicy::class,
+        ExpenseCategory::class      => ExpenseCategoryPolicy::class,
+        Group::class                => GroupPolicy::class,
+        Invoice::class              => InvoicePolicy::class,
+        Payment::class              => PaymentPolicy::class,
+        PaymentTerms::class         => PaymentTermPolicy::class,
+        Product::class              => ProductPolicy::class,
+        Project::class              => ProjectPolicy::class,
+        Quote::class                => QuotePolicy::class,
+        RecurringInvoice::class     => RecurringInvoicePolicy::class,
+        RecurringQuote::class       => RecurringQuotePolicy::class,
+        Subscription::class         => SubscriptionPolicy::class,
+        Task::class                 => TaskPolicy::class,
+        TaskStatus::class           => TaskStatusPolicy::class,
+        TaxRate::class              => TaxRatePolicy::class,
+        User::class                 => UserPolicy::class,
+        Company::class              => CompanyPolicy::class,
+        Promocode::class            => PromocodePolicy::class,
+        PurchaseOrder::class        => PurchaseOrderPolicy::class,
+        Cases::class                => CasePolicy::class,
+        Event::class                => EventPolicy::class,
+        Order::class                => OrderPolicy::class,
+        File::class                 => DocumentPolicy::class,
+        PlanSubscription::class     => PlanSubscriptionPolicy::class,
+        Plan::class                 => PlanPolicy::class,
+        CustomerGatewayToken::class => CustomerGatewayTokenPolicy::class
     ];
 
     /**

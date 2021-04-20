@@ -529,6 +529,9 @@ Route::group(
 
         Route::resource('attributes', 'AttributeController');
         Route::resource('attributeValues', 'AttributeValueController');
+
+        // customer gateway tokens
+        Route::resource('customer_gateway_tokens', 'CustomerGatewayTokenController');
     }
 );
 

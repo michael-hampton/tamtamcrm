@@ -94,8 +94,8 @@ class CreditController extends BaseController
     }
 
     /**
-     * @param int $id
-     * @return mixed
+     * @param Credit $credit
+     * @return JsonResponse
      * @throws AuthorizationException
      */
     public function destroy(Credit $credit)
@@ -107,8 +107,8 @@ class CreditController extends BaseController
     }
 
     /**
-     * @param int $id
-     * @return mixed
+     * @param Credit $credit
+     * @return JsonResponse
      */
     public function restore(Credit $credit)
     {
