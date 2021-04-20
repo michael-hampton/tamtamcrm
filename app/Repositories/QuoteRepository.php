@@ -132,7 +132,7 @@ class QuoteRepository extends BaseRepository implements QuoteRepositoryInterface
     public function getExpiredQuotes()
     {
         return Quote::whereDate('due_date', '<', Carbon::today()->subDay()->toDateString())
-                    ->where('is_deleted', '=', false)
+                    ->where('hide', '=', false)
                     ->whereIn(
                         'status_id',
                         [Quote::STATUS_SENT]

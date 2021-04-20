@@ -33,7 +33,7 @@ trait UserTransformable
             'custom_value4'                     => $user->custom_value4 ?: '',
             'deleted_at'                        => $user->deleted_at,
             'created_at'                        => $user->created_at,
-            'is_deleted'                        => (bool)$user->is_deleted,
+            'hide'                              => (bool)$user->hide,
             'has_custom_permissions'            => $user->permissions()->count() > 0,
             'two_factor_authentication_enabled' => $user->two_factor_authentication_enabled,
             'google_id'                         => $user->google_id

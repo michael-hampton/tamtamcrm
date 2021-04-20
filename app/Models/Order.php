@@ -54,7 +54,7 @@ class Order extends Model
         'line_items'    => 'object',
         'updated_at'    => 'timestamp',
         'deleted_at'    => 'timestamp',
-        'is_deleted'    => 'boolean',
+        'hide'          => 'boolean',
         'payment_taken' => 'boolean',
         'viewed'        => 'boolean'
     ];

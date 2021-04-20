@@ -236,7 +236,7 @@ export default class QuoteModel extends BaseModel {
             actions.push('markSent')
         }
 
-        if (!this.fields.is_deleted) {
+        if (!this.fields.hide) {
             actions.push('delete')
         }
 

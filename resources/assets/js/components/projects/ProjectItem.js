@@ -40,7 +40,7 @@ export default class ProjectItem extends Component {
             .then(function (response) {
                 const arrProjects = [...self.props.entities]
                 const index = arrProjects.findIndex(project => project.id === id)
-                arrProjects[index].is_deleted = archive !== true
+                arrProjects[index].hide = archive !== true
                 arrProjects[index].deleted_at = new Date()
                 self.props.addUserToState(arrProjects, true)
             })
@@ -91,8 +91,8 @@ export default class ProjectItem extends Component {
                         archive={archiveButton}
                         restore={restoreButton}/> : null
 
-                const status = (project.deleted_at && !project.is_deleted) ? (<Badge className="mr-2"
-                    color="warning">{translations.archived}</Badge>) : ((project.deleted_at && project.is_deleted) ? (
+                const status = (project.deleted_at && !project.hide) ? (<Badge className="mr-2"
+                    color="warning">{translations.archived}</Badge>) : ((project.deleted_at && project.hide) ? (
                     <Badge className="mr-2" color="danger">{translations.deleted}</Badge>) : (''))
 
                 const is_mobile = this.state.width <= 768

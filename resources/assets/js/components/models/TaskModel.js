@@ -184,7 +184,7 @@ export default class TaskModel extends BaseModel {
     buildDropdownMenu () {
         const actions = []
 
-        if (!this.fields.is_deleted) {
+        if (!this.fields.hide) {
             actions.push('delete')
         }
 
@@ -193,7 +193,7 @@ export default class TaskModel extends BaseModel {
             actions.push('cloneTaskToDeal')
         }
 
-        if (!this.fields.is_deleted) {
+        if (!this.fields.hide) {
             actions.push('newInvoice')
         }
 

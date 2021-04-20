@@ -37,7 +37,7 @@ export default class OrderItem extends Component {
         axios.delete(url).then(function (response) {
             const arrQuotes = [...self.props.entities]
             const index = arrQuotes.findIndex(payment => payment.id === id)
-            arrQuotes[index].is_deleted = archive !== true
+            arrQuotes[index].hide = archive !== true
             arrQuotes[index].deleted_at = new Date()
             self.props.updateOrder(arrQuotes, true)
         })

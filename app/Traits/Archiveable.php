@@ -34,7 +34,7 @@ trait Archiveable
     public function restoreEntity()
     {
         $this->restore();
-        $this->is_deleted = false;
+        $this->hide = false;
         $this->save();
         $this->triggerEvent('restored');
 
@@ -46,7 +46,7 @@ trait Archiveable
      */
     public function deleteEntity()
     {
-        $this->is_deleted = true;
+        $this->hide = true;
         $this->save();
         $this->delete();
         $this->triggerEvent('deleted');

@@ -26,8 +26,8 @@ export default function OrderPresenter (props) {
     const is_late = objOrderModel.isLate()
     const entity_status = is_late === true ? '-1' : entity.status_id
 
-    const status = (entity.deleted_at && !entity.is_deleted) ? (<Badge className="mr-2"
-        color="warning">{translations.archived}</Badge>) : ((entity.deleted_at && entity.is_deleted) ? (
+    const status = (entity.deleted_at && !entity.hide) ? (<Badge className="mr-2"
+        color="warning">{translations.archived}</Badge>) : ((entity.deleted_at && entity.hide) ? (
         <Badge className="mr-2" color="danger">{translations.deleted}</Badge>) : (
         <Badge color={orderStatusColors[entity_status]}>{orderStatuses[entity_status]}</Badge>))
 

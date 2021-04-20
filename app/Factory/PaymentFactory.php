@@ -24,7 +24,7 @@ class PaymentFactory
         $payment->customer_id = $customer->id;
         $payment->account_id = $account->id;
         $payment->date = Carbon::now()->format('Y-m-d');
-        $payment->is_deleted = false;
+        $payment->hide = false;
         $payment->status_id = Payment::STATUS_PENDING;
 
         return $payment;

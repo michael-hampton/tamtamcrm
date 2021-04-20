@@ -58,7 +58,7 @@ class Customer extends Model implements HasLocalePreference
         'settings'   => 'object',
         'updated_at' => 'timestamp',
         'deleted_at' => 'timestamp',
-        'is_deleted' => 'boolean',
+        'hide'       => 'boolean',
     ];
     private $merged_settings;
 
@@ -168,7 +168,7 @@ class Customer extends Model implements HasLocalePreference
             'status_id',
             [Credit::STATUS_SENT, Credit::STATUS_PARTIAL]
         )->where(
-            'is_deleted',
+            'hide',
             false
         );
     }

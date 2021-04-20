@@ -294,7 +294,7 @@ export default class OrderModel extends BaseModel {
             actions.push('fulfill')
         }
 
-        if (!this.fields.is_deleted) {
+        if (!this.fields.hide) {
             actions.push('delete')
         }
 

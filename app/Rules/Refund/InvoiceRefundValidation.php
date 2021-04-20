@@ -79,7 +79,7 @@ class InvoiceRefundValidation implements Rule
         $invoice = Invoice::whereId($arrInvoice['invoice_id'])->first();
 
         // check allowed statuses here
-        if (!$invoice || $invoice->is_deleted) {
+        if (!$invoice || $invoice->hide) {
             $this->validationFailures[] = trans('texts.invalid_invoice');
             return false;
         }

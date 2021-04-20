@@ -86,7 +86,7 @@ class RecurringQuote extends Model
         'updated_at'   => 'timestamp',
         'deleted_at'   => 'timestamp',
         'viewed'       => 'boolean',
-        'is_deleted'   => 'boolean',
+        'hide'         => 'boolean',
     ];
     protected $dates = [
         'date_to_send',

@@ -52,7 +52,7 @@ class Company extends Model
     ];
     protected $casts = [
         'settings'   => 'object',
-        'is_deleted' => 'boolean',
+        'hide'       => 'boolean',
         'updated_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];

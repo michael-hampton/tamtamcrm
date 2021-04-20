@@ -11,7 +11,7 @@ class DesignFactory
         $design = new Design();
         $design->user_id = $user_id;
         $design->account_id = $account_id;
-        $design->is_deleted = false;
+        $design->hide = false;
         $design->is_active = true;
         $design->is_custom = true;
 

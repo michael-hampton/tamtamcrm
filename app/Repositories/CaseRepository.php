@@ -100,7 +100,7 @@ class CaseRepository extends BaseRepository implements CaseRepositoryInterface
     public function getOverdueCases()
     {
         return Cases::whereDate('due_date', '>=', Carbon::today())
-                    ->where('is_deleted', '=', false)
+                    ->where('hide', '=', false)
                     ->where('overdue_email_sent', 0)
                     ->whereIn(
                         'status_id',

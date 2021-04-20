@@ -40,7 +40,7 @@ export default class TaskItem extends Component {
             .then(function (response) {
                 const arrTasks = [...self.props.entities]
                 const index = arrTasks.findIndex(task => task.id === id)
-                arrTasks[index].is_deleted = archive !== true
+                arrTasks[index].hide = archive !== true
                 arrTasks[index].deleted_at = new Date()
                 self.props.addUserToState(arrTasks, true)
             })
@@ -57,7 +57,7 @@ export default class TaskItem extends Component {
 
         if (tasks && tasks.length && users.length) {
             return tasks.map((task, index) => {
-                const restoreButton = task.deleted_at && !task.is_deleted
+                const restoreButton = task.deleted_at && !task.hide
                     ? <RestoreModal id={task.id} entities={entities} updateState={this.props.addUserToState}
                         url={`/api/tasks/restore/${task.id}`}/> : null
                 const archiveButton = !task.deleted_at

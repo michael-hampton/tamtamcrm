@@ -238,7 +238,7 @@ trait ImportMapper
     private function getProduct(string $value): ?int
     {
         if (empty($this->products)) {
-            $this->products = Product::where('account_id', $this->account->id)->where('is_deleted', false)->get(
+            $this->products = Product::where('account_id', $this->account->id)->where('hide', false)->get(
             )->keyBy('name')->toArray();
             $this->products = array_change_key_case($this->products, CASE_LOWER);
         }
@@ -281,7 +281,7 @@ trait ImportMapper
     {
         if (empty($this->customers)) {
             $this->customer_objects = Customer::where('account_id', $this->account->id)->where(
-                'is_deleted',
+                'hide',
                 false
             )->get()->keyBy(
                 'name'
@@ -303,7 +303,7 @@ trait ImportMapper
     private function getCompany(string $value)
     {
         if (empty($this->companies)) {
-            $this->companies = Company::where('account_id', $this->account->id)->where('is_deleted', false)->get(
+            $this->companies = Company::where('account_id', $this->account->id)->where('hide', false)->get(
             )->keyBy('name')->toArray();
             $this->companies = array_change_key_case($this->companies, CASE_LOWER);
         }
@@ -393,7 +393,7 @@ trait ImportMapper
     private function getProject(string $value)
     {
         if (empty($this->projects)) {
-            $this->projects = Project::where('account_id', $this->account->id)->where('is_deleted', false)->get(
+            $this->projects = Project::where('account_id', $this->account->id)->where('hide', false)->get(
             )->keyBy('name')->toArray();
             $this->projects = array_change_key_case($this->projects, CASE_LOWER);
         }

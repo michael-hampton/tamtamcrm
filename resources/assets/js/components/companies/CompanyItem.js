@@ -40,7 +40,7 @@ export default class CompanyItem extends Component {
             .then(function (response) {
                 const arrBrands = [...self.props.entities]
                 const index = arrBrands.findIndex(brand => brand.id === id)
-                arrBrands[index].is_deleted = archive !== true
+                arrBrands[index].hide = archive !== true
                 arrBrands[index].deleted_at = new Date()
                 self.props.addUserToState(arrBrands, true)
             })
@@ -73,8 +73,8 @@ export default class CompanyItem extends Component {
                     action={this.props.addUserToState}
                 /> : null
 
-                const status = (brand.deleted_at && !brand.is_deleted) ? (<Badge className="mr-2"
-                    color="warning">{translations.archived}</Badge>) : ((brand.deleted_at && brand.is_deleted) ? (
+                const status = (brand.deleted_at && !brand.hide) ? (<Badge className="mr-2"
+                    color="warning">{translations.archived}</Badge>) : ((brand.deleted_at && brand.hide) ? (
                     <Badge className="mr-2" color="danger">{translations.deleted}</Badge>) : (''))
 
                 const columnList = Object.keys(brand).filter(key => {

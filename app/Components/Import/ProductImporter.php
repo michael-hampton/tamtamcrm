@@ -153,7 +153,7 @@ class ProductImporter extends BaseCsvImporter
     {
         if (empty($this->categories)) {
             $this->categories = Category::where('account_id', $this->account->id)->where(
-                'is_deleted',
+                'hide',
                 false
             )->get()->keyBy('name')->toArray();
 
@@ -194,7 +194,7 @@ class ProductImporter extends BaseCsvImporter
     {
         if (empty($this->categories)) {
             $this->categories = Category::where('account_id', $this->account->id)->where(
-                'is_deleted',
+                'hide',
                 false
             )->get()->keyBy('id');
         }
@@ -256,7 +256,7 @@ class ProductImporter extends BaseCsvImporter
     {
         if (empty($this->brands)) {
             $this->brands = Brand::where('account_id', $this->account->id)->where(
-                'is_deleted',
+                'hide',
                 false
             )->get()->keyBy('name')->toArray();
 

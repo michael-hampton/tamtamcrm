@@ -179,7 +179,7 @@ class PaymentController extends Controller
     {
         $payment = Payment::withTrashed()->where('id', '=', $id)->first();
 
-        if ($payment->is_deleted === true) {
+        if ($payment->hide === true) {
             return response()->json('Unable to restore deleted payment', 500);
         }
 

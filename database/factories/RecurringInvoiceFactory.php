@@ -49,7 +49,7 @@ class RecurringInvoiceFactory extends Factory
             'discount_total' => $this->faker->randomFloat(2),
             'customer_id'    => $customer->id,
             'user_id'        => $user->id,
-            'is_deleted'     => false,
+            'hide'           => false,
             'po_number'      => $this->faker->text(10),
             'date'           => $this->faker->date(),
             'due_date'       => $this->faker->date(),

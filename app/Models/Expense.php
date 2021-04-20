@@ -65,7 +65,7 @@ class Expense extends Model
         'amount_includes_tax'
     ];
     protected $casts = [
-        'is_deleted' => 'boolean',
+        'hide'       => 'boolean',
         'updated_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];

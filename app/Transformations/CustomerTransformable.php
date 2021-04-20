@@ -74,7 +74,7 @@ trait CustomerTransformable
                 $files[$customer->id]
             ) : [],
             //'gateway_tokens'         => empty($exclude) || !in_array('gateways', $exclude) ? $this->transformGatewayTokens($customer->gateways) : [],
-            'is_deleted'             => (bool)$customer->is_deleted,
+            'hide'                   => (bool)$customer->hide,
         ];
     }
 

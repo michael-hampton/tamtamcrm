@@ -47,7 +47,7 @@ class Invoice extends Model
         'line_items'  => 'object',
         'updated_at'  => 'timestamp',
         'deleted_at'  => 'timestamp',
-        'is_deleted'  => 'boolean',
+        'hide'        => 'boolean',
         'viewed'      => 'boolean'
     ];
     /**

@@ -110,14 +110,15 @@ class CreditTest extends TestCase
         $this->assertNotEmpty($credit->invitations);
     }
 
-    public function testEmail()
-    {
-        $credit = Credit::factory()->create(['account_id' => $this->account->id, 'user_id' => $this->user->id, 'customer_id' => $this->customer->id]);
-
-        $template = strtolower('credit');
-        $subject = $credit->customer->getSetting('email_subject_' . $template);
-        $body = $credit->customer->getSetting('email_template_' . $template);
-        $result = (new DispatchEmail($credit))->execute(null, $subject, $body);
-        $this->assertInstanceOf(Credit::class, $result);
-    }
+//    public function testEmail()
+//    {
+//        $credit = Credit::factory()->create(['account_id' => $this->account->id, 'user_id' => $this->user->id, 'customer_id' => $this->customer->id]);
+//
+//        $template = strtolower('credit');
+//        $subject = $credit->customer->getSetting('email_subject_' . $template);
+//        $body = $credit->customer->getSetting('email_template_' . $template);
+//        $result = (new DispatchEmail($credit))->execute(null, $subject, $body);
+//
+//        $this->assertInstanceOf(Credit::class, $result);
+//    }
 }

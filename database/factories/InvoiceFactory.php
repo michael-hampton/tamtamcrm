@@ -52,7 +52,7 @@ class InvoiceFactory extends Factory
             'discount_total' => 0,
             'customer_id'    => $customer->id,
             'user_id'        => $user->id,
-            'is_deleted'     => false,
+            'hide'           => false,
             'po_number'      => $this->faker->text(10),
             'date'           => \Carbon\Carbon::now()->format('Y-m-d'),
             'due_date'       => \Carbon\Carbon::now()->addDays(3)->format('Y-m-d'),

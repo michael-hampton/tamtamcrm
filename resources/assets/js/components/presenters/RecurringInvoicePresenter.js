@@ -26,8 +26,8 @@ export function getDefaultTableFields () {
 export default function RecurringInvoicePresenter (props) {
     const { field, entity } = props
 
-    const status = (entity.deleted_at && !entity.is_deleted) ? (<Badge className="mr-2"
-        color="warning">{translations.archived}</Badge>) : ((entity.deleted_at && entity.is_deleted) ? (
+    const status = (entity.deleted_at && !entity.hide) ? (<Badge className="mr-2"
+        color="warning">{translations.archived}</Badge>) : ((entity.deleted_at && entity.hide) ? (
         <Badge className="mr-2" color="danger">{translations.deleted}</Badge>) : (
         <Badge
             color={recurringInvoiceStatusColors[entity.status_id]}>{recurringInvoiceStatuses[entity.status_id]}</Badge>))

@@ -183,6 +183,22 @@ export default class InvoiceModel extends BaseModel {
         return parseInt(this.fields.status_id) === this.cancelled
     }
 
+    get balanceOrAmount () {
+        return this.fields.status_id > consts.invoice_status_draft ? this.fields.balance : this.fields.total
+    }
+
+    get netAmount () {
+        return this.fields.total - this.taxAmount
+    }
+
+    get netBalance () {
+        return this.fields.balance - (this.taxAmount * this.fields.balance / this.fields.total)
+    }
+
+    get taxAmount () {
+        return this.fields.tax_total
+    }
+
     get isPaid () {
         return parseInt(this.fields.status_id) === this.paid
     }
@@ -302,7 +318,7 @@ export default class InvoiceModel extends BaseModel {
             actions.push('markPaid')
         }
 
-        if (!this.fields.is_deleted) {
+        if (!this.fields.hide) {
             actions.push('delete')
         }
 

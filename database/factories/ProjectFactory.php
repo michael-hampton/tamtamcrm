@@ -42,7 +42,7 @@ class ProjectFactory extends Factory
             'due_date'       => null,
             'start_date'     => null,
             'deleted_at'     => null,
-            'is_deleted'     => 0,
+            'hide'           => 0,
             'custom_value1'  => $this->faker->numberBetween(1, 4),
             'custom_value2'  => $this->faker->numberBetween(1, 4),
             'custom_value3'  => $this->faker->numberBetween(1, 4),

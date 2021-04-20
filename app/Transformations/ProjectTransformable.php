@@ -28,7 +28,7 @@ trait ProjectTransformable
             'updated_at'     => (int)$project->updated_at,
             'deleted_at'     => $project->deleted_at,
             'created_at'     => $project->created_at,
-            'is_deleted'     => (bool)$project->is_deleted,
+            'hide'           => (bool)$project->hide,
             'task_rate'      => (float)$project->task_rate,
             'budgeted_hours' => (float)$project->budgeted_hours,
             'account_id'     => $project->account_id,

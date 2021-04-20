@@ -57,7 +57,7 @@ trait ProductTransformable
             'custom_value3'  => $product->custom_value3 ?: '',
             'custom_value4'  => $product->custom_value4 ?: '',
             'files'          => $this->transformProductFiles($product->files),
-            'is_deleted'     => (bool)$product->is_deleted,
+            'hide'           => (bool)$product->hide,
         ];
     }
 

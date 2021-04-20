@@ -79,7 +79,7 @@ class CreditRefundValidation implements Rule
         $credit = Credit::whereId($arrCredit['credit_id'])->first();
 
         // check allowed statuses here
-        if (!$credit || $credit->is_deleted) {
+        if (!$credit || $credit->hide) {
             $this->validationFailures[] = trans('texts.invalid_invoice');
             return false;
         }

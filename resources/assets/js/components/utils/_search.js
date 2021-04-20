@@ -97,9 +97,9 @@ export function filterStatuses (data, value, filters = null) {
                 case 'active':
                     return !obj.deleted_at
                 case 'deleted':
-                    return obj.is_deleted === 1 || obj.is_deleted === true
+                    return obj.hide === 1 || obj.hide === true
                 case 'archived':
-                    return obj.deleted_at && obj.deleted_at.toString().length && obj.is_deleted === false
+                    return obj.deleted_at && obj.deleted_at.toString().length && obj.hide === false
                 default:
                     return parseInt(obj.status_id) === parseInt(status_id)
             }

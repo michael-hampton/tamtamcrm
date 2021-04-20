@@ -273,7 +273,7 @@ export default class RecurringQuoteModel extends BaseModel {
             actions.push('stop_recurring')
         }
 
-        if (!this.fields.is_deleted) {
+        if (!this.fields.hide) {
             actions.push('delete')
         }
 

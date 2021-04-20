@@ -37,7 +37,7 @@ export default class PurchaseOrderItem extends Component {
         axios.delete(url).then(function (response) {
             const arrQuotes = [...self.props.entities]
             const index = arrQuotes.findIndex(payment => payment.id === id)
-            arrQuotes[index].is_deleted = archive !== true
+            arrQuotes[index].hide = archive !== true
             arrQuotes[index].deleted_at = new Date()
             self.props.updateInvoice(arrQuotes, true)
         })
@@ -54,7 +54,7 @@ export default class PurchaseOrderItem extends Component {
         const { purchase_orders, custom_fields, companies, entities } = this.props
         if (purchase_orders && purchase_orders.length && companies.length) {
             return purchase_orders.map((purchase_order, index) => {
-                const restoreButton = purchase_order.deleted_at && !purchase_order.is_deleted
+                const restoreButton = purchase_order.deleted_at && !purchase_order.hide
                     ? <RestoreModal id={purchase_order.id} entities={entities}
                         updateState={this.props.updateInvoice}
                         url={`/api/purchase_order/restore/${purchase_order.id}`}/> : null

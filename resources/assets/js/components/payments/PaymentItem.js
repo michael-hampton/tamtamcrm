@@ -40,7 +40,7 @@ export default class PaymentItem extends Component {
             .then(function (response) {
                 const arrPayments = [...self.props.entities]
                 const index = arrPayments.findIndex(payment => payment.id === id)
-                arrPayments[index].is_deleted = archive !== true
+                arrPayments[index].hide = archive !== true
                 arrPayments[index].deleted_at = new Date()
                 self.props.updateCustomers(arrPayments, true)
             })

@@ -29,7 +29,7 @@ trait EventTransformable
             'status'      => isset($event->status) ? $event->status : null,
             'owner'       => $event->createdBy,
             'deleted_at'  => $event->deleted_at,
-            'is_deleted'  => (bool)$event->is_deleted,
+            'hide'        => (bool)$event->hide,
 
         ];
     }

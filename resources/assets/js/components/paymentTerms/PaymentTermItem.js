@@ -37,7 +37,7 @@ export default class PaymentTermItem extends Component {
             .then(function (response) {
                 const arrPaymentTerms = [...self.props.entities]
                 const index = arrPaymentTerms.findIndex(payment_term => payment_term.id === id)
-                arrPaymentTerms[index].is_deleted = archive !== true
+                arrPaymentTerms[index].hide = archive !== true
                 arrPaymentTerms[index].deleted_at = new Date()
                 self.props.addUserToState(arrPaymentTerms, true)
             })

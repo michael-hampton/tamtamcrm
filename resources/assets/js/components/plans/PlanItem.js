@@ -38,7 +38,7 @@ export default class PlanItem extends Component {
             .then(function (response) {
                 const arrPlans = [...self.props.entities]
                 const index = arrPlans.findIndex(plan => plan.id === id)
-                arrPlans[index].is_deleted = archive !== true
+                arrPlans[index].hide = archive !== true
                 arrPlans[index].deleted_at = new Date()
                 self.props.addUserToState(arrPlans, true)
             })

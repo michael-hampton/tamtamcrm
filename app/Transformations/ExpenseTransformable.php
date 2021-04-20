@@ -28,7 +28,7 @@ trait ExpenseTransformable
             'expense_category_id'  => (int)$expense->expense_category_id ?: '',
             'payment_method_id'    => (int)$expense->payment_method_id ?: '',
             'recurring_expense_id' => (int)$expense->recurring_expense_id ?: '',
-            'is_deleted'           => (bool)$expense->is_deleted,
+            'hide'                 => (bool)$expense->hide,
             'create_invoice'       => (bool)$expense->create_invoice,
             'include_documents'    => (bool)$expense->include_documents,
             'amount'               => (float)$expense->amount ?: 0,

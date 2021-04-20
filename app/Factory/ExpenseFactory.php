@@ -18,7 +18,7 @@ class ExpenseFactory
         $expense = new Expense();
         $expense->user_id = $user->id;
         $expense->account_id = $account->id;
-        $expense->is_deleted = false;
+        $expense->hide = false;
 
         return $expense;
     }

@@ -23,7 +23,7 @@ trait BankAccountTransformable
             'user_id'       => (int)$bank_account->user_id,
             'assigned_to'   => (int)$bank_account->assigned_to,
             'bank'          => $bank_account->bank,
-            'is_deleted'    => (bool)$bank_account->is_deleted,
+            'hide'          => (bool)$bank_account->hide,
         ];
     }
 

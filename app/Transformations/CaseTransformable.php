@@ -42,7 +42,7 @@ trait CaseTransformable
             'emails'             => $this->transformCaseEmails($cases->emails()),
             'updated_at'         => $cases->updated_at,
             'created_at'         => $cases->created_at,
-            'is_deleted'         => (bool)$cases->is_deleted,
+            'hide'               => (bool)$cases->hide,
             'deleted_at'         => $cases->deleted_at,
             'custom_value1'      => (string)$cases->custom_value1 ?: '',
             'custom_value2'      => (string)$cases->custom_value2 ?: '',

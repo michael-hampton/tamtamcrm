@@ -137,7 +137,7 @@ class ExpenseImporter extends BaseCsvImporter
     {
         if (empty($this->expense_categories)) {
             $this->expense_categories = ExpenseCategory::where('account_id', $this->account->id)->where(
-                'is_deleted',
+                'hide',
                 false
             )->get()->keyBy('name')->toArray();
 

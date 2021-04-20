@@ -42,7 +42,7 @@ trait TaskTransformable
             'contributors'         => $task->users()->pluck('user_id')->all(),
             'is_active'            => $task->is_active,
             'project_id'           => $task->project_id,
-            'is_deleted'           => (bool)$task->is_deleted,
+            'hide'                 => (bool)$task->hide,
             'timers'               => $this->transformTimers($task->timers),
             'custom_value1'        => $task->custom_value1 ?: '',
             'custom_value2'        => $task->custom_value2 ?: '',

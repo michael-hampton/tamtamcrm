@@ -143,7 +143,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
 
     public function getInvoicesForAutoBilling()
     {
-        return Invoice::where('is_deleted', 0)
+        return Invoice::where('hide', 0)
             ->whereNull('deleted_at')
             ->whereNull('is_recurring')
             ->whereNotNull('recurring_invoice_id')
@@ -158,7 +158,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
     public function getInvoiceReminders()
     {
         return Invoice::whereDate('date_to_send', '=', Carbon::today()->toDateString())
-            ->where('is_deleted', '=', false)
+            ->where('hide', '=', false)
             ->where('balance', '>', 0)
             ->whereIn(
                 'status_id',
@@ -169,7 +169,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
     public function getExpiredInvoices()
     {
         return Invoice::whereDate('due_date', '<', Carbon::today()->subDay()->toDateString())
-            ->where('is_deleted', '=', false)
+            ->where('hide', '=', false)
             ->where('balance', '>', 0)
             ->whereIn(
                 'status_id',
@@ -179,7 +179,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
 
     public function scopeOutstandingInvoices()
     {
-        return Invoice::where('is_deleted', false)
+        return Invoice::where('hide', false)
             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
             ->where('balance', '>', 0);
 

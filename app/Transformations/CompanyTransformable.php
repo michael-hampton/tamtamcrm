@@ -44,7 +44,7 @@ trait CompanyTransformable
             'contacts'      => $this->transformContacts($company->contacts),
             'files'         => $this->transformCompanyFiles($company->files),
             'logo'          => $company->logo ?: '',
-            'is_deleted'    => (bool)$company->is_deleted,
+            'hide'          => (bool)$company->hide,
         ];
     }
 

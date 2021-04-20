@@ -59,7 +59,7 @@ class Payment extends Model
         'exchange_rate' => 'float',
         'updated_at'    => 'timestamp',
         'deleted_at'    => 'timestamp',
-        'is_deleted'    => 'boolean',
+        'hide'          => 'boolean',
     ];
     protected $with = [
         'paymentables',
@@ -182,7 +182,7 @@ class Payment extends Model
 
     public function deletePayment(): bool
     {
-        $this->is_deleted = true;
+        $this->hide = true;
         $this->save();
 
         $this->delete();

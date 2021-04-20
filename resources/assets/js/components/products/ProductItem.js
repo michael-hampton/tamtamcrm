@@ -39,7 +39,7 @@ export default class ProductItem extends Component {
             .then(function (response) {
                 const arrProducts = [...self.props.entities]
                 const index = arrProducts.findIndex(product => product.id === id)
-                arrProducts[index].is_deleted = archive !== true
+                arrProducts[index].hide = archive !== true
                 arrProducts[index].deleted_at = new Date()
                 self.props.addProductToState(arrProducts, true)
             })
@@ -70,8 +70,8 @@ export default class ProductItem extends Component {
                 const archiveButton = !product.deleted_at
                     ? <DeleteModal archive={true} deleteFunction={this.deleteProduct} id={product.id}/> : null
 
-                const status = (product.deleted_at && !product.is_deleted) ? (<Badge className="mr-2"
-                    color="warning">{translations.archived}</Badge>) : ((product.deleted_at && product.is_deleted) ? (
+                const status = (product.deleted_at && !product.hide) ? (<Badge className="mr-2"
+                    color="warning">{translations.archived}</Badge>) : ((product.deleted_at && product.hide) ? (
                     <Badge className="mr-2" color="danger">{translations.deleted}</Badge>) : (''))
 
                 const columnList = Object.keys(product).filter(key => {

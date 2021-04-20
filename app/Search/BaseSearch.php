@@ -212,11 +212,11 @@ class BaseSearch
         }
 
         if ($status === 'archived') {
-            $this->query->whereNotNull($table . '.deleted_at')->where($table . '.is_deleted', '=', 0)->withTrashed();
+            $this->query->whereNotNull($table . '.deleted_at')->where($table . '.hide', '=', 0)->withTrashed();
         }
 
         if ($status === 'deleted') {
-            $this->query->where($table . '.is_deleted', '=', 1)->withTrashed();
+            $this->query->where($table . '.hide', '=', 1)->withTrashed();
         }
     }
 

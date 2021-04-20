@@ -44,7 +44,7 @@ class CreatePayment extends BaseActions
 
     public function execute()
     {
-        if ($this->invoice->balance < 0 || $this->invoice->status_id == Invoice::STATUS_PAID || $this->invoice->is_deleted === true) {
+        if ($this->invoice->balance < 0 || $this->invoice->status_id == Invoice::STATUS_PAID || $this->invoice->hide === true) {
             return false;
         }
 

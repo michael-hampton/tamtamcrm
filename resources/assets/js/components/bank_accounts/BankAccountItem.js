@@ -38,7 +38,7 @@ export default class BankAccountItem extends Component {
             .then(function (response) {
                 const arrBankAccounts = [...self.props.entities]
                 const index = arrBankAccounts.findIndex(bank_account => bank_account.id === id)
-                arrBankAccounts[index].is_deleted = archive !== true
+                arrBankAccounts[index].hide = archive !== true
                 arrBankAccounts[index].deleted_at = new Date()
                 self.props.addUserToState(arrBankAccounts, true)
             })

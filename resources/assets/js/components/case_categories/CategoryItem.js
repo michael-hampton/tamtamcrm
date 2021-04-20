@@ -38,7 +38,7 @@ export default class CategoryItem extends Component {
             .then(function (response) {
                 const arrCategories = [...self.props.entities]
                 const index = arrCategories.findIndex(category => category.id === id)
-                arrCategories[index].is_deleted = archive !== true
+                arrCategories[index].hide = archive !== true
                 arrCategories[index].deleted_at = new Date()
                 self.props.addUserToState(arrCategories, true)
             })

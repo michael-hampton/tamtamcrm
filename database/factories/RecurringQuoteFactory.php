@@ -52,7 +52,7 @@ class RecurringQuoteFactory extends Factory
             'custom_value2'  => $this->faker->numberBetween(1, 4),
             'custom_value3'  => $this->faker->numberBetween(1, 4),
             'custom_value4'  => $this->faker->numberBetween(1, 4),
-            'is_deleted'     => false,
+            'hide'           => false,
             'po_number'      => $this->faker->text(10),
             'line_items'     => $line_items,
             'frequency'      => 'MONTHLY',

@@ -30,7 +30,7 @@ export default class RestoreModal extends Component {
                 const arrEntities = [...self.props.entities]
                 const index = self.props.entities.findIndex(entity => entity.id === self.props.id)
                 arrEntities[index].deleted_at = null
-                arrEntities[index].is_deleted = false
+                arrEntities[index].hide = false
                 self.props.updateState(arrEntities, true)
             })
             .catch(function (error) {

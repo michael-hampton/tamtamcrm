@@ -87,7 +87,7 @@ trait RecurringQuoteTransformable
             'tax_rate_name_2'       => $quote->tax_rate_name_2,
             'tax_rate_name_3'       => $quote->tax_rate_name_3,
             'viewed'                => (bool)$quote->viewed,
-            'is_deleted'            => (bool)$quote->is_deleted,
+            'hide'                  => (bool)$quote->hide,
 
         ];
     }
