@@ -192,6 +192,7 @@ export const consts = {
     reminder_schedule_before_due_date: 'before_due_date',
     reminder_schedule_after_due_date: 'after_due_date',
     stripe_gateway: '13bb8d58',
+    stripe_connect_gateway: 'ocglwiyeow',
     authorize_gateway: '8ab2dce2',
     paypal_gateway: '64bcbdce',
     custom_gateway: '4ntgik8629',

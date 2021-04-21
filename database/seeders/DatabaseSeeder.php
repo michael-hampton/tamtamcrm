@@ -25,7 +25,6 @@ class DatabaseSeeder extends Seeder
         $this->call(BanksTableSeeder::class);
         $this->call(PaymentMethodsTableSeeder::class);
         $this->call(SourceTypeTableSeeder::class);
-        $this->call(PaymentGatewaysTableSeeder::class);
         $this->call(EventTypesTableSeeder::class);
         $this->call(PermissionsTableSeeder::class);
         $this->call(RolesTableSeeder::class);
@@ -33,6 +32,7 @@ class DatabaseSeeder extends Seeder
         $this->call(FeaturesTableSeeder::class);
         $this->call(PlanFeaturesTableSeeder::class);
         $this->call(PlansTableSeeder::class);
+        $this->call(PaymentGatewaysTableSeeder::class);
     }
 
 }

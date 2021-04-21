@@ -29,6 +29,26 @@ export default class CompanyGatewayRepository extends BaseRepository {
         }
     }
 
+    async createStripeAccount (token) {
+        this.errors = []
+        this.error_message = ''
+
+        try {
+            const res = await axios.post(this._url + '/stripe/connect', { token: token })
+
+            if (res.status === 200) {
+                // test for status you want, etc
+                console.log(res.status)
+            }
+
+            // Don't forget to return something
+            return res.data
+        } catch (e) {
+            this.handleError(e)
+            return false
+        }
+    }
+
     async getGateways () {
         this.errors = []
         this.error_message = ''

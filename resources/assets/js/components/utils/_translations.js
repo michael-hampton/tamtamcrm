@@ -114,6 +114,7 @@ _localizedValues.en = {
     edit_task_status: 'Edit Status',
     add_task_status: 'Add Status',
     task_status: 'Task Status',
+    stripe_connect: 'Stripe Connect',
     stripe: 'Stripe',
     provider: 'Provider',
     authorize: 'Authorize',

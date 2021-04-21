@@ -14,6 +14,10 @@ export default class Details extends React.Component {
                 name: translations.stripe
             },
             {
+                key: consts.stripe_connect_gateway,
+                name: translations.stripe_connect
+            },
+            {
                 key: consts.authorize_gateway,
                 name: translations.authorize
             },

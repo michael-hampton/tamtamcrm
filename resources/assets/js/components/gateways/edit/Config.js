@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import FormBuilder from '../../settings/FormBuilder'
 import { translations } from '../../utils/_translations'
 import { consts } from '../../utils/_consts'
+import { Button } from 'reactstrap'
+import CompanyGatewayRepository from '../../repositories/CompanyGatewayRepository'
 
 export default class Config extends Component {
     constructor (props) {
@@ -191,19 +193,42 @@ export default class Config extends Component {
         return formFields
     }
 
+    createStripeAccount (key) {
+        const companyGatewayRepository = new CompanyGatewayRepository()
+        companyGatewayRepository.createStripeAccount(key).then(response => {
+            if (!response) {
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
+            }
+
+            alert(response.url)
+
+            window.open(
+                response.url,
+                '_blank'
+            )
+        })
+    }
+
     getFormFields (key) {
         switch (key) {
-            case '8ab2dce2':
+            case consts.authorize_gateway:
                 return this.getAuthorizeConfig()
-            case '64bcbdce':
+            case consts.paypal_gateway:
                 return this.getPaypalConfig()
-            case '13bb8d58':
+            case consts.stripe_gateway:
                 return this.getStripeConfig()
         }
     }
 
     render () {
         const formFields = this.props.gateway.gateway_key && this.props.gateway.gateway_key.length ? this.getFormFields(this.props.gateway.gateway_key) : null
+
+        if (this.props.gateway.gateway_key === consts.stripe_connect_gateway) {
+            return <Button color="primary" onClick={(e) => {
+                this.createStripeAccount(consts.stripe_connect_gateway)
+            }}>{translations.stripe_connect}</Button>
+        }
 
         return formFields && formFields.length ? <FormBuilder
             handleChange={this.props.handleConfig}

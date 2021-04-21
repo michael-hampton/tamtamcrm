@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Components\Payment\Gateways\Stripe;
 use App\Factory\CompanyGatewayFactory;
 use App\Models\CompanyGateway;
+use App\Models\Customer;
+use App\Models\CustomerGateway;
 use App\Models\ErrorLog;
 use App\Repositories\AccountRepository;
 use App\Repositories\CompanyGatewayRepository;
@@ -13,6 +16,7 @@ use App\Requests\SearchRequest;
 use App\Search\CompanyGatewaySearch;
 use App\Transformations\CompanyGatewayTransformable;
 use App\Transformations\ErrorLogTransformable;
+use Illuminate\Http\Request;
 
 /**
  * Class CompanyGatewayController
@@ -124,5 +128,30 @@ class CompanyGatewayController extends Controller
         )->all();
 
         return response()->json($error_logs);
+    }
+
+    public function createStripeConnectAccount(Request $request)
+    {
+        $customer = Customer::where('id', '=', 5)->first();
+        $company_gateway = CompanyGateway::where('id', '=', 5)->first();
+        $customer_gateway = CustomerGateway::where('id', '=', 1)->first();
+
+        $objStripe = new Stripe($customer, $customer_gateway, $company_gateway);
+
+        $token = $objStripe->createAccount(['email' => 'test7@test.com', 'country' => 'GB']);
+
+        $response = $objStripe->connectAccount($token);
+
+        return response()->json(['url' => $response]);
+    }
+
+    public function completeStripeConnect(Request $request)
+    {
+        die('here');
+    }
+
+    public function refreshStripeConnect(Request $request)
+    {
+        die('here');
     }
 }

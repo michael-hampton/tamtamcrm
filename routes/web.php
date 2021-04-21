@@ -36,6 +36,9 @@ Route::get('dashboard', 'DashboardController@index');
 Route::get('buy_now', 'BuyNowController@buyNowTrigger');
 Route::get('pay_now/process/{invoice_id}', 'PaymentController@buyNow');
 Route::get('pay_now/success', 'PaymentController@buyNowSuccess');
+Route::get('company_gateways/stripe/complete', 'CompanyGatewayController@completeStripeConnect');
+Route::get('company_gateways/stripe/refresh', 'CompanyGatewayController@refreshStripeConnect');
+
 Route::view('/{path?}', 'app');
 
 Route::get('auth/google', [\App\Http\Controllers\LoginController::class, 'redirectToGoogle']);

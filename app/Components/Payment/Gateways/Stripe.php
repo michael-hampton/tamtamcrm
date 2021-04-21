@@ -60,15 +60,13 @@ class Stripe extends BasePaymentGateway
         $this->setupConfig();
 
         $response = $this->stripe->accountLinks->create([
-            'account'     => 'acct_1032D82eZvKYlo2C',
-            'refresh_url' => 'http://taskman2.develop/stripe/reauth',
-            'return_url'  => 'https://taskman2.develop/stripe/return',
+            'account'     => $account,
+            'refresh_url' => url('company_gateways/stripe/refresh'),
+            'return_url'  => url('company_gateways/stripe/complete'),
             'type'        => 'account_onboarding',
         ]);
 
-        echo '<pre>';
-        print_r($response);
-        die;
+        return $response['url'];
 
     }
 
@@ -127,25 +125,21 @@ class Stripe extends BasePaymentGateway
         die;
     }
 
-    public function createAccount()
+    public function createAccount(array $data)
     {
         $this->setupConfig();
 
         $response = $this->stripe->accounts->create([
-            'type'         => 'express',
-            'country'      => 'GB',
-            'email'        => 'michaelhamptondesign@yahoo.com',
-            'capabilities' => [
-                'card_payments' => ['requested' => true],
-                'transfers'     => ['requested' => true],
-            ],
+            'type'         => 'standard',
+            'country'      => $data['country'],
+            'email'        => $data['email'],
+//            'capabilities' => [
+//                'card_payments' => ['requested' => true],
+//                'transfers'     => ['requested' => true],
+//            ],
         ]);
 
-        echo $response['id'];
-
-        echo '<pre>';
-        print_r($response);
-        die;
+        return $response['id'];
     }
 
     /**
