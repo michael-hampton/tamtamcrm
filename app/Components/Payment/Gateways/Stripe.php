@@ -55,6 +55,99 @@ class Stripe extends BasePaymentGateway
         return true;
     }
 
+    public function connectAccount($account)
+    {
+        $this->setupConfig();
+
+        $response = $this->stripe->accountLinks->create([
+            'account'     => 'acct_1032D82eZvKYlo2C',
+            'refresh_url' => 'http://taskman2.develop/stripe/reauth',
+            'return_url'  => 'https://taskman2.develop/stripe/return',
+            'type'        => 'account_onboarding',
+        ]);
+
+        echo '<pre>';
+        print_r($response);
+        die;
+
+    }
+
+    public function retrieveBankAccount($account_number, $bank_account_number)
+    {
+        $this->setupConfig();
+
+        $response = $this->stripe->accounts->retrieveExternalAccount(
+            $account_number,
+            $bank_account_number,
+            []
+        );
+
+        echo '<pre>';
+        print_r($response);
+        die;
+    }
+
+    public function attachBankAccount($account)
+    {
+        $this->setupConfig();
+
+        $response = $this->stripe->accounts->createExternalAccount(
+            $account,
+            [
+                'external_account' => [
+                    'object'              => 'bank_account',
+                    'country'             => 'GB',
+                    'currency'            => 'GBP',
+                    'account_holder_name' => 'Michael Hampton',
+                    'account_holder_type' => 'individual',
+                    'routing_number'      => '108800',
+                    'account_number'      => '00012345'
+                ],
+            ]
+        );
+
+        echo $response['id'];
+
+        echo '<pre>';
+        print_r($response);
+        die;
+    }
+
+    public function retrieveAccount($account)
+    {
+        $this->setupConfig();
+
+        $stripe_account = $this->stripe->accounts->retrieve(
+            $account,
+            []
+        );
+
+        echo '<pre>';
+        print_r($stripe_account);
+        die;
+    }
+
+    public function createAccount()
+    {
+        $this->setupConfig();
+
+        $response = $this->stripe->accounts->create([
+            'type'         => 'express',
+            'country'      => 'GB',
+            'email'        => 'michaelhamptondesign@yahoo.com',
+            'capabilities' => [
+                'card_payments' => ['requested' => true],
+                'transfers'     => ['requested' => true],
+            ],
+        ]);
+
+        echo $response['id'];
+
+        echo '<pre>';
+        print_r($response);
+        die;
+    }
+
     /**
      * @param float $amount
      * @param Invoice|null $invoice
