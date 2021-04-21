@@ -72,7 +72,8 @@ trait Money
     public function convertCurrencies($entity, float $amount, bool $use_live_currencies = true)
     {
         if (!$use_live_currencies) {
-            return $entity->setExchangeRate();
+            $entity->setExchangeRate();
+            return $entity;
         }
 
         if ((int)$entity->account->getCurrency()->id === (int)$entity->customer->currency->id) {

@@ -13,5 +13,5 @@ return [
     'currency_converter_key'  => env('CURRENCY_CONVERTER_KEY'),
     'from_email'              => env('FROM_EMAIL'),
     'from_name'               => 'Michael Hampton',
-    'use_live_exchange_rates' => true
+    'use_live_exchange_rates' => false
 ];
