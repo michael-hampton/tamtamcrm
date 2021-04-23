@@ -388,6 +388,12 @@ class Invoice extends Model
         return true;
     }
 
+    public function setCurrency()
+    {
+        $this->currency_id = !empty($this->customer->currency_id) ? (int)$this->customer->currency_id : (int)$this->account->settings->currency_id;
+        return true;
+    }
+
     public function getDesignId()
     {
         return !empty($this->design_id) ? $this->design_id : $this->customer->getSetting('invoice_design_id');

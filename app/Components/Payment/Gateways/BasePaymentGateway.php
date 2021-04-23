@@ -46,9 +46,9 @@ class BasePaymentGateway
      * BasePaymentGateway constructor.
      * @param Customer $customer
      * @param $customer_gateway
-     * @param $company_gateway
+     * @param null $company_gateway
      */
-    public function __construct(Customer $customer, $customer_gateway, $company_gateway)
+    public function __construct(Customer $customer, $customer_gateway, $company_gateway = null)
     {
         $this->customer = $customer;
         $this->customer_gateway = $customer_gateway;

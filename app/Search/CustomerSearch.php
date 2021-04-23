@@ -196,7 +196,7 @@ class CustomerSearch extends BaseSearch
                         ->groupBy($request->input('group_by'));
         } else {
             $this->query->select(
-                'customers.name AS name',
+                DB::raw('IFNULL(customers.name, "No Name") AS name'),
                 'customers.website AS website',
                 'currencies.name AS currency',
                 'languages.name AS language',
@@ -226,6 +226,9 @@ class CustomerSearch extends BaseSearch
                 DB::raw('CONCAT(users.first_name," ", users.last_name) as user'),
                 DB::raw('CONCAT(customer_contacts.first_name," ", customer_contacts.last_name) as contact'),
                 'customer_contacts.email AS contact_email',
+                'customer_contacts.email AS contact_email',
+                'customer_contacts.first_name AS contact_first_name',
+                'customer_contacts.last_name AS contact_last_name',
                 'customer_contacts.phone AS contact_phone',
                 DB::raw('(balance + amount_paid) AS total'),
                 DB::raw('ROUND(balance, 2) AS balance'),

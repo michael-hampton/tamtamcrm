@@ -221,6 +221,12 @@ class PurchaseOrder extends Model
         return true;
     }
 
+    public function setCurrency()
+    {
+        $this->currency_id = !empty($this->customer->currency_id) ? (int)$this->customer->currency_id : (int)$this->account->settings->currency_id;
+        return true;
+    }
+
     public function getNumber()
     {
         return $this->number;

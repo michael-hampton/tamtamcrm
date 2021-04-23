@@ -98,6 +98,7 @@ export default class Report extends React.Component {
                     label: 'date'
                 }, { field: 'status_id', label: 'status' }],
                 line_item: [{ field: 'product', label: 'product' }, { field: 'invoice', label: 'invoice' }],
+                quote_line_item: [{ field: 'product', label: 'product' }, { field: 'quote', label: 'quote' }],
                 tax_rate: [{ field: 'number', label: 'number' }, { field: 'tax_name', label: 'name' }],
                 document: [{ field: 'files.type', label: 'file_type' }, {
                     field: 'files.fileable_type',
@@ -118,6 +119,7 @@ export default class Report extends React.Component {
                 expense: ['amount'],
                 payment: ['amount'],
                 line_item: ['total', 'price'],
+                quote_line_item: ['total', 'price'],
                 tax_rate: ['tax_amount', 'tax_paid'],
                 document: []
             },
@@ -133,7 +135,7 @@ export default class Report extends React.Component {
                 payment: ['number', 'amount', 'reference_number', 'date', 'customer', 'status'],
                 task: ['started_at', 'stopped_at', 'duration', 'name', 'description', 'project', 'status', 'customer'],
                 deal: ['project', 'valued_at', 'due_date', 'status', 'source_type', 'assigned_to', 'customer'],
-                customer: ['name', 'contact_email', 'number', 'vat_number', 'currency', 'balance', 'amount_paid', 'country']
+                customer: ['name', 'contact_email', 'contact_first_name', 'contact_last_name', 'number', 'vat_number', 'currency', 'balance', 'amount_paid', 'country']
             },
             all_columns: [],
             apiUrl: '/api/reports',
@@ -343,7 +345,7 @@ export default class Report extends React.Component {
     }
 
     reload (page = 1, buildColumns = false) {
-        this.loadPage(page)
+        this.loadPage(page, buildColumns)
     }
 
     loadPage (page, buildColumns = false) {
@@ -386,6 +388,8 @@ export default class Report extends React.Component {
                             }).map((column, index) => {
                                 map.set(column, true)
                             })
+
+                            alert('map')
                             console.log('new map', map)
                         }
                     }
@@ -533,6 +537,8 @@ export default class Report extends React.Component {
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
         const { rows, currency_report, message, success_message, error_message, error, show_success, totalRows, currentPage, totalPages, orderByField, orderByDirection, disallowOrderingBy, footer, perPage } = this.state
 
+        console.log('checked items', this.state.checkedItems)
+
         const all_columns = this.state.all_columns.length ? this.state.all_columns.map((column, index) => {
             const formatted_column = column.replace(/ /g, '_').toLowerCase()
             const value = translations[formatted_column] ? translations[formatted_column] : column
@@ -618,6 +624,7 @@ export default class Report extends React.Component {
             <option value="purchase_order">{translations.purchase_order}</option>
             <option value="payment">{translations.payment}</option>
             <option value="line_item">{translations.line_items}</option>
+            <option value="quote_line_item">{translations.quote_line_items}</option>
             <option value="tax_rate">{translations.tax_rate}</option>
             <option value="income">{translations.income}</option>
             <option value="document">{translations.document}</option>

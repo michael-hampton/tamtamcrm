@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Components\Reports\IncomeReport;
 use App\Components\Reports\LineItemReport;
+use App\Components\Reports\QuoteLineItemReport;
 use App\Components\Reports\TaxReport;
 use App\Models\Credit;
 use App\Models\Customer;
@@ -212,6 +213,11 @@ class ReportController extends Controller
                 break;
             case 'line_item':
                 $line_item_report = (new LineItemReport())->build($request, auth()->user()->account_user()->account);
+                $report = $line_item_report['report'];
+                $currency_report = $line_item_report['currency_report'];
+                break;
+            case 'quote_line_item':
+                $line_item_report = (new QuoteLineItemReport())->build($request, auth()->user()->account_user()->account);
                 $report = $line_item_report['report'];
                 $currency_report = $line_item_report['currency_report'];
                 break;

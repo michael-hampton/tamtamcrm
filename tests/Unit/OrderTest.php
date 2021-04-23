@@ -6,7 +6,7 @@ use App\Actions\Email\DispatchEmail;
 use App\Actions\Order\CancelOrder;
 use App\Actions\Order\DispatchOrder;
 use App\Actions\Order\SendOrder;
-use App\Components\Payment\Gateways\Stripe;
+use App\Components\Payment\Gateways\Stripe\Stripe;
 use App\Factory\CreditFactory;
 use App\Factory\OrderFactory;
 use App\Jobs\Order\CreateOrder;

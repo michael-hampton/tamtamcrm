@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Components\Payment\Gateways\Stripe;
+use App\Components\Payment\Gateways\Stripe\StripeConnect;
 use App\Factory\CompanyGatewayFactory;
 use App\Models\CompanyGateway;
 use App\Models\Customer;
@@ -132,17 +132,29 @@ class CompanyGatewayController extends Controller
 
     public function createStripeConnectAccount(Request $request)
     {
-        $customer = Customer::where('id', '=', 5)->first();
-        $company_gateway = CompanyGateway::where('id', '=', 5)->first();
-        $customer_gateway = CustomerGateway::where('id', '=', 1)->first();
+        $company_gateway = CompanyGateway::byGatewayKey($request->input('token'), auth()->user()->account_user()->account)->first();
 
-        $objStripe = new Stripe($customer, $customer_gateway, $company_gateway);
+        if (!empty($company_gateway)) {
+            return response()->json(['message' => 'Already has account']);
+        }
 
-        $token = $objStripe->createAccount(['email' => 'test7@test.com', 'country' => 'GB']);
+        $objStripe = new StripeConnect();
+
+        $token = $objStripe->createAccount([
+            'email'   => auth()->user()->email,
+            'country' => auth()->user()->account_user()->account->country()->iso
+        ]);
 
         $response = $objStripe->connectAccount($token);
 
-        return response()->json(['url' => $response]);
+        $settings = ['account_number' => $token];
+
+        $company_gateway = $this->company_gateway_repo->create(
+            ['gateway_key' => $request->input('token'), 'settings' => $settings],
+            CompanyGatewayFactory::create(auth()->user()->account_user()->account_id, auth()->user()->id)
+        );
+
+        return response()->json(['gateway' => $this->transformCompanyGateway($company_gateway), 'url' => $response]);
     }
 
     public function completeStripeConnect(Request $request)

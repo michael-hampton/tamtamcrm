@@ -53,4 +53,9 @@ class CompanyGateway extends Model
     {
         return ErrorLog::where('entity', '=', $this->gateway_key)->get();
     }
+
+    public function scopeByGatewayKey($query, string $gateway_key, Account $account)
+    {
+        return $query->where('gateway_key', '=', $gateway_key)->where('account_id', '=', $account->id);
+    }
 }

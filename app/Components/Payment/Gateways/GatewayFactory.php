@@ -4,6 +4,7 @@
 namespace App\Components\Payment\Gateways;
 
 
+use App\Components\Payment\Gateways\Stripe\Stripe;
 use App\Models\CompanyGateway;
 use App\Models\Customer;
 use App\Models\CustomerGateway;
