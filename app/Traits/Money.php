@@ -73,7 +73,11 @@ trait Money
     {
         if (!$use_live_currencies) {
             $entity->setExchangeRate();
-            $entity->setCurrency();
+
+            if (empty($entity->currency_id)) {
+                $entity->setCurrency();
+            }
+
             return $entity;
         }
 
