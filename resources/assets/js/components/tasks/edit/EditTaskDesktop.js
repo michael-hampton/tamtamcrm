@@ -50,6 +50,10 @@ export default class EditTaskDesktop extends Component {
         this.taskModel.start_date = this.initialState.start_date
         this.taskModel.due_date = this.initialState.due_date
 
+        if (this.props.task_status) {
+            this.initialState.task_status_id = this.props.task_status
+        }
+
         this.state = this.initialState
 
         this.handleSave = this.handleSave.bind(this)
@@ -262,7 +266,6 @@ export default class EditTaskDesktop extends Component {
     }
 
     render () {
-        console.log('timers', this.state.timers)
         const email_editor = this.state.id
             ? <Emails width={400} model={this.taskModel} emails={this.state.emails} template="email_template_task"
                 show_editor={true}
@@ -482,12 +485,17 @@ export default class EditTaskDesktop extends Component {
 
         </React.Fragment>
 
-        let button = this.props.add === true ? <AddButtons toggle={this.toggle}/>
-            : <DropdownItem onClick={this.toggle}><i className={`fa ${icons.edit}`}/>{translations.edit_task}
-            </DropdownItem>
+        let button = null
 
-        if (this.props.show_as_link === true) {
-            button = <a href="#" onClick={this.toggle}>{translations.edit_task}</a>
+        if (this.props.add === true) {
+            button = this.props.large_button
+                ? <Button onClick={this.toggle} size="lg" color="primary" block>{translations.add_task}</Button>
+                : <AddButtons toggle={this.toggle}/>
+        } else {
+            button = this.props.show_as_link === true
+                ? <Button className="text-white" color="link" onClick={this.toggle}>{translations.edit_task}</Button>
+                : <DropdownItem onClick={this.toggle}><i className={`fa ${icons.edit}`}/>{translations.edit_task}
+                </DropdownItem>
         }
 
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'

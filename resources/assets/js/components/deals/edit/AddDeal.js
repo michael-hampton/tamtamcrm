@@ -18,6 +18,10 @@ export default class AddDeal extends React.Component {
         this.dealModel = new DealModel(null, this.props.customers)
         this.initialState = this.dealModel.fields
 
+        if (this.props.task_status) {
+            this.initialState.task_status_id = this.props.task_status
+        }
+
         this.state = this.initialState
         this.toggle = this.toggle.bind(this)
         this.handleInput = this.handleInput.bind(this)
@@ -129,11 +133,14 @@ export default class AddDeal extends React.Component {
         const form = this.buildForm()
         const saveButton = <Button color="primary" onClick={this.handleClick.bind(this)}> Add</Button>
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
+        const button = this.props.large_button
+            ? <Button onClick={this.toggle} size="lg" color="primary" block>{translations.add_deal}</Button>
+            : <AddButtons toggle={this.toggle}/>
 
         if (this.props.modal) {
             return (
                 <div>
-                    <AddButtons toggle={this.toggle}/>
+                    {button}
                     <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
                         <DefaultModalHeader toggle={this.toggle} title={translations.add_deal}/>
 

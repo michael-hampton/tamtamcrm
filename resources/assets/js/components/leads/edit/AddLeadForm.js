@@ -1,5 +1,5 @@
 import React from 'react'
-import { Modal, ModalBody, Nav, NavItem, NavLink, TabContent, TabPane } from 'reactstrap'
+import { Button, DropdownItem, Modal, ModalBody, Nav, NavItem, NavLink, TabContent, TabPane } from 'reactstrap'
 import axios from 'axios'
 import AddButtons from '../../common/AddButtons'
 import LeadModel from '../../models/LeadModel'
@@ -11,6 +11,7 @@ import { translations } from '../../utils/_translations'
 import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
 import CustomFieldsForm from '../../common/CustomFieldsForm'
+import { icons } from '../../utils/_icons'
 
 class AddLeadForm extends React.Component {
     constructor (props) {
@@ -18,6 +19,11 @@ class AddLeadForm extends React.Component {
 
         this.leadModel = new LeadModel(null)
         this.initialState = this.leadModel.fields
+
+        if (this.props.task_status) {
+            this.initialState.task_status_id = this.props.task_status
+        }
+
         this.state = this.initialState
 
         this.toggle = this.toggle.bind(this)
@@ -139,9 +145,13 @@ class AddLeadForm extends React.Component {
             public_notes={this.state.public_notes}/>
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
 
+        const button = this.props.large_button
+            ? <Button onClick={this.toggle} size="lg" color="primary" block>{translations.add_lead}</Button>
+            : <AddButtons toggle={this.toggle}/>
+
         return (
             <React.Fragment>
-                <AddButtons toggle={this.toggle}/>
+                {button}
                 <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
                     <DefaultModalHeader toggle={this.toggle} title={translations.add_lead}/>
 

@@ -129,17 +129,19 @@ export default class TaskModel extends BaseModel {
         let seconds = 0
         this.fields.timers.map(timer => {
             if (this.isRunning || task_automation_enabled) {
-                seconds += this.calculateDuration(timer.start_time, timer.end_time, true)
+                seconds += this.calculateDuration(timer.date + ' ' + timer.start_time, timer.end_time, true)
             }
         })
 
         return seconds
     }
 
-    calculateDurationFromDatabase (returnAsSeconds = false) {
-        const currentStartTime = this.fields.timers[0].date + ' ' + this.fields.timers[0].start_time
+    calculateDuration (currentStartTime, currentEndTime, returnAsSeconds = false) {
         const startTime = moment(currentStartTime, 'YYYY-MM-DD hh:mm:ss a')
-        const endTime = moment(new Date(), 'YYYY-MM-DD hh:mm:ss a')
+        let endTime = ''
+        const end = currentEndTime || new Date()
+        endTime = moment(end, 'YYYY-MM-DD hh:mm:ss a')
+
         let hours = (endTime.diff(startTime, 'hours'))
         const totalMinutes = endTime.diff(startTime, 'minutes')
         const totalSeconds = endTime.diff(startTime, 'seconds')
@@ -154,31 +156,6 @@ export default class TaskModel extends BaseModel {
         hours = (hours < 10 ? '0' : '') + hours
 
         return `${hours}:${clearMinutes}:${totalSeconds}`
-    }
-
-    calculateDuration (currentStartTime, currentEndTime, returnAsSeconds = false) {
-        const startTime = moment(currentStartTime, 'YYYY-MM-DD hh:mm:ss a')
-        let endTime = ''
-
-        if (currentEndTime.length) {
-            endTime = moment(currentEndTime, 'YYYY-MM-DD hh:mm:ss a')
-            let hours = (endTime.diff(startTime, 'hours'))
-            const totalMinutes = endTime.diff(startTime, 'minutes')
-            const totalSeconds = endTime.diff(startTime, 'seconds')
-            const minutes = totalMinutes % 60
-            const clearMinutes = ('0' + minutes).slice(-2)
-
-            if (returnAsSeconds === true) {
-                const duration = parseFloat(hours + '.' + minutes)
-                return duration * 3600
-            }
-
-            hours = (hours < 10 ? '0' : '') + hours
-
-            return `${hours}:${clearMinutes}:${totalSeconds}`
-        }
-
-        return ''
     }
 
     buildDropdownMenu () {

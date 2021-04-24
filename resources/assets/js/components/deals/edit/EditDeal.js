@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import 'react-dates/initialize' // necessary for latest version
 import 'react-dates/lib/css/_datepicker.css'
 import {
+    Button,
     Card,
     CardBody,
     CardHeader,
@@ -202,7 +203,7 @@ export default class EditDeal extends Component {
             : null
 
         if (this.props.show_as_link === true) {
-            button = <a href="#" onClick={this.toggle}>{translations.edit_deal}</a>
+            button = <Button className="text-white" color="link" onClick={this.toggle}>{translations.edit_task}</Button>
         }
 
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'

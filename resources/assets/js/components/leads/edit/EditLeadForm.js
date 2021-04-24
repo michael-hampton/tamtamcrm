@@ -239,7 +239,7 @@ class EditLeadForm extends React.Component {
             : <Button className="mr-2 ml-2" color="primary" onClick={this.toggle}>Edit Lead</Button>
 
         if (this.props.show_as_link === true) {
-            button = <a href="#" onClick={this.toggle}>{translations.edit_lead}</a>
+            button = <Button className="text-white" color="link" onClick={this.toggle}>{translations.edit_task}</Button>
         }
 
         const notes = <Notes handleInput={this.handleInputChanges} private_notes={this.state.private_notes}

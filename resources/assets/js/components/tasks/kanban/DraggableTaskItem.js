@@ -12,6 +12,7 @@ import { icons } from '../../utils/_icons'
 import EditTaskDesktop from '../edit/EditTaskDesktop'
 import EditLead from '../../leads/edit/EditLeadForm'
 import EditDeal from '../../deals/edit/EditDeal'
+import Columns from './Columns'
 
 export default class DraggableTaskItem extends Component {
     constructor (props) {
@@ -23,8 +24,6 @@ export default class DraggableTaskItem extends Component {
             name: props.item.name,
             description: props.item.description
         }
-
-        console.log('task', props.item)
 
         this.taskModel = new TaskModel(props.item)
 
@@ -152,10 +151,9 @@ export default class DraggableTaskItem extends Component {
         const customer = this.props.customers.filter(customer => customer.id === this.state.entity.customer_id)
         const project = this.state.entity.project_id && this.state.entity.project_id.toString().length ? this.state.entity.project : null
         const timer_display = this.state.entity.timers.length && this.taskModel.isRunning
-            ? <span>
-                {translations.duration + ' '}
+            ? <span className="d-flex justify-content-center">
                 <LiveText
-                    duration={formatSecondsToTime(this.taskModel.calculateDurationFromDatabase(true))}
+                    duration={formatSecondsToTime(this.taskModel.getTotalDuration(true))}
                     task_automation_enabled={this.taskModel.autoStartTask}/>
             </span> : <span>{formatDuration(this.taskModel.duration)}</span>
 
@@ -163,6 +161,9 @@ export default class DraggableTaskItem extends Component {
 
         const text_color = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true')
             ? 'text-white' : 'text-dark'
+
+        const background_color = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true')
+            ? '#000' : '#FFF'
 
         return (
             <Draggable
@@ -172,7 +173,7 @@ export default class DraggableTaskItem extends Component {
             >
                 {(provided, snapshot) => {
                     return (
-                        <div className="shadow-sm"
+                        <div className="shadow-sm border-bottom border-light"
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
@@ -180,25 +181,26 @@ export default class DraggableTaskItem extends Component {
                                 userSelect: 'none',
                                 backgroundColor: snapshot.isDragging
                                     ? '#263B4A'
-                                    : '',
+                                    : background_color,
                                 ...provided.draggableProps.style
                             }}
                         >
                             <div className="card-body p-2">
-                                <div className="card-title" onClick={(e) => {
-                                    this.setState({ show_edit: !this.state.show_edit })
+                                <div className={`${this.state.show_edit === true ? 'd-none' : 'd-block'} card-title lead`} onClick={(e) => {
+                                    this.setState({ show_edit: true })
                                 }}>
                                     {this.state.entity.name}
                                 </div>
 
-                                <p>
-                                    <small className={text_color}>
+                                <p className={this.state.show_edit === true ? 'd-none' : 'd-block'}>
+                                    <small className={`${this.state.show_edit === true ? 'd-none' : 'd-block'} ${text_color}`}>
                                         {customer[0].name} {project !== null &&
                                     <React.Fragment>
                                         <UncontrolledTooltip placement="right" target="projectTooltip">
                                             {project.name}
                                         </UncontrolledTooltip>
-                                        <i id="projectTooltip" style={{ fontSize: '18px' }} className={`fa ${icons.project} mr-3`}/>
+                                        <i id="projectTooltip" style={{ fontSize: '18px' }}
+                                            className={`fa ${icons.project} mr-3`}/>
                                     </React.Fragment>
 
                                         }
@@ -206,7 +208,7 @@ export default class DraggableTaskItem extends Component {
                                 </p>
                             </div>
 
-                            <div className={this.state.show_edit === true ? 'd-block' : 'd-none'}>
+                            <div className={this.state.show_edit === true ? 'd-block p-2' : 'd-none p-2'}>
                                 <FormGroup className="mb-2">
                                     <Label>{translations.name}</Label>
                                     <Input type="text" name="name" value={this.state.name} onChange={(e) => {
@@ -222,16 +224,15 @@ export default class DraggableTaskItem extends Component {
                                         }}/>
                                 </FormGroup>
 
-                                <a onClick={(e) => {
-                                    this.setState({ show_edit: !this.state.show_edit })
-                                }}>{translations.cancel}</a>
+                                <Button color="link" onClick={(e) => {
+                                    this.setState({ show_edit: false })
+                                }}>{translations.cancel}</Button>
 
-                                <Button color="primary" onClick={this.saveTask} className="ml-2">{translations.save}</Button>
+                                <Button color="primary" onClick={this.saveTask}
+                                    className="ml-2">{translations.save}</Button>
                             </div>
 
-                            <div className="d-flex justify-content-between">
-                                {timer_display}
-
+                            <div className="d-flex justify-content-between p-2">
                                 <Button className={text_color} color="link" onClick={(e) => {
                                     this.props.toggleViewedEntity(null, null, false, this.state.entity)
                                 }}>{translations.view}</Button>
@@ -276,14 +277,17 @@ export default class DraggableTaskItem extends Component {
                                     users={[]}
                                     deal={this.state.entity}
                                     deals={this.props.items}
-                                    action={this.updateTask}
+                                    action={this.props.updateTasks}
                                 />
                                 }
 
-                                <Button className={text_color} color="link" onClick={(e) => this.triggerAction((this.taskModel.isRunning) ? ('stop_timer') : ((!this.state.entity || !this.state.entity.length) ? ('start_timer') : ('resume_timer')))}>
-                                    {(this.taskModel.isRunning) ? (translations.stop) : ((!this.state.entity.timers || !this.state.entity.timers.length) ? (translations.start) : (translations.resume)) }
+                                <Button className={text_color} color="link"
+                                    onClick={(e) => this.triggerAction((this.taskModel.isRunning) ? ('stop_timer') : ((!this.state.entity || !this.state.entity.length) ? ('start_timer') : ('resume_timer')))}>
+                                    {(this.taskModel.isRunning) ? (translations.stop) : ((!this.state.entity.timers || !this.state.entity.timers.length) ? (translations.start) : (translations.resume))}
                                 </Button>
                             </div>
+
+                            {timer_display}
                         </div>
                     )
                 }}

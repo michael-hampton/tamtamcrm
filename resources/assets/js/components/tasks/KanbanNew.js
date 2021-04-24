@@ -60,6 +60,7 @@ export default class KanbanNew extends Component {
         this.addUserToState = this.addUserToState.bind(this)
         this.handleInput = this.handleInput.bind(this)
         this.updateStatuses = this.updateStatuses.bind(this)
+        this.updateTasks = this.updateTasks.bind(this)
     }
 
     componentDidMount () {
@@ -76,6 +77,10 @@ export default class KanbanNew extends Component {
         }, () => {
             this.load()
         })
+    }
+
+    updateTasks (tasks) {
+        this.setState({ entities: tasks })
     }
 
     addUserToState (statuses) {
@@ -516,7 +521,8 @@ export default class KanbanNew extends Component {
                                     return <div {...provided.droppableProps}
                                         ref={provided.innerRef} className="row flex-row flex-sm-nowrap py-3">
                                         {columns.map((column, index) => {
-                                            return <Columns projects={this.state.projects}
+                                            return <Columns updateTasks={this.updateTasks}
+                                                projects={this.state.projects}
                                                 customers={this.state.customers} columnId={column.id}
                                                 column={column} index={index}
                                                 colorArray={this.colorArray} type={this.state.type}
