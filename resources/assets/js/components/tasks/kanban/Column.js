@@ -23,7 +23,7 @@ export default class Column extends Component {
                             return <DraggableTaskItem projects={this.props.projects} customers={this.props.customers}
                                 provided={provided}
                                 snapshot={snapshot}
-                                item={item} index={index}
+                                item={item} items={this.props.column.items} index={index}
                                 toggleViewedEntity={this.props.toggleViewedEntity}
                                 type={this.props.type}
                             />

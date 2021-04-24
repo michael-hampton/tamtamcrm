@@ -9,6 +9,9 @@ import LeadModel from '../../models/LeadModel'
 import LiveText from '../../common/LiveText'
 import formatDuration, { formatSecondsToTime } from '../../utils/_formatting'
 import { icons } from '../../utils/_icons'
+import EditTaskDesktop from '../edit/EditTaskDesktop'
+import EditLead from '../../leads/edit/EditLeadForm'
+import EditDeal from '../../deals/edit/EditDeal'
 
 export default class DraggableTaskItem extends Component {
     constructor (props) {
@@ -30,6 +33,7 @@ export default class DraggableTaskItem extends Component {
         this.stopTimer = this.stopTimer.bind(this)
         this.triggerAction = this.triggerAction.bind(this)
         this.refresh = this.refresh.bind(this)
+        this.updateTask = this.updateTask.bind(this)
     }
 
     componentDidMount () {
@@ -138,6 +142,12 @@ export default class DraggableTaskItem extends Component {
         })
     }
 
+    updateTask (tasks) {
+        const index = tasks.findIndex(task => parseInt(task.id) === parseInt(this.state.entity.id))
+        const task = tasks[index]
+        this.setState({ entity: task })
+    }
+
     render () {
         const customer = this.props.customers.filter(customer => customer.id === this.state.entity.customer_id)
         const project = this.state.entity.project_id && this.state.entity.project_id.toString().length ? this.state.entity.project : null
@@ -153,8 +163,8 @@ export default class DraggableTaskItem extends Component {
 
         return (
             <Draggable
-                key={item.id}
-                draggableId={item.id}
+                key={this.state.entity.id}
+                draggableId={this.state.entity.id}
                 index={index}
             >
                 {(provided, snapshot) => {
@@ -175,25 +185,26 @@ export default class DraggableTaskItem extends Component {
                                 ...provided.draggableProps.style
                             }}
                         >
-                            <div className="d-flex justify-content-between">
-                                <a style={{ padding: '12px' }}
-                                    onClick={(e) => {
-                                        this.props.toggleViewedEntity(null, null, false, item)
-                                    }}>
-                                    {project !== null &&
-                                        <React.Fragment>
-                                            <UncontrolledTooltip placement="right" target="projectTooltip">
-                                                {project.name}
-                                            </UncontrolledTooltip>
-                                            <i id="projectTooltip" style={{ fontSize: '18px' }} className={`fa ${icons.project} mr-3`}/>
-                                        </React.Fragment>
-
-                                    }
-                                    {item.name} {customer[0].name}</a>
-
+                            <div>
                                 <a onClick={(e) => {
                                     this.setState({ show_edit: !this.state.show_edit })
-                                }}>{this.state.show_edit === true ? translations.hide : translations.edit}</a>
+                                }}>
+                                    {this.state.entity.name}
+                                </a>
+
+                                <p>
+                                    <small className="text-white">
+                                        {customer[0].name} {project !== null &&
+                                    <React.Fragment>
+                                        <UncontrolledTooltip placement="right" target="projectTooltip">
+                                            {project.name}
+                                        </UncontrolledTooltip>
+                                        <i id="projectTooltip" style={{ fontSize: '18px' }} className={`fa ${icons.project} mr-3`}/>
+                                    </React.Fragment>
+
+                                        }
+                                    </small>
+                                </p>
                             </div>
 
                             <div className={this.state.show_edit === true ? 'd-block' : 'd-none'}>
@@ -212,13 +223,60 @@ export default class DraggableTaskItem extends Component {
                                         }}/>
                                 </FormGroup>
 
-                                <Button color="primary" onClick={this.saveTask}>{translations.save}</Button>
+                                <a onClick={(e) => {
+                                    this.setState({ show_edit: !this.state.show_edit })
+                                }}>{translations.cancel}</a>
+
+                                <Button color="primary" onClick={this.saveTask} className="ml-2">{translations.save}</Button>
                             </div>
 
                             <div className="d-flex justify-content-between">
                                 {timer_display}
 
-                                <Button onClick={(e) => this.triggerAction((this.taskModel.isRunning) ? ('stop_timer') : ((!this.state.entity || !this.state.entity.length) ? ('start_timer') : ('resume_timer')))}>
+                                <Button className="text-white" color="link" onClick={(e) => {
+                                    this.props.toggleViewedEntity(null, null, false, this.state.entity)
+                                }}>{translations.view}</Button>
+
+                                {this.props.type === 'task' &&
+                                <EditTaskDesktop
+                                    show_as_link={true}
+                                    add={false}
+                                    modal={true}
+                                    listView={true}
+                                    custom_fields={[]}
+                                    users={[]}
+                                    task={this.state.entity}
+                                    tasks={this.props.items}
+                                    action={this.updateTask}
+                                />
+                                }
+
+                                {this.props.type === 'lead' &&
+                                <EditLead
+                                    show_as_link={true}
+                                    listView={true}
+                                    custom_fields={[]}
+                                    users={[]}
+                                    lead={this.state.entity}
+                                    leads={this.props.items}
+                                    action={this.updateTask}
+                                />
+                                }
+
+                                {this.props.type === 'deal' &&
+                                <EditDeal
+                                    show_as_link={true}
+                                    modal={true}
+                                    listView={true}
+                                    custom_fields={[]}
+                                    users={[]}
+                                    deal={this.state.entity}
+                                    deals={this.props.items}
+                                    action={this.updateTask}
+                                />
+                                }
+
+                                <Button className="text-white" color="link" onClick={(e) => this.triggerAction((this.taskModel.isRunning) ? ('stop_timer') : ((!this.state.entity || !this.state.entity.length) ? ('start_timer') : ('resume_timer')))}>
                                     {(this.taskModel.isRunning) ? (translations.stop) : ((!this.state.entity.timers || !this.state.entity.timers.length) ? (translations.start) : (translations.resume)) }
                                 </Button>
                             </div>

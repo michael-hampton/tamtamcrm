@@ -197,9 +197,14 @@ export default class EditDeal extends Component {
                 customers={this.props.customers} entity_object={this.state} entity="deal"
                 entity_id={this.state.id}/> : null
 
-        const button = this.props.listView && this.props.listView === true
-            ? <DropdownItem onClick={this.toggle}><i className={`fa ${icons.edit}`}/>Edit</DropdownItem>
+        let button = this.props.listView && this.props.listView === true
+            ? <DropdownItem onClick={this.toggle}><i className={`fa ${icons.edit}`}/>{translations.edit_deal}</DropdownItem>
             : null
+
+        if (this.props.show_as_link === true) {
+            button = <a href="#" onClick={this.toggle}>{translations.edit_deal}</a>
+        }
+
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
 
         return <React.Fragment>

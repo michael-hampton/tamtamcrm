@@ -482,9 +482,13 @@ export default class EditTaskDesktop extends Component {
 
         </React.Fragment>
 
-        const button = this.props.add === true ? <AddButtons toggle={this.toggle}/>
+        let button = this.props.add === true ? <AddButtons toggle={this.toggle}/>
             : <DropdownItem onClick={this.toggle}><i className={`fa ${icons.edit}`}/>{translations.edit_task}
             </DropdownItem>
+
+        if (this.props.show_as_link === true) {
+            button = <a href="#" onClick={this.toggle}>{translations.edit_task}</a>
+        }
 
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
 

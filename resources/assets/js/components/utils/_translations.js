@@ -644,6 +644,7 @@ _localizedValues.en = {
     status_updated: 'Status Updated',
     status_updated_to: 'The {entity} was {status}',
     archived: 'Archived',
+    view: 'View',
     viewed: 'Viewed',
     invitations: 'Invitations',
     has_been_created: 'has been created',

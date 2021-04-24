@@ -233,10 +233,14 @@ class EditLeadForm extends React.Component {
             custom_value4={this.state.custom_value4}
             custom_fields={this.props.custom_fields}/>
 
-        const button = this.props.listView && this.props.listView === true
+        let button = this.props.listView && this.props.listView === true
             ? <DropdownItem onClick={this.toggle}><i className={`fa ${icons.edit}`}/>{translations.edit_lead}
             </DropdownItem>
             : <Button className="mr-2 ml-2" color="primary" onClick={this.toggle}>Edit Lead</Button>
+
+        if (this.props.show_as_link === true) {
+            button = <a href="#" onClick={this.toggle}>{translations.edit_lead}</a>
+        }
 
         const notes = <Notes handleInput={this.handleInputChanges} private_notes={this.state.private_notes}
             public_notes={this.state.public_notes}/>
