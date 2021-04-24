@@ -45,46 +45,39 @@ export default class StatusItem extends Component {
             >
                 {(provided, snapshot) => {
                     return (
-                        <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            style={{
+                        <React.Fragment>
+                            <div className="p-2" style={{
                                 userSelect: 'none',
-                                width: '250px',
-                                padding: 16,
-                                margin: '0 0 8px 0',
-                                minHeight: '50px',
                                 backgroundColor: snapshot.isDragging
                                     ? '#263B4A'
-                                    : this.props.item.color.length ? this.props.item.color : '#456C86',
+                                    : '',
                                 color: 'white',
                                 ...provided.draggableProps.style
-                            }}
-                        >
-                            <div className="d-flex justify-content-between">
-                                <a style={{ padding: '12px' }}
-                                    onClick={(e) => {
-                                        this.props.toggleViewedEntity(null, null, false, item)
-                                    }}>{item.name}</a>
-
-                                <a onClick={(e) => {
+                            }} ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}>
+                                <h6 onClick={(e) => {
                                     this.setState({ show_edit: !this.state.show_edit })
-                                }}>{this.state.show_edit === true ? translations.hide : translations.edit}</a>
+                                }} className="card-title text-uppercase text-truncate py-2">{item.name}</h6>
+
+                                <div className={this.state.show_edit === true ? 'd-block card' : 'd-none card'}>
+                                    <div className="card-body">
+                                        <FormGroup className="mb-2">
+                                            <Label>{translations.name}</Label>
+                                            <Input type="text" name="name" value={this.state.name} onChange={(e) => {
+                                                this.setState({ name: e.target.value })
+                                            }}/>
+                                        </FormGroup>
+
+                                        <Button color="link" onClick={(e) => {
+                                            this.setState({ show_edit: false })
+                                        }}>{translations.cancel}</Button>
+                                        <Button color="primary" className="ml-2" onClick={this.saveStatus}>{translations.save}</Button>
+                                    </div>
+                                </div>
                             </div>
+                        </React.Fragment>
 
-                            <div className={this.state.show_edit === true ? 'd-block' : 'd-none'}>
-                                <FormGroup className="mb-2">
-                                    <Label>{translations.name}</Label>
-                                    <Input type="text" name="name" value={this.state.name} onChange={(e) => {
-                                        this.setState({ name: e.target.value })
-                                    }}/>
-                                </FormGroup>
-
-                                <Button color="primary" onClick={this.saveStatus}>{translations.save}</Button>
-                            </div>
-
-                        </div>
                     )
                 }}
             </Draggable>

@@ -159,41 +159,40 @@ export default class DraggableTaskItem extends Component {
                     task_automation_enabled={this.taskModel.autoStartTask}/>
             </span> : <span>{formatDuration(this.taskModel.duration)}</span>
 
-        const { item, index } = this.props
+        const { index } = this.props
+
+        const text_color = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true')
+            ? 'text-white' : 'text-dark'
 
         return (
             <Draggable
                 key={this.state.entity.id}
-                draggableId={this.state.entity.id}
+                draggableId={this.state.entity.id.toString()}
                 index={index}
             >
                 {(provided, snapshot) => {
                     return (
-                        <div
+                        <div className="shadow-sm"
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
                             style={{
                                 userSelect: 'none',
-                                padding: 16,
-                                margin: '0 0 8px 0',
-                                minHeight: '50px',
                                 backgroundColor: snapshot.isDragging
                                     ? '#263B4A'
-                                    : '#456C86',
-                                color: 'white',
+                                    : '',
                                 ...provided.draggableProps.style
                             }}
                         >
-                            <div>
-                                <a onClick={(e) => {
+                            <div className="card-body p-2">
+                                <div className="card-title" onClick={(e) => {
                                     this.setState({ show_edit: !this.state.show_edit })
                                 }}>
                                     {this.state.entity.name}
-                                </a>
+                                </div>
 
                                 <p>
-                                    <small className="text-white">
+                                    <small className={text_color}>
                                         {customer[0].name} {project !== null &&
                                     <React.Fragment>
                                         <UncontrolledTooltip placement="right" target="projectTooltip">
@@ -233,12 +232,14 @@ export default class DraggableTaskItem extends Component {
                             <div className="d-flex justify-content-between">
                                 {timer_display}
 
-                                <Button className="text-white" color="link" onClick={(e) => {
+                                <Button className={text_color} color="link" onClick={(e) => {
                                     this.props.toggleViewedEntity(null, null, false, this.state.entity)
                                 }}>{translations.view}</Button>
 
                                 {this.props.type === 'task' &&
                                 <EditTaskDesktop
+                                    projects={this.props.projects}
+                                    customers={this.props.customers}
                                     show_as_link={true}
                                     add={false}
                                     modal={true}
@@ -253,6 +254,7 @@ export default class DraggableTaskItem extends Component {
 
                                 {this.props.type === 'lead' &&
                                 <EditLead
+                                    projects={this.props.projects}
                                     show_as_link={true}
                                     listView={true}
                                     custom_fields={[]}
@@ -265,6 +267,8 @@ export default class DraggableTaskItem extends Component {
 
                                 {this.props.type === 'deal' &&
                                 <EditDeal
+                                    projects={this.props.projects}
+                                    customers={this.props.customers}
                                     show_as_link={true}
                                     modal={true}
                                     listView={true}
@@ -276,7 +280,7 @@ export default class DraggableTaskItem extends Component {
                                 />
                                 }
 
-                                <Button className="text-white" color="link" onClick={(e) => this.triggerAction((this.taskModel.isRunning) ? ('stop_timer') : ((!this.state.entity || !this.state.entity.length) ? ('start_timer') : ('resume_timer')))}>
+                                <Button className={text_color} color="link" onClick={(e) => this.triggerAction((this.taskModel.isRunning) ? ('stop_timer') : ((!this.state.entity || !this.state.entity.length) ? ('start_timer') : ('resume_timer')))}>
                                     {(this.taskModel.isRunning) ? (translations.stop) : ((!this.state.entity.timers || !this.state.entity.timers.length) ? (translations.start) : (translations.resume)) }
                                 </Button>
                             </div>

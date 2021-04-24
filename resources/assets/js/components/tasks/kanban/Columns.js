@@ -6,19 +6,9 @@ export default class Columns extends Component {
     render () {
         console.log('tasks', this.props.column.items)
         return (
-            <div
-                style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center'
-                }}
-                key={this.props.column.id}
-            >
+            <div className="col-sm-6 col-md-4 col-xl-3" key={this.props.column.id}>
 
-                <div style={{
-                    margin: 8,
-                    borderLeft: '4px solid ' + this.props.column.color.length ? this.props.column.color : this.props.colorArray[this.props.index]
-                }}>
+                <div className="card bg-light">
                     <Column projects={this.props.projects} customers={this.props.customers} type={this.props.type}
                         toggleViewedEntity={this.props.toggleViewedEntity}
                         columnId={this.props.columnId} column={this.props.column}/>

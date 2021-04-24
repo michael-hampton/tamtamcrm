@@ -504,31 +504,29 @@ export default class KanbanNew extends Component {
 
                         <Header type={this.state.type} updateStatuses={this.updateStatuses} statuses={columns}/>
 
-                        <div style={{ display: 'flex', height: '100%' }}>
-                            <DragDropContext
-                                onDragEnd={result => this.onDragEnd(result, columns)}
+                        <DragDropContext
+                            onDragEnd={result => this.onDragEnd(result, columns)}
+                        >
+                            <Droppable
+                                droppableId="all-columns"
+                                direction="horizontal"
+                                type="column"
                             >
-                                <Droppable
-                                    droppableId="all-columns"
-                                    direction="horizontal"
-                                    type="column"
-                                >
-                                    {provided => {
-                                        return <div {...provided.droppableProps}
-                                            ref={provided.innerRef} className="d-flex">
-                                            {columns.map((column, index) => {
-                                                return <Columns projects={this.state.projects}
-                                                    customers={this.state.customers} columnId={column.id}
-                                                    column={column} index={index}
-                                                    colorArray={this.colorArray} type={this.state.type}
-                                                    toggleViewedEntity={this.toggleViewedEntity}/>
-                                            })}
-                                            {provided.placeholder}
-                                        </div>
-                                    }}
-                                </Droppable>
-                            </DragDropContext>
-                        </div>
+                                {provided => {
+                                    return <div {...provided.droppableProps}
+                                        ref={provided.innerRef} className="row flex-row flex-sm-nowrap py-3">
+                                        {columns.map((column, index) => {
+                                            return <Columns projects={this.state.projects}
+                                                customers={this.state.customers} columnId={column.id}
+                                                column={column} index={index}
+                                                colorArray={this.colorArray} type={this.state.type}
+                                                toggleViewedEntity={this.toggleViewedEntity}/>
+                                        })}
+                                        {provided.placeholder}
+                                    </div>
+                                }}
+                            </Droppable>
+                        </DragDropContext>
                     </Col>
                 </Row>
 

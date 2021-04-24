@@ -67,7 +67,7 @@ class DeletePayment
             }
 
             $amount_due = $paymentable_credit->refunded > 0 ? $paymentable_credit->amount - $paymentable_credit->refunded : $paymentable_credit->amount;
-            $credit->increaseBalance($paymentable_credit->amount);
+            $credit->increaseBalance($amount_due);
             $credit->reduceAmountPaid($amount_due);
             $credit->setStatus($delete_status);
             $credit->save();
@@ -103,9 +103,9 @@ class DeletePayment
             }
 
             $amount_due = $paymentable_invoice->refunded > 0 ? $paymentable_invoice->amount - $paymentable_invoice->refunded : $paymentable_invoice->amount;
-            $invoice->resetBalance($paymentable_invoice->amount);
-            $invoice->reduceAmountPaid($paymentable_invoice->amount);
-            $invoice->customer->increaseBalance($paymentable_invoice->amount);
+            $invoice->resetBalance($amount_due);
+            $invoice->reduceAmountPaid($amount_due);
+            $invoice->customer->increaseBalance($amount_due);
             $invoice->customer->reduceAmountPaid($amount_due);
             $invoice->setStatus($delete_status);
             $invoice->save();

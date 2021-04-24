@@ -73,6 +73,7 @@ export default class TaskItem extends Component {
                     allTasks={entities}
                     action={this.props.addUserToState}
                 /> : <EditTaskDesktop
+                    customers={this.props.customers}
                     add={false}
                     modal={true}
                     listView={true}

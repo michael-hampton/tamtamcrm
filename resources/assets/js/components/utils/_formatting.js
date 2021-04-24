@@ -31,7 +31,16 @@ export function formatPercentage (number) {
 }
 
 export function formatSecondsToTime (seconds) {
-    return !seconds ? null : new Date(seconds * 1000).toISOString().substr(11, 8)
+    if (!seconds) {
+        return null
+    }
+
+    const d = Number(seconds)
+    const hours = Math.floor(d / 3600)
+    const minutes = Math.floor(d % 3600 / 60)
+    const formatted_seconds = Math.floor(d % 3600 % 60)
+
+    return `${zeroPad(hours, 2)}:${zeroPad(minutes, 2)}:${zeroPad(formatted_seconds, 2)}`
 }
 
 export function convertTimeToSeconds (time) {

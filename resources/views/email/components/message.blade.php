@@ -1,8 +1,5 @@
-<div class="d-flex flex-column align-items-center mt-4 mb-4">
-    <h2 id="title" class="mt-4 p-4">
-        {{ $slot }}
-    </h2>
-    @isset($content)
-        <p class="p-4">{{ $content }}</p>
-    @endisset
-</div>
+<tr>
+    <td style="background-color: <?= isset($template) && $template === 'dark' ? '#343a40' : '#ffffff' ?>; text-align: left; padding: 20px 30px 40px 30px; color: <?= isset($template) && $template === 'dark' ? '#ffffff' : '#343a40' ?>; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
+        {{ $content }}
+    </td>
+</tr>

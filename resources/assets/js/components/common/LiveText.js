@@ -6,30 +6,31 @@ export default class LiveText extends Component {
         super(props, context)
 
         this.state = {
-            duration: 0
+            duration: !this.props.duration && this.props.task_automation_enabled ? formatSecondsToTime(1) : this.props.duration,
+            interval: null
         }
 
-        this.startTimer = this.startTimer.bind(this)
+        this.interval = null
     }
 
     componentDidMount () {
-        this.startTimer()
+        this.interval = setInterval(this.timer.bind(this), 1000)
     }
 
-    startTimer () {
-        console.log('duration 5', this.props.duration)
+    componentWillUnmount () {
+        clearInterval(this.interval)
+    }
+
+    timer () {
+        const seconds = convertTimeToSeconds(this.state.duration) + 1
+
         this.setState({
-            duration: !this.props.duration && this.props.task_automation_enabled ? formatSecondsToTime(1) : this.props.duration
-        }, () => {
-            console.log('duration 3', this.state.duration)
+            duration: formatSecondsToTime(seconds)
         })
 
-        this.timer = setInterval(() => {
-            const seconds = convertTimeToSeconds(this.state.duration) + 1
-            this.setState({
-                duration: formatSecondsToTime(seconds)
-            })
-        }, 1000)
+        if (this.state.duration < 1) {
+            clearInterval(this.interval)
+        }
     }
 
     render () {
