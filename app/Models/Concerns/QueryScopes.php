@@ -40,6 +40,11 @@ trait QueryScopes
         return $query->where('category_id', $category_id);
     }
 
+    public function scopeByExpenseCategory($query, int $category_id)
+    {
+        return $query->where('expense_category_id', $category_id);
+    }
+
     public function scopeByAccount($query, Account $account, $table = '')
     {
         $column = !empty($table) ? $table . '.account_id' : 'account_id';
