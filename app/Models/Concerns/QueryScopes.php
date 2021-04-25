@@ -60,4 +60,24 @@ trait QueryScopes
     {
         return $query->where('id', $id);
     }
+
+    public function scopeUnapplied($query, $table)
+    {
+        return $this->query->whereRaw("{$table}.applied < {$table}.amount");
+    }
+
+    public function scopeActive($query, $table)
+    {
+        return $query->whereNull($table . '.deleted_at');
+    }
+
+    public function scopeArchived($query, $table)
+    {
+        return $query->whereNotNull($table . '.deleted_at')->where($table . '.hide', '=', 0)->withTrashed();
+    }
+
+    public function scopeDeleted($query, $table)
+    {
+        return $query->where($table . '.hide', '=', 1)->withTrashed();
+    }
 }
