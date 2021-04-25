@@ -25,6 +25,11 @@ trait QueryScopes
         $query->where('assigned_to', '=', $user_id);
     }
 
+    public function scopeByCompany($query, int $company_id)
+    {
+        $query->where('company_id', '=', $company_id);
+    }
+
     public function scopeByCustomer($query, int $customer_id)
     {
         return $query->where('customer_id', $customer_id);
