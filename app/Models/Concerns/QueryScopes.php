@@ -20,6 +20,11 @@ trait QueryScopes
         return $query->whereBetween($field, [$start, $end]);
     }
 
+    public function scopeByAssignee($query, int $user_id)
+    {
+        $query->where('assigned_to', '=', $user_id);
+    }
+
     public function scopeByCustomer($query, int $customer_id)
     {
         return $query->where('customer_id', $customer_id);
