@@ -10,9 +10,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 trait QueryScopes
 {
-    public function scopeByDate($query, $date_from, $date_to)
+    public function scopeByDate($query, $date_from, $date_to, $column = '', $field='')
     {
-        return $query->where('plan_id', $planId);
+        $column = $column !== '' ? $column . '.' : '';
+        $field = $field !== '' ? $column . $field : $column . 'created_at';
+
+        $start = date("Y-m-d", strtotime($date_from));
+        $end = date("Y-m-d", strtotime($date_to));
+        return $query->whereBetween($field, [$start, $end]);
     }
 
     public function scopeByCustomer($query, int $customer_id)
