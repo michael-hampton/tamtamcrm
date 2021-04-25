@@ -30,9 +30,10 @@ trait QueryScopes
         return $query->where('category_id', $category_id);
     }
 
-    public function scopeByAccount($query, Account $account)
+    public function scopeByAccount($query, Account $account, $table = '')
     {
-        return $query->where('account_id', $account->id);
+        $column = !empty($table) ? $table . '.account_id' : 'account_id';
+        return $query->where($column, $account->id);
     }
 
     public function scopeByProject($query, int $project_id)
