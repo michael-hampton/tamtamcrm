@@ -148,12 +148,16 @@ export default class TaskModel extends BaseModel {
             return totalSeconds
         }
 
-        const totalHours = Math.floor(totalSeconds / 3600)
+        let hours = Math.floor(totalSeconds / 3600)
         totalSeconds %= 3600
-        const clearMinutes = Math.floor(totalSeconds / 60)
-        const formattedSeconds = totalSeconds % 60
+        let minutes = Math.floor(totalSeconds / 60)
+        let seconds = totalSeconds % 60
 
-        return `${totalHours}:${clearMinutes}:${formattedSeconds}`
+        minutes = String(minutes).padStart(2, '0')
+        hours = String(hours).padStart(2, '0')
+        seconds = String(seconds).padStart(2, '0')
+
+        return `${hours}:${minutes}:${seconds}`
     }
 
     buildDropdownMenu () {
