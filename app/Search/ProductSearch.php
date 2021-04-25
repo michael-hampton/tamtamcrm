@@ -48,11 +48,11 @@ class ProductSearch extends BaseSearch
         }
 
         if ($request->filled('company_id')) {
-            $this->query->where('company_id', '=', $request->company_id);
+            $this->query->byCompany($request->company_id);
         }
 
         if ($request->filled('category_id')) {
-            $this->query->where('category_id', '=', $request->category_id);
+            $this->query->byCategory($request->category_id);
         }
 
         if ($request->filled('search_term')) {
@@ -63,7 +63,7 @@ class ProductSearch extends BaseSearch
             $this->filterDates($request);
         }
 
-        $this->addAccount($account);
+        $this->query->byAccount($account);
 
         $this->checkPermissions('productcontroller.index');
 
