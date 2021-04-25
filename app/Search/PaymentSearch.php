@@ -50,7 +50,7 @@ class PaymentSearch extends BaseSearch
         }
 
         if ($request->filled('customer_id')) {
-            $this->query->whereCustomerId($request->customer_id);
+            $this->query->byCustomer($request->customer_id);
         }
 
         if ($request->filled('gateway_id')) {
@@ -65,7 +65,7 @@ class PaymentSearch extends BaseSearch
             $this->filterDates($request);
         }
 
-        $this->addAccount($account);
+        $this->query->byAccount($account);
 
         $this->checkPermissions('paymentcontroller.index');
 
