@@ -5,6 +5,7 @@ namespace App\Models\Concerns;
 
 use App\Models\Customer;
 use App\Models\Account;
+use App\Models\Invoice;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -64,6 +65,25 @@ trait QueryScopes
     public function scopeUnapplied($query, $table)
     {
         return $this->query->whereRaw("{$table}.applied < {$table}.amount");
+    }
+
+    public function scopeOverdue($query, $table)
+    {
+        return $query->whereIn(
+                'status_id',
+                [
+                    Invoice::STATUS_SENT,
+                    Invoice::STATUS_PARTIAL
+                ]
+            )->where('due_date', '<', Carbon::now())->orWhere('partial_due_date', '<', Carbon::now());
+    }
+
+    public function scopeStatus($query, $column)
+    {
+        return $query->whereIn(
+                $column,
+                $filtered_statuses
+            );
     }
 
     public function scopeActive($query, $table)
