@@ -182,10 +182,7 @@ class BaseSearch
         }
 
         if (!empty($filtered_statuses)) {
-            $this->query->whereIn(
-                $column,
-                $filtered_statuses
-            );
+            $this->query->status($table);
         }
 
         return true;
@@ -194,29 +191,23 @@ class BaseSearch
     private function doStatusFilter($status, $table)
     {
         if ($status === 'invoice_overdue') {
-            $this->query->whereIn(
-                'status_id',
-                [
-                    Invoice::STATUS_SENT,
-                    Invoice::STATUS_PARTIAL
-                ]
-            )->where('due_date', '<', Carbon::now())->orWhere('partial_due_date', '<', Carbon::now());
+           $this->query->overdue($table);
         }
 
         if ($status === 'unapplied') {
-            $this->query->whereRaw("{$table}.applied < {$table}.amount");
+            $this->query->unapplied($table);
         }
 
         if ($status === 'active') {
-            $this->query->whereNull($table . '.deleted_at');
+            $this->query->active($table);
         }
 
         if ($status === 'archived') {
-            $this->query->whereNotNull($table . '.deleted_at')->where($table . '.hide', '=', 0)->withTrashed();
+            $this->query->archived($table);
         }
 
         if ($status === 'deleted') {
-            $this->query->where($table . '.hide', '=', 1)->withTrashed();
+            $this->query->deleted($table);
         }
     }
 
