@@ -25,6 +25,11 @@ trait QueryScopes
         return $query->where('customer_id', $customer_id);
     }
 
+    public function scopeByCategory($query, int $category_id)
+    {
+        return $query->where('category_id', $category_id);
+    }
+
     public function scopeByAccount($query, Account $account)
     {
         return $query->where('account_id', $account->id);
