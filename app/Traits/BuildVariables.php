@@ -59,11 +59,16 @@ trait BuildVariables
         return $entity;
     }
 
+    /**
+     * @param string $content
+     * @param $entity
+     * @return array|string|string[]
+     */
     protected function parseCaseVariables(string $content, $entity)
     {
         $variables = [];
 
-        $variables['$status'] = $entity->getStatusName();
+        $variables['$status'] = $entity->status_name;
 
         if (!empty($entity->description)) {
             $variables['$description'] = $entity->description;
@@ -78,7 +83,7 @@ trait BuildVariables
         }
 
         if (!empty($entity->priority_id) && method_exists($entity, 'getPriorityName')) {
-            $variables['$priority'] = $entity->getPriorityName();
+            $variables['$priority'] = $entity->priority_name;
         }
 
         if (!empty($entity->customer_id)) {

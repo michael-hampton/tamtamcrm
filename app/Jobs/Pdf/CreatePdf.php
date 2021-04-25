@@ -64,7 +64,7 @@ class CreatePdf implements ShouldQueue
             App::setLocale($this->contact->preferredLocale());
         }
 
-        $this->file_path = $this->entity->getPdfFilename();
+        $this->file_path = $this->entity->pdf_filename;
 
         if ($this->entity_string === 'dispatch_note') {
             $this->file_path = str_replace(['invoices', 'orders'], 'dispatch_note', $this->file_path);
@@ -74,7 +74,7 @@ class CreatePdf implements ShouldQueue
             return $this->file_path;
         }
 
-        $design = Design::find($this->entity->getDesignId());
+        $design = Design::find($this->entity->design_id);
 
         $this->build($design);
 

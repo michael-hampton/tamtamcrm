@@ -91,7 +91,7 @@ class PreviewController extends Controller
             ]
         );
 
-        $design = Design::find($invoice->getDesignId());
+        $design = Design::find($invoice->design_id);
 
         if (!empty(request()->input('design'))) {
             $design_object = json_decode(

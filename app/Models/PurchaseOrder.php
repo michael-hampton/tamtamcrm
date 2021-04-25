@@ -232,12 +232,12 @@ class PurchaseOrder extends Model
         return $this->number;
     }
 
-    public function getDesignId()
+    public function getDesignIdAttribute()
     {
         return !empty($this->design_id) ? $this->design_id : $this->account->settings->purchase_order_design_id;
     }
 
-    public function getPdfFilename()
+    public function getPdfFilenameAttribute()
     {
         return 'storage/' . $this->account->id . '/' . $this->company->id . '/purchase_orders/' . $this->number . '.pdf';
     }

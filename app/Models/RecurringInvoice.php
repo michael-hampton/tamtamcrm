@@ -192,12 +192,12 @@ class RecurringInvoice extends Model
         return true;
     }
 
-    public function getPdfFilename()
+    public function getPdfFilenameAttribute()
     {
         return 'storage/' . $this->account->id . '/' . $this->customer->id . '/recurring_invoices/' . $this->number . '.pdf';
     }
 
-    public function getDesignId()
+    public function getDesignIdAttribute()
     {
         return !empty($this->design_id) ? $this->design_id : $this->customer->getSetting('invoice_design_id');
     }

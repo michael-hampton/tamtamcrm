@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Factory\CustomerContactFactory;
 use App\Factory\CustomerFactory;
 use App\Models\Account;
 use App\Models\Company;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class CustomerTest extends TestCase
@@ -50,6 +52,27 @@ class CustomerTest extends TestCase
         //$this->assertInternalType('string', $customerFromDb->status);
         $this->assertNotEmpty($cust);
     }
+
+    /** @test */
+    public function it_can_create_a_contact()
+    {
+        $customer = Customer::factory()->create();
+        $data = [
+            'first_name' => $this->faker->firstName,
+            'last_name'  => $this->faker->lastName,
+            'password'   => $this->faker->password,
+            'is_primary' => true
+        ];
+
+        $contact = CustomerContactFactory::create($this->account, $this->user, $customer);
+        $contact = (new CustomerContactRepository(new CustomerContact()))->createContact($data, $contact);
+        $this->assertInstanceOf(CustomerContact::class, $contact);
+        $this->assertTrue(Hash::check($data['password'], $contact->password));
+        $this->assertEquals($data['first_name'], $contact->first_name);
+        $this->assertEquals($data['last_name'], $contact->last_name);
+        $this->assertEquals($data['is_primary'], $contact->is_primary);
+    }
+
 
     /** @test */
     public function it_can_delete_the_customer()

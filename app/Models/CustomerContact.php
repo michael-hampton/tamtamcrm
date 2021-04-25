@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
 use Laracasts\Presenter\PresentableTrait;
 use Rennokki\QueryCache\Traits\QueryCacheable;
 
@@ -101,5 +102,10 @@ class CustomerContact extends Model implements ContactInterface
     public function user()
     {
         return $this->belongsTo(Models\User::class)->withTrashed();
+    }
+
+    public function setPasswordAttribute(string $value)
+    {
+        $this->attributes['password'] = Hash::make($value);
     }
 }

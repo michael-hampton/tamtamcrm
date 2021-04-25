@@ -179,22 +179,22 @@ class Cases extends Model
         return true;
     }
 
-    public function getDesignId()
+    public function getDesignIdAttribute()
     {
         return !empty($this->design_id) ? $this->design_id : $this->customer->getSetting('case_design_id');
     }
 
-    public function getPdfFilename()
+    public function getPdfFilenameAttribute()
     {
         return 'storage/' . $this->account->id . '/' . $this->customer->id . '/cases/' . $this->number . '.pdf';
     }
 
-    public function getStatusName()
+    public function getStatusNameAttribute()
     {
         return $this->arrStatuses[$this->status_id];
     }
 
-    public function getPriorityName()
+    public function getPriorityNameAttribute()
     {
         return $this->arrPriorities[$this->priority_id];
     }

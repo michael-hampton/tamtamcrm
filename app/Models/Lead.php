@@ -115,7 +115,7 @@ class Lead extends Model
         return 'en';
     }
 
-    public function getDesignId()
+    public function getDesignIdAttribute()
     {
         return !empty($this->design_id) ? $this->design_id : $this->account->settings->lead_design_id;
     }
@@ -125,7 +125,7 @@ class Lead extends Model
         return $this->belongsTo(Project::class);
     }
 
-    public function getPdfFilename()
+    public function getPdfFilenameAttribute()
     {
         return 'storage/' . $this->account->id . '/' . $this->id . '/leads/' . $this->number . '.pdf';
     }

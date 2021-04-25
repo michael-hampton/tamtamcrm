@@ -128,7 +128,6 @@ class CancelInvoice
     private function updateInvoice(): Invoice
     {
         $invoice = $this->invoice;
-
         $this->invoice->cacheData();
         $this->invoice->setBalance(0);
         $this->invoice->setStatus(Invoice::STATUS_CANCELLED);

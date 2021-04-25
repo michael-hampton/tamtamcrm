@@ -224,12 +224,12 @@ class Customer extends Model implements HasLocalePreference
         return $this->hasMany(CustomerGateway::class);
     }
 
-    public function getPdfFilename()
+    public function getPdfFilenameAttribute()
     {
         return 'storage/' . $this->account->id . '/' . $this->id . '/statements/' . $this->number . '.pdf';
     }
 
-    public function getDesignId()
+    public function getDesignIdAttribute()
     {
         return !empty($this->design_id) ? $this->design_id : $this->getSetting('invoice_design_id');
     }

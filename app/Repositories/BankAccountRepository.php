@@ -31,10 +31,6 @@ class BankAccountRepository extends BaseRepository implements BankAccountReposit
      */
     public function update(array $data, BankAccount $bank_account): BankAccount
     {
-        if (isset($data['password']) && !empty($data['password'])) {
-            $data['password'] = Hash::make($data['password']);
-        }
-
         $bank_account->update($data);
         return $bank_account;
     }
@@ -46,10 +42,6 @@ class BankAccountRepository extends BaseRepository implements BankAccountReposit
      */
     public function create(array $data, BankAccount $bank_account): BankAccount
     {
-        if (isset($data['password']) && !empty($data['password'])) {
-            $data['password'] = Hash::make($data['password']);
-        }
-
         $bank_account->fill($data);
         $bank_account->save();
 

@@ -15,27 +15,26 @@ class CustomerContactRepository extends BaseRepository
 {
     /**
      * CustomerContactRepository constructor.
-     * @param CustomerContact $client_contact
+     * @param CustomerContact $customer_contact
      */
-    public function __construct(CustomerContact $client_contact)
+    public function __construct(CustomerContact $customer_contact)
     {
-        parent::__construct($client_contact);
-        $this->model = $client_contact;
+        parent::__construct($customer_contact);
+        $this->model = $customer_contact;
     }
 
-    public function createContact(array $data, Customer $customer)
+    /**
+     * @param array $data
+     * @param CustomerContact $customer_contact
+     * @return CustomerContact
+     */
+    public function createContact(array $data, CustomerContact $customer_contact)
     {
-        $create_contact = CustomerContactFactory::create($customer->account, $customer->user, $customer);
-        $create_contact->customer_id = $customer->id;
-        $create_contact->fill($data);
+        $customer_contact->fill($data);
 
-        $create_contact->password = isset($item['password']) && strlen($item['password']) > 0 ? Hash::make(
-            $item['password']
-        ) : '';
+        $customer_contact->save();
 
-        $create_contact->save();
-
-        return $create_contact;
+        return $customer_contact;
     }
 
     /**

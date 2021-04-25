@@ -9,6 +9,7 @@ use App\Models\Address;
 use App\Models\Customer;
 use App\Models\CustomerContact;
 use App\Models\User;
+use App\Repositories\CustomerContactRepository;
 use Illuminate\Support\Facades\Hash;
 
 class ContactRegister
@@ -108,15 +109,10 @@ class ContactRegister
      */
     private function createContact(Customer $customer)
     {
-        $client_contact = CustomerContactFactory::create($this->account, $this->user, $customer);
-        $client_contact->fill($this->data);
+        $customer_contact = CustomerContactFactory::create($this->account, $this->user, $customer);
 
-        $client_contact->customer_id = $customer->id;
-        $client_contact->is_primary = true;
-        $client_contact->password = Hash::make($this->data['password']);
+        $customer_contact->is_primary = true;
 
-        $client_contact->save();
-
-        return $client_contact;
+        return (new CustomerContactRepository(new CustomerContact()))->createContact($this->data, $customer_contact);
     }
 }

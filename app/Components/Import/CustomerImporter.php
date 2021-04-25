@@ -4,6 +4,7 @@
 namespace App\Components\Import;
 
 
+use App\Factory\CustomerContactFactory;
 use App\Factory\CustomerFactory;
 use App\Jobs\Customer\StoreCustomerAddress;
 use App\Models\Account;
@@ -159,9 +160,14 @@ class CustomerImporter extends BaseCsvImporter
      */
     public function saveCallback(Customer $customer, array $data)
     {
+
         if (!empty($data['contacts'])) {
             foreach ($data['contacts'] as $contact) {
-                (new CustomerContactRepository(new CustomerContact()))->createContact($contact, $customer);
+
+                $customer_contact = CustomerContactFactory::create($this->account, $this->user, $customer);
+
+                (new CustomerContactRepository(new CustomerContact()))->createContact($contact, $customer_contact);
+
             }
         }
 
