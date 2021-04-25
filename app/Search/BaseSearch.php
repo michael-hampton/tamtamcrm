@@ -182,7 +182,7 @@ class BaseSearch
         }
 
         if (!empty($filtered_statuses)) {
-            $this->query->status($table);
+            $this->query->status($column);
         }
 
         return true;
