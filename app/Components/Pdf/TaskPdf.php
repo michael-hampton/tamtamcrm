@@ -126,7 +126,7 @@ class TaskPdf extends PdfBuilder
         switch ($this->class) {
             case 'task':
                 $budgeted_hours = $this->calculateBudgetedHours();
-                $task_rate = $this->entity->getTaskRate();
+                $task_rate = $this->entity->calculated_task_rate;
 
                 $cost = !empty($task_rate) && !empty($budgeted_hours) ? $task_rate * $budgeted_hours : 0;
 

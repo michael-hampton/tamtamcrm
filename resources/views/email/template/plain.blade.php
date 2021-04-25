@@ -3,7 +3,7 @@
         @component('email.components.subcopy')
 
             <!-- Body -->
-            @component('email.components.message', ['content' => $data['body'], 'template' => 'light'])
+            @component('email.components.message', ['title' => $data['title'], 'content' => $data['body'], 'template' => 'light'])
 
             @endcomponent
 

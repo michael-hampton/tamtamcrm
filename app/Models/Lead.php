@@ -130,7 +130,7 @@ class Lead extends Model
         return 'storage/' . $this->account->id . '/' . $this->id . '/leads/' . $this->number . '.pdf';
     }
 
-    public function getTaskRate()
+    public function getCalculatedTaskRateAttribute()
     {
         if (!empty($this->task_rate)) {
             return (float)$this->task_rate;

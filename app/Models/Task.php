@@ -178,7 +178,7 @@ class Task extends Model
         return $this->number;
     }
 
-    public function getTaskRate()
+    public function getCalculatedTaskRateAttribute()
     {
         if (!empty($this->task_rate)) {
             return (float)$this->task_rate;

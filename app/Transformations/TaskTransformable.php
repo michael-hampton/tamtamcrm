@@ -51,7 +51,7 @@ trait TaskTransformable
             'public_notes'         => $task->public_notes ?: '',
             'private_notes'        => $task->private_notes ?: '',
             'duration'             => (new TimerRepository(new Timer()))->getTotalDuration($task),
-            'calculated_task_rate' => $task->getTaskRate(),
+            'calculated_task_rate' => $task->calculated_task_rate,
             'task_rate'            => $task->task_rate,
             'task_sort_order'      => (int)$task->task_status_sort_order,
             'files'                => !empty($files) && !empty($files[$task->id]) ? $this->transformTaskFiles(
