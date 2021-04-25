@@ -87,7 +87,7 @@ class AdminMailer extends Mailable
                 $this->entity->account->domains->plan->code,
                 ['PROM', 'PROY']
             );
-        
+
         try {
             return $this->to($this->user->email)
                         ->from(config('taskmanager.from_email'))

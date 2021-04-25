@@ -10,7 +10,7 @@ import Duration from '../../common/Duration'
 const TaskTimeInputs = (props) => {
     return (
         props.timers.map((val, idx) => {
-            const end = props.timers[idx].end_date !== null ? moment(props.timers[idx].end_date + ' ' + props.timers[idx].end_time).format('YYYY-MM-DD hh:mm:ss a') : moment().format('YYYY-MM-DD HH:mm:ss a')
+            const end = props.timers[idx].end_date ? moment(props.timers[idx].end_date + ' ' + props.timers[idx].end_time).format('YYYY-MM-DD hh:mm:ss a') : moment().format('YYYY-MM-DD HH:mm:ss a')
             const start = props.timers[idx].start_time !== null ? moment(props.timers[idx].date + ' ' + props.timers[idx].start_time).format('YYYY-MM-DD hh:mm:ss a') : 0
 
             return (

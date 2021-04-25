@@ -137,25 +137,23 @@ export default class TaskModel extends BaseModel {
     }
 
     calculateDuration (currentStartTime, currentEndTime, returnAsSeconds = false) {
-        const startTime = moment(currentStartTime, 'YYYY-MM-DD hh:mm:ss a')
+        const startTime = moment(currentStartTime, 'YYYY-MM-DD hh:mm:ss')
         let endTime = ''
         const end = currentEndTime || new Date()
-        endTime = moment(end, 'YYYY-MM-DD hh:mm:ss a')
+        endTime = moment(end, 'YYYY-MM-DD hh:mm:ss')
 
-        let hours = (endTime.diff(startTime, 'hours'))
-        const totalMinutes = endTime.diff(startTime, 'minutes')
-        const totalSeconds = endTime.diff(startTime, 'seconds')
-        const minutes = totalMinutes % 60
-        const clearMinutes = ('0' + minutes).slice(-2)
+        let totalSeconds = endTime.diff(startTime, 'seconds')
 
         if (returnAsSeconds === true) {
-            const duration = parseFloat(hours + '.' + minutes)
-            return duration * 3600
+            return totalSeconds
         }
 
-        hours = (hours < 10 ? '0' : '') + hours
+        const totalHours = Math.floor(totalSeconds / 3600)
+        totalSeconds %= 3600
+        const clearMinutes = Math.floor(totalSeconds / 60)
+        const formattedSeconds = totalSeconds % 60
 
-        return `${hours}:${clearMinutes}:${totalSeconds}`
+        return `${totalHours}:${clearMinutes}:${formattedSeconds}`
     }
 
     buildDropdownMenu () {
