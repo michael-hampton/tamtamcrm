@@ -50,19 +50,19 @@ class PurchaseOrderSearch extends BaseSearch
         }
 
         if ($request->filled('company_id')) {
-            $this->query->whereCompanyId($request->company_id);
+            $this->query->byCompany($request->company_id);
         }
 
         if ($request->filled('project_id')) {
-            $this->query->whereProjectId($request->project_id);
+            $this->query->byProject($request->project_id);
         }
 
         if ($request->filled('user_id')) {
-            $this->query->where('assigned_to', '=', $request->user_id);
+            $this->query->byAssignee('assigned_to', '=', $request->user_id);
         }
 
         if ($request->filled('id')) {
-            $this->query->whereId($request->id);
+            $this->query->byId($request->id);
         }
 
         if ($request->filled('search_term')) {
@@ -73,7 +73,7 @@ class PurchaseOrderSearch extends BaseSearch
             $this->filterDates($request);
         }
 
-        $this->addAccount($account);
+        $this->query->byAccount($account);
 
         $this->checkPermissions('purchaseordercontroller.index');
 
