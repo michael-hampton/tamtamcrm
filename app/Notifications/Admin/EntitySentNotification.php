@@ -5,6 +5,8 @@ namespace App\Notifications\Admin;
 use App\Mail\Admin\ObjectSent;
 use App\Models\AccountUser;
 use App\Models\Invitation;
+use App\ViewModels\AccountViewModel;
+use App\ViewModels\CustomerContactViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -103,7 +105,7 @@ class EntitySentNotification extends Notification implements ShouldQueue
     public function toSlack($notifiable)
     {
         return (new SlackMessage)->from(trans('texts.from_slack'))->success()
-                                 ->image($this->entity->account->present()->logo)
+                                 ->image((new AccountViewModel($this->entity->account))->logo())
                                  ->content(
                                      trans(
                                          "texts.notification_{$this->entity_name}_sent_subject",
@@ -116,7 +118,7 @@ class EntitySentNotification extends Notification implements ShouldQueue
     {
         return [
             'total'    => $this->entity->getFormattedTotal(),
-            'customer' => $this->contact->present()->name(),
+            'customer' => (new CustomerContactViewModel($this->contact))->name(),
             'invoice'  => $this->entity->getNumber(),
         ];
     }

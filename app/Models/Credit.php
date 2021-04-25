@@ -11,13 +11,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laracasts\Presenter\PresentableTrait;
 use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Credit extends Model
 {
     use SoftDeletes;
-    use PresentableTrait;
     use Money;
     use Balancer;
     use HasFactory;
@@ -39,8 +37,9 @@ class Credit extends Model
     const EXPENSE_TYPE = 6;
     const GATEWAY_FEE_TYPE = 7;
     const PAYMENT_TYPE = 12;
+
     protected static $flushCacheOnUpdate = true;
-    protected $presenter = 'App\Presenters\CreditPresenter';
+
     /**
      * @var array
      */

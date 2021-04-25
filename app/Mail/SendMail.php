@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\ViewModels\UserViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -57,7 +58,7 @@ class SendMail extends Mailable
 
         return $this->from(
             $this->entity->user->email,
-            $this->entity->user->present()->name()
+            (new UserViewModel($this->entity->user))->name()
         )
                     ->text(
                         $design,

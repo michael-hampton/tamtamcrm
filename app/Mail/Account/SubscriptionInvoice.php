@@ -6,6 +6,7 @@ use App\Models\Account;
 use App\Models\Invoice;
 use App\Models\PlanSubscription;
 use App\Traits\Money;
+use App\ViewModels\AccountViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -93,7 +94,7 @@ class SubscriptionInvoice extends Mailable
             'url'         => config('taskmanager.site_url') . '/invoices/' . $this->invoice->id,
             'button_text' => trans('texts.view_invoice'),
             //'signature'   => isset($this->invoice->account->settings->email_signature) ? $this->order->account->settings->email_signature : '',
-            'logo'        => $this->invoice->account->present()->logo(),
+            'logo'        => (new AccountViewModel($this->invoice->account))->logo(),
             'show_footer' => empty($this->account->domains->plan) || !in_array(
                     $this->account->domains->plan->code,
                     ['PROM', 'PROY']

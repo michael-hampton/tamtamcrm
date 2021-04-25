@@ -13,13 +13,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Laracasts\Presenter\PresentableTrait;
 use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Invoice extends Model
 {
 
-    use PresentableTrait, SoftDeletes, Money, Balancer, HasFactory, Archiveable, Taxable, QueryCacheable;
+    use SoftDeletes, Money, Balancer, HasFactory, Archiveable, Taxable, QueryCacheable;
 
     const STATUS_DRAFT = 1;
     const STATUS_SENT = 2;
@@ -38,8 +37,9 @@ class Invoice extends Model
     const PROJECT_TYPE = 9;
     const GATEWAY_FEE_TYPE = 7;
     const PROMOCODE_TYPE = 8;
+
     protected static $flushCacheOnUpdate = true;
-    protected $presenter = 'App\Presenters\InvoicePresenter';
+
     protected $casts = [
         'customer_id' => 'integer',
         'account_id'  => 'integer',

@@ -4,6 +4,8 @@ namespace App\Mail\Admin;
 
 use App\Models\Invitation;
 use App\Models\User;
+use App\ViewModels\AccountViewModel;
+use App\ViewModels\CustomerContactViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use ReflectionClass;
@@ -55,7 +57,7 @@ class ObjectSent extends AdminMailer
     {
         return [
             'total'    => $this->invitation->inviteable->getFormattedTotal(),
-            'customer' => $this->contact->present()->name(),
+            'customer' => (new CustomerContactViewModel($this->contact))->name(),
             'invoice'  => $this->invitation->inviteable->getNumber(),
         ];
     }
@@ -72,7 +74,7 @@ class ObjectSent extends AdminMailer
                 "?silent=true",
             'button_text' => trans("texts.view_{$this->entity_name}"),
             'signature'   => $this->invitation->account->settings->email_signature,
-            'logo'        => $this->invitation->account->present()->logo(),
+            'logo'        => (new AccountViewModel($this->invitation->account))->logo(),
         ];
     }
 }

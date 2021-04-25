@@ -4,6 +4,7 @@ namespace App\Mail\Admin;
 
 use App\Models\Expense;
 use App\Models\User;
+use App\ViewModels\AccountViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 
@@ -66,7 +67,7 @@ class ExpenseApproved extends AdminMailer
             'url'         => config('taskmanager.web_url') . '/#/expenses?id=' . $this->expense->id,
             'button_text' => trans('texts.view_expense'),
             'signature'   => !empty($this->settings) ? $this->settings->email_signature : '',
-            'logo'        => $this->expense->account->present()->logo(),
+            'logo'        => (new AccountViewModel($this->expense->account))->logo(),
         ];
     }
 }

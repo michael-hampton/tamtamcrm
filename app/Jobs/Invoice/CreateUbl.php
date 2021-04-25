@@ -5,6 +5,8 @@ namespace App\Jobs\Invoice;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\Product;
+use App\ViewModels\AccountViewModel;
+use App\ViewModels\CustomerViewModel;
 use CleverIt\UBL\Invoice\Address;
 use CleverIt\UBL\Invoice\Country;
 use CleverIt\UBL\Invoice\Generator;
@@ -146,7 +148,7 @@ class CreateUbl implements ShouldQueue
 
 // company
         $company = new Party();
-        $company->setName($this->invoice->account->present()->name);
+        $company->setName((new AccountViewModel($this->invoice->account))->name());
 //$company->setPhysicalLocation($caddress);
         $company->setPostalAddress($caddress);
 
@@ -160,7 +162,7 @@ class CreateUbl implements ShouldQueue
         $customer_address = $customer->addresses->where('address_type', 1)->first();
 
         $client = new Party();
-        $client->setName($customer->present()->name);
+        $client->setName((new CustomerViewModel($customer))->name());
 
         if (!empty($customer_address)) {
             $caddress = new Address();

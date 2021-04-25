@@ -4,6 +4,8 @@ namespace App\Notifications\Admin;
 
 use App\Mail\Admin\Refunded;
 use App\Models\Payment;
+use App\ViewModels\AccountViewModel;
+use App\ViewModels\CustomerViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\SlackMessage;
@@ -74,7 +76,7 @@ class RefundNotification extends Notification implements ShouldQueue
     public function toSlack($notifiable)
     {
         return (new SlackMessage)->success()
-                                 ->from("System")->image($this->payment->account->present()->logo())->content(
+                                 ->from("System")->image((new AccountViewModel($this->payment->account))->logo())->content(
                 $this->getMessage()
             );
     }
@@ -83,7 +85,7 @@ class RefundNotification extends Notification implements ShouldQueue
     {
         $this->subject = trans(
             'texts.notification_refund_subject',
-            ['customer' => $this->payment->customer->present()->name()]
+            ['customer' => (new CustomerViewModel($this->payment->customer))->name()]
         );
     }
 

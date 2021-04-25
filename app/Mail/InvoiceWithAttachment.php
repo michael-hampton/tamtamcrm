@@ -3,6 +3,7 @@
 
 namespace App\Mail;
 
+use App\ViewModels\AccountViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -39,7 +40,7 @@ class InvoiceWithAttachment extends Mailable
     {
         return $this->markdown(
             'email.admin.download',
-            ['logo' => $this->entity->account->present()->logo, 'url' => $this->attachment]
+            ['logo' => (new AccountViewModel($this->entity->account))->logo(), 'url' => $this->attachment]
         )
                     ->from(config('mail.from.address'))
                     ->subject(trans('texts.download_attachments'))

@@ -4,6 +4,7 @@ namespace App\Mail\Admin;
 
 use App\Models\PurchaseOrder;
 use App\Models\User;
+use App\ViewModels\AccountViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 
@@ -66,7 +67,7 @@ class PurchaseOrderChangeRequested extends AdminMailer
             'url'         => $this->getUrl() . 'purchase_orders/' . $this->purchase_order->id,
             'button_text' => trans('texts.view_purchase_order'),
             'signature'   => !empty($this->settings) ? $this->settings->email_signature : '',
-            'logo'        => $this->purchase_order->account->present()->logo(),
+            'logo'        => (new AccountViewModel($this->purchase_order->account))->logo()
         ];
     }
 }

@@ -1,23 +1,36 @@
 <?php
 
-namespace App\Presenters;
+
+namespace App\ViewModels;
+
 
 use App\Models\Country;
-use Laracasts\Presenter\Presenter;
+use App\Models\Customer;
 
-/**
- * Class CustomerPresenter
- * @package App\Presenters
- */
-class CustomerPresenter extends Presenter
+class CustomerViewModel extends ViewModel
 {
+
+    /**
+     * @var Customer
+     */
+    private Customer $customer;
+
+    /**
+     * CustomerViewModel constructor.
+     * @param Customer $customer
+     */
+    public function __construct(Customer $customer)
+    {
+        $this->customer = $customer;
+    }
+
     /**
      * @return string
      */
     public function email()
     {
-        return $this->entity->primary_contact->first() !==
-        null ? $this->entity->primary_contact->first()->email : 'No Email Set';
+        return $this->customer->primary_contact->first() !==
+        null ? $this->customer->primary_contact->first()->email : 'No Email Set';
     }
 
     public function shipping_address()
@@ -29,7 +42,7 @@ class CustomerPresenter extends Presenter
     {
         $fields = ['address_1', 'address_2', 'city', 'country_id'];
 
-        $address = $this->entity->addresses->where('address_type', $type)->first();
+        $address = $this->customer->addresses->where('address_type', $type)->first();
 
         if (empty($address) || $address->count() === 0) {
             return '';
@@ -56,12 +69,12 @@ class CustomerPresenter extends Presenter
 
     public function phone()
     {
-        return $this->entity->phone ?: '';
+        return $this->customer->phone ?: '';
     }
 
     public function website()
     {
-        return $this->entity->website ?: '';
+        return $this->customer->website ?: '';
     }
 
     public function clientName()
@@ -74,7 +87,7 @@ class CustomerPresenter extends Presenter
      */
     public function name()
     {
-        $contact = $this->entity->primary_contact->first();
+        $contact = $this->customer->primary_contact->first();
 
         $contact_name = '';
 
@@ -82,24 +95,6 @@ class CustomerPresenter extends Presenter
             $contact_name = $contact->first_name . ' ' . $contact->last_name;
         }
 
-        return $this->entity->name ?: $contact_name;
-    }
-
-    public function cityStateZip($city, $state, $postalCode, $swap)
-    {
-        $str = $city;
-
-        if ($state) {
-            if ($str) {
-                $str .= ', ';
-            }
-            $str .= $state;
-        }
-
-        if ($swap) {
-            return $postalCode . ' ' . $str;
-        } else {
-            return $str . ' ' . $postalCode;
-        }
+        return $this->customer->name ?: $contact_name;
     }
 }

@@ -6,13 +6,11 @@ use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laracasts\Presenter\PresentableTrait;
 
 class Deal extends Model
 {
 
     use SoftDeletes;
-    use PresentableTrait;
     use HasFactory;
     use Archiveable;
 
@@ -44,8 +42,6 @@ class Deal extends Model
         'private_notes',
         'column_color'
     ];
-
-    protected $presenter = 'App\Presenters\DealPresenter';
 
     public function comments()
     {

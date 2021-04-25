@@ -6,6 +6,7 @@ namespace App\Jobs\Pdf;
 use App\Actions\Pdf\GeneratePdf;
 use App\Mail\InvoiceWithAttachment;
 use App\Models\Account;
+use App\ViewModels\CustomerViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -48,7 +49,7 @@ class Download implements ShouldQueue
     {
         $zip = new ZipArchive;
         $first_invoice = $this->invoices->first();
-        $fileName = str_replace(' ', '_', $first_invoice->customer->present()->name) . '_' . date('Y-m-d') . '.zip';
+        $fileName = str_replace(' ', '_', (new CustomerViewModel($first_invoice->customer))->name()) . '_' . date('Y-m-d') . '.zip';
 
         $class = strtolower(class_basename($first_invoice)) . 's';
 

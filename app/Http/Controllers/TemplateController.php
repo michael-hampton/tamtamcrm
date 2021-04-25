@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Components\Pdf\PdfFactory;
 use App\Traits\BuildVariables;
+use App\ViewModels\AccountViewModel;
 use Illuminate\Http\Response;
 use League\CommonMark\CommonMarkConverter;
 use ReflectionException;
@@ -70,6 +71,7 @@ class TemplateController extends Controller
 
     private function render($subject, $body, $entity_obj)
     {
+        $viewModel = new AccountViewModel($entity_obj->account);
         $email_style = $entity_obj->account->settings->email_style;
         $wrapper = view('email.template.' . $email_style,
             [
@@ -79,7 +81,7 @@ class TemplateController extends Controller
                     'url' => config('taskmanager.web_url') . '/#/expenses?id=' . $entity_obj->id,
                     'button_text' => trans('texts.view_expense'),
                     'signature' => $entity_obj->account->settings->email_signature ?: '',
-                    'logo' => $entity_obj->account->present()->logo(),
+                    'logo' => $viewModel->logo(),
                     'show_footer' => empty($entity_obj->account->domains->plan) || !in_array($entity_obj->account->domains->plan->code, [
                             'PROM',
                             'PROY'

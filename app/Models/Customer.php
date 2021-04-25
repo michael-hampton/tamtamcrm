@@ -12,17 +12,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laracasts\Presenter\PresentableTrait;
 use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Customer extends Model implements HasLocalePreference
 {
 
-    use SoftDeletes, PresentableTrait, Balancer, Money, HasFactory, Archiveable, QueryCacheable, HasSubscriptions;
+    use SoftDeletes, Balancer, Money, HasFactory, Archiveable, QueryCacheable, HasSubscriptions;
 
     const CUSTOMER_TYPE_WON = 1;
     protected static $flushCacheOnUpdate = true;
-    protected $presenter = 'App\Presenters\CustomerPresenter';
+
     /**
      * The attributes that are mass assignable.
      *

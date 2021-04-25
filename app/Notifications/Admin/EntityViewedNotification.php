@@ -3,6 +3,7 @@
 namespace App\Notifications\Admin;
 
 use App\Mail\Admin\ObjectViewed;
+use App\ViewModels\CustomerContactViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\SlackMessage;
@@ -99,7 +100,7 @@ class EntityViewedNotification extends Notification implements ShouldQueue
         return trans(
             "texts.notification_{$this->entity_name}_viewed_subject",
             [
-                'customer'         => $this->contact->present()->name(),
+                'customer'         => (new CustomerContactViewModel($this->contact))->name(),
                 $this->entity_name => $this->entity->number,
             ]
         );

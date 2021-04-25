@@ -4,6 +4,8 @@ namespace App\Notifications\Admin;
 
 use App\Mail\Admin\PaymentMade;
 use App\Models\Payment;
+use App\ViewModels\AccountViewModel;
+use App\ViewModels\CustomerViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\SlackMessage;
@@ -75,7 +77,7 @@ class NewPaymentNotification extends Notification implements ShouldQueue
     public function toSlack($notifiable)
     {
         return (new SlackMessage)->success()
-                                 ->from("System")->image($this->payment->account->present()->logo())->content(
+                                 ->from("System")->image((new AccountViewModel($this->payment->account))->logo())->content(
                 $this->getMessage()
             );
     }
@@ -84,7 +86,7 @@ class NewPaymentNotification extends Notification implements ShouldQueue
     {
         $this->subject = trans(
             'texts.notification_payment_paid_subject',
-            ['customer' => $this->payment->customer->present()->name()]
+            ['customer' => (new CustomerViewModel($this->payment->customer))->name()]
         );
     }
 

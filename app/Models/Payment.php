@@ -10,12 +10,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laracasts\Presenter\PresentableTrait;
 use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Payment extends Model
 {
-    use PresentableTrait;
     use SoftDeletes;
     use Money;
     use HasFactory;
@@ -31,7 +29,7 @@ class Payment extends Model
 
     const TYPE_CUSTOMER_CREDIT = 2;
     protected static $flushCacheOnUpdate = true;
-    protected $presenter = 'App\Presenters\OrderPresenter';
+
     /**
      * The attributes that are mass assignable.
      *

@@ -13,13 +13,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
-use Laracasts\Presenter\PresentableTrait;
 use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Lead extends Model
 {
     use SoftDeletes;
-    use PresentableTrait;
     use Notifiable;
     use HasFactory;
     use Archiveable;
@@ -29,8 +27,9 @@ class Lead extends Model
     const IN_PROGRESS = 99;
     const STATUS_COMPLETED = 100;
     const UNQUALIFIED = 100;
+
     protected static $flushCacheOnUpdate = true;
-    protected $presenter = 'App\Presenters\LeadPresenter';
+
     protected $fillable = [
         'task_sort_order',
         'design_id',

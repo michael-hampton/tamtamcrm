@@ -4,6 +4,7 @@ namespace App\Mail\Admin;
 
 use App\Models\Quote;
 use App\Models\User;
+use App\ViewModels\AccountViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 
@@ -66,7 +67,7 @@ class QuoteApproved extends AdminMailer
             'url'         => $this->getUrl() . 'quotes/' . $this->quote->id,
             'button_text' => trans('texts.view_quote'),
             'signature'   => !empty($this->settings) ? $this->settings->email_signature : '',
-            'logo'        => $this->quote->account->present()->logo(),
+            'logo' => (new AccountViewModel($this->quote->account))->logo()
         ];
     }
 }

@@ -1,14 +1,10 @@
 <?php
 
-namespace App\Presenters;
 
-use Laracasts\Presenter\Presenter;
+namespace App\ViewModels;
 
-/**
- * Class EntityPresenter
- * @package App\Models\Presenters
- */
-class EntityPresenter extends Presenter
+
+class ViewModel
 {
 
     public function cityStateZip($city, $state, $postalCode, $swap)
@@ -27,10 +23,5 @@ class EntityPresenter extends Presenter
         } else {
             return $str . ' ' . $postalCode;
         }
-    }
-
-    public function clientName()
-    {
-        return $this->customer->present()->name();
     }
 }

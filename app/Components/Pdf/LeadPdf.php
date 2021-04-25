@@ -6,6 +6,7 @@ namespace App\Components\Pdf;
 
 use App\Models\Lead;
 use App\Models\Project;
+use App\ViewModels\LeadViewModel;
 use Laracasts\Presenter\Exceptions\PresenterException;
 use ReflectionClass;
 use ReflectionException;
@@ -58,17 +59,19 @@ class LeadPdf extends PdfBuilder
      */
     private function buildClientForLead(Lead $lead): self
     {
+        $objViewModel = new LeadViewModel($lead);
+
         $this->data['$customer.website'] = [
-            'value' => $lead->present()->website() ?: '&nbsp;',
+            'value' => $objViewModel->website() ?: '&nbsp;',
             'label' => trans('texts.website')
         ];
         $this->data['$customer.phone'] = [
-            'value' => $lead->present()->phone() ?: '&nbsp;',
+            'value' => $objViewModel->phone() ?: '&nbsp;',
             'label' => trans('texts.phone_number')
         ];
         $this->data['$customer.email'] = ['value' => $lead->email, 'label' => trans('texts.email_address')];
         $this->data['$customer.name'] = [
-            'value' => $lead->present()->name() ?: '&nbsp;',
+            'value' => $objViewModel->name() ?: '&nbsp;',
             'label' => trans('texts.customer_name')
         ];
         $this->data['$customer1'] = [

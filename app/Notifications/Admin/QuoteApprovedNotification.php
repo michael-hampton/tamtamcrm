@@ -4,6 +4,7 @@ namespace App\Notifications\Admin;
 
 use App\Mail\Admin\QuoteApproved;
 use App\Models\Quote;
+use App\ViewModels\AccountViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\SlackMessage;
@@ -75,7 +76,7 @@ class QuoteApprovedNotification extends Notification implements ShouldQueue
     public function toSlack($notifiable)
     {
         return (new SlackMessage)->success()
-                                 ->from("System")->image($this->quote->account->present()->logo())->content(
+                                 ->from("System")->image((new AccountViewModel($this->quote->account))->logo())->content(
                 $this->getMessage()
             );
     }

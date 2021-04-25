@@ -2,26 +2,24 @@
 
 namespace App\Models;
 
-use App\CompanyUser;
 use App\Models;
 use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laracasts\Presenter\PresentableTrait;
 use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Company extends Model
 {
 
-    use PresentableTrait;
     use SoftDeletes;
     use HasFactory;
     use Archiveable;
     use QueryCacheable;
 
     protected static $flushCacheOnUpdate = true;
+
     protected $fillable = [
         'logo',
         'number',
@@ -59,7 +57,6 @@ class Company extends Model
     protected $with = [
         'contacts',
     ];
-    protected $presenter = 'App\Presenters\CompanyPresenter';
 
     /**
      * When invalidating automatically on update, you can specify

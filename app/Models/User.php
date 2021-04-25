@@ -2,12 +2,10 @@
 
 namespace App\Models;
 
-use App\Collection;
 use App\Models;
 use App\Notifications\User\ForgotPasswordNotification;
 use App\Traits\Archiveable;
 use App\Traits\HasPermissionsTrait;
-use App\Util\Jobs\FileUploader;
 use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,7 +13,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laracasts\Presenter\PresentableTrait;
 use Rennokki\QueryCache\Traits\QueryCacheable;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use stdClass;
@@ -24,15 +21,16 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 class User extends Authenticatable implements JWTSubject, MustVerifyEmail, CanResetPassword
 {
 
-    use Notifiable, SoftDeletes, HasPermissionsTrait, PresentableTrait, HasFactory;
+    use Notifiable, SoftDeletes, HasPermissionsTrait, HasFactory;
     use HasRelationships;
     use Archiveable;
     use QueryCacheable;
 
     protected static $flushCacheOnUpdate = true;
     public $account;
-    protected $presenter = 'App\Presenters\UserPresenter';
+
     protected $with = ['accounts'];
+
     protected $casts = [
         'two_factor_authentication_enabled' => 'boolean'
     ];

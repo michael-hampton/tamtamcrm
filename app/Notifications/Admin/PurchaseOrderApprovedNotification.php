@@ -4,6 +4,7 @@ namespace App\Notifications\Admin;
 
 use App\Mail\Admin\PurchaseOrderApproved;
 use App\Models\PurchaseOrder;
+use App\ViewModels\AccountViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\SlackMessage;
@@ -75,7 +76,7 @@ class PurchaseOrderApprovedNotification extends Notification implements ShouldQu
     public function toSlack($notifiable)
     {
         return (new SlackMessage)->success()
-                                 ->from("System")->image($this->purchase_order->account->present()->logo())->content(
+                                 ->from("System")->image((new AccountViewModel($this->purchase_order->account))->logo())->content(
                 $this->getMessage()
             );
     }

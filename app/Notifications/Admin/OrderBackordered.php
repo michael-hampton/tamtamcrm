@@ -4,6 +4,8 @@ namespace App\Notifications\Admin;
 
 use App\Mail\Admin\OrderBackorderedMailer;
 use App\Models\Order;
+use App\ViewModels\AccountViewModel;
+use App\ViewModels\CustomerViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\SlackMessage;
@@ -72,10 +74,8 @@ class OrderBackordered extends Notification implements ShouldQueue
 
     public function toSlack($notifiable)
     {
-        $logo = $this->order->account->present()->logo();
-
         return (new SlackMessage)->success()
-                                 ->from("System")->image($logo)->content(
+                                 ->from("System")->image((new AccountViewModel($this->order->account))->logo())->content(
                 $this->getMessage()
             );
     }
@@ -86,7 +86,7 @@ class OrderBackordered extends Notification implements ShouldQueue
             'texts.notification_order_backordered_subject',
             [
                 'total'    => $this->order->getFormattedTotal(),
-                'customer' => $this->order->customer->present()->name(),
+                'customer' => (new CustomerViewModel($this->order->customer))->name(),
                 'order'    => $this->order->getNumber(),
             ]
         );

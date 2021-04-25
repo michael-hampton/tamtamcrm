@@ -1,29 +1,40 @@
 <?php
 
-namespace App\Presenters;
 
+namespace App\ViewModels;
+
+
+use App\Models\Account;
 use App\Models\Country;
 
-/**
- * Class AccountPresenter
- * @package App\Models\Presenters
- */
-class AccountPresenter extends EntityPresenter
+class AccountViewModel extends ViewModel
 {
+    /**
+     * @var Account
+     */
+    private Account $account;
+
+    /**
+     * AccountViewModel constructor.
+     * @param Account $account
+     */
+    public function __construct(Account $account)
+    {
+        $this->account = $account;
+    }
+
     /**
      * @return string
      */
     public function name()
     {
-        $settings = $this->entity->settings;
-
-        return $this->settings->name ?: '';
+        return $this->account->name ?: '';
     }
 
     public function logo($settings = null)
     {
         if (!$settings) {
-            $settings = $this->entity->settings;
+            $settings = $this->account->settings;
         }
 
         if (empty($settings) || empty($settings->company_logo)) {
@@ -36,11 +47,10 @@ class AccountPresenter extends EntityPresenter
     public function address($settings = null)
     {
         $str = '';
-        $company = $this->entity;
         $fields = ['address1', 'address2', 'city', 'country_id', 'phone', 'email'];
 
         if (!$settings) {
-            $settings = $this->entity->settings;
+            $settings = $this->account->settings;
         }
 
         foreach ($fields as $field) {

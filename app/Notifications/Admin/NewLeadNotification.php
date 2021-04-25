@@ -4,6 +4,8 @@ namespace App\Notifications\Admin;
 
 use App\Mail\Admin\LeadCreated;
 use App\Models\Lead;
+use App\ViewModels\AccountViewModel;
+use App\ViewModels\LeadViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\SlackMessage;
@@ -73,10 +75,8 @@ class NewLeadNotification extends Notification implements ShouldQueue
 
     public function toSlack($notifiable)
     {
-        $logo = $this->lead->account->present()->logo();
-
         return (new SlackMessage)->success()
-                                 ->from("System")->image($logo)->content(
+                                 ->from("System")->image((new AccountViewModel($this->lead->account))->logo())->content(
                 $this->getMessage()
             );
     }
@@ -86,7 +86,7 @@ class NewLeadNotification extends Notification implements ShouldQueue
         $this->subject = trans(
             'texts.notification_lead_subject',
             [
-                'customer' => $this->lead->present()->name()
+                'customer' => (new LeadViewModel($this->lead))->name()
             ]
         );
     }

@@ -4,6 +4,8 @@ namespace App\Notifications\Admin;
 
 use App\Mail\Admin\PartialPaymentMade;
 use App\Models\Payment;
+use App\ViewModels\AccountViewModel;
+use App\ViewModels\CustomerViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\SlackMessage;
@@ -72,10 +74,8 @@ class NewPartialPaymentNotification extends Notification implements ShouldQueue
 
     public function toSlack($notifiable)
     {
-        $logo = $this->payment->account->present()->logo();
-
         return (new SlackMessage)->success()
-                                 ->from("System")->image($logo)->content(
+                                 ->from("System")->image((new AccountViewModel($this->payment->account))->logo())->content(
                 $this->getMessage()
             );
     }
@@ -84,7 +84,7 @@ class NewPartialPaymentNotification extends Notification implements ShouldQueue
     {
         $this->subject = trans(
             'texts.notification_partial_payment_paid_subject',
-            ['customer' => $this->payment->customer->present()->name()]
+            ['customer' => (new CustomerViewModel($this->payment->customer))->name()]
         );
     }
 

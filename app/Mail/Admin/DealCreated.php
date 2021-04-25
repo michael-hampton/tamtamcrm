@@ -5,6 +5,8 @@ namespace App\Mail\Admin;
 use App\Models\Deal;
 use App\Models\User;
 use App\Traits\Money;
+use App\ViewModels\AccountViewModel;
+use App\ViewModels\CustomerViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 
@@ -48,7 +50,7 @@ class DealCreated extends AdminMailer
     {
         return [
             'total'    => $this->formatCurrency($this->deal->valued_at, $this->deal->customer),
-            'customer' => $this->deal->customer->present()->name()
+            'customer' => (new CustomerViewModel($this->deal->customer))->name()
         ];
     }
 
@@ -63,7 +65,7 @@ class DealCreated extends AdminMailer
             'url'         => config('taskmanager.web_url') . '/#/deals?id=' . $this->deal->id,
             'button_text' => trans('texts.view_deal'),
             'signature'   => !empty($this->settings) ? $this->settings->email_signature : '',
-            'logo'        => $this->deal->account->present()->logo(),
+            'logo'        => (new AccountViewModel($this->deal->account))->logo(),
         ];
     }
 }

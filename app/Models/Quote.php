@@ -9,13 +9,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Laracasts\Presenter\PresentableTrait;
 use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Quote extends Model
 {
     use SoftDeletes;
-    use PresentableTrait;
     use Money;
     use Balancer;
     use HasFactory;
@@ -38,8 +36,9 @@ class Quote extends Model
     const SUBSCRIPTION_TYPE = 5;
     const EXPENSE_TYPE = 6;
     const GATEWAY_FEE_TYPE = 7;
+
     protected static $flushCacheOnUpdate = true;
-    protected $presenter = 'App\Presenters\QuotePresenter';
+
     protected $casts = [
         'customer_id' => 'integer',
         'account_id'  => 'integer',

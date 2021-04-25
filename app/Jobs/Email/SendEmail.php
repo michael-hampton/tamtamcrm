@@ -13,6 +13,8 @@ use App\Models\Email;
 use App\Models\ErrorLog;
 use App\Models\Invoice;
 use App\Repositories\EmailRepository;
+use App\ViewModels\AccountViewModel;
+use App\ViewModels\CustomerContactViewModel;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -91,7 +93,7 @@ class SendEmail implements ShouldQueue
 
         if (strlen($settings->reply_to_email) > 0) {
             $reply_to_name = !empty($settings->reply_to_name) ? $settings->reply_to_name
-                : $this->entity->account->present()->name;
+                : (new AccountViewModel($this->entity->account))->name();
             $message->setReplyTo($settings->reply_to_email, $reply_to_name);
         }
 
@@ -114,7 +116,7 @@ class SendEmail implements ShouldQueue
         }
 
         try {
-            Mail::to($this->contact->email, $this->contact->present()->name())
+            Mail::to($this->contact->email, (new CustomerContactViewModel($this->contact))->name())
                 ->send($message);
         } catch (Exception $e) {
             event(new EmailFailedToSend($this->entity, $e->getMessage()));
@@ -133,6 +135,8 @@ class SendEmail implements ShouldQueue
 
     private function buildMailMessageData($settings, $body, $design): array
     {
+        $viewModel = new AccountViewModel($this->entity->account);
+
         $data = [
             'view_link' => !empty($this->footer) ? $this->footer['link'] : '',
             'view_text' => !empty($this->footer) ? $this->footer['text'] : '',
@@ -142,7 +146,7 @@ class SendEmail implements ShouldQueue
             'title'     => $this->subject,
             'settings'  => $settings,
             'company'   => $this->entity->account,
-            'logo'      => $this->entity->account->present()->logo(),
+            'logo'      => $viewModel->logo(),
             'signature' => !empty($this->entity->account->settings->email_signature) ? $this->entity->account->settings->email_signature : '',
 
         ];
@@ -184,7 +188,7 @@ class SendEmail implements ShouldQueue
         $email = Email::whereSubject($subject)
                       ->whereEntity($entity)
                       ->whereEntityId($this->entity->id)
-                      ->whereRecipientEmail($contact->present()->email)
+                      ->whereRecipientEmail($contact->email)
                       ->whereFailedToSend(1)
                       ->first();
 
@@ -196,14 +200,16 @@ class SendEmail implements ShouldQueue
 
         $email = EmailFactory::create($user->id, $this->entity->account_id);
 
+        $contactViewModel = new CustomerContactViewModel($contact);
+
         (new EmailRepository(new Email))->save(
             [
                 'subject'         => $subject,
                 'body'            => $body,
                 'entity'          => $entity,
                 'entity_id'       => $this->entity->id,
-                'recipient'       => $contact->present()->name,
-                'recipient_email' => $contact->present()->email,
+                'recipient'       => $contactViewModel->name(),
+                'recipient_email' => $contact->email,
                 'template'        => $this->template,
                 'sent_at'         => Carbon::now(),
                 'failed_to_send'  => $sent_successfully === false,

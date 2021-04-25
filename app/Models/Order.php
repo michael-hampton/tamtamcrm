@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Laracasts\Presenter\PresentableTrait;
 use Rennokki\QueryCache\Traits\QueryCacheable;
 
 /**
@@ -24,7 +23,6 @@ use Rennokki\QueryCache\Traits\QueryCacheable;
  */
 class Order extends Model
 {
-    use PresentableTrait;
     use SoftDeletes;
     use Money;
     use Balancer;
@@ -45,8 +43,9 @@ class Order extends Model
     const STATUS_VIEWED = 11;
 
     const STATUS_EXPIRED = -1;
+
     protected static $flushCacheOnUpdate = true;
-    protected $presenter = 'App\Presenters\OrderPresenter';
+
     protected $casts = [
         'account_id'    => 'integer',
         'user_id'       => 'integer',

@@ -9,12 +9,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
-use Laracasts\Presenter\PresentableTrait;
 use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class CustomerContact extends Model implements ContactInterface
 {
-    use PresentableTrait;
     use SoftDeletes;
     use Notifiable;
     use HasFactory;
@@ -22,7 +20,7 @@ class CustomerContact extends Model implements ContactInterface
     use QueryCacheable;
 
     protected static $flushCacheOnUpdate = true;
-    protected $presenter = 'App\Presenters\ClientContactPresenter';
+
     protected $dates = [
         'deleted_at'
     ];

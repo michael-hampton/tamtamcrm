@@ -4,6 +4,8 @@ namespace App\Mail\Admin;
 
 use App\Models\Payment;
 use App\Models\User;
+use App\ViewModels\AccountViewModel;
+use App\ViewModels\CustomerViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 
@@ -52,7 +54,7 @@ class PartialPaymentMade extends AdminMailer
     {
         return [
             'total'    => $this->payment->getFormattedTotal(),
-            'customer' => $this->payment->customer->present()->name(),
+            'customer' => (new CustomerViewModel($this->payment->customer))->name(),
             'invoice'  => $this->payment->getFormattedInvoices(),
         ];
     }
@@ -68,7 +70,7 @@ class PartialPaymentMade extends AdminMailer
             'url'         => $this->getUrl() . 'payments/' . $this->payment->id,
             'button_text' => trans('texts.view_payment'),
             'signature'   => isset($this->payment->account->settings->email_signature) ? $this->payment->account->settings->email_signature : '',
-            'logo'        => $this->payment->account->present()->logo(),
+            'logo'        => (new AccountViewModel($this->payment->account))->logo()
         ];
     }
 }

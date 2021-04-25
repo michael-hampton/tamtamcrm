@@ -3,6 +3,7 @@
 namespace App\Mail\User;
 
 use App\Models\User;
+use App\ViewModels\AccountViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -84,13 +85,12 @@ class UserCreated extends Mailable
 
     private function buildMessage()
     {
-        $account = !empty($this->user->account_user()) ? $this->user->account_user(
-        )->account : $this->user->accounts->first();
+        $account = !empty($this->user->account_user()) ? $this->user->account_user()->account : $this->user->accounts->first();
 
         $this->message_array = [
             'title'       => $this->subject,
             'message'     => $this->message,
-            'logo'        => $account->present()->logo(),
+            'logo'        => (new AccountViewModel($account))->logo(),
             'url'         => $this->url,
             'button_text' => trans('texts.new_user_created_button'),
             'show_footer' => empty($this->user->domain->plan) || !in_array(

@@ -8,14 +8,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laracasts\Presenter\PresentableTrait;
 use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Task extends Model
 {
 
     use SoftDeletes;
-    use PresentableTrait;
     use HasFactory;
     use Archiveable;
     use QueryCacheable;
@@ -61,7 +59,6 @@ class Task extends Model
         'task_rate',
         'column_color'
     ];
-    protected $presenter = 'App\Presenters\TaskPresenter';
 
     /**
      * When invalidating automatically on update, you can specify

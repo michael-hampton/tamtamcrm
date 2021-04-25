@@ -4,6 +4,7 @@ namespace App\Mail\Admin;
 
 use App\Models\Cases;
 use App\Models\User;
+use App\ViewModels\AccountViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 
@@ -69,7 +70,7 @@ class CaseOverdue extends AdminMailer
             'url'         => $this->getUrl() . 'cases/' . $this->case->id,
             'button_text' => trans('texts.view_case'),
             'signature'   => !empty($this->settings) ? $this->settings->email_signature : '',
-            'logo'        => $this->case->account->present()->logo(),
+            'logo'        => (new AccountViewModel($this->case->account))->logo(),
         ];
     }
 }

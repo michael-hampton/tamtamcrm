@@ -4,6 +4,8 @@ namespace App\Mail\Admin;
 
 use App\Models\Invitation;
 use App\Models\User;
+use App\ViewModels\AccountViewModel;
+use App\ViewModels\CustomerContactViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 
@@ -52,7 +54,7 @@ class ObjectViewed extends AdminMailer
     {
         return [
             'total'            => $this->entity->getFormattedTotal(),
-            'customer'         => $this->contact->present()->name(),
+            'customer'         => (new CustomerContactViewModel($this->contact))->name(),
             $this->entity_name => $this->entity->getNumber()
         ];
     }
@@ -69,7 +71,7 @@ class ObjectViewed extends AdminMailer
                 "?silent=true",
             'button_text' => trans("texts.view_{$this->entity_name}"),
             'signature'   => isset($this->entity->account->settings->email_signature) ? $this->entity->account->settings->email_signature : '',
-            'logo'        => $this->entity->account->present()->logo(),
+            'logo'        => (new AccountViewModel($this->entity->account))->logo(),
         ];
     }
 }

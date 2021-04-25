@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\Account;
+use App\ViewModels\AccountViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -35,7 +36,7 @@ class DownloadInvoices extends Mailable
             'email.admin.download_files',
             [
                 'url'  => $this->file_path,
-                'logo' => $this->account->present()->logo,
+                'logo' => (new AccountViewModel($this->account))->logo(),
             ]
         );
     }

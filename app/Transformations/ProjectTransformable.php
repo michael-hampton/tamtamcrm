@@ -19,7 +19,7 @@ trait ProjectTransformable
         return [
             'number'         => $project->number ?: '',
             'id'             => (int)$project->id,
-            'customer_name'  => $project->customer->present()->name,
+            'customer_name'  => $project->customer->name ?: '',
             'name'           => $project->name,
             'description'    => $project->description,
             'is_completed'   => $project->is_completed,
