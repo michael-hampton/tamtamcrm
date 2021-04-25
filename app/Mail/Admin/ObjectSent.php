@@ -47,7 +47,8 @@ class ObjectSent extends AdminMailer
         $data = $this->getData();
         $this->setSubject($data);
         $this->setMessage($data);
-        $this->execute($this->buildMessage());
+        $this->buildButton();
+        $this->execute();
     }
 
     /**
@@ -65,16 +66,12 @@ class ObjectSent extends AdminMailer
     /**
      * @return array
      */
-    private function buildMessage(): array
+    private function buildButton(): void
     {
-        return [
-            'title'       => $this->subject,
-            'body'        => $this->message,
+        $this->button = [
             'url'         => $this->getUrl() . "view/{$this->entity_name}/" . $this->invitation->key .
                 "?silent=true",
             'button_text' => trans("texts.view_{$this->entity_name}"),
-            'signature'   => $this->invitation->account->settings->email_signature,
-            'logo'        => (new AccountViewModel($this->invitation->account))->logo(),
         ];
     }
 }

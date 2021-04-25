@@ -2,7 +2,7 @@
     {{-- Header --}}
     @slot('header')
         @component('email.components.header', ['template' => 'dark', 'logo' => isset($data['logo']) ? $data['logo'] : ''])
-            @isset($data['title']))
+            @isset($data['title'])
                 {{$data['title']}}
             @endisset
         @endcomponent

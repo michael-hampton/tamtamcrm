@@ -43,7 +43,8 @@ class OrderHeldMailer extends AdminMailer
 
         $this->setSubject($data);
         $this->setMessage($data);
-        $this->execute($this->buildMessage());
+        $this->buildButton();
+        $this->execute();
     }
 
     /**
@@ -61,15 +62,11 @@ class OrderHeldMailer extends AdminMailer
     /**
      * @return array
      */
-    private function buildMessage(): array
+    private function buildButton(): void
     {
-        return [
-            'title'       => $this->subject,
-            'body'        => $this->message,
+        $this->button = [
             'url'         => $this->getUrl() . 'orders/' . $this->order->id,
-            'button_text' => trans('texts.view_order'),
-            'signature'   => isset($this->order->account->settings->email_signature) ? $this->order->account->settings->email_signature : '',
-            'logo' => (new AccountViewModel($this->order->account))->logo()
+            'button_text' => trans('texts.view_order')
         ];
     }
 }

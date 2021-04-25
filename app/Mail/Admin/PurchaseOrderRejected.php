@@ -42,7 +42,8 @@ class PurchaseOrderRejected extends AdminMailer
 
         $this->setSubject($data);
         $this->setMessage($data);
-        $this->execute($this->buildMessage());
+        $this->buildButton();
+        $this->execute();
     }
 
     /**
@@ -59,15 +60,11 @@ class PurchaseOrderRejected extends AdminMailer
     /**
      * @return array
      */
-    private function buildMessage(): array
+    private function buildButton(): void
     {
-        return [
-            'title'       => $this->subject,
-            'body'        => $this->message,
+        $this->button = [
             'url'         => $this->getUrl() . 'purchase_orders/' . $this->purchase_order->id,
             'button_text' => trans('texts.view_purchase_order'),
-            'signature'   => !empty($this->settings) ? $this->settings->email_signature : '',
-            'logo'        => (new AccountViewModel($this->purchase_order->account))->logo()
         ];
     }
 }

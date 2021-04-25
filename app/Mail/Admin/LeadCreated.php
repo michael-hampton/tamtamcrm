@@ -45,7 +45,8 @@ class LeadCreated extends AdminMailer
         $data = $this->getData();
         $this->setSubject($data);
         $this->setMessage($data);
-        $this->execute($this->buildMessage());
+        $this->buildButton();
+        $this->execute();
     }
 
     /**
@@ -62,15 +63,11 @@ class LeadCreated extends AdminMailer
     /**
      * @return array
      */
-    private function buildMessage(): array
+    private function buildButton(): void
     {
-        return [
-            'title'       => $this->subject,
-            'body'        => $this->message,
+        $this->button = [
             'url'         => config('taskmanager.web_url') . '/#/leads?id=' . $this->lead->id,
             'button_text' => trans('texts.view_deal'),
-            'signature'   => isset($this->lead->account->settings->email_signature) ? $this->lead->account->settings->email_signature : '',
-            'logo'        => (new AccountViewModel($this->lead->account))->logo(),
         ];
     }
 }

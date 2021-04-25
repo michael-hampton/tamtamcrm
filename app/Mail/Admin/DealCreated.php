@@ -40,7 +40,8 @@ class DealCreated extends AdminMailer
         $data = $this->getData();
         $this->setSubject($data);
         $this->setMessage($data);
-        $this->execute($this->buildMessage());
+        $this->buildButton();
+        $this->execute();
     }
 
     /**
@@ -57,15 +58,11 @@ class DealCreated extends AdminMailer
     /**
      * @return array
      */
-    private function buildMessage(): array
+    private function buildButton(): void
     {
-        return [
-            'title'       => $this->subject,
-            'body'        => $this->message,
+        $this->button = [
             'url'         => config('taskmanager.web_url') . '/#/deals?id=' . $this->deal->id,
             'button_text' => trans('texts.view_deal'),
-            'signature'   => !empty($this->settings) ? $this->settings->email_signature : '',
-            'logo'        => (new AccountViewModel($this->deal->account))->logo(),
         ];
     }
 }

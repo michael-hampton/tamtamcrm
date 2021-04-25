@@ -42,7 +42,8 @@ class CaseOverdue extends AdminMailer
 
         $this->setSubject($data);
         $this->setMessage($data);
-        $this->execute($this->buildMessage());
+        $this->buildButton();
+        $this->execute();
 
         return true;
     }
@@ -62,15 +63,11 @@ class CaseOverdue extends AdminMailer
     /**
      * @return array
      */
-    private function buildMessage(): array
+    private function buildButton(): void
     {
-        return [
-            'title'       => $this->subject,
-            'body'        => $this->message,
+        $this->button = [
             'url'         => $this->getUrl() . 'cases/' . $this->case->id,
             'button_text' => trans('texts.view_case'),
-            'signature'   => !empty($this->settings) ? $this->settings->email_signature : '',
-            'logo'        => (new AccountViewModel($this->case->account))->logo(),
         ];
     }
 }

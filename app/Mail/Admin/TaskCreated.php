@@ -41,7 +41,8 @@ class TaskCreated extends AdminMailer
 
         $this->setSubject($data);
         $this->setMessage($data);
-        $this->execute($this->buildMessage());
+        $this->buildButton();
+        $this->execute();
     }
 
     /**
@@ -58,15 +59,11 @@ class TaskCreated extends AdminMailer
     /**
      * @return array
      */
-    private function buildMessage(): array
+    private function buildButton(): void
     {
-        return [
-            'title'       => $this->subject,
-            'body'        => $this->message,
+        $this->button = [
             'url'         => $this->getUrl() . 'tasks/' . $this->task->id,
-            'button_text' => trans('texts.view_task'),
-            'signature'   => !empty($this->settings) ? $this->settings->email_signature : '',
-            'logo'        => (new AccountViewModel($this->task->account))->logo()
+            'button_text' => trans('texts.view_task')
         ];
     }
 }

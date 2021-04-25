@@ -44,7 +44,8 @@ class PaymentMade extends AdminMailer
 
         $this->setSubject($data);
         $this->setMessage($data);
-        $this->execute($this->buildMessage());
+        $this->buildButton();
+        $this->execute();
     }
 
     /**
@@ -59,18 +60,11 @@ class PaymentMade extends AdminMailer
         ];
     }
 
-    /**
-     * @return array
-     */
-    private function buildMessage(): array
+    private function buildButton(): void
     {
-        return [
-            'title'       => $this->subject,
-            'body'        => $this->message,
-            'signature'   => isset($this->payment->account->settings->email_signature) ? $this->payment->account->settings->email_signature : '',
+        $this->button = [
             'url'         => $this->getUrl() . 'payments/' . $this->payment->id,
             'button_text' => trans('texts.view_payment'),
-            'logo'        => (new AccountViewModel($this->payment->account))->logo()
         ];
     }
 }

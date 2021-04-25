@@ -6,6 +6,7 @@ namespace App\Mail\Admin;
 use App\Events\EmailFailedToSend;
 use App\Models\Invitation;
 use App\Models\User;
+use App\ViewModels\AccountViewModel;
 use Exception;
 use Illuminate\Mail\Mailable;
 
@@ -13,7 +14,14 @@ class AdminMailer extends Mailable
 {
 
     public $subject;
+
     public $entity;
+
+    /**
+     * @var array
+     */
+    protected array $button = [];
+
     /**
      * @var User
      */
@@ -74,19 +82,29 @@ class AdminMailer extends Mailable
      * @param array $message_array
      * @return AdminMailer|bool
      */
-    protected function execute(array $message_array)
+    protected function execute()
     {
+        $message_array = [
+            'title'       => $this->subject,
+            'body'        => $this->message,
+            'signature'   => !empty($this->entity->account->settings->email_signature) ? $this->entity->account->settings->email_signature : '',
+            'logo'        => (new AccountViewModel($this->entity->account))->logo(),
+            'show_footer' => empty($this->entity->account->domains->plan) || !in_array(
+                    $this->entity->account->domains->plan->code,
+                    ['PROM', 'PROY']
+                )
+        ];
+
+        if (!empty($this->button)) {
+            $message_array = array_merge($this->button, $message_array);
+        }
+
         $template = !in_array(
             get_class($this->entity),
             ['App\Models\Lead', 'App\Models\PurchaseOrder']
         ) ? $this->entity->customer->getSetting(
             'email_style'
         ) : $this->entity->account->settings->email_style;
-
-        $message_array['show_footer'] = empty($this->entity->account->domains->plan) || !in_array(
-                $this->entity->account->domains->plan->code,
-                ['PROM', 'PROY']
-            );
 
         try {
             return $this->to($this->user->email)

@@ -44,7 +44,8 @@ class ObjectViewed extends AdminMailer
 
         $this->setSubject($data);
         $this->setMessage($data);
-        $this->execute($this->buildMessage());
+        $this->buildButton();
+        $this->execute();
     }
 
     /**
@@ -62,16 +63,12 @@ class ObjectViewed extends AdminMailer
     /**
      * @return array
      */
-    public function buildMessage(): array
+    public function buildButton(): void
     {
-        return [
-            'title'       => $this->subject,
-            'body'        => $this->message,
+        $this->button = [
             'url'         => $this->getUrl() . "view/{$this->entity_name}/" . $this->invitation->key .
                 "?silent=true",
             'button_text' => trans("texts.view_{$this->entity_name}"),
-            'signature'   => isset($this->entity->account->settings->email_signature) ? $this->entity->account->settings->email_signature : '',
-            'logo'        => (new AccountViewModel($this->entity->account))->logo(),
         ];
     }
 }
