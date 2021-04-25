@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +18,7 @@ class PaymentTerms extends Model
     use HasFactory;
     use Archiveable;
     use QueryCacheable;
+    use QueryScopes;
 
     protected static $flushCacheOnUpdate = true;
     protected $fillable = ['name', 'number_of_days'];

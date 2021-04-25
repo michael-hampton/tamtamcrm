@@ -61,10 +61,10 @@ class TaskStatusSearch extends BaseSearch
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
-            $this->filterDates($request);
+            $this->query->byDate($request->input('start_date'), $request->input('end_date'));
         }
 
-        $this->addAccount($account);
+        $this->query->byAccount($account);
 
         $this->orderBy($orderBy, $orderDir);
 

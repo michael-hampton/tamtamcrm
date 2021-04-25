@@ -177,7 +177,7 @@ class ProductController extends Controller
         $parentCategory = $repo->findParentCategory();
 
         $list = Product::where('status', '=', 1)
-                       ->where('account_id', '=', $account->id)
+                       ->byAccount($account->id)
                        ->orderBy('price', 'asc')
                        ->get();
 

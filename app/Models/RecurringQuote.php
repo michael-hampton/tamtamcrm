@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use App\Traits\Balancer;
 use App\Traits\CalculateRecurringDateRanges;
@@ -26,6 +27,7 @@ class RecurringQuote extends Model
     use CalculateRecurringDateRanges;
     use Archiveable;
     use QueryCacheable;
+    use QueryScopes;
 
     const STATUS_DRAFT = 1;
     const STATUS_PENDING = 2;

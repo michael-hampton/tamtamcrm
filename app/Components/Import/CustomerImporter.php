@@ -195,7 +195,7 @@ class CustomerImporter extends BaseCsvImporter
     public function export()
     {
         $export_columns = $this->getExportColumns();
-        $list = Customer::where('account_id', '=', $this->account->id)->get();
+        $list = Customer::byAccount($this->account)->get();
 
         $customers = [];
 

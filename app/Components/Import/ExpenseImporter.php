@@ -136,10 +136,7 @@ class ExpenseImporter extends BaseCsvImporter
     public function getExpenseCategory(string $value)
     {
         if (empty($this->expense_categories)) {
-            $this->expense_categories = ExpenseCategory::where('account_id', $this->account->id)->where(
-                'hide',
-                false
-            )->get()->keyBy('name')->toArray();
+            $this->expense_categories = ExpenseCategory::byAccount($this->account)->active()->get()->keyBy('name')->toArray();
 
             $this->expense_categories = array_change_key_case($this->expense_categories, CASE_LOWER);
         }
@@ -165,7 +162,7 @@ class ExpenseImporter extends BaseCsvImporter
     public function export()
     {
         $export_columns = $this->getExportColumns();
-        $list = Expense::where('account_id', '=', $this->account->id)->get();
+        $list = Expense::byAccount($this->account)->get();
 
         $expenses = $list->map(
             function (Expense $expense) {

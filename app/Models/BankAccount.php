@@ -8,6 +8,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,6 +20,7 @@ class BankAccount extends Model
     use SoftDeletes;
     use Archiveable;
     use HasFactory;
+    use QueryScopes;
 
     protected $fillable = [
         'name',

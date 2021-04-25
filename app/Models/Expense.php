@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models;
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,7 @@ use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Expense extends Model
 {
-    use SoftDeletes, HasFactory, Archiveable, QueryCacheable;
+    use SoftDeletes, HasFactory, Archiveable, QueryCacheable, QueryScopes;
 
     const STATUS_LOGGED = 1;
     const STATUS_PENDING = 2;

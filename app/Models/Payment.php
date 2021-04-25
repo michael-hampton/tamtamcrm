@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Actions\Transaction\TriggerTransaction;
 use App\Events\Payment\PaymentWasDeleted;
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use App\Traits\Money;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,6 +20,7 @@ class Payment extends Model
     use HasFactory;
     use Archiveable;
     use QueryCacheable;
+    use QueryScopes;
 
     const STATUS_PENDING = 1;
     const STATUS_VOIDED = 2;

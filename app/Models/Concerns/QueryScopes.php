@@ -6,12 +6,13 @@ namespace App\Models\Concerns;
 use App\Models\Customer;
 use App\Models\Account;
 use App\Models\Invoice;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 trait QueryScopes
 {
-    public function scopeByDate($query, $date_from, $date_to, $column = '', $field='')
+    public function scopeByDate($query, $date_from, $date_to, $column = '', $field = '')
     {
         $column = $column !== '' ? $column . '.' : '';
         $field = $field !== '' ? $column . $field : $column . 'created_at';
@@ -70,25 +71,26 @@ trait QueryScopes
     public function scopeOverdue($query, $table)
     {
         return $query->whereIn(
-                'status_id',
-                [
-                    Invoice::STATUS_SENT,
-                    Invoice::STATUS_PARTIAL
-                ]
-            )->where('due_date', '<', Carbon::now())->orWhere('partial_due_date', '<', Carbon::now());
+            'status_id',
+            [
+                Invoice::STATUS_SENT,
+                Invoice::STATUS_PARTIAL
+            ]
+        )->where('due_date', '<', Carbon::now())->orWhere('partial_due_date', '<', Carbon::now());
     }
 
-    public function scopeStatus($query, $column)
+    public function scopeStatus($query, $filtered_statuses, $column)
     {
         return $query->whereIn(
-                $column,
-                $filtered_statuses
-            );
+            $column,
+            $filtered_statuses
+        );
     }
 
-    public function scopeActive($query, $table)
+    public function scopeActive($query, $table = '')
     {
-        return $query->whereNull($table . '.deleted_at');
+        $column = !empty($table) ? $table . '.deleted_at' : 'deleted_at';
+        return $query->whereNull($column)->where('hide', false);
     }
 
     public function scopeArchived($query, $table)

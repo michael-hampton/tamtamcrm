@@ -169,7 +169,7 @@ class CompanyImporter extends BaseCsvImporter
     public function export()
     {
         $export_columns = $this->getExportColumns();
-        $list = Company::where('account_id', '=', $this->account->id)->get();
+        $list = Company::byAccount($this->account)->get();
 
         $companies = [];
 

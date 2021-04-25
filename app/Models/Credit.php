@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use App\Traits\Balancer;
 use App\Traits\Money;
@@ -22,6 +23,7 @@ class Credit extends Model
     use Archiveable;
     use Taxable;
     use QueryCacheable;
+    use QueryScopes;
 
     const STATUS_DRAFT = 1;
     const STATUS_SENT = 2;

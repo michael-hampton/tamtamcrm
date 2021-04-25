@@ -136,7 +136,7 @@ class LeadImporter extends BaseCsvImporter
     public function export()
     {
         $export_columns = $this->getExportColumns();
-        $list = Lead::where('account_id', '=', $this->account->id)->get();
+        $list = Lead::byAccount($this->account)->get();
 
         $leads = $list->map(
             function (Lead $lead) {

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\QueryScopes;
 use App\Models;
 use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,6 +18,7 @@ class Company extends Model
     use HasFactory;
     use Archiveable;
     use QueryCacheable;
+    use QueryScopes;
 
     protected static $flushCacheOnUpdate = true;
 

@@ -70,7 +70,7 @@ class CreditSearch extends BaseSearch
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
-            $this->filterDates($request);
+            $this->query->byDate($request->input('start_date'), $request->input('end_date'));
         }
 
         $this->query->byAccount($account);
@@ -237,8 +237,7 @@ class CreditSearch extends BaseSearch
 
         if ($order_by === 'status') {
             $collection = collect($rows);
-            $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby('status')->toArray(
-            ) : $collection->sortByDesc('status')->toArray();
+            $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby('status')->toArray() : $collection->sortByDesc('status')->toArray();
         }
 
         if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {

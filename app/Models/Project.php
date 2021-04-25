@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use App\Traits\SearchableTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,6 +20,7 @@ class Project extends Model
     use HasFactory;
     use Archiveable;
     use QueryCacheable;
+    use QueryScopes;
 
     protected static $flushCacheOnUpdate = true;
     protected $fillable = [

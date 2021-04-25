@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Actions\Invoice\CancelInvoice;
 use App\Actions\Transaction\TriggerTransaction;
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use App\Traits\Balancer;
 use App\Traits\Money;
@@ -18,7 +19,7 @@ use Rennokki\QueryCache\Traits\QueryCacheable;
 class Invoice extends Model
 {
 
-    use SoftDeletes, Money, Balancer, HasFactory, Archiveable, Taxable, QueryCacheable;
+    use SoftDeletes, Money, Balancer, HasFactory, Archiveable, Taxable, QueryCacheable, QueryScopes;
 
     const STATUS_DRAFT = 1;
     const STATUS_SENT = 2;

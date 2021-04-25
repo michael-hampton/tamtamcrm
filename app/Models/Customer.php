@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use App\Traits\Balancer;
 use App\Traits\HasSubscriptions;
@@ -17,7 +18,7 @@ use Rennokki\QueryCache\Traits\QueryCacheable;
 class Customer extends Model implements HasLocalePreference
 {
 
-    use SoftDeletes, Balancer, Money, HasFactory, Archiveable, QueryCacheable, HasSubscriptions;
+    use SoftDeletes, Balancer, Money, HasFactory, Archiveable, QueryCacheable, HasSubscriptions, QueryScopes;
 
     const CUSTOMER_TYPE_WON = 1;
     protected static $flushCacheOnUpdate = true;

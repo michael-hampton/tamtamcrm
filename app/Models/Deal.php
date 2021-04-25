@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,6 +14,7 @@ class Deal extends Model
     use SoftDeletes;
     use HasFactory;
     use Archiveable;
+    use QueryScopes;
 
     protected $fillable = [
         'task_sort_order',

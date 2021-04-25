@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +11,7 @@ class CompanyGateway extends Model
 {
     use HasFactory;
     use Archiveable;
+    use QueryScopes;
 
     protected $casts = [
         //'fields'          => 'object',

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use App\Traits\SearchableTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,6 +16,7 @@ class TaskStatus extends Model
     use HasFactory;
     use Archiveable;
     use SoftDeletes;
+    use QueryScopes;
 
     /**
      * The attributes that are mass assignable.

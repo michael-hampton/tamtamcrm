@@ -17,6 +17,7 @@ class Task extends Model
     use HasFactory;
     use Archiveable;
     use QueryCacheable;
+    use Models\Concerns\QueryScopes;
 
     const TASK_TYPE_DEAL = 3;
     const STATUS_IN_PROGRESS = 7;

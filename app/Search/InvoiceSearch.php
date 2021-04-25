@@ -64,11 +64,11 @@ class InvoiceSearch extends BaseSearch
         }
 
         if ($request->filled('user_id')) {
-            $this->query->byAssignee('assigned_to', '=', $request->user_id);
+            $this->query->byAssignee($request->user_id);
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
-            $this->filterDates($request);
+            $this->query->byDate($request->input('start_date'), $request->input('end_date'));
         }
 
         $this->query->byAccount($account);

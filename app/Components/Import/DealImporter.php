@@ -112,7 +112,7 @@ class DealImporter extends BaseCsvImporter
     public function export()
     {
         $export_columns = $this->getExportColumns();
-        $list = Deal::where('account_id', '=', $this->account->id)->get();
+        $list = Deal::byAccount($this->account)->get();
 
         $deals = $list->map(
             function (Deal $deal) {

@@ -27,6 +27,7 @@ class RecurringInvoice extends Model
     use HasFactory;
     use Archiveable;
     use QueryCacheable;
+    use Models\Concerns\QueryScopes;
 
     const STATUS_DRAFT = 1;
     const STATUS_PENDING = 2;

@@ -13,6 +13,7 @@ use App\Events\Plan\SubscriptionCanceled;
 use App\Events\Plan\SubscriptionPlanChanged;
 use App\Events\Plan\SubscriptionRenewed;
 use App\Models\Concerns\BelongsToPlanModel;
+use App\Models\Concerns\QueryScopes;
 use App\Notifications\PlanSubscription\CancelSubscription;
 use App\Traits\Archiveable;
 use App\Traits\WebhookNotifiable;
@@ -33,6 +34,7 @@ class PlanSubscription extends Model
     use Archiveable;
     use SoftDeletes;
     use WebhookNotifiable;
+    use QueryScopes;
 
     /**
      * Subscription statuses

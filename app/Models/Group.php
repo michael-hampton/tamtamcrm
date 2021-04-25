@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,6 +13,7 @@ class Group extends Model
     use SoftDeletes;
     use HasFactory;
     use Archiveable;
+    use QueryScopes;
 
     public $timestamps = false;
     protected $casts = [

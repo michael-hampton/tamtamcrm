@@ -148,7 +148,7 @@ class TaskRepository extends BaseRepository implements TaskRepositoryInterface
     {
         $date = Carbon::today()->subDays($number_of_days);
         $result = $this->model->select(DB::raw('count(*) as total'))->where('created_at', '>=', $date)
-                              ->where('account_id', $account_id)->get();
+                              ->byAccount($account_id)->get();
 
         return !empty($result[0]) ? $result[0]['total'] : 0;
     }

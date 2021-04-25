@@ -15,7 +15,7 @@ class LineItemReport
 {
     public function build(Request $request, Account $account)
     {
-        $invoices = Invoice::where('account_id', $account->id)->get();
+        $invoices = Invoice::byAccount($account)->get();
 
         if (!empty($request->input('start_date')) && !empty($request->input('end_date'))) {
             $start = date("Y-m-d", strtotime($request->input('start_date')));

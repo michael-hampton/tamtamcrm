@@ -162,7 +162,7 @@ class InvoiceImporter extends BaseCsvImporter
     public function export($is_json = false)
     {
         $export_columns = $this->getExportColumns();
-        $list = Invoice::where('account_id', '=', $this->account->id)->get();
+        $list = Invoice::byAccount($this->account)->get();
 
         $invoices = [];
 

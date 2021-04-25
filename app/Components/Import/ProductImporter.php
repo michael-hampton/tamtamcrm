@@ -209,7 +209,7 @@ class ProductImporter extends BaseCsvImporter
     public function export()
     {
         $export_columns = $this->getExportColumns();
-        $list = Product::where('account_id', '=', $this->account->id)->get();
+        $list = Product::byAccount($this->account)->get();
 
         $products = $list->map(
             function (Product $product) {

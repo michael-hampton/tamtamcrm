@@ -105,7 +105,7 @@ class PaymentImporter extends BaseCsvImporter
     public function export($is_json = false)
     {
         $export_columns = $this->getExportColumns();
-        $list = Payment::where('account_id', '=', $this->account->id)->get();
+        $list = Payment::byAccount($this->account)->get();
 
         $payments = [];
 

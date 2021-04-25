@@ -62,7 +62,7 @@ class PaymentSearch extends BaseSearch
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
-            $this->filterDates($request);
+            $this->query->byDate($request->input('start_date'), $request->input('end_date'));
         }
 
         $this->query->byAccount($account);

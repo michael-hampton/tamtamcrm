@@ -3,6 +3,7 @@
 namespace App\Models;
 
 
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,6 +14,7 @@ class Plan extends Model
 
     use SoftDeletes;
     use Archiveable;
+    use QueryScopes;
 
     const PLAN_STANDARD = 'STANDARD';
     const PLAN_ADVANCED = 'ADVANCED';
