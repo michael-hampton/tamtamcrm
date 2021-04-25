@@ -52,14 +52,14 @@ class CompanySearch extends BaseSearch
         }
 
         if ($request->filled('id')) {
-            $this->query->whereId($request->id);
+            $this->query->byId($request->id);
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
             $this->filterDates($request);
         }
 
-        $this->addAccount($account, 'companies');
+        $this->byAccount($account, 'companies');
 
         $this->checkPermissions('companycontroller.index', 'companies');
 
