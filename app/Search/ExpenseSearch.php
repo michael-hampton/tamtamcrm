@@ -57,30 +57,30 @@ class ExpenseSearch extends BaseSearch
         }
 
         if ($request->filled('customer_id')) {
-            $this->query->whereCustomerId($request->customer_id);
+            $this->query->byCustomer($request->customer_id);
         }
 
         if ($request->filled('company_id')) {
-            $this->query->whereCompanyId($request->company_id);
+            $this->query->byCompany($request->company_id);
         }
 
         if ($request->filled('expense_category_id')) {
-            $this->query->whereExpenseCategoryId($request->expense_category_id);
+            $this->query->byExpenseCategory($request->expense_category_id);
         }
 
         if ($request->filled('id')) {
-            $this->query->whereId($request->id);
+            $this->query->byId($request->id);
         }
 
         if ($request->filled('user_id')) {
-            $this->query->where('assigned_to', '=', $request->user_id);
+            $this->query->byAssignee('assigned_to', '=', $request->user_id);
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
             $this->filterDates($request);
         }
 
-        $this->addAccount($account);
+        $this->query->byAccount($account);
 
         $this->checkPermissions('expensecontroller.index');
 
