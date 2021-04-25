@@ -4,16 +4,17 @@ namespace App\Actions\Pdf;
 
 
 use App\Components\Pdf\InvoicePdf;
+use App\Factory\CloneOrderToInvoiceFactory;
 use App\Jobs\Pdf\CreatePdf;
 use App\Models\Invoice;
 
 class GenerateDispatchNote
 {
-    private Invoice $invoice;
+    private $entity;
 
-    public function __construct(Invoice $invoice)
+    public function __construct($entity)
     {
-        $this->invoice = $invoice;
+        $this->entity = $entity;
     }
 
     public function execute($contact = null, $update = false)

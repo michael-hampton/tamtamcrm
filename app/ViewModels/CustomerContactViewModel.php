@@ -4,6 +4,7 @@
 namespace App\ViewModels;
 
 
+use App\Models\ContactInterface;
 use App\Models\CustomerContact;
 
 class CustomerContactViewModel extends ViewModel
@@ -11,13 +12,13 @@ class CustomerContactViewModel extends ViewModel
     /**
      * @var CustomerContact
      */
-    private CustomerContact $customer_contact;
+    private ContactInterface $customer_contact;
 
     /**
      * CustomerContactViewModel constructor.
      * @param CustomerContact $customer_contact
      */
-    public function __construct(CustomerContact $customer_contact)
+    public function __construct(ContactInterface $customer_contact)
     {
         $this->customer_contact = $customer_contact;
     }

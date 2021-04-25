@@ -16,6 +16,11 @@ class LeadPdf extends PdfBuilder
     protected $entity;
 
     /**
+     * @var LeadViewModel
+     */
+    private LeadViewModel $view_model;
+
+    /**
      * InvoicePdf constructor.
      * @param $entity
      * @throws ReflectionException
@@ -25,6 +30,7 @@ class LeadPdf extends PdfBuilder
         parent::__construct($entity);
         $this->entity = $entity;
         $this->class = strtolower((new ReflectionClass($this->entity))->getShortName());
+        $this->view_model = new LeadViewModel($entity);
     }
 
     public function getEntityString()
@@ -35,7 +41,7 @@ class LeadPdf extends PdfBuilder
     public function build($contact = null)
     {
         $this->buildClientForLead($this->entity)
-             ->buildAddress($this->entity, $this->entity)
+             ->buildAddress($this->entity, $this->entity, $this->view_model)
              ->buildAccount($this->entity->account)
              ->buildTask();
 
@@ -59,19 +65,17 @@ class LeadPdf extends PdfBuilder
      */
     private function buildClientForLead(Lead $lead): self
     {
-        $objViewModel = new LeadViewModel($lead);
-
         $this->data['$customer.website'] = [
-            'value' => $objViewModel->website() ?: '&nbsp;',
+            'value' => $this->view_model->website() ?: '&nbsp;',
             'label' => trans('texts.website')
         ];
         $this->data['$customer.phone'] = [
-            'value' => $objViewModel->phone() ?: '&nbsp;',
+            'value' => $this->view_model->phone() ?: '&nbsp;',
             'label' => trans('texts.phone_number')
         ];
         $this->data['$customer.email'] = ['value' => $lead->email, 'label' => trans('texts.email_address')];
         $this->data['$customer.name'] = [
-            'value' => $objViewModel->name() ?: '&nbsp;',
+            'value' => $this->view_model->name() ?: '&nbsp;',
             'label' => trans('texts.customer_name')
         ];
         $this->data['$customer1'] = [

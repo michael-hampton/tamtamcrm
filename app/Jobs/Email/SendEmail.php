@@ -15,6 +15,7 @@ use App\Models\Invoice;
 use App\Repositories\EmailRepository;
 use App\ViewModels\AccountViewModel;
 use App\ViewModels\CustomerContactViewModel;
+use App\ViewModels\LeadViewModel;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -182,7 +183,13 @@ class SendEmail implements ShouldQueue
 
         $entity = get_class($this->entity);
 
-        $contact = $entity === 'App\Models\Lead' ? $this->entity : $this->contact;
+        if ($entity === 'App\Models\Lead') {
+            $contact = $this->entity;
+            $contactViewModel = new LeadViewModel($this->entity);
+        } else {
+            $contact = $this->contact;
+            $contactViewModel = new CustomerContactViewModel($contact);
+        }
 
         // check if already sent
         $email = Email::whereSubject($subject)
@@ -199,8 +206,6 @@ class SendEmail implements ShouldQueue
         }
 
         $email = EmailFactory::create($user->id, $this->entity->account_id);
-
-        $contactViewModel = new CustomerContactViewModel($contact);
 
         (new EmailRepository(new Email))->save(
             [

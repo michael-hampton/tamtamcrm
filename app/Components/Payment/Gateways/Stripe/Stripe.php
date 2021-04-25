@@ -17,7 +17,7 @@ use Stripe\Exception\InvalidRequestException;
 use Stripe\Exception\RateLimitException;
 use Stripe\StripeClient;
 
-class Stripe extends BasePaymentGateway
+class Stripe extends BaseStripe
 {
     private $stripe;
 
