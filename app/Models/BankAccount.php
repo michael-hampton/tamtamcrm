@@ -52,6 +52,10 @@ class BankAccount extends Model
 
     public function setPasswordAttribute(string $value)
     {
+        if (empty($value)) {
+            return null;
+        }
+
         $this->attributes['password'] = Hash::make($value);
     }
 }

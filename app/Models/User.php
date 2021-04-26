@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models;
+use App\Models\Concerns\QueryScopes;
 use App\Notifications\User\ForgotPasswordNotification;
 use App\Traits\Archiveable;
 use App\Traits\HasPermissionsTrait;
@@ -25,8 +26,10 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, CanRe
     use HasRelationships;
     use Archiveable;
     use QueryCacheable;
+    use QueryScopes;
 
     protected static $flushCacheOnUpdate = true;
+
     public $account;
 
     protected $with = ['accounts'];

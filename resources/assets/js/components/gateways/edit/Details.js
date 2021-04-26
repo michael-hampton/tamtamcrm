@@ -65,7 +65,8 @@ export default class Details extends React.Component {
                         {this.props.renderErrorFor('description')}
                     </FormGroup>
 
-                    <Config gateway={this.props.gateway} handleConfig={this.props.handleConfig}/>
+                    <Config refresh={this.props.refresh} gateway={this.props.gateway}
+                        handleConfig={this.props.handleConfig}/>
                 </CardBody>
             </Card>
         )

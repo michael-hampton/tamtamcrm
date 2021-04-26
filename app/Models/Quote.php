@@ -227,17 +227,14 @@ class Quote extends Model
         return true;
     }
 
-    public function setExchangeRate()
+    public function setExchangeRateAttribute($value)
     {
-        $exchange_rate = $this->customer->getExchangeRate();
-        $this->exchange_rate = !empty($exchange_rate) ? $exchange_rate : null;
-        return true;
+        $this->exchange_rate = $value;
     }
 
-    public function setCurrency()
+    public function setCurrencyAttribute($value)
     {
-        $this->currency_id = !empty($this->customer->currency_id) ? (int)$this->customer->currency_id : (int)$this->account->settings->currency_id;
-        return true;
+        $this->currency_id = (int)$value;
     }
 
     public function getNumber()

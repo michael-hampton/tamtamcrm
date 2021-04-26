@@ -26,6 +26,13 @@ class AddGateway extends React.Component {
         this.updateFields = this.updateFields.bind(this)
         this.handleInput = this.handleInput.bind(this)
         this.updateFeesAndLimits = this.updateFeesAndLimits.bind(this)
+        this.refresh = this.refresh.bind(this)
+    }
+
+    refresh (gateway) {
+        this.gatewayModel = new GatewayModel(gateway)
+        this.initialState = this.gatewayModel.fields
+        this.state = this.initialState
     }
 
     handleConfig (e) {
@@ -188,7 +195,7 @@ class AddGateway extends React.Component {
 
                         <TabContent activeTab={this.state.activeTab}>
                             <TabPane tabId="1">
-                                <Details is_edit={false} renderErrorFor={this.renderErrorFor}
+                                <Details refresh={this.refresh} is_edit={false} renderErrorFor={this.renderErrorFor}
                                     errors={this.state.errors}
                                     handleInput={this.handleInput}
                                     gateway={this.state}

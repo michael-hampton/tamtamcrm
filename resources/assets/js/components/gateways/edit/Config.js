@@ -22,7 +22,7 @@ export default class Config extends Component {
     getAuthorizeConfig () {
         const settings = this.props.gateway.settings
 
-        const formFields = [
+        return [
             [
                 {
                     name: 'apiLoginId',
@@ -71,14 +71,12 @@ export default class Config extends Component {
                 }
             ]
         ]
-
-        return formFields
     }
 
     getPaypalConfig () {
         const settings = this.props.gateway.settings
 
-        const formFields = [
+        return [
             [
                 {
                     name: 'password',
@@ -133,8 +131,6 @@ export default class Config extends Component {
                 }
             ]
         ]
-
-        return formFields
     }
 
     getStripeConfig () {
@@ -201,7 +197,9 @@ export default class Config extends Component {
                 return
             }
 
-            alert(response.url)
+            if (this.props.refresh) {
+                this.props.refresh(response.gateway)
+            }
 
             window.open(
                 response.url,
