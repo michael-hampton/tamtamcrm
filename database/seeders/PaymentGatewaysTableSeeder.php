@@ -92,6 +92,18 @@ class PaymentGatewaysTableSeeder extends Seeder
                     'offsite_only'            => 0,
                     'is_custom'               => 0,
                 ),
+            6 =>
+                array(
+                    'id'                      => 7,
+                    'name'                    => 'Braintree',
+                    'key'                     => 'dlmqa4gvpy',
+                    'provider'                => 'Braintree',
+                    'default_gateway_type_id' => 1,
+                    'created_at'              => null,
+                    'updated_at'              => null,
+                    'offsite_only'            => 0,
+                    'is_custom'               => 0,
+                ),
         ));
 
 

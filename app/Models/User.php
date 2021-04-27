@@ -175,9 +175,10 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, CanRe
         )
                     ->where('company_tokens.user_id', '=', $this->id)
                     ->where('company_tokens.is_web', '=', true)
+                    ->whereNull('company_tokens.deleted_at')
                     ->where('company_tokens.token', '=', $this->auth_token)->select(
                 'account_user.*'
-            )->cacheFor(now()->addMonthNoOverflow())->cacheTags(['account_user'])->first();
+            )->first();
     }
 
 

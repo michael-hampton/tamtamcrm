@@ -34,17 +34,23 @@ class DefaultLayout extends Component {
         this.shown_notifications = []
     }
 
-    signOut (e) {
-        e.preventDefault()
-        this.props.history.push('/login')
-    }
-
     componentDidMount () {
         this.getNotifications()
 
         setInterval(() => {
             this.getNotifications()
         }, 60000)
+    }
+
+    signOut (e) {
+        e.preventDefault()
+        axios.post('/api/logout')
+            .then((r) => {
+                location.href = '/#/login'
+            })
+            .catch((e) => {
+                alert(e)
+            })
     }
 
     getNotifications () {

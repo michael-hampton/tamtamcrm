@@ -542,7 +542,7 @@ Route::group(
         // login
         Route::get('login', 'LoginController@showLogin');
         Route::post('login', 'LoginController@doLogin');
-        Route::get('logout', 'LoginController@doLogout');
+        Route::post('logout', 'Auth\LogoutController');
         Route::post('forgot-password', 'Auth\ForgotPasswordController@sendResetLinkEmail');
 
         Route::post('user/verify/{user}', 'Auth\VerificationController@resend');

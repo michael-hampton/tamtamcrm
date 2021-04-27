@@ -48,7 +48,7 @@ class LoginController extends BaseController
             $accounts = AccountUser::whereUserId($user->id)->with('account')->get();
 
             CompanyToken::updateOrCreate(
-                ['user_id' => $user->id],
+                ['user_id' => $user->id, 'is_web' => true],
                 [
                     'is_web'     => true,
                     'token'      => $token,
@@ -104,12 +104,6 @@ class LoginController extends BaseController
     {
         // show the form
         return View::make('login');
-    }
-
-    public function doLogout()
-    {
-        Auth::logout(); // log the user out of our application
-        return Redirect::to('login'); // redirect the user to the login screen
     }
 
     /**
