@@ -1,24 +1,26 @@
 <?php
 
-namespace App\Notifications\Admin;
+namespace App\Notifications\Quote;
 
-use App\Mail\Admin\PurchaseOrderApproved;
-use App\Models\PurchaseOrder;
+use App\Mail\Admin\EntityCreated;
+use App\Models\Order;
+use App\Models\Quote;
 use App\ViewModels\AccountViewModel;
+use App\ViewModels\CustomerViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
 
-class PurchaseOrderApprovedNotification extends Notification implements ShouldQueue
+class QuoteCreatedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
 
     /**
-     * @var PurchaseOrder
+     * @var Quote
      */
-    private PurchaseOrder $purchase_order;
+    private Quote $quote;
 
     /**
      * @var string
@@ -26,13 +28,13 @@ class PurchaseOrderApprovedNotification extends Notification implements ShouldQu
     private string $message_type;
 
     /**
-     * SendPurchaseOrderApprovedNotification constructor.
-     * @param PurchaseOrder $purchase_order
+     * QuoteCreatedNotification constructor.
+     * @param Quote $quote
      * @param string $message_type
      */
-    public function __construct(PurchaseOrder $purchase_order, $message_type = '')
+    public function __construct(Quote $quote, $message_type = '')
     {
-        $this->purchase_order = $purchase_order;
+        $this->quote = $quote;
         $this->message_type = $message_type;
     }
 
@@ -54,11 +56,11 @@ class PurchaseOrderApprovedNotification extends Notification implements ShouldQu
 
     /**
      * @param $notifiable
-     * @return PurchaseOrderApproved
+     * @return EntityCreated
      */
     public function toMail($notifiable)
     {
-        return new PurchaseOrderApproved($this->purchase_order, $notifiable);
+        return new EntityCreated($this->quote, 'quote', $notifiable);
     }
 
     /**
@@ -76,18 +78,19 @@ class PurchaseOrderApprovedNotification extends Notification implements ShouldQu
     public function toSlack($notifiable)
     {
         return (new SlackMessage)->success()
-                                 ->from("System")->image((new AccountViewModel($this->purchase_order->account))->logo())->content(
+                                 ->from("System")->image((new AccountViewModel($this->quote->account))->logo())->content(
                 $this->getMessage()
             );
     }
 
     private function getMessage()
     {
-        $this->subject = trans(
-            'texts.notification_purchase_order_approved_subject',
+        return trans(
+            'texts.notification_quote_created_subject',
             [
-                'total'          => $this->purchase_order->getFormattedTotal(),
-                'purchase_order' => $this->purchase_order->getNumber(),
+                'total'    => $this->quote->getFormattedTotal(),
+                'quote'    => $this->quote->getNumber(),
+                'customer' => (new CustomerViewModel($this->quote->customer))->name()
             ]
         );
     }

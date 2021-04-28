@@ -1,24 +1,24 @@
 <?php
 
-namespace App\Notifications\Admin;
+namespace App\Notifications\Order;
 
-use App\Mail\Admin\PurchaseOrderRejected;
-use App\Models\PurchaseOrder;
+use App\Mail\Admin\OrderCreated;
+use App\Models\Order;
 use App\ViewModels\AccountViewModel;
+use App\ViewModels\CustomerViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
 
-class PurchaseOrderRejectedNotification extends Notification implements ShouldQueue
+class NewOrderNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-
     /**
-     * @var PurchaseOrder
+     * @var Order
      */
-    private PurchaseOrder $purchase_order;
+    private Order $order;
 
     /**
      * @var string
@@ -26,16 +26,15 @@ class PurchaseOrderRejectedNotification extends Notification implements ShouldQu
     private string $message_type;
 
     /**
-     * SendPurchaseOrderApprovedNotification constructor.
-     * @param PurchaseOrder $purchase_order
+     * NewOrderNotification constructor.
+     * @param Order $order
      * @param string $message_type
      */
-    public function __construct(PurchaseOrder $purchase_order, $message_type = '')
+    public function __construct(Order $order, string $message_type = '')
     {
-        $this->purchase_order = $purchase_order;
+        $this->order = $order;
         $this->message_type = $message_type;
     }
-
 
     /**
      * Get the notification's delivery channels.
@@ -54,11 +53,11 @@ class PurchaseOrderRejectedNotification extends Notification implements ShouldQu
 
     /**
      * @param $notifiable
-     * @return PurchaseOrderRejected
+     * @return OrderCreated
      */
     public function toMail($notifiable)
     {
-        return new PurchaseOrderRejected($this->purchase_order, $notifiable);
+        return new OrderCreated($this->order, $notifiable);
     }
 
     /**
@@ -76,20 +75,22 @@ class PurchaseOrderRejectedNotification extends Notification implements ShouldQu
     public function toSlack($notifiable)
     {
         return (new SlackMessage)->success()
-                                 ->from("System")->image((new AccountViewModel($this->purchase_order->account))->logo())->content(
+                                 ->from("System")->image((new AccountViewModel($this->order->account))->logo())->content(
                 $this->getMessage()
             );
     }
 
     private function getMessage()
     {
-        $this->subject = trans(
-            'texts.notification_purchase_order_rejected_subject',
+        return trans(
+            'texts.notification_order_subject',
             [
-                'total'          => $this->purchase_order->getFormattedTotal(),
-                'purchase_order' => $this->purchase_order->getNumber(),
+                'total'    => $this->order->getFormattedTotal(),
+                'customer' => (new CustomerViewModel($this->order->customer))->name(),
+                'order'    => $this->order->getNumber(),
             ]
         );
     }
 
 }
+

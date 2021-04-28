@@ -72,7 +72,8 @@ class PurchaseOrderRepository extends BaseRepository implements PurchaseOrderRep
         $purchase_order = $this->calculateTotals($purchase_order);
 
         $purchase_order->setNumber();
-        $purchase_order->setExchangeRate();
+        $purchase_order = $purchase_order->convertCurrencies($purchase_order, $purchase_order->total,
+            config('taskmanager.use_live_exchange_rates'));
 
         $purchase_order->save();
 

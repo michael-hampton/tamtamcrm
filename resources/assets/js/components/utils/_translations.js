@@ -215,6 +215,7 @@ _localizedValues.en = {
     expense_deleted: 'Expense Deleted',
     expense_created: 'Expense Created',
     expense_updated: 'Expense Updated',
+    refund_failure: 'Refund Failure',
     late_invoices: 'Late Invoices',
     subject: 'Subject',
     to: 'To',

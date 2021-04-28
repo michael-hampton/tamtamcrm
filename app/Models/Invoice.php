@@ -113,7 +113,8 @@ class Invoice extends Model
         'recurring_invoice_id',
         'late_fee_reminder',
         'project_id',
-        'plan_subscription_id'
+        'plan_subscription_id',
+        'exchange_rate'
     ];
     protected $dates = [
         'date_to_send',
@@ -384,12 +385,12 @@ class Invoice extends Model
 
     public function setExchangeRateAttribute($value)
     {
-        $this->exchange_rate = $value;
+        $this->attributes['exchange_rate'] = $value;
     }
 
     public function setCurrencyAttribute($value)
     {
-        $this->currency_id = (int)$value;
+        $this->attributes['currency_id'] = (int) $value;
     }
 
     public function getDesignIdAttribute()

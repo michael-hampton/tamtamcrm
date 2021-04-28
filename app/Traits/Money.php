@@ -66,12 +66,14 @@ trait Money
 
     /**
      * @param $entity
-     * @param float $amount
+     * @param float|null $amount
+     * @param bool $use_live_currencies
      * @return mixed
      */
-    public function convertCurrencies($entity, float $amount, bool $use_live_currencies = true)
+    public function convertCurrencies($entity, ?float $amount = null, bool $use_live_currencies = false)
     {
         if (!$use_live_currencies) {
+
 
             if(empty($entity->exchange_rate)) {
                 $exchange_rate = $entity->customer->getExchangeRate();
@@ -86,7 +88,7 @@ trait Money
             return $entity;
         }
 
-        if ((int)$entity->account->getCurrency()->id === (int)$entity->customer->currency->id) {
+        if (empty($amount) || (int)$entity->account->getCurrency()->id === (int)$entity->customer->currency->id) {
             return $entity;
         }
 

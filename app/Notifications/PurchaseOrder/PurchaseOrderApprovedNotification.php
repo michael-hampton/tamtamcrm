@@ -1,24 +1,24 @@
 <?php
 
-namespace App\Notifications\Admin;
+namespace App\Notifications\PurchaseOrder;
 
-use App\Mail\Admin\Refunded;
-use App\Models\Payment;
+use App\Mail\Admin\PurchaseOrderApproved;
+use App\Models\PurchaseOrder;
 use App\ViewModels\AccountViewModel;
-use App\ViewModels\CustomerViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
 
-class RefundNotification extends Notification implements ShouldQueue
+class PurchaseOrderApprovedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
+
     /**
-     * @var Payment
+     * @var PurchaseOrder
      */
-    private Payment $payment;
+    private PurchaseOrder $purchase_order;
 
     /**
      * @var string
@@ -26,13 +26,13 @@ class RefundNotification extends Notification implements ShouldQueue
     private string $message_type;
 
     /**
-     * RefundNotification constructor.
-     * @param Payment $payment
+     * SendPurchaseOrderApprovedNotification constructor.
+     * @param PurchaseOrder $purchase_order
      * @param string $message_type
      */
-    public function __construct(Payment $payment, $message_type = '')
+    public function __construct(PurchaseOrder $purchase_order, $message_type = '')
     {
-        $this->payment = $payment;
+        $this->purchase_order = $purchase_order;
         $this->message_type = $message_type;
     }
 
@@ -54,11 +54,11 @@ class RefundNotification extends Notification implements ShouldQueue
 
     /**
      * @param $notifiable
-     * @return Refunded
+     * @return PurchaseOrderApproved
      */
     public function toMail($notifiable)
     {
-        return new Refunded($this->payment, $notifiable);
+        return new PurchaseOrderApproved($this->purchase_order, $notifiable);
     }
 
     /**
@@ -76,16 +76,19 @@ class RefundNotification extends Notification implements ShouldQueue
     public function toSlack($notifiable)
     {
         return (new SlackMessage)->success()
-                                 ->from("System")->image((new AccountViewModel($this->payment->account))->logo())->content(
+                                 ->from("System")->image((new AccountViewModel($this->purchase_order->account))->logo())->content(
                 $this->getMessage()
             );
     }
 
     private function getMessage()
     {
-        $this->subject = trans(
-            'texts.notification_refund_subject',
-            ['customer' => (new CustomerViewModel($this->payment->customer))->name()]
+        return trans(
+            'texts.notification_purchase_order_approved_subject',
+            [
+                'total'          => $this->purchase_order->getFormattedTotal(),
+                'purchase_order' => $this->purchase_order->getNumber(),
+            ]
         );
     }
 

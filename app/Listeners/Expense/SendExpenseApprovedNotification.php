@@ -33,25 +33,24 @@ class SendExpenseApprovedNotification
         $expense = $event->expense;
 
         if (!empty($expense->account->account_users)) {
-            foreach ($expense->account->account_users as $account_user) {
-                $notification_types = $this->getNotificationTypesForAccountUser(
-                    $account_user,
-                    ['expense_approved']
-                );
+            foreach ($event->invoice->account->account_users as $account_user) {
 
-                if (!empty($notification_types) && in_array('mail', $notification_types)) {
-                    $account_user->user->notify(new PurchaseOrderApprovedNotification($expense, 'mail'));
+                $notification_types = $this->findUserNotificationTypesByEntity($event->invoice, $account_user, ['expense_approved']);
+
+                if (empty($notification_types)) {
+                    continue;
+                }
+
+                if (in_array('mail', $notification_types)) {
+                    $account_user->user->notify(new ExpenseApprovedNotification($event->invoice, 'mail'));
+                }
+
+                if (!empty($event->invoice->account->slack_webhook_url) && in_array('slack', $notification_types)) {
+                    Notification::route('slack', $event->expense->account->slack_webhook_url)->notify(
+                        new ExpenseApprovedNotification($event->expense, 'slack')
+                    );
                 }
             }
-        }
-
-        if (isset($expense->account->slack_webhook_url)) {
-            Notification::route('slack', $expense->account->slack_webhook_url)->notify(
-                new ExpenseApprovedNotification(
-                    $expense,
-                    'slack'
-                )
-            );
         }
     }
 }

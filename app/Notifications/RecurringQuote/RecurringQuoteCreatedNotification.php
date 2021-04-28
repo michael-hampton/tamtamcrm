@@ -1,24 +1,26 @@
 <?php
 
-namespace App\Notifications\Admin;
+namespace App\Notifications\RecurringQuote;
 
-use App\Mail\Admin\QuoteApproved;
-use App\Models\Quote;
+use App\Mail\Admin\EntityCreated;
+use App\Models\Order;
+use App\Models\RecurringQuote;
 use App\ViewModels\AccountViewModel;
+use App\ViewModels\CustomerViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
 
-class QuoteApprovedNotification extends Notification implements ShouldQueue
+class RecurringQuoteCreatedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
 
     /**
-     * @var Quote
+     * @var RecurringQuote
      */
-    private Quote $quote;
+    private RecurringQuote $recurring_quote;
 
     /**
      * @var string
@@ -26,13 +28,13 @@ class QuoteApprovedNotification extends Notification implements ShouldQueue
     private string $message_type;
 
     /**
-     * QuoteApprovedNotification constructor.
-     * @param Quote $quote
+     * QuoteCreatedNotification constructor.
+     * @param RecurringQuote $recurring_quote
      * @param string $message_type
      */
-    public function __construct(Quote $quote, $message_type = '')
+    public function __construct(RecurringQuote $recurring_quote, $message_type = '')
     {
-        $this->quote = $quote;
+        $this->recurring_quote = $recurring_quote;
         $this->message_type = $message_type;
     }
 
@@ -54,11 +56,11 @@ class QuoteApprovedNotification extends Notification implements ShouldQueue
 
     /**
      * @param $notifiable
-     * @return QuoteApproved
+     * @return EntityCreated
      */
     public function toMail($notifiable)
     {
-        return new QuoteApproved($this->quote, $notifiable);
+        return new EntityCreated($this->recurring_quote, 'recurring_quote', $notifiable);
     }
 
     /**
@@ -76,18 +78,19 @@ class QuoteApprovedNotification extends Notification implements ShouldQueue
     public function toSlack($notifiable)
     {
         return (new SlackMessage)->success()
-                                 ->from("System")->image((new AccountViewModel($this->quote->account))->logo())->content(
+                                 ->from("System")->image((new AccountViewModel($this->recurring_quote->account))->logo())->content(
                 $this->getMessage()
             );
     }
 
     private function getMessage()
     {
-        $this->subject = trans(
-            'texts.notification_quote_approved_subject',
+        return trans(
+            'texts.notification_credit_created_subject',
             [
-                'total' => $this->quote->getFormattedTotal(),
-                'quote' => $this->quote->getNumber(),
+                'total'           => $this->recurring_quote->getFormattedTotal(),
+                'recurring_quote' => $this->recurring_quote->getNumber(),
+                'customer'        => (new CustomerViewModel($this->recurring_quote->customer))->name()
             ]
         );
     }

@@ -161,7 +161,8 @@ class InvoiceUnitTest extends TestCase
     /** @test */
     public function it_can_create_a_invoice()
     {
-        $user = User::factory()->create();
+        //$user = User::factory()->create();
+        $user = User::find(5);
         $factory = (new InvoiceFactory())->create($this->main_account, $user, $this->customer);
 
         $total = 1200;
@@ -177,10 +178,12 @@ class InvoiceUnitTest extends TestCase
             'tax_total'      => $this->faker->randomFloat(),
             'discount_total' => $this->faker->randomFloat(),
             'status_id'      => 1,
+            'exchange_rate' => 2.00
         ];
 
         $invoiceRepo = new InvoiceRepository(new Invoice);
         $invoice = $invoiceRepo->create($data, $factory);
+
         $this->assertInstanceOf(Invoice::class, $invoice);
         $this->assertEquals($data['customer_id'], $invoice->customer_id);
         $this->assertNotEmpty($invoice->invitations);

@@ -93,7 +93,8 @@ class CreditTest extends TestCase
     /** @test */
     public function it_can_create_a_credit()
     {
-        $user = User::factory()->create();
+        //$user = User::factory()->create();
+        $user = User::find(5);
         $factory = (new CreditFactory)->create($this->account, $user, $this->customer);
 
         $data = [

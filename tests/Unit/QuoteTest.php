@@ -102,7 +102,8 @@ class QuoteTest extends TestCase
     /** @test */
     public function it_can_create_a_quote()
     {
-        $factory = (new QuoteFactory())->create($this->account, $this->user, $this->customer);
+        $user = User::find(5);
+        $factory = (new QuoteFactory())->create($this->account, $user, $this->customer);
 
         $data = [
             'account_id'     => $this->account->id,

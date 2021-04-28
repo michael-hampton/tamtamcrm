@@ -4,7 +4,7 @@
 namespace App\Listeners\PurchaseOrder;
 
 
-use App\Notifications\Admin\PurchaseOrderChangeRequestedNotification;
+use App\Notifications\PurchaseOrder\PurchaseOrderChangeRequestedNotification;
 use App\Traits\Notifications\UserNotifies;
 use Illuminate\Support\Facades\Notification;
 

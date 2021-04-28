@@ -171,12 +171,12 @@ class RecurringQuote extends Model
 
     public function setExchangeRateAttribute($value)
     {
-        $this->exchange_rate = $value;
+        $this->attributes['exchange_rate'] = $value;
     }
 
     public function setCurrencyAttribute($value)
     {
-        $this->currency_id = (int)$value;
+        $this->attributes['currency_id'] = (int) $value;
     }
 
     public function setDueDate()

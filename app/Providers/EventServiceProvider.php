@@ -7,9 +7,6 @@ use App\Events\Cases\CaseWasCreated;
 use App\Events\Cases\CaseWasDeleted;
 use App\Events\Cases\CaseWasRestored;
 use App\Events\Cases\CaseWasUpdated;
-use App\Events\Cases\RecurringInvoiceWasArchived;
-use App\Events\Cases\RecurringInvoiceWasDeleted;
-use App\Events\Cases\RecurringInvoiceWasRestored;
 use App\Events\Company\CompanyWasArchived;
 use App\Events\Company\CompanyWasCreated;
 use App\Events\Company\CompanyWasDeleted;
@@ -99,7 +96,10 @@ use App\Events\Quote\QuoteWasMarkedSent;
 use App\Events\Quote\QuoteWasRejected;
 use App\Events\Quote\QuoteWasRestored;
 use App\Events\Quote\QuoteWasUpdated;
+use App\Events\RecurringInvoice\RecurringInvoiceWasArchived;
 use App\Events\RecurringInvoice\RecurringInvoiceWasCreated;
+use App\Events\RecurringInvoice\RecurringInvoiceWasDeleted;
+use App\Events\RecurringInvoice\RecurringInvoiceWasRestored;
 use App\Events\RecurringInvoice\RecurringInvoiceWasUpdated;
 use App\Events\RecurringQuote\RecurringQuoteWasArchived;
 use App\Events\RecurringQuote\RecurringQuoteWasCreated;
@@ -131,6 +131,7 @@ use App\Listeners\Company\CompanyRestored;
 use App\Listeners\Company\CompanyUpdated;
 use App\Listeners\Credit\CreditArchived;
 use App\Listeners\Credit\CreditCreated;
+use App\Listeners\Credit\CreditCreatedNotification;
 use App\Listeners\Credit\CreditDeleted;
 use App\Listeners\Credit\CreditEmail;
 use App\Listeners\Credit\CreditEmailedNotification;
@@ -161,6 +162,7 @@ use App\Listeners\Expense\SendExpenseApprovedNotification;
 use App\Listeners\Invoice\InvoiceArchived;
 use App\Listeners\Invoice\InvoiceCancelled;
 use App\Listeners\Invoice\InvoiceCreated;
+use App\Listeners\Invoice\InvoiceCreatedNotification;
 use App\Listeners\Invoice\InvoiceDeleted;
 use App\Listeners\Invoice\InvoiceEmail;
 use App\Listeners\Invoice\InvoiceEmailedNotification;
@@ -210,6 +212,7 @@ use App\Listeners\PurchaseOrder\PurchaseOrderApproved;
 use App\Listeners\PurchaseOrder\PurchaseOrderArchived;
 use App\Listeners\PurchaseOrder\PurchaseOrderChangeRequested;
 use App\Listeners\PurchaseOrder\PurchaseOrderCreated;
+use App\Listeners\PurchaseOrder\PurchaseOrderCreatedNotification;
 use App\Listeners\PurchaseOrder\PurchaseOrderDeleted;
 use App\Listeners\PurchaseOrder\PurchaseOrderEmailed;
 use App\Listeners\PurchaseOrder\PurchaseOrderEmailedNotification;
@@ -224,6 +227,7 @@ use App\Listeners\Quote\QuoteApproved;
 use App\Listeners\Quote\QuoteArchived;
 use App\Listeners\Quote\QuoteChangeRequested;
 use App\Listeners\Quote\QuoteCreated;
+use App\Listeners\Quote\QuoteCreatedNotification;
 use App\Listeners\Quote\QuoteDeleted;
 use App\Listeners\quote\QuoteEmailed;
 use App\Listeners\Quote\QuoteEmailedNotification;
@@ -236,11 +240,13 @@ use App\Listeners\Quote\SendQuoteChangeRequestedNotification;
 use App\Listeners\Quote\SendQuoteRejectedNotification;
 use App\Listeners\RecurringInvoice\RecurringInvoiceArchived;
 use App\Listeners\RecurringInvoice\RecurringInvoiceCreated;
+use App\Listeners\RecurringInvoice\RecurringInvoiceCreatedNotification;
 use App\Listeners\RecurringInvoice\RecurringInvoiceDeleted;
 use App\Listeners\RecurringInvoice\RecurringInvoiceRestored;
 use App\Listeners\RecurringInvoice\RecurringInvoiceUpdated;
 use App\Listeners\RecurringQuote\RecurringQuoteArchived;
 use App\Listeners\RecurringQuote\RecurringQuoteCreated;
+use App\Listeners\RecurringQuote\RecurringQuoteCreatedNotification;
 use App\Listeners\RecurringQuote\RecurringQuoteDeleted;
 use App\Listeners\RecurringQuote\RecurringQuoteRestored;
 use App\Listeners\RecurringQuote\RecurringQuoteUpdated;
@@ -359,7 +365,8 @@ class EventServiceProvider extends ServiceProvider
             InvoiceUpdated::class
         ],
         InvoiceWasCreated::class               => [
-            InvoiceCreated::class
+            InvoiceCreated::class,
+            InvoiceCreatedNotification::class
         ],
         InvoiceWasPaid::class                  => [
             InvoicePaid::class,
@@ -394,7 +401,8 @@ class EventServiceProvider extends ServiceProvider
             SendQuoteApprovedNotification::class
         ],
         QuoteWasCreated::class                 => [
-            QuoteCreated::class
+            QuoteCreated::class,
+            QuoteCreatedNotification::class
         ],
         QuoteWasEmailed::class                 => [
             QuoteEmailed::class,
@@ -453,7 +461,8 @@ class EventServiceProvider extends ServiceProvider
         ],
         //recurring invoice
         RecurringInvoiceWasCreated::class      => [
-            RecurringInvoiceCreated::class
+            RecurringInvoiceCreated::class,
+            RecurringInvoiceCreatedNotification::class
         ],
         RecurringInvoiceWasUpdated::class      => [
             RecurringInvoiceUpdated::class
@@ -469,7 +478,8 @@ class EventServiceProvider extends ServiceProvider
         ],
         //recurring quote
         RecurringQuoteWasCreated::class        => [
-            RecurringQuoteCreated::class
+            RecurringQuoteCreated::class,
+            RecurringQuoteCreatedNotification::class
         ],
         RecurringQuoteWasUpdated::class        => [
             RecurringQuoteUpdated::class
@@ -544,7 +554,8 @@ class EventServiceProvider extends ServiceProvider
         ],
         // credits
         CreditWasCreated::class                => [
-            CreditCreated::class
+            CreditCreated::class,
+            CreditCreatedNotification::class
         ],
         CreditWasDeleted::class                => [
             CreditDeleted::class
@@ -609,7 +620,8 @@ class EventServiceProvider extends ServiceProvider
             SendPurchaseOrderChangeRequestedNotification::class
         ],
         PurchaseOrderWasCreated::class         => [
-            PurchaseOrderCreated::class
+            PurchaseOrderCreated::class,
+            PurchaseOrderCreatedNotification::class
         ],
         PurchaseOrderWasApproved::class        => [
             PurchaseOrderApproved::class,

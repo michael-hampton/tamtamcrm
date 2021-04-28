@@ -98,7 +98,8 @@ class PurchaseOrderTest extends TestCase
     /** @test */
     public function it_can_create_a_purchase_order()
     {
-        $factory = (new PurchaseOrderFactory())->create($this->account, $this->user, $this->company);
+        $user = User::find(5);
+        $factory = (new PurchaseOrderFactory())->create($this->account, $user, $this->company);
 
         $data = [
             'account_id'     => $this->account->id,
@@ -169,15 +170,15 @@ class PurchaseOrderTest extends TestCase
         $this->assertInstanceOf(PurchaseOrder::class, $purchase_order);
     }
 
-    public function testEmail()
-    {
-        $order = PurchaseOrderFactory::create($this->account, $this->user, $this->company);
-        $order = (new PurchaseOrderRepository(new PurchaseOrder()))->save([], $order);
-
-        $template = strtolower('purchase_order');
-        $subject = $order->account->settings->{'email_subject_' . $template};
-        $body = $order->account->settings->{'email_template_' . $template};
-        $result = (new DispatchEmail($order))->execute(null, $subject, $body);
-        $this->assertInstanceOf(PurchaseOrder::class, $result);
-    }
+//    public function testEmail()
+//    {
+//        $order = PurchaseOrderFactory::create($this->account, $this->user, $this->company);
+//        $order = (new PurchaseOrderRepository(new PurchaseOrder()))->save([], $order);
+//
+//        $template = strtolower('purchase_order');
+//        $subject = $order->account->settings->{'email_subject_' . $template};
+//        $body = $order->account->settings->{'email_template_' . $template};
+//        $result = (new DispatchEmail($order))->execute(null, $subject, $body);
+//        $this->assertInstanceOf(PurchaseOrder::class, $result);
+//    }
 }

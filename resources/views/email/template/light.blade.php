@@ -17,9 +17,11 @@
             @endcomponent
 
             <!-- Button -->
-            @component('email.components.button', ['url' => $data['url'], 'template' => 'light'])
-                {{$data['button_text']}}
-            @endcomponent
+            @isset($url)
+                @component('email.components.button', ['url' => $data['url'], 'template' => 'light'])
+                    {{$data['button_text']}}
+                @endcomponent
+            @endisset
 
             @isset($data['signature'])
                 @component('email.components.signature', ['signature' => $data['signature'], 'template' => 'light'])

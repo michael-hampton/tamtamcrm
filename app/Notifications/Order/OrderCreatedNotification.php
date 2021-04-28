@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Notifications\Admin;
+namespace App\Notifications\Order;
 
-use App\Mail\Admin\OrderHeldMailer;
+use App\Mail\Admin\EntityCreated;
 use App\Models\Order;
 use App\ViewModels\AccountViewModel;
 use App\ViewModels\CustomerViewModel;
@@ -11,9 +11,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
 
-class OrderHeld extends Notification implements ShouldQueue
+class OrderCreatedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
+
 
     /**
      * @var Order
@@ -26,15 +27,16 @@ class OrderHeld extends Notification implements ShouldQueue
     private string $message_type;
 
     /**
-     * NewOrderNotification constructor.
+     * OrderCreatedNotification constructor.
      * @param Order $order
      * @param string $message_type
      */
-    public function __construct(Order $order, string $message_type = '')
+    public function __construct(Order $order, $message_type = '')
     {
         $this->order = $order;
         $this->message_type = $message_type;
     }
+
 
     /**
      * Get the notification's delivery channels.
@@ -53,11 +55,11 @@ class OrderHeld extends Notification implements ShouldQueue
 
     /**
      * @param $notifiable
-     * @return OrderHeldMailer
+     * @return EntityCreated
      */
     public function toMail($notifiable)
     {
-        return new OrderHeldMailer($this->order, $notifiable);
+        return new EntityCreated($this->order, 'order', $notifiable);
     }
 
     /**
@@ -75,22 +77,21 @@ class OrderHeld extends Notification implements ShouldQueue
     public function toSlack($notifiable)
     {
         return (new SlackMessage)->success()
-                                 ->from("System")->image((new AccountViewModel($this->order->account))->logo())->content(
+                                 ->from("System")->image((new AccountViewModel($this->quote->account))->logo())->content(
                 $this->getMessage()
             );
     }
 
     private function getMessage()
     {
-        $this->subject = trans(
-            'texts.notification_order_held_subject',
+        return trans(
+            'texts.notification_order_created_subject',
             [
                 'total'    => $this->order->getFormattedTotal(),
-                'customer' => (new CustomerViewModel($this->order->customer))->name(),
                 'order'    => $this->order->getNumber(),
+                'customer' => (new CustomerViewModel($this->order->customer))->name()
             ]
         );
     }
 
 }
-

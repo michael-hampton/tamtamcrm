@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Components\Currency\CurrencyConverter;
 use NumberFormatter;
 
 /**
@@ -56,5 +57,47 @@ trait MoneyVendor
     public function getFormattedBalance()
     {
         return $this->formatCurrency($this->balance, $this->company);
+    }
+
+    /**
+     * @param $entity
+     * @param float $amount
+     * @return mixed
+     */
+    public function convertCurrencies($entity, ?float $amount = null, bool $use_live_currencies = true)
+    {
+        if (!$use_live_currencies) {
+
+            if (empty($entity->exchange_rate)) {
+                $exchange_rate = $entity->company->getExchangeRate();
+                $entity->exchange_rate = !empty($exchange_rate) ? $exchange_rate : 1;
+
+            }
+
+            if (empty($entity->currency_id)) {
+                $entity->currency = !empty($entity->company->currency_id) ? (int)$entity->company->currency_id : (int)$entity->account->settings->currency_id;
+            }
+
+            return $entity;
+        }
+
+        if (empty($amount) || (int)$entity->account->getCurrency()->id === (int)$entity->company->currency->id) {
+            return $entity;
+        }
+
+        $converted_amount = $objCurrencyConverter = (new CurrencyConverter())
+            ->setAmount($amount)
+            ->setBaseCurrency($entity->account->getCurrency())
+            ->setExchangeCurrency($entity->company->currency)
+            ->setDate(now())
+            ->calculate();
+
+        if ($converted_amount) {
+            $entity->exchange_rate = $converted_amount;
+            $entity->currency_id = $entity->account->getCurrency()->id;
+            $entity->exchange_currency_id = $entity->company->currency->id;
+        }
+
+        return $entity;
     }
 }

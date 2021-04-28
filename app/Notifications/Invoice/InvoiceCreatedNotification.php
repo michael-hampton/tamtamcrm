@@ -1,9 +1,11 @@
 <?php
 
-namespace App\Notifications\Admin;
+namespace App\Notifications\Invoice;
 
-use App\Mail\Admin\RefundFailed;
-use App\Models\Payment;
+use App\Mail\Admin\EntityCreated;
+use App\Mail\Admin\QuoteApproved;
+use App\Models\Invoice;
+use App\Models\Quote;
 use App\ViewModels\AccountViewModel;
 use App\ViewModels\CustomerViewModel;
 use Illuminate\Bus\Queueable;
@@ -11,15 +13,15 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
 
-class RefundFailedNotification extends Notification implements ShouldQueue
+class InvoiceCreatedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
 
     /**
-     * @var Payment
+     * @var Invoice
      */
-    private Payment $payment;
+    private Invoice $invoice;
 
     /**
      * @var string
@@ -27,13 +29,13 @@ class RefundFailedNotification extends Notification implements ShouldQueue
     private string $message_type;
 
     /**
-     * NewPaymentNotification constructor.
-     * @param Payment $payment
+     * InvoiceCreatedNotification constructor.
+     * @param Invoice $invoice
      * @param string $message_type
      */
-    public function __construct(Payment $payment, $message_type = '')
+    public function __construct(Invoice $invoice, $message_type = '')
     {
-        $this->payment = $payment;
+        $this->invoice = $invoice;
         $this->message_type = $message_type;
     }
 
@@ -55,11 +57,11 @@ class RefundFailedNotification extends Notification implements ShouldQueue
 
     /**
      * @param $notifiable
-     * @return RefundFailed
+     * @return EntityCreated
      */
     public function toMail($notifiable)
     {
-        return new RefundFailed($this->payment, $notifiable);
+        return new EntityCreated($this->invoice, 'invoice', $notifiable);
     }
 
     /**
@@ -77,16 +79,20 @@ class RefundFailedNotification extends Notification implements ShouldQueue
     public function toSlack($notifiable)
     {
         return (new SlackMessage)->success()
-                                 ->from("System")->image((new AccountViewModel($this->payment->account))->logo())->content(
+                                 ->from("System")->image((new AccountViewModel($this->invoice->account))->logo())->content(
                 $this->getMessage()
             );
     }
 
     private function getMessage()
     {
-        $this->subject = trans(
-            'texts.notification_refund_failed_subject',
-            ['customer' => (new CustomerViewModel($this->payment->customer))->name()]
+        return trans(
+            'texts.notification_invoice_created_subject',
+            [
+                'total'    => $this->invoice->getFormattedTotal(),
+                'invoice'  => $this->invoice->getNumber(),
+                'customer' => (new CustomerViewModel($this->invoice->customer))->name()
+            ]
         );
     }
 

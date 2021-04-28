@@ -216,6 +216,16 @@ class Payment extends Model
         return $this->formatCurrency($this->amount, $this->customer);
     }
 
+    public function setExchangeRateAttribute($value)
+    {
+        $this->attributes['exchange_rate'] = $value;
+    }
+
+    public function setCurrencyAttribute($value)
+    {
+        $this->attributes['currency_id'] = (int) $value;
+    }
+
     public function getFormattedInvoices()
     {
         $invoice_texts = trans('texts.invoice_number_abbreviated');

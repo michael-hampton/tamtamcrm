@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Notifications\Admin;
+namespace App\Notifications\Order;
 
-use App\Mail\Admin\OrderBackorderedMailer;
+use App\Mail\Admin\OrderHeldMailer;
 use App\Models\Order;
 use App\ViewModels\AccountViewModel;
 use App\ViewModels\CustomerViewModel;
@@ -11,7 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
 
-class OrderBackordered extends Notification implements ShouldQueue
+class OrderHeld extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -53,11 +53,11 @@ class OrderBackordered extends Notification implements ShouldQueue
 
     /**
      * @param $notifiable
-     * @return OrderBackorderedMailer
+     * @return OrderHeldMailer
      */
     public function toMail($notifiable)
     {
-        return new OrderBackorderedMailer($this->order, $notifiable);
+        return new OrderHeldMailer($this->order, $notifiable);
     }
 
     /**
@@ -83,7 +83,7 @@ class OrderBackordered extends Notification implements ShouldQueue
     private function getMessage()
     {
         $this->subject = trans(
-            'texts.notification_order_backordered_subject',
+            'texts.notification_order_held_subject',
             [
                 'total'    => $this->order->getFormattedTotal(),
                 'customer' => (new CustomerViewModel($this->order->customer))->name(),

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications\Admin;
+namespace App\Notifications\Entity;
 
 use App\Mail\Admin\ObjectSent;
 use App\Models\AccountUser;

@@ -1,24 +1,24 @@
 <?php
 
-namespace App\Notifications\Admin;
+namespace App\Notifications\Quote;
 
-use App\Mail\Admin\PurchaseOrderApproved;
-use App\Models\PurchaseOrder;
+use App\Mail\Admin\QuoteRejected;
+use App\Models\Quote;
 use App\ViewModels\AccountViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
 
-class PurchaseOrderChangeRequestedNotification extends Notification implements ShouldQueue
+class QuoteRejectedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
 
     /**
-     * @var PurchaseOrder
+     * @var Quote
      */
-    private PurchaseOrder $purchase_order;
+    private Quote $quote;
 
     /**
      * @var string
@@ -26,13 +26,13 @@ class PurchaseOrderChangeRequestedNotification extends Notification implements S
     private string $message_type;
 
     /**
-     * SendPurchaseOrderApprovedNotification constructor.
-     * @param PurchaseOrder $purchase_order
+     * QuoteApprovedNotification constructor.
+     * @param Quote $quote
      * @param string $message_type
      */
-    public function __construct(PurchaseOrder $purchase_order, $message_type = '')
+    public function __construct(Quote $quote, $message_type = '')
     {
-        $this->purchase_order = $purchase_order;
+        $this->quote = $quote;
         $this->message_type = $message_type;
     }
 
@@ -54,11 +54,11 @@ class PurchaseOrderChangeRequestedNotification extends Notification implements S
 
     /**
      * @param $notifiable
-     * @return PurchaseOrderApproved
+     * @return QuoteRejected
      */
     public function toMail($notifiable)
     {
-        return new PurchaseOrderChangeRequested($this->purchase_order, $notifiable);
+        return new QuoteRejected($this->quote, $notifiable);
     }
 
     /**
@@ -76,18 +76,18 @@ class PurchaseOrderChangeRequestedNotification extends Notification implements S
     public function toSlack($notifiable)
     {
         return (new SlackMessage)->success()
-                                 ->from("System")->image((new AccountViewModel($this->purchase_order->account))->logo())->content(
+                                 ->from("System")->image((new AccountViewModel($this->quote->account))->logo())->content(
                 $this->getMessage()
             );
     }
 
     private function getMessage()
     {
-        $this->subject = trans(
-            'texts.notification_purchase_order_change_requested_subject',
+        return trans(
+            'texts.notification_quote_rejected_subject',
             [
-                'total'          => $this->purchase_order->getFormattedTotal(),
-                'purchase_order' => $this->purchase_order->getNumber(),
+                'total' => $this->quote->getFormattedTotal(),
+                'quote' => $this->quote->getNumber(),
             ]
         );
     }

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Notifications\Admin;
+namespace App\Notifications\Payment;
 
-use App\Mail\Admin\Refunded;
+use App\Mail\Admin\PaymentMade;
 use App\Models\Payment;
 use App\ViewModels\AccountViewModel;
 use App\ViewModels\CustomerViewModel;
@@ -11,7 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
 
-class PaymentRefundNotification extends Notification implements ShouldQueue
+class NewPaymentNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -55,11 +55,11 @@ class PaymentRefundNotification extends Notification implements ShouldQueue
 
     /**
      * @param $notifiable
-     * @return Refunded
+     * @return PaymentMade
      */
     public function toMail($notifiable)
     {
-        return new Refunded($this->payment, $notifiable);
+        return new PaymentMade($this->payment, $notifiable);
     }
 
     /**
@@ -84,8 +84,8 @@ class PaymentRefundNotification extends Notification implements ShouldQueue
 
     private function getMessage()
     {
-        $this->subject = trans(
-            'texts.notification_refund_subject',
+        return trans(
+            'texts.notification_payment_paid_subject',
             ['customer' => (new CustomerViewModel($this->payment->customer))->name()]
         );
     }

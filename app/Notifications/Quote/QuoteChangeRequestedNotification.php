@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications\Admin;
+namespace App\Notifications\Quote;
 
 use App\Mail\Admin\QuoteApproved;
 use App\Models\Quote;
@@ -83,7 +83,7 @@ class QuoteChangeRequestedNotification extends Notification implements ShouldQue
 
     private function getMessage()
     {
-        $this->subject = trans(
+        return trans(
             'texts.notification_quote_change_requested_subject',
             [
                 'total' => $this->quote->getFormattedTotal(),

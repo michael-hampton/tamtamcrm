@@ -78,7 +78,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
     /**
      * @param array $data
      * @param Invoice $invoice
-     * @return Quote|null
+     * @return Invoice|null
      */
     public function update(array $data, Invoice $invoice): ?Invoice
     {

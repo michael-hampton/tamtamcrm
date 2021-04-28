@@ -2,7 +2,7 @@
 
 namespace App\Listeners\Quote;
 
-use App\Notifications\Admin\QuoteChangeRequestedNotification;
+use App\Notifications\Quote\QuoteChangeRequestedNotification;
 use App\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Notification;

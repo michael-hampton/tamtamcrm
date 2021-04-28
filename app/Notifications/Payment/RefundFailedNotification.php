@@ -1,24 +1,25 @@
 <?php
 
-namespace App\Notifications\Admin;
+namespace App\Notifications\Payment;
 
-use App\Mail\Admin\QuoteRejected;
-use App\Models\Quote;
+use App\Mail\Admin\RefundFailed;
+use App\Models\Payment;
 use App\ViewModels\AccountViewModel;
+use App\ViewModels\CustomerViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
 
-class QuoteRejectedNotification extends Notification implements ShouldQueue
+class RefundFailedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
 
     /**
-     * @var Quote
+     * @var Payment
      */
-    private Quote $quote;
+    private Payment $payment;
 
     /**
      * @var string
@@ -26,13 +27,13 @@ class QuoteRejectedNotification extends Notification implements ShouldQueue
     private string $message_type;
 
     /**
-     * QuoteApprovedNotification constructor.
-     * @param Quote $quote
+     * NewPaymentNotification constructor.
+     * @param Payment $payment
      * @param string $message_type
      */
-    public function __construct(Quote $quote, $message_type = '')
+    public function __construct(Payment $payment, $message_type = '')
     {
-        $this->quote = $quote;
+        $this->payment = $payment;
         $this->message_type = $message_type;
     }
 
@@ -54,11 +55,11 @@ class QuoteRejectedNotification extends Notification implements ShouldQueue
 
     /**
      * @param $notifiable
-     * @return QuoteRejected
+     * @return RefundFailed
      */
     public function toMail($notifiable)
     {
-        return new QuoteRejected($this->quote, $notifiable);
+        return new RefundFailed($this->payment, $notifiable);
     }
 
     /**
@@ -76,19 +77,16 @@ class QuoteRejectedNotification extends Notification implements ShouldQueue
     public function toSlack($notifiable)
     {
         return (new SlackMessage)->success()
-                                 ->from("System")->image((new AccountViewModel($this->quote->account))->logo())->content(
+                                 ->from("System")->image((new AccountViewModel($this->payment->account))->logo())->content(
                 $this->getMessage()
             );
     }
 
     private function getMessage()
     {
-        $this->subject = trans(
-            'texts.notification_quote_rejected_subject',
-            [
-                'total' => $this->quote->getFormattedTotal(),
-                'quote' => $this->quote->getNumber(),
-            ]
+        return trans(
+            'texts.notification_refund_failed_subject',
+            ['customer' => (new CustomerViewModel($this->payment->customer))->name()]
         );
     }
 
