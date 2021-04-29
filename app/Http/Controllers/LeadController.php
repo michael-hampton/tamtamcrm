@@ -174,7 +174,7 @@ class LeadController extends Controller
         foreach ($request->input('tasks') as $data) {
             $task = $this->lead_repo->findLeadById($data['id']);
 
-            $task->task_sort_order = $data['task_sort_order'];
+            $task->order_id = $data['order_id'];
             $task->save();
         }
 

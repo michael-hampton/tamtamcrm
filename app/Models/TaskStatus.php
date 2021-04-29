@@ -72,4 +72,9 @@ class TaskStatus extends Model
         return self::search($term);
     }
 
+    public function scopeByTaskType($query, int $task_type)
+    {
+        return $query->where('task_type', '=', $task_type);
+    }
+
 }

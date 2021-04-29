@@ -33,7 +33,7 @@ class Lead extends Model
     protected static $flushCacheOnUpdate = true;
 
     protected $fillable = [
-        'task_sort_order',
+        'order_id',
         'design_id',
         'number',
         'account_id',

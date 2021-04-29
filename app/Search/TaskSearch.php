@@ -38,7 +38,7 @@ class TaskSearch extends BaseSearch
     public function filter(SearchRequest $request, Account $account)
     {
         $recordsPerPage = !$request->per_page ? 0 : $request->per_page;
-        $orderBy = !$request->column ? 'task_sort_order' : 'tasks.' . $request->column;
+        $orderBy = !$request->column ? 'order_id' : 'tasks.' . $request->column;
         $orderDir = !$request->order ? 'asc' : $request->order;
 
         $this->query =

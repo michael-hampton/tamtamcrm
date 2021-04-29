@@ -36,7 +36,7 @@ class LeadSearch extends BaseSearch
     public function filter(Request $request, Account $account)
     {
         $recordsPerPage = !$request->per_page ? 0 : $request->per_page;
-        $orderBy = !$request->column ? 'task_sort_order' : $request->column;
+        $orderBy = !$request->column ? 'order_id' : $request->column;
         $orderDir = !$request->order ? 'asc' : $request->order;
 
         $this->query = $this->model->select('*');

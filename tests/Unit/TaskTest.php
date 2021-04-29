@@ -9,6 +9,7 @@ use App\Models\Account;
 use App\Models\Customer;
 use App\Models\Project;
 use App\Models\Task;
+use App\Models\TaskStatus;
 use App\Models\Timer;
 use App\Models\User;
 use App\Repositories\ProjectRepository;
@@ -112,18 +113,24 @@ class TaskTest extends TestCase
         $data = [
             'account_id'   => $this->account->id,
             'task_type'    => 1,
-            'task_status_id'  => 1,
+            //'task_status_id'  => 1,
             'customer_id'  => $this->customer->id,
             'name'         => $this->faker->word,
-            'description'      => $this->faker->sentence,
+            'description'  => $this->faker->sentence,
             'is_completed' => 0,
             'due_date'     => $this->faker->dateTime,
         ];
 
+        $order_id = Task::max('order_id') + 1;
+        $task_status = TaskStatus::ByTaskType(1)->orderBy('order_id', 'asc')->first();
+
         $taskRepo = new TaskRepository(new Task, new ProjectRepository(new Project));
         $factory = (new TaskFactory())->create($this->user, $this->account);
         $task = $taskRepo->createTask($data, $factory);
+
         $this->assertInstanceOf(Task::class, $task);
+        $this->assertEquals($task->task_status_id, $task_status->id);
+        $this->assertEquals($task->order_id, $order_id);
         $this->assertEquals($data['name'], $task->name);
     }
 
@@ -133,15 +140,15 @@ class TaskTest extends TestCase
         $project = Project::factory()->create();
 
         $data = [
-            'project_id'   => $project->id,
-            'account_id'   => $this->account->id,
-            'task_type'    => 1,
-            'task_status_id'  => 1,
-            'customer_id'  => $this->customer->id,
-            'name'         => $this->faker->word,
-            'description'      => $this->faker->sentence,
-            'is_completed' => 0,
-            'due_date'     => $this->faker->dateTime,
+            'project_id'     => $project->id,
+            'account_id'     => $this->account->id,
+            'task_type'      => 1,
+            'task_status_id' => 1,
+            'customer_id'    => $this->customer->id,
+            'name'           => $this->faker->word,
+            'description'    => $this->faker->sentence,
+            'is_completed'   => 0,
+            'due_date'       => $this->faker->dateTime,
         ];
 
         $taskRepo = new TaskRepository(new Task, new ProjectRepository(new Project));
@@ -180,10 +187,10 @@ class TaskTest extends TestCase
 
         $address = Task::factory()->create(
             [
-                'account_id' => $this->account->id,
-                'name'       => $name,
-                'description'    => $description,
-                'due_date'   => $due_date
+                'account_id'  => $this->account->id,
+                'name'        => $name,
+                'description' => $description,
+                'due_date'    => $due_date
             ]
         );
 

@@ -264,13 +264,19 @@ use App\Listeners\User\SendUserEmailChangedEmail;
 use App\Listeners\User\UpdatedUser;
 use App\Listeners\User\UserEmailHasChanged;
 use App\Models\Cases;
+use App\Models\Deal;
 use App\Models\Expense;
 use App\Models\Invoice;
+use App\Models\Lead;
 use App\Models\Order;
+use App\Models\Task;
 use App\Observers\CaseObserver;
+use App\Observers\DealObserver;
 use App\Observers\ExpenseObserver;
 use App\Observers\InvoiceObserver;
+use App\Observers\LeadObserver;
 use App\Observers\OrderObserver;
+use App\Observers\TaskObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -706,5 +712,8 @@ class EventServiceProvider extends ServiceProvider
         Cases::observe(CaseObserver::class);
         Order::observe(OrderObserver::class);
         Expense::observe(ExpenseObserver::class);
+        Deal::observe(DealObserver::class);
+        Lead::observe(LeadObserver::class);
+        Task::observe(TaskObserver::class);
     }
 }

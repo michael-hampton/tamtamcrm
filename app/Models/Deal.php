@@ -17,7 +17,7 @@ class Deal extends Model
     use QueryScopes;
 
     protected $fillable = [
-        'task_sort_order',
+        'order_id',
         'design_id',
         'name',
         'description',

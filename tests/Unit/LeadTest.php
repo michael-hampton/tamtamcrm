@@ -7,7 +7,9 @@ use App\Events\Lead\LeadWasCreated;
 use App\Factory\LeadFactory;
 use App\Mail\TestMail;
 use App\Models\Account;
+use App\Models\Deal;
 use App\Models\Lead;
+use App\Models\TaskStatus;
 use App\Models\User;
 use App\Repositories\LeadRepository;
 use App\Requests\SearchRequest;
@@ -92,7 +94,7 @@ class LeadTest extends TestCase
         $data = [
             'account_id'     => $this->account->id,
             'user_id'        => $this->user->id,
-            'task_status_id' => 1,
+            //'task_status_id' => 1,
             'name'           => $this->faker->word,
             'description'    => $this->faker->sentence,
             'first_name'     => $this->faker->firstName,
@@ -101,13 +103,16 @@ class LeadTest extends TestCase
             'email'          => $this->faker->safeEmail
         ];
 
+        $order_id = Lead::max('order_id') + 1;
+        $task_status = TaskStatus::ByTaskType(3)->orderBy('order_id', 'asc')->first();
+
         $leadRepo = new LeadRepository(new Lead);
         $factory = (new LeadFactory)->create($this->account, $this->user);
         $lead = $leadRepo->create($data, $factory);
 
-        event(new LeadWasCreated($lead));
-
         $this->assertInstanceOf(Lead::class, $lead);
+        $this->assertEquals($lead->task_status_id, $task_status->id);
+        $this->assertEquals($lead->order_id, $order_id);
         $this->assertEquals($data['first_name'], $lead->first_name);
     }
 

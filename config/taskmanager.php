@@ -14,5 +14,9 @@ return [
     'from_email'              => env('FROM_EMAIL'),
     'from_name'               => 'Michael Hampton',
     'use_live_exchange_rates' => false,
-    'stripe_api_key'          => env('STRIPE_API_KEY')
+    'stripe_api_key'          => env('STRIPE_API_KEY'),
+    'slow_query_log_enabled'  => env('LARAVEL_SLOW_QUERY_LOGGER_ENABLED', false),
+    'channel'                 => env('LARAVEL_SLOW_QUERY_LOGGER_CHANNEL', 'single'),
+    'log-level'               => env('LARAVEL_SLOW_QUERY_LOGGER_LOG_LEVEL', 'debug'),
+    'time-to-log'             => env('LARAVEL_SLOW_QUERY_LOGGER_TIME_TO_LOG', 10),
 ];

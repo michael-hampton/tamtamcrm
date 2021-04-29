@@ -414,7 +414,7 @@ class TaskController extends Controller
         foreach ($request->input('tasks') as $data) {
             $task = $this->task_repo->findTaskById($data['id']);
 
-            $task->task_sort_order = $data['task_sort_order'];
+            $task->order_id = $data['order_id'];
             $task->save();
         }
 

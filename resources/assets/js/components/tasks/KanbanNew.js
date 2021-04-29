@@ -341,7 +341,7 @@ export default class KanbanNew extends Component {
         })
 
         const entities = this.state.entities
-        entities.sort((a, b) => (a.task_sort_order - b.task_sort_order))
+        entities.sort((a, b) => (a.order_id - b.order_id))
 
         entities.map((entity, index) => {
             entity.id = entity.id.toString()
@@ -450,7 +450,7 @@ export default class KanbanNew extends Component {
                 const columns = this.state.columns
                 const column = columns[sourceIndex]
                 column.items.map((entity, index) => {
-                    column.items[index].task_sort_order = (index + 1)
+                    column.items[index].order_id = (index + 1)
                     taskIds.push(entity.id)
                 })
 

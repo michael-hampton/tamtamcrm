@@ -24,7 +24,7 @@ class Task extends Model
     const STATUS_INVOICED = 2000;
     protected static $flushCacheOnUpdate = true;
     protected $fillable = [
-        'task_sort_order',
+        'order_id',
         'design_id',
         'name',
         'description',
