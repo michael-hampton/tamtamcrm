@@ -107,4 +107,27 @@ trait Money
 
         return $entity;
     }
+
+    public function getAmountInWords(float $amount, ?string $locale = null)
+    {
+        $amount    = number_format($amount, $this->currency_decimals, '.', '');
+        $formatter = new NumberFormatter($locale ?? App::getLocale(), NumberFormatter::SPELLOUT);
+
+        $value = explode('.', $amount);
+
+        $integer_value  = (int) $value[0] !== 0 ? $formatter->format($value[0]) : 0;
+        $fraction_value = isset($value[1]) ? $formatter->format($value[1]) : 0;
+
+        if ($this->currency_decimals <= 0) {
+            return sprintf('%s %s', ucfirst($integer_value), strtoupper($this->currency_code));
+        }
+
+        return sprintf(
+            '%s %s and %s %s',
+            ucfirst($integer_value),
+            strtoupper($this->currency_code),
+            $fraction_value,
+            $this->currency_fraction
+        );
+    }
 }
