@@ -104,8 +104,8 @@ export default class CompanyItem extends Component {
                                 onChange={this.props.onChangeBulk}/>
                             {actionMenu}
                         </td>
-                        {!!status && <td>{status}</td>}
                         {columnList}
+                        <td>{status}</td>
                     </tr>
                 }
 
