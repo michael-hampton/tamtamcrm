@@ -17,7 +17,7 @@ use Stripe\Exception\InvalidRequestException;
 use Stripe\Exception\RateLimitException;
 use Stripe\StripeClient;
 
-class Braintree
+class Braintree extends BasePaymentGateway
 {
     private $braintree;
 
