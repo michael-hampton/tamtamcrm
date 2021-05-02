@@ -1,11 +1,12 @@
 <?php
 
 
-namespace App\Components\Payment\Gateways\Stripe;
+namespace App\Components\Payment\Gateways;
 
 
 use App\Models\Invoice;
 use App\Models\Payment;
+use Braintree\Gateway;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Stripe\Customer;
@@ -48,7 +49,13 @@ class Braintree extends BasePaymentGateway
     {
         $config = $this->company_gateway->settings;
 
-       
+        $this->gateway = new Gateway([
+            'environment' => 'sandbox', // getConfigField('testMode')
+            'merchantId'  => $config->merchant_id,
+            'publicKey'   => $config->public_key,
+            'privateKey'  => $config->private_key,
+        ]);
+
 
         return true;
     }
@@ -61,32 +68,37 @@ class Braintree extends BasePaymentGateway
      */
     private function createCharge(float $amount, Invoice $invoice = null, $confirm_payment = true)
     {
-        $currency = $this->customer->currency;
-
         $invoice_label = $invoice !== null ? "Invoice: {$invoice->getNumber()}" : '';
 
         $errors = [];
 
         try {
-           $result = $gateway->transaction()->sale([
-               'amount' => '10.00',
-               'paymentMethodToken' => $this->customer_gateway->token,
-               'options' => [
-                   'submitForSettlement' => True
-               ]
+            $result = $this->gateway->transaction()->sale([
+                'amount'             => '10.00',
+                'paymentMethodToken' => $this->customer_gateway->token,
+                'options'            => [
+                    'submitForSettlement' => true
+                ]
             ]);
 
             if ($result->success) {
                 // See $result->transaction for details
                 $this->triggerSuccess($invoice->user, ['response' => $result->transaction->id]);
             } else {
+
+                $error = '';
+
+                foreach ($result->errors->deepAll() as $error) {
+                    $error = $error->code . ": " . $error->message . "\n";
+                }
+
                 // Handle errors
-                $this->addErrorToLog($user, $result->transaction->additionalProcessorResponse);
+                $this->addErrorToLog($invoice->user, ['data' => $error]);
                 return false;
             }
 
         } catch (Exception $e) {
-            $this->addErrorToLog($user, $errors);
+            $this->addErrorToLog($invoice->user, ['data' => $e->getMessage()]);
             return false;
         }
 
@@ -96,8 +108,7 @@ class Braintree extends BasePaymentGateway
             return $reference_number;
         }
 
-        // TODO
-        $brand = $response->charges->data[0]->payment_method_details->card->brand;
+        $brand = strtolower($result->transaction->creditCard['cardType']);
         $payment_method = !empty($this->card_types[$brand]) ? $this->card_types[$brand] : 12;
 
         if ($invoice !== null) {
