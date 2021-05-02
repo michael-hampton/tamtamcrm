@@ -18,12 +18,10 @@ class DatabaseSeeder extends Seeder
         $this->call(PaymentTermsSeeder::class);
         $this->call(DesignSeeder::class);
         $this->call(StatusTableSeeder::class);
-        $this->call(PaymentGatewayTypesTableSeeder::class);
         $this->call(IndustriesTableSeeder::class);
         $this->call(LanguagesTableSeeder::class);
         $this->call(CurrenciesTableSeeder::class);
         $this->call(BanksTableSeeder::class);
-        $this->call(PaymentMethodsTableSeeder::class);
         $this->call(SourceTypeTableSeeder::class);
         $this->call(EventTypesTableSeeder::class);
         $this->call(PermissionsTableSeeder::class);
@@ -33,6 +31,8 @@ class DatabaseSeeder extends Seeder
         $this->call(PlanFeaturesTableSeeder::class);
         $this->call(PlansTableSeeder::class);
         $this->call(PaymentGatewaysTableSeeder::class);
+        $this->call(PaymentGatewayTypesTableSeeder::class);
+        $this->call(PaymentMethodsTableSeeder::class);
     }
 
 }

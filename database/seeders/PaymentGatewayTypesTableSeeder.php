@@ -36,6 +36,22 @@ class PaymentGatewayTypesTableSeeder extends Seeder
                 'created_at' => NULL,
                 'updated_at' => NULL,
             ),
+            2 => 
+            array (
+                'id' => 3,
+                'alias' => 'bank_transfer',
+                'name' => 'Bank Transfer',
+                'created_at' => NULL,
+                'updated_at' => NULL,
+            ),
+            3 => 
+            array (
+                'id' => 4,
+                'alias' => 'sofort',
+                'name' => 'Sofort',
+                'created_at' => NULL,
+                'updated_at' => NULL,
+            ),
         ));
         
         

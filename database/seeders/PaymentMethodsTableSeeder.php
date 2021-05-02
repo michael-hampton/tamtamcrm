@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class PaymentMethodsTableSeeder extends Seeder
 {
@@ -17,9 +16,9 @@ class PaymentMethodsTableSeeder extends Seeder
     {
         
 
-        DB::table('payment_methods')->delete();
+        \DB::table('payment_methods')->delete();
         
-        DB::table('payment_methods')->insert(array (
+        \DB::table('payment_methods')->insert(array (
             0 => 
             array (
                 'id' => 1,
@@ -67,6 +66,14 @@ class PaymentMethodsTableSeeder extends Seeder
                 'gateway_type_id' => NULL,
                 'created_at' => '2021-01-18 23:30:04',
                 'updated_at' => '2021-01-18 23:30:04',
+            ),
+            6 => 
+            array (
+                'id' => 7,
+                'name' => 'ACH',
+                'gateway_type_id' => 3,
+                'created_at' => NULL,
+                'updated_at' => NULL,
             ),
         ));
         
