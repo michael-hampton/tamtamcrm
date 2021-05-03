@@ -73,6 +73,60 @@ export default class Config extends Component {
         ]
     }
 
+    getBraintreeConfig () {
+        const settings = this.props.gateway.settings
+
+        return [
+            [
+                {
+                    name: 'apiLoginId',
+                    label: translations.api_login_id,
+                    type: 'text',
+                    placeholder: 'Api Login ID',
+                    value: settings.apiLoginId
+                },
+                {
+                    name: 'transactionKey',
+                    label: translations.transaction_key,
+                    type: 'password',
+                    placeholder: 'Transaction Key',
+                    value: settings.transactionKey
+                },
+                {
+                    name: 'mode',
+                    label: translations.mode,
+                    type: 'select',
+                    placeholder: 'Transaction Key',
+                    value: settings.mode || '',
+                    options: [
+                        {
+                            value: consts.gateway_mode_live,
+                            text: translations.live
+                        },
+                        {
+                            value: consts.gateway_mode_production,
+                            text: translations.production
+                        }
+                    ]
+                },
+                {
+                    name: 'live_url',
+                    label: translations.live_url,
+                    type: 'text',
+                    placeholder: translations.live_url,
+                    value: settings.live_url || 'https://api2.authorize.net/xml/v1/request.api'
+                },
+                {
+                    name: 'production_url',
+                    label: translations.production_url,
+                    type: 'text',
+                    placeholder: translations.production_url,
+                    value: settings.production_url || 'https://apitest.authorize.net/xml/v1/request.api'
+                }
+            ]
+        ]
+    }
+
     getPaypalConfig () {
         const settings = this.props.gateway.settings
 
@@ -216,6 +270,8 @@ export default class Config extends Component {
                 return this.getPaypalConfig()
             case consts.stripe_gateway:
                 return this.getStripeConfig()
+            case consts.braintree_gateway:
+                return this.getBraintreeConfig()
         }
     }
 

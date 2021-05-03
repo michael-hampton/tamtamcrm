@@ -71,9 +71,13 @@ if (localStorage.getItem('access_token')) {
     axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
 }
 
-axios.defaults.baseURL = `http://${window.location.hostname}`
+var full = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
 
-localStorage.setItem('domain', `http://${window.location.hostname}`)
+alert(full)
+
+axios.defaults.baseURL = full
+
+localStorage.setItem('domain', full)
 
 const UNAUTHORIZED = 401
 axios.interceptors.response.use(
