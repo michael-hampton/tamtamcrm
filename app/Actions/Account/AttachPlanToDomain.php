@@ -33,6 +33,11 @@ class AttachPlanToDomain
 
         $customer->newSubscription('main', $plan, $account);
 
+        $subscription = $customer->subscriptions()->first();
+
+        $domain->plan_id = $subscription->plan_id;
+        $domain->save();
+
 
         return $domain;
     }
