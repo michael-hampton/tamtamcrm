@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -15,7 +16,7 @@ class RolesTableSeeder extends Seeder
      */
     public function run()
     {
-        
+        $user_id = User::first()->id;
 
         DB::table('roles')->delete();
         
@@ -29,7 +30,7 @@ class RolesTableSeeder extends Seeder
                 'created_at' => '2021-01-18 23:30:05',
                 'updated_at' => '2021-01-18 23:30:05',
                 'account_id' => 1,
-                'user_id' => 5,
+                'user_id' => $user_id,
             ),
             1 => 
             array (
@@ -40,7 +41,7 @@ class RolesTableSeeder extends Seeder
                 'created_at' => '2021-01-18 23:30:05',
                 'updated_at' => '2021-01-18 23:30:05',
                 'account_id' => 1,
-                'user_id' => 5,
+                'user_id' => $user_id,
             ),
         ));
         

@@ -68,6 +68,7 @@ use App\Policies\TaxRatePolicy;
 use App\Policies\UserPolicy;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Log;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -122,11 +123,16 @@ class AuthServiceProvider extends ServiceProvider
 
         VerifyEmail::toMailUsing(
             function ($notifiable, $url) {
-                if (!empty($notifiable->previous_email_address)) {
-                    return (new UserEmailChangedNotification($notifiable, $url));
-                }
 
-                return (new UserCreated($notifiable, $url));
+                if(!empty($notifiable)) {
+                    if (!empty($notifiable->previous_email_address)) {
+                        return (new UserEmailChangedNotification($notifiable, $url));
+                    }
+
+                    return (new UserCreated($notifiable, $url));
+                } else {
+                    Log::emergency('empty user authserviceprovider');
+                }
             }
         );
     }

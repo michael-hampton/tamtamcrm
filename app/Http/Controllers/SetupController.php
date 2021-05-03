@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Account\AttachPlanToDomain;
+use App\Actions\Account\ConvertAccount;
 use App\Actions\Account\CreateAccount;
 use App\Components\Setup\DatabaseManager;
 use App\Components\Setup\EnvironmentManager;
@@ -20,7 +22,9 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Routing\Redirector;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
@@ -57,7 +61,8 @@ class SetupController extends Controller
         EnvironmentManager $environmentManager,
         PermissionsChecker $checker,
         RequirementsChecker $requirementsChecker
-    ) {
+    )
+    {
         $this->databaseManager = $databaseManager;
         $this->environmentManager = $environmentManager;
         $this->permissions = $checker;
@@ -112,10 +117,19 @@ class SetupController extends Controller
      */
     public function database()
     {
-        $response = $this->databaseManager->migrateAndSeed();
+        $data = $this->databaseManager->migrateAndSeed();
+
+        $user = $data['user'];
+
+        if ($user) {
+            auth()->login($user, false);
+            event(new Registered($user));
+        }
+
+        Auth::login($user);
 
         return redirect()->route('setup.final')
-                         ->with(['message' => $response]);
+            ->with(['message' => $data['result']]);
     }
 
 
@@ -196,7 +210,7 @@ class SetupController extends Controller
         event(new EnvironmentSaved($input));
 
         return $redirect->route('setup.environmentClassic')
-                        ->with(['message' => $message]);
+            ->with(['message' => $message]);
     }
 
     /**
@@ -232,7 +246,7 @@ class SetupController extends Controller
         event(new EnvironmentSaved($request));
 
         return $redirect->route('setup.database')
-                        ->with(['results' => $results]);
+            ->with(['results' => $results]);
     }
 
     /**
@@ -251,14 +265,14 @@ class SetupController extends Controller
         config(
             [
                 'database' => [
-                    'default'     => $connection,
+                    'default' => $connection,
                     'connections' => [
                         $connection => array_merge(
                             $settings,
                             [
-                                'driver'   => $connection,
-                                'host'     => $request->input('database_hostname'),
-                                'port'     => $request->input('database_port'),
+                                'driver' => $connection,
+                                'host' => $request->input('database_hostname'),
+                                'port' => $request->input('database_port'),
                                 'database' => $request->input('database_name'),
                                 'username' => $request->input('database_username'),
                                 'password' => $request->input('database_password'),
@@ -270,10 +284,17 @@ class SetupController extends Controller
         );
 
         try {
+            Artisan::call('config:cache');
+            Artisan::call('config:clear');
+            Artisan::call('db:create');
+
             DB::connection()->getPdo();
 
             return true;
         } catch (Exception $e) {
+
+            echo $e->getMessage();
+            die('bad');
             return false;
         }
     }
@@ -299,14 +320,7 @@ class SetupController extends Controller
 
         $data = $request->except('_token');
 
-        $user = (new CreateAccount())->execute($data);
-
-        if ($user) {
-            auth()->login($user, false);
-            event(new Registered($user));
-        }
-
-        Auth::login($user);
+        Cache::put('user_data', $data, now()->addMinutes(10));
 
         //$account->service()->convertAccount();
 
@@ -325,10 +339,21 @@ class SetupController extends Controller
         InstalledFileManager $fileManager,
         FinalInstallManager $finalInstall,
         EnvironmentManager $environment
-    ) {
+    )
+    {
         $finalMessages = $finalInstall->runFinal();
         $finalStatusMessage = $fileManager->update();
         $finalEnvFile = $environment->getEnvContent();
+
+        $user = !empty(auth()->user()) ? auth()->user() : User::first();
+        $domain = $user->domain;
+
+        if (empty($domain->customer_id)) {
+            (new ConvertAccount($domain->default_company))->execute();
+            $domain = $domain->fresh();
+        }
+
+        (new AttachPlanToDomain())->execute($domain);
 
         event(new SetupFinished);
 

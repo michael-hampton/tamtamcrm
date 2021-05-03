@@ -44,6 +44,7 @@ class ConvertAccount
                 return null;
             }
 
+
             $customer = CloneAccountToCustomerFactory::create($this->account, $user);
 
             if (!$customer->save()) {
@@ -79,6 +80,8 @@ class ConvertAccount
 
             return $this->account;
         } catch (Exception $e) {
+            echo $e->getMessage();
+            die;
             Log::emergency($e->getMessage());
             echo $e->getMessage();
             DB::rollback();

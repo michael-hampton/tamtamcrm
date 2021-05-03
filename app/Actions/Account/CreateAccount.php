@@ -23,10 +23,6 @@ class CreateAccount
 
     public function execute(array $data): User
     {
-        //Standard Monthly by default
-        $plan = Plan::where('code', '=', 'STDM')->first();
-
-        $data['plan_id'] = $plan->id;
 
         // create domain
         $domain = (new DomainRepository(new Domain))->create($data);
@@ -42,18 +38,7 @@ class CreateAccount
 
         // set default account
         $domain->default_account_id = $account->id;
-        $domain->plan_id = $plan->id;
         $domain->save();
-
-        if (empty($domain->customer_id)) {
-            (new ConvertAccount($account))->execute();
-            $domain = $domain->fresh();
-        }
-
-        // create plan
-        $customer = Customer::find($domain->customer_id);
-
-        $customer->newSubscription('main', $plan, $account);
 
         $user_repo = new UserRepository(new User);
         $user = UserFactory::create($domain->id);

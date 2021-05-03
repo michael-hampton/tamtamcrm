@@ -2,9 +2,13 @@
 
 namespace App\Components\Setup;
 
+use App\Actions\Account\CreateAccount;
 use Exception;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Database\SQLiteConnection;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -12,8 +16,6 @@ use Symfony\Component\Console\Output\BufferedOutput;
 class DatabaseManager
 {
     /**
-     * Migrate and seed the database.
-     *
      * @return array
      */
     public function migrateAndSeed()
@@ -22,7 +24,23 @@ class DatabaseManager
 
         $this->sqlite($outputLog);
 
-        return $this->migrate($outputLog);
+        $result = $this->migrate($outputLog);
+
+        $user = $this->createUser();
+
+        $this->seed($outputLog);
+
+        return [
+            'user' => $user,
+            'result' => $result
+        ];
+    }
+
+    private function createUser()
+    {
+        $data = Cache::pull('user_data');
+
+        return (new CreateAccount())->execute($data);
     }
 
     /**
@@ -55,8 +73,6 @@ class DatabaseManager
         } catch (Exception $e) {
             return $this->response($e->getMessage(), 'error', $outputLog);
         }
-
-        return $this->seed($outputLog);
     }
 
     /**
@@ -70,8 +86,8 @@ class DatabaseManager
     private function response($message, $status, BufferedOutput $outputLog)
     {
         return [
-            'status'      => $status,
-            'message'     => $message,
+            'status' => $status,
+            'message' => $message,
             'dbOutputLog' => $outputLog->fetch(),
         ];
     }
