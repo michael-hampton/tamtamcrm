@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Rennokki\QueryCache\Traits\QueryCacheable;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use stdClass;
@@ -184,7 +185,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, CanRe
 
     public function account_users()
     {
-        return $this->hasMany(Models\AccountUser::class);
+         return $this->hasMany(Models\AccountUser::class, 'user_id', 'id');
     }
 
     public function domain()

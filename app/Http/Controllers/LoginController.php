@@ -16,6 +16,8 @@ use Illuminate\Http\Response;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use JWTAuth;
@@ -38,14 +40,15 @@ class LoginController extends BaseController
 
         if ($token = auth()->attempt($request->all())) {
             $user = auth()->user();
+
+            DB::enableQueryLog();
+
             $default_account = $user->accounts->first()->domains->default_company;
 
             $token = $this->getToken($request, $default_account);
 
             $user->auth_token = $token;
             $user->save();
-
-            $accounts = AccountUser::whereUserId($user->id)->with('account')->get();
 
             CompanyToken::updateOrCreate(
                 ['user_id' => $user->id, 'is_web' => true],
