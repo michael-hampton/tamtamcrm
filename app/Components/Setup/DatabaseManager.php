@@ -16,6 +16,11 @@ use Symfony\Component\Console\Output\BufferedOutput;
 class DatabaseManager
 {
     /**
+     * @var array
+     */
+    private array $error = [];
+
+    /**
      * @return array
      */
     public function migrateAndSeed()
@@ -26,21 +31,51 @@ class DatabaseManager
 
         $result = $this->migrate($outputLog);
 
-        $user = $this->createUser();
+        if(!$result) {
+            return [
+                'result' => $this->error
+            ];
+        }
 
-        $this->seed($outputLog);
+        $user = $this->createUser($outputLog);
+
+        if(!$user) {
+            return [
+                'result' => $this->error
+            ];
+        }
+
+        $result = $this->seed($outputLog);
+
+        if(!$result) {
+            return [
+                'result' => $this->error
+            ];
+        }
 
         return [
             'user' => $user,
-            'result' => $result
+            'result' => $this->response(trans('texts.final.finished'), 'success', $outputLog)
         ];
     }
 
-    private function createUser()
+    /**
+     * create user and account
+     *
+     * @param BufferedOutput $outputLog
+     * @return bool
+     */
+    private function createUser(BufferedOutput $outputLog)
     {
         $data = Cache::pull('user_data');
 
-        return (new CreateAccount())->execute($data);
+        try {
+            (new CreateAccount())->execute($data);
+            return true;
+        } catch (Exception $e) {
+            $this->error = $this->response($e->getMessage(), 'error', $outputLog);
+            return false;
+        }
     }
 
     /**
@@ -64,14 +99,16 @@ class DatabaseManager
      * Run the migration and call the seeder.
      *
      * @param BufferedOutput $outputLog
-     * @return array
+     * @return bool
      */
     private function migrate(BufferedOutput $outputLog)
     {
         try {
             Artisan::call('migrate', ['--force' => true], $outputLog);
+            return true;
         } catch (Exception $e) {
-            return $this->response($e->getMessage(), 'error', $outputLog);
+            $this->error = $this->response($e->getMessage(), 'error', $outputLog);
+            return false;
         }
     }
 
@@ -96,16 +133,17 @@ class DatabaseManager
      * Seed the database.
      *
      * @param BufferedOutput $outputLog
-     * @return array
+     * @return bool
      */
     private function seed(BufferedOutput $outputLog)
     {
         try {
             Artisan::call('db:seed', ['--force' => true], $outputLog);
+            return false;
         } catch (Exception $e) {
-            return $this->response($e->getMessage(), 'error', $outputLog);
+            $this->error = $this->response($e->getMessage(), 'error', $outputLog);
         }
 
-        return $this->response(trans('texts.final.finished'), 'success', $outputLog);
+        return true;
     }
 }
