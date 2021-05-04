@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class PaymentGatewaysTableSeeder extends Seeder
 {
@@ -17,9 +16,9 @@ class PaymentGatewaysTableSeeder extends Seeder
     {
         
 
-        DB::table('payment_gateways')->delete();
+        \DB::table('payment_gateways')->delete();
         
-        DB::table('payment_gateways')->insert(array (
+        \DB::table('payment_gateways')->insert(array (
             0 => 
             array (
                 'id' => 1,
@@ -123,6 +122,18 @@ class PaymentGatewaysTableSeeder extends Seeder
                 'key' => 'fgfggf',
                 'provider' => 'Stripe',
                 'default_gateway_type_id' => 4,
+                'created_at' => NULL,
+                'updated_at' => NULL,
+                'offsite_only' => 0,
+                'is_custom' => 0,
+            ),
+            9 => 
+            array (
+                'id' => 10,
+                'name' => 'Alipay',
+                'key' => 'cv4lsn09d4',
+                'provider' => 'Stripe',
+                'default_gateway_type_id' => 5,
                 'created_at' => NULL,
                 'updated_at' => NULL,
                 'offsite_only' => 0,

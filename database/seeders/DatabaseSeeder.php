@@ -30,9 +30,9 @@ class DatabaseSeeder extends Seeder
         $this->call(PlansTableSeeder::class);
         $this->call(FeaturesTableSeeder::class);
         $this->call(PlanFeaturesTableSeeder::class);
+        $this->call(PaymentMethodsTableSeeder::class);
         $this->call(PaymentGatewaysTableSeeder::class);
         $this->call(PaymentGatewayTypesTableSeeder::class);
-        $this->call(PaymentMethodsTableSeeder::class);
     }
 
 }
