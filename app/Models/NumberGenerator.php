@@ -149,9 +149,9 @@ class NumberGenerator
             }
 
             $check = $class::whereAccountId($this->entity_obj->account->id)
-                           ->whereNumber($number)
-                           ->withTrashed()
-                           ->first();
+                ->whereNumber($number)
+                ->withTrashed()
+                ->first();
 
             $counter++;
         } while ($check);
@@ -162,12 +162,14 @@ class NumberGenerator
     {
         $prefix = '';
 
-        switch ($this->pattern) {
+        $pattern = explode(':', $this->pattern);
+
+        switch ($pattern[0]) {
             case 'YEAR':
                 $prefix = date('Y');
                 break;
             case 'DATE':
-                $prefix = date('d-m-Y');
+                $prefix = !empty($pattern[1]) ? date($pattern[1]) : date('d-m-Y');
                 break;
             case 'MONTH':
                 $prefix = date('M');
@@ -184,6 +186,14 @@ class NumberGenerator
                 }
 
                 break;
+
+            case 'USER':
+                if (!empty($this->entity_obj->user_id)) {
+                    $prefix = $this->entity_obj->user_id;
+                }
+                break;
+            default:
+                $prefix = $pattern[0];
         }
 
         return !empty($prefix) ? "{$prefix}-{$number}" : $number;

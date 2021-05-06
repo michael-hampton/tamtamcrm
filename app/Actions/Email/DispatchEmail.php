@@ -65,6 +65,8 @@ class DispatchEmail extends BaseEmailActions
         $subject = $this->entity->customer->getSetting('email_subject_payment');
         $body = $this->entity->customer->getSetting('email_template_payment');
 
+        $body .= '<br><br>' . $this->entity->getFormattedInvoices();
+
         foreach ($this->entity->customer->contacts as $contact) {
             $footer = ['link' => $this->entity->getUrl(), 'text' => trans('texts.view_payment')];
             $this->dispatchEmail($contact, $subject, $body, 'email_template_payment', $footer);

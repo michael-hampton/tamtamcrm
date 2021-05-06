@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Actions\Email\DispatchEmail;
 use App\Actions\Payment\DeletePayment;
 use App\Components\Currency\CurrencyConverter;
 use App\Components\InvoiceCalculator\LineItem;
@@ -806,6 +807,28 @@ class PaymentUnitTest extends TestCase
     }
 
     /** @test */
+    public function test_payment_email()
+    {
+        $customer = Customer::find(5);
+        $invoice = Invoice::factory()->create(['customer_id' => $customer->id]);
+        $factory = (new PaymentFactory())->create($invoice->customer, $invoice->user, $invoice->account);
+
+        $data = [
+            'customer_id'       => $customer->id,
+            'payment_method_id' => 1,
+            'amount'            => $invoice->total
+        ];
+
+        $data['invoices'][0]['invoice_id'] = $invoice->id;
+        $data['invoices'][0]['amount'] = $invoice->total;
+
+        $paymentRepo = new PaymentRepository(new Payment);
+        $payment = (new ProcessPayment())->process($data, $paymentRepo, $factory);
+
+        (new DispatchEmail($payment))->sendPaymentEmails();
+    }
+
+
     /*public function test_capture()
     {
         // create invoice

@@ -120,8 +120,12 @@ class SendEmail implements ShouldQueue
             Mail::to($this->contact->email, (new CustomerContactViewModel($this->contact))->name())
                 ->send($message);
         } catch (Exception $e) {
+            echo $e->getMessage();
+            die('here99');
             event(new EmailFailedToSend($this->entity, $e->getMessage()));
         }
+
+        die('here');
 
         $sent_successfully = count(Mail::failures()) === 0;
 
@@ -138,21 +142,20 @@ class SendEmail implements ShouldQueue
     {
         $viewModel = new AccountViewModel($this->entity->account);
 
-        $data = [
-            'view_link' => !empty($this->footer) ? $this->footer['link'] : '',
-            'view_text' => !empty($this->footer) ? $this->footer['text'] : '',
-            'body'      => $body,
-            'design'    => $design,
-            'footer'    => $this->footer,
-            'title'     => $this->subject,
-            'settings'  => $settings,
-            'company'   => $this->entity->account,
-            'logo'      => $viewModel->logo(),
+        return [
+            'design' => $design,
+            'footer' => $this->footer,
+            'url' => !empty($this->footer) ? $this->footer['link'] : '',
+            'button_text' => !empty($this->footer) ? $this->footer['text'] : '',
+            'title' => $this->subject,
+            'body' => $body,
             'signature' => !empty($this->entity->account->settings->email_signature) ? $this->entity->account->settings->email_signature : '',
-
+            'logo' => (new AccountViewModel($this->entity->account))->logo(),
+            'show_footer' => empty($this->entity->account->domains->plan) || !in_array(
+                    $this->entity->account->domains->plan->code,
+                    ['STDM', 'STDY']
+                )
         ];
-
-        return $data;
     }
 
     private function createLogEntry($errors)
@@ -193,11 +196,11 @@ class SendEmail implements ShouldQueue
 
         // check if already sent
         $email = Email::whereSubject($subject)
-                      ->whereEntity($entity)
-                      ->whereEntityId($this->entity->id)
-                      ->whereRecipientEmail($contact->email)
-                      ->whereFailedToSend(1)
-                      ->first();
+            ->whereEntity($entity)
+            ->whereEntityId($this->entity->id)
+            ->whereRecipientEmail($contact->email)
+            ->whereFailedToSend(1)
+            ->first();
 
 
         if (!empty($email) && !$sent_successfully) {
@@ -209,15 +212,15 @@ class SendEmail implements ShouldQueue
 
         (new EmailRepository(new Email))->save(
             [
-                'subject'         => $subject,
-                'body'            => $body,
-                'entity'          => $entity,
-                'entity_id'       => $this->entity->id,
-                'recipient'       => $contactViewModel->name(),
+                'subject' => $subject,
+                'body' => $body,
+                'entity' => $entity,
+                'entity_id' => $this->entity->id,
+                'recipient' => $contactViewModel->name(),
                 'recipient_email' => $contact->email,
-                'template'        => $this->template,
-                'sent_at'         => Carbon::now(),
-                'failed_to_send'  => $sent_successfully === false,
+                'template' => $this->template,
+                'sent_at' => Carbon::now(),
+                'failed_to_send' => $sent_successfully === false,
             ],
             $email
         );

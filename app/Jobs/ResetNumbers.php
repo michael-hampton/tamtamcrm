@@ -72,7 +72,7 @@ class ResetNumbers implements ShouldQueue
     {
         $date_to_reset = !empty($this->entity->customer) ? $this->entity->customer->getSetting(
             'date_counter_next_reset'
-        ) : $this->entity->account->settings->{'date_counter_next_reset'};
+        ) : $this->entity->account->settings->date_counter_next_reset;
 
         $frequency_type = !empty($this->entity->customer) ? $this->entity->customer->getSetting(
             'counter_frequency_type'

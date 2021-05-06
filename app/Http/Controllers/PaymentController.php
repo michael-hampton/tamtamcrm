@@ -72,7 +72,7 @@ class PaymentController extends Controller
 
         $payment = (new ProcessPayment())->process($request->all(), $this->payment_repo, $payment);
 
-        if ($request->input('send_email') === true) {
+        if ($request->input('send_email') === true && $payment->customer->getSetting('should_send_email_for_manual_payment') === true) {
             (new DispatchEmail($payment))->execute();
         }
 

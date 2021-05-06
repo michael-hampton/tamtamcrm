@@ -231,10 +231,10 @@ class Payment extends Model
         $invoice_texts = trans('texts.invoice_number_abbreviated');
 
         foreach ($this->invoices as $invoice) {
-            $invoice_texts .= $invoice->number . ',';
+            $invoice_texts .= $invoice->number . '<br>';
         }
 
-        return substr($invoice_texts, 0, -1);
+        return $invoice_texts;
     }
 
     public function reduceAmount($amount)

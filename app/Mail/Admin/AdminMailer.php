@@ -91,7 +91,7 @@ class AdminMailer extends Mailable
             'logo'        => (new AccountViewModel($this->entity->account))->logo(),
             'show_footer' => empty($this->entity->account->domains->plan) || !in_array(
                     $this->entity->account->domains->plan->code,
-                    ['PROM', 'PROY']
+                    ['STDM', 'STDY']
                 )
         ];
 
