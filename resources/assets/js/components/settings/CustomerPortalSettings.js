@@ -218,23 +218,10 @@ export default class CustomerPortalSettings extends Component {
                 {
                     name: 'credit_payments_enabled',
                     label: translations.credit_payments_enabled,
-                    type: 'select',
+                    type: 'switch',
                     placeholder: translations.credit_payments_enabled,
                     value: settings.credit_payments_enabled,
-                    options: [
-                        {
-                            value: 'no',
-                            text: translations.off
-                        },
-                        {
-                            value: 'yes',
-                            text: translations.enabled
-                        },
-                        {
-                            value: 'show_option',
-                            text: translations.show_option
-                        }
-                    ],
+                    help_text: translations.over_payments_allowed_help_text
                 }
             ]
         ]
