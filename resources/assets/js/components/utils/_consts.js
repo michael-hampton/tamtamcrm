@@ -198,6 +198,7 @@ export const consts = {
     reminder_schedule_after_invoice_date: 'after_invoice_date',
     reminder_schedule_before_due_date: 'before_due_date',
     reminder_schedule_after_due_date: 'after_due_date',
+    checkout_gateway: '7iaq7lbecv',
     stripe_gateway: '13bb8d58',
     stripe_connect_gateway: 'ocglwiyeow',
     authorize_gateway: '8ab2dce2',

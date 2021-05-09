@@ -71,18 +71,22 @@ export default class Config extends Component {
         return [
             [
                 {
-                    name: 'apiLoginId',
-                    label: translations.api_login_id,
+                    name: 'merchant_id',
+                    label: translations.merchant_id,
                     type: 'text',
-                    placeholder: 'Api Login ID',
-                    value: settings.apiLoginId
+                    value: settings.merchant_id
                 },
                 {
-                    name: 'transactionKey',
-                    label: translations.transaction_key,
+                    name: 'public_key',
+                    label: translations.public_key,
                     type: 'password',
-                    placeholder: 'Transaction Key',
-                    value: settings.transactionKey
+                    value: settings.public_key
+                },
+                {
+                    name: 'private_key',
+                    label: translations.private_key,
+                    type: 'password',
+                    value: settings.private_key
                 },
                 {
                     name: 'testMode',
@@ -93,20 +97,50 @@ export default class Config extends Component {
                     group: 1,
                     //class_name: 'col-12'
                 },
+                // {
+                //     name: 'live_url',
+                //     label: translations.live_url,
+                //     type: 'text',
+                //     placeholder: translations.live_url,
+                //     value: settings.live_url || 'https://api2.authorize.net/xml/v1/request.api'
+                // },
+                // {
+                //     name: 'production_url',
+                //     label: translations.production_url,
+                //     type: 'text',
+                //     placeholder: translations.production_url,
+                //     value: settings.production_url || 'https://apitest.authorize.net/xml/v1/request.api'
+                // }
+            ]
+        ]
+    }
+
+    getCheckoutConfig () {
+        const settings = this.props.gateway.settings
+        
+        return [
+            [
                 {
-                    name: 'live_url',
-                    label: translations.live_url,
-                    type: 'text',
-                    placeholder: translations.live_url,
-                    value: settings.live_url || 'https://api2.authorize.net/xml/v1/request.api'
+                    name: 'publicApiKey',
+                    label: translations.public_key,
+                    type: 'password',
+                    value: settings.publicApiKey
                 },
                 {
-                    name: 'production_url',
-                    label: translations.production_url,
-                    type: 'text',
-                    placeholder: translations.production_url,
-                    value: settings.production_url || 'https://apitest.authorize.net/xml/v1/request.api'
-                }
+                    name: 'secretApiKey',
+                    label: translations.secret_key,
+                    type: 'password',
+                    value: settings.secretApiKey
+                },
+                {
+                    name: 'testMode',
+                    label: translations.mode,
+                    type: 'switch',
+                    placeholder: translations.mode,
+                    value: settings.mode ? settings.mode : false,
+                    group: 1,
+                    //class_name: 'col-12'
+                },
             ]
         ]
     }
@@ -246,6 +280,8 @@ export default class Config extends Component {
                 return this.getStripeConfig()
             case consts.braintree_gateway:
                 return this.getBraintreeConfig()
+            case consts.checkout_gateway:
+                return this.getCheckoutConfig()
         }
     }
 
