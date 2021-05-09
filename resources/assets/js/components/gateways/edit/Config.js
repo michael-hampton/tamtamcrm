@@ -1,8 +1,8 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import FormBuilder from '../../settings/FormBuilder'
-import { translations } from '../../utils/_translations'
-import { consts } from '../../utils/_consts'
-import { Button } from 'reactstrap'
+import {translations} from '../../utils/_translations'
+import {consts} from '../../utils/_consts'
+import {Button} from 'reactstrap'
 import CompanyGatewayRepository from '../../repositories/CompanyGatewayRepository'
 
 export default class Config extends Component {
@@ -39,21 +39,13 @@ export default class Config extends Component {
                     value: settings.transactionKey
                 },
                 {
-                    name: 'mode',
+                    name: 'testMode',
                     label: translations.mode,
-                    type: 'select',
-                    placeholder: 'Transaction Key',
-                    value: settings.mode || '',
-                    options: [
-                        {
-                            value: consts.gateway_mode_live,
-                            text: translations.live
-                        },
-                        {
-                            value: consts.gateway_mode_production,
-                            text: translations.production
-                        }
-                    ]
+                    type: 'switch',
+                    placeholder: translations.mode,
+                    value: settings.mode ? settings.mode : false,
+                    group: 1,
+                    //class_name: 'col-12'
                 },
                 {
                     name: 'live_url',
@@ -93,21 +85,13 @@ export default class Config extends Component {
                     value: settings.transactionKey
                 },
                 {
-                    name: 'mode',
+                    name: 'testMode',
                     label: translations.mode,
-                    type: 'select',
-                    placeholder: 'Transaction Key',
-                    value: settings.mode || '',
-                    options: [
-                        {
-                            value: consts.gateway_mode_live,
-                            text: translations.live
-                        },
-                        {
-                            value: consts.gateway_mode_production,
-                            text: translations.production
-                        }
-                    ]
+                    type: 'switch',
+                    placeholder: translations.mode,
+                    value: settings.mode ? settings.mode : false,
+                    group: 1,
+                    //class_name: 'col-12'
                 },
                 {
                     name: 'live_url',
@@ -190,7 +174,7 @@ export default class Config extends Component {
     getStripeConfig () {
         const settings = this.props.gateway.settings
 
-        const formFields = [
+        return [
             [
                 {
                     name: 'apiKey',
@@ -207,21 +191,13 @@ export default class Config extends Component {
                     value: settings.publishable_key
                 },
                 {
-                    name: 'mode',
+                    name: 'testMode',
                     label: translations.mode,
-                    type: 'select',
-                    placeholder: 'Transaction Key',
-                    value: settings.mode || '',
-                    options: [
-                        {
-                            value: consts.gateway_mode_live,
-                            text: translations.live
-                        },
-                        {
-                            value: consts.gateway_mode_production,
-                            text: translations.production
-                        }
-                    ]
+                    type: 'switch',
+                    placeholder: translations.mode,
+                    value: settings.mode ? settings.mode : false,
+                    group: 1,
+                    //class_name: 'col-12'
                 },
                 {
                     name: 'live_url',
@@ -239,8 +215,6 @@ export default class Config extends Component {
                 }
             ]
         ]
-
-        return formFields
     }
 
     createStripeAccount (key) {

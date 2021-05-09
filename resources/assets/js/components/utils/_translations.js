@@ -61,6 +61,8 @@ _localizedValues.en = {
     stopped: 'Stopped',
     billing: 'Billing',
     send_date: 'Send Date',
+    show_option: 'Show Option',
+    enabled: 'Enabled',
     auto_billing_enabled: 'Autobilling Enabled',
     auto_billing_enabled_help_text: 'Should automatically bill customer',
     grace_period: 'Grace Period',

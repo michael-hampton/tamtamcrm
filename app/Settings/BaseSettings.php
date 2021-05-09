@@ -188,8 +188,8 @@ class BaseSettings
         'credit_payments_enabled'              => [
             'required'         => false,
             'translated_value' => '',
-            'default_value'    => true,
-            'type'             => 'bool'
+            'default_value'    => 'on',
+            'type'             => 'string'
         ],
         'convert_expense_currency'             => [
             'required'         => false,
