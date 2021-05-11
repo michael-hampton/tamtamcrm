@@ -23,6 +23,10 @@ class EditCustomer extends React.Component {
             showErrorMessage: false
         }
 
+        const account_id = JSON.parse(localStorage.getItem('appState')).user.account_id
+        const user_account = JSON.parse(localStorage.getItem('appState')).accounts.filter(account => account.account_id === parseInt(account_id))
+        this.account = user_account[0]
+
         this.toggle = this.toggle.bind(this)
         this.toggleMenu = this.toggleMenu.bind(this)
         this.changeStatus = this.changeStatus.bind(this)
@@ -57,6 +61,14 @@ class EditCustomer extends React.Component {
             return false
         }
 
+        if (action === 'portal') {
+            window.open(
+                `http://${this.account.account.subdomain}portal`,
+                '_blank' // <- This is what makes it open in a new window.
+            )
+            return
+        }
+
         const url = action === 'download_statement' ? '/api/statement' : 'api/customer'
 
         axios.post(`${url}/${this.state.id}/${action}`)
@@ -89,7 +101,11 @@ class EditCustomer extends React.Component {
 
         const cloneButton =
             <DropdownItem className="primary"
-                onClick={() => this.changeStatus('clone_to_customer')}>Clone</DropdownItem>
+                onClick={() => this.changeStatus('clone_to_customer')}>{translations.clone_customer}</DropdownItem>
+
+        const portalButton =
+            <DropdownItem className="primary"
+                onClick={() => this.changeStatus('portal')}>{translations.portal}</DropdownItem>
 
         const statementButton =
             <DropdownItem className="primary"
@@ -106,6 +122,7 @@ class EditCustomer extends React.Component {
                 {archiveButton}
                 {cloneButton}
                 {statementButton}
+                {portalButton}
             </DropdownMenu>
         </Dropdown>
 

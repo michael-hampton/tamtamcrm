@@ -99,7 +99,8 @@ class SendEmail implements ShouldQueue
         }
 
         if (strlen($settings->bcc_email) > 0) {
-            $message->setBcc($settings->bcc_email);
+            $bcc = explode(',', $settings->bcc_email);
+            $message->setBcc($bcc);
         }
 
         if ($settings->pdf_email_attachment && (new ReflectionClass($this->entity))->getShortName() !== 'Payment') {

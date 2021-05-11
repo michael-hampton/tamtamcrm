@@ -117,7 +117,7 @@ export default class Config extends Component {
 
     getCheckoutConfig () {
         const settings = this.props.gateway.settings
-        
+
         return [
             [
                 {

@@ -64,11 +64,11 @@ class CompanyGatewaySearch extends BaseSearch
 
         $invoices = $this->transformList();
 
-        if ($recordsPerPage > 0) {
-            $paginatedResults = $this->company_gateway_repo->paginateArrayResults($invoices, $recordsPerPage);
-
-            return $paginatedResults;
-        }
+//        if ($recordsPerPage > 0) {
+//            $paginatedResults = $this->company_gateway_repo->paginateArrayResults($invoices, $recordsPerPage);
+//
+//            return $paginatedResults;
+//        }
 
         return $invoices;
     }

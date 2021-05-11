@@ -271,6 +271,7 @@ _localizedValues.en = {
     clone_order: 'Clone Order',
     clone_quote: 'Clone Quote',
     clone_credit: 'Clone Credit',
+    clone_customer: 'Clone Customer',
     clone_expense: 'Clone Expense',
     case_settings: 'Case Settings',
     expense_settings: 'Expense Settings',
