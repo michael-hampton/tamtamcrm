@@ -179,6 +179,7 @@ use App\Listeners\Lead\LeadNotification;
 use App\Listeners\Lead\LeadRestored;
 use App\Listeners\Lead\LeadUpdated;
 use App\Listeners\LogSentMessage;
+use App\Listeners\LogSuccessfulLogin;
 use App\Listeners\NewUserNotification;
 use App\Listeners\Order\OrderArchived;
 use App\Listeners\Order\OrderBackordered;
@@ -277,6 +278,7 @@ use App\Observers\InvoiceObserver;
 use App\Observers\LeadObserver;
 use App\Observers\OrderObserver;
 use App\Observers\TaskObserver;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -296,6 +298,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         Registered::class                      => [
             SendEmailVerificationNotification::class
+        ],
+        Login::class                           => [
+            LogSuccessfulLogin::class
         ],
         MessageSent::class                     => [
             LogSentMessage::class,

@@ -51,7 +51,7 @@ class NewAccountCreated extends Notification implements ShouldQueue
     {
         $user_name = $this->user->first_name . " " . $this->user->last_name;
         $email = $this->user->email;
-        $ip = $this->user->ip;
+        $ip = $this->user->ip_address;
 
         $data = [
             'title'       => trans('texts.new_account_created'),
@@ -84,7 +84,7 @@ class NewAccountCreated extends Notification implements ShouldQueue
 
         $user_name = $this->user->first_name . " " . $this->user->last_name;
         $email = $this->user->email;
-        $ip = $this->user->ip;
+        $ip = $this->user->ip_address;
 
         return (new SlackMessage)->success()->from(trans('texts.from_slack'))
                                  ->content(

@@ -203,7 +203,7 @@ class EditGateway extends React.Component {
 
                         <TabContent activeTab={this.state.activeTab}>
                             <TabPane tabId="1">
-                                <Details refresh={this.refresh} is_edit={true} renderErrorFor={this.renderErrorFor}
+                                <Details is_add={false} refresh={this.refresh} is_edit={true} renderErrorFor={this.renderErrorFor}
                                     errors={this.state.errors}
                                     handleInput={this.handleInput}
                                     gateway={this.state}

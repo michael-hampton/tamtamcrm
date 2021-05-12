@@ -288,7 +288,7 @@ export default class Config extends Component {
     render () {
         const formFields = this.props.gateway.gateway_key && this.props.gateway.gateway_key.length ? this.getFormFields(this.props.gateway.gateway_key) : null
 
-        if (this.props.gateway.gateway_key === consts.stripe_connect_gateway) {
+        if (this.props.gateway.gateway_key === consts.stripe_connect_gateway && this.props.is_add === true) {
             return <Button color="primary" onClick={(e) => {
                 this.createStripeAccount(consts.stripe_connect_gateway)
             }}>{translations.stripe_connect}</Button>

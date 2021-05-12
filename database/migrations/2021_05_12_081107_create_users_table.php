@@ -37,7 +37,7 @@ class CreateUsersTable extends Migration
             $table->string('accepted_terms_version', 100)->nullable();
             $table->string('confirmation_code', 100)->nullable();
             $table->dateTime('last_login')->nullable();
-            $table->string('ip', 200)->nullable();
+            $table->string('ip_address', 200)->nullable();
             $table->unsignedInteger('domain_id')->index('domain_id');
             $table->string('two_factor_token');
             $table->dateTime('two_factor_expiry')->nullable();
@@ -47,6 +47,7 @@ class CreateUsersTable extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->dateTime('password_verified_at')->nullable();
             $table->string('google_secret')->nullable();
+            $table->string('user_agent', 100)->nullable();
         });
     }
 

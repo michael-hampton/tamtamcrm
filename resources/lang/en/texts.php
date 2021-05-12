@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'login_notification_subject'                           => 'Login from a new device',
+    'login_notification_message'                           => 'Your :app account logged in from a new device.',
     'user_not_unique'                                      => 'The email address already exists',
     'incomplete_payment'                                   => 'Payment has not been completed',
     'payment_amount_more_than_invoice_total'               => 'Payment amount cannot be more that the invoice total',

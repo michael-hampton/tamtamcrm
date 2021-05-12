@@ -19,4 +19,5 @@ return [
     'channel'                 => env('LARAVEL_SLOW_QUERY_LOGGER_CHANNEL', 'single'),
     'log-level'               => env('LARAVEL_SLOW_QUERY_LOGGER_LOG_LEVEL', 'debug'),
     'time-to-log'             => env('LARAVEL_SLOW_QUERY_LOGGER_TIME_TO_LOG', 10),
+    'notify_on_login'         => true
 ];
