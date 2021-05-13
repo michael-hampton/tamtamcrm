@@ -374,36 +374,36 @@ class Account extends Model
     public function selectPersonalData($personal_data)
     {
 
-        $export['customers'] = $this->customers->makeHidden('settings')->toArray();
-        $export['customer_contacts'] = $this->customer_contacts->toArray();
-        $export['customer_gateways'] = $this->customer_gateways->toArray();
-        $export['company_gateways'] = $this->company_gateways->toArray();
-        $export['transactions'] = $this->transactions->toArray();
-        $export['credits'] = $this->credits->toArray();
-        $export['designs'] = $this->designs->toArray();
-        $export['expenses'] = $this->expenses->toArray();
-        $export['expense_categories'] = $this->expense_categories->toArray();
-        $export['groups'] = $this->groups->toArray();
-        $export['invoices'] = $this->invoices->makeHidden('account')->makeHidden('customer')->toArray();
-        $export['payment_terms'] = $this->payment_terms->toArray();
-        $export['payments'] = $this->payments->toArray();
-        $export['projects'] = $this->projects->toArray();
-        $export['quotes'] = $this->quotes->makeHidden('account')->makeHidden('customer')->toArray();
-        $export['recurring_invoices'] = $this->recurring_invoices->makeHidden('account')->makeHidden('customer')->toArray();
-        $export['recurring_quotes'] = $this->recurring_quotes->makeHidden('account')->makeHidden('customer')->toArray();
-        $export['webhooks'] = $this->subscriptions->toArray();
-        $export['plans'] = $this->plans->toArray();
-        $export['subscriptions'] = $this->plan_subscriptions->toArray();
-        $export['tasks'] = $this->tasks->makeHidden('account')->makeHidden('customer')->toArray();
-        $export['task_statuses'] = $this->task_statuses->toArray();
+        $export['customers'] = $this->customers->attributesToArray();
+        $export['customer_contacts'] = $this->customer_contacts->attributesToArray();
+        $export['customer_gateways'] = $this->customer_gateways->attributesToArray();
+        $export['company_gateways'] = $this->company_gateways->attributesToArray();
+        $export['transactions'] = $this->transactions->attributesToArray();
+        $export['credits'] = $this->credits->attributesToArray();
+        $export['designs'] = $this->designs->attributesToArray();
+        $export['expenses'] = $this->expenses->attributesToArray();
+        $export['expense_categories'] = $this->expense_categories->attributesToArray();
+        $export['groups'] = $this->groups->attributesToArray();
+        $export['invoices'] = $this->invoices->attributesToArray();
+        $export['payment_terms'] = $this->payment_terms->attributesToArray();
+        $export['payments'] = $this->payments->attributesToArray();
+        $export['projects'] = $this->projects->attributesToArray();
+        $export['quotes'] = $this->quotes->attributesToArray();
+        $export['recurring_invoices'] = $this->recurring_invoices->attributesToArray();
+        $export['recurring_quotes'] = $this->recurring_quotes->attributesToArray();
+        $export['webhooks'] = $this->subscriptions->attributesToArray();
+        $export['plans'] = $this->plans->attributesToArray();
+        $export['subscriptions'] = $this->plan_subscriptions->attributesToArray();
+        $export['tasks'] = $this->tasks->attributesToArray();
+        $export['task_statuses'] = $this->task_statuses->attributesToArray();
         $export['tax_rates'] = $this->tax_rates->toArray();
-        $export['companies'] = $this->companies->makeHidden('contacts')->toArray();
+        $export['companies'] = $this->companies->attributesToArray();
         $export['company_contacts'] = $this->company_contacts->toArray();
-        $export['deals'] = $this->deals->toArray();
-        $export['leads'] = $this->leads->toArray();
-        $export['products'] = $this->products->toArray();
-        $export['orders'] = $this->orders->makeHidden('account')->makeHidden('customer')->toArray();
-        $export['purchase_orders'] = $this->purchase_orders->makeHidden('account')->makeHidden('company')->toArray();
+        $export['deals'] = $this->deals->attributesToArray();
+        $export['leads'] = $this->leads->attributesToArray();
+        $export['products'] = $this->products->attributesToArray();
+        $export['orders'] = $this->orders->attributesToArray();
+        $export['purchase_orders'] = $this->purchase_orders->attributesToArray();
 
         $personal_data->add(date('YmdHis') . 'attributes.json', $export);
 
