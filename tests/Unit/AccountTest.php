@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Actions\Account\ConvertAccount;
 use App\Actions\Account\CreateAccount;
+use App\Jobs\CreateAccountDataExportJob;
 use App\Jobs\ProcessSubscription;
 use App\Models\Account;
 use App\Models\Customer;
@@ -57,6 +58,14 @@ class AccountTest extends TestCase
         $this->assertEquals($plan->ends_at->format('Y-m-d'), now()->addYearNoOverflow()->format('Y-m-d'));
         $this->assertEquals($plan->due_date->format('Y-m-d'), now()->addMonthNoOverflow()->format('Y-m-d'));
         $this->assertEquals($plan->plan->code, 'STDM');
+    }
+
+    /** @test */
+    public function test_export_account_data()
+    {
+        $account = Account::where('id', 1)->first();
+        $user = User::find(5);
+        CreateAccountDataExportJob::dispatchNow($account, $user);
     }
 
     public function tearDown(): void

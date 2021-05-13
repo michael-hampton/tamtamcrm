@@ -1,5 +1,5 @@
 <?php
-
+//https://stripe.com/docs/api/accounts/list?lang=php
 
 namespace App\Components\Payment\Gateways\Stripe;
 
@@ -104,5 +104,12 @@ class StripeConnect extends BaseStripeClient
         ]);
 
         return $response['id'];
+    }
+
+    public function listAllConnectedAccounts()
+    {
+        $this->setupConfig();
+
+        return $this->stripe->accounts->all();
     }
 }

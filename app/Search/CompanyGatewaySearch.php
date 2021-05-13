@@ -62,15 +62,13 @@ class CompanyGatewaySearch extends BaseSearch
 
         $this->orderBy($orderBy, $orderDir);
 
-        $invoices = $this->transformList();
-
-//        if ($recordsPerPage > 0) {
+        //        if ($recordsPerPage > 0) {
 //            $paginatedResults = $this->company_gateway_repo->paginateArrayResults($invoices, $recordsPerPage);
 //
 //            return $paginatedResults;
 //        }
 
-        return $invoices;
+        return $this->transformList();
     }
 
     /**

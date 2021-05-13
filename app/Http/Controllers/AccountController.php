@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Factory\AccountFactory;
+use App\Http\Responses\ZipDownloadResponse;
 use App\Models\Account;
 use App\Models\CompanyToken;
 use App\Models\Licence;
@@ -17,6 +18,7 @@ use App\Transformations\AccountTransformable;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Class AccountController
@@ -266,5 +268,10 @@ class AccountController extends BaseController
         $domain = Account::where('subdomain', '=', $domain)->first();
 
         return response()->json($domain);
+    }
+
+    public function export(string $zipFilename): StreamedResponse
+    {
+        return new ZipDownloadResponse(base64_decode($zipFilename));
     }
 }

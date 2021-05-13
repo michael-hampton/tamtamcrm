@@ -1,6 +1,10 @@
 <?php
 
 return [
+    'account_data_export_subject'                          => 'Account Data Download',
+    'account_data_export_message'                          => 'Please click the button below to download a zip file containg all data we got for your account.',
+    'account_data_export_button_text'                      => 'Download Zip File',
+    'account_data_export_footer'                           => 'This file will be deleted at',
     'login_notification_subject'                           => 'Login from a new device',
     'login_notification_message'                           => 'Your :app account logged in from a new device.',
     'user_not_unique'                                      => 'The email address already exists',

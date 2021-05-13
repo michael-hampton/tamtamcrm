@@ -140,21 +140,36 @@ class CompanyGatewayController extends Controller
 
         $objStripe = new StripeConnect();
 
-        $token = $objStripe->createAccount([
-            'email'   => auth()->user()->email,
-            'country' => auth()->user()->account_user()->account->country()->iso
-        ]);
+        $accounts = $objStripe->listAllConnectedAccounts();
 
-        $response = $objStripe->connectAccount($token);
+        $account_id = null;
+        $url = '';
 
-        $settings = ['account_number' => $token];
+        foreach ($accounts as $account) {
+            if ($account->email === auth()->user()->email) {
+                $account_id = $account->id;
+                break;
+            }
+        }
+
+        if (empty($account_id)) {
+
+            $account_id = $objStripe->createAccount([
+                'email'   => auth()->user()->email,
+                'country' => auth()->user()->account_user()->account->country()->iso
+            ]);
+
+            $url = $objStripe->connectAccount($account_id);
+        }
+
+        $settings = ['account_id' => $account_id];
 
         $company_gateway = $this->company_gateway_repo->create(
             ['gateway_key' => $request->input('token'), 'settings' => $settings],
             CompanyGatewayFactory::create(auth()->user()->account_user()->account_id, auth()->user()->id)
         );
 
-        return response()->json(['gateway' => $this->transformCompanyGateway($company_gateway), 'url' => $response]);
+        return response()->json(['gateway' => $this->transformCompanyGateway($company_gateway), 'url' => $url]);
     }
 
     public function completeStripeConnect(Request $request)

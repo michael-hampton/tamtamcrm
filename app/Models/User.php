@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Rennokki\QueryCache\Traits\QueryCacheable;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use stdClass;
@@ -263,5 +264,12 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, CanRe
         $url = url('reset-password/' . $token);
 
         $this->notify(new ForgotPasswordNotification($this, $url));
+    }
+
+    public function personalDataExportName(): string
+    {
+        $usernameSlug = Str::slug($this->username);
+
+        return "personal-data-{$usernameSlug}.zip";
     }
 }

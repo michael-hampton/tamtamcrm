@@ -6,12 +6,14 @@ use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CompanyGateway extends Model
 {
     use HasFactory;
     use Archiveable;
     use QueryScopes;
+    use SoftDeletes;
 
     protected $casts = [
         //'fields'          => 'object',
