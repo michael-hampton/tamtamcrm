@@ -60,12 +60,31 @@ class AccountTest extends TestCase
         $this->assertEquals($plan->plan->code, 'STDM');
     }
 
-    /** @test */
     public function test_export_account_data()
     {
         $account = Account::where('id', 1)->first();
         $user = User::find(5);
-        CreateAccountDataExportJob::dispatchNow($account, $user);
+
+        dispatch(new CreateAccountDataExportJob($account, $user));
+
+        $allFiles = Storage::disk('public')->allFiles();
+        $this->assertCount(1, $allFiles);
+
+        $zipPath = $this->getFullPath($this->diskName, $allFiles[0]);
+        $this->assertZipContains($zipPath, 'attributes.json', json_encode($user->attributesToArray(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+        $this->assertZipContains($zipPath, 'avatar.png');
+        $this->assertZipContains($zipPath, 'thumbnail.png');
+
+        Notification::assertSentTo($user, PersonalDataExportedNotification::class, function (PersonalDataExportedNotification $notification) use ($allFiles, $user) {
+            if ($notification->zipFilename !== $allFiles[0]) {
+                return false;
+            }
+
+            return true;
+        });
+
+        Event::assertDispatched(PersonalDataSelected::class);
+        Event::assertDispatched(PersonalDataExportCreated::class);
     }
 
     public function tearDown(): void
