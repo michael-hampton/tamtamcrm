@@ -87,6 +87,11 @@ class AccountTest extends TestCase
         Event::assertDispatched(PersonalDataExportCreated::class);
     }
 
+    public function getFullPath(string $diskName, string $filename): string
+    {
+        return Storage::disk($diskName)->getDriver()->getAdapter()->getPathPrefix().'/'.$filename;
+    }
+
     public function tearDown(): void
     {
         parent::tearDown();
