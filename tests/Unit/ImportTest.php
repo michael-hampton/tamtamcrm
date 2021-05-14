@@ -10,9 +10,13 @@ use App\Models\Category;
 use App\Models\Company;
 use App\Models\Customer;
 use App\Models\CustomerContact;
+use App\Models\Deal;
+use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Industry;
 use App\Models\Invoice;
+use App\Models\Lead;
+use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\Project;
@@ -90,6 +94,25 @@ class ImportTest extends TestCase
     }
 
     /** @test */
+    public function it_can_export_expenses()
+    {
+        $expense = Expense::factory()->create(['account_id' => $this->main_account->id]);
+
+        $result = $this->doExport('expense');
+
+        $data = $this->csvToArray($result);
+
+        $this->assertTrue(collect($data)->contains('amount', $expense->amount));
+
+        $filename = date('YmdHi') . '-expense.csv';
+        $path = public_path(config('taskmanager.exports_dir'));
+        $full_path = $path . '/' . $filename;
+
+        $this->assertFileExists($full_path);
+
+    }
+
+    /** @test */
     public function it_can_import_expenses()
     {
         $factory = (new ExpenseCategoryFactory())->create($this->main_account, $this->user);
@@ -134,6 +157,25 @@ class ImportTest extends TestCase
                 'private_notes'     => $data['private notes']
             ]
         );
+    }
+
+    /** @test */
+    public function it_can_export_companies()
+    {
+        $company = Company::factory()->create(['account_id' => $this->main_account->id]);
+
+        $result = $this->doExport('company');
+
+        $data = $this->csvToArray($result);
+
+        $this->assertTrue(collect($data)->contains('website', $company->website));
+
+        $filename = date('YmdHi') . '-company.csv';
+        $path = public_path(config('taskmanager.exports_dir'));
+        $full_path = $path . '/' . $filename;
+
+        $this->assertFileExists($full_path);
+
     }
 
     /** @test */
@@ -191,6 +233,27 @@ class ImportTest extends TestCase
     }
 
     /** @test */
+    public function it_can_export_invoices()
+    {
+        $invoice = Invoice::factory()->create(['account_id' => $this->main_account->id, 'po_number' => 'mike']);
+        $invoice->po_number = 'mike';
+        $invoice->save();
+
+        $result = $this->doExport('invoice');
+
+        $data = $this->csvToArray($result);
+
+        $this->assertTrue(collect($data)->contains('Number', $invoice->number));
+
+        $filename = date('YmdHi') . '-invoice.csv';
+        $path = public_path(config('taskmanager.exports_dir'));
+        $full_path = $path . '/' . $filename;
+
+        $this->assertFileExists($full_path);
+
+    }
+
+    /** @test */
     public function it_can_import_invoices()
     {
         $data = [
@@ -238,6 +301,25 @@ class ImportTest extends TestCase
     }
 
     /** @test */
+    public function it_can_export_payments()
+    {
+        $payment = Payment::factory()->create(['account_id' => $this->main_account->id]);
+
+        $result = $this->doExport('payment');
+
+        $data = $this->csvToArray($result);
+
+        $this->assertTrue(collect($data)->contains('number', $payment->number));
+
+        $filename = date('YmdHi') . '-payment.csv';
+        $path = public_path(config('taskmanager.exports_dir'));
+        $full_path = $path . '/' . $filename;
+
+        $this->assertFileExists($full_path);
+
+    }
+
+    /** @test */
     public function it_can_import_payments()
     {
         $data = [
@@ -268,6 +350,25 @@ class ImportTest extends TestCase
                 'amount'         => $this->invoice->total
             ]
         );
+    }
+
+    /** @test */
+    public function it_can_export_customers()
+    {
+        $customer = Customer::factory()->create(['account_id' => $this->main_account->id]);
+
+        $result = $this->doExport('customer');
+
+        $data = $this->csvToArray($result);
+
+        $this->assertTrue(collect($data)->contains('name', $customer->name));
+
+        $filename = date('YmdHi') . '-customer.csv';
+        $path = public_path(config('taskmanager.exports_dir'));
+        $full_path = $path . '/' . $filename;
+
+        $this->assertFileExists($full_path);
+
     }
 
     /** @test */
@@ -344,6 +445,25 @@ class ImportTest extends TestCase
     }
 
     /** @test */
+    public function it_can_export_leads()
+    {
+        $lead = Lead::factory()->create();
+
+        $result = $this->doExport('lead');
+
+        $data = $this->csvToArray($result);
+
+        $this->assertTrue(collect($data)->contains('first name', $lead->first_name));
+
+        $filename = date('YmdHi') . '-lead.csv';
+        $path = public_path(config('taskmanager.exports_dir'));
+        $full_path = $path . '/' . $filename;
+
+        $this->assertFileExists($full_path);
+
+    }
+
+    /** @test */
     public function it_can_import_leads()
     {
         $data = [
@@ -376,6 +496,25 @@ class ImportTest extends TestCase
                 'phone'      => $data['phone']
             ]
         );
+    }
+
+    /** @test */
+    public function it_can_export_deals()
+    {
+        $deal = Deal::factory()->create();
+
+        $result = $this->doExport('deal');
+
+        $data = $this->csvToArray($result);
+
+        $this->assertTrue(collect($data)->contains('name', $deal->name));
+
+        $filename = date('YmdHi') . '-deal.csv';
+        $path = public_path(config('taskmanager.exports_dir'));
+        $full_path = $path . '/' . $filename;
+
+        $this->assertFileExists($full_path);
+
     }
 
     /** @test */
@@ -471,5 +610,49 @@ class ImportTest extends TestCase
             echo $e->getMessage();
             die('here');
         }
+    }
+
+    private function doExport($export_type)
+    {
+        try {
+            $importer = (new ImportFactory())->loadImporter(
+                $export_type,
+                $this->main_account,
+                $this->user
+            );
+
+
+            $export_result = $importer->export();
+
+            $this->assertTrue($export_result);
+
+            return $importer->getContent();
+        } catch (\Exception $e) {
+            echo $e->getMessage();
+            die('here');
+        }
+    }
+
+    private function csvToArray(string $content)
+    {
+        $lines = array_filter(explode("\n", $content));
+
+        $header = null;
+        $output = [];
+        foreach ($lines as $line) {
+            if ($line[0] == '#') {
+                continue;
+            }
+
+            $data = str_getcsv($line);
+
+            if ($header == null) {
+                $header = $data;
+            } else {
+                $output[] = array_combine($header, $data);
+            }
+        }
+
+        return $output;
     }
 }

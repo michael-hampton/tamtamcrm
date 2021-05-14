@@ -34,7 +34,6 @@ class CustomerContact extends Model implements ContactInterface
     protected $hidden = [
         'user_id',
         'account_id',
-        'customer_id',
         'token',
         'password',
     ];

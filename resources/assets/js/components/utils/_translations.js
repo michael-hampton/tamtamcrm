@@ -961,7 +961,8 @@ _localizedValues.en = {
     active_subscribers_limit: 'Number of Subscribers allowed',
     can_cancel_plan: 'Plan Can be cancelled',
     invoice_frequency: 'Invoice Frequency',
-    hide: 'Hide'
+    hide: 'Hide',
+    account_export_completed: 'The account export has completed successfully. An email has been sent with the file'
 }
 
 let language = []

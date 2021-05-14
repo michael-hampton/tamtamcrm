@@ -82,6 +82,6 @@ class CreateAccountDataExportJob implements ShouldQueue
     protected function notifyZip(string $zipFilename)
     {
 
-        $this->user->notify(new AccountDataExportedNotification(base64_encode($zipFilename)));
+        $this->user->notify(new AccountDataExportedNotification($zipFilename));
     }
 }

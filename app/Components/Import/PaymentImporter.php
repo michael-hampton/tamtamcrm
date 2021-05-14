@@ -110,7 +110,9 @@ class PaymentImporter extends BaseCsvImporter
         $payments = [];
 
         foreach ($list as $payment) {
-            $payments[] = $this->transformObject($payment);
+            $payment = $this->transformObject($payment);
+            unset($payment['credits'], $payment['invoices'], $payment['paymentables']);
+            $payments[] = $payment;
         }
 
         if ($is_json) {
@@ -118,6 +120,8 @@ class PaymentImporter extends BaseCsvImporter
         }
 
         $this->export->build(collect($payments), $export_columns);
+
+        $this->export->notifyUser('payment');
 
         return true;
     }

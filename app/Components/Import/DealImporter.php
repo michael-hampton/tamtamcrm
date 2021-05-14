@@ -122,6 +122,8 @@ class DealImporter extends BaseCsvImporter
 
         $this->export->build(collect($deals), $export_columns);
 
+        $this->export->notifyUser('deal');
+
         return true;
     }
 

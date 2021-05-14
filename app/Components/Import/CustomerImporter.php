@@ -15,6 +15,7 @@ use App\Repositories\CustomerContactRepository;
 use App\Repositories\CustomerRepository;
 use App\Transformations\ContactTransformable;
 use App\Transformations\CustomerTransformable;
+use Carbon\Carbon;
 
 class CustomerImporter extends BaseCsvImporter
 {
@@ -200,16 +201,33 @@ class CustomerImporter extends BaseCsvImporter
         $customers = [];
 
         foreach ($list as $customer) {
+
             $formatted_customer = $this->transformObject($customer);
 
-            foreach ($customer->contacts as $contact) {
-                $formatted_contact = (new ContactTransformable())->transformContact($contact);
+            unset(
+                $formatted_customer['billing'],
+                $formatted_customer['shipping'],
+                $formatted_customer['contacts'],
+                $formatted_customer['settings'],
+                $formatted_customer['files']
+            );
 
-                $customers[] = array_merge($formatted_customer, $formatted_contact);
+            $formatted_customer['created_at'] = Carbon::parse($formatted_customer['created_at'])->format('Y-m-d');
+
+            if($customer->contacts->count() > 0) {
+                foreach ($customer->contacts as $contact) {
+                    $formatted_contact = (new ContactTransformable())->transformContact($contact);
+
+                    $customers[] = array_merge($formatted_contact, $formatted_customer);
+                }
+            } else {
+                $customers[] = $formatted_customer;
             }
         }
 
         $this->export->build(collect($customers), $export_columns);
+
+        $this->export->notifyUser('customer');
 
         return true;
     }

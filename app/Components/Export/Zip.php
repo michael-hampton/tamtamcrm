@@ -70,6 +70,8 @@ class Zip
                 $nameInZip = Str::after($file, $rootPath.'/');
 
                 $this->zipFile->addFromString(basename($file), file_get_contents(ltrim($nameInZip, DIRECTORY_SEPARATOR)));
+
+                unlink($file);
             }
             $this->fileCount++;
         }

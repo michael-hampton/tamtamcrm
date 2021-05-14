@@ -17,6 +17,10 @@ class CustomerGateway extends Model
     use Archiveable;
     use QueryCacheable;
 
+    protected $fillable = [
+        'account_id'
+    ];
+
     protected static $flushCacheOnUpdate = true;
 
     /**

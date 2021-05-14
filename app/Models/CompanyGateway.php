@@ -24,6 +24,8 @@ class CompanyGateway extends Model
         'deleted_at' => 'timestamp',
     ];
     protected $fillable = [
+        'account_id',
+        'user_id',
         'name',
         'description',
         'gateway_key',

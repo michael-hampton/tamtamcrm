@@ -36,13 +36,14 @@ class AccountDataExportedNotification extends Notification
 
     public function toMail($notifiable)
     {
-        $downloadUrl = route('account-data-exports', $this->zipFilename);
+        $downloadUrl = route('account-data-exports', base64_encode($this->zipFilename));
 
         if (static::$toMailCallback) {
             return call_user_func(static::$toMailCallback, $notifiable, $downloadUrl);
         }
 
         return (new MailMessage())
+            ->attach($this->zipFilename)
             ->subject(trans('texts.account_data_export_subject'))
             ->line(trans('texts.account_data_export_message'))
             ->action(trans('texts.account_data_export_button_text'), $downloadUrl)

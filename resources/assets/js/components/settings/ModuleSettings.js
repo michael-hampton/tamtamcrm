@@ -30,6 +30,7 @@ class ModuleSettings extends Component {
         super(props)
         this.state = {
             id: localStorage.getItem('account_id'),
+            success_message: translations.settings_saved,
             activeTab: '1',
             cached_settings: {},
             settings: {},
@@ -192,6 +193,7 @@ class ModuleSettings extends Component {
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
         this.getAccount = this.getAccount.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
+        this.backupData = this.backupData.bind(this)
 
         this.model = new CompanyModel({ id: this.state.id })
     }
@@ -212,6 +214,19 @@ class ModuleSettings extends Component {
                 return false
             }
         }
+    }
+
+    backupData () {
+        const accountRepository = new AccountRepository()
+
+        accountRepository.backupData().then(response => {
+            if (!response) {
+                this.setState({ error: true })
+                return
+            }
+
+            this.setState({ success: true, success_message: translations.account_export_completed })
+        })
     }
 
     handleSubmit (e) {
@@ -351,7 +366,7 @@ class ModuleSettings extends Component {
     }
 
     handleClose () {
-        this.setState({ success: false, error: false })
+        this.setState({ success: false, error: false, success_message: translations.settings_saved })
     }
 
     handleCancel () {
@@ -394,7 +409,7 @@ class ModuleSettings extends Component {
         return (
             <React.Fragment>
                 <SnackbarMessage open={this.state.success} onClose={this.handleClose.bind(this)} severity="success"
-                    message={translations.settings_saved}/>
+                    message={this.state.success_message}/>
 
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={translations.settings_not_saved}/>
@@ -432,6 +447,9 @@ class ModuleSettings extends Component {
                                         marginRight: '14px',
                                         fontSize: '24px'
                                     }}/>
+
+                                    <BlockButton icon={icons.download} button_text={translations.export}
+                                        onClick={this.backupData}/>
                                 </CardBody>
                             </Card>
                         </TabPane>

@@ -346,6 +346,7 @@ Route::group(
         Route::post('account/upgrade/{account_id}', 'AccountController@upgrade')->name('email.send');
         Route::post('account/apply/{account_id}', 'AccountController@apply')->name('email.send');
         Route::get('accounts/check-domain/{domain}', 'AccountController@checkDomain');
+        Route::post('account/backup', 'AccountController@backupData');
 
 
 // email

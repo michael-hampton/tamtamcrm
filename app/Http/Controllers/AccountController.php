@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Factory\AccountFactory;
 use App\Http\Responses\ZipDownloadResponse;
+use App\Jobs\CreateAccountDataExportJob;
 use App\Models\Account;
 use App\Models\CompanyToken;
 use App\Models\Licence;
@@ -273,5 +274,11 @@ class AccountController extends BaseController
     public function export(string $zipFilename): StreamedResponse
     {
         return new ZipDownloadResponse(base64_decode($zipFilename));
+    }
+
+    public function backupData()
+    {
+        dispatch(new CreateAccountDataExportJob(auth()->user()->account_user()->account, auth()->user()));
+        return response()->json('Email has been sent');
     }
 }

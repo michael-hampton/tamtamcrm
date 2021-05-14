@@ -172,6 +172,8 @@ class ExpenseImporter extends BaseCsvImporter
 
         $this->export->build(collect($expenses), $export_columns);
 
+        $this->export->notifyUser('expense');
+
         return true;
     }
 

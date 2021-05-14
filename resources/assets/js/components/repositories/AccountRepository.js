@@ -8,6 +8,26 @@ export default class AccountRepository extends BaseRepository {
         this._url = '/api/accounts'
     }
 
+    async backupData () {
+        this.errors = []
+        this.error_message = ''
+
+        try {
+            const res = await axios.post('/api/account/backup')
+
+            if (res.status === 200) {
+                // test for status you want, etc
+                console.log(res.status)
+            }
+
+            // Don't forget to return something
+            return res.data
+        } catch (e) {
+            this.handleError(e)
+            return false
+        }
+    }
+
     async getById (id) {
         this.errors = []
         this.error_message = ''

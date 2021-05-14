@@ -146,6 +146,8 @@ class LeadImporter extends BaseCsvImporter
 
         $this->export->build(collect($leads), $export_columns);
 
+        $this->export->notifyUser('lead');
+
         return true;
     }
 

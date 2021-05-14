@@ -21,5 +21,6 @@ return [
     'time-to-log'             => env('LARAVEL_SLOW_QUERY_LOGGER_TIME_TO_LOG', 10),
     'notify_on_login'         => true,
     'disk'                    => 'public',
-    'downloads_dir'           => 'downloads'
+    'downloads_dir'           => 'downloads',
+    'exports_dir'             => 'exports'
 ];

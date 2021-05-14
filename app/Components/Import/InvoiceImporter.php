@@ -169,8 +169,12 @@ class InvoiceImporter extends BaseCsvImporter
         foreach ($list as $invoice) {
             $arr_invoice = $this->transformObject($invoice);
 
-            foreach ($invoice->line_items as $line_item) {
-                $invoices[] = array_merge($arr_invoice, (array)$line_item);
+            if (count($invoice->line_items) > 0) {
+                foreach ($invoice->line_items as $line_item) {
+                    $invoices[] = array_merge($arr_invoice, (array)$line_item);
+                }
+            } else {
+                $invoices[] = $arr_invoice;
             }
         }
 
@@ -179,6 +183,8 @@ class InvoiceImporter extends BaseCsvImporter
         }
 
         $this->export->build(collect($invoices), $export_columns);
+
+        $this->export->notifyUser('invoice');
 
         return true;
     }

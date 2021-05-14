@@ -4,6 +4,9 @@ namespace Tests\Unit;
 
 use App\Actions\Account\ConvertAccount;
 use App\Actions\Account\CreateAccount;
+use App\Components\Import\ImportAccountData;
+use App\Events\Account\AccountDataExportCreated;
+use App\Events\Account\AccountDataSelected;
 use App\Jobs\CreateAccountDataExportJob;
 use App\Jobs\ProcessSubscription;
 use App\Models\Account;
@@ -13,9 +16,15 @@ use App\Models\Domain;
 use App\Models\Invoice;
 use App\Models\Plan;
 use App\Models\User;
+use App\Notifications\Account\AccountDataExportedNotification;
 use App\Repositories\DomainRepository;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
+use PHPUnit\Framework\Assert;
+use Spatie\TemporaryDirectory\TemporaryDirectory;
 use Tests\TestCase;
 
 class AccountTest extends TestCase
@@ -65,32 +74,59 @@ class AccountTest extends TestCase
         $account = Account::where('id', 1)->first();
         $user = User::find(5);
 
+        $directories = glob(public_path(config('taskmanager.downloads_dir')) . '/*' , GLOB_ONLYDIR);
+        $previous_count = count($directories);
+
         dispatch(new CreateAccountDataExportJob($account, $user));
 
-        $allFiles = Storage::disk('public')->allFiles();
-        $this->assertCount(1, $allFiles);
+        $directories = glob(public_path(config('taskmanager.downloads_dir')) . '/*' , GLOB_ONLYDIR);
+        $current_count = count($directories);
 
-        $zipPath = $this->getFullPath($this->diskName, $allFiles[0]);
-        $this->assertZipContains($zipPath, 'attributes.json', json_encode($user->attributesToArray(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-        $this->assertZipContains($zipPath, 'avatar.png');
-        $this->assertZipContains($zipPath, 'thumbnail.png');
+        $this->assertEquals($current_count, $previous_count + 1);
+        $zipPath = end($directories);
 
-        Notification::assertSentTo($user, PersonalDataExportedNotification::class, function (PersonalDataExportedNotification $notification) use ($allFiles, $user) {
-            if ($notification->zipFilename !== $allFiles[0]) {
-                return false;
-            }
+        $files = array_values(array_diff(scandir($zipPath), array('.', '..')));
 
-            return true;
-        });
+        $this->assertZipContains($zipPath . '/' . $files[0], 'attributes.json', json_encode($account->selectPersonalData(null, true), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
 
-        Event::assertDispatched(PersonalDataSelected::class);
-        Event::assertDispatched(PersonalDataExportCreated::class);
+        //(new ImportAccountData($zipPath . '/' . $files[0], 'attributes.json'))->importData();
+
+        die('here');
+
     }
 
     public function getFullPath(string $diskName, string $filename): string
     {
         return Storage::disk($diskName)->getDriver()->getAdapter()->getPathPrefix().'/'.$filename;
     }
+
+    public function assertZipContains($zipFile, $expectedFileName, $expectedContents = null)
+    {
+        Assert::assertFileExists($zipFile);
+
+        $zip = new \ZipArchive();
+
+        $zip->open($zipFile);
+
+        $temporaryDirectory = (new TemporaryDirectory())->create();
+
+        $zipDirectoryName = 'extracted-files';
+
+        $zip->extractTo($temporaryDirectory->path($zipDirectoryName));
+
+        $expectedZipFilePath = $temporaryDirectory->path($zipDirectoryName.'/'.$expectedFileName);
+
+        Assert::assertFileExists($expectedZipFilePath);
+
+        if (is_null($expectedContents)) {
+            return;
+        }
+
+        $actualContents = file_get_contents($expectedZipFilePath);
+
+        Assert::assertEquals(json_decode($expectedContents, true), json_decode($actualContents, true));
+    }
+
 
     public function tearDown(): void
     {

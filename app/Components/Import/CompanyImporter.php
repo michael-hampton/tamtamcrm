@@ -176,14 +176,20 @@ class CompanyImporter extends BaseCsvImporter
         foreach ($list as $company) {
             $formatted_company = $this->transformObject($company);
 
-            foreach ($company->contacts as $contact) {
-                $formatted_contact = (new CompanyContactTransformable())->transformCompanyContact($contact);
+            if ($company->contacts->count() > 0) {
+                foreach ($company->contacts as $contact) {
+                    $formatted_contact = (new CompanyContactTransformable())->transformCompanyContact($contact);
 
-                $companies[] = array_merge($formatted_company, $formatted_contact);
+                    $companies[] = array_merge($formatted_company, $formatted_contact);
+                }
+            } else {
+                $companies[] = $formatted_company;
             }
         }
 
         $this->export->build(collect($companies), $export_columns);
+
+        $this->export->notifyUser('company');
 
         return true;
     }
