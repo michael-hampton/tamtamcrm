@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\Actions\Pdf\GeneratePdf;
+use App\Services\Pdf\GeneratePdf;
 use App\Components\Pdf\GenerateHtml;
 use App\Components\Pdf\InvoicePdf;
 use App\Factory\DesignFactory;

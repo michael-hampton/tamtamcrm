@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\Actions\Email\DispatchEmail;
+use App\Services\Email\DispatchEmail;
 use App\Factory\CreditFactory;
 use App\Models\Account;
 use App\Models\Credit;

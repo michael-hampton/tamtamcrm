@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Plan\ApplyCode;
+use App\Services\Plan\ApplyCode;
 use App\Components\InvoiceCalculator\LineItem;
 use App\Events\Plan\PlanWasInvoiced;
 use App\Factory\InvoiceFactory;

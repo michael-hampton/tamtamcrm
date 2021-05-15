@@ -4,7 +4,7 @@
 namespace App\Repositories;
 
 
-use App\Actions\Email\DispatchEmail;
+use App\Services\Email\DispatchEmail;
 use App\Events\Cases\CaseWasCreated;
 use App\Events\Cases\CaseWasUpdated;
 use App\Events\Cases\RecurringQuoteWasUpdated;

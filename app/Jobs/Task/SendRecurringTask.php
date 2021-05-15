@@ -2,7 +2,7 @@
 
 namespace App\Jobs\Task;
 
-use App\Actions\Email\DispatchEmail;
+use App\Services\Email\DispatchEmail;
 use App\Models\Task;
 use App\Repositories\TaskRepository;
 use App\Traits\CalculateRecurring;

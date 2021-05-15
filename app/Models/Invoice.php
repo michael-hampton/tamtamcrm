@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\Actions\Invoice\CancelInvoice;
-use App\Actions\Transaction\TriggerTransaction;
+use App\Services\Invoice\CancelInvoice;
+use App\Services\Transaction\TriggerTransaction;
 use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use App\Traits\Balancer;

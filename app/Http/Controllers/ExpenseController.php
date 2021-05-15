@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Expense\Approve;
+use App\Services\Expense\Approve;
 use App\Factory\ExpenseFactory;
 use App\Jobs\Expense\GenerateInvoice;
 use App\Models\Expense;

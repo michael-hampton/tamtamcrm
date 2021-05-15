@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Actions\Email\DispatchEmail;
+use App\Services\Email\DispatchEmail;
 use App\Models\CustomerContact;
 use App\Models\Email;
 use Illuminate\Console\Command;

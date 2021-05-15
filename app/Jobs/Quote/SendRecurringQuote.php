@@ -2,7 +2,7 @@
 
 namespace App\Jobs\Quote;
 
-use App\Actions\Email\DispatchEmail;
+use App\Services\Email\DispatchEmail;
 use App\Factory\RecurringQuoteToQuoteFactory;
 use App\Models\Quote;
 use App\Models\RecurringQuote;

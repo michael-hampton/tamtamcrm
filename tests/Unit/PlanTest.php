@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use App\Actions\Account\CreateAccount;
-use App\Actions\Invoice\CreatePayment;
+use App\Services\Account\CreateAccount;
+use App\Services\Invoice\CreatePayment;
 use App\Components\Promocodes\Promocodes;
 use App\Jobs\ProcessSubscription;
 use App\Models\Account;

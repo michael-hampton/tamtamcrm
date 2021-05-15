@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Actions\Account\CreateAccount;
+use App\Services\Account\CreateAccount;
 use Illuminate\Console\Command;
 use ReflectionException;
 

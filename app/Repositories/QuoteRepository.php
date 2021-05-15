@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use App\Actions\Quote\GenerateRecurringQuote;
+use App\Services\Quote\GenerateRecurringQuote;
 use App\Events\Quote\QuoteWasCreated;
 use App\Events\Quote\QuoteWasUpdated;
 use App\Jobs\Order\QuoteOrders;

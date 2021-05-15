@@ -4,21 +4,21 @@
 namespace App\Http\Controllers;
 
 
-use App\Actions\Email\DispatchEmail;
-use App\Actions\Invoice\CancelInvoice;
-use App\Actions\Invoice\CreatePayment;
-use App\Actions\Invoice\ReverseInvoicePayment;
-use App\Actions\Order\CancelOrder;
-use App\Actions\Order\DispatchOrder;
-use App\Actions\Order\HoldOrder;
-use App\Actions\Order\ReverseStatus;
-use App\Actions\Pdf\GenerateDispatchNote;
-use App\Actions\Pdf\GeneratePdf;
-use App\Actions\PurchaseOrder\Approve;
-use App\Actions\PurchaseOrder\Reject;
-use App\Actions\PurchaseOrder\RequestChange;
-use App\Actions\Quote\ConvertQuoteToInvoice;
-use App\Actions\Quote\ConvertQuoteToOrder;
+use App\Services\Email\DispatchEmail;
+use App\Services\Invoice\CancelInvoice;
+use App\Services\Invoice\CreatePayment;
+use App\Services\Invoice\ReverseInvoicePayment;
+use App\Services\Order\CancelOrder;
+use App\Services\Order\DispatchOrder;
+use App\Services\Order\HoldOrder;
+use App\Services\Order\ReverseStatus;
+use App\Services\Pdf\GenerateDispatchNote;
+use App\Services\Pdf\GeneratePdf;
+use App\Services\PurchaseOrder\Approve;
+use App\Services\PurchaseOrder\Reject;
+use App\Services\PurchaseOrder\RequestChange;
+use App\Services\Quote\ConvertQuoteToInvoice;
+use App\Services\Quote\ConvertQuoteToOrder;
 use App\Events\Misc\InvitationWasViewed;
 use App\Factory\CloneCreditFactory;
 use App\Factory\CloneCreditToQuoteFactory;
@@ -297,7 +297,7 @@ class BaseController extends Controller
             case 'approve': //done
                 $quote = $this->entity_string === 'PurchaseOrder' ? (new Approve($entity))->execute(
                     new PurchaseOrderRepository($entity)
-                ) : (new \App\Actions\Quote\Approve($entity))->execute($this->invoice_repo, $this->quote_repo);
+                ) : (new \App\Services\Quote\Approve($entity))->execute($this->invoice_repo, $this->quote_repo);
 
                 if (!$quote) {
                     $message = 'Unable to approve this quote as it has expired.';
@@ -316,7 +316,7 @@ class BaseController extends Controller
                         new PurchaseOrderRepository($entity),
                         $request->all()
                     )
-                    : (new \App\Actions\Quote\Reject($entity))->execute(
+                    : (new \App\Services\Quote\Reject($entity))->execute(
                         $this->invoice_repo,
                         $this->quote_repo,
                         $request->all()
@@ -338,7 +338,7 @@ class BaseController extends Controller
                         new PurchaseOrderRepository($entity),
                         $request->all()
                     )
-                    : (new \App\Actions\Quote\RequestChange($entity))->execute(
+                    : (new \App\Services\Quote\RequestChange($entity))->execute(
                         $this->invoice_repo,
                         $this->quote_repo,
                         $request->all()

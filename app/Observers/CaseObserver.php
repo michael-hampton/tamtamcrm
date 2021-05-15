@@ -2,7 +2,7 @@
 
 namespace App\Observers;
 
-use App\Actions\Cases\TriggerEmail;
+use App\Services\Cases\TriggerEmail;
 use App\Factory\CommentFactory;
 use App\Models\Cases;
 use App\Traits\BuildVariables;

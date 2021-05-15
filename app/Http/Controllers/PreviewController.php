@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Pdf\GeneratePdf;
+use App\Services\Pdf\GeneratePdf;
 use App\Components\Pdf\InvoicePdf;
 use App\Jobs\Pdf\CreatePdf;
 use App\Models\Address;

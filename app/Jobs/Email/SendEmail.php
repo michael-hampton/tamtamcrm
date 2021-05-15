@@ -2,7 +2,7 @@
 
 namespace App\Jobs\Email;
 
-use App\Actions\Pdf\GeneratePdf;
+use App\Services\Pdf\GeneratePdf;
 use App\Components\Pdf\PdfFactory;
 use App\Events\EmailFailedToSend;
 use App\Factory\EmailFactory;

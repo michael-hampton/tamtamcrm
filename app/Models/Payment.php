@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Actions\Transaction\TriggerTransaction;
+use App\Services\Transaction\TriggerTransaction;
 use App\Events\Payment\PaymentWasDeleted;
 use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;

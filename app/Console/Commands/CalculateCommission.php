@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Actions\Account\ConvertAccount;
+use App\Services\Account\ConvertAccount;
 use App\Components\InvoiceCalculator\LineItem;
 use App\Factory\InvoiceFactory;
 use App\Models\Account;

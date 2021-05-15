@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Lead\ConvertLead;
-use App\Actions\Pdf\GeneratePdf;
+use App\Services\Lead\ConvertLead;
+use App\Services\Pdf\GeneratePdf;
 use App\Events\Lead\LeadWasCreated;
 use App\Factory\Lead\CloneLeadToDealFactory;
 use App\Factory\Lead\CloneLeadToTaskFactory;

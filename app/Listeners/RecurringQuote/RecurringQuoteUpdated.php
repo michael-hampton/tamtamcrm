@@ -2,7 +2,7 @@
 
 namespace App\Listeners\RecurringQuote;
 
-use App\Actions\Pdf\GeneratePdf;
+use App\Services\Pdf\GeneratePdf;
 use App\Factory\NotificationFactory;
 use App\Repositories\NotificationRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;

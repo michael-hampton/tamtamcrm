@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Base;
 
-use App\Actions\Order\SendOrder;
+use App\Services\Order\SendOrder;
 use App\Components\Currency\CurrencyConverter;
 use App\Components\Invitations;
 use App\Components\InvoiceCalculator\InvoiceCalculator;

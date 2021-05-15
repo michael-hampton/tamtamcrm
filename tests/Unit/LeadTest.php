@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\Actions\Lead\ConvertLead;
+use App\Services\Lead\ConvertLead;
 use App\Events\Lead\LeadWasCreated;
 use App\Factory\LeadFactory;
 use App\Mail\TestMail;

@@ -2,7 +2,7 @@
 
 namespace App\Jobs\Invoice;
 
-use App\Actions\Email\DispatchEmail;
+use App\Services\Email\DispatchEmail;
 use App\Components\InvoiceCalculator\InvoiceCalculator;
 use App\Jobs\Subscription\SendSubscription;
 use App\Models\Invoice;

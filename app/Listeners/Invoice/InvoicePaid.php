@@ -2,7 +2,7 @@
 
 namespace App\Listeners\Invoice;
 
-use App\Actions\Email\DispatchEmail;
+use App\Services\Email\DispatchEmail;
 use App\Factory\NotificationFactory;
 use App\Repositories\NotificationRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;

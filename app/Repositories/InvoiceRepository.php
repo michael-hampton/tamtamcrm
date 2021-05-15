@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use App\Actions\Invoice\GenerateRecurringInvoice;
+use App\Services\Invoice\GenerateRecurringInvoice;
 use App\Events\Invoice\InvoiceWasCreated;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Jobs\Order\InvoiceOrders;

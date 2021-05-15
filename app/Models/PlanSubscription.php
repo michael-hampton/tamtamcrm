@@ -3,9 +3,9 @@
 namespace App\Models;
 
 
-use App\Actions\Plan\CalculateUpgradePrice;
-use App\Actions\Plan\CancelPlan;
-use App\Actions\Plan\ChangePlan;
+use App\Services\Plan\CalculateUpgradePrice;
+use App\Services\Plan\CancelPlan;
+use App\Services\Plan\ChangePlan;
 use App\Components\Subscriptions\Period;
 use App\Components\Subscriptions\SubscriptionAbility;
 use App\Components\Subscriptions\SubscriptionUsageManager;

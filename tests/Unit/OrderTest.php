@@ -2,10 +2,10 @@
 
 namespace Tests\Unit;
 
-use App\Actions\Email\DispatchEmail;
-use App\Actions\Order\CancelOrder;
-use App\Actions\Order\DispatchOrder;
-use App\Actions\Order\SendOrder;
+use App\Services\Email\DispatchEmail;
+use App\Services\Order\CancelOrder;
+use App\Services\Order\DispatchOrder;
+use App\Services\Order\SendOrder;
 use App\Components\Payment\Gateways\Stripe\Stripe;
 use App\Factory\CreditFactory;
 use App\Factory\OrderFactory;

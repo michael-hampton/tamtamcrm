@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use App\Actions\Transaction\TriggerTransaction;
+use App\Services\Transaction\TriggerTransaction;
 use App\Events\Credit\CreditWasCreated;
 use App\Events\Credit\CreditWasUpdated;
 use App\Jobs\Inventory\ReverseInventory;

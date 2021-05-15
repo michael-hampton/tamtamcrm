@@ -8,12 +8,12 @@
 
 namespace Tests\Unit;
 
-use App\Actions\Invoice\CancelInvoice;
-use App\Actions\Invoice\CreatePayment;
-use App\Actions\Invoice\GenerateRecurringInvoice;
-use App\Actions\Invoice\ReverseInvoicePayment;
-use App\Actions\Invoice\ReverseStatus;
-use App\Actions\Transaction\TriggerTransaction;
+use App\Services\Invoice\CancelInvoice;
+use App\Services\Invoice\CreatePayment;
+use App\Services\Invoice\GenerateRecurringInvoice;
+use App\Services\Invoice\ReverseInvoicePayment;
+use App\Services\Invoice\ReverseStatus;
+use App\Services\Transaction\TriggerTransaction;
 use App\Components\InvoiceCalculator\LineItem;
 use App\Components\Payment\ProcessPayment;
 use App\Factory\CreditFactory;

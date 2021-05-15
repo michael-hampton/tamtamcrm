@@ -2,7 +2,7 @@
 
 namespace App\Jobs\Expense;
 
-use App\Actions\Email\DispatchEmail;
+use App\Services\Email\DispatchEmail;
 use App\Models\Expense;
 use App\Repositories\ExpenseRepository;
 use App\Traits\CalculateRecurring;

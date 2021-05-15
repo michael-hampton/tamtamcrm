@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Actions\Plan\ApplyCode;
+use App\Services\Plan\ApplyCode;
 use App\Components\InvoiceCalculator\LineItem;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;

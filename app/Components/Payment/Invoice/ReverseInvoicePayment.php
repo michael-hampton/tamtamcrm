@@ -2,7 +2,7 @@
 
 namespace App\Components\Payment\Invoice;
 
-use App\Actions\Transaction\TriggerTransaction;
+use App\Services\Transaction\TriggerTransaction;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\Payment;

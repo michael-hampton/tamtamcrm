@@ -2,7 +2,7 @@
 
 namespace App\Jobs\Invoice;
 
-use App\Actions\Email\DispatchEmail;
+use App\Services\Email\DispatchEmail;
 use App\Factory\RecurringInvoiceToInvoiceFactory;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;

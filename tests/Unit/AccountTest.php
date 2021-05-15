@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use App\Actions\Account\ConvertAccount;
-use App\Actions\Account\CreateAccount;
+use App\Services\Account\ConvertAccount;
+use App\Services\Account\CreateAccount;
 use App\Components\Import\ImportAccountData;
 use App\Events\Account\AccountDataExportCreated;
 use App\Events\Account\AccountDataSelected;

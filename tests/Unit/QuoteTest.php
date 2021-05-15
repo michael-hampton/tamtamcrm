@@ -8,9 +8,9 @@
 
 namespace Tests\Unit;
 
-use App\Actions\Quote\Approve;
-use App\Actions\Quote\ConvertQuoteToOrder;
-use App\Actions\Quote\GenerateRecurringQuote;
+use App\Services\Quote\Approve;
+use App\Services\Quote\ConvertQuoteToOrder;
+use App\Services\Quote\GenerateRecurringQuote;
 use App\Factory\InvoiceFactory;
 use App\Factory\QuoteFactory;
 use App\Models\Account;

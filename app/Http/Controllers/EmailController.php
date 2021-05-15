@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Email\DispatchEmail;
+use App\Services\Email\DispatchEmail;
 use App\Models\CustomerContact;
 use App\Models\Invitation;
 use App\Repositories\Base\BaseRepository;

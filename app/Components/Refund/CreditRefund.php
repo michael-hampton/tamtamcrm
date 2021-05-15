@@ -4,7 +4,7 @@
 namespace App\Components\Refund;
 
 
-use App\Actions\Transaction\TriggerTransaction;
+use App\Services\Transaction\TriggerTransaction;
 use App\Models\Credit;
 use App\Models\Payment;
 use App\Repositories\CreditRepository;

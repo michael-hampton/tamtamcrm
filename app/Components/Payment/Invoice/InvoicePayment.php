@@ -2,8 +2,8 @@
 
 namespace App\Components\Payment\Invoice;
 
-use App\Actions\Email\DispatchEmail;
-use App\Actions\Invoice\RecalculateInvoice;
+use App\Services\Email\DispatchEmail;
+use App\Services\Invoice\RecalculateInvoice;
 use App\Components\Payment\BasePaymentProcessor;
 use App\Models\Invoice;
 use App\Models\Payment;

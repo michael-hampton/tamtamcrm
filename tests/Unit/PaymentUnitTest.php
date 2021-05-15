@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use App\Actions\Email\DispatchEmail;
-use App\Actions\Payment\DeletePayment;
+use App\Services\Email\DispatchEmail;
+use App\Services\Payment\DeletePayment;
 use App\Components\Currency\CurrencyConverter;
 use App\Components\InvoiceCalculator\LineItem;
 use App\Components\Payment\Invoice\ReverseInvoicePayment;

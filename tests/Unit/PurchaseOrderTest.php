@@ -8,8 +8,8 @@
 
 namespace Tests\Unit;
 
-use App\Actions\Email\DispatchEmail;
-use App\Actions\PurchaseOrder\Approve;
+use App\Services\Email\DispatchEmail;
+use App\Services\PurchaseOrder\Approve;
 use App\Factory\OrderFactory;
 use App\Factory\PurchaseOrderFactory;
 use App\Models\Account;

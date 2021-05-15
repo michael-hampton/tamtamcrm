@@ -2,9 +2,9 @@
 
 namespace App\Observers;
 
-use App\Actions\Order\FulfilOrder;
-use App\Actions\Order\HoldStock;
-use App\Actions\Order\UpdateInventory;
+use App\Services\Order\FulfilOrder;
+use App\Services\Order\HoldStock;
+use App\Services\Order\UpdateInventory;
 use App\Events\Order\OrderWasBackordered;
 use App\Models\Order;
 use App\Traits\BuildVariables;

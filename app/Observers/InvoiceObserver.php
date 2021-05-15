@@ -2,8 +2,8 @@
 
 namespace App\Observers;
 
-use App\Actions\Invoice\AttachEntities;
-use App\Actions\Invoice\CloneExpenseDocuments;
+use App\Services\Invoice\AttachEntities;
+use App\Services\Invoice\CloneExpenseDocuments;
 use App\Models\Invoice;
 use App\Traits\BuildVariables;
 

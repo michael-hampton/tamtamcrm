@@ -2,7 +2,7 @@
 
 namespace App\Components\Setup;
 
-use App\Actions\Account\CreateAccount;
+use App\Services\Account\CreateAccount;
 use Exception;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Database\SQLiteConnection;

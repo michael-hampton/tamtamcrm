@@ -2,7 +2,7 @@
 
 namespace App\Components\Payment;
 
-use App\Actions\Transaction\TriggerTransaction;
+use App\Services\Transaction\TriggerTransaction;
 use App\Models\Payment;
 use App\Repositories\PaymentRepository;
 

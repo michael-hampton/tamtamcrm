@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Email\DispatchEmail;
-use App\Actions\Payment\DeletePayment;
+use App\Services\Email\DispatchEmail;
+use App\Services\Payment\DeletePayment;
 use App\Components\Payment\ProcessPayment;
 use App\Components\Refund\RefundFactory;
 use App\Events\Payment\PaymentWasCreated;

@@ -2,9 +2,9 @@
 
 namespace App\Jobs\Payment;
 
-use App\Actions\Email\DispatchEmail;
-use App\Actions\Order\DispatchOrder;
-use App\Actions\Transaction\TriggerTransaction;
+use App\Services\Email\DispatchEmail;
+use App\Services\Order\DispatchOrder;
+use App\Services\Transaction\TriggerTransaction;
 use App\Components\InvoiceCalculator\LineItem;
 use App\Factory\PaymentFactory;
 use App\Models\Credit;

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Pdf\GeneratePdf;
-use App\Actions\Task\SaveTimers;
+use App\Services\Pdf\GeneratePdf;
+use App\Services\Task\SaveTimers;
 use App\Factory\CloneTaskToDealFactory;
 use App\Factory\TaskFactory;
 use App\Factory\TimerFactory;

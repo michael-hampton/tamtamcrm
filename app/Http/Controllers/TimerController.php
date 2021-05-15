@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Task\SaveTimers;
+use App\Services\Task\SaveTimers;
 use App\Models\Timer;
 use App\Repositories\TaskRepository;
 use App\Repositories\TimerRepository;

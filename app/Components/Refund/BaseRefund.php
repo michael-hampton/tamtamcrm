@@ -2,7 +2,7 @@
 
 namespace App\Components\Refund;
 
-use App\Actions\Transaction\TriggerTransaction;
+use App\Services\Transaction\TriggerTransaction;
 use App\Components\InvoiceCalculator\LineItem;
 use App\Events\Payment\PaymentWasRefunded;
 use App\Events\Payment\RefundFailed;

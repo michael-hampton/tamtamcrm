@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 
-use App\Actions\Cases\MergeCase;
-use App\Actions\Pdf\GeneratePdf;
+use App\Services\Cases\MergeCase;
+use App\Services\Pdf\GeneratePdf;
 use App\Factory\CaseFactory;
 use App\Factory\CloneCaseToProjectFactory;
 use App\Jobs\Utils\UploadFile;

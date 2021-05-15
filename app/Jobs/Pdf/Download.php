@@ -3,7 +3,7 @@
 
 namespace App\Jobs\Pdf;
 
-use App\Actions\Pdf\GeneratePdf;
+use App\Services\Pdf\GeneratePdf;
 use App\Mail\InvoiceWithAttachment;
 use App\Models\Account;
 use App\ViewModels\CustomerViewModel;

@@ -2,7 +2,7 @@
 
 namespace App\Observers;
 
-use App\Actions\Transaction\TriggerTransaction;
+use App\Services\Transaction\TriggerTransaction;
 use App\Components\InvoiceCalculator\InvoiceCalculator;
 use App\Models\Credit;
 use App\Models\Invoice;

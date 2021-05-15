@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Account\AttachPlanToDomain;
-use App\Actions\Account\ConvertAccount;
-use App\Actions\Account\CreateAccount;
+use App\Services\Account\AttachPlanToDomain;
+use App\Services\Account\ConvertAccount;
+use App\Services\Account\CreateAccount;
 use App\Components\Setup\DatabaseManager;
 use App\Components\Setup\EnvironmentManager;
 use App\Components\Setup\FinalInstallManager;

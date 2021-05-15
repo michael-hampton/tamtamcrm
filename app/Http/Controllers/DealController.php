@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Pdf\GeneratePdf;
+use App\Services\Pdf\GeneratePdf;
 use App\Factory\CloneDealToLeadFactory;
 use App\Factory\DealFactory;
 use App\Factory\Lead\CloneLeadToTaskFactory;

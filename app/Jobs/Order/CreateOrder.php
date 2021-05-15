@@ -2,7 +2,7 @@
 
 namespace App\Jobs\Order;
 
-use App\Actions\Email\DispatchEmail;
+use App\Services\Email\DispatchEmail;
 use App\Factory\CustomerFactory;
 use App\Factory\OrderFactory;
 use App\Factory\TaskFactory;
