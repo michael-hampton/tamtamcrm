@@ -10,7 +10,11 @@ use App\Models\Account;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\User;
+use App\Repositories\CustomerRepository;
 use App\Repositories\InvoiceRepository;
+use App\Requests\SearchRequest;
+use App\Search\CustomerSearch;
+use App\Search\InvoiceSearch;
 use App\Transformations\InvoiceTransformable;
 
 class InvoiceImporter extends BaseCsvImporter
@@ -19,27 +23,29 @@ class InvoiceImporter extends BaseCsvImporter
 
     protected $entity;
     private array $export_columns = [
-        'number'        => 'Number',
-        'customer_id'   => 'Customer name',
-        'date'          => 'Date',
-        'po_number'     => 'po number',
-        'due_date'      => 'due date',
-        'terms'         => 'terms',
-        'public_notes'  => 'public notes',
-        'private_notes' => 'private notes',
-        'description'   => 'description',
-        'product'       => 'product_id',
-        'unit_price'    => 'unit_price',
-        'unit_discount' => 'unit_discount',
-        'unit_tax'      => 'unit_tax',
-        'quantity'      => 'quantity',
-        'shipping_cost' => 'shipping_cost',
-        'tax_rate'      => 'tax_rate',
-        'custom_value1' => 'custom value1',
-        'custom_value2' => 'custom value2',
-        'custom_value3' => 'custom value3',
-        'custom_value4' => 'custom value4',
-        'exchange_rate' => 'exchange_rate'
+        'number'         => 'Number',
+        'customer_id'    => 'Customer name',
+        'date'           => 'Date',
+        'po_number'      => 'po number',
+        'due_date'       => 'due date',
+        'terms'          => 'terms',
+        'public_notes'   => 'public notes',
+        'private_notes'  => 'private notes',
+        'description'    => 'description',
+        'product'        => 'product_id',
+        'unit_price'     => 'unit_price',
+        'unit_discount'  => 'unit_discount',
+        'unit_tax'       => 'unit_tax',
+        'quantity'       => 'quantity',
+        'shipping_cost'  => 'shipping_cost',
+        'tax_rate'       => 'tax_rate',
+        'custom_value1'  => 'custom value1',
+        'custom_value2'  => 'custom value2',
+        'custom_value3'  => 'custom value3',
+        'custom_value4'  => 'custom value4',
+        'exchange_rate'  => 'exchange_rate',
+        'payment_amount' => 'Amount Paid',
+        'payments_made'  => 'Payments Made'
     ];
     /**
      * @var array|string[]
@@ -162,19 +168,24 @@ class InvoiceImporter extends BaseCsvImporter
     public function export($is_json = false)
     {
         $export_columns = $this->getExportColumns();
-        $list = Invoice::byAccount($this->account)->get();
 
-        $invoices = [];
+        $search_request = new SearchRequest();
+        $search_request->replace(['column' => 'created_at', 'order' => 'desc']);
 
-        foreach ($list as $invoice) {
-            $arr_invoice = $this->transformObject($invoice);
+        $invoices = (new InvoiceSearch(new InvoiceRepository(new Invoice())))->filter($search_request, $this->account);
 
-            if (count($invoice->line_items) > 0) {
-                foreach ($invoice->line_items as $line_item) {
-                    $invoices[] = array_merge($arr_invoice, (array)$line_item);
+        foreach ($invoices as $key => $invoice) {
+
+            if (count($invoice['paymentables']) > 0) {
+
+                $invoices[$key]['payment_amount'] = array_sum(array_column($invoice['paymentables'], 'amount'));
+                $invoices[$key]['payments_made'] = implode(' ,', array_column($invoice['paymentables'], 'number'));
+            }
+
+            if (count($invoice['line_items']) > 0) {
+                foreach ($invoice['line_items'] as $line_item) {
+                    $invoices[$key] = array_merge($invoices[$key], (array)$line_item);
                 }
-            } else {
-                $invoices[] = $arr_invoice;
             }
         }
 

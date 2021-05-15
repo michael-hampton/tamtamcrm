@@ -6,9 +6,14 @@ namespace App\Components\Import;
 
 use App\Factory\LeadFactory;
 use App\Models\Account;
+use App\Models\Deal;
 use App\Models\Lead;
 use App\Models\User;
+use App\Repositories\DealRepository;
 use App\Repositories\LeadRepository;
+use App\Requests\SearchRequest;
+use App\Search\DealSearch;
+use App\Search\LeadSearch;
 use App\Transformations\LeadTransformable;
 
 class LeadImporter extends BaseCsvImporter
@@ -136,13 +141,11 @@ class LeadImporter extends BaseCsvImporter
     public function export()
     {
         $export_columns = $this->getExportColumns();
-        $list = Lead::byAccount($this->account)->get();
 
-        $leads = $list->map(
-            function (Lead $lead) {
-                return $this->transformObject($lead);
-            }
-        )->all();
+        $search_request = new SearchRequest();
+        $search_request->replace(['column' => 'created_at', 'order' => 'desc']);
+
+        $leads = (new LeadSearch(new LeadRepository(new Lead())))->filter($search_request, $this->account);
 
         $this->export->build(collect($leads), $export_columns);
 

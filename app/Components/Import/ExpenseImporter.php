@@ -7,11 +7,16 @@ namespace App\Components\Import;
 use App\Factory\ExpenseCategoryFactory;
 use App\Factory\ExpenseFactory;
 use App\Models\Account;
+use App\Models\Deal;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\User;
+use App\Repositories\DealRepository;
 use App\Repositories\ExpenseCategoryRepository;
 use App\Repositories\ExpenseRepository;
+use App\Requests\SearchRequest;
+use App\Search\DealSearch;
+use App\Search\ExpenseSearch;
 use App\Transformations\ExpenseTransformable;
 
 class ExpenseImporter extends BaseCsvImporter
@@ -162,13 +167,10 @@ class ExpenseImporter extends BaseCsvImporter
     public function export()
     {
         $export_columns = $this->getExportColumns();
-        $list = Expense::byAccount($this->account)->get();
+        $search_request = new SearchRequest();
+        $search_request->replace(['column' => 'created_at', 'order' => 'desc']);
 
-        $expenses = $list->map(
-            function (Expense $expense) {
-                return $this->transformObject($expense);
-            }
-        )->all();
+        $expenses = (new ExpenseSearch(new ExpenseRepository(new Expense())))->filter($search_request, $this->account);
 
         $this->export->build(collect($expenses), $export_columns);
 

@@ -62,6 +62,25 @@ class ImportTest extends TestCase
     }
 
     /** @test */
+    public function it_can_export_products()
+    {
+        $product = Product::factory()->create(['account_id' => $this->main_account->id]);
+
+        $result = $this->doExport('product');
+
+        $data = $this->csvToArray($result);
+
+        $this->assertTrue(collect($data)->contains('name', $product->name));
+
+        $filename = date('YmdHi') . '-product.csv';
+        $path = public_path(config('taskmanager.exports_dir'));
+        $full_path = $path . '/' . $filename;
+
+        $this->assertFileExists($full_path);
+
+    }
+
+    /** @test */
     public function it_can_import_products()
     {
         $brand = Brand::first();

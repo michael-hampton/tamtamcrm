@@ -13,6 +13,8 @@ use App\Models\CustomerContact;
 use App\Models\User;
 use App\Repositories\CustomerContactRepository;
 use App\Repositories\CustomerRepository;
+use App\Requests\SearchRequest;
+use App\Search\CustomerSearch;
 use App\Transformations\ContactTransformable;
 use App\Transformations\CustomerTransformable;
 use Carbon\Carbon;
@@ -24,22 +26,26 @@ class CustomerImporter extends BaseCsvImporter
 
     protected $entity;
     private array $export_columns = [
-        'number'        => 'Number',
-        'first_name'    => 'first name',
-        'last_name'     => 'last name',
-        'email'         => 'email',
-        'phone'         => 'phone',
-        'website'       => 'website',
-        'terms'         => 'terms',
-        'public notes'  => 'public notes',
-        'private notes' => 'private notes',
-        'job_title'     => 'job title',
-        'address_1'     => 'address 1',
-        'address_2'     => 'address 2',
-        'zip'           => 'zip',
-        'city'          => 'city',
-        'name'          => 'name',
-        'description'   => 'description',
+        'number'             => 'Number',
+        'first_name'         => 'first name',
+        'last_name'          => 'last name',
+        'email'              => 'email',
+        'phone'              => 'phone',
+        'website'            => 'website',
+        'terms'              => 'terms',
+        'public notes'       => 'public notes',
+        'private notes'      => 'private notes',
+        'job_title'          => 'job title',
+        'address_1'          => 'address 1',
+        'address_2'          => 'address 2',
+        'zip'                => 'zip',
+        'city'               => 'city',
+        'shipping_address_1' => 'shipping address 1',
+        'shipping_address_2' => 'shipping address 2',
+        'shipping_zip'       => 'shipping zip',
+        'shipping_city'      => 'city',
+        'name'               => 'name',
+        'description'        => 'description',
     ];
     /**
      * @var array|string[]
@@ -196,32 +202,35 @@ class CustomerImporter extends BaseCsvImporter
     public function export()
     {
         $export_columns = $this->getExportColumns();
-        $list = Customer::byAccount($this->account)->get();
 
-        $customers = [];
+        $search_request = new SearchRequest();
+        $search_request->replace(['column' => 'created_at', 'order' => 'desc']);
 
-        foreach ($list as $customer) {
+        $customers = (new CustomerSearch(new CustomerRepository(new Customer())))->filter($search_request, $this->account);
 
-            $formatted_customer = $this->transformObject($customer);
+        foreach ($customers as $key => $formatted_customer) {
 
-            unset(
-                $formatted_customer['billing'],
-                $formatted_customer['shipping'],
-                $formatted_customer['contacts'],
-                $formatted_customer['settings'],
-                $formatted_customer['files']
-            );
+            if (!empty($formatted_customer['billing']['address_1'])) {
 
-            $formatted_customer['created_at'] = Carbon::parse($formatted_customer['created_at'])->format('Y-m-d');
+                $customers[$key] = array_merge($customers[$key], $formatted_customer['billing']);
+            }
 
-            if($customer->contacts->count() > 0) {
-                foreach ($customer->contacts as $contact) {
-                    $formatted_contact = (new ContactTransformable())->transformContact($contact);
+            if (!empty($formatted_customer['shipping'])) {
 
-                    $customers[] = array_merge($formatted_contact, $formatted_customer);
+                $shipping = [
+                    'shipping_address_1' => $formatted_customer['shipping']['address_1'],
+                    'shipping_address_2' => $formatted_customer['shipping']['address_2'],
+                    'shipping_zip'       => $formatted_customer['shipping']['zip'],
+                    'shipping_city'      => $formatted_customer['shipping']['city'],
+                ];
+
+                $customers[$key] = array_merge($customers[$key], $shipping);
+            }
+
+            if (count($formatted_customer['contacts']) > 0) {
+                foreach ($formatted_customer['contacts'] as $contact) {
+                    $customers[$key] = array_merge($customers[$key], $contact);
                 }
-            } else {
-                $customers[] = $formatted_customer;
             }
         }
 

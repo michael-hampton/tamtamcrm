@@ -11,11 +11,16 @@ use App\Factory\ProductFactory;
 use App\Models\Account;
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Deal;
 use App\Models\Product;
 use App\Models\User;
 use App\Repositories\BrandRepository;
 use App\Repositories\CategoryRepository;
+use App\Repositories\DealRepository;
 use App\Repositories\ProductRepository;
+use App\Requests\SearchRequest;
+use App\Search\DealSearch;
+use App\Search\ProductSearch;
 use App\Transformations\ProductTransformable;
 
 class ProductImporter extends BaseCsvImporter
@@ -209,21 +214,19 @@ class ProductImporter extends BaseCsvImporter
     public function export()
     {
         $export_columns = $this->getExportColumns();
-        $list = Product::byAccount($this->account)->get();
 
-        $products = $list->map(
-            function (Product $product) {
-                $object = $this->transformObject($product);
+        $search_request = new SearchRequest();
+        $search_request->replace(['column' => 'created_at', 'order' => 'desc']);
 
-                if ($product->categories->count() > 0) {
-                    $object['category_id'] = implode(' | ', $product->categories()->pluck('name')->toArray());
-                }
+        $products = (new ProductSearch(new ProductRepository(new Product())))->filter($search_request, $this->account);
 
-                return $object;
-            }
-        )->all();
+        foreach ($products as $key => $product) {
+            $products[$key]['category_id'] = implode(' | ', $product['category_ids']);
+        }
 
         $this->export->build(collect($products), $export_columns);
+
+        $this->export->notifyUser('product');
 
         return true;
     }

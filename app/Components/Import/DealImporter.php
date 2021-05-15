@@ -6,9 +6,14 @@ namespace App\Components\Import;
 
 use App\Factory\DealFactory;
 use App\Models\Account;
+use App\Models\Customer;
 use App\Models\Deal;
 use App\Models\User;
+use App\Repositories\CustomerRepository;
 use App\Repositories\DealRepository;
+use App\Requests\SearchRequest;
+use App\Search\CustomerSearch;
+use App\Search\DealSearch;
 use App\Transformations\DealTransformable;
 
 class DealImporter extends BaseCsvImporter
@@ -112,13 +117,11 @@ class DealImporter extends BaseCsvImporter
     public function export()
     {
         $export_columns = $this->getExportColumns();
-        $list = Deal::byAccount($this->account)->get();
 
-        $deals = $list->map(
-            function (Deal $deal) {
-                return $this->transformObject($deal);
-            }
-        )->all();
+        $search_request = new SearchRequest();
+        $search_request->replace(['column' => 'created_at', 'order' => 'desc']);
+
+        $deals = (new DealSearch(new DealRepository(new Deal())))->filter($search_request, $this->account);
 
         $this->export->build(collect($deals), $export_columns);
 

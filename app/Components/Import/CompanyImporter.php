@@ -8,9 +8,14 @@ use App\Factory\CompanyFactory;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\CompanyContact;
+use App\Models\Customer;
 use App\Models\User;
 use App\Repositories\CompanyContactRepository;
 use App\Repositories\CompanyRepository;
+use App\Repositories\CustomerRepository;
+use App\Requests\SearchRequest;
+use App\Search\CompanySearch;
+use App\Search\CustomerSearch;
 use App\Transformations\CompanyContactTransformable;
 use App\Transformations\CompanyTransformable;
 
@@ -169,21 +174,19 @@ class CompanyImporter extends BaseCsvImporter
     public function export()
     {
         $export_columns = $this->getExportColumns();
-        $list = Company::byAccount($this->account)->get();
 
-        $companies = [];
+        $search_request = new SearchRequest();
+        $search_request->replace(['column' => 'created_at', 'order' => 'desc']);
 
-        foreach ($list as $company) {
-            $formatted_company = $this->transformObject($company);
+        $companies = (new CompanySearch(new CompanyRepository(new Company(), new CompanyContactRepository(new CompanyContact()))))->filter($search_request, $this->account);
 
-            if ($company->contacts->count() > 0) {
-                foreach ($company->contacts as $contact) {
-                    $formatted_contact = (new CompanyContactTransformable())->transformCompanyContact($contact);
+        foreach ($companies as $key => $company) {
 
-                    $companies[] = array_merge($formatted_company, $formatted_contact);
+            if (count($company['contacts']) > 0) {
+                foreach ($company['contacts'] as $contact) {
+
+                    $companies[$key] = array_merge($companies[$key], $contact);
                 }
-            } else {
-                $companies[] = $formatted_company;
             }
         }
 
