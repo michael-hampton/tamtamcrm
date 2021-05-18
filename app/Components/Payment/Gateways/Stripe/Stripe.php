@@ -245,4 +245,16 @@ class Stripe extends BaseStripe
 
         return null;
     }
+
+    public function importCustomers()
+    {
+        $this->stripe->setupConfig();
+
+        $customers = Customer::all();
+
+        foreach($customers as $customer)
+        {
+            
+        }   
+    }
 }
