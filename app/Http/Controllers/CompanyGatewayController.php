@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Components\Payment\Gateways\Stripe\StripeConnect;
 use App\Factory\CompanyGatewayFactory;
+use App\Models\Account;
 use App\Models\CompanyGateway;
 use App\Models\Customer;
 use App\Models\CustomerGateway;
 use App\Models\ErrorLog;
+use App\Models\User;
 use App\Repositories\AccountRepository;
 use App\Repositories\CompanyGatewayRepository;
 use App\Requests\CompanyGateway\StoreCompanyGatewayRequest;
@@ -17,6 +19,7 @@ use App\Search\CompanyGatewaySearch;
 use App\Transformations\CompanyGatewayTransformable;
 use App\Transformations\ErrorLogTransformable;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class CompanyGatewayController
@@ -134,47 +137,94 @@ class CompanyGatewayController extends Controller
     {
         $company_gateway = CompanyGateway::byGatewayKey($request->input('token'), auth()->user()->account_user()->account)->first();
 
-        if (!empty($company_gateway)) {
-            return response()->json(['message' => 'Already has account']);
+//        if (!empty($company_gateway)) {
+//            return response()->json(['message' => 'Already has account']);
+//        }
+
+        $stripe_client_id = config('taskmanager.stripe_client_id');
+
+        //https://stripe.com/docs/connect/oauth-reference Dynamically set the redirect URI
+        $redirect_uri = 'http://tamtamcrm.develop:8080/company_gateways/stripe/complete';
+        $return_url = "https://connect.stripe.com/oauth/authorize?response_type=code&client_id={$stripe_client_id}&redirect_uri={$redirect_uri}&scope=read_write";
+
+        if (!empty(auth()->user()->email)) {
+            $return_url .= '&stripe_user[email]=' . auth()->user()->email;
         }
 
-        $objStripe = new StripeConnect();
-
-        $accounts = $objStripe->listAllConnectedAccounts();
-
-        $account_id = null;
-        $url = '';
-
-        foreach ($accounts as $account) {
-            if ($account->email === auth()->user()->email) {
-                $account_id = $account->id;
-                break;
-            }
+        if (!empty(auth()->user()->first_name)) {
+            $return_url .= '&stripe_user[first_name]=' . auth()->user()->first_name;
         }
 
-        if (empty($account_id)) {
-
-            $account_id = $objStripe->createAccount([
-                'email'   => auth()->user()->email,
-                'country' => auth()->user()->account_user()->account->country()->iso
-            ]);
-
-            $url = $objStripe->connectAccount($account_id);
+        if (!empty(auth()->user()->last_name)) {
+            $return_url .= '&stripe_user[first_name]=' . auth()->user()->last_name;
         }
 
-        $settings = ['account_id' => $account_id];
+        if (!empty(auth()->user()->phone_number)) {
+            $return_url .= '&stripe_user[phone_number]=' . auth()->user()->phone_number;
+        }
 
-        $company_gateway = $this->company_gateway_repo->create(
-            ['gateway_key' => $request->input('token'), 'settings' => $settings],
-            CompanyGatewayFactory::create(auth()->user()->account_user()->account_id, auth()->user()->id)
-        );
+        if (!empty(auth()->user()->account_user()->account->country()) && !empty(auth()->user()->account_user()->account->country()->name)) {
+            $return_url .= '&stripe_user[business_name]=' . auth()->user()->account_user()->account->country()->name;
+        }
 
-        return response()->json(['gateway' => $this->transformCompanyGateway($company_gateway), 'url' => $url]);
+        if (!empty(auth()->user()->account_user()->account) && !empty(auth()->user()->account_user()->account->settings->name)) {
+            $return_url .= '&stripe_user[country]=' . auth()->user()->account_user()->account->settings->name;
+        }
+
+        Cache::put('stripe_connect_user', ['user_id' => auth()->user()->id, 'account_id' => auth()->user()->account_user()->account_id], now()->addMinutes(10));
+
+        return response()->json(['url' => $return_url]);
     }
 
     public function completeStripeConnect(Request $request)
     {
-        die('here');
+        $objStripe = new StripeConnect();
+
+        $cache = Cache::pull('stripe_connect_user');
+
+        $user = User::byId($cache['user_id'])->first();
+        $account = Account::byId($cache['account_id'])->first();
+
+        if (empty($user) || empty($account)) {
+            throw new \Exception('Required Data missing');
+        }
+
+        $token = $objStripe->requestToken($request->code);
+
+        $objStripe = new StripeConnect();
+
+        $stripe_accounts = $objStripe->listAllConnectedAccounts();
+
+        $account_id = null;
+
+        foreach ($stripe_accounts as $stripe_account) {
+            if ($stripe_account->email === $user->email) {
+                $account_id = $stripe_account->id;
+                break;
+            }
+        }
+
+        $settings = [
+            "token_type"             => 'bearer',
+            "stripe_publishable_key" => $token->stripe_publishable_key,
+            "scope"                  => $token->scope,
+            "livemode"               => $token->livemode,
+            "stripe_user_id"         => $token->stripe_user_id,
+            "account_id"             => $token->stripe_user_id,
+            "refresh_token"          => $token->refresh_token,
+            "access_token"           => $token->access_token
+        ];
+
+        if (!empty($account_id)) {
+            $settings = ['account_id' => $account_id];
+        }
+
+        $company_gateway = $this->company_gateway_repo->create(
+            ['gateway_key' => 'ocglwiyeow', 'settings' => $settings],
+            CompanyGatewayFactory::create($account->id, $user->id)
+        );
+
+        return view('stripe.completed', ['gateway' => $this->transformCompanyGateway($company_gateway)]);
     }
 
     public function refreshStripeConnect(Request $request)

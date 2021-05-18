@@ -10,6 +10,7 @@ namespace App\Models;
 
 
 use App\Events\Account\AccountWasDeleted;
+use App\Models\Concerns\QueryScopes;
 use App\ViewModels\AccountViewModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,7 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Account extends Model
 {
-    use SoftDeletes, HasFactory;
+    use SoftDeletes, HasFactory, QueryScopes;
 
     protected $dispatchesEvents = [
         'deleted' => AccountWasDeleted::class,

@@ -94,9 +94,9 @@ class StripeConnect extends BaseStripeClient
         $this->setupConfig();
 
         $response = $this->stripe->accounts->create([
-            'type'         => 'standard',
-            'country'      => $data['country'],
-            'email'        => $data['email'],
+            'type'    => 'standard',
+            'country' => $data['country'],
+            'email'   => $data['email'],
             //            'capabilities' => [
             //                'card_payments' => ['requested' => true],
             //                'transfers'     => ['requested' => true],
@@ -104,6 +104,30 @@ class StripeConnect extends BaseStripeClient
         ]);
 
         return $response['id'];
+    }
+
+    public function requestToken($account_id)
+    {
+        //https://stripe.com/docs/connect/oauth-reference
+
+        \Stripe\Stripe::setApiKey(config('taskmanager.stripe_api_key'));
+
+        $response = \Stripe\OAuth::token([
+            'grant_type' => 'authorization_code',
+            'code'       => $account_id,
+        ]);
+
+        return $response;
+    }
+
+    public function revokeToken($stripe_user_id, $stripe_client_id)
+    {
+        \Stripe\Stripe::setApiKey(config('taskmanager.stripe_api_key'));
+
+        \Stripe\OAuth::deauthorize([
+            'client_id'      => $stripe_client_id,
+            'stripe_user_id' => $stripe_user_id,
+        ]);
     }
 
     public function listAllConnectedAccounts()

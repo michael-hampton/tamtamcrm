@@ -15,6 +15,7 @@ return [
     'from_name'               => 'Michael Hampton',
     'use_live_exchange_rates' => false,
     'stripe_api_key'          => env('STRIPE_API_KEY'),
+    'stripe_client_id'        => env('STRIPE_CLIENT_ID'),
     'slow_query_log_enabled'  => env('LARAVEL_SLOW_QUERY_LOGGER_ENABLED', false),
     'channel'                 => env('LARAVEL_SLOW_QUERY_LOGGER_CHANNEL', 'single'),
     'log-level'               => env('LARAVEL_SLOW_QUERY_LOGGER_LOG_LEVEL', 'debug'),
