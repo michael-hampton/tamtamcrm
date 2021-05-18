@@ -254,38 +254,115 @@ class Stripe extends BaseStripe
 
         $customers = Customer::all();
 
-        foreach($customers as $customer)
-        {
-            
+        $this->imports['gateways'] = [];
+
+        foreach($customers as $gateway_customer) {
+           $customer = $this->mapCustomers($gateway_customer);
+           $gateways = $this->mapGateways($customer, $gateway_customer, $existing);
         }   
 
-        //TODO - Customers
-        Customer::upsert($this->imports['customers'], ['stripe_id'], ['name']);
-
-        //TODO - Contacts
-        CustomerContact::upsert($this->imports['customers'], ['email'], ['first_name', 'last_name']);
+        // todo get all tokens for customer from database
+       
 
         //TODO - Gateways
-        CustomerContact::upsert($this->imports['customers'], ['email'], ['first_name', 'last_name']);
+        //CustomerContact::upsert($this->imports['customers'], ['token', 'gateway_customer_reference'], ['first_name', 'last_name']);
     }
 
     private function mapCustomers(array $customer)
     {
-        // TODO - Build Customers array 
-        $this->imports['customers'] = [];
-        // TODO - Build contacts array
-        $this->imports['contacts'] = [];
-        // TODO - Build gateways array 
-        $this->imports['gateways'] = [];
-        
+        $customer_data = [
+            'name' => $customer->name
+            'phone' => !empty($customer->phone) ? $customer->phone : ''
+        ];
+
+        // create customer
+        $customer = CustomerFactory::create(auth()->user()->account_user()->account, auth()->user());
+        $customer = $this->customer_repo->create($customer_data, $customer);
+
+        $contact_data = [
+            'first_name' => $customer->name
+            'email' => !empty($customer->email) ? $customer->email : ''
+            'phone' => !empty($customer->phone) ? $customer->phone : ''
+        ];
+
+        // create contact
+        $create_contact = CustomerContactFactory::create($customer->account, $customer->user, $customer);
+        $this->contact_repo->createContact($contact_data, $create_contact);
+
+        if(!empty($customer->address) {
+            $address_data = [
+                'address_1' => !empty($customer->address->line1) ?  $customer->address->line1 : ''
+                'address_2' => !empty($customer->address->line2) ? $customer->address->line2 : ''
+                'city' => !empty($customer->address->city) ? $customer->address->city : ''
+                'state' => !empty($customer->address->state) ? $customer->address->state : '',
+                'address_type' => 1
+            ];
+
+            if(!empty($customer->address->country)){
+
+                $country = Country::where('iso', $customer->address->country)->first();
+
+                if(!empty($country)) {
+                   $address_data['country_id'] = $country->id;
+                }
+
+            }
+
+            $customer->addresses()->create($address_data);
+        }
+
+        //$obj_merged = (object)array_merge((array)$customer->settings, (array)$request->settings);
+        //$customer = (new CustomerSettings)->save($customer, $obj_merged);
+       
+        return $customer;
     }
 
-    private function mapGateways($customer)
+    private function mapGateway($gateway, $gateway_customer, $customer, $type_id)
     {
+        $data = [
+            'customer_id' => $customer->id,
+            'token' => $gateway->id,
+            'gateway_customer_reference' => $gateway_customer->id,
+            'company_gateway_id' => $token->company_gateway_id, //todo
+            'gateway_type_id' => $type_id
+        ];
+
+        if($type_id === 8) { 
+            $data['meta'] = '{}';
+            $data['routing_number'] = $gateway->routing_number;
+        }
+
+        if($type_id === 1) { 
+            $data['meta'] = $this-> buildCardData($gateway);
+            $data['routing_number'] = $gateway->routing_number;
+        }
+    }
+
+    private function buildCardData($method)
+    {
+        $payment_meta = new \stdClass;
+                $payment_meta->exp_month = (string) $method->card->exp_month;
+                $payment_meta->exp_year = (string) $method->card->exp_year;
+                $payment_meta->brand = (string) $method->card->brand;
+                $payment_meta->last4 = (string) $method->card->last4;
+                $payment_meta->type = 1;
+                return $payment_meta;
+    }
+
+    private function mapGateways($customer, $gateway_customer, $existing)
+    {
+        //todo check not in existing
+
         $cards = PaymentMethod::all([
                     'customer' => $customer['id'],
                     'type' => 'card',
                     ]);
+ 
+        foreach($card_methods as $method) 
+                {
+                    $this->mapGateway($bank_account, $gateway_customer, $customer, 1);
+                }
+
 
                
 
@@ -303,5 +380,11 @@ class Stripe extends BaseStripe
                     $customer['id'],
                     ['object' => 'bank_account', 'limit' => 300]
                 );
+
+        foreach($bank_accounts as $bank_account)
+                {
+                    $this->mapGateway($bank_account, $gateway_customer, $customer, 8);
+                }
+
     }
 }
