@@ -21,6 +21,8 @@ class Stripe extends BaseStripe
 {
     private $stripe;
 
+    private array $imports = [];
+
     /**
      * Stripe constructor.
      * @param \App\Models\Customer $customer
@@ -256,5 +258,50 @@ class Stripe extends BaseStripe
         {
             
         }   
+
+        //TODO - Customers
+        Customer::upsert($this->imports['customers'], ['stripe_id'], ['name']);
+
+        //TODO - Contacts
+        CustomerContact::upsert($this->imports['customers'], ['email'], ['first_name', 'last_name']);
+
+        //TODO - Gateways
+        CustomerContact::upsert($this->imports['customers'], ['email'], ['first_name', 'last_name']);
+    }
+
+    private function mapCustomers(array $customer)
+    {
+        // TODO - Build Customers array 
+        $this->imports['customers'] = [];
+        // TODO - Build contacts array
+        $this->imports['contacts'] = [];
+        // TODO - Build gateways array 
+        $this->imports['gateways'] = [];
+        
+    }
+
+    private function mapGateways($customer)
+    {
+        $cards = PaymentMethod::all([
+                    'customer' => $customer['id'],
+                    'type' => 'card',
+                    ]);
+
+               
+
+                $alipay_methods = PaymentMethod::all([
+                    'customer' => $customer['id'],
+                    'type' => 'alipay',
+                ]);
+
+                $sofort_methods = PaymentMethod::all([
+                    'customer' => $customer['id']
+                    'type' => 'sofort',
+                    ]);
+
+                $bank_accounts = Customer::allSources(
+                    $customer['id'],
+                    ['object' => 'bank_account', 'limit' => 300]
+                );
     }
 }
