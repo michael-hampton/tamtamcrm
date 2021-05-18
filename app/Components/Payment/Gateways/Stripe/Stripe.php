@@ -258,14 +258,14 @@ class Stripe extends BaseStripe
 
         foreach($customers as $gateway_customer) {
            $customer = $this->mapCustomers($gateway_customer);
-           $gateways = $this->mapGateways($customer, $gateway_customer, $existing);
+           $gateways = $this->mapGateways($customer, $gateway_customer);
         }   
 
-        // todo get all tokens for customer from database
+       
        
 
         //TODO - Gateways
-        //CustomerContact::upsert($this->imports['customers'], ['token', 'gateway_customer_reference'], ['first_name', 'last_name']);
+        //CustomerContact::upsert($this->imports['customers'], ['token', 'gateway_customer_reference'], ['meta']);
     }
 
     private function mapCustomers(array $customer)
@@ -317,7 +317,7 @@ class Stripe extends BaseStripe
         return $customer;
     }
 
-    private function mapGateway($gateway, $gateway_customer, $customer, $type_id)
+    private function mapGateway($gateway, $gateway_customer, $customer, $type_id = null)
     {
         $data = [
             'customer_id' => $customer->id,
@@ -328,14 +328,16 @@ class Stripe extends BaseStripe
         ];
 
         if($type_id === 8) { 
-            $data['meta'] = '{}';
             $data['routing_number'] = $gateway->routing_number;
         }
 
         if($type_id === 1) { 
             $data['meta'] = $this-> buildCardData($gateway);
-            $data['routing_number'] = $gateway->routing_number;
+        } else {
+            $data['meta'] = '{}';
         }
+
+        return $data;
     }
 
     private function buildCardData($method)
@@ -349,9 +351,10 @@ class Stripe extends BaseStripe
                 return $payment_meta;
     }
 
-    private function mapGateways($customer, $gateway_customer, $existing)
+    private function mapGateways($customer, $gateway_customer)
     {
-        //todo check not in existing
+        //todo check type ids
+        
 
         $cards = PaymentMethod::all([
                     'customer' => $customer['id'],
@@ -360,7 +363,7 @@ class Stripe extends BaseStripe
  
         foreach($card_methods as $method) 
                 {
-                    $this->mapGateway($bank_account, $gateway_customer, $customer, 1);
+                    $this->imports['gateways'][] = $this->mapGateway($bank_account, $gateway_customer, $customer, 1);
                 }
 
 
@@ -371,10 +374,20 @@ class Stripe extends BaseStripe
                     'type' => 'alipay',
                 ]);
 
+                foreach($alipay_methods as $method) 
+                {
+                    $this->imports['gateways'][] $this->mapGateway($bank_account, $gateway_customer, $customer, 3);
+                }
+
                 $sofort_methods = PaymentMethod::all([
                     'customer' => $customer['id']
                     'type' => 'sofort',
                     ]);
+
+                foreach($sofort_methods as $method) 
+                {
+                    $this->imports['gateways'][] $this->mapGateway($bank_account, $gateway_customer, $customer, 2);
+                }
 
                 $bank_accounts = Customer::allSources(
                     $customer['id'],
@@ -383,7 +396,7 @@ class Stripe extends BaseStripe
 
         foreach($bank_accounts as $bank_account)
                 {
-                    $this->mapGateway($bank_account, $gateway_customer, $customer, 8);
+                   $this->imports['gateways'][] $this->mapGateway($bank_account, $gateway_customer, $customer, 8);
                 }
 
     }
