@@ -2,6 +2,11 @@
 
 namespace Tests\Unit;
 
+use App\Jobs\Payment\StripeImport;
+use App\Models\CompanyGateway;
+use App\Models\CustomerContact;
+use App\Repositories\CustomerContactRepository;
+use App\Repositories\CustomerRepository;
 use App\Services\Email\DispatchEmail;
 use App\Services\Payment\DeletePayment;
 use App\Components\Currency\CurrencyConverter;
@@ -827,6 +832,17 @@ class PaymentUnitTest extends TestCase
 
         (new DispatchEmail($payment))->sendPaymentEmails();
     }
+
+    /** @test */
+    /*public function test_stripe_import()
+    {
+        $company_gateway = CompanyGateway::find(5);
+
+        $customer_count = Customer::query()->count();
+        $contact_count = CustomerContact::query()->count();
+
+        StripeImport::dispatchNow($company_gateway, new CustomerRepository(new Customer()), New CustomerContactRepository(new CustomerContact()), $this->user, $this->account);
+    }*/
 
 
     /*public function test_capture()
