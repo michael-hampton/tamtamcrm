@@ -23,7 +23,6 @@ class CreateAccount
 
     public function execute(array $data): User
     {
-
         // create domain
         $domain = (new DomainRepository(new Domain))->create($data);
 
@@ -46,6 +45,7 @@ class CreateAccount
         $data['username'] = !empty($data['email']) ? $data['email'] : $this->faker->safeEmail;
         $data['password'] = !empty($data['password']) ? $data['password'] : Hash::make($this->faker->password(8));
         $data['company_user']['is_admin'] = true;
+        $data['company_user']['is_owner'] = true;
 
         // create new user
         $user = $user_repo->save($data, $user);

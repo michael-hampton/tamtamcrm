@@ -39,13 +39,20 @@ class ConvertAccount
 
             $users = $this->account->users;
 
-            $user = $users->count() === 1 ? $users->first() : CloneAccountToUserFactory::create($this->account);
+            $owner = $this->account->owner();
+
+            if (!empty($owner)) {
+                $user = $owner;
+            } elseif ($users->count() === 1) {
+                $user = $users->first();
+            } else {
+                $user = CloneAccountToUserFactory::create($this->account);
+            }
 
             if (!$user->save()) {
                 DB::rollback();
                 return null;
             }
-
 
             $customer = CloneAccountToCustomerFactory::create($this->account, $user);
 

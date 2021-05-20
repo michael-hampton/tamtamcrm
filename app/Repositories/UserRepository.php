@@ -155,6 +155,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
                 $user->attachUserToAccount(
                     $account,
                     $data['company_user']['is_admin'],
+                    $data['company_user']['is_owner'],
                     !empty($data['company_user']['notifications']) ? $data['company_user']['notifications'] : []
                 );
             } else {

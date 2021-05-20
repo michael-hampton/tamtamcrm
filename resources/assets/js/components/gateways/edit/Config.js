@@ -1,8 +1,8 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import FormBuilder from '../../settings/FormBuilder'
-import {translations} from '../../utils/_translations'
-import {consts} from '../../utils/_consts'
-import {Button} from 'reactstrap'
+import { translations } from '../../utils/_translations'
+import { consts } from '../../utils/_consts'
+import { Button } from 'reactstrap'
 import CompanyGatewayRepository from '../../repositories/CompanyGatewayRepository'
 
 export default class Config extends Component {
@@ -44,8 +44,8 @@ export default class Config extends Component {
                     type: 'switch',
                     placeholder: translations.mode,
                     value: settings.mode ? settings.mode : false,
-                    group: 1,
-                    //class_name: 'col-12'
+                    group: 1
+                    // class_name: 'col-12'
                 },
                 {
                     name: 'live_url',
@@ -94,9 +94,9 @@ export default class Config extends Component {
                     type: 'switch',
                     placeholder: translations.mode,
                     value: settings.mode ? settings.mode : false,
-                    group: 1,
-                    //class_name: 'col-12'
-                },
+                    group: 1
+                    // class_name: 'col-12'
+                }
                 // {
                 //     name: 'live_url',
                 //     label: translations.live_url,
@@ -138,9 +138,9 @@ export default class Config extends Component {
                     type: 'switch',
                     placeholder: translations.mode,
                     value: settings.mode ? settings.mode : false,
-                    group: 1,
-                    //class_name: 'col-12'
-                },
+                    group: 1
+                    // class_name: 'col-12'
+                }
             ]
         ]
     }
@@ -230,8 +230,8 @@ export default class Config extends Component {
                     type: 'switch',
                     placeholder: translations.mode,
                     value: settings.mode ? settings.mode : false,
-                    group: 1,
-                    //class_name: 'col-12'
+                    group: 1
+                    // class_name: 'col-12'
                 },
                 {
                     name: 'live_url',
@@ -270,6 +270,18 @@ export default class Config extends Component {
         })
     }
 
+    stripeImport (key) {
+        const companyGatewayRepository = new CompanyGatewayRepository()
+        companyGatewayRepository.stripeImport(key).then(response => {
+            if (!response) {
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
+            }
+
+            alert(translations.stripe_import_success)
+        })
+    }
+
     getFormFields (key) {
         switch (key) {
             case consts.authorize_gateway:
@@ -287,16 +299,27 @@ export default class Config extends Component {
 
     render () {
         const formFields = this.props.gateway.gateway_key && this.props.gateway.gateway_key.length ? this.getFormFields(this.props.gateway.gateway_key) : null
+        const stripe_import_button = [consts.stripe_connect_gateway, consts.stripe_gateway].includes(this.props.gateway.gateway_key) ? <Button className="mr-2" color="primary" onClick={(e) => {
+            this.stripeImport(consts.stripe_connect_gateway)
+        }}>{translations.stripe_import}</Button> : null
 
         if (this.props.gateway.gateway_key === consts.stripe_connect_gateway && this.props.is_add === true) {
-            return <Button color="primary" onClick={(e) => {
-                this.createStripeAccount(consts.stripe_connect_gateway)
-            }}>{translations.stripe_connect}</Button>
+            return <React.Fragment>
+                <Button color="primary" onClick={(e) => {
+                    this.createStripeAccount(consts.stripe_connect_gateway)
+                }}>{translations.stripe_connect}</Button>
+                {stripe_import_button}
+            </React.Fragment>
         }
 
-        return formFields && formFields.length ? <FormBuilder
-            handleChange={this.props.handleConfig}
-            formFieldsRows={formFields}
-        /> : null
+        return formFields && formFields.length
+            ? <React.Fragment>
+                <FormBuilder
+                    handleChange={this.props.handleConfig}
+                    formFieldsRows={formFields}
+                />
+                {stripe_import_button}
+            </React.Fragment>
+            : null
     }
 }

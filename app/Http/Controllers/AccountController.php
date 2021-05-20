@@ -70,7 +70,7 @@ class AccountController extends BaseController
             return response()->json('Unable to update settings', 500);
         }
 
-        auth()->user()->attachUserToAccount($account, true);
+        auth()->user()->attachUserToAccount($account, true, true);
 
         event(new NewAccountCreated(auth()->user(), $account));
 

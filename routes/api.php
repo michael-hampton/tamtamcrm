@@ -376,6 +376,8 @@ Route::group(
         Route::post('company_gateways/', 'CompanyGatewayController@store');
         Route::get('company_gateways/error_logs/{company_gateway}', 'CompanyGatewayController@getErrorLogs');
         Route::post('company_gateways/stripe/connect', 'CompanyGatewayController@createStripeConnectAccount');
+        Route::post('company_gateways/stripe/import', 'CompanyGatewayController@stripeImport');
+
 
 // tax rates
         Route::get('taxRates', 'TaxRateController@index');

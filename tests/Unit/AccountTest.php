@@ -42,6 +42,9 @@ class AccountTest extends TestCase
     public function it_can_convert_the_account()
     {
         $account = Account::factory()->create();
+        $user = User::factory()->create();
+        $user->attachUserToAccount($account, true, true);
+
         $account = (new ConvertAccount($account))->execute();
 
         $this->assertInstanceOf(Account::class, $account);

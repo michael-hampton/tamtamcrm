@@ -175,10 +175,10 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, CanRe
             '=',
             'account_user.account_id'
         )
-                    ->where('company_tokens.user_id', '=', $this->id)
-                    ->where('company_tokens.is_web', '=', true)
-                    ->whereNull('company_tokens.deleted_at')
-                    ->where('company_tokens.token', '=', $this->auth_token)->select(
+            ->where('company_tokens.user_id', '=', $this->id)
+            ->where('company_tokens.is_web', '=', true)
+            ->whereNull('company_tokens.deleted_at')
+            ->where('company_tokens.token', '=', $this->auth_token)->select(
                 'account_user.*'
             )->first();
     }
@@ -186,7 +186,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, CanRe
 
     public function account_users()
     {
-         return $this->hasMany(Models\AccountUser::class, 'user_id', 'id');
+        return $this->hasMany(Models\AccountUser::class, 'user_id', 'id');
     }
 
     public function domain()
@@ -219,16 +219,20 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, CanRe
         return $this->hasMany(Upload::class);
     }
 
-
-    // Example, just to showcase the API.
-
-    public function attachUserToAccount(Account $account, $is_admin, array $notifications = [])
+    /**
+     * @param Account $account
+     * @param bool $is_admin
+     * @param bool $is_owner
+     * @param array $notifications
+     * @return bool
+     */
+    public function attachUserToAccount(Account $account, bool $is_admin = false, bool $is_owner = false, array $notifications = [])
     {
         $this->accounts()->attach(
             $account->id,
             [
                 'account_id'    => $account->id,
-                'is_owner'      => $is_admin,
+                'is_owner'      => $is_owner,
                 'is_admin'      => $is_admin,
                 'notifications' => !empty($notifications) ? $notifications : $this->notificationDefaults()
             ]
@@ -242,7 +246,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, CanRe
     public function accounts()
     {
         return $this->belongsToMany(Account::class)->using(Models\AccountUser::class)
-                    ->withPivot('is_admin', 'is_owner', 'is_locked');
+            ->withPivot('is_admin', 'is_owner', 'is_locked');
     }
 
     public static function notificationDefaults()

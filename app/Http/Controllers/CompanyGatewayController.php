@@ -4,14 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Components\Payment\Gateways\Stripe\StripeConnect;
 use App\Factory\CompanyGatewayFactory;
+use App\Jobs\Payment\StripeImport;
 use App\Models\Account;
 use App\Models\CompanyGateway;
 use App\Models\Customer;
+use App\Models\CustomerContact;
 use App\Models\CustomerGateway;
 use App\Models\ErrorLog;
 use App\Models\User;
 use App\Repositories\AccountRepository;
 use App\Repositories\CompanyGatewayRepository;
+use App\Repositories\CustomerContactRepository;
+use App\Repositories\CustomerRepository;
 use App\Requests\CompanyGateway\StoreCompanyGatewayRequest;
 use App\Requests\CompanyGateway\UpdateCompanyGatewayRequest;
 use App\Requests\SearchRequest;
@@ -225,6 +229,13 @@ class CompanyGatewayController extends Controller
         );
 
         return view('stripe.completed', ['gateway' => $this->transformCompanyGateway($company_gateway)]);
+    }
+
+    public function stripeImport()
+    {
+        $company_gateway = CompanyGateway::where('gateway_key', '13bb8d58')->first();
+
+        StripeImport::dispatchNow($company_gateway, new CustomerRepository(new Customer()), new CustomerContactRepository(new CustomerContact()), auth()->user(), auth()->user()->account_user()->account);
     }
 
     public function refreshStripeConnect(Request $request)
