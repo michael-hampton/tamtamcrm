@@ -100,8 +100,8 @@ class BankAccountTest extends TestCase
             'bank_id'       => Bank::first()->id,
             'username'      => $this->faker->userName,
             'password'      => $this->faker->password,
-            'public_notes'  => $this->faker->paragraph,
-            'private_notes' => $this->faker->paragraph
+            'customer_note'  => $this->faker->paragraph,
+            'internal_note' => $this->faker->paragraph
         ];
 
         $bank_accountRepo = new BankAccountRepository(new BankAccount);

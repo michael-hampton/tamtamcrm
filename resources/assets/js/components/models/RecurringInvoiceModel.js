@@ -70,8 +70,8 @@ export default class RecurringInvoiceModel extends BaseModel {
             has_partial: false,
             auto_billing_enabled: this.settings.autobilling_enabled,
             number_of_occurrances: 1,
-            public_notes: '',
-            private_notes: '',
+            customer_note: '',
+            internal_note: '',
             terms: '',
             footer: '',
             visible: 'collapse',
@@ -155,7 +155,7 @@ export default class RecurringInvoiceModel extends BaseModel {
             return ''
         }
 
-        return this.customer.public_notes || ''
+        return this.customer.customer_note || ''
     }
 
     get default_terms () {

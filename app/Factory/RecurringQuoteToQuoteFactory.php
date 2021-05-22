@@ -38,8 +38,8 @@ class RecurringQuoteToQuoteFactory
         $quote->po_number = $recurring_quote->po_number;
         $quote->footer = $recurring_quote->footer;
         $quote->terms = $recurring_quote->terms;
-        $quote->public_notes = $recurring_quote->public_notes;
-        $quote->private_notes = $recurring_quote->private_notes;
+        $quote->customer_note = $recurring_quote->customer_note;
+        $quote->internal_note = $recurring_quote->internal_note;
         $quote->date = date_create()->format('Y-m-d');
         $quote->hide = false;
         $quote->line_items = $recurring_quote->line_items;

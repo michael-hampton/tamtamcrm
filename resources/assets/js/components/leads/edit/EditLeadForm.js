@@ -108,8 +108,8 @@ class EditLeadForm extends React.Component {
     getFormData () {
         return {
             project_id: this.state.project_id,
-            public_notes: this.state.public_notes,
-            private_notes: this.state.private_notes,
+            customer_note: this.state.customer_note,
+            internal_note: this.state.internal_note,
             custom_value1: this.state.custom_value1,
             custom_value2: this.state.custom_value2,
             custom_value3: this.state.custom_value3,
@@ -242,8 +242,8 @@ class EditLeadForm extends React.Component {
             button = <Button className="text-white" color="link" onClick={this.toggle}>{translations.edit_task}</Button>
         }
 
-        const notes = <Notes handleInput={this.handleInputChanges} private_notes={this.state.private_notes}
-            public_notes={this.state.public_notes}/>
+        const notes = <Notes handleInput={this.handleInputChanges} internal_note={this.state.internal_note}
+            customer_note={this.state.customer_note}/>
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
 
         return (

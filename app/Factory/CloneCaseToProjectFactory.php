@@ -25,7 +25,7 @@ class CloneCaseToProjectFactory
         $project->assigned_to = $case->assigned_to;
         $project->account_id = $case->account_id;
         $project->user_id = $user->id;
-        $project->private_notes = $case->private_notes;
+        $project->internal_note = $case->internal_note;
 
         return $project;
     }

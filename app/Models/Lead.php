@@ -56,8 +56,8 @@ class Lead extends Model
         'project_id',
         'website',
         'industry_id',
-        'private_notes',
-        'public_notes',
+        'internal_note',
+        'customer_note',
         'task_status_id',
         'column_color'
     ];

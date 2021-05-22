@@ -24,8 +24,8 @@ class CreateBankAccountsTable extends Migration
             $table->unsignedInteger('account_id')->index('account_id');
             $table->string('name');
             $table->unsignedInteger('assigned_to')->nullable();
-            $table->text('private_notes')->nullable();
-            $table->text('public_notes')->nullable();
+            $table->text('internal_note')->nullable();
+            $table->text('customer_note')->nullable();
             $table->unsignedInteger('user_id')->index('user_id');
             $table->tinyInteger('hide')->default(0);
         });

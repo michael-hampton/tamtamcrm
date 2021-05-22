@@ -31,8 +31,8 @@ class Reject
             return null;
         }
 
-        if (!empty($data['public_notes'])) {
-            $this->quote->public_notes = $data['public_notes'];
+        if (!empty($data['customer_note'])) {
+            $this->quote->customer_note = $data['customer_note'];
         }
 
         $this->quote->setStatus(Quote::STATUS_REJECTED);

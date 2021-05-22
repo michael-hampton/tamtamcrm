@@ -39,8 +39,8 @@ class CloneExpenseToInvoiceFactory
         $invoice->is_amount_discount = false;
         $invoice->footer = '';
         $invoice->tax_rate = 0;
-        $invoice->public_notes = $expense->public_notes;
-        $invoice->private_notes = $expense->private_notes;
+        $invoice->customer_note = $expense->customer_note;
+        $invoice->internal_note = $expense->internal_note;
         //$invoice->terms = $order->terms;
         $invoice->sub_total = 0;
         $invoice->partial = 0;

@@ -29,7 +29,7 @@ class CreateCompaniesTable extends Migration
             $table->unsignedInteger('currency_id')->nullable()->index('currency_id');
             $table->integer('industry_id')->nullable();
             $table->unsignedInteger('assigned_to')->nullable();
-            $table->text('private_notes')->nullable();
+            $table->text('internal_note')->nullable();
             $table->unsignedInteger('user_id')->index();
             $table->unsignedInteger('account_id')->index();
             $table->string('custom_value1')->nullable();
@@ -43,7 +43,7 @@ class CreateCompaniesTable extends Migration
             $table->decimal('amount_paid', 16, 4)->nullable();
             $table->string('number')->nullable();
             $table->string('logo')->nullable();
-            $table->text('public_notes')->nullable();
+            $table->text('customer_note')->nullable();
         });
     }
 

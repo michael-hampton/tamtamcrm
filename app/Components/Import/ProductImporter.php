@@ -42,8 +42,8 @@ class ProductImporter extends BaseCsvImporter
         'sku'           => 'sku',
         'category_id'   => 'category name',
         'brand_id'      => 'brand name',
-        'public_notes'  => 'public notes',
-        'private_notes' => 'private notes'
+        'customer_note'  => 'public notes',
+        'internal_note' => 'private notes'
     ];
     /**
      * @var array|string[]
@@ -61,8 +61,8 @@ class ProductImporter extends BaseCsvImporter
         'sku'           => 'sku',
         'category name' => 'category_name',
         'brand name'    => 'brand_id',
-        'public notes'  => 'public_notes',
-        'private notes' => 'private_notes'
+        'public notes'  => 'customer_note',
+        'private notes' => 'internal_note'
     ];
     /**
      * @var Account

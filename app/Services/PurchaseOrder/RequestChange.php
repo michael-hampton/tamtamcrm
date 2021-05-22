@@ -28,8 +28,8 @@ class RequestChange
             return null;
         }
 
-        if (!empty($data['public_notes'])) {
-            $this->purchase_order->public_notes = $data['public_notes'];
+        if (!empty($data['customer_note'])) {
+            $this->purchase_order->customer_note = $data['customer_note'];
         }
 
         $this->purchase_order->setStatus(PurchaseOrder::STATUS_CHANGE_REQUESTED);

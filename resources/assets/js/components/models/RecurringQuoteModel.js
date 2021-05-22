@@ -64,8 +64,8 @@ export default class RecurringQuoteModel extends BaseModel {
             partial: 0,
             has_partial: false,
             partial_due_date: moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
-            public_notes: '',
-            private_notes: '',
+            customer_note: '',
+            internal_note: '',
             terms: '',
             footer: '',
             visible: 'collapse',
@@ -155,7 +155,7 @@ export default class RecurringQuoteModel extends BaseModel {
             return ''
         }
 
-        return this.customer.public_notes || ''
+        return this.customer.customer_note || ''
     }
 
     get default_terms () {

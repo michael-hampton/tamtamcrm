@@ -39,7 +39,7 @@ class Cases extends Model
         'date_closed',
         'opened_by',
         'closed_by',
-        'private_notes',
+        'internal_note',
         'subject',
         'number',
         'message',

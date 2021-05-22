@@ -310,14 +310,14 @@ export default class EditCredit extends Component {
             if (!this.state.modalOpen && !this.state.id) {
                 this.setState({
                     changesMade: false,
-                    public_notes: '',
+                    customer_note: '',
                     tax: null,
                     tax_rate_name: '',
                     tax_rate_name_2: '',
                     tax_rate_name_3: '',
                     tax_2: null,
                     tax_3: null,
-                    private_notes: '',
+                    internal_note: '',
                     transaction_fee: null,
                     shipping_cost: null,
                     gateway_fee: null,
@@ -437,8 +437,8 @@ export default class EditCredit extends Component {
             sub_total: this.state.sub_total,
             tax_total: this.state.tax_total,
             discount_total: this.state.discount_total,
-            public_notes: this.state.public_notes,
-            private_notes: this.state.private_notes,
+            customer_note: this.state.customer_note,
+            internal_note: this.state.internal_note,
             po_number: this.state.po_number,
             terms: this.state.terms,
             footer: this.state.footer,
@@ -641,12 +641,12 @@ export default class EditCredit extends Component {
         const notes = !this.state.is_mobile
             ? <NoteTabs model={this.creditModel}
                 show_exchange={this.creditModel.account_currency.exchange_rate !== this.state.exchange_rate}
-                invoice={this.state} private_notes={this.state.private_notes}
-                public_notes={this.state.public_notes}
+                invoice={this.state} internal_note={this.state.internal_note}
+                customer_note={this.state.customer_note}
                 terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}
                 handleInput={this.handleInput}/>
-            : <Notes model={this.creditModel} private_notes={this.state.private_notes}
-                public_notes={this.state.public_notes}
+            : <Notes model={this.creditModel} internal_note={this.state.internal_note}
+                customer_note={this.state.customer_note}
                 terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}
                 handleInput={this.handleInput}/>
 

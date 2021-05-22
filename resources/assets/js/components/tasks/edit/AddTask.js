@@ -122,8 +122,8 @@ class AddModal extends React.Component {
             custom_value2: this.state.custom_value2,
             custom_value3: this.state.custom_value3,
             custom_value4: this.state.custom_value4,
-            public_notes: this.state.public_notes,
-            private_notes: this.state.private_notes,
+            customer_note: this.state.customer_note,
+            internal_note: this.state.internal_note,
             task_rate: this.state.task_rate,
             column_color: this.state.column_color
         }
@@ -175,7 +175,7 @@ class AddModal extends React.Component {
                     custom_value4={this.state.custom_value4}
                     custom_fields={this.props.custom_fields}/>
 
-                <Notes private_notes={this.state.private_notes} public_notes={this.state.public_notes}
+                <Notes internal_note={this.state.internal_note} customer_note={this.state.customer_note}
                     handleInput={this.handleInput}/>
 
                 <RecurringForm renderErrorFor={this.renderErrorFor} hasErrorFor={this.hasErrorFor}

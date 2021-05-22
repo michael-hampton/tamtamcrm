@@ -49,7 +49,7 @@ class Payment extends Model
         'refunded',
         'reference_number',
         'is_manual',
-        'private_notes',
+        'internal_note',
         'custom_value1',
         'custom_value2',
         'custom_value3',

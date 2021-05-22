@@ -100,7 +100,7 @@ class ProjectSearch extends BaseSearch
                       ->orWhere('projects.custom_value2', 'like', '%' . $filter . '%')
                       ->orWhere('projects.custom_value3', 'like', '%' . $filter . '%')
                       ->orWhere('projects.custom_value4', 'like', '%' . $filter . '%')
-                      ->orWhere('projects.private_notes', 'like', '%' . $filter . '%');
+                      ->orWhere('projects.internal_note', 'like', '%' . $filter . '%');
             }
         );
 

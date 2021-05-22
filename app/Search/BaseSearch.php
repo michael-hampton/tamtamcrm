@@ -11,8 +11,8 @@ use ReflectionClass;
 class BaseSearch
 {
     protected array $field_mapping = [
-        'private_notes'      => '$table.private_notes',
-        'public_notes'       => '$table.public_notes',
+        'internal_note'      => '$table.internal_note',
+        'customer_note'       => '$table.customer_note',
         'industry'           => 'industries.name',
         'custom1'            => '$table.custom_value1',
         'custom2'            => '$table.custom_value2',

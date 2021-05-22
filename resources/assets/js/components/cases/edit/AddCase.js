@@ -83,7 +83,7 @@ export default class AddCase extends React.Component {
             customer_id: this.state.customer_id,
             due_date: this.state.due_date,
             priority_id: this.state.priority_id,
-            private_notes: this.state.private_notes,
+            internal_note: this.state.internal_note,
             category_id: this.state.category_id,
             assigned_to: this.state.assigned_to,
             link_type: this.state.link_type,
@@ -120,7 +120,7 @@ export default class AddCase extends React.Component {
                     message: '',
                     customer_id: '',
                     due_date: '',
-                    private_notes: '',
+                    internal_note: '',
                     priority_id: '',
                     category_id: ''
                 }, () => localStorage.removeItem('caseForm'))

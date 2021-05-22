@@ -35,8 +35,8 @@ class ExpenseFactory extends Factory
             'exchange_rate'    => $this->faker->randomFloat(2, 0, 1),
             'date'             => $this->faker->date(),
             'hide'             => false,
-            'public_notes'     => $this->faker->text(50),
-            'private_notes'    => $this->faker->text(50),
+            'customer_note'     => $this->faker->text(50),
+            'internal_note'    => $this->faker->text(50),
             'reference_number' => $this->faker->text(5),
         ];
     }

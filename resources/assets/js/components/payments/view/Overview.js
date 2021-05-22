@@ -107,9 +107,9 @@ export default function Overview (props) {
             </ListGroup>
         </Row>
 
-        {!!props.entity.private_notes.length &&
+        {!!props.entity.internal_note.length &&
         <Row>
-            <InfoMessage message={props.entity.private_notes}/>
+            <InfoMessage message={props.entity.internal_note}/>
         </Row>
         }
 

@@ -34,7 +34,7 @@ class CasesFactory extends Factory
             'status_id'     => \App\Models\Cases::STATUS_DRAFT,
             'subject'       => $this->faker->word,
             'message'       => $this->faker->sentence,
-            'private_notes' => $this->faker->sentence,
+            'internal_note' => $this->faker->sentence,
             'account_id'    => $account->id,
             'user_id'       => $user->id,
             'customer_id'   => $customer->id,

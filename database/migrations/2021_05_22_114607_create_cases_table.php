@@ -25,7 +25,7 @@ class CreateCasesTable extends Migration
             $table->integer('status_id');
             $table->tinyInteger('hide')->default(0);
             $table->string('number')->nullable();
-            $table->text('private_notes')->nullable();
+            $table->text('internal_note')->nullable();
             $table->unsignedInteger('category_id')->nullable()->index('category_id');
             $table->integer('priority_id')->nullable();
             $table->date('due_date')->nullable();
@@ -45,6 +45,7 @@ class CreateCasesTable extends Migration
             $table->unsignedInteger('link_project_value')->nullable();
             $table->unsignedInteger('link_product_value')->nullable();
             $table->tinyInteger('overdue_email_sent')->default(0);
+            $table->text('customer_note')->nullable();
         });
     }
 

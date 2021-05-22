@@ -42,8 +42,8 @@ class CreateTasksTable extends Migration
             $table->unsignedInteger('project_id')->nullable()->index('project_id');
             $table->unsignedInteger('invoice_id')->nullable()->index('invoice_id');
             $table->unsignedInteger('user_id')->default(9874)->index('user_id');
-            $table->text('public_notes')->nullable();
-            $table->text('private_notes')->nullable();
+            $table->text('customer_note')->nullable();
+            $table->text('internal_note')->nullable();
             $table->tinyInteger('is_recurring')->default(0);
             $table->dateTime('recurring_start_date')->nullable();
             $table->dateTime('recurring_end_date')->nullable();

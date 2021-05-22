@@ -36,8 +36,8 @@ class ExpenseImporter extends BaseCsvImporter
         'amount'              => 'amount',
         'currency_id'         => 'currency code',
         'terms'               => 'terms',
-        'public_notes'        => 'public notes',
-        'private_notes'       => 'private notes'
+        'customer_note'        => 'public notes',
+        'internal_note'       => 'private notes'
     ];
     /**
      * @var array|string[]
@@ -54,8 +54,8 @@ class ExpenseImporter extends BaseCsvImporter
         'amount'                => 'amount',
         'currency code'         => 'currency_id',
         'terms'                 => 'terms',
-        'public notes'          => 'public_notes',
-        'private notes'         => 'private_notes',
+        'public notes'          => 'customer_note',
+        'private notes'         => 'internal_note',
         'custom value1'         => 'custom_value1',
         'custom value2'         => 'custom_value2',
         'custom value3'         => 'custom_value3',

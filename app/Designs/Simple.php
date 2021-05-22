@@ -45,7 +45,7 @@ $table_here
 
 <div class="px-4" style="width: 100%; margin-top: 80px;">
     <div class="inline-block" style="width: 80%">
-        $entity.public_notes
+        $entity.customer_note
     </div>
     $costs
 </div>

@@ -32,7 +32,7 @@ class CreateRecurringInvoicesTable extends Migration
             $table->tinyInteger('hide')->default(0);
             $table->text('line_items')->nullable();
             $table->text('footer')->nullable();
-            $table->text('public_notes')->nullable();
+            $table->text('customer_note')->nullable();
             $table->text('terms')->nullable();
             $table->decimal('total', 16, 4);
             $table->decimal('balance', 16, 4);
@@ -51,7 +51,7 @@ class CreateRecurringInvoicesTable extends Migration
             $table->string('custom_value2')->nullable();
             $table->string('custom_value3')->nullable();
             $table->string('custom_value4')->nullable();
-            $table->text('private_notes')->nullable();
+            $table->text('internal_note')->nullable();
             $table->decimal('tax_rate', 13, 3)->nullable()->default(0.000);
             $table->string('tax_rate_name')->nullable();
             $table->date('expiry_date')->nullable();

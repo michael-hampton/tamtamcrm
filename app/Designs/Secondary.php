@@ -49,7 +49,7 @@ $table_here
 <div class="mt-4 px-4 pt-4 pb-4 bg-secondary rounded py-2 text-white" style="width: 100%">
     <div class="inline-block" style="width: 70%">
         <div>
-            <p>$entity.public_notes</p>
+            <p>$entity.customer_note</p>
         </div>
     </div>
     $costs

@@ -37,7 +37,7 @@ class CreatePaymentsTable extends Migration
             $table->string('custom_value2')->nullable();
             $table->string('custom_value3')->nullable();
             $table->string('custom_value4')->nullable();
-            $table->text('private_notes')->nullable();
+            $table->text('internal_note')->nullable();
             $table->decimal('exchange_rate', 16, 6)->default(1.000000);
             $table->unsignedInteger('currency_id');
             $table->unsignedInteger('exchange_currency_id');

@@ -54,7 +54,7 @@ class PurchaseOrderPdf extends PdfBuilder
              ->setSubTotal($company, $this->entity->sub_total)
              ->setBalance($company, $this->entity->balance)
              ->setTotal($company, $this->entity->total)
-             ->setNotes($this->entity->public_notes)
+             ->setNotes($this->entity->customer_note)
             //->setInvoiceCustomValues()
              ->buildProduct()
              ->transformLineItems($company, $this->entity)

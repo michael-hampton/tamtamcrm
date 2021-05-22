@@ -25,8 +25,8 @@ class BankAccount extends Model
     protected $fillable = [
         'name',
         'assigned_to',
-        'public_notes',
-        'private_notes',
+        'customer_note',
+        'internal_note',
         'account_id',
         'username',
         'password',

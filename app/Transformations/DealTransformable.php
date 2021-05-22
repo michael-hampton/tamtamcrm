@@ -39,8 +39,8 @@ trait DealTransformable
             'custom_value2'  => $deal->custom_value2 ?: '',
             'custom_value3'  => $deal->custom_value3 ?: '',
             'custom_value4'  => $deal->custom_value4 ?: '',
-            'public_notes'   => $deal->public_notes ?: '',
-            'private_notes'  => $deal->private_notes ?: '',
+            'customer_note'  => $deal->customer_note ?: '',
+            'internal_note'  => $deal->internal_note ?: '',
             'files'          => !empty($files) && !empty($files[$deal->id]) ? $this->transformDealFiles(
                 $files[$deal->id]
             ) : [],

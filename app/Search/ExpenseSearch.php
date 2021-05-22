@@ -108,7 +108,7 @@ class ExpenseSearch extends BaseSearch
 
         $this->query->where(
             function ($query) use ($filter) {
-                $query->where('expenses.private_notes', 'like', '%' . $filter . '%')
+                $query->where('expenses.internal_note', 'like', '%' . $filter . '%')
                       ->orWhere('expenses.number', 'like', '%' . $filter . '%')
                       ->orWhere('expenses.custom_value1', 'like', '%' . $filter . '%')
                       ->orWhere('expenses.custom_value2', 'like', '%' . $filter . '%')

@@ -172,8 +172,8 @@ class ImportTest extends TestCase
                 'payment_method_id' => $this->payment_type->id,
                 'amount'            => $data['amount'],
                 'reference_number'  => $data['reference number'],
-                'public_notes'      => $data['public notes'],
-                'private_notes'     => $data['private notes']
+                'customer_note'      => $data['public notes'],
+                'internal_note'     => $data['private notes']
             ]
         );
     }
@@ -234,8 +234,8 @@ class ImportTest extends TestCase
                 'city'          => $data['city'],
                 'vat_number'    => $data['vat number'],
                 'country_id'    => 1,
-                'public_notes'  => $data['public notes'],
-                'private_notes' => $data['private notes'],
+                'customer_note'  => $data['public notes'],
+                'internal_note' => $data['private notes'],
                 'industry_id'   => $industry->id
             ]
         );
@@ -309,8 +309,8 @@ class ImportTest extends TestCase
                 'terms'         => $data['terms'],
                 'date'          => $data['date'],
                 'due_date'      => $data['due date'],
-                'public_notes'  => $data['public notes'],
-                'private_notes' => $data['private notes']
+                'customer_note'  => $data['public notes'],
+                'internal_note' => $data['private notes']
             ]
         );
 
@@ -425,8 +425,8 @@ class ImportTest extends TestCase
                 'name'          => $data['name'],
                 'website'       => $data['website'],
                 'vat_number'    => $data['vat_number'],
-                'public_notes'  => $data['public notes'],
-                'private_notes' => $data['private notes']
+                'customer_note'  => $data['public notes'],
+                'internal_note' => $data['private notes']
             ]
         );
 

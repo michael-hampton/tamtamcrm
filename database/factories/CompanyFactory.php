@@ -28,8 +28,8 @@ class CompanyFactory extends Factory
         return [
             'user_id'       => $user->id,
             'account_id'    => 1,
-            'private_notes' => null,
-            'public_notes'  => null,
+            'internal_note' => null,
+            'customer_note'  => null,
             'hide'          => false,
             'assigned_to'   => null,
             'industry_id'   => 1,

@@ -61,8 +61,8 @@ export default class InvoiceModel extends BaseModel {
             partial: 0,
             partial_due_date: moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
             has_partial: false,
-            public_notes: '',
-            private_notes: '',
+            customer_note: '',
+            internal_note: '',
             terms: '',
             footer: '',
             visible: 'collapse',
@@ -154,7 +154,7 @@ export default class InvoiceModel extends BaseModel {
             return ''
         }
 
-        return this.customer.public_notes || ''
+        return this.customer.customer_note || ''
     }
 
     get default_terms () {

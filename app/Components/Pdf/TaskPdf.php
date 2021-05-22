@@ -50,7 +50,7 @@ class TaskPdf extends PdfBuilder
              ->buildAccount($this->entity->account)
              ->setTerms($this->entity->terms)
              ->setFooter($this->entity->footer)
-             ->setNotes($this->entity->public_notes)
+             ->setNotes($this->entity->customer_note)
              ->buildTask();
 
         foreach ($this->data as $key => $value) {

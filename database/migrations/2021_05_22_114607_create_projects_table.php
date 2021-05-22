@@ -23,14 +23,14 @@ class CreateProjectsTable extends Migration
             $table->unsignedInteger('account_id')->index();
             $table->unsignedInteger('user_id')->index();
             $table->unsignedInteger('assigned_to')->nullable();
-            $table->text('private_notes')->nullable();
+            $table->text('internal_note')->nullable();
             $table->date('due_date')->nullable();
             $table->double('budgeted_hours')->nullable();
             $table->softDeletes();
             $table->tinyInteger('hide')->default(0);
             $table->double('task_rate')->nullable();
             $table->string('number')->nullable();
-            $table->text('public_notes')->nullable();
+            $table->text('customer_note')->nullable();
             $table->text('custom_value1')->nullable();
             $table->text('custom_value2')->nullable();
             $table->text('custom_value3')->nullable();

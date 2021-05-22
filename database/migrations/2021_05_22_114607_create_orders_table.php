@@ -25,8 +25,8 @@ class CreateOrdersTable extends Migration
             $table->decimal('sub_total', 16, 4);
             $table->decimal('discount_total', 16, 4);
             $table->decimal('total', 16, 4);
-            $table->text('public_notes')->nullable();
-            $table->text('private_notes')->nullable();
+            $table->text('customer_note')->nullable();
+            $table->text('internal_note')->nullable();
             $table->text('terms')->nullable();
             $table->text('footer')->nullable();
             $table->text('line_items')->nullable();

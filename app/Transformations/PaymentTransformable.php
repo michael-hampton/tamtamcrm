@@ -42,7 +42,7 @@ trait PaymentTransformable
             'task_id'              => (int)$payment->task_id,
             'company_id'           => (int)$payment->company_id,
             'applied'              => (float)$payment->applied,
-            'private_notes'        => $payment->private_notes ?: '',
+            'internal_note'        => $payment->internal_note ?: '',
             'currency_id'          => (int)$payment->currency_id ?: null,
             'exchange_rate'        => (float)$payment->exchange_rate ?: 1,
             'exchange_currency_id' => (float)$payment->exchange_currency_id ?: '',

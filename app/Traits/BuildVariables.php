@@ -11,12 +11,12 @@ trait BuildVariables
 {
     public function formatNotes($entity)
     {
-        if (isset($entity->public_notes) && strlen($entity->public_notes) > 0) {
-            $entity->public_notes = $this->parseVariables($entity->public_notes, $entity);
+        if (isset($entity->customer_note) && strlen($entity->customer_note) > 0) {
+            $entity->customer_note = $this->parseVariables($entity->customer_note, $entity);
         }
 
-        if (isset($entity->private_notes) && strlen($entity->private_notes) > 0) {
-            $entity->private_notes = $this->parseVariables($entity->private_notes, $entity);
+        if (isset($entity->internal_note) && strlen($entity->internal_note) > 0) {
+            $entity->internal_note = $this->parseVariables($entity->internal_note, $entity);
         }
 
         return $entity;
@@ -52,8 +52,8 @@ trait BuildVariables
         if (empty($entity->footer) && !empty($entity->customer->getSetting($class . '_footer'))) {
             $entity->footer = $entity->customer->getSetting($class . '_footer');
         }
-        if (empty($entity->public_notes) && !empty($entity->customer->public_notes)) {
-            $entity->public_notes = $entity->customer->public_notes;
+        if (empty($entity->customer_note) && !empty($entity->customer->customer_note)) {
+            $entity->customer_note = $entity->customer->customer_note;
         }
 
         return $entity;

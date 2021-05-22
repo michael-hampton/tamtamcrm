@@ -345,8 +345,8 @@ class UpdateRecurringInvoice extends Component {
                         customer_id: r.data.customer_id,
                         user_id: r.data.user_id,
                         company_id: r.data.company_id,
-                        public_notes: r.data.public_notes,
-                        private_notes: r.data.private_notes,
+                        customer_note: r.data.customer_note,
+                        internal_note: r.data.internal_note,
                         terms: r.data.terms,
                         footer: r.data.footer,
                         status_id: parseInt(r.data.status_id)
@@ -372,14 +372,14 @@ class UpdateRecurringInvoice extends Component {
             if (!this.state.modalOpen && !this.state.id) {
                 this.setState({
                     changesMade: false,
-                    public_notes: '',
+                    customer_note: '',
                     tax: null,
                     tax_rate_name: '',
                     tax_rate_name_2: '',
                     tax_rate_name_3: '',
                     tax_2: null,
                     tax_3: null,
-                    private_notes: '',
+                    internal_note: '',
                     number_of_occurances: 1,
                     transaction_fee: null,
                     shipping_cost: null,
@@ -526,8 +526,8 @@ class UpdateRecurringInvoice extends Component {
             sub_total: this.state.sub_total,
             tax_total: this.state.tax_total,
             discount_total: this.state.discount_total,
-            public_notes: this.state.public_notes,
-            private_notes: this.state.private_notes,
+            customer_note: this.state.customer_note,
+            internal_note: this.state.internal_note,
             po_number: this.state.po_number,
             terms: this.state.terms,
             footer: this.state.footer,
@@ -742,12 +742,12 @@ class UpdateRecurringInvoice extends Component {
         const notes = !this.state.is_mobile
             ? <NoteTabs model={this.invoiceModel}
                 show_exchange={this.invoiceModel.account_currency.exchange_rate !== this.state.exchange_rate}
-                invoice={this.state} private_notes={this.state.private_notes}
-                public_notes={this.state.public_notes}
+                invoice={this.state} internal_note={this.state.internal_note}
+                customer_note={this.state.customer_note}
                 terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}
                 handleInput={this.handleInput}/>
-            : <Notes model={this.invoiceModel} private_notes={this.state.private_notes}
-                public_notes={this.state.public_notes}
+            : <Notes model={this.invoiceModel} internal_note={this.state.internal_note}
+                customer_note={this.state.customer_note}
                 terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}
                 handleInput={this.handleInput}/>
 

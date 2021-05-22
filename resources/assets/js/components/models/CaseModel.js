@@ -29,7 +29,7 @@ export default class CaseModel extends BaseModel {
             customer_id: '',
             priority_id: '',
             category_id: '',
-            private_notes: '',
+            internal_note: '',
             loading: false,
             errors: [],
             invitations: [],

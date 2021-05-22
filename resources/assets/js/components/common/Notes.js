@@ -7,27 +7,27 @@ export default function Notes (props) {
         <Card>
             <CardHeader>{translations.notes}</CardHeader>
             <CardBody>
-                {Object.prototype.hasOwnProperty.call(props, 'private_notes') &&
+                {Object.prototype.hasOwnProperty.call(props, 'internal_note') &&
                 <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                    <Label>{translations.private_notes}</Label>
+                    <Label>{translations.internal_note}</Label>
                     <Input
-                        value={props.private_notes}
+                        value={props.internal_note}
                         type='textarea'
-                        name='private_notes'
-                        id='private_notes'
+                        name='internal_note'
+                        id='internal_note'
                         onChange={props.handleInput}
                     />
                 </FormGroup>
                 }
 
-                {Object.prototype.hasOwnProperty.call(props, 'public_notes') &&
+                {Object.prototype.hasOwnProperty.call(props, 'customer_note') &&
                 <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                    <Label>{translations.public_notes}</Label>
+                    <Label>{translations.customer_note}</Label>
                     <Input
-                        value={props.public_notes}
+                        value={props.customer_note}
                         type='textarea'
-                        name='public_notes'
-                        id='public_notes'
+                        name='customer_note'
+                        id='customer_note'
                         onChange={props.handleInput}
                     />
                 </FormGroup>

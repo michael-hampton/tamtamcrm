@@ -41,7 +41,7 @@ export default class PaymentModel extends BaseModel {
             custom_value2: '',
             custom_value3: '',
             custom_value4: '',
-            private_notes: '',
+            internal_note: '',
             errors: [],
             send_email: this.settings.should_send_email_for_manual_payment || false,
             selectedInvoices: [],

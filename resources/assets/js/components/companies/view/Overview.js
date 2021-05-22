@@ -67,15 +67,15 @@ export default function Overview (props) {
         <ViewEntityHeader heading_1={translations.amount_paid} value_1={props.entity.amount_paid}
             heading_2={translations.balance} value_2={props.entity.balance}/>
 
-        {!!props.entity.private_notes.length &&
+        {!!props.entity.internal_note.length &&
         <Row>
-            <InfoMessage icon={icons.lock} message={props.entity.private_notes}/>
+            <InfoMessage icon={icons.lock} message={props.entity.internal_note}/>
         </Row>
         }
 
-        {!!props.entity.public_notes.length &&
+        {!!props.entity.customer_note.length &&
         <Row>
-            <InfoMessage message={props.entity.public_notes}/>
+            <InfoMessage message={props.entity.customer_note}/>
         </Row>
         }
 

@@ -74,7 +74,7 @@ class GenerateHtml
         $html = $this->addCostsToPdf($entity, $entity_string, $design, $html);
 
         if ($entity_string === 'dispatch_note') {
-            $html = str_replace(['$entity.public_notes', '$terms_label', '$terms', '$footer'], '', $html);
+            $html = str_replace(['$entity.customer_note', '$terms_label', '$terms', '$footer'], '', $html);
         }
 
         $entity_class = (new ReflectionClass($entity))->getShortName();

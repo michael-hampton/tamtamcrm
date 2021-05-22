@@ -27,8 +27,8 @@ class CreateLeadsTable extends Migration
             $table->string('zip')->nullable();
             $table->string('city')->nullable();
             $table->string('website')->nullable();
-            $table->text('public_notes')->nullable();
-            $table->text('private_notes')->nullable();
+            $table->text('customer_note')->nullable();
+            $table->text('internal_note')->nullable();
             $table->string('name');
             $table->string('description');
             $table->string('phone', 100);

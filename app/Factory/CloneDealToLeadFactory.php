@@ -26,8 +26,8 @@ class CloneDealToLeadFactory
         $lead->assigned_to = $deal->assigned_to;
         $lead->account_id = $deal->account_id;
         $lead->user_id = $user->id;
-        $lead->private_notes = $deal->private_notes;
-        $lead->public_notes = $deal->public_notes;
+        $lead->internal_note = $deal->internal_note;
+        $lead->customer_note = $deal->customer_note;
 
         return $lead;
     }

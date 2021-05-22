@@ -99,8 +99,8 @@ class AddCompany extends React.Component {
         formData.append('currency_id', this.state.currency_id)
         formData.append('industry_id', this.state.industry_id)
         formData.append('assigned_to', this.state.assigned_to)
-        formData.append('private_notes', this.state.private_notes)
-        formData.append('public_notes', this.state.public_notes)
+        formData.append('internal_note', this.state.internal_note)
+        formData.append('customer_note', this.state.customer_note)
         formData.append('custom_value1', this.state.custom_value1)
         formData.append('custom_value2', this.state.custom_value2)
         formData.append('custom_value3', this.state.custom_value3)
@@ -220,9 +220,9 @@ class AddCompany extends React.Component {
                                 <SettingsForm errors={this.state.errors} company={this.state}
                                     handleInput={this.handleInput}/>
 
-                                <Notes handleInput={this.handleInput} public_notes={this.state.public_notes}
+                                <Notes handleInput={this.handleInput} customer_note={this.state.customer_note}
                                     errors={this.state.errors}
-                                    private_notes={this.state.private_notes}/>
+                                    internal_note={this.state.internal_note}/>
                             </TabPane>
                         </TabContent>
                     </ModalBody>

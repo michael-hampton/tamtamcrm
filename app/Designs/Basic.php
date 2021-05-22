@@ -37,7 +37,7 @@ $table_here
 <div style="margin-top: 65px">
 <div class="inline-block col-6" style="width: 70%">
     <div class="">
-        <p>$entity.public_notes</p>
+        <p>$entity.customer_note</p>
         <div class="pt-4">
             <p class="font-weight-bold">$terms_label</p>
             <p>$terms</p>

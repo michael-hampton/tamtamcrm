@@ -38,8 +38,8 @@ class CreateDealsTable extends Migration
             $table->text('custom_value4')->nullable();
             $table->unsignedInteger('invoice_id')->nullable()->index('invoice_id');
             $table->unsignedInteger('user_id')->default(9874)->index('user_id');
-            $table->text('public_notes')->nullable();
-            $table->text('private_notes')->nullable();
+            $table->text('internal_note')->nullable();
+            $table->text('customer_note')->nullable();
             $table->integer('number')->nullable();
             $table->unsignedInteger('design_id')->nullable();
             $table->integer('order_id')->nullable();

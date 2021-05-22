@@ -47,10 +47,10 @@ export default class Details extends Component {
                 </FormGroup>
 
                 <FormGroup>
-                    <Label for="examplePassword">{translations.private_notes}</Label>
-                    <Input value={this.props.case.private_notes} type="textarea"
-                        name="private_notes"
-                        onChange={this.props.handleInput} id="private_notes"
+                    <Label for="examplePassword">{translations.internal_note}</Label>
+                    <Input value={this.props.case.internal_note} type="textarea"
+                        name="internal_note"
+                        onChange={this.props.handleInput} id="internal_note"
                     />
                 </FormGroup>
 

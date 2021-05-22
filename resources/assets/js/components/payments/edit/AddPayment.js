@@ -120,7 +120,7 @@ class AddPayment extends React.Component {
             custom_value2: this.state.custom_value2,
             custom_value3: this.state.custom_value3,
             custom_value4: this.state.custom_value4,
-            private_notes: this.state.private_notes
+            internal_note: this.state.internal_note
         }
 
         this.paymentModel.save(data).then(response => {
@@ -219,7 +219,7 @@ class AddPayment extends React.Component {
                 </CardBody>
             </Card>
 
-            <Notes private_notes={this.state.private_notes} handleInput={this.handleInput}/>
+            <Notes internal_note={this.state.internal_note} handleInput={this.handleInput}/>
 
         </React.Fragment>
 

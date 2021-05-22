@@ -28,8 +28,8 @@ class DealImporter extends BaseCsvImporter
         'valued_at'     => 'valued at',
         'due_date'      => 'due date',
         'terms'         => 'terms',
-        'public_notes'  => 'public notes',
-        'private_notes' => 'private notes'
+        'customer_note'  => 'public notes',
+        'internal_note' => 'private notes'
     ];
     /**
      * @var array|string[]
@@ -40,8 +40,8 @@ class DealImporter extends BaseCsvImporter
         'valued_at'     => 'valued_at',
         'due_date'      => 'due_date',
         'terms'         => 'terms',
-        'public notes'  => 'public_notes',
-        'private notes' => 'private_notes',
+        'public notes'  => 'customer_note',
+        'private notes' => 'internal_note',
         'customer name' => 'customer_id',
         'task status'   => 'task_status_id'
     ];

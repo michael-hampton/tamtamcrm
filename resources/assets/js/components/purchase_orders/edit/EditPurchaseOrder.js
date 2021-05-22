@@ -316,8 +316,8 @@ class EditPurchaseOrder extends Component {
                         company_id: r.data.company_id,
                         user_id: r.data.user_id,
                         // company_id: r.data.company_id,
-                        public_notes: r.data.public_notes,
-                        private_notes: r.data.private_notes,
+                        customer_note: r.data.customer_note,
+                        internal_note: r.data.internal_note,
                         terms: r.data.terms,
                         footer: r.data.footer,
                         status_id: parseInt(r.data.status_id)
@@ -441,8 +441,8 @@ class EditPurchaseOrder extends Component {
             sub_total: this.state.sub_total,
             tax_total: this.state.tax_total,
             discount_total: this.state.discount_total,
-            public_notes: this.state.public_notes,
-            private_notes: this.state.private_notes,
+            customer_note: this.state.customer_note,
+            internal_note: this.state.internal_note,
             terms: this.state.terms,
             footer: this.state.footer,
             date: this.state.date,
@@ -647,11 +647,11 @@ class EditPurchaseOrder extends Component {
         const notes = !this.state.is_mobile
             ? <NoteTabs model={this.purchaseOrderModel}
                 show_exchange={this.purchaseOrderModel.account_currency.exchange_rate !== this.state.exchange_rate}
-                invoice={this.state} private_notes={this.state.private_notes}
-                public_notes={this.state.public_notes}
+                invoice={this.state} internal_note={this.state.internal_note}
+                customer_note={this.state.customer_note}
                 terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}
                 handleInput={this.handleInput}/>
-            : <Notes private_notes={this.state.private_notes} public_notes={this.state.public_notes}
+            : <Notes internal_note={this.state.internal_note} customer_note={this.state.customer_note}
                 terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}
                 handleInput={this.handleInput}/>
 

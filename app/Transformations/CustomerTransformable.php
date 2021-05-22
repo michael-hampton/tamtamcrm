@@ -68,8 +68,8 @@ trait CustomerTransformable
             'custom_value2'          => $customer->custom_value2 ?: '',
             'custom_value3'          => $customer->custom_value3 ?: '',
             'custom_value4'          => $customer->custom_value4 ?: '',
-            'private_notes'          => $customer->private_notes ?: '',
-            'public_notes'           => $customer->public_notes ?: '',
+            'internal_note'          => $customer->internal_note ?: '',
+            'customer_note'          => $customer->customer_note ?: '',
             'files'                  => !empty($files) && !empty($files[$customer->id]) ? $this->transformCustomerFiles(
                 $files[$customer->id]
             ) : [],

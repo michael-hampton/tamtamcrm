@@ -40,8 +40,8 @@ class Deal extends Model
         'custom_value2',
         'custom_value3',
         'custom_value4',
-        'public_notes',
-        'private_notes',
+        'customer_note',
+        'internal_note',
         'column_color'
     ];
 

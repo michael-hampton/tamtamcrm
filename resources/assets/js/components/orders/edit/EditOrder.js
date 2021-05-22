@@ -391,8 +391,8 @@ export default class EditOrder extends Component {
             sub_total: this.state.sub_total,
             tax_total: this.state.tax_total,
             discount_total: this.state.discount_total,
-            public_notes: this.state.public_notes,
-            private_notes: this.state.private_notes,
+            customer_note: this.state.customer_note,
+            internal_note: this.state.internal_note,
             terms: this.state.terms,
             footer: this.state.footer,
             po_number: this.state.po_number,
@@ -585,12 +585,12 @@ export default class EditOrder extends Component {
         const notes = !this.state.is_mobile
             ? <NoteTabs model={this.orderModel}
                 show_exchange={this.orderModel.account_currency.exchange_rate !== this.state.exchange_rate}
-                invoice={this.state} private_notes={this.state.private_notes}
-                public_notes={this.state.public_notes}
+                invoice={this.state} internal_note={this.state.internal_note}
+                customer_note={this.state.customer_note}
                 terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}
                 handleInput={this.handleInput}/>
-            : <Notes model={this.orderModel} private_notes={this.state.private_notes}
-                public_notes={this.state.public_notes}
+            : <Notes model={this.orderModel} internal_note={this.state.internal_note}
+                customer_note={this.state.customer_note}
                 terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}
                 handleInput={this.handleInput}/>
 
@@ -741,14 +741,14 @@ export default class EditOrder extends Component {
             if (!this.state.modalOpen && !this.state.id) {
                 this.setState({
                     changesMade: false,
-                    public_notes: '',
+                    customer_note: '',
                     tax: null,
                     tax_rate_name: '',
                     tax_rate_name_2: '',
                     tax_rate_name_3: '',
                     tax_2: null,
                     tax_3: null,
-                    private_notes: '',
+                    internal_note: '',
                     transaction_fee: null,
                     shipping_cost: null,
                     gateway_fee: null,

@@ -106,22 +106,22 @@ export default function Details (props) {
         }}/>
 
         <FormGroup>
-            <Label for="public_notes">{translations.public_notes}:</Label>
+            <Label for="customer_note">{translations.customer_note}:</Label>
             <Input
-                value={props.project.public_notes}
+                value={props.project.customer_note}
                 type='textarea'
-                name="public_notes"
+                name="customer_note"
                 errors={props.errors}
                 onChange={props.handleInput}
             />
         </FormGroup>
 
         <FormGroup>
-            <Label for="private_notes">{translations.private_notes}:</Label>
+            <Label for="internal_note">{translations.internal_note}:</Label>
             <Input
-                value={props.project.private_notes}
+                value={props.project.internal_note}
                 type='textarea'
-                name="private_notes"
+                name="internal_note"
                 errors={props.errors}
                 onChange={props.handleInput}
             />

@@ -43,8 +43,8 @@ export default class OrderModel extends BaseModel {
             date: moment(new Date()).format('YYYY-MM-DD'),
             due_date: moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
             custom_value1: '',
-            public_notes: '',
-            private_notes: '',
+            customer_note: '',
+            internal_note: '',
             footer: '',
             terms: '',
             custom_value2: '',
@@ -138,7 +138,7 @@ export default class OrderModel extends BaseModel {
             return ''
         }
 
-        return this.customer.public_notes || ''
+        return this.customer.customer_note || ''
     }
 
     get default_terms () {

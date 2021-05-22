@@ -36,7 +36,7 @@ class CreateExpensesTable extends Migration
             $table->decimal('tax_rate', 13, 3)->default(0.000);
             $table->date('date')->nullable();
             $table->date('payment_date')->nullable();
-            $table->text('public_notes')->nullable();
+            $table->text('customer_note')->nullable();
             $table->text('reference_number')->nullable();
             $table->tinyInteger('create_invoice')->default(0);
             $table->tinyInteger('include_documents')->nullable()->default(1);
@@ -46,7 +46,7 @@ class CreateExpensesTable extends Migration
             $table->string('custom_value3')->nullable();
             $table->string('custom_value4')->nullable();
             $table->integer('status_id')->default(1);
-            $table->text('private_notes')->nullable();
+            $table->text('internal_note')->nullable();
             $table->tinyInteger('is_recurring')->default(0);
             $table->dateTime('recurring_start_date')->nullable();
             $table->dateTime('recurring_end_date')->nullable();

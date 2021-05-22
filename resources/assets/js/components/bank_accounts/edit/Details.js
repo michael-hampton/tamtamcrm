@@ -65,22 +65,22 @@ export default function Details (props) {
         </FormGroup>
 
         <FormGroup>
-            <Label for="public_notes">{translations.public_notes}:</Label>
+            <Label for="customer_note">{translations.customer_note}:</Label>
             <Input
-                value={props.bank_account.public_notes}
+                value={props.bank_account.customer_note}
                 type='textarea'
-                name="public_notes"
+                name="customer_note"
                 errors={props.errors}
                 onChange={props.handleInput}
             />
         </FormGroup>
 
         <FormGroup>
-            <Label for="private_notes">{translations.private_notes}:</Label>
+            <Label for="internal_note">{translations.internal_note}:</Label>
             <Input
-                value={props.bank_account.private_notes}
+                value={props.bank_account.internal_note}
                 type='textarea'
-                name="private_notes"
+                name="internal_note"
                 errors={props.errors}
                 onChange={props.handleInput}
             />

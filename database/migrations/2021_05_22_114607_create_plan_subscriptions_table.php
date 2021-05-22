@@ -36,6 +36,7 @@ class CreatePlanSubscriptionsTable extends Migration
             $table->decimal('amount_owing', 12);
             $table->string('webhook_url')->nullable();
             $table->string('api_key')->nullable();
+            $table->unsignedInteger('user_id')->nullable();
             $table->unique(['subscriber_type', 'subscriber_id', 'plan_id'], 'subscriber_type');
         });
     }
