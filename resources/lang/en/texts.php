@@ -222,7 +222,7 @@ return [
     'invoice_terms'                                        => 'Invoice Terms',
     'credit_terms'                                         => 'Credit Terms',
     'quote_terms'                                          => 'Quote Terms',
-    'public_notes'                                         => 'Public Notes',
+    'customer_note'                                        => 'Customer Notes',
     'original_balance'                                     => 'Original Balance',
     'new_balance'                                          => 'New Balance',
     'amount'                                               => 'Amount',
