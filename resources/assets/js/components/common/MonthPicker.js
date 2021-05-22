@@ -10,8 +10,8 @@ export default class MonthPicker extends Component {
             mvalue: { year: 2014, month: 11 },
             mvalue2: { year: 2016, month: 7 },
             mrange: {
-                from: { year: this.props.start_year, month: this.props.start_month },
-                to: { year: this.props.end_year, month: this.props.end_month }
+                from: { year: parseInt(this.props.start_year), month: parseInt(this.props.start_month) },
+                to: { year: parseInt(this.props.end_year), month: parseInt(this.props.end_month) }
             },
             mrange2: { from: { year: 2013, month: 11 }, to: { year: 2016, month: 3 } }
         }
@@ -51,6 +51,8 @@ export default class MonthPicker extends Component {
         const mvalue = this.state.mvalue
         const mrange = this.state.mrange
 
+        console.log('mrange', mrange)
+
         const makeText = m => {
             if (m && m.year && m.month) return (pickerLang.months[m.month - 1] + '. ' + m.year)
             return '?'
@@ -73,6 +75,7 @@ export default class MonthPicker extends Component {
                                     month: 12
                                 }
                             }}
+                            value={mrange}
                             range={mrange}
                             lang={pickerLang}
                             theme="dark"

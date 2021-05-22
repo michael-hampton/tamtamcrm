@@ -347,7 +347,12 @@ export default class KanbanNew extends Component {
             entity.id = entity.id.toString()
 
             const statusIndex = columns.findIndex(column => parseInt(column.id) === parseInt(entity.task_status_id))
-            columns[statusIndex].items.push(entity)
+
+            if(columns[statusIndex]) {
+                columns[statusIndex].items.push(entity)
+            } else {
+                console.log('invalid status', statusIndex)
+            }
         })
 
         this.setState({ columns: columns })

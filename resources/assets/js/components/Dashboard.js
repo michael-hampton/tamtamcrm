@@ -1686,7 +1686,7 @@ export default class Dashboard extends Component {
                                 }}>
                                 <Line data={entry}
                                     options={mainChartOpts}
-                                    height={300}/>
+                                    height={300} type="bar"/>
                             </div>
                         </CardBody>
                         <CardFooter>
@@ -1891,6 +1891,8 @@ export default class Dashboard extends Component {
                 )
             })
         }
+
+        alert(moment(this.state.start_date).format('YYYY') + ' ' + moment(this.state.end_date).format('YYYY'))
 
         return <React.Fragment>
             <Row>
