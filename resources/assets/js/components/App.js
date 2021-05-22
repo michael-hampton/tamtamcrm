@@ -48,12 +48,12 @@ const expires = localStorage.getItem('expires')
 let default_logout_time = null
 
 if (Object.prototype.hasOwnProperty.call(localStorage, 'appState')) {
-    this.account_id = JSON.parse(localStorage.getItem('appState')).user.account_id
-    this.user_account = JSON.parse(localStorage.getItem('appState')).accounts.filter(account => account.account_id === parseInt(this.account_id))
-    this.settings = this.user_account[0].account.settings
+    const account_id = JSON.parse(localStorage.getItem('appState')).user.account_id
+    const user_account = JSON.parse(localStorage.getItem('appState')).accounts.filter(account => account.account_id === parseInt(account_id))
+    const settings = user_account[0].account.settings
 
-    if (this.settings.default_logout_time) {
-        default_logout_time = this.settings.default_logout_time
+    if (settings.default_logout_time) {
+        default_logout_time = settings.default_logout_time
     }
 }
 

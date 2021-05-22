@@ -37,25 +37,25 @@ class DefaultAside extends Component {
                 <Nav tabs>
                     <NavItem>
                         <NavLink className={classNames({ active: this.state.activeTab === '1' })}
-                            onClick={() => {
-                                this.toggle('1')
-                            }}>
+                                 onClick={() => {
+                                     this.toggle('1')
+                                 }}>
                             <i className="icon-list"/>
                         </NavLink>
                     </NavItem>
                     <NavItem>
                         <NavLink className={classNames({ active: this.state.activeTab === '2' })}
-                            onClick={() => {
-                                this.toggle('2')
-                            }}>
+                                 onClick={() => {
+                                     this.toggle('2')
+                                 }}>
                             <i className="icon-speech"/>
                         </NavLink>
                     </NavItem>
                     <NavItem>
                         <NavLink className={classNames({ active: this.state.activeTab === '3' })}
-                            onClick={() => {
-                                this.toggle('3')
-                            }}>
+                                 onClick={() => {
+                                     this.toggle('3')
+                                 }}>
                             <i className="icon-settings"/>
                         </NavLink>
                     </NavItem>
@@ -66,10 +66,10 @@ class DefaultAside extends Component {
                             <ListGroupItem
                                 className="list-group-item-accent-secondary bg-light text-center font-weight-bold text-muted text-uppercase small">Today</ListGroupItem>
                             <ListGroupItem action tag="a" href="#"
-                                className="list-group-item-accent-warning list-group-item-divider">
+                                           className="list-group-item-accent-warning list-group-item-divider">
                                 <div className="avatar float-right">
                                     <img className="img-avatar" src="/files/avatars/7.jpg"
-                                        alt="admin@bootstrapmaster.com"/>
+                                         alt="admin@bootstrapmaster.com"/>
                                 </div>
                                 <div>Meeting with <strong>Lucas</strong></div>
                                 <small className="text-muted mr-3">
@@ -80,10 +80,10 @@ class DefaultAside extends Component {
                                 </small>
                             </ListGroupItem>
                             <ListGroupItem action tag="a" href="#"
-                                className="list-group-item-accent-info list-group-item-divider">
+                                           className="list-group-item-accent-info list-group-item-divider">
                                 <div className="avatar float-right">
                                     <img className="img-avatar" src="/files/avatars/4.jpg"
-                                        alt="admin@bootstrapmaster.com"/>
+                                         alt="admin@bootstrapmaster.com"/>
                                 </div>
                                 <div>Skype with <strong>Megan</strong></div>
                                 <small className="text-muted mr-3">
@@ -96,7 +96,7 @@ class DefaultAside extends Component {
                             <ListGroupItem
                                 className="list-group-item-accent-secondary bg-light text-center font-weight-bold text-muted text-uppercase small">Tomorrow</ListGroupItem>
                             <ListGroupItem action tag="a" href="#"
-                                className="list-group-item-accent-danger list-group-item-divider">
+                                           className="list-group-item-accent-danger list-group-item-divider">
                                 <div>New UI Project - <strong>deadline</strong></div>
                                 <small className="text-muted mr-3"><i className="icon-calendar"/>&nbsp; 10 -
                                     11pm</small>
@@ -105,28 +105,28 @@ class DefaultAside extends Component {
                                 <div className="avatars-stack mt-2">
                                     <div className="avatar avatar-xs">
                                         <img src={'/files/avatars/2.jpg'} className="img-avatar"
-                                            alt="admin@bootstrapmaster.com"/>
+                                             alt="admin@bootstrapmaster.com"/>
                                     </div>
                                     <div className="avatar avatar-xs">
                                         <img src={'/files/avatars/3.jpg'} className="img-avatar"
-                                            alt="admin@bootstrapmaster.com"/>
+                                             alt="admin@bootstrapmaster.com"/>
                                     </div>
                                     <div className="avatar avatar-xs">
                                         <img src={'/files/avatars/4.jpg'} className="img-avatar"
-                                            alt="admin@bootstrapmaster.com"/>
+                                             alt="admin@bootstrapmaster.com"/>
                                     </div>
                                     <div className="avatar avatar-xs">
                                         <img src={'/files/avatars/5.jpg'} className="img-avatar"
-                                            alt="admin@bootstrapmaster.com"/>
+                                             alt="admin@bootstrapmaster.com"/>
                                     </div>
                                     <div className="avatar avatar-xs">
                                         <img src={'/files/avatars/6.jpg'} className="img-avatar"
-                                            alt="admin@bootstrapmaster.com"/>
+                                             alt="admin@bootstrapmaster.com"/>
                                     </div>
                                 </div>
                             </ListGroupItem>
                             <ListGroupItem action tag="a" href="#"
-                                className="list-group-item-accent-success list-group-item-divider">
+                                           className="list-group-item-accent-success list-group-item-divider">
                                 <div><strong>#10 Startups.Garden</strong> Meetup</div>
                                 <small className="text-muted mr-3"><i className="icon-calendar"/>&nbsp; 1 -
                                     3pm</small>
@@ -134,7 +134,7 @@ class DefaultAside extends Component {
                                     CA</small>
                             </ListGroupItem>
                             <ListGroupItem action tag="a" href="#"
-                                className="list-group-item-accent-primary list-group-item-divider">
+                                           className="list-group-item-accent-primary list-group-item-divider">
                                 <div><strong>Team meeting</strong></div>
                                 <small className="text-muted mr-3"><i className="icon-calendar"/>&nbsp; 4 -
                                     6pm</small>
@@ -143,31 +143,31 @@ class DefaultAside extends Component {
                                 <div className="avatars-stack mt-2">
                                     <div className="avatar avatar-xs">
                                         <img src={'assets/img/avatars/2.jpg'} className="img-avatar"
-                                            alt="admin@bootstrapmaster.com"/>
+                                             alt="admin@bootstrapmaster.com"/>
                                     </div>
                                     <div className="avatar avatar-xs">
                                         <img src={'files/avatars/3.jpg'} className="img-avatar"
-                                            alt="admin@bootstrapmaster.com"/>
+                                             alt="admin@bootstrapmaster.com"/>
                                     </div>
                                     <div className="avatar avatar-xs">
                                         <img src={'/files/avatars/4.jpg'} className="img-avatar"
-                                            alt="admin@bootstrapmaster.com"/>
+                                             alt="admin@bootstrapmaster.com"/>
                                     </div>
                                     <div className="avatar avatar-xs">
                                         <img src={'/files/avatars/5.jpg'} className="img-avatar"
-                                            alt="admin@bootstrapmaster.com"/>
+                                             alt="admin@bootstrapmaster.com"/>
                                     </div>
                                     <div className="avatar avatar-xs">
                                         <img src={'/files/avatars/6.jpg'} className="img-avatar"
-                                            alt="admin@bootstrapmaster.com"/>
+                                             alt="admin@bootstrapmaster.com"/>
                                     </div>
                                     <div className="avatar avatar-xs">
                                         <img src={'/files/avatars/7.jpg'} className="img-avatar"
-                                            alt="admin@bootstrapmaster.com"/>
+                                             alt="admin@bootstrapmaster.com"/>
                                     </div>
                                     <div className="avatar avatar-xs">
                                         <img src={'/files/avatars/8.jpg'} className="img-avatar"
-                                            alt="admin@bootstrapmaster.com"/>
+                                             alt="admin@bootstrapmaster.com"/>
                                     </div>
                                 </div>
                             </ListGroupItem>
@@ -178,7 +178,7 @@ class DefaultAside extends Component {
                             <div className="py-3 pb-5 mr-3 float-left">
                                 <div className="avatar">
                                     <img src={'/files/avatars/7.jpg'} className="img-avatar"
-                                        alt="admin@bootstrapmaster.com"/>
+                                         alt="admin@bootstrapmaster.com"/>
                                     <span className="avatar-status badge-success"/>
                                 </div>
                             </div>
@@ -197,7 +197,7 @@ class DefaultAside extends Component {
                             <div className="py-3 pb-5 mr-3 float-left">
                                 <div className="avatar">
                                     <img src={'assets/img/avatars/7.jpg'} className="img-avatar"
-                                        alt="admin@bootstrapmaster.com"/>
+                                         alt="admin@bootstrapmaster.com"/>
                                     <span className="avatar-status badge-success"/>
                                 </div>
                             </div>
@@ -216,7 +216,7 @@ class DefaultAside extends Component {
                             <div className="py-3 pb-5 mr-3 float-left">
                                 <div className="avatar">
                                     <img src={'assets/img/avatars/7.jpg'} className="img-avatar"
-                                        alt="admin@bootstrapmaster.com"/>
+                                         alt="admin@bootstrapmaster.com"/>
                                     <span className="avatar-status badge-success"/>
                                 </div>
                             </div>
@@ -235,7 +235,7 @@ class DefaultAside extends Component {
                             <div className="py-3 pb-5 mr-3 float-left">
                                 <div className="avatar">
                                     <img src={'assets/img/avatars/7.jpg'} className="img-avatar"
-                                        alt="admin@bootstrapmaster.com"/>
+                                         alt="admin@bootstrapmaster.com"/>
                                     <span className="avatar-status badge-success"/>
                                 </div>
                             </div>
@@ -254,7 +254,7 @@ class DefaultAside extends Component {
                             <div className="py-3 pb-5 mr-3 float-left">
                                 <div className="avatar">
                                     <img src={'assets/img/avatars/7.jpg'} className="img-avatar"
-                                        alt="admin@bootstrapmaster.com"/>
+                                         alt="admin@bootstrapmaster.com"/>
                                     <span className="avatar-status badge-success"/>
                                 </div>
                             </div>
@@ -276,7 +276,7 @@ class DefaultAside extends Component {
                             <div className="clearfix mt-4">
                                 <small><b>Option 1</b></small>
                                 <AppSwitch className={'float-right'} variant={'pill'} label color={'success'}
-                                    defaultChecked size={'sm'}/>
+                                           defaultChecked size={'sm'}/>
                             </div>
                             <div>
                                 <small className="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit,
@@ -290,7 +290,7 @@ class DefaultAside extends Component {
                             <div className="clearfix mt-3">
                                 <small><b>Option 2</b></small>
                                 <AppSwitch className={'float-right'} variant={'pill'} label color={'success'}
-                                    size={'sm'}/>
+                                           size={'sm'}/>
                             </div>
                             <div>
                                 <small className="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit,
@@ -304,7 +304,7 @@ class DefaultAside extends Component {
                             <div className="clearfix mt-3">
                                 <small><b>Option 3</b></small>
                                 <AppSwitch className={'float-right'} variant={'pill'} label color={'success'}
-                                    defaultChecked size={'sm'} disabled/>
+                                           defaultChecked size={'sm'} disabled/>
                                 <div>
                                     <small className="text-muted">Option disabled.</small>
                                 </div>
@@ -315,7 +315,7 @@ class DefaultAside extends Component {
                             <div className="clearfix mt-3">
                                 <small><b>Option 4</b></small>
                                 <AppSwitch className={'float-right'} variant={'pill'} label color={'success'}
-                                    defaultChecked size={'sm'}/>
+                                           defaultChecked size={'sm'}/>
                             </div>
                         </div>
 
