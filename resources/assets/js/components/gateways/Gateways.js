@@ -150,6 +150,8 @@ export default class Gateways extends Component {
     userList (props) {
         const { gateways, customer_id, group_id, gateway_ids } = this.state
 
+        console.log('gateways 2', gateways)
+
         return <GatewayItem removeFromList={this.removeFromList}
             isFiltered={this.state.customer_id.length || this.state.group_id.length}
             setList={this.setList}
@@ -281,6 +283,7 @@ export default class Gateways extends Component {
                             <CardBody>
                                 <DataTable
                                     hide_table={true}
+                                    hide_pagination={true}
                                     setSuccess={this.setSuccess.bind(this)}
                                     setError={this.setError.bind(this)}
                                     columnMapping={{ customer_id: 'CUSTOMER' }}
