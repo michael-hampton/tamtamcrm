@@ -95,6 +95,24 @@ class BaseSettings
             'default_value'    => false,
             'type'             => 'bool'
         ],
+        'show_line_item_tax_rate1'                       => [
+            'required'         => false,
+            'translated_value' => '',
+            'default_value'    => true,
+            'type'             => 'bool'
+        ],
+        'show_line_item_tax_rate2'                       => [
+            'required'         => false,
+            'translated_value' => '',
+            'default_value'    => false,
+            'type'             => 'bool'
+        ],
+        'show_line_item_tax_rate3'                       => [
+            'required'         => false,
+            'translated_value' => '',
+            'default_value'    => false,
+            'type'             => 'bool'
+        ],
         'show_tasks_onload'                    => [
             'required'         => false,
             'translated_value' => '',
