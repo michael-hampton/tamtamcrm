@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import FormBuilder from './FormBuilder'
-import { Alert, Card, CardBody } from 'reactstrap'
+import { Alert, Card, CardBody, CardHeader } from 'reactstrap'
 import axios from 'axios'
 import { translations } from '../utils/_translations'
 import { icons } from '../utils/_icons'
@@ -165,6 +165,36 @@ export default class TaxSettings extends Component {
         ]
     }
 
+    getLineItemTaxFields () {
+        const settings = this.state.settings
+
+        return [
+            [
+                {
+                    name: 'show_line_item_tax_rate1',
+                    label: translations.show_tax_rate1,
+                    type: 'switch',
+                    placeholder: translations.credit_payments_enabled,
+                    value: settings.show_tax_rate1
+                },
+                {
+                    name: 'show_line_item_tax_rate2',
+                    label: translations.show_tax_rate2,
+                    type: 'switch',
+                    placeholder: translations.credit_payments_enabled,
+                    value: settings.show_tax_rate2
+                },
+                {
+                    name: 'show_line_item_tax_rate3',
+                    label: translations.show_tax_rate3,
+                    type: 'switch',
+                    placeholder: translations.credit_payments_enabled,
+                    value: settings.show_tax_rate3
+                }
+            ]
+        ]
+    }
+
     handleCancel () {
         this.setState({ settings: this.state.cached_settings, changesMade: false })
     }
@@ -198,6 +228,16 @@ export default class TaxSettings extends Component {
                             <FormBuilder
                                 handleChange={this.handleSettingsChange}
                                 formFieldsRows={this.getTaxFields()}
+                            />
+                        </CardBody>
+                    </Card>
+
+                    <Card>
+                         <CardHeader>{translations.line_items}</CardHeader>
+                        <CardBody>
+                            <FormBuilder
+                                handleChange={this.handleSettingsChange}
+                                formFieldsRows={this.getLineItemTaxFields()}
                             />
                         </CardBody>
                     </Card>
