@@ -179,6 +179,28 @@ class LineItemEditor extends Component {
             return
         }
 
+       if (e.target.name === 'tax_2') {
+            const index = this.state.tax_rates.findIndex(taxRate => taxRate.id === parseInt(e.target.value))
+            const taxRate = this.state.tax_rates[index]
+            rows[row].tax_rate_id_2 = taxRate.id
+            rows[row].tax_rate_name_2 = taxRate.name
+            rows[row].tax_2 = taxRate.rate
+            this.props.update(rows, row)
+
+            return
+        }
+
+       if (e.target.name === 'tax_3') {
+            const index = this.state.tax_rates.findIndex(taxRate => taxRate.id === parseInt(e.target.value))
+            const taxRate = this.state.tax_rates[index]
+            rows[row].tax_rate_id_3 = taxRate.id
+            rows[row].tax_rate_name_3 = taxRate.name
+            rows[row].tax_3 = taxRate.rate
+            this.props.update(rows, row)
+
+            return
+        }
+
         if (e.target.name === 'product_id') {
             const product = this.convertProductToInvoiceItem(e.target.value, rows[row])
             rows[row].unit_price = product.cost
