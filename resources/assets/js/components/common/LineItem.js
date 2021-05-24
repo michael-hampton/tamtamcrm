@@ -167,6 +167,41 @@ class LineItem extends Component {
                             </Input>
                         </FormGroup>
                     </Col>
+
+                    {this.settings.show_line_item_tax_rate2 &&
+                    <Col md={2} data-id={index} >
+                        <FormGroup>
+                            <Label>{translations.tax}</Label>
+                            <Input key={`d_${index}`} name="tax_2" data-line={index} type='select'
+                                value={lineItem.tax_rate_id_2}
+                                onChange={this.props.onChange} className='pa2 mr2 f6 form-control'>
+                                <option value="0">No Tax</option>
+                                {this.props.tax_rates.map(tax_rate =>
+                                    <option key={tax_rate.id} data-rate={tax_rate.rate}
+                                        value={tax_rate.id}>{`${tax_rate.name} (${tax_rate.rate})`}</option>
+                                )}
+                            </Input>
+                        </FormGroup>
+                    </Col>
+                    }
+
+                    {this.settings.show_line_item_tax_rate3 &&
+                    <Col md={2} data-id={index} >
+                        <FormGroup>
+                            <Label>{translations.tax}</Label>
+                            <Input key={`d_${index}`} name="tax_3" data-line={index} type='select'
+                                value={lineItem.tax_rate_id_3}
+                                onChange={this.props.onChange} className='pa2 mr2 f6 form-control'>
+                                <option value="0">No Tax</option>
+                                {this.props.tax_rates.map(tax_rate =>
+                                    <option key={tax_rate.id} data-rate={tax_rate.rate}
+                                        value={tax_rate.id}>{`${tax_rate.name} (${tax_rate.rate})`}</option>
+                                )}
+                            </Input>
+                        </FormGroup>
+                    </Col>
+                    }
+
                     <FormGroup className="mr-4">
                         <Label>{translations.tax_total}</Label>
                         <p className='pa2 mr2 f6'>{<FormatMoney
