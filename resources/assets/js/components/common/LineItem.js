@@ -34,6 +34,9 @@ class LineItem extends Component {
 
         return this.props.rows.map((lineItem, index) => {
             let total = 0
+            const show_tax_1 = this.settings.show_line_item_tax_rate1 || lineItem.unit_tax
+            const show_tax_2 = this.settings.show_line_item_tax_rate2 || lineItem.tax2
+            const show_tax_3 = this.settings.show_line_item_tax_rate3 || lineItem.tax3
 
             if (lineItem.unit_price > 0 && lineItem.quantity > 0) {
                 total = lineItem.unit_price * lineItem.quantity
@@ -153,6 +156,7 @@ class LineItem extends Component {
                         </FormGroup>
                     </Col>
 
+                    {show_tax_1 && 
                     <Col md={2} data-id={index}>
                         <FormGroup>
                             <Label>{translations.tax}</Label>
@@ -167,8 +171,9 @@ class LineItem extends Component {
                             </Input>
                         </FormGroup>
                     </Col>
+                    }
 
-                    {this.settings.show_line_item_tax_rate2 &&
+                    {show_tax_2 &&
                     <Col md={2} data-id={index} >
                         <FormGroup>
                             <Label>{translations.tax}</Label>
@@ -185,7 +190,7 @@ class LineItem extends Component {
                     </Col>
                     }
 
-                    {this.settings.show_line_item_tax_rate3 &&
+                    {show_tax_3 &&
                     <Col md={2} data-id={index} >
                         <FormGroup>
                             <Label>{translations.tax}</Label>
