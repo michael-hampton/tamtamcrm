@@ -10,8 +10,6 @@ use App\Models\Credit;
  */
 class LineItem extends BaseCalculator
 {
-    use Tax;
-
     /**
      * @var float
      */
@@ -60,13 +58,22 @@ class LineItem extends BaseCalculator
     /**
      * @var bool
      */
-    private $inclusive_taxes = false;
+    private bool $inclusive_taxes = false;
 
-    private $tax_rate_name = '';
+    /**
+     * @var string
+     */
+    protected string $tax_rate_name = '';
 
-    private $tax_rate_id = 0;
+    /**
+     * @var int|null
+     */
+    protected ?int $tax_rate_id = 0;
 
-    private $description = '';
+    /**
+     * @var string
+     */
+    private string $description = '';
 
     /**
      * @var float
@@ -76,7 +83,7 @@ class LineItem extends BaseCalculator
     /**
      * @var float
      */
-    private $unit_tax = 0.00;
+    protected $unit_tax = 0.00;
 
     /**
      * @var float
@@ -131,16 +138,6 @@ class LineItem extends BaseCalculator
     }
 
     /**
-     * @return LineItem
-     */
-    public function calculateDiscount(): self
-    {
-        $this->total -= $this->applyDiscount($this->sub_total, $this->unit_discount, $this->is_amount_discount);
-
-        return $this;
-    }
-
-    /**
      * @return $this
      */
     public function calculateTax(): self
@@ -158,6 +155,16 @@ class LineItem extends BaseCalculator
         if ($this->inclusive_taxes) {
             $this->total += $this->tax_total;
         }
+
+        return $this;
+    }
+
+    /**
+     * @return LineItem
+     */
+    public function calculateDiscount(): self
+    {
+        $this->total -= $this->applyDiscount($this->sub_total, $this->unit_discount, $this->is_amount_discount);
 
         return $this;
     }
@@ -185,6 +192,10 @@ class LineItem extends BaseCalculator
 
     public function toObject()
     {
+        if (empty($this->tax_total)) {
+            $this->calculateTax();
+        }
+
         return (object)[
             'custom_value1'      => '',
             'custom_value2'      => '',
@@ -207,7 +218,7 @@ class LineItem extends BaseCalculator
             'sub_total'          => $this->getTotal(),
             'line_total'         => $this->getSubTotal(),
             'discount_total'     => $this->getLineDiscountTotal(),
-            'tax_total'          => $this->getLineTaxTotal(),
+            'tax_total'          => $this->tax_total,
             'is_amount_discount' => $this->isAmountDiscount(),
             'product_id'         => $this->getProductId(),
             'attribute_id'       => $this->getAttributeId(),

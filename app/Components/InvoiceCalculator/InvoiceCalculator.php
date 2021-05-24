@@ -2,14 +2,12 @@
 
 namespace App\Components\InvoiceCalculator;
 
-class InvoiceCalculator
+class InvoiceCalculator extends BaseCalculator
 {
     /**
      * @var array
      */
     private $line_items = [];
-
-    private $entity;
 
     /**
      * InvoiceCalculator constructor.

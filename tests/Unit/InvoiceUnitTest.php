@@ -93,7 +93,8 @@ class InvoiceUnitTest extends TestCase
     /** @test */
     public function it_can_show_all_the_invoices()
     {
-        Invoice::factory()->create(['customer_id' => $this->customer->id]);
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
+
         $list = (new InvoiceSearch(new InvoiceRepository(new Invoice)))->filter(
             new SearchRequest(),
             $this->main_account

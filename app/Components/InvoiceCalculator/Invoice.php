@@ -11,8 +11,6 @@ use Illuminate\Support\Facades\Log;
  */
 class Invoice extends BaseCalculator
 {
-    use Tax;
-
     /**
      * @var float
      */
@@ -51,17 +49,7 @@ class Invoice extends BaseCalculator
     /**
      * @var float
      */
-    private $tax_rate;
-
-    /**
-     * @var float
-     */
-    private $tax_2;
-
-    /**
-     * @var float
-     */
-    private $tax_3;
+    protected $tax_rate;
 
     /**
      * @var float
@@ -103,6 +91,30 @@ class Invoice extends BaseCalculator
         $this->calculateTax();
 
         $this->getCalculatedBalance();
+    }
+
+    /**
+     * @return $this
+     */
+    public function calculateTax(): self
+    {
+        $sub_total = $this->custom_tax > 0 ? $this->total + $this->custom_tax : $this->total;
+        $this->tax_total += $this->applyTax($sub_total, $this->tax_rate, $this->is_amount_discount);
+
+        if ($this->tax_2 && $this->tax_2 > 0) {
+            $this->tax_total += $this->applyTax($sub_total, $this->tax_2, $this->is_amount_discount);
+        }
+        if ($this->tax_3 && $this->tax_3 > 0) {
+            $this->tax_total += $this->applyTax($sub_total, $this->tax_3, $this->is_amount_discount);
+        }
+
+        if ($this->custom_tax > 0) {
+            $this->total = $sub_total;
+        }
+
+        $this->total += $this->tax_total;
+
+        return $this;
     }
 
     private function calculateCustomValues()
@@ -252,30 +264,6 @@ class Invoice extends BaseCalculator
     public function calculateDiscount(): self
     {
         $this->total -= $this->discount_total;
-
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
-    public function calculateTax(): self
-    {
-        $sub_total = $this->custom_tax > 0 ? $this->total + $this->custom_tax : $this->total;
-        $this->tax_total += $this->applyTax($sub_total, $this->tax_rate, $this->is_amount_discount);
-
-        if ($this->tax_2 && $this->tax_2 > 0) {
-            $this->tax_total += $this->applyTax($sub_total, $this->tax_2, $this->is_amount_discount);
-        }
-        if ($this->tax_3 && $this->tax_3 > 0) {
-            $this->tax_total += $this->applyTax($sub_total, $this->tax_3, $this->is_amount_discount);
-        }
-
-        if ($this->custom_tax > 0) {
-            $this->total = $sub_total;
-        }
-
-        $this->total += $this->tax_total;
 
         return $this;
     }
