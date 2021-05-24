@@ -1892,8 +1892,6 @@ export default class Dashboard extends Component {
             })
         }
 
-        alert(moment(this.state.start_date).format('YYYY') + ' ' + moment(this.state.end_date).format('YYYY'))
-
         return <React.Fragment>
             <Row>
                 <div style={{ position: 'absolute', right: '20px', zIndex: '99999' }}>

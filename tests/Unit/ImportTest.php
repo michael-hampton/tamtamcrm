@@ -606,7 +606,13 @@ class ImportTest extends TestCase
     {
         $mappings = $this->parameterize_array($data);
 
+        $dir = public_path('storage/import_tests');
+
         $path = public_path('storage/import_tests/' . $import_type . '.csv');
+
+        if(!is_dir($dir)) {
+            mkdir($dir);
+        }
 
         $this->str_putcsv($path, [$data]);
 
@@ -627,7 +633,7 @@ class ImportTest extends TestCase
             unlink($path);
         } catch (\Exception $e) {
             echo $e->getMessage();
-            die('here');
+            die('mike');
         }
     }
 
@@ -648,7 +654,7 @@ class ImportTest extends TestCase
             return $importer->getContent();
         } catch (\Exception $e) {
             echo $e->getMessage();
-            die('here');
+            die('mike 2');
         }
     }
 

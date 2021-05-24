@@ -73,7 +73,6 @@ export default class Gateways extends Component {
     loadCustomer () {
         axios.get(`/api/customers/${this.state.customer_id}`)
             .then((r) => {
-                console.log('data', r.data)
                 this.model = new CustomerModel(r.data)
                 this.setState({ gateway_ids: this.model.gateways })
             })
@@ -88,7 +87,6 @@ export default class Gateways extends Component {
     loadGroup () {
         axios.get(`/api/group/${this.state.group_id}`)
             .then((r) => {
-                console.log('data', r.data)
                 this.model = new GroupModel(r.data)
                 this.setState({ gateway_ids: this.model.gateways })
             })
@@ -123,6 +121,7 @@ export default class Gateways extends Component {
     }
 
     save () {
+        this.model.gateway_ids = this.state.gateway_ids
         this.model.saveSettings().then(response => {
             if (!response) {
                 this.setState({
@@ -149,8 +148,6 @@ export default class Gateways extends Component {
 
     userList (props) {
         const { gateways, customer_id, group_id, gateway_ids } = this.state
-
-        console.log('gateways 2', gateways)
 
         return <GatewayItem removeFromList={this.removeFromList}
             isFiltered={this.state.customer_id.length || this.state.group_id.length}
@@ -213,13 +210,11 @@ export default class Gateways extends Component {
 
         const has_changed = this.arraysEqual(ids, this.state.gateway_ids)
 
-        this.setState({ gateway_ids: ids }, () => {
-            if (has_changed) {
-                return
-            }
+        if(has_changed) {
+            return false
+        }
 
-            this.model.gateway_ids = ids
-            console.log('ids', ids)
+        this.setState({ gateway_ids: ids }, () => {
 
             setTimeout(() => {
                 this.save()

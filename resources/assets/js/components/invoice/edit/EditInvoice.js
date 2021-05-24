@@ -512,7 +512,8 @@ class EditInvoice extends Component {
             invitations: this.state.invitations,
             gateway_fee: this.state.gateway_fee,
             gateway_percentage: this.state.gateway_percentage,
-            late_fee_reminder: this.state.late_fee_reminder
+            late_fee_reminder: this.state.late_fee_reminder,
+            auto_billing_enabled: this.state.auto_billing_enabled
         }
     }
 

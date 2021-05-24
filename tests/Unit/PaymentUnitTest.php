@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Events\Payment\PaymentWasEmailed;
 use App\Jobs\Payment\StripeImport;
 use App\Models\CompanyGateway;
 use App\Models\CustomerContact;
@@ -35,6 +36,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 class PaymentUnitTest extends TestCase
@@ -621,7 +623,7 @@ class PaymentUnitTest extends TestCase
             ->setUnitPrice(2.0)
             ->calculateSubTotal()
             ->setUnitDiscount(0)
-            ->setUnitTax(0)
+            ->setTaxRateEntity('unit_tax', 0)
             ->setProductId($this->faker->word())
             ->setNotes($this->faker->realText(50))
             ->toObject();
@@ -757,7 +759,7 @@ class PaymentUnitTest extends TestCase
             ->setUnitPrice(2.0)
             ->calculateSubTotal()
             ->setUnitDiscount(0)
-            ->setUnitTax(0)
+            ->setTaxRateEntity('unit_tax', 0)
             ->setProductId($this->faker->word())
             ->setNotes($this->faker->realText(50))
             ->toObject();
@@ -814,6 +816,8 @@ class PaymentUnitTest extends TestCase
     /** @test */
     public function test_payment_email()
     {
+        Event::fake();
+
         $customer = Customer::find(5);
         $invoice = Invoice::factory()->create(['customer_id' => $customer->id]);
         $factory = (new PaymentFactory())->create($invoice->customer, $invoice->user, $invoice->account);
@@ -831,6 +835,8 @@ class PaymentUnitTest extends TestCase
         $payment = (new ProcessPayment())->process($data, $paymentRepo, $factory);
 
         (new DispatchEmail($payment))->sendPaymentEmails();
+
+        Event::assertDispatched(PaymentWasEmailed::class);
     }
 
     /** @test */

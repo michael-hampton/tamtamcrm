@@ -59,7 +59,7 @@ class UserCreated extends Mailable
         }
 
         return $this->to($this->user->email)
-            ->from(config('taskmanager.from_email'))
+            ->from(config('mail.from.address'), config('mail.from.name'))
             ->subject($this->subject)
             ->markdown(
                 'email.admin.new',
@@ -98,10 +98,10 @@ class UserCreated extends Mailable
         $account = !empty($this->user->account_user()) ? $this->user->account_user()->account : $this->user->accounts->first();
 
         $this->message_array = [
-            'title' => $this->subject,
-            'message' => $this->message,
-            'logo' => (new AccountViewModel($account))->logo(),
-            'url' => $this->url,
+            'title'       => $this->subject,
+            'message'     => $this->message,
+            'logo'        => (new AccountViewModel($account))->logo(),
+            'url'         => $this->url,
             'button_text' => trans('texts.new_user_created_button'),
             'show_footer' => empty($this->user->domain->plan) || !in_array(
                     $this->user->domain->plan->code,

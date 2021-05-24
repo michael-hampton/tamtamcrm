@@ -117,12 +117,11 @@ export default class CustomerModel extends BaseModel {
     }
 
     get gateway_ids () {
-        return this.settings.company_gateway_ids || ''
+        return this.fields.settings.company_gateway_ids || ''
     }
 
     set gateway_ids (ids) {
-        this.settings.company_gateway_ids = ids
-        this.fields.settings.company_gateways_ids = ids
+        this.fields.settings.company_gateway_ids = ids
     }
 
     get gateways () {
@@ -266,8 +265,8 @@ export default class CustomerModel extends BaseModel {
     }
 
     async saveSettings () {
-        if (this.settings.company_gateway_ids && this.settings.company_gateway_ids.length) {
-            this.fields.settings.company_gateway_ids = this.settings.company_gateway_ids.join(',')
+        if (this.fields.settings.company_gateway_ids && this.fields.settings.company_gateway_ids.length && Array.isArray(this.fields.settings.company_gateway_ids)) {
+            this.fields.settings.company_gateway_ids = this.fields.settings.company_gateway_ids.join(',')
         }
 
         this.save({ name: this.fields.name, settings: this.fields.settings }).then(response => {

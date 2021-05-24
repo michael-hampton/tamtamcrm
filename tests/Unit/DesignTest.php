@@ -161,8 +161,8 @@ class DesignTest extends TestCase
         $this->invoice->uses_inclusive_taxes = false;
 
         $settings = $this->invoice->customer->settings;
-        $settings->invoice_design_id = "VolejRejNm";
 
+        $settings->invoice_design_id = "VolejRejNm";
         $this->customer->settings = $settings;
         $this->customer->save();
 

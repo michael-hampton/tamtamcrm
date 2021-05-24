@@ -114,7 +114,8 @@ class Invoice extends Model
         'late_fee_reminder',
         'project_id',
         'plan_subscription_id',
-        'exchange_rate'
+        'exchange_rate',
+        'auto_billing_enabled'
     ];
     protected $dates = [
         'date_to_send',

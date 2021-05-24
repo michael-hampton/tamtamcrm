@@ -10,6 +10,8 @@ use App\Models\Credit;
  */
 class LineItem extends BaseCalculator
 {
+    use Tax;
+
     /**
      * @var float
      */
@@ -145,6 +147,14 @@ class LineItem extends BaseCalculator
     {
         $this->tax_total += $this->applyTax($this->total, $this->unit_tax, $this->is_amount_discount);
 
+        if ($this->tax_2 && $this->tax_2 > 0) {
+            $this->tax_total += $this->applyTax($this->total, $this->tax_2, $this->is_amount_discount);
+        }
+
+        if ($this->tax_3 && $this->tax_3 > 0) {
+            $this->tax_total += $this->applyTax($this->total, $this->tax_3, $this->is_amount_discount);
+        }
+
         if ($this->inclusive_taxes) {
             $this->total += $this->tax_total;
         }
@@ -180,14 +190,20 @@ class LineItem extends BaseCalculator
             'custom_value2'      => '',
             'custom_value3'      => '',
             'custom_value4'      => '',
-            'tax_rate_name'      => $this->getTaxRateName(),
-            'tax_rate_id'        => $this->getTaxRateId(),
+            'tax_rate_name'      => $this->getTaxRateEntity('tax_rate_name'),
+            'tax_rate_name_2'    => $this->getTaxRateEntity('tax_rate_name_2'),
+            'tax_rate_name_3'    => $this->getTaxRateEntity('tax_rate_name_3'),
+            'tax_rate_id'        => $this->getTaxRateEntity('tax_rate_id'),
+            'tax_rate_id_2'      => $this->getTaxRateEntity('tax_rate_id_2'),
+            'tax_rate_id_3'      => $this->getTaxRateEntity('tax_rate_id_3'),
             'type_id'            => $this->getTypeId() ?: 1,
             'quantity'           => $this->getQuantity(),
             'notes'              => $this->getNotes(),
             'unit_price'         => $this->getUnitPrice(),
             'unit_discount'      => $this->getUnitDiscount(),
-            'unit_tax'           => $this->getUnitTax(),
+            'unit_tax'           => $this->getTaxRateEntity('unit_tax'),
+            'tax_2'              => $this->getTaxRateEntity('tax_2'),
+            'tax_3'              => $this->getTaxRateEntity('tax_3'),
             'sub_total'          => $this->getTotal(),
             'line_total'         => $this->getSubTotal(),
             'discount_total'     => $this->getLineDiscountTotal(),
@@ -198,43 +214,6 @@ class LineItem extends BaseCalculator
             'transaction_fee'    => $this->getTransactionFee(),
             'description'        => $this->getDescription()
         ];
-    }
-
-    /**
-     * @return string
-     */
-    public function getTaxRateName(): string
-    {
-        return $this->tax_rate_name;
-    }
-
-    /**
-     * @param string $tax_rate_name
-     * @return LineItem
-     * @return LineItem
-     */
-    public function setTaxRateName(string $tax_rate_name): self
-    {
-        $this->tax_rate_name = $tax_rate_name;
-        return $this;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getTaxRateId(): ?int
-    {
-        return $this->tax_rate_id;
-    }
-
-    /**
-     * @param $tax_rate_id
-     * @return LineItem
-     */
-    public function setTaxRateId($tax_rate_id): self
-    {
-        $this->tax_rate_id = $tax_rate_id;
-        return $this;
     }
 
     /**
@@ -337,17 +316,6 @@ class LineItem extends BaseCalculator
     public function getUnitTax(): float
     {
         return $this->unit_tax;
-    }
-
-    /**
-     * @param float $unit_tax
-     * @return LineItem
-     * @return LineItem
-     */
-    public function setUnitTax(float $unit_tax): self
-    {
-        $this->unit_tax = $unit_tax;
-        return $this;
     }
 
     /**

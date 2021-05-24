@@ -64,7 +64,8 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, CanRe
         'custom_value3',
         'custom_value4',
         'google2fa_secret',
-        'google_id'
+        'google_id',
+        'domain_id'
     ];
 
     /**

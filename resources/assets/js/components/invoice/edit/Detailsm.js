@@ -6,6 +6,8 @@ import { translations } from '../../utils/_translations'
 import UserDropdown from '../../common/dropdowns/UserDropdown'
 import ProjectDropdown from '../../common/dropdowns/ProjectDropdown'
 import AddCustomer from '../../customers/edit/AddCustomer'
+import {icons} from "../../utils/_icons";
+import SwitchWithIcon from "../../common/SwitchWithIcon";
 
 export default class Detailsm extends Component {
     constructor (props, context) {
@@ -133,6 +135,15 @@ export default class Detailsm extends Component {
                         />
                     </FormGroup>
                     }
+
+                    <SwitchWithIcon
+                        label={translations.auto_billing_enabled}
+                        icon={icons.credit_card}
+                        checked={this.props.invoice.auto_billing_enabled}
+                        name="auto_billing_enabled"
+                        handleInput={this.props.handleInput}
+                        help_text={translations.auto_billing_enabled_help_text}
+                    />
 
                     {/* <FormGroup> */}
                     {/*    <Label>{translations.company}</Label> */}

@@ -85,6 +85,8 @@ _localizedValues.en = {
     show_tax_rate2: 'Show second tax rate',
     show_tax_rate3: 'Show third tax rate',
     configure_rates: 'Configure Rates',
+    has_taxes: 'Has Taxes',
+    net_total: 'Net Total',
     new: 'New',
     open: 'Open',
     closed: 'Closed',

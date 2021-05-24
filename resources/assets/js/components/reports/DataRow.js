@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import FormatMoney from '../common/FormatMoney'
 import FormatDate from '../common/FormatDate'
+import {translations} from "../utils/_translations";
 
 class DataRow extends Component {
     static noop () {
@@ -122,8 +123,12 @@ class DataRow extends Component {
     }
 
     formatValue (name, value) {
-        if (['amount', 'total', 'balance', 'amount_paid', 'partial', 'tax_total', 'discount_total', 'converted_amount', 'converted_balance', 'shipping_cost'].includes(name)) {
+        if (['net_total', 'tax_amount', 'amount', 'total', 'balance', 'amount_paid', 'partial', 'tax_total', 'discount_total', 'converted_amount', 'converted_balance', 'shipping_cost'].includes(name)) {
             return <FormatMoney amount={value}/>
+        }
+
+        if (['has_taxes'].includes(name)) {
+            return value === true ? translations.yes : translations.no
         }
 
         if (['date', 'due_date', 'created_at'].includes(name)) {

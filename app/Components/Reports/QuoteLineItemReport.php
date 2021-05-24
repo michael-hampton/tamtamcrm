@@ -10,11 +10,14 @@ use App\Models\Invoice;
 use App\Models\Product;
 use App\Models\Quote;
 use App\Repositories\InvoiceRepository;
+use App\Traits\Taxable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
 class QuoteLineItemReport
 {
+    use Taxable;
+
     public function build(Request $request, Account $account)
     {
         $quotes = Quote::where('account_id', $account->id)->get();
@@ -38,24 +41,33 @@ class QuoteLineItemReport
                     continue;
                 }
 
+                $currency_id = !empty($quote->currency_id) ? $quote->currency_id : $quote->customer->getSetting('currency_id');
+                $precision = !empty($currencies[$currency_id]) ? $currencies[$currency_id]->precision : 2;
+
                 $reports[] = [
-                    'quote'    => $quote->number,
-                    'product'  => $products[$line_item->product_id]->name,
-                    'quantity' => $line_item->quantity,
-                    'price'    => $line_item->unit_price,
-                    'total'    => $line_item->unit_price * $line_item->quantity
+                    'quote'          => $quote->number,
+                    'product'        => $products[$line_item->product_id]->name,
+                    'quantity'       => $line_item->quantity,
+                    'price'          => $line_item->unit_price,
+                    'total'          => $line_item->unit_price * $line_item->quantity,
+                    'discount_total' => $line_item->unit_discount,
+                    'has_taxes'      => $this->hasTaxes($line_item),
+                    'tax_rates'      => $this->getTaxRates($line_item),
+                    'tax_amount'     => $this->getLineItemTaxTotal($quote, $line_item, $precision),
+                    'net_total'      => $this->getNetTotal($quote, $line_item, $precision),
+                    'due_date'       => $quote->due_date
                 ];
 
-                if (!isset($currency_report[$currencies[$quote->currency_id]->id])) {
-                    $currency_report[$currencies[$quote->currency_id]->id] = [
-                        'name'  => $currencies[$quote->currency_id]->name,
+                if (!isset($currency_report[$currencies[$currency_id]->id])) {
+                    $currency_report[$currencies[$currency_id]->id] = [
+                        'name'  => $currencies[$currency_id]->name,
                         'total' => 0,
                         'count' => 0
                     ];
                 }
 
-                $currency_report[$currencies[$quote->currency_id]->id]['total'] += $line_item->unit_price * $line_item->quantity;
-                $currency_report[$currencies[$quote->currency_id]->id]['count']++;
+                $currency_report[$currencies[$currency_id]->id]['total'] += $line_item->unit_price * $line_item->quantity;
+                $currency_report[$currencies[$currency_id]->id]['count']++;
             }
         }
 

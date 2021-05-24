@@ -48,7 +48,7 @@ class LeadCreated implements ShouldQueue
         $this->notification_repo->save($notification, $fields);
 
         (new DispatchEmail($event->lead))->execute(
-            null,
+            $event->lead,
             $event->lead->account->getSetting('email_subject_lead'),
             $event->lead->account->getSetting('email_template_lead')
         );

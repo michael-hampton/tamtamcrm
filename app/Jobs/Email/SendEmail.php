@@ -126,8 +126,6 @@ class SendEmail implements ShouldQueue
             event(new EmailFailedToSend($this->entity, $e->getMessage()));
         }
 
-        die('here');
-
         $sent_successfully = count(Mail::failures()) === 0;
 
         if (!$sent_successfully) {

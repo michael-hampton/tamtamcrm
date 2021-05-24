@@ -33,7 +33,7 @@ class RecurringInvoiceFactory extends Factory
                 ->setQuantity($this->faker->numberBetween(1, 10))
                 ->setUnitPrice($this->faker->randomFloat(2, 1, 1000))
                 ->calculateSubTotal()->setUnitDiscount($this->faker->numberBetween(1, 10))
-                ->setUnitTax(10.00)
+                ->setTaxRateEntity('unit_tax', 10.00)
                 ->setProductId($this->faker->word())
                 ->setNotes($this->faker->realText(50))
                 ->toObject();

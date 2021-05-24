@@ -73,8 +73,6 @@ if (localStorage.getItem('access_token')) {
 
 var full = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
 
-alert(full)
-
 axios.defaults.baseURL = full
 
 localStorage.setItem('domain', full)

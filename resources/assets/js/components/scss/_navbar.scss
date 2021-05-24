@@ -150,21 +150,18 @@
 }
 
 @media(min-width: 1200px) {
-  .container:not(.sidebar-lg-show):not(.sidebar-minimized) {
-    max-width: 1400px !important;
-  }
 
-  .sidebar-lg-show:not(.sidebar-minimized) {
+  .aside-menu-off-canvas {
     .container {
-      max-width: 1140px !important;
+      max-width: 1550px !important;
     }
   }
 
-  //.sidebar-minimized {
-  //  .container {
-  //    max-width: 1140px !important;
-  //  }
-  //}
+  .sidebar-lg-show {
+    .container {
+      max-width: 1400px !important;
+    }
+  }
 }
 
 @media (min-width: 768px) {

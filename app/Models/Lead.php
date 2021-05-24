@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Rennokki\QueryCache\Traits\QueryCacheable;
 
-class Lead extends Model
+class Lead extends Model implements ContactInterface
 {
     use SoftDeletes;
     use Notifiable;

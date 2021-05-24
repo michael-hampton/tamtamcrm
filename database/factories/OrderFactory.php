@@ -32,7 +32,7 @@ class OrderFactory extends Factory
                 ->setQuantity(2)
                 ->setUnitPrice(40)
                 ->calculateSubTotal()->setUnitDiscount(0)
-                ->setUnitTax(0)
+                ->setTaxRateEntity('unit_tax', 0)
                 ->setProductId($product->id)
                 ->setNotes($this->faker->realText(50))
                 ->toObject();

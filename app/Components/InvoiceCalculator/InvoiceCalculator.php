@@ -40,9 +40,15 @@ class InvoiceCalculator
                 ->setSubTotal(isset($line_item->sub_total) ? $line_item->sub_total : 0)
                 ->setTransactionFee(isset($line_item->transaction_fee) ? $line_item->transaction_fee : 0)
                 ->setTypeId(!isset($line_item->type_id) ? 1 : $line_item->type_id)
-                ->setUnitTax(isset($line_item->unit_tax) ? $line_item->unit_tax : 0)
-                ->setTaxRateName(isset($line_item->tax_rate_name) ? $line_item->tax_rate_name : '')
-                ->setTaxRateId(isset($line_item->tax_rate_id) ? $line_item->tax_rate_id : null)
+                ->setTaxRateEntity('unit_tax', isset($line_item->unit_tax) ? $line_item->unit_tax : 0)
+                ->setTaxRateEntity('tax_2', isset($line_item->unit_tax_2) ? $line_item->unit_tax_2 : 0)
+                ->setTaxRateEntity('tax_3', isset($line_item->unit_tax_3) ? $line_item->unit_tax_3 : 0)
+                ->setTaxRateEntity('tax_rate_name', isset($line_item->tax_rate_name) ? $line_item->tax_rate_name : '')
+                ->setTaxRateEntity('tax_rate_name_2', isset($line_item->tax_rate_name_2) ? $line_item->tax_rate_name_2 : '')
+                ->setTaxRateEntity('tax_rate_name_3', isset($line_item->tax_rate_name_3) ? $line_item->tax_rate_name_3 : '')
+                ->setTaxRateEntity('tax_rate_id', isset($line_item->tax_rate_id) ? $line_item->tax_rate_id : null)
+                ->setTaxRateEntity('tax_rate_id_2', isset($line_item->tax_rate_id_2) ? $line_item->tax_rate_id_2 : null)
+                ->setTaxRateEntity('tax_rate_id_3', isset($line_item->tax_rate_id_3) ? $line_item->tax_rate_id_3 : null)
                 ->setUnitDiscount($line_item->unit_discount)
                 ->setIsAmountDiscount(
                     isset($this->entity->is_amount_discount) ? $this->entity->is_amount_discount : false
@@ -59,9 +65,9 @@ class InvoiceCalculator
         $objInvoice
             ->setBalance($this->entity->balance)
             ->setInclusiveTaxes($this->entity->account->settings->inclusive_taxes)
-            ->setTaxRate('tax_rate', $this->entity->tax_rate)
-            ->setTaxRate('tax_2', !empty($this->entity->tax_2) ? $this->entity->tax_2 : 0)
-            ->setTaxRate('tax_3', !empty($this->entity->tax_2) ? $this->entity->tax_2 : 0)
+            ->setTaxRateEntity('tax_rate', $this->entity->tax_rate)
+            ->setTaxRateEntity('tax_2', !empty($this->entity->tax_2) ? $this->entity->tax_2 : 0)
+            ->setTaxRateEntity('tax_3', !empty($this->entity->tax_2) ? $this->entity->tax_2 : 0)
             ->setDiscountTotal(isset($this->entity->discount_total) ? $this->entity->discount_total : 0)
             ->setPartial($this->entity->partial)
             ->build();

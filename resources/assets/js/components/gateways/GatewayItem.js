@@ -31,9 +31,6 @@ export default class GatewayItem extends Component {
 
     render () {
         const { customer_id, group_id, gateways, customers, gateway_ids } = this.props
-
-        console.log('gateways', gateways)
-
         const gateway_list = []
 
         if (gateway_ids.length && gateways.length) {

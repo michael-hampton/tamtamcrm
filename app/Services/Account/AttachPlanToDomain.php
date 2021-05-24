@@ -21,10 +21,10 @@ class AttachPlanToDomain
 {
     use WithFaker;
 
-    public function execute(Domain $domain): Domain
+    public function execute(Domain $domain, $code = 'STDM'): Domain
     {
         //Standard Monthly by default
-        $plan = Plan::where('code', '=', 'STDM')->first();
+        $plan = Plan::where('code', '=', $code)->first();
 
         // create plan
         $customer = Customer::find($domain->customer_id);

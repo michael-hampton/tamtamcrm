@@ -47,14 +47,14 @@ class UserEmailChangedNotification extends Mailable
         $this->buildMessage();
 
         return $this->to($this->user->email)
-                    ->from(config('taskmanager.from_email'))
-                    ->subject($this->subject)
-                    ->markdown(
-                        'email.admin.new',
-                        [
-                            'data' => $this->message_array
-                        ]
-                    );
+            ->from(config('mail.from.address'), config('mail.from.name'))
+            ->subject($this->subject)
+            ->markdown(
+                'email.admin.new',
+                [
+                    'data' => $this->message_array
+                ]
+            );
     }
 
     private function setSubject()

@@ -87,7 +87,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     public function getUsersForDepartment(Department $objDepartment): Support
     {
         return $this->model->join('department_user', 'department_user.user_id', '=', 'users.id')->select('users.*')
-                           ->where('department_user.department_id', $objDepartment->id)->groupBy('users.id')->get();
+            ->where('department_user.department_id', $objDepartment->id)->groupBy('users.id')->get();
     }
 
     public function getModel()
@@ -143,8 +143,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         }
 
         if (isset($data['company_user'])) {
-            $account_id = !empty(auth()->user()) ? auth()->user()->account_user(
-            )->account_id : $user->domain->default_account_id;
+            $account_id = !empty(auth()->user()) ? auth()->user()->account_user()->account_id : $user->domain->default_account_id;
 
             $account = Account::find($account_id);
 
@@ -155,7 +154,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
                 $user->attachUserToAccount(
                     $account,
                     $data['company_user']['is_admin'],
-                    $data['company_user']['is_owner'],
+                    $data['company_user']['is_owner'] ?? false,
                     !empty($data['company_user']['notifications']) ? $data['company_user']['notifications'] : []
                 );
             } else {
@@ -219,7 +218,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
      */
     public function deleteUser(User $user, $delete_account = false): ?User
     {
-        if ($user->isOwner()) {
+        if (!empty($user->account_user()) && $user->isOwner()) {
             return null;
         }
 

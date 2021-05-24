@@ -61,7 +61,6 @@ class CreateDatabase extends Command
             $this->info(sprintf('Successfully created %s database', $database));
         } catch (\PDOException $exception) {
             echo $exception->getMessage();
-            die('here');
             $this->error(sprintf('Failed to create %s database, %s', $database, $exception->getMessage()));
         }
 

@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Services\Account\AttachPlanToDomain;
 use App\Services\Account\ConvertAccount;
 use App\Services\Account\CreateAccount;
 use App\Components\Import\ImportAccountData;
@@ -56,11 +57,19 @@ class AccountTest extends TestCase
     /** @test */
     public function it_can_create_an_account()
     {
+        $email = $this->faker->safeEmail;
+
         $user = (new CreateAccount())->execute(
-            ['email' => $this->faker->safeEmail, 'password' => $this->faker->password]
+            ['email' => $email, 'password' => $this->faker->password]
         );
 
+        $this->assertEquals($user->email, $email);
+
         $domain = $user->domain;
+
+        (new ConvertAccount($domain->default_company))->execute();
+
+        $domain = (new AttachPlanToDomain())->execute($domain->fresh());
 
         $this->assertNotNull($domain->plan_id);
 
@@ -77,12 +86,12 @@ class AccountTest extends TestCase
         $account = Account::where('id', 1)->first();
         $user = User::find(5);
 
-        $directories = glob(public_path(config('taskmanager.downloads_dir')) . '/*' , GLOB_ONLYDIR);
+        $directories = glob(public_path(config('taskmanager.downloads_dir')) . '/*', GLOB_ONLYDIR);
         $previous_count = count($directories);
 
         dispatch(new CreateAccountDataExportJob($account, $user));
 
-        $directories = glob(public_path(config('taskmanager.downloads_dir')) . '/*' , GLOB_ONLYDIR);
+        $directories = glob(public_path(config('taskmanager.downloads_dir')) . '/*', GLOB_ONLYDIR);
         $current_count = count($directories);
 
         $this->assertEquals($current_count, $previous_count + 1);
@@ -93,14 +102,11 @@ class AccountTest extends TestCase
         $this->assertZipContains($zipPath . '/' . $files[0], 'attributes.json', json_encode($account->selectPersonalData(null, true), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
 
         //(new ImportAccountData($zipPath . '/' . $files[0], 'attributes.json'))->importData();
-
-        die('here');
-
     }
 
     public function getFullPath(string $diskName, string $filename): string
     {
-        return Storage::disk($diskName)->getDriver()->getAdapter()->getPathPrefix().'/'.$filename;
+        return Storage::disk($diskName)->getDriver()->getAdapter()->getPathPrefix() . '/' . $filename;
     }
 
     public function assertZipContains($zipFile, $expectedFileName, $expectedContents = null)
@@ -117,7 +123,7 @@ class AccountTest extends TestCase
 
         $zip->extractTo($temporaryDirectory->path($zipDirectoryName));
 
-        $expectedZipFilePath = $temporaryDirectory->path($zipDirectoryName.'/'.$expectedFileName);
+        $expectedZipFilePath = $temporaryDirectory->path($zipDirectoryName . '/' . $expectedFileName);
 
         Assert::assertFileExists($expectedZipFilePath);
 

@@ -2,6 +2,8 @@
 
 namespace Tests\Unit;
 
+use App\Services\Account\AttachPlanToDomain;
+use App\Services\Account\ConvertAccount;
 use App\Services\Account\CreateAccount;
 use App\Services\Invoice\CreatePayment;
 use App\Components\Promocodes\Promocodes;
@@ -50,6 +52,10 @@ class PlanTest extends TestCase
 
         $account = (new CreateAccount())->execute($data);
         $domain = $account->domain;
+
+        (new ConvertAccount($domain->default_company))->execute();
+
+        $domain = (new AttachPlanToDomain())->execute($domain->fresh());
 
         $subscription_plans = $domain->plans;
 

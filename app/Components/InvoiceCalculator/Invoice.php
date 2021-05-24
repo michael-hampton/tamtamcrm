@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Log;
  */
 class Invoice extends BaseCalculator
 {
+    use Tax;
+
     /**
      * @var float
      */
@@ -456,17 +458,6 @@ class Invoice extends BaseCalculator
     public function getTaxRate(): float
     {
         return $this->tax_rate;
-    }
-
-    /**
-     * @param $name
-     * @param float $tax_rate
-     * @return Invoice
-     */
-    public function setTaxRate($name, $tax_rate): self
-    {
-        $this->{$name} = $tax_rate;
-        return $this;
     }
 
     /**

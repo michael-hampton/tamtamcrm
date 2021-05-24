@@ -7,6 +7,7 @@ use App\Events\EmailFailedToSend;
 use App\Models\Invitation;
 use App\Models\User;
 use App\ViewModels\AccountViewModel;
+use App\ViewModels\UserViewModel;
 use Exception;
 use Illuminate\Mail\Mailable;
 
@@ -108,7 +109,8 @@ class AdminMailer extends Mailable
 
         try {
             return $this->to($this->user->email)
-                        ->from(config('taskmanager.from_email'))
+                        ->from(config('mail.from.address'), config('mail.from.name'))
+                        ->replyTo($this->user->email, (new UserViewModel($this->user))->name())
                         ->subject($this->subject)
                         ->markdown(
                             empty($template) ? 'email.admin.new' : 'email.template.' . $template,

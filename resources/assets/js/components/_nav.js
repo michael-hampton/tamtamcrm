@@ -20,7 +20,7 @@ const items = [
     {
         name: translations.reports,
         url: '/reports',
-        icon: 'fa fa-dashboard'
+        icon: 'fa fa-line-chart'
     },
     {
         icon: 'fa fa-cog',
