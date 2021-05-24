@@ -34,6 +34,16 @@ export const CalculateTotal = (props) => {
             const tax_percentage = lexieTotal * product.unit_tax / 100
             tax_total += tax_percentage
         }
+
+        if (product.tax_2 && product.tax_2 > 0 && invoice.tax === 0) {
+            const tax_percentage = lexieTotal * product.tax_2 / 100
+            tax_total += tax_percentage
+        }
+
+        if (product.tax_3 && product.tax_3 > 0 && invoice.tax === 0) {
+            const tax_percentage = lexieTotal * product.tax_3 / 100
+            tax_total += tax_percentage
+        }
     })
 
     if (invoice.discount > 0) {
@@ -105,6 +115,7 @@ export const CalculateLineTotals = (props) => {
     }
 
     let total = price
+    let tax_total = 0
     const unit_discount = currentRow.unit_discount
     const unit_tax = currentRow.unit_tax
     const uses_inclusive_taxes = settings.inclusive_taxes
@@ -128,7 +139,25 @@ export const CalculateLineTotals = (props) => {
 
     if (unit_tax > 0 && invoice.tax === 0) {
         const tax_percentage = lexieTotal * unit_tax / 100
-        currentRow.tax_total = tax_percentage
+        tax_total += tax_percentage
+
+        if (uses_inclusive_taxes === false) {
+            total += tax_percentage
+        }
+    }
+
+    if (currentRow.tax_2 > 0 && invoice.tax === 0) {
+        const tax_percentage = lexieTotal * currentRow.tax_2 / 100
+        tax_total += tax_percentage
+
+        if (uses_inclusive_taxes === false) {
+            total += tax_percentage
+        }
+    }
+
+    if (currentRow.tax_3 > 0 && invoice.tax === 0) {
+        const tax_percentage = lexieTotal * currentRow.tax_3 / 100
+        tax_total += tax_percentage
 
         if (uses_inclusive_taxes === false) {
             total += tax_percentage
@@ -136,6 +165,7 @@ export const CalculateLineTotals = (props) => {
     }
 
     currentRow.sub_total = total
+    currentRow.tax_total = tax_total
 
     return currentRow
 }
