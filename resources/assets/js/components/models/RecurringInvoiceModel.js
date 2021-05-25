@@ -2,13 +2,14 @@ import axios from 'axios'
 import moment from 'moment'
 import BaseModel, { EntityStats, LineItem } from './BaseModel'
 import { consts } from '../utils/_consts'
+import InvoiceCalculations from "./InvoiceCalculations";
 
 export const invoice_pdf_fields = ['$invoice.invoice_number', '$invoice.po_number', '$invoice.invoice_date', '$invoice.due_date',
     '$invoice.balance_due', '$invoice.invoice_total', '$invoice.partial_due', '$invoice.invoice1', '$invoice.invoice2', '$invoice.invoice3',
     '$invoice.invoice4', '$invoice.surcharge1', '$invoice.surcharge2', '$invoice.surcharge3', '$invoice.surcharge4'
 ]
 
-export default class RecurringInvoiceModel extends BaseModel {
+class RecurringInvoiceModel extends BaseModel {
     constructor (data = null, customers = []) {
         super()
         this.customers = customers
@@ -453,3 +454,7 @@ export default class RecurringInvoiceModel extends BaseModel {
         return entityStats.present()
     }
 }
+
+Object.assign(RecurringInvoiceModel.prototype, InvoiceCalculations)
+
+export default RecurringInvoiceModel

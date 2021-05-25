@@ -46,7 +46,7 @@ import ProjectRepository from '../../repositories/ProjectRepository'
 import { getExchangeRateWithMap } from '../../utils/_money'
 import Recurringm from './Recurringm'
 import { toast, ToastContainer } from 'react-toastify'
-import InvoiceModel from '../../models/InvoiceModel'
+import InvoiceModel from "../../models/InvoiceModel";
 
 class UpdateRecurringInvoice extends Component {
     constructor (props, context) {
@@ -401,6 +401,7 @@ class UpdateRecurringInvoice extends Component {
                     status_id: null,
                     line_items: [],
                     invitations: [],
+                    contacts: [],
                     grace_period: 0,
                     is_never_ending: false,
                     auto_billing_enabled: false
@@ -858,7 +859,7 @@ class UpdateRecurringInvoice extends Component {
                             </Col>
 
                             <Col md={3} className="m-3">
-                                <TotalsBox invoice={this.state}/>
+                                <TotalsBox settings={this.settings} invoice={this.state}/>
                             </Col>
                         </Row>
                     </TabPane>

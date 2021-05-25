@@ -2,13 +2,14 @@ import axios from 'axios'
 import moment from 'moment'
 import BaseModel, { LineItem } from './BaseModel'
 import { consts } from '../utils/_consts'
+import InvoiceCalculations from "./InvoiceCalculations";
 
 export const quote_pdf_fields = ['$quote.number', '$quote.po_number', '$quote.quote_date', '$quote.valid_until', '$quote.balance_due', '$quote.quote_datetime', '$quote.quote_status', '$quote.quote_agent',
     '$quote.quote_total', '$quote.partial_due', '$quote.custom1', '$quote.custom2', '$quote.custom3', '$quote.custom4', '$quote.surcharge1',
     '$quote.surcharge2', '$invoice.surcharge3', '$invoice.surcharge4'
 ]
 
-export default class QuoteModel extends BaseModel {
+class QuoteModel extends BaseModel {
     constructor (data = null, customers = []) {
         super()
         this.customers = customers
@@ -425,3 +426,7 @@ export default class QuoteModel extends BaseModel {
         }
     }
 }
+
+Object.assign(QuoteModel.prototype, InvoiceCalculations)
+
+export default QuoteModel

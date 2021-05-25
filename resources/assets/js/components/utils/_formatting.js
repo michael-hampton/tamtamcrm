@@ -48,3 +48,12 @@ export function convertTimeToSeconds (time) {
 
     return (+a[0]) * 60 * 60 + (+a[1]) * 60 + (+a[2])
 }
+
+export function roundNumber (number, decimalPlaces) {
+    if (number == null || number.isNaN) {
+        return 0;
+    }
+
+    const factorOfTen = Math.pow(10, decimalPlaces)
+    return Math.round(number * factorOfTen) / factorOfTen
+}

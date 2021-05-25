@@ -47,6 +47,7 @@ class LineItemEditor extends Component {
         this.handleLineTypeChange = this.handleLineTypeChange.bind(this)
         this.loadEntities = this.loadEntities.bind(this)
         this.toggleTab = this.toggleTab.bind(this)
+        this.onMovedInvoiceItem = this.onMovedInvoiceItem.bind(this)
     }
 
     componentDidMount () {
@@ -58,6 +59,28 @@ class LineItemEditor extends Component {
 
     toggleTab (e, show) {
         this.setState({ [e.target.name]: !show })
+    }
+
+    onMovedInvoiceItem(oldIndex, newIndex) {
+        // Create a local shallow copy of the state
+        const items = this.props.invoice.line_items.slice();
+
+        // Extract that item
+        const selectedItem = items[oldIndex];
+
+        // Delete the item from the items array
+        items.splice(oldIndex, 1);
+
+        // Sort the items that are left over
+        items.sort(function(a, b) {
+            return a.id < b.id ? -1 : 1;
+        });
+
+        // Insert the selected item back into the array
+        items.splice(newIndex, 0, selectedItem);
+
+        // Set the state to the new array
+        this.props.update(items, newIndex)
     }
 
     loadProducts () {
@@ -426,6 +449,8 @@ class LineItemEditor extends Component {
                     <TabPane tabId={consts.line_item_product}>
                         {this.state.products.length &&
                         <LineItem
+                            onMovedInvoiceItem={this.onMovedInvoiceItem}
+                            model={this.props.model}
                             invoice={this.props.invoice}
                             line_type={parseInt(this.state.line_type)}
                             rows={this.props.invoice.line_items}
@@ -447,6 +472,8 @@ class LineItemEditor extends Component {
                     <TabPane tabId={consts.line_item_task}>
                         {this.state.tasks.length &&
                         <LineItem
+                            onMovedInvoiceItem={this.onMovedInvoiceItem}
+                            model={this.props.model}
                             invoice={this.props.invoice}
                             line_type={parseInt(this.state.line_type)}
                             rows={this.props.invoice.line_items}
@@ -468,6 +495,8 @@ class LineItemEditor extends Component {
                     <TabPane tabId={consts.line_item_expense}>
                         {this.state.expenses.length &&
                         <LineItem
+                            onMovedInvoiceItem={this.onMovedInvoiceItem}
+                            model={this.props.model}
                             invoice={this.props.invoice}
                             line_type={parseInt(this.state.line_type)}
                             rows={this.props.invoice.line_items}

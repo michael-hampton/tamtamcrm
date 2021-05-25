@@ -338,6 +338,7 @@ export default class EditCredit extends Component {
                     status_id: null,
                     line_items: [],
                     invitations: [],
+                    contacts: [],
                     return_to_stock: false
                 }, () => localStorage.removeItem('creditForm'))
             }
@@ -757,7 +758,7 @@ export default class EditCredit extends Component {
                             </Col>
 
                             <Col md={3} className="m-3">
-                                <TotalsBox invoice={this.state}/>
+                                <TotalsBox settings={this.settings} invoice={this.state}/>
                             </Col>
                         </Row>
                     </TabPane>

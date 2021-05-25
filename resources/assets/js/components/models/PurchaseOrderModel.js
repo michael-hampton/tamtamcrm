@@ -2,13 +2,14 @@ import axios from 'axios'
 import moment from 'moment'
 import BaseModel, { LineItem } from './BaseModel'
 import { consts } from '../utils/_consts'
+import InvoiceCalculations from "./InvoiceCalculations";
 
 export const purchase_order_pdf_fields = ['$purchaseorder.number', '$purchaseorder.po_number', '$purchaseorder.quote_date', '$purchaseorder.valid_until', '$purchaseorder.balance_due', '$purchaseorder.purchaseorder_datetime', '$purchaseorder.purchaseorder_status', '$purchaseorder.purchaseorder_agent',
     '$purchaseorder.quote_total', '$purchaseorder.partial_due', '$purchaseorder.custom1', '$purchaseorder.custom2', '$purchaseorder.custom3', '$purchaseorder.custom4', '$quote.surcharge1',
     '$quote.surcharge2', '$invoice.surcharge3', '$invoice.surcharge4'
 ]
 
-export default class PurchaseOrderModel extends BaseModel {
+class PurchaseOrderModel extends BaseModel {
     constructor (data = null, companies = []) {
         super()
         this.companies = companies
@@ -403,3 +404,7 @@ export default class PurchaseOrderModel extends BaseModel {
         }
     }
 }
+
+Object.assign(PurchaseOrderModel.prototype, InvoiceCalculations)
+
+export default PurchaseOrderModel

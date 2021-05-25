@@ -175,21 +175,21 @@ export default class TaxSettings extends Component {
                     label: translations.show_tax_rate1,
                     type: 'switch',
                     placeholder: translations.credit_payments_enabled,
-                    value: settings.show_tax_rate1
+                    value: settings.show_line_item_tax_rate1
                 },
                 {
                     name: 'show_line_item_tax_rate2',
                     label: translations.show_tax_rate2,
                     type: 'switch',
                     placeholder: translations.credit_payments_enabled,
-                    value: settings.show_tax_rate2
+                    value: settings.show_line_item_tax_rate2
                 },
                 {
                     name: 'show_line_item_tax_rate3',
                     label: translations.show_tax_rate3,
                     type: 'switch',
                     placeholder: translations.credit_payments_enabled,
-                    value: settings.show_tax_rate3
+                    value: settings.show_line_item_tax_rate3
                 }
             ]
         ]

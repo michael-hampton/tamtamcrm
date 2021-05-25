@@ -2,7 +2,7 @@ import { ListGroup, ListGroupItem } from 'reactstrap'
 import { translations } from '../../utils/_translations'
 import React from 'react'
 import FormatMoney from '../FormatMoney'
-import InvoiceModel from '../../models/InvoiceModel'
+import InvoiceModel from "../../models/InvoiceModel";
 
 export default function TotalsBox (props) {
     const listClass = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'list-group-item-dark' : ''

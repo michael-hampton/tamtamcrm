@@ -701,7 +701,7 @@ export default class EditOrder extends Component {
                             </Col>
 
                             <Col md={3} className="m-3">
-                                <TotalsBox invoice={this.state}/>
+                                <TotalsBox settings={this.settings} invoice={this.state}/>
                             </Col>
                         </Row>
                     </TabPane>
@@ -768,7 +768,8 @@ export default class EditOrder extends Component {
                     company_id: null,
                     status_id: null,
                     line_items: [],
-                    invitations: []
+                    invitations: [],
+                    contacts: []
                 }, () => localStorage.removeItem('orderForm'))
             }
         })

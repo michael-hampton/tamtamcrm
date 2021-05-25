@@ -5,13 +5,13 @@ import { translations } from '../../utils/_translations'
 import FileUploads from '../../documents/FileUploads'
 import BottomNavigationButtons from '../../common/BottomNavigationButtons'
 import CompanyModel from '../../models/CompanyModel'
-import InvoiceModel from '../../models/InvoiceModel'
 import EntityListTile from '../../common/entityContainers/EntityListTile'
 import { icons } from '../../utils/_icons'
 import Overview from './Overview'
 import InvoiceRepository from '../../repositories/InvoiceRepository'
 import ExpenseRepository from '../../repositories/ExpenseRepository'
 import AlertPopup from '../../common/AlertPopup'
+import InvoiceModel from "../../models/InvoiceModel";
 
 export default class Expense extends Component {
     constructor (props) {

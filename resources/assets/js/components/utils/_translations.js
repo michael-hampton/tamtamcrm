@@ -966,7 +966,11 @@ _localizedValues.en = {
     can_cancel_plan: 'Plan Can be cancelled',
     invoice_frequency: 'Invoice Frequency',
     hide: 'Hide',
-    account_export_completed: 'The account export has completed successfully. An email has been sent with the file'
+    account_export_completed: 'The account export has completed successfully. An email has been sent with the file',
+    move_top: 'Move Top',
+    move_up: 'Move Up',
+    move_down: 'Move Down',
+    move_bottom: 'Move Bottom',
 }
 
 let language = []

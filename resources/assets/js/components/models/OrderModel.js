@@ -2,13 +2,14 @@ import axios from 'axios'
 import moment from 'moment'
 import BaseModel, { LineItem } from './BaseModel'
 import { consts } from '../utils/_consts'
+import InvoiceCalculations from "./InvoiceCalculations";
 
 export const order_pdf_fields = ['$order.number', '$order.po_number', '$order.order_date', '$order.order_total', '$order.order_datetime', '$order.order_status', '$order.order_agent',
     '$order.balance', '$order.partial_due', '$order.custom1', '$order.custom2', '$order.custom3', '$order.custom4',
     '$order.surcharge1', '$order.surcharge2', '$order.surcharge3', '$order.surcharge4'
 ]
 
-export default class OrderModel extends BaseModel {
+class OrderModel extends BaseModel {
     constructor (data = null, customers = []) {
         super()
         this._url = '/api/order'
@@ -454,3 +455,7 @@ export default class OrderModel extends BaseModel {
         }
     }
 }
+
+Object.assign(OrderModel.prototype, InvoiceCalculations)
+
+export default OrderModel
