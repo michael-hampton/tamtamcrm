@@ -2,6 +2,8 @@
 
 namespace App\Jobs\Order;
 
+use App\Models\EmailTemplate;
+use App\Repositories\EmailTemplateRepository;
 use App\Services\Email\DispatchEmail;
 use App\Factory\CustomerFactory;
 use App\Factory\OrderFactory;
@@ -102,7 +104,8 @@ class CreateOrder implements ShouldQueue
         OrderRepository $order_repo,
         TaskRepository $task_repo,
         $is_deal
-    ) {
+    )
+    {
         $this->request = $request;
         $this->user = $user;
         $this->account = $account;
@@ -341,10 +344,9 @@ class CreateOrder implements ShouldQueue
                 $this->order
             );
 
-            $subject = $this->order->customer->getSetting('email_subject_order_received');
-            $body = $this->order->customer->getSetting('email_template_order_received');
+            $template = (new EmailTemplateRepository(new EmailTemplate()))->getTemplateForType('order_received');
 
-            (new DispatchEmail($this->order))->execute(null, $subject, $body);
+            (new DispatchEmail($this->order))->execute(null, $template->subject, $template->message);
 
             return $this->order;
         } catch (Exception $e) {

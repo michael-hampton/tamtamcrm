@@ -15,6 +15,7 @@ class EmailPreview extends Component {
     }
 
     render () {
+        console.log('preview', this.props.preview)
         return Object.keys(this.props.preview).length
             ? <div className="col-12" style={{ height: '600px', overflowY: 'auto' }}>
                 <div>{translations.subject}: {this.props.preview.subject && this.props.preview.subject.length ? parse(this.props.preview.subject) : ''}</div>

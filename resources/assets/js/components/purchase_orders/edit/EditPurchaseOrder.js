@@ -658,7 +658,7 @@ class EditPurchaseOrder extends Component {
         const documents = this.state.id ? <Documents invoice={this.state}/> : null
 
         const email_editor = this.state.id
-            ? <Emails model={this.purchaseOrderModel} emails={this.state.emails} template="email_template_purchase_order"
+            ? <Emails width="500" model={this.purchaseOrderModel} emails={this.state.emails} template="purchase_order"
                 show_editor={true}
                 customers={this.props.customers} entity_object={this.state} entity="purchaseOrder"
                 entity_id={this.state.id}/> : null

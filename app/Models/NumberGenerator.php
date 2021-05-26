@@ -3,15 +3,12 @@
 namespace App\Models;
 
 use App\Jobs\ResetNumbers;
-use App\Traits\CalculateRecurring;
 use Exception;
 use ReflectionClass;
 use ReflectionException;
 
 class NumberGenerator
 {
-    use CalculateRecurring;
-
     private $entity_obj;
 
     /**

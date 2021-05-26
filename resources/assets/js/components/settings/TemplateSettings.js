@@ -1,17 +1,18 @@
-import React, { Component } from 'react'
-import { Card, CardBody, Col, Form, Nav, NavItem, NavLink, Row, Spinner, TabContent, TabPane } from 'reactstrap'
+import React, {Component} from 'react'
+import {Card, CardBody, Col, Form, Nav, NavItem, NavLink, Row, Spinner, TabContent, TabPane} from 'reactstrap'
 import axios from 'axios'
 import EmailFields from './EmailFields'
 import EmailPreview from './EmailPreview'
-import { translations } from '../utils/_translations'
+import {translations} from '../utils/_translations'
 import Variables from './Variables'
 import SnackbarMessage from '../common/SnackbarMessage'
 import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
 import CompanyModel from '../models/CompanyModel'
+import Reminders from "./Reminders";
 
 class TemplateSettings extends Component {
-    constructor (props) {
+    constructor(props) {
         super(props)
 
         this.state = {
@@ -28,28 +29,7 @@ class TemplateSettings extends Component {
             company_logo: null,
             cached_settings: {},
             changesMade: false,
-            settings: {
-                email_template_payment: '',
-                email_subject_payment: '',
-                email_template_quote: '',
-                email_subject_quote: '',
-                email_template_credit: '',
-                email_subject_credit: '',
-                email_template_reminder1: '',
-                email_subject_reminder1: '',
-                email_template_reminder2: '',
-                email_subject_reminder2: '',
-                email_template_reminder3: '',
-                email_subject_reminder3: '',
-                email_subject_invoice: '',
-                email_template_invoice: '',
-                email_subject_lead: '',
-                email_template_lead: '',
-                email_subject_order_received: '',
-                email_subject_order_sent: '',
-                email_template_order_received: '',
-                email_template_order_sent: ''
-            }
+            templates: []
         }
 
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
@@ -59,19 +39,19 @@ class TemplateSettings extends Component {
         this.getAccount = this.getAccount.bind(this)
         this.getPreview = this.getPreview.bind(this)
 
-        this.model = new CompanyModel({ id: this.state.id })
+        this.model = new CompanyModel({id: this.state.id})
     }
 
-    componentDidMount () {
+    componentDidMount() {
         window.addEventListener('beforeunload', this.beforeunload.bind(this))
-        this.getAccount()
+        this.getTemplates()
     }
 
-    componentWillUnmount () {
+    componentWillUnmount() {
         window.removeEventListener('beforeunload', this.beforeunload.bind(this))
     }
 
-    beforeunload (e) {
+    beforeunload(e) {
         if (this.state.changesMade) {
             if (!confirm(translations.changes_made_warning)) {
                 e.preventDefault()
@@ -80,7 +60,7 @@ class TemplateSettings extends Component {
         }
     }
 
-    getAccount () {
+    getAccount() {
         const accountRepository = new AccountRepository()
         accountRepository.getById(this.state.id).then(response => {
             if (!response) {
@@ -97,38 +77,65 @@ class TemplateSettings extends Component {
         })
     }
 
-    handleChange (event) {
-        this.setState({ [event.target.name]: event.target.value })
+    getTemplates() {
+        const accountRepository = new AccountRepository()
+        accountRepository.getTemplates().then(response => {
+            if (!response) {
+                alert('error')
+                return false
+            }
+
+            this.setState({
+                loaded: true,
+                templates: response,
+                cached_settings: response
+            }, () => {
+                console.log(response)
+            })
+        })
+    }
+
+    handleChange(event) {
+        this.setState({[event.target.name]: event.target.value})
 
         if (event.target.name === 'template_type') {
             const name = event.target[event.target.selectedIndex].getAttribute('data-name')
-            this.setState({ template_name: name })
+            this.setState({template_name: name})
         }
     }
 
-    handleSettingsChange (event) {
+    handleSettingsChange(event) {
         const name = event.target.name
         let value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
         value = (value === 'true') ? true : ((value === 'false') ? false : (value))
 
-        this.setState(prevState => ({
-            changesMade: true,
-            settings: {
-                ...prevState.settings,
-                [name]: value
+        const user_id = JSON.parse(localStorage.getItem('appState')).user.id
+
+        const templates = {...this.state.templates}
+
+        if (!templates[this.state.template_type]) {
+            templates[this.state.template_type] = {
+                template: this.state.template_name,
+                account_id: parseInt(this.state.id),
+                user_id: parseInt(user_id),
+                enabled: true
             }
-        }))
+        }
+
+        templates[this.state.template_type][name] = value
+
+        this.setState({templates: templates})
     }
 
-    handleFileChange (e) {
+    handleFileChange(e) {
         this.setState({
             [e.target.name]: e.target.files[0]
         })
     }
 
-    toggle (tab) {
+    toggle(tab) {
         if (this.state.activeTab !== tab) {
-            this.setState({ activeTab: tab }, () => {
+            this.setState({activeTab: tab}, () => {
                 if (tab === '2') {
                     this.getPreview()
                 }
@@ -136,18 +143,18 @@ class TemplateSettings extends Component {
         }
     }
 
-    getPreview () {
-        this.setState({ showSpinner: true, showPreview: false })
-        const subjectKey = this.state.template_type.replace('template', 'subject')
-        const bodyKey = this.state.template_type
+    getPreview() {
+        this.setState({showSpinner: true, showPreview: false})
 
-        const subject = !this.state.settings[subjectKey] ? '' : this.state.settings[subjectKey]
-        const body = !this.state.settings[bodyKey] ? '' : this.state.settings[bodyKey]
+        const template = this.state.templates[this.state.template_type]
+
+        const subject = template.subject
+        const body = template.message
 
         axios.post('api/template', {
             subject: subject,
             body: body,
-            template: bodyKey,
+            template: this.state.template_type,
             entity_id: this.props.entity_id,
             entity: this.props.entity
         })
@@ -159,27 +166,17 @@ class TemplateSettings extends Component {
                 })
             })
             .catch((e) => {
-                this.setState({ error: true })
+                this.setState({error: true})
             })
     }
 
-    handleSubmit (e) {
-        const formData = new FormData()
-        formData.append('settings', JSON.stringify(this.state.settings))
-        formData.append('company_logo', this.state.company_logo)
-        formData.append('_method', 'PUT')
-
-        axios.post('/api/accounts/1', formData, {
-            headers: {
-                'content-type': 'multipart/form-data'
-            }
-        })
+    handleSubmitForReminder = () => {
+        axios.post('/api/reminders', {reminders: this.state.reminders})
             .then((response) => {
                 this.setState({
                     success: true,
-                    cached_settings: this.state.settings,
                     changesMade: false
-                }, () => this.model.updateSettings(this.state.settings))
+                })
             })
             .catch((error) => {
                 console.error(error)
@@ -189,24 +186,50 @@ class TemplateSettings extends Component {
             })
     }
 
-    handleCancel () {
-        this.setState({ settings: this.state.cached_settings, changesMade: false })
+    setReminders = (reminders) => {
+        this.setState({reminders: reminders})
     }
 
-    handleClose () {
-        this.setState({ success: false, error: false })
+    handleSubmit(e) {
+        if (this.state.activeTab === '3') {
+            return this.handleSubmitForReminder()
+        }
+
+        axios.post('/api/email_templates', {templates: this.state.templates})
+            .then((response) => {
+                this.setState({
+                    success: true,
+                    cached_settings: this.state.templates,
+                    changesMade: false
+                })
+            })
+            .catch((error) => {
+                console.error(error)
+                // this.setState({
+                //     errors: error.response.data.errors
+                // })
+            })
     }
 
-    render () {
-        const fields = <EmailFields return_form={true} settings={this.state.settings}
-            template_type={this.state.template_type}
-            handleSettingsChange={this.handleSettingsChange}
-            handleChange={this.handleChange}/>
+    handleCancel() {
+        this.setState({settings: this.state.cached_settings, changesMade: false})
+    }
 
-        const preview = this.state.showPreview && this.state.preview && Object.keys(this.state.preview).length && this.state.settings[this.state.template_type] && this.state.settings[this.state.template_type].length
+    handleClose() {
+        this.setState({success: false, error: false})
+    }
+
+    render() {
+        const {templates, template_type} = this.state
+        const fields = Object.keys(templates).length ? <EmailFields return_form={true} templates={templates}
+                                                                    template_type={template_type}
+                                                                    handleSettingsChange={this.handleSettingsChange}
+                                                                    handleChange={this.handleChange}/> : null
+
+        const preview = this.state.showPreview && this.state.preview && Object.keys(this.state.preview).length && this.state.templates[this.state.template_type] && Object.keys(this.state.templates[this.state.template_type]).length
             ? <EmailPreview preview={this.state.preview} entity={this.props.entity} entity_id={this.props.entity_id}
-                template_type={this.state.template_type}/> : null
-        const spinner = this.state.showSpinner === true ? <Spinner style={{ width: '3rem', height: '3rem' }}/> : null
+                            template_type={this.state.template_type}/> : null
+        const spinner = this.state.showSpinner === true ? <Spinner style={{width: '3rem', height: '3rem'}}/> : null
 
         const tabs = <Nav tabs className="nav-justified setting-tabs disable-scrollbars">
             <NavItem>
@@ -227,20 +250,29 @@ class TemplateSettings extends Component {
                     {translations.preview}
                 </NavLink>
             </NavItem>
+            <NavItem>
+                <NavLink
+                    className={this.state.activeTab === '2' ? 'active' : ''}
+                    onClick={() => {
+                        this.toggle('3')
+                    }}>
+                    {translations.reminders}
+                </NavLink>
+            </NavItem>
         </Nav>
 
         return (
             <React.Fragment>
                 <SnackbarMessage open={this.state.success} onClose={this.handleClose.bind(this)} severity="success"
-                    message={translations.settings_saved}/>
+                                 message={translations.settings_saved}/>
 
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
-                    message={translations.settings_not_saved}/>
+                                 message={translations.settings_not_saved}/>
 
                 <Header title={translations.template_settings} cancelButtonDisabled={!this.state.changesMade}
-                    handleCancel={this.handleCancel.bind(this)}
-                    handleSubmit={this.handleSubmit}
-                    tabs={tabs}/>
+                        handleCancel={this.handleCancel.bind(this)}
+                        handleSubmit={this.handleSubmit}
+                        tabs={tabs}/>
 
                 <div className="settings-container settings-container-narrow fixed-margin-mobile">
                     <TabContent activeTab={this.state.activeTab}>
@@ -268,6 +300,14 @@ class TemplateSettings extends Component {
                                 <CardBody>
                                     {spinner}
                                     {preview}
+                                </CardBody>
+                            </Card>
+                        </TabPane>
+
+                        <TabPane tabId="3">
+                            <Card>
+                                <CardBody>
+                                    <Reminders reminders={this.state.reminders} setReminders={this.setReminders}/>
                                 </CardBody>
                             </Card>
                         </TabPane>

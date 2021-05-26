@@ -652,7 +652,7 @@ export default class EditCredit extends Component {
                 handleInput={this.handleInput}/>
 
         const email_editor = this.state.id
-            ? <Emails model={this.creditModel} emails={this.state.emails} template="email_template_credit"
+            ? <Emails width="500" model={this.creditModel} emails={this.state.emails} template="credit"
                 show_editor={true}
                 customers={this.state.customers} entity_object={this.state} entity="credit"
                 entity_id={this.state.id}/> : null

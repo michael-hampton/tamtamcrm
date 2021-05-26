@@ -4,6 +4,8 @@
 namespace App\Http\Controllers;
 
 
+use App\Models\EmailTemplate;
+use App\Repositories\EmailTemplateRepository;
 use App\Services\Email\DispatchEmail;
 use App\Services\Invoice\CancelInvoice;
 use App\Services\Invoice\CreatePayment;
@@ -369,17 +371,12 @@ class BaseController extends Controller
                 $response = $this->transformEntity($entity);
                 break;
             case 'email': //done
-                $template = strtolower($this->entity_string);
-                $subject = $this->entity_string === 'PurchaseOrder'
-                    ? $entity->account->settings->email_subject_purchase_order
-                    : $entity->customer->getSetting(
-                        'email_subject_' . $template
-                    );
-                $body = $this->entity_string === 'PurchaseOrder'
-                    ? $entity->account->settings->email_template_purchase_order
-                    : $entity->customer->getSetting(
-                        'email_template_' . $template
-                    );
+                $template_type = $this->entity_string === 'PurchaseOrder' ? 'purchase_order' : strtolower($this->entity_string);
+                $template = (new EmailTemplateRepository(new EmailTemplate()))->getTemplateForType($template_type);
+
+                $subject = $template->subject;
+                $body = $template->message;
+
                 (new DispatchEmail($entity))->execute(null, $subject, $body);
                 $response = $this->transformEntity($entity);
                 break;

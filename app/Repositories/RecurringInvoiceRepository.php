@@ -12,6 +12,7 @@ use App\Requests\SearchRequest;
 use App\Search\RecurringInvoiceSearch;
 use App\Traits\BuildVariables;
 use App\Traits\CalculateRecurring;
+use App\Traits\CalculateDates;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
@@ -20,7 +21,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 class RecurringInvoiceRepository extends BaseRepository
 {
     use BuildVariables;
-    use CalculateRecurring;
+    use CalculateDates;
 
     /**
      * RecurringInvoiceRepository constructor.

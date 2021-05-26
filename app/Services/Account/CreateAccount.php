@@ -26,14 +26,16 @@ class CreateAccount
         // create domain
         $domain = (new DomainRepository(new Domain))->create($data);
 
-        if (!empty($data['email'])) {
-            $data['support_email'] = $data['email'];
-        }
-
         // create account
         $account = AccountFactory::create($domain->id);
 
-        $account = (new AccountRepository(new Account))->save($data, $account);
+        if (!empty($data['email'])) {
+            $account->support_email = $data['email'];
+        }
+
+        $account->ip = request()->ip();
+
+        $account->save();
 
         // set default account
         $domain->default_account_id = $account->id;

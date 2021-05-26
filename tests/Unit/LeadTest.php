@@ -129,7 +129,7 @@ class LeadTest extends TestCase
         // Given: we have an e-mail﻿
         $email = new TestMail(
             $sender = 'sender@example.com',
-            $subject = 'Test E-mail',
+            $subject = 'TemplateTest E-mail',
             $body = 'Some example text in the body'
         );
 

@@ -5,7 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use App\Traits\Balancer;
-use App\Traits\CalculateRecurringDateRanges;
+use App\Traits\CalculateDates;
 use App\Traits\Money;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -24,7 +24,7 @@ class RecurringQuote extends Model
     use Balancer;
     use Money;
     use HasFactory;
-    use CalculateRecurringDateRanges;
+    use CalculateDates;
     use Archiveable;
     use QueryCacheable;
     use QueryScopes;

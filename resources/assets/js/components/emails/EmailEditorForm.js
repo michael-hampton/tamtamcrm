@@ -1,13 +1,13 @@
-import React, { Component } from 'react'
-import { Button, Form, FormGroup, Input, Label } from 'reactstrap'
+import React, {Component} from 'react'
+import {Button, Form, FormGroup, Input, Label} from 'reactstrap'
 import axios from 'axios'
 import SuccessMessage from '../common/SucessMessage'
 import ErrorMessage from '../common/ErrorMessage'
-import { translations } from '../utils/_translations'
+import {translations} from '../utils/_translations'
 import CustomerModel from '../models/CustomerModel'
 
 export default class EmailEditorForm extends Component {
-    constructor (props) {
+    constructor(props) {
         super(props)
         this.state = {
             modal: false,
@@ -34,16 +34,29 @@ export default class EmailEditorForm extends Component {
         this.hasErrorFor = this.hasErrorFor.bind(this)
     }
 
-    componentDidMount () {
+    componentDidMount() {
         this.isComponentMounted = true
         this.loadTemplate()
     }
 
-    hasErrorFor (field) {
+    static getDerivedStateFromProps(props, state) {
+        if (props.subject && props.subject.length && props.subject !== state.subject) {
+            return {
+                subject: props.subject,
+                body: props.body,
+                template_type: props.template_type,
+                calculated_template: props.calculated_template
+            }
+        }
+
+        return null
+    }
+
+    hasErrorFor(field) {
         return !!this.state.errors[field]
     }
 
-    renderErrorFor (field) {
+    renderErrorFor(field) {
         if (this.hasErrorFor(field)) {
             return (
                 <span className='invalid-feedback d-inline-block'>
@@ -53,22 +66,22 @@ export default class EmailEditorForm extends Component {
         }
     }
 
-    onLoad () {
+    onLoad() {
         this.isEditorLoaded = true
         this.loadTemplate()
     }
 
-    loadTemplate () {
+    loadTemplate() {
         if (!this.isEditorLoaded || !this.isComponentMounted) return
         this.editor.loadDesign('<p>test mike</p>')
     }
 
-    handleCheck () {
-        this.setState({ mark_sent: !this.state.checked })
+    handleCheck() {
+        this.setState({mark_sent: !this.state.checked})
     }
 
-    sendMessage () {
-        this.setState({ showSuccessMessage: false, showErrorMessage: false })
+    sendMessage() {
+        this.setState({showSuccessMessage: false, showErrorMessage: false})
 
         axios.post('/api/emails', {
             to: this.state.to,
@@ -81,7 +94,7 @@ export default class EmailEditorForm extends Component {
             design: this.state.design
         })
             .then((r) => {
-                this.setState({ showSuccessMessage: true, showErrorMessage: false })
+                this.setState({showSuccessMessage: true, showErrorMessage: false})
                 console.warn(this.state.users)
             })
             .catch((error) => {
@@ -93,7 +106,7 @@ export default class EmailEditorForm extends Component {
             })
     }
 
-    handleChange (e) {
+    handleChange(e) {
         const subjectKey = this.props.calculated_template.replace('template', 'subject')
         const bodyKey = this.props.calculated_template
         const name = e.target.name === 'subject' ? subjectKey : bodyKey
@@ -104,14 +117,14 @@ export default class EmailEditorForm extends Component {
         }, () => this.props.handleSettingsChange(name, value))
     }
 
-    exportHtml () {
+    exportHtml() {
         this.editor.exportHtml(data => {
-            const { design, html } = data
-            this.setState({ design: design, html: html }, () => this.sendMessage())
+            const {design, html} = data
+            this.setState({design: design, html: html}, () => this.sendMessage())
         })
     }
 
-    render () {
+    render() {
         const successMessage = this.state.showSuccessMessage === true
             ? <SuccessMessage message={translations.successfully_sent}/> : null
         const errorMessage = this.state.showErrorMessage === true ? <ErrorMessage
@@ -128,7 +141,7 @@ export default class EmailEditorForm extends Component {
             contactList = invitations.map((invitation, index) => {
                 const contact = customerModel.findContact(invitation.contact_id)
                 return <option key={index}
-                    value={contact.id}>{contact.fullNameWithEmail}</option>
+                               value={contact.id}>{contact.fullNameWithEmail}</option>
             })
         }
 
@@ -141,7 +154,7 @@ export default class EmailEditorForm extends Component {
                 <FormGroup>
                     <Label for="exampleEmail">{translations.to}</Label>
                     <Input value={this.state.to} type="select" name="to"
-                        id="to" onChange={this.handleChange}>
+                           id="to" onChange={this.handleChange}>
                         <option value="">{translations.send_to_all}</option>
                         {contactList}
                     </Input>
@@ -152,15 +165,15 @@ export default class EmailEditorForm extends Component {
                 <FormGroup>
                     <Label for="exampleEmail">{translations.subject}</Label>
                     <Input value={this.state.subject} type="text" onChange={this.handleChange} name="subject"
-                        id="subject"
-                        placeholder={translations.subject}/>
+                           id="subject"
+                           placeholder={translations.subject}/>
                     {this.renderErrorFor('subject')}
                 </FormGroup>
 
                 <FormGroup>
                     <Label for="exampleEmail">{translations.body}</Label>
                     <Input className="textarea-lg" size="lg" type="textarea" onChange={this.handleChange}
-                        value={this.state.body} name="body"/>
+                           value={this.state.body} name="body"/>
                     {this.renderErrorFor('body')}
                 </FormGroup>
 

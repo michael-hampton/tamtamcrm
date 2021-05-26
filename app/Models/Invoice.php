@@ -7,6 +7,7 @@ use App\Services\Transaction\TriggerTransaction;
 use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use App\Traits\Balancer;
+use App\Traits\CalculateDates;
 use App\Traits\Money;
 use App\Traits\Taxable;
 use Exception;
@@ -19,7 +20,7 @@ use Rennokki\QueryCache\Traits\QueryCacheable;
 class Invoice extends Model
 {
 
-    use SoftDeletes, Money, Balancer, HasFactory, Archiveable, Taxable, QueryCacheable, QueryScopes;
+    use SoftDeletes, Money, Balancer, HasFactory, Archiveable, Taxable, QueryCacheable, QueryScopes, CalculateDates;
 
     const STATUS_DRAFT = 1;
     const STATUS_SENT = 2;

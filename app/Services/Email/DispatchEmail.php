@@ -4,6 +4,9 @@ namespace App\Services\Email;
 
 
 use App\Jobs\Email\SendEmail;
+use App\Models\EmailTemplate;
+use App\Models\Payment;
+use App\Repositories\EmailTemplateRepository;
 use Exception;
 use ReflectionClass;
 use ReflectionException;
@@ -62,8 +65,9 @@ class DispatchEmail extends BaseEmailActions
 
     public function sendPaymentEmails()
     {
-        $subject = $this->entity->customer->getSetting('email_subject_payment');
-        $body = $this->entity->customer->getSetting('email_template_payment');
+        $template = (new EmailTemplateRepository(new EmailTemplate()))->getTemplateForType('payment');
+        $subject = $template->subject;
+        $body = $template->message;
 
         $body .= '<br><br>' . $this->entity->getFormattedInvoices();
 

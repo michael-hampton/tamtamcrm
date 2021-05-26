@@ -595,7 +595,7 @@ export default class EditOrder extends Component {
                 handleInput={this.handleInput}/>
 
         const email_editor = this.state.id
-            ? <Emails model={this.orderModel} emails={this.state.emails} template="email_template_order"
+            ? <Emails width="500" model={this.orderModel} emails={this.state.emails} template="order"
                 show_editor={true}
                 customers={this.state.customers} entity_object={this.state} entity="order"
                 entity_id={this.state.id}/> : null

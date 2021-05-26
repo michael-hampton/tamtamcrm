@@ -6,6 +6,7 @@ use App\Services\Email\DispatchEmail;
 use App\Models\Task;
 use App\Repositories\TaskRepository;
 use App\Traits\CalculateRecurring;
+use App\Traits\CalculateDates;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -15,7 +16,7 @@ use Illuminate\Queue\SerializesModels;
 
 class SendRecurringTask implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, CalculateRecurring;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, CalculateDates;
 
     /**
      * @var Task

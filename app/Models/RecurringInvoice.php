@@ -5,7 +5,7 @@ namespace App\Models;
 use App\Models;
 use App\Traits\Archiveable;
 use App\Traits\Balancer;
-use App\Traits\CalculateRecurringDateRanges;
+use App\Traits\CalculateDates;
 use App\Traits\Money;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,7 +20,7 @@ use Rennokki\QueryCache\Traits\QueryCacheable;
 class RecurringInvoice extends Model
 {
     use SoftDeletes;
-    use CalculateRecurringDateRanges;
+    use CalculateDates;
     use PresentableTrait;
     use Balancer;
     use Money;

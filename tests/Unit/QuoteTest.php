@@ -8,6 +8,12 @@
 
 namespace Tests\Unit;
 
+use App\Events\Order\OrderWasEmailed;
+use App\Events\Quote\QuoteWasEmailed;
+use App\Factory\OrderFactory;
+use App\Models\EmailTemplate;
+use App\Repositories\EmailTemplateRepository;
+use App\Services\Email\DispatchEmail;
 use App\Services\Quote\Approve;
 use App\Services\Quote\ConvertQuoteToOrder;
 use App\Services\Quote\GenerateRecurringQuote;
@@ -33,6 +39,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 /**
@@ -105,20 +112,13 @@ class QuoteTest extends TestCase
         $user = User::find(5);
         $factory = (new QuoteFactory())->create($this->account, $user, $this->customer);
 
-        $data = [
-            'account_id'     => $this->account->id,
-            'user_id'        => $this->user->id,
-            'customer_id'    => $this->customer->id,
-            'total'          => $this->faker->randomFloat(),
-            'tax_total'      => $this->faker->randomFloat(),
-            'discount_total' => $this->faker->randomFloat(),
-            'status_id'      => 1,
-        ];
+        $data = $this->generateQuote();
 
         $quoteRepo = new QuoteRepository(new Quote);
         $quote = $quoteRepo->create($data, $factory);
         $this->assertInstanceOf(Quote::class, $quote);
-        $this->assertEquals($data['customer_id'], $quote->customer_id);
+        $this->assertEquals($this->customer->id, $quote->customer_id);
+        $this->assertEquals($data['number'], $quote->number);
         $this->assertNotEmpty($quote->invitations);
     }
 
@@ -126,15 +126,7 @@ class QuoteTest extends TestCase
     {
         $factory = (new QuoteFactory())->create($this->account, $this->user, $this->customer);
 
-        $data = [
-            'account_id'     => $this->account->id,
-            'user_id'        => $this->user->id,
-            'customer_id'    => $this->customer->id,
-            'total'          => $this->faker->randomFloat(),
-            'tax_total'      => $this->faker->randomFloat(),
-            'discount_total' => $this->faker->randomFloat(),
-            'status_id'      => 1,
-        ];
+        $data = $this->generateQuote();
 
         $quoteRepo = new QuoteRepository(new Quote);
         $quote = $quoteRepo->create($data, $factory);
@@ -258,5 +250,50 @@ class QuoteTest extends TestCase
         $invoice_number = $this->objNumberGenerator->getNextNumberForEntity($quote, $customer);
 
         $this->assertEquals($invoice_number, date('Y').'-00007');
+    }
+
+    private function generateQuote() {
+
+        for ($x = 0; $x < 5; $x++) {
+            $line_items[] = (new \App\Components\InvoiceCalculator\LineItem)
+                ->setQuantity($this->faker->numberBetween(1, 10))
+                ->setUnitPrice($this->faker->randomFloat(2, 1, 1000))
+                ->calculateSubTotal()->setUnitDiscount($this->faker->numberBetween(1, 10))
+                ->setTaxRateEntity('unit_tax', 10.00)
+                ->setProductId($this->faker->word())
+                ->setNotes($this->faker->realText(50))
+                ->toObject();
+        }
+
+        return [
+            'account_id'     => 1,
+            'status_id'      => Invoice::STATUS_DRAFT,
+            'number'         => $this->faker->ean8(),
+            'total'          => 800,
+            'balance'        => 800,
+            'tax_total'      => $this->faker->randomFloat(2),
+            'discount_total' => $this->faker->randomFloat(2),
+            'hide'           => false,
+            'po_number'      => $this->faker->text(10),
+            'date'           => $this->faker->date(),
+            'due_date'       => $this->faker->date(),
+            'line_items'     => $line_items,
+            'terms'          => $this->faker->text(500),
+            'gateway_fee'    => 12.99
+        ];
+    }
+
+    public function testEmail()
+    {
+        Event::fake();
+
+        $quote_data = $this->generateQuote();
+        $quote = QuoteFactory::create($this->account, $this->user, $this->customer);
+        $quote = (new QuoteRepository(new Quote()))->create($quote_data, $quote);
+
+        $template = (new EmailTemplateRepository(new EmailTemplate()))->getTemplateForType('quote');
+        (new DispatchEmail($quote))->execute(null, $template->subject, $template->message);
+
+        Event::assertDispatched(QuoteWasEmailed::class);
     }
 }

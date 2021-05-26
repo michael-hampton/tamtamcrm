@@ -708,7 +708,7 @@ class UpdateRecurringQuote extends Component {
         const documents = this.state.id ? <Documents invoice={this.state}/> : null
 
         const email_editor = this.state.id
-            ? <Emails model={this.quoteModel} emails={this.state.emails} template="email_template_quote"
+            ? <Emails width="500" model={this.quoteModel} emails={this.state.emails} template="quote"
                 show_editor={true}
                 customers={this.state.customers} entity_object={this.state} entity="recurringQuote"
                 entity_id={this.state.id}/> : null

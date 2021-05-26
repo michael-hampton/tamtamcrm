@@ -2,12 +2,15 @@
 
 namespace App\Jobs\Quote;
 
+use App\Models\EmailTemplate;
+use App\Repositories\EmailTemplateRepository;
 use App\Services\Email\DispatchEmail;
 use App\Factory\RecurringQuoteToQuoteFactory;
 use App\Models\Quote;
 use App\Models\RecurringQuote;
 use App\Repositories\QuoteRepository;
 use App\Traits\CalculateRecurring;
+use App\Traits\CalculateDates;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -17,7 +20,7 @@ use Illuminate\Queue\SerializesModels;
 
 class SendRecurringQuote implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, CalculateRecurring;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, CalculateDates;
 
     /**
      * @var Quote
@@ -51,26 +54,29 @@ class SendRecurringQuote implements ShouldQueue
     private function processRecurringInvoices()
     {
         $recurring_quotes = RecurringQuote::whereDate('date_to_send', '=', Carbon::today())
-                                          ->whereDate('date', '!=', Carbon::today())
-                                          ->where('status_id', '=', RecurringQuote::STATUS_ACTIVE)
-                                          ->whereDate('start_date', '<=', Carbon::today())
-                                          ->where('number_of_occurrances', '>', 0)
-                                          ->where(
-                                              function ($query) {
-                                                  $query->whereNull('expiry_date')
-                                                        ->orWhere('expiry_date', '>=', Carbon::today());
-                                              }
-                                          )
-                                          ->get();
+            ->whereDate('date', '!=', Carbon::today())
+            ->where('status_id', '=', RecurringQuote::STATUS_ACTIVE)
+            ->whereDate('start_date', '<=', Carbon::today())
+            ->where('number_of_occurrances', '>', 0)
+            ->where(
+                function ($query) {
+                    $query->whereNull('expiry_date')
+                        ->orWhere('expiry_date', '>=', Carbon::today());
+                }
+            )
+            ->get();
 
         foreach ($recurring_quotes as $recurring_quote) {
             $quote = RecurringQuoteToQuoteFactory::create($recurring_quote, $recurring_quote->customer);
             $quote = $this->quote_repo->save(['recurring_quote_id' => $recurring_quote->id], $quote);
             $this->quote_repo->markSent($quote);
+
+            $template = (new EmailTemplateRepository(new EmailTemplate()))->getTemplateForType('quote');
+
             (new DispatchEmail($quote))->execute(
                 null,
-                $quote->customer->getSetting('email_subject_quote'),
-                $quote->customer->getSetting('email_template_quote')
+                $template->subject,
+                $template->message
             );
 
             $recurring_quote->last_sent_date = Carbon::today();

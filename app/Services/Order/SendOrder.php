@@ -4,6 +4,8 @@
 namespace App\Services\Order;
 
 
+use App\Models\EmailTemplate;
+use App\Repositories\EmailTemplateRepository;
 use App\Services\Email\DispatchEmail;
 use App\Components\Shipping\ShippoShipment;
 use App\Events\Order\OrderWasDispatched;
@@ -23,10 +25,9 @@ class SendOrder
     public function execute()
     {
         // trigger
-        $subject = $this->order->customer->getSetting('email_subject_order_sent');
-        $body = $this->order->customer->getSetting('email_template_order_sent');
+        $template = (new EmailTemplateRepository(new EmailTemplate()))->getTemplateForType('order_sent');
 
-        (new DispatchEmail($this->order))->execute(null, $subject, $body, 'order');
+        (new DispatchEmail($this->order))->execute(null, $template->subject, $template->message, 'order');
 
         if (!empty($this->order->shipping_id)) {
             (new ShippoShipment($this->order->customer, $this->order->line_items))->createLabel($this->order);

@@ -9,13 +9,16 @@ use App\Models\Account;
 use App\Models\CompanyToken;
 use App\Models\Licence;
 use App\Models\Plan;
+use App\Models\Reminders;
 use App\Notifications\NewAccountCreated;
 use App\Repositories\AccountRepository;
 use App\Requests\Account\StoreAccountRequest;
+use App\Requests\Account\StoreReminders;
 use App\Requests\Account\UpdateAccountRequest;
 use App\Settings\AccountSettings;
 use App\Traits\UploadableTrait;
 use App\Transformations\AccountTransformable;
+use App\Transformations\RemindersTransformable;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -281,4 +284,6 @@ class AccountController extends BaseController
         dispatch(new CreateAccountDataExportJob(auth()->user()->account_user()->account, auth()->user()));
         return response()->json('Email has been sent');
     }
+
+
 }

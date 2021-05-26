@@ -33,6 +33,7 @@ class DatabaseSeeder extends Seeder
         $this->call(PaymentMethodsTableSeeder::class);
         $this->call(PaymentGatewaysTableSeeder::class);
         $this->call(PaymentGatewayTypesTableSeeder::class);
+        $this->call(EmailTemplatesTableSeeder::class);
     }
 
 }

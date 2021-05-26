@@ -826,6 +826,7 @@ _localizedValues.en = {
     clone_order_to_invoice: 'Clone Order To Invoice',
     number_counter: 'Number Counter',
     fees: 'Fees',
+    fixed: 'Fixed',
     prefix: 'Prefix',
     number_pattern: 'Number Pattern',
     expense_auto_create_invoice: 'Automatically create invoice',
@@ -971,6 +972,7 @@ _localizedValues.en = {
     move_up: 'Move Up',
     move_down: 'Move Down',
     move_bottom: 'Move Bottom',
+    reminders: 'Reminders'
 }
 
 let language = []
@@ -979,7 +981,12 @@ if (Object.prototype.hasOwnProperty.call(localStorage, 'appState')) {
     const account_id = JSON.parse(localStorage.getItem('appState')).user.account_id
     const user_account = JSON.parse(localStorage.getItem('appState')).accounts.filter(account => account.account_id === parseInt(account_id))
     const settings = user_account[0].account.settings
+
+    console.log('settings', settings)
+
     const languages = JSON.parse(localStorage.getItem('languages'))
+
+    console.log('languages', languages)
     language = settings.language_id ? languages.filter(language => language.id === parseInt(settings.language_id)) : []
 }
 

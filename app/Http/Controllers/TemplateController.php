@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Components\Pdf\PdfFactory;
+use App\Models\EmailTemplate;
+use App\Repositories\EmailTemplateRepository;
 use App\Traits\BuildVariables;
 use App\ViewModels\AccountViewModel;
 use Illuminate\Http\Response;
@@ -26,19 +28,20 @@ class TemplateController extends Controller
      */
     public function show()
     {
+        $template = (new EmailTemplateRepository(new EmailTemplate()))->getTemplateForType(request()->input('template'));
+
         // if no entity provided default to invoice
         $entity = request()->has('entity') ? request()->input('entity') : 'Invoice';
         $entity_id = request()->has('entity_id') ? request()->input('entity_id') : '';
         $subject = request()->has('subject') ? request()->input('subject') : '';
         $body = request()->has('body') ? request()->input('body') : '';
-        $template = request()->has('template') ? request()->input('template') : '';
         $class = 'App\Models\\' . ucfirst($entity);
 
         $entity_object = !$entity_id ? $class::first() : $class::whereId($entity_id)->first();
 
         $objPdfBuilder = (new PdfFactory())->create($entity_object);
 
-        $data = $this->build($objPdfBuilder, $template, $subject, $body);
+        $data = $this->build($template, $objPdfBuilder, $subject, $body);
 
 //        $data = (new TemplateEngine(
 //            $objPdfBuilder, $body, $subject, $entity, $entity_id, $template
@@ -47,13 +50,12 @@ class TemplateController extends Controller
         return response()->json($data, 200);
     }
 
-    private function build($objPdf, $template, $subject, $body)
+    private function build(EmailTemplate $email_template, $objPdf, $subject, $body)
     {
         $entity_obj = $objPdf->getEntity();
 
-        $subject_template = str_replace("template", "subject", $template);
-        $subject = strlen($subject) > 0 ? $subject : $entity_obj->account->settings->{$subject_template};
-        $body = strlen($body) > 0 ? $body : $entity_obj->account->settings->{$template};
+        $subject = strlen($subject) > 0 ? $subject : $email_template->subject;
+        $body = strlen($body) > 0 ? $body : $email_template->message;
 
         $subject = $this->parseVariables($subject, $entity_obj);
         $body = $this->parseVariables($body, $entity_obj);

@@ -348,8 +348,12 @@ Route::group(
         Route::get('accounts/check-domain/{domain}', 'AccountController@checkDomain');
         Route::post('account/backup', 'AccountController@backupData');
 
+        Route::apiResource('reminders', 'ReminderController');
+
 
 // email
+        Route::apiResource('email_templates', 'EmailController');
+        Route::post('emails', 'EmailController@send')->name('email.send');
         Route::post('emails', 'EmailController@send')->name('email.send');
 
         Route::post(

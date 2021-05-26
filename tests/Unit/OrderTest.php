@@ -2,6 +2,11 @@
 
 namespace Tests\Unit;
 
+use App\Events\Invoice\InvoiceWasEmailed;
+use App\Events\Order\OrderWasEmailed;
+use App\Factory\InvoiceFactory;
+use App\Models\EmailTemplate;
+use App\Repositories\EmailTemplateRepository;
 use App\Services\Email\DispatchEmail;
 use App\Services\Order\CancelOrder;
 use App\Services\Order\DispatchOrder;
@@ -39,6 +44,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 class OrderTest extends TestCase
@@ -109,21 +115,13 @@ class OrderTest extends TestCase
 
         $total = $this->faker->randomFloat();
 
-        $data = [
-            'account_id'     => $this->account->id,
-            'user_id'        => $user->id,
-            'customer_id'    => $this->customer->id,
-            'total'          => $total,
-            'balance'        => $total,
-            'tax_total'      => $this->faker->randomFloat(),
-            'discount_total' => $this->faker->randomFloat(),
-            'status_id'      => 1,
-        ];
+        $data = $this->generateOrder();
 
         $orderRepo = new OrderRepository(new Order);
         $order = $orderRepo->create($data, $factory);
         $this->assertInstanceOf(Order::class, $order);
-        $this->assertEquals($data['customer_id'], $order->customer_id);
+        $this->assertEquals($this->customer->id, $order->customer_id);
+        $this->assertEquals($data['number'], $order->number);
         $this->assertNotEmpty($order->invitations);
     }
 
@@ -419,18 +417,6 @@ class OrderTest extends TestCase
         $this->assertNotNull($payment->reference_number);
     }
 
-    public function testEmail()
-    {
-        $order = OrderFactory::create($this->account, $this->user, $this->customer);
-        $order = (new OrderRepository(new Order()))->save(['total' => 200], $order);
-
-        $template = strtolower('order');
-        $subject = $order->customer->getSetting('email_subject_' . $template);
-        $body = $order->customer->getSetting('email_template_' . $template);
-        $result = (new DispatchEmail($order))->execute(null, $subject, $body);
-        $this->assertInstanceOf(Order::class, $result);
-    }
-
     public function test_inventory() {
 
         $order = Order::factory()->create(['account_id' => $this->account->id, 'user_id' => $this->user->id, 'customer_id' => $this->customer->id]);
@@ -459,6 +445,51 @@ class OrderTest extends TestCase
 
         $this->assertEquals($product->fresh()->quantity, $original_quantity + 2);
 
+    }
+
+    private function generateOrder() {
+
+        for ($x = 0; $x < 5; $x++) {
+            $line_items[] = (new \App\Components\InvoiceCalculator\LineItem)
+                ->setQuantity($this->faker->numberBetween(1, 10))
+                ->setUnitPrice($this->faker->randomFloat(2, 1, 1000))
+                ->calculateSubTotal()->setUnitDiscount($this->faker->numberBetween(1, 10))
+                ->setTaxRateEntity('unit_tax', 10.00)
+                ->setProductId($this->faker->word())
+                ->setNotes($this->faker->realText(50))
+                ->toObject();
+        }
+
+        return [
+            'account_id'     => 1,
+            'status_id'      => Invoice::STATUS_DRAFT,
+            'number'         => $this->faker->ean8(),
+            'total'          => 800,
+            'balance'        => 800,
+            'tax_total'      => $this->faker->randomFloat(2),
+            'discount_total' => $this->faker->randomFloat(2),
+            'hide'           => false,
+            'po_number'      => $this->faker->text(10),
+            'date'           => $this->faker->date(),
+            'due_date'       => $this->faker->date(),
+            'line_items'     => $line_items,
+            'terms'          => $this->faker->text(500),
+            'gateway_fee'    => 12.99
+        ];
+    }
+
+    public function testEmail()
+    {
+        Event::fake();
+
+        $order_data = $this->generateOrder();
+        $order = OrderFactory::create($this->account, $this->user, $this->customer);
+        $credit_note = (new OrderRepository(new Order()))->create($order_data, $order);
+
+        $template = (new EmailTemplateRepository(new EmailTemplate()))->getTemplateForType('order');
+        (new DispatchEmail($credit_note))->execute(null, $template->subject, $template->message);
+
+        Event::assertDispatched(OrderWasEmailed::class);
     }
 
     public function tearDown(): void

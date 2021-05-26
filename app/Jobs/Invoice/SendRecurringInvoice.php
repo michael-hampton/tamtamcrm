@@ -2,12 +2,15 @@
 
 namespace App\Jobs\Invoice;
 
+use App\Models\EmailTemplate;
+use App\Repositories\EmailTemplateRepository;
 use App\Services\Email\DispatchEmail;
 use App\Factory\RecurringInvoiceToInvoiceFactory;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use App\Repositories\InvoiceRepository;
 use App\Traits\CalculateRecurring;
+use App\Traits\CalculateDates;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -17,7 +20,7 @@ use Illuminate\Queue\SerializesModels;
 
 class SendRecurringInvoice implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, CalculateRecurring;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, CalculateDates;
 
     /**
      * @var Invoice
@@ -64,10 +67,12 @@ class SendRecurringInvoice implements ShouldQueue
             $invoice = $this->invoice_repo->save(['recurring_invoice_id' => $recurring_invoice->id], $invoice);
             $this->invoice_repo->markSent($invoice);
 
+            $template = (new EmailTemplateRepository(new EmailTemplate()))->getTemplateForType('invoice');
+
             (new DispatchEmail($invoice))->execute(
                 null,
-                $invoice->customer->getSetting('email_subject_invoice'),
-                $invoice->customer->getSetting('email_template_invoice')
+                $template->subject,
+                $template->message
             );
 
             $recurring_invoice->last_sent_date = Carbon::today();

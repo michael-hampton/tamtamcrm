@@ -8,6 +8,13 @@
 
 namespace Tests\Unit;
 
+use App\Events\Credit\CreditWasEmailed;
+use App\Events\PurchaseOrder\PurchaseOrderWasEmailed;
+use App\Factory\CreditFactory;
+use App\Models\Credit;
+use App\Models\EmailTemplate;
+use App\Repositories\CreditRepository;
+use App\Repositories\EmailTemplateRepository;
 use App\Services\Email\DispatchEmail;
 use App\Services\PurchaseOrder\Approve;
 use App\Factory\OrderFactory;
@@ -29,6 +36,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 /**
@@ -101,20 +109,13 @@ class PurchaseOrderTest extends TestCase
         $user = User::find(5);
         $factory = (new PurchaseOrderFactory())->create($this->account, $user, $this->company);
 
-        $data = [
-            'account_id'     => $this->account->id,
-            'user_id'        => $this->user->id,
-            'company_id'    => $this->company->id,
-            'total'          => $this->faker->randomFloat(),
-            'tax_total'      => $this->faker->randomFloat(),
-            'discount_total' => $this->faker->randomFloat(),
-            'status_id'      => 1,
-        ];
+        $data = $this->generatePurchaseOrder();
 
         $purchase_orderRepo = new PurchaseOrderRepository(new PurchaseOrder);
         $purchase_order = $purchase_orderRepo->createPurchaseOrder($data, $factory);
+        $this->assertEquals($this->company->id, $purchase_order->company_id);
         $this->assertInstanceOf(PurchaseOrder::class, $purchase_order);
-        $this->assertEquals($data['company_id'], $purchase_order->company_id);
+        $this->assertEquals($data['number'], $purchase_order->number);
     }
 
     /**
@@ -170,15 +171,48 @@ class PurchaseOrderTest extends TestCase
         $this->assertInstanceOf(PurchaseOrder::class, $purchase_order);
     }
 
-//    public function testEmail()
-//    {
-//        $order = PurchaseOrderFactory::create($this->account, $this->user, $this->company);
-//        $order = (new PurchaseOrderRepository(new PurchaseOrder()))->save([], $order);
-//
-//        $template = strtolower('purchase_order');
-//        $subject = $order->account->settings->{'email_subject_' . $template};
-//        $body = $order->account->settings->{'email_template_' . $template};
-//        $result = (new DispatchEmail($order))->execute(null, $subject, $body);
-//        $this->assertInstanceOf(PurchaseOrder::class, $result);
-//    }
+    private function generatePurchaseOrder() {
+
+        for ($x = 0; $x < 5; $x++) {
+            $line_items[] = (new \App\Components\InvoiceCalculator\LineItem)
+                ->setQuantity($this->faker->numberBetween(1, 10))
+                ->setUnitPrice($this->faker->randomFloat(2, 1, 1000))
+                ->calculateSubTotal()->setUnitDiscount($this->faker->numberBetween(1, 10))
+                ->setTaxRateEntity('unit_tax', 10.00)
+                ->setProductId($this->faker->word())
+                ->setNotes($this->faker->realText(50))
+                ->toObject();
+        }
+
+        return [
+            'account_id'     => 1,
+            'status_id'      => PurchaseOrder::STATUS_DRAFT,
+            'number'         => $this->faker->ean8(),
+            'total'          => 800,
+            'balance'        => 800,
+            'tax_total'      => $this->faker->randomFloat(2),
+            'discount_total' => $this->faker->randomFloat(2),
+            'hide'           => false,
+            'po_number'      => $this->faker->text(10),
+            'date'           => $this->faker->date(),
+            'due_date'       => $this->faker->date(),
+            'line_items'     => $line_items,
+            'terms'          => $this->faker->text(500),
+            'gateway_fee'    => 12.99
+        ];
+    }
+
+    public function testEmail()
+    {
+        Event::fake();
+
+        $purchase_order_data = $this->generatePurchaseOrder();
+        $purchase_order = PurchaseOrderFactory::create($this->account, $this->user, $this->company);
+        $credit_note = (new PurchaseOrderRepository(new PurchaseOrder()))->save($purchase_order_data, $purchase_order);
+
+        $template = (new EmailTemplateRepository(new EmailTemplate()))->getTemplateForType('purchase_order');
+        (new DispatchEmail($credit_note))->execute(null, $template->subject, $template->message);
+
+        Event::assertDispatched(PurchaseOrderWasEmailed::class);
+    }
 }
