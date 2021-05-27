@@ -23,5 +23,6 @@ return [
     'notify_on_login'         => true,
     'disk'                    => 'public',
     'downloads_dir'           => 'downloads',
-    'exports_dir'             => 'exports'
+    'exports_dir'             => 'exports',
+    'export_database'         => 'mike'
 ];

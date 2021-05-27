@@ -39,6 +39,7 @@ class CustomerContact extends Model implements ContactInterface
     ];
 
     protected $fillable = [
+        'customer_id',
         'contact_key',
         'first_name',
         'last_name',

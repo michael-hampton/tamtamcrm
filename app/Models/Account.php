@@ -393,7 +393,7 @@ class Account extends Model
         $export['recurring_invoices'] = $this->recurring_invoices->makeHidden('account')->makeHidden('customer')->toArray();
         $export['recurring_quotes'] = $this->recurring_quotes->makeHidden('account')->makeHidden('customer')->toArray();
         $export['webhooks'] = $this->subscriptions->toArray();
-        $export['plans'] = $this->plans->toArray();
+        $export['plans'] = Plan::all()->toArray();
         $export['subscriptions'] = $this->plan_subscriptions->makeHidden('plan')->toArray();
         $export['tasks'] = $this->tasks->makeHidden('account')->makeHidden('customer')->toArray();
         $export['task_statuses'] = $this->task_statuses->toArray();
@@ -405,9 +405,7 @@ class Account extends Model
         $export['products'] = $this->products->toArray();
         $export['orders'] = $this->orders->makeHidden('account')->makeHidden('customer')->toArray();
         $export['purchase_orders'] = $this->purchase_orders->makeHidden('account')->makeHidden('company')->toArray();
-        $export['users'] = $this->users->makeHidden('password')->makeHidden('account')->toArray();
-
-        die('here');
+        $export['users'] = $this->users->makeHidden('auth_token')->makeHidden('password')->makeHidden('accounts')->toArray();
 
         if ($return_array) {
             return $export;

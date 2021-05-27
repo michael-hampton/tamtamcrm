@@ -82,11 +82,25 @@ class ImportAccountData
         'purchase_orders'    => PurchaseOrder::class
     ];
 
+    /**
+     * @var string
+     */
     private string $filename;
 
+    /**
+     * @var string
+     */
     private string $path;
 
+    /**
+     * @var Account
+     */
     private Account $account;
+
+    /**
+     * @var User
+     */
+    private User $user;
 
     public function __construct(Account $account, string $path, string $filename)
     {
@@ -94,7 +108,12 @@ class ImportAccountData
         $this->path = $path;
         $this->account = $account;
 
-        DB::connection('mike');
+        if (!empty(config('taskmanager.export_database'))) {
+            DB::connection(config('taskmanager.export_database'));
+        }
+
+        $owner = $account->owner();
+        $this->user = !empty($owner) ? $owner : $this->account->users->first();
     }
 
     public function importData()
@@ -111,10 +130,6 @@ class ImportAccountData
 
         foreach ($this->classes as $entity => $class) {
 
-            if ($entity === 'subscriptions') {
-                continue;
-            }
-
             $objects = $data[$entity];
 
             foreach ($objects as $object) {
@@ -126,11 +141,38 @@ class ImportAccountData
                     $object = $this->formatCompanyGateways($object);
                 }
 
+                if ($entity === 'plans') {
+
+                    $plan_count = Plan::query()->where('code', $object['code'])->count();
+
+                    if ($plan_count > 0) {
+                        continue;
+                    }
+                }
+
+                if ($entity === 'subscriptions') {
+
+                    $subscription_count = PlanSubscription::query()->where('subscriber_id', $object['subscriber_id'])->where('subscriber_type', $object['subscriber_type'])->where('plan_id', $object['plan_id'])->count();
+
+                    if ($subscription_count > 0) {
+                        continue;
+                    }
+                }
+
+                if ($entity === 'companies') {
+
+                    $company_count = Company::query()->whereRaw("LOWER(name) = '" . strtolower($object['name'] . "'"))->count();
+
+                    if ($company_count > 0) {
+                        continue;
+                    }
+                }
+
                 if ($entity === 'users') {
                     $object = $this->validateUser($object);
 
                     if (!$object) {
-                        throw new InvalidAccountImportDataException('Invalid user');
+                        continue;
                     }
                 }
 
@@ -138,10 +180,12 @@ class ImportAccountData
                     unset($object['id']);
                 }
 
-                $test->account_id = $this->account->id;
+                if ($entity !== 'users') {
+                    $test->account_id = $this->account->id;
+                }
 
-                if ($entity !== 'customer_gateways') {
-                    $test->user_id = 5;
+                if (!in_array($entity, ['customer_gateways', 'subscriptions', 'users'])) {
+                    $test->user_id = $this->user->id;
                 }
 
                 try {
@@ -175,9 +219,10 @@ class ImportAccountData
 
     private function validateUser(array $data)
     {
-        $users = $this->account->users->keyBy('email');
+        $users = $this->account->users->where('email', $data['email'])->first();
 
-        if (!empty($users[$data['email']])) {
+        if ($users->count() > 0) {
+
             return false;
         }
 
@@ -188,7 +233,7 @@ class ImportAccountData
     {
         $zip = new \ZipArchive();
 
-        if ($zip->open($this->path) === TRUE) {
+        if ($zip->open($this->path) === true) {
 
             $contents = $zip->getFromName($this->filename);
             $zip->close();
