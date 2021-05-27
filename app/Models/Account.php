@@ -405,6 +405,9 @@ class Account extends Model
         $export['products'] = $this->products->toArray();
         $export['orders'] = $this->orders->makeHidden('account')->makeHidden('customer')->toArray();
         $export['purchase_orders'] = $this->purchase_orders->makeHidden('account')->makeHidden('company')->toArray();
+        $export['users'] = $this->users->makeHidden('password')->makeHidden('account')->toArray();
+
+        die('here');
 
         if ($return_array) {
             return $export;

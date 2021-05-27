@@ -75,6 +75,7 @@ class ImportAccountData
         'leads'              => Lead::class,
         'products'           => Product::class,
         'orders'             => Order::class,
+        'users'              => User::class,
         'purchase_orders'    => PurchaseOrder::class
     ];
 
@@ -116,13 +117,11 @@ class ImportAccountData
 
                 if ($entity === 'company_gateways') {
 
-                    if (empty($object['settings'])) {
-                        $object['settings'] = '{}';
-                    }
+                    $object = $this->formatCompanyGateways($object);
+                }
 
-                    if (empty($object['charges'])) {
-                        $object['charges'] = '{}';
-                    }
+                if($entity === 'users') {
+                    $object = $this->validateUser($object);
                 }
 
                 if (isset($object['id'])) {
@@ -149,6 +148,24 @@ class ImportAccountData
         }
 
         DB::commit();
+    }
+
+    private function formatCompanyGateways(array $data)
+    {
+        if (empty($data['settings'])) {
+            $data['settings'] = '{}';
+        }
+
+        if (empty($data['charges'])) {
+            $data['charges'] = '{}';
+        }
+
+        return $data;
+    }
+
+    private function validateUser(array $data)
+    {
+        return $data;
     }
 
     private function getFileContents()
