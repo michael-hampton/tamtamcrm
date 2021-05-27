@@ -5,6 +5,8 @@ namespace App\Components\Import;
 
 
 use App\Components\Setup\DatabaseManager;
+use App\Exceptions\InvalidAccountImportDataException;
+use App\Models\Account;
 use App\Models\Company;
 use App\Models\CompanyContact;
 use App\Models\CompanyGateway;
@@ -39,6 +41,7 @@ use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use phpDocumentor\Reflection\Types\False_;
 use PHPUnit\Framework\Assert;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
 
@@ -83,10 +86,13 @@ class ImportAccountData
 
     private string $path;
 
-    public function __construct(string $path, string $filename)
+    private Account $account;
+
+    public function __construct(Account $account, string $path, string $filename)
     {
         $this->filename = $filename;
         $this->path = $path;
+        $this->account = $account;
 
         DB::connection('mike');
     }
@@ -120,15 +126,19 @@ class ImportAccountData
                     $object = $this->formatCompanyGateways($object);
                 }
 
-                if($entity === 'users') {
+                if ($entity === 'users') {
                     $object = $this->validateUser($object);
+
+                    if (!$object) {
+                        throw new InvalidAccountImportDataException('Invalid user');
+                    }
                 }
 
                 if (isset($object['id'])) {
                     unset($object['id']);
                 }
 
-                $test->account_id = 1;
+                $test->account_id = $this->account->id;
 
                 if ($entity !== 'customer_gateways') {
                     $test->user_id = 5;
@@ -165,6 +175,12 @@ class ImportAccountData
 
     private function validateUser(array $data)
     {
+        $users = $this->account->users->keyBy('email');
+
+        if (!empty($users[$data['email']])) {
+            return false;
+        }
+
         return $data;
     }
 
