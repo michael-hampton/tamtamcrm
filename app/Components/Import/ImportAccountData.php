@@ -7,9 +7,11 @@ namespace App\Components\Import;
 use App\Components\Setup\DatabaseManager;
 use App\Exceptions\InvalidAccountImportDataException;
 use App\Models\Account;
+use App\Models\AccountUser;
 use App\Models\Company;
 use App\Models\CompanyContact;
 use App\Models\CompanyGateway;
+use App\Models\CompanyToken;
 use App\Models\Credit;
 use App\Models\Customer;
 use App\Models\CustomerContact;
@@ -79,7 +81,9 @@ class ImportAccountData
         'products'           => Product::class,
         'orders'             => Order::class,
         'users'              => User::class,
-        'purchase_orders'    => PurchaseOrder::class
+        'purchase_orders'    => PurchaseOrder::class,
+        'company_tokens'     => CompanyToken::class,
+        'account_users'      => AccountUser::class
     ];
 
     /**

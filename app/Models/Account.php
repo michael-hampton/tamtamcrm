@@ -304,6 +304,11 @@ class Account extends Model
         return $this->hasMany(Group::class);
     }
 
+    public function tokens()
+    {
+        return $this->hasMany(CompanyToken::class);
+    }
+
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
@@ -406,6 +411,8 @@ class Account extends Model
         $export['orders'] = $this->orders->makeHidden('account')->makeHidden('customer')->toArray();
         $export['purchase_orders'] = $this->purchase_orders->makeHidden('account')->makeHidden('company')->toArray();
         $export['users'] = $this->users->makeHidden('auth_token')->makeHidden('password')->makeHidden('accounts')->toArray();
+        $export['company_tokens'] = $this->tokens()->where('is_web', false)->get()->toArray();
+        $export['account_users'] = $this->account_users->toArray();
 
         if ($return_array) {
             return $export;
