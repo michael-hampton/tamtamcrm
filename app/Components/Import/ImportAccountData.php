@@ -163,15 +163,6 @@ class ImportAccountData
                     }
                 }
 
-                if ($entity === 'companies') {
-
-                    $company_count = Company::query()->whereRaw("LOWER(name) = '" . strtolower($object['name'] . "'"))->count();
-
-                    if ($company_count > 0) {
-                        continue;
-                    }
-                }
-
                 if ($entity === 'users') {
                     $object = $this->validateUser($object);
 
@@ -193,6 +184,23 @@ class ImportAccountData
                 }
 
                 try {
+
+                    if (in_array($entity, ['products', 'companies', 'customers', 'tax_rates', 'projects', 'payment_terms', 'tasks', 'expense_categories', 'task_statuses'])) {
+
+                        $test = $class::firstOrNew([
+                            'name' => $object['name'],
+                            'account_id' => $object['account_id']
+                        ]);
+                    }
+
+                    if (in_array($entity, ['credits', 'quotes', 'invoices', 'payments', 'recurring_invoices', 'recurring_quotes', 'purchase_orders', 'orders'])) {
+
+                        $test = $class::firstOrNew([
+                            'number' => $object['number'],
+                            'account_id' => $object['account_id']
+                        ]);
+                    }
+
                     $test->fill($object);
                     $test->save();
                 } catch (QueryException $exception) {
