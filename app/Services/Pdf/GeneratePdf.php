@@ -16,13 +16,14 @@ class GeneratePdf
         $this->entity = $entity;
     }
 
-    public function execute($contact = null, $update = false)
+    public function execute($contact = null, $update = false, $show_html = false)
     {
         return CreatePdf::dispatchNow(
             (new PdfFactory)->create($this->entity),
             $this->entity,
             $contact === null ? $this->getContact($this->entity) : $contact,
-            $update
+            $update,
+            $show_html
         );
     }
 

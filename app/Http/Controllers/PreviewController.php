@@ -28,6 +28,8 @@ class PreviewController extends Controller
      */
     public function show()
     {
+        $show_html = request()->input('show_html');
+
         if (!empty(request()->input('entity')) && !empty(request()->input('entity_id'))) {
             $design_object = !empty(request()->input('design')) ? json_decode(
                 json_encode(request()->input('design'))
@@ -44,18 +46,22 @@ class PreviewController extends Controller
             $entity_obj = $class::whereId(request()->input('entity_id'))->first();
 
             if (!$entity_obj) {
-                return $this->blankEntity();
+                return $this->blankEntity($show_html);
             }
 
-            $file_path = (new GeneratePdf($entity_obj))->execute();
+            $file_path = (new GeneratePdf($entity_obj))->execute(null, true, $show_html);
+
+            if ($show_html === true) {
+                return response()->json(['data' => $file_path, 'stylesheet' => public_path('css/pdf.css')]);
+            }
 
             return response()->json(['data' => base64_encode(file_get_contents($file_path))]);
         }
 
-        return $this->blankEntity();
+        return $this->blankEntity($show_html);
     }
 
-    private function blankEntity()
+    private function blankEntity($show_html = false)
     {
         DB::beginTransaction();
 
@@ -109,7 +115,11 @@ class PreviewController extends Controller
 
         DB::rollBack();
 
-        $data = CreatePdf::dispatchNow($objPdf, $invoice, $contact, true);
+        $data = CreatePdf::dispatchNow($objPdf, $invoice, $contact, true, $show_html);
+
+        if ($show_html === true) {
+            return response()->json(['data' => $data]);
+        }
 
         return response()->json(['data' => base64_encode(file_get_contents($data))]);
     }

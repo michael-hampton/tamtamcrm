@@ -157,11 +157,11 @@ export default class CaseModel extends BaseModel {
         }
     }
 
-    async loadPdf () {
+    async loadPdf (show_html = false) {
         try {
             this.errors = []
             this.error_message = ''
-            const res = await axios.post('api/preview', { entity: 'Cases', entity_id: this._fields.id })
+            const res = await axios.post('api/preview', { entity: 'Cases', entity_id: this._fields.id, show_html: show_html })
 
             if (res.status === 200) {
                 // test for status you want, etc

@@ -18,7 +18,7 @@ class CreatePdf implements ShouldQueue
 
     public $entity;
 
-    private $disk;
+    private string $disk;
 
     private $contact;
 
@@ -28,9 +28,11 @@ class CreatePdf implements ShouldQueue
 
     private $objPdf;
 
-    private $update = false;
+    private bool $update = false;
 
-    private $entity_string = '';
+    private string $entity_string = '';
+
+    private bool $html_version;
 
     /**
      * Create a new job instance.
@@ -46,16 +48,19 @@ class CreatePdf implements ShouldQueue
         $objPdf,
         $entity,
         $contact = null,
-        $update = false,
-        $entity_string = '',
-        $disk = 'public'
-    ) {
+        bool $update = false,
+        bool $html_version = false,
+        string $entity_string = '',
+        string $disk = 'public'
+    )
+    {
         $this->entity = $entity;
         $this->objPdf = $objPdf;
         $this->contact = $contact;
         $this->disk = $disk ?? config('filesystems.default');
         $this->update = $update;
         $this->entity_string = !empty($entity_string) ? $entity_string : $objPdf->getEntityString();
+        $this->html_version = $html_version;
     }
 
     public function handle()
@@ -76,9 +81,9 @@ class CreatePdf implements ShouldQueue
 
         $design = Design::find($this->entity->design_id);
 
-        $this->build($design);
+        $html = $this->build($design);
 
-        return $this->file_path;
+        return $this->html_version === true ? $html : $this->file_path;
     }
 
     private function checkIfExists()
@@ -104,12 +109,18 @@ class CreatePdf implements ShouldQueue
             $this->entity_string
         );
 
+        if ($this->html_version) {
+            return $html;
+        }
+
         Storage::makeDirectory(dirname($this->file_path), 0755);
 
         //\Log::error($html);
         $pdf = $this->makePdf(null, null, $html);
 
         Storage::disk($this->disk)->put($this->file_path, $pdf);
+
+        return true;
     }
 
     private function makePdf($header, $footer, $html)
