@@ -12,9 +12,9 @@ function TabPanel(props) {
 
 export default function EditScaffold(props) {
     return (
-        <div className="mt-3 w-100">
+        <div className="mt-3 w-100" style={{maxWidth: '1275px'}}>
             <Card>
-                <CardBody>
+                <CardBody className="p-0">
                     <div className="d-flex justify-content-between align-items-center">
                         <div className="d-inline-flex">
                             <Menu/>
