@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import FormBuilder from './FormBuilder'
-import { Card, CardBody, FormGroup, Label } from 'reactstrap'
+import {Button, Card, CardBody, FormGroup, Label} from 'reactstrap'
 import axios from 'axios'
 import SignatureCanvas from 'react-signature-canvas'
 import { translations } from '../utils/_translations'
@@ -10,6 +10,8 @@ import SnackbarMessage from '../common/SnackbarMessage'
 import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
 import CompanyModel from '../models/CompanyModel'
+import ColorPicker from "../common/ColorPicker";
+import EditScaffold from "./EditScaffold";
 
 class EmailSettings extends Component {
     constructor (props) {
@@ -261,6 +263,57 @@ class EmailSettings extends Component {
     }
 
     render () {
+        const tabs = {
+            children: []
+        }
+
+        tabs.children[0] = <>
+            <Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getFormFields()}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getAttachmentFormFields()}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getForwardingFormFields()}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardBody>
+                    <FormGroup>
+                        <Label>Email Signature</Label>
+                        <SignatureCanvas
+                            canvasProps={{
+                                width: 1050,
+                                height: 200,
+                                className: 'sigCanvas border border-light'
+                            }}
+                            ref={(ref) => {
+                                this.state.sigPad = ref
+                            }}/>
+                    </FormGroup>
+                </CardBody>
+            </Card>
+        </>
+
+
         return this.state.loaded === true ? (
             <React.Fragment>
                 <SnackbarMessage open={this.state.success} onClose={this.handleClose.bind(this)} severity="success"
@@ -269,55 +322,10 @@ class EmailSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={this.state.settings_not_saved}/>
 
-                <Header title={translations.email_settings} cancelButtonDisabled={!this.state.changesMade}
-                    handleCancel={this.handleCancel.bind(this)}
-                    handleSubmit={this.handleSubmit}/>
-
-                <div className="settings-container fixed-margin-extra">
-                    <Card>
-                        <CardBody>
-                            <FormBuilder
-                                handleChange={this.handleSettingsChange}
-                                formFieldsRows={this.getFormFields()}
-                            />
-                        </CardBody>
-                    </Card>
-
-                    <Card>
-                        <CardBody>
-                            <FormBuilder
-                                handleChange={this.handleSettingsChange}
-                                formFieldsRows={this.getAttachmentFormFields()}
-                            />
-                        </CardBody>
-                    </Card>
-
-                    <Card>
-                        <CardBody>
-                            <FormBuilder
-                                handleChange={this.handleSettingsChange}
-                                formFieldsRows={this.getForwardingFormFields()}
-                            />
-                        </CardBody>
-                    </Card>
-
-                    <Card>
-                        <CardBody>
-                            <FormGroup>
-                                <Label>Email Signature</Label>
-                                <SignatureCanvas
-                                    canvasProps={{
-                                        width: 1050,
-                                        height: 200,
-                                        className: 'sigCanvas border border-light'
-                                    }}
-                                    ref={(ref) => {
-                                        this.state.sigPad = ref
-                                    }}/>
-                            </FormGroup>
-                        </CardBody>
-                    </Card>
-                </div>
+                <EditScaffold title={translations.email_settings} cancelButtonDisabled={!this.state.changesMade}
+                              handleCancel={this.handleCancel.bind(this)}
+                              handleSubmit={this.handleSubmit.bind(this)}
+                              tabs={tabs}/>
             </React.Fragment>
         ) : null
     }

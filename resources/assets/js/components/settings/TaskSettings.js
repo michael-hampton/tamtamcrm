@@ -8,6 +8,8 @@ import SnackbarMessage from '../common/SnackbarMessage'
 import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
 import CompanyModel from '../models/CompanyModel'
+import BlockButton from "../common/BlockButton";
+import EditScaffold from "./EditScaffold";
 
 export default class TaskSettings extends Component {
     constructor (props) {
@@ -201,6 +203,21 @@ export default class TaskSettings extends Component {
     }
 
     render () {
+        const tabs = {
+            children: []
+        }
+
+        tabs.children[0] = <>
+            <Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getTaskFields()}
+                    />
+                </CardBody>
+            </Card>
+        </>
+
         return this.state.loaded === true ? (
             <React.Fragment>
                 <SnackbarMessage open={this.state.success} onClose={this.handleClose.bind(this)} severity="success"
@@ -209,21 +226,10 @@ export default class TaskSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={translations.settings_not_saved}/>
 
-                <Header title={translations.task_settings} cancelButtonDisabled={!this.state.changesMade}
-                    handleCancel={this.handleCancel.bind(this)}
-                    handleSubmit={this.handleSubmit}/>
-
-                <div className="settings-container settings-container-narrow fixed-margin-extra">
-                    <Card>
-                        <CardBody>
-                            <FormBuilder
-                                handleChange={this.handleSettingsChange}
-                                formFieldsRows={this.getTaskFields()}
-                            />
-                        </CardBody>
-                    </Card>
-                </div>
-
+                <EditScaffold title={translations.task_settings} cancelButtonDisabled={!this.state.changesMade}
+                              handleCancel={this.handleCancel.bind(this)}
+                              handleSubmit={this.handleSubmit.bind(this)}
+                              tabs={tabs}/>
             </React.Fragment>
         ) : null
     }

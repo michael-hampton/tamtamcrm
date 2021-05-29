@@ -7,6 +7,9 @@ import SnackbarMessage from '../common/SnackbarMessage'
 import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
 import CompanyModel from '../models/CompanyModel'
+import BlockButton from "../common/BlockButton";
+import {icons} from "../utils/_icons";
+import EditScaffold from "./EditScaffold";
 
 class IntegrationSettings extends Component {
     constructor (props) {
@@ -138,6 +141,21 @@ class IntegrationSettings extends Component {
     }
 
     render () {
+        const tabs = {
+            children: []
+        }
+
+        tabs.children[0] = <>
+            <Card className="fixed-margin-extra">
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getFields()}
+                    />
+                </CardBody>
+            </Card>
+        </>
+
         return this.state.loaded === true ? (
             <React.Fragment>
                 <SnackbarMessage open={this.state.success} onClose={this.handleClose.bind(this)} severity="success"
@@ -146,20 +164,10 @@ class IntegrationSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={this.state.settings_not_saved}/>
 
-                <Header title={translations.integration_settings} cancelButtonDisabled={!this.state.changesMade}
-                    handleCancel={this.handleCancel.bind(this)}
-                    handleSubmit={this.handleSubmit}/>
-
-                <div className="settings-container settings-container-narrow fixed-margin-extra">
-                    <Card className="fixed-margin-extra">
-                        <CardBody>
-                            <FormBuilder
-                                handleChange={this.handleSettingsChange}
-                                formFieldsRows={this.getFields()}
-                            />
-                        </CardBody>
-                    </Card>
-                </div>
+                <EditScaffold title={translations.integration_settings} cancelButtonDisabled={!this.state.changesMade}
+                              handleCancel={this.handleCancel.bind(this)}
+                              handleSubmit={this.handleSubmit.bind(this)}
+                              tabs={tabs}/>
             </React.Fragment>
         ) : null
     }

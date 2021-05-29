@@ -9,6 +9,7 @@ import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
 import BlockButton from '../common/BlockButton'
 import CompanyModel from '../models/CompanyModel'
+import EditScaffold from "./EditScaffold";
 
 export default class TaxSettings extends Component {
     constructor (props) {
@@ -204,6 +205,33 @@ export default class TaxSettings extends Component {
     }
 
     render () {
+        const tabs = {
+            children: []
+        }
+
+        tabs.children[0] = <>
+            <Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getTaxFields()}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>{translations.line_items}</CardHeader>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getLineItemTaxFields()}
+                    />
+                </CardBody>
+            </Card>
+
+            <BlockButton icon={icons.percent} button_text={translations.configure_rates}
+                         button_link="/#/tax-rates"/>
+        </>
         return this.state.loaded === true ? (
             <React.Fragment>
                 <Snackbar open={this.state.success} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
@@ -218,33 +246,10 @@ export default class TaxSettings extends Component {
                     </Alert>
                 </Snackbar>
 
-                <Header title={translations.tax_settings} cancelButtonDisabled={!this.state.changesMade}
-                    handleCancel={this.handleCancel.bind(this)}
-                    handleSubmit={this.handleSubmit.bind(this)}/>
-
-                <div className="settings-container settings-container-narrow fixed-margin-extra">
-                    <Card>
-                        <CardBody>
-                            <FormBuilder
-                                handleChange={this.handleSettingsChange}
-                                formFieldsRows={this.getTaxFields()}
-                            />
-                        </CardBody>
-                    </Card>
-
-                    <Card>
-                         <CardHeader>{translations.line_items}</CardHeader>
-                        <CardBody>
-                            <FormBuilder
-                                handleChange={this.handleSettingsChange}
-                                formFieldsRows={this.getLineItemTaxFields()}
-                            />
-                        </CardBody>
-                    </Card>
-
-                    <BlockButton icon={icons.percent} button_text={translations.configure_rates}
-                        button_link="/#/tax-rates"/>
-                </div>
+                <EditScaffold title={translations.tax_settings} cancelButtonDisabled={!this.state.changesMade}
+                              handleCancel={this.handleCancel.bind(this)}
+                              handleSubmit={this.handleSubmit.bind(this)}
+                              tabs={tabs}/>
             </React.Fragment>
         ) : null
     }

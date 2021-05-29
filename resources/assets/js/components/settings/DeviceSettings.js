@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Button, Card, CardBody } from 'reactstrap'
+import {Button, Card, CardBody, CardHeader, FormGroup, Label} from 'reactstrap'
 import axios from 'axios'
 import { translations } from '../utils/_translations'
 import FormBuilder from './FormBuilder'
@@ -8,6 +8,10 @@ import Header from './Header'
 import SnackbarMessage from '../common/SnackbarMessage'
 import AccountRepository from '../repositories/AccountRepository'
 import CompanyModel from '../models/CompanyModel'
+import CaseTemplateDropdown from "../common/dropdowns/CaseTemplateDropdown";
+import BlockButton from "../common/BlockButton";
+import {icons} from "../utils/_icons";
+import EditScaffold from "./EditScaffold";
 
 export default class DeviceSettings extends Component {
     constructor (props) {
@@ -349,6 +353,43 @@ export default class DeviceSettings extends Component {
         const header_background_color = this.state.settings && this.state.settings.header_background_color ? this.state.settings.header_background_color : ''
         const footer_background_color = this.state.settings && this.state.settings.footer_background_color ? this.state.settings.footer_background_color : ''
 
+        const tabs = {
+            children: []
+        }
+
+        tabs.children[0] = <>
+            <Card>
+                <CardBody>
+                    <ColorPicker label={translations.header_background_color} value={header_background_color}
+                                 handleChange={this.handleHeaderColor}/>
+
+                    <ColorPicker label={translations.footer_background_color} value={footer_background_color}
+                                 handleChange={this.handleFooterColor}/>
+
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getInventoryFields()}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardBody>
+                    <Button onClick={this.refresh} color="primary" block>{translations.refresh}</Button>
+                    <Button className="mt-2" onClick={(e) => {
+                        e.preventDefault()
+                        localStorage.removeItem('access_token')
+                        window.location.href = '/#/login'
+                    }} color="primary" block>{translations.logout}</Button>
+                </CardBody>
+            </Card>
+        </>
+
         return (
             <React.Fragment>
                 <SnackbarMessage open={this.state.success} onClose={this.handleClose.bind(this)} severity="success"
@@ -357,41 +398,10 @@ export default class DeviceSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={this.state.settings_not_saved}/>
 
-                <Header title={translations.device_settings}/>
-
-                <div className="settings-container settings-container-narrow fixed-margin-extra">
-                    <Card>
-                        <CardBody>
-                            <ColorPicker label={translations.header_background_color} value={header_background_color}
-                                handleChange={this.handleHeaderColor}/>
-
-                            <ColorPicker label={translations.footer_background_color} value={footer_background_color}
-                                handleChange={this.handleFooterColor}/>
-
-                        </CardBody>
-                    </Card>
-
-                    <Card>
-                        <CardBody>
-                            <FormBuilder
-                                handleChange={this.handleSettingsChange}
-                                formFieldsRows={this.getInventoryFields()}
-                            />
-                        </CardBody>
-                    </Card>
-
-                    <Card>
-                        <CardBody>
-                            <Button onClick={this.refresh} color="primary" block>{translations.refresh}</Button>
-                            <Button className="mt-2" onClick={(e) => {
-                                e.preventDefault()
-                                localStorage.removeItem('access_token')
-                                window.location.href = '/#/login'
-                            }} color="primary" block>{translations.logout}</Button>
-                        </CardBody>
-                    </Card>
-
-                </div>
+                <EditScaffold title={translations.device_settings} cancelButtonDisabled={!this.state.changesMade}
+                              handleCancel={this.handleCancel.bind(this)}
+                              handleSubmit={this.handleSubmit.bind(this)}
+                              tabs={tabs}/>
             </React.Fragment>
         )
     }

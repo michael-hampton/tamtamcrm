@@ -8,6 +8,7 @@ import SnackbarMessage from '../common/SnackbarMessage'
 import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
 import CompanyModel from '../models/CompanyModel'
+import EditScaffold from "./EditScaffold";
 
 export default class LocalisationSettings extends Component {
     constructor (props) {
@@ -208,6 +209,53 @@ export default class LocalisationSettings extends Component {
                 value={date_format.id}>{moment().format(date_format.format_moment)}</option>
         }) : null
 
+        const tabs = {
+            children: []
+        }
+
+        tabs.children[0] = <>
+            <Card>
+                <CardBody>
+                    <FormGroup>
+                        <Label>{translations.date_format}</Label>
+                        <Input type="select" name="date_format" onChange={this.handleSettingsChange}>
+                            {date_format_list}
+                        </Input>
+                    </FormGroup>
+
+                    <FormGroup>
+                        <Label>{translations.first_day_of_week}</Label>
+                        <Input type="select" name="first_day_of_week" onChange={this.handleSettingsChange}>
+                            <option value=""/>
+                            {day_list}
+                        </Input>
+                    </FormGroup>
+
+                    <FormGroup>
+                        <Label>{translations.first_month_of_year}</Label>
+                        <Input type="select" name="first_month_of_year" onChange={this.handleSettingsChange}>
+                            <option value=""/>
+                            {month_list}
+                        </Input>
+                    </FormGroup>
+
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getLanguageFields()}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getCurrencyFields()}
+                    />
+                </CardBody>
+            </Card>
+        </>
+
         return date_formats && date_formats.length ? (
             <React.Fragment>
                 <SnackbarMessage open={this.state.success} onClose={this.handleClose.bind(this)} severity="success"
@@ -216,52 +264,10 @@ export default class LocalisationSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={translations.settings_saved}/>
 
-                <Header title={translations.localisation_settings} cancelButtonDisabled={!this.state.changesMade}
-                    handleCancel={this.handleCancel.bind(this)}
-                    handleSubmit={this.handleSubmit}/>
-
-                <div className="settings-container settings-container-narrow fixed-margin-extra">
-                    <Card>
-                        <CardBody>
-                            <FormGroup>
-                                <Label>{translations.date_format}</Label>
-                                <Input type="select" name="date_format" onChange={this.handleSettingsChange}>
-                                    {date_format_list}
-                                </Input>
-                            </FormGroup>
-
-                            <FormGroup>
-                                <Label>{translations.first_day_of_week}</Label>
-                                <Input type="select" name="first_day_of_week" onChange={this.handleSettingsChange}>
-                                    <option value=""/>
-                                    {day_list}
-                                </Input>
-                            </FormGroup>
-
-                            <FormGroup>
-                                <Label>{translations.first_month_of_year}</Label>
-                                <Input type="select" name="first_month_of_year" onChange={this.handleSettingsChange}>
-                                    <option value=""/>
-                                    {month_list}
-                                </Input>
-                            </FormGroup>
-
-                            <FormBuilder
-                                handleChange={this.handleSettingsChange}
-                                formFieldsRows={this.getLanguageFields()}
-                            />
-                        </CardBody>
-                    </Card>
-
-                    <Card>
-                        <CardBody>
-                            <FormBuilder
-                                handleChange={this.handleSettingsChange}
-                                formFieldsRows={this.getCurrencyFields()}
-                            />
-                        </CardBody>
-                    </Card>
-                </div>
+                <EditScaffold title={translations.localisation_settings} cancelButtonDisabled={!this.state.changesMade}
+                              handleCancel={this.handleCancel.bind(this)}
+                              handleSubmit={this.handleSubmit.bind(this)}
+                              tabs={tabs}/>
             </React.Fragment>
         ) : null
     }

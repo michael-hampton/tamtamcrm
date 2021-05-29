@@ -10,6 +10,7 @@ import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
 import CompanyModel from '../models/CompanyModel'
 import Reminders from "./Reminders";
+import EditScaffold from "./EditScaffold";
 
 class TemplateSettings extends Component {
     constructor(props) {
@@ -23,7 +24,7 @@ class TemplateSettings extends Component {
             id: localStorage.getItem('account_id'),
             loaded: false,
             preview: null,
-            activeTab: '1',
+            activeTab: 0,
             template_type: 'email_template_invoice',
             template_name: 'Invoice',
             company_logo: null,
@@ -133,7 +134,7 @@ class TemplateSettings extends Component {
         })
     }
 
-    toggle(tab) {
+    toggle(event, tab) {
         if (this.state.activeTab !== tab) {
             this.setState({activeTab: tab}, () => {
                 if (tab === '2') {
@@ -231,35 +232,54 @@ class TemplateSettings extends Component {
                             template_type={this.state.template_type}/> : null
         const spinner = this.state.showSpinner === true ? <Spinner style={{width: '3rem', height: '3rem'}}/> : null
 
-        const tabs = <Nav tabs className="nav-justified setting-tabs disable-scrollbars">
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '1' ? 'active' : ''}
-                    onClick={() => {
-                        this.toggle('1')
-                    }}>
-                    {translations.edit}
-                </NavLink>
-            </NavItem>
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '2' ? 'active' : ''}
-                    onClick={() => {
-                        this.toggle('2')
-                    }}>
-                    {translations.preview}
-                </NavLink>
-            </NavItem>
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '2' ? 'active' : ''}
-                    onClick={() => {
-                        this.toggle('3')
-                    }}>
-                    {translations.reminders}
-                </NavLink>
-            </NavItem>
-        </Nav>
+        const tabs = {
+            settings: {
+                activeTab: this.state.activeTab,
+                toggle: this.toggle
+            },
+            tabs: [
+                {
+                    label: translations.edit
+                },
+                {
+                    label: translations.preview
+                },
+                {
+                    label: translations.reminders
+                },
+            ],
+            children: []
+        }
+
+        tabs.children[0] = <Card>
+            <CardBody>
+                <Row>
+                    <Col md={8}>
+                        <Form>
+                            {fields}
+                        </Form>
+                    </Col>
+
+                    <Col md={4}>
+                        <Variables class="fixed-margin-mobile"/>
+                    </Col>
+                </Row>
+
+            </CardBody>
+        </Card>
+
+        tabs.children[1] = <Card>
+            <CardBody>
+                {spinner}
+                {preview}
+            </CardBody>
+        </Card>
+
+        tabs.children[2] = <Card>
+            <CardBody>
+                <Reminders reminders={this.state.reminders} setReminders={this.setReminders}/>
+            </CardBody>
+        </Card>
 
         return (
             <React.Fragment>
@@ -269,50 +289,11 @@ class TemplateSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                                  message={translations.settings_not_saved}/>
 
-                <Header title={translations.template_settings} cancelButtonDisabled={!this.state.changesMade}
-                        handleCancel={this.handleCancel.bind(this)}
-                        handleSubmit={this.handleSubmit}
-                        tabs={tabs}/>
-
-                <div className="settings-container settings-container-narrow fixed-margin-mobile">
-                    <TabContent activeTab={this.state.activeTab}>
-                        <TabPane tabId="1">
-                            <Card>
-                                <CardBody>
-                                    <Row>
-                                        <Col md={8}>
-                                            <Form>
-                                                {fields}
-                                            </Form>
-                                        </Col>
-
-                                        <Col md={4}>
-                                            <Variables class="fixed-margin-mobile"/>
-                                        </Col>
-                                    </Row>
-
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-
-                        <TabPane tabId="2">
-                            <Card>
-                                <CardBody>
-                                    {spinner}
-                                    {preview}
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-
-                        <TabPane tabId="3">
-                            <Card>
-                                <CardBody>
-                                    <Reminders reminders={this.state.reminders} setReminders={this.setReminders}/>
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-                    </TabContent>
-                </div>
+                <EditScaffold fullWidth={true} title={translations.template_settings}
+                              cancelButtonDisabled={!this.state.changesMade}
+                              handleCancel={this.handleCancel.bind(this)}
+                              handleSubmit={this.handleSubmit.bind(this)}
+                              tabs={tabs}/>
             </React.Fragment>
         )
     }

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import FormBuilder from './FormBuilder'
-import { Card, CardBody } from 'reactstrap'
+import {Card, CardBody, CardHeader, FormGroup, Label} from 'reactstrap'
 import axios from 'axios'
 import { icons } from '../utils/_icons'
 import { translations } from '../utils/_translations'
@@ -9,6 +9,8 @@ import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
 import BlockButton from '../common/BlockButton'
 import CompanyModel from '../models/CompanyModel'
+import CaseTemplateDropdown from "../common/dropdowns/CaseTemplateDropdown";
+import EditScaffold from "./EditScaffold";
 
 export default class ExpenseSettings extends Component {
     constructor (props) {
@@ -238,6 +240,25 @@ export default class ExpenseSettings extends Component {
     }
 
     render () {
+        const tabs = {
+            children: []
+        }
+
+        tabs.children[0] = <>
+            <Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getExpenseFields()}
+                    />
+                </CardBody>
+            </Card>
+
+            <BlockButton icon={icons.percent} button_text={translations.configure_categories}
+                         button_link="/#/expense_categories"/>
+        </>
+
+
         return this.state.loaded === true ? (
             <React.Fragment>
                 <SnackbarMessage open={this.state.success} onClose={this.handleClose.bind(this)} severity="success"
@@ -246,23 +267,10 @@ export default class ExpenseSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={translations.settings_not_saved}/>
 
-                <Header title={translations.expense_settings} cancelButtonDisabled={!this.state.changesMade}
-                    handleCancel={this.handleCancel.bind(this)}
-                    handleSubmit={this.handleSubmit}/>
-
-                <div className="settings-container settings-container-narrow fixed-margin-extra">
-                    <Card>
-                        <CardBody>
-                            <FormBuilder
-                                handleChange={this.handleSettingsChange}
-                                formFieldsRows={this.getExpenseFields()}
-                            />
-                        </CardBody>
-                    </Card>
-
-                    <BlockButton icon={icons.percent} button_text={translations.configure_categories}
-                        button_link="/#/expense_categories"/>
-                </div>
+                <EditScaffold title={translations.expense_settings} cancelButtonDisabled={!this.state.changesMade}
+                              handleCancel={this.handleCancel.bind(this)}
+                              handleSubmit={this.handleSubmit.bind(this)}
+                              tabs={tabs}/>
             </React.Fragment>
         ) : null
     }
