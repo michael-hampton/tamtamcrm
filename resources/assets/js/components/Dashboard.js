@@ -1569,7 +1569,7 @@ export default class Dashboard extends Component {
 
                     const index = parseInt(this.state.activeTab2)
                     const offset = document.documentElement.scrollTop
-                    const offsetIndex = Math.floor((offset + 120) / 677)
+                    const offsetIndex = Math.floor((offset + 120) / 622)
                     const selected_tab = offsetIndex + 2
 
                     if (index !== offsetIndex) {
