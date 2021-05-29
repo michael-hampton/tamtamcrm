@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import {
     Button,
     ButtonGroup,
@@ -23,19 +23,19 @@ import {
     TabContent,
     TabPane
 } from 'reactstrap'
-import { CardModule } from './common/Card.jsx'
+import {CardModule} from './common/Card.jsx'
 import ReactEcharts from 'echarts-for-react'
 import axios from 'axios'
 import MessageContainer from './activity/MessageContainer'
 import Line from 'react-chartjs-2'
 import moment from 'moment'
-import { CustomTooltips } from '@coreui/coreui-plugin-chartjs-custom-tooltips'
-import { getStyle, hexToRgba } from '@coreui/coreui/dist/js/coreui-utilities'
+import {CustomTooltips} from '@coreui/coreui-plugin-chartjs-custom-tooltips'
+import {getStyle, hexToRgba} from '@coreui/coreui/dist/js/coreui-utilities'
 import MonthPicker from './common/MonthPicker'
-import { icons } from './utils/_icons'
+import {icons} from './utils/_icons'
 import FormatMoney from './common/FormatMoney'
-import { consts } from './utils/_consts'
-import { translations } from './utils/_translations'
+import {consts} from './utils/_consts'
+import {translations} from './utils/_translations'
 import SettingsWizard from './settings/settings_wizard/SettingsWizard'
 import ViewEntity from './common/ViewEntity'
 import TaskItem from './tasks/TaskItem'
@@ -45,12 +45,12 @@ import QuoteItem from './quotes/QuoteItem'
 import OrderItem from './orders/OrderItem'
 import TaskModel from './models/TaskModel'
 import InvoiceItem from './invoice/InvoiceItem'
-import { getDefaultTableFields as defaultOrderFields } from './presenters/OrderPresenter'
-import { getDefaultTableFields as defaultInvoiceFields } from './presenters/InvoicePresenter'
-import { getDefaultTableFields as defaultQuoteFields } from './presenters/QuotePresenter'
-import { getDefaultTableFields as defaultPaymentFields } from './presenters/PaymentPresenter'
-import { getDefaultTableFields as defaultTaskFields } from './presenters/TaskPresenter'
-import { getDefaultTableFields as defaultExpenseFields } from './presenters/ExpensePresenter'
+import {getDefaultTableFields as defaultOrderFields} from './presenters/OrderPresenter'
+import {getDefaultTableFields as defaultInvoiceFields} from './presenters/InvoicePresenter'
+import {getDefaultTableFields as defaultQuoteFields} from './presenters/QuotePresenter'
+import {getDefaultTableFields as defaultPaymentFields} from './presenters/PaymentPresenter'
+import {getDefaultTableFields as defaultTaskFields} from './presenters/TaskPresenter'
+import {getDefaultTableFields as defaultExpenseFields} from './presenters/ExpensePresenter'
 
 const brandPrimary = getStyle('--primary')
 const brandSuccess = getStyle('--success')
@@ -336,7 +336,7 @@ export default class Dashboard extends Component {
             orders: [],
             credits: [],
             activeTab: '1',
-            activeTab2: window.innerWidth <= 768 ? '' : '3',
+            activeTab2: window.innerWidth <= 768 ? '' : '1',
             isMobile: window.innerWidth <= 768,
             view: {
                 ignore: [],
@@ -365,9 +365,12 @@ export default class Dashboard extends Component {
         this.handleWindowSizeChange = this.handleWindowSizeChange.bind(this)
         this.addUserToState = this.addUserToState.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
+        this.handleScroll = this.handleScroll.bind(this)
     }
 
     componentDidMount () {
+        window.addEventListener('scroll', this.handleScroll);
+
         this.fetchData()
 
         if (!this.settings.name.length) {
@@ -385,12 +388,28 @@ export default class Dashboard extends Component {
         // }, 5000)
     }
 
+    handleScroll() {
+        if (this.state.isMobile) {
+            return;
+        }
+
+        const offset = document.documentElement.scrollTop
+        const offsetIndex = Math.floor((offset + 120) / 622)
+
+        if (parseInt(this.state.activeTab2) !== offsetIndex.toString() && offsetIndex > 0 && offsetIndex < 8) {
+            this.setState({activeTab2: offsetIndex.toString()}, () => {
+                //alert(selected_tab.toString())
+            })
+        }
+    }
+
     componentWillMount () {
         window.addEventListener('resize', this.handleWindowSizeChange)
     }
 
     componentWillUnmount () {
         window.removeEventListener('resize', this.handleWindowSizeChange)
+        window.removeEventListener('scroll', this.handleScroll)
     }
 
     handleWindowSizeChange () {
@@ -788,14 +807,12 @@ export default class Dashboard extends Component {
             )
         }
 
-        const invoices = {
+        return {
             name: 'Invoices',
             labels: dates,
             buttons: buttons,
             datasets: datasets
         }
-
-        return invoices
     }
 
     getQuoteChartData (start, end, dates) {
@@ -887,14 +904,12 @@ export default class Dashboard extends Component {
             )
         }
 
-        const quotes = {
+        return {
             name: 'Quotes',
             labels: dates,
             buttons: buttons,
             datasets: datasets
         }
-
-        return quotes
     }
 
     getCreditChartData (start, end, dates) {
@@ -986,14 +1001,12 @@ export default class Dashboard extends Component {
             )
         }
 
-        const credits = {
+        return {
             name: 'Credits',
             labels: dates,
             buttons: buttons,
             datasets: datasets
         }
-
-        return credits
     }
 
     getOrderChartData (start, end, dates) {
@@ -1029,7 +1042,7 @@ export default class Dashboard extends Component {
             )
         }
 
-        if (this.state.dashboard_filters.Orders.Held === 1) {
+        if (this.state.dashboard_filters.Orders.Held === 1 && orderHeld && orderHeld.value && orderHeld.value > 0) {
             buttons.Held = {
                 avg: orderHeld && Object.keys(orderHeld).length ? orderHeld.avg : 0,
                 pct: orderHeld && Object.keys(orderHeld).length ? orderHeld.pct : 0,
@@ -1049,7 +1062,7 @@ export default class Dashboard extends Component {
             )
         }
 
-        if (this.state.dashboard_filters.Orders.Backordered === 1) {
+        if (this.state.dashboard_filters.Orders.Backordered === 1 && orderBackordered && orderBackordered.value && orderBackordered.value > 0) {
             buttons.Backordered = {
                 avg: orderBackordered && Object.keys(orderBackordered).length ? orderBackordered.avg : 0,
                 pct: orderBackordered && Object.keys(orderBackordered).length ? orderBackordered.pct : 0,
@@ -1069,7 +1082,7 @@ export default class Dashboard extends Component {
             )
         }
 
-        if (this.state.dashboard_filters.Orders.Cancelled === 1) {
+        if (this.state.dashboard_filters.Orders.Cancelled === 1 && orderCancelled && orderCancelled.value && orderCancelled.value > 0) {
             buttons.Cancelled = {
                 avg: orderCancelled && Object.keys(orderCancelled).length ? orderCancelled.avg : 0,
                 pct: orderCancelled && Object.keys(orderCancelled).length ? orderCancelled.pct : 0,
@@ -1129,7 +1142,7 @@ export default class Dashboard extends Component {
             )
         }
 
-        if (this.state.dashboard_filters.Orders.Overdue === 1) {
+        if (this.state.dashboard_filters.Orders.Overdue === 1 && orderOverdue && orderOverdue.value && orderOverdue.value > 0) {
             buttons.Overdue = {
                 avg: orderOverdue && Object.keys(orderOverdue).length ? orderOverdue.avg : 0,
                 pct: orderOverdue && Object.keys(orderOverdue).length ? orderOverdue.pct : 0,
@@ -1149,14 +1162,12 @@ export default class Dashboard extends Component {
             )
         }
 
-        const orders = {
+        return {
             name: 'Orders',
             labels: dates,
             buttons: buttons,
             datasets: datasets
         }
-
-        return orders
     }
 
     getTaskChartData (start, end, dates) {
@@ -1550,7 +1561,21 @@ export default class Dashboard extends Component {
             if (this.state.isMobile) {
                 this.setState({ activeTab2: tab, activeTab: '' })
             } else {
-                this.setState({ activeTab2: tab })
+                alert('here 1 ' + tab)
+                this.setState({ activeTab2: tab }, () => {
+                    if (this.state.activeTab !== '1') {
+                        return;
+                    }
+
+                    const index = parseInt(this.state.activeTab2)
+                    const offset = document.documentElement.scrollTop
+                    const offsetIndex = Math.floor((offset + 120) / 677)
+                    const selected_tab = offsetIndex + 2
+
+                    if (index !== offsetIndex) {
+                        document.documentElement.scrollTop = (index * 622) + 1 //1145
+                    }
+                })
             }
         }
     }
@@ -1611,6 +1636,7 @@ export default class Dashboard extends Component {
         const dashboard_minimized = this.state.dashboard_minimized
         const dashboardFilterEntities = Object.keys(this.state.dashboard_filters)
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
+        const dashboardRightStyle = !this.state.isMobile ? {position: 'fixed', right: '0px', width: '540px', top: '44px'} : {}
 
         const dashboardBody = dashboardFilterEntities.map((entity, index) => {
             return (
@@ -1654,7 +1680,7 @@ export default class Dashboard extends Component {
             })
 
             return (<Row key={index}>
-                <Col>
+                <Col style={{height: '600px'}}>
                     <Card>
                         <CardBody>
                             <Row>
@@ -1670,7 +1696,7 @@ export default class Dashboard extends Component {
                                         className="float-right"><i
                                             className="icon-cloud-download"/></Button>
                                     <ButtonToolbar
-                                        className="float-right"
+                                        className="float-right mt-5"
                                         aria-label="Toolbar with button groups">
                                         <ButtonGroup className="mr-3"
                                             aria-label="First group">
@@ -1948,14 +1974,14 @@ export default class Dashboard extends Component {
                                     </NavItem>
                                     }
 
-                                    {this.state.isMobile && modules && modules.quotes &&
+                                    {this.state.isMobile && this.state.isMobile && modules && modules.orders &&
                                     <NavItem>
                                         <NavLink
                                             className={this.state.activeTab2 === '4' ? 'active' : ''}
                                             onClick={() => {
                                                 this.toggleTab2('4')
                                             }}>
-                                            {translations.quotes}
+                                            {translations.orders}
                                         </NavLink>
                                     </NavItem>
                                     }
@@ -1972,17 +1998,54 @@ export default class Dashboard extends Component {
                                     </NavItem>
                                     }
 
-                                    {this.state.isMobile && this.state.isMobile && modules && modules.orders &&
+                                    {this.state.isMobile && modules && modules.quotes &&
                                     <NavItem>
                                         <NavLink
                                             className={this.state.activeTab2 === '6' ? 'active' : ''}
                                             onClick={() => {
                                                 this.toggleTab2('6')
                                             }}>
-                                            {translations.orders}
+                                            {translations.quotes}
                                         </NavLink>
                                     </NavItem>
                                     }
+
+                                    {this.state.isMobile && modules && modules.credits &&
+                                    <NavItem>
+                                        <NavLink
+                                            className={this.state.activeTab2 === '7' ? 'active' : ''}
+                                            onClick={() => {
+                                                this.toggleTab2('7')
+                                            }}>
+                                            {translations.credits}
+                                        </NavLink>
+                                    </NavItem>
+                                    }
+
+                                    {this.state.isMobile && modules && modules.tasks &&
+                                    <NavItem>
+                                        <NavLink
+                                            className={this.state.activeTab2 === '8' ? 'active' : ''}
+                                            onClick={() => {
+                                                this.toggleTab2('8')
+                                            }}>
+                                            {translations.tasks}
+                                        </NavLink>
+                                    </NavItem>
+                                    }
+
+                                    {this.state.isMobile && modules && modules.expenses &&
+                                    <NavItem>
+                                        <NavLink
+                                            className={this.state.activeTab2 === '9' ? 'active' : ''}
+                                            onClick={() => {
+                                                this.toggleTab2('9')
+                                            }}>
+                                            {translations.expenses}
+                                        </NavLink>
+                                    </NavItem>
+                                    }
+
                                 </Nav>
 
                                 <Row>
@@ -2234,7 +2297,7 @@ export default class Dashboard extends Component {
                     </TabContent>
                 </Col>
 
-                <Col className={`dashboard-tabs-right ${dashboard_minimized ? 'd-none' : ''}`} lg={5}>
+                <Col style={dashboardRightStyle} className={`dashboard-tabs-right ${dashboard_minimized ? 'd-none' : ''}`} lg={5}>
 
                     <Card className="dashboard-border">
                         <CardBody>
@@ -2243,11 +2306,35 @@ export default class Dashboard extends Component {
                                 {modules && modules.invoices &&
                                 <NavItem>
                                     <NavLink
+                                        className={this.state.activeTab2 === '1' ? 'active' : ''}
+                                        onClick={() => {
+                                            this.toggleTab2('1')
+                                        }}>
+                                        {translations.invoices}
+                                    </NavLink>
+                                </NavItem>
+                                }
+
+                                {modules && modules.orders &&
+                                <NavItem>
+                                    <NavLink
+                                        className={this.state.activeTab2 === '2' ? 'active' : ''}
+                                        onClick={() => {
+                                            this.toggleTab2('2')
+                                        }}>
+                                        {translations.orders}
+                                    </NavLink>
+                                </NavItem>
+                                }
+
+                                {modules && modules.payments &&
+                                <NavItem>
+                                    <NavLink
                                         className={this.state.activeTab2 === '3' ? 'active' : ''}
                                         onClick={() => {
                                             this.toggleTab2('3')
                                         }}>
-                                        {translations.invoices}
+                                        {translations.payments}
                                     </NavLink>
                                 </NavItem>
                                 }
@@ -2264,35 +2351,25 @@ export default class Dashboard extends Component {
                                 </NavItem>
                                 }
 
-                                {modules && modules.payments &&
+                                {modules && modules.credits &&
                                 <NavItem>
                                     <NavLink
                                         className={this.state.activeTab2 === '5' ? 'active' : ''}
                                         onClick={() => {
                                             this.toggleTab2('5')
                                         }}>
-                                        {translations.payments}
+                                        {translations.credits}
                                     </NavLink>
                                 </NavItem>
                                 }
 
-                                {modules && modules.orders &&
+
+                                {modules && modules.tasks &&
                                 <NavItem>
                                     <NavLink
                                         className={this.state.activeTab2 === '6' ? 'active' : ''}
                                         onClick={() => {
                                             this.toggleTab2('6')
-                                        }}>
-                                        {translations.orders}
-                                    </NavLink>
-                                </NavItem>
-                                }
-                                {modules && modules.tasks &&
-                                <NavItem>
-                                    <NavLink
-                                        className={this.state.activeTab2 === '7' ? 'active' : ''}
-                                        onClick={() => {
-                                            this.toggleTab2('7')
                                         }}>
                                         {translations.tasks}
                                     </NavLink>
@@ -2301,9 +2378,9 @@ export default class Dashboard extends Component {
                                 {modules && modules.expenses &&
                                 <NavItem>
                                     <NavLink
-                                        className={this.state.activeTab2 === '8' ? 'active' : ''}
+                                        className={this.state.activeTab2 === '7' ? 'active' : ''}
                                         onClick={() => {
-                                            this.toggleTab2('8')
+                                            this.toggleTab2('7')
                                         }}>
                                         {translations.expenses}
                                     </NavLink>
@@ -2313,7 +2390,7 @@ export default class Dashboard extends Component {
                             }
 
                             <TabContent activeTab={this.state.activeTab2}>
-                                <TabPane tabId="3">
+                                <TabPane tabId="1">
                                     <Card>
                                         <CardHeader>{translations.overdue_invoices} {arrOverdueInvoices.length ? arrOverdueInvoices.length : ''}</CardHeader>
                                         <CardBody style={{ height: '285px', overflowY: 'auto' }}>
@@ -2328,6 +2405,37 @@ export default class Dashboard extends Component {
                                         <CardBody style={{ height: '285px', overflowY: 'auto' }}>
                                             <ListGroup>
                                                 {recent_invoices}
+                                            </ListGroup>
+                                        </CardBody>
+                                    </Card>
+                                </TabPane>
+
+                                <TabPane tabId="2">
+                                    <Card>
+                                        <CardHeader>{translations.overdue_orders} {arrOverdueOrders.length ? arrOverdueOrders.length : ''}</CardHeader>
+                                        <CardBody style={{ height: '285px', overflowY: 'auto' }}>
+                                            <ListGroup>
+                                                {overdue_orders}
+                                            </ListGroup>
+                                        </CardBody>
+                                    </Card>
+
+                                    <Card>
+                                        <CardHeader>{translations.recent_orders} {arrRecentOrders.length ? arrRecentOrders.length : ''}</CardHeader>
+                                        <CardBody style={{ height: '285px', overflowY: 'auto' }}>
+                                            <ListGroup>
+                                                {recent_orders}
+                                            </ListGroup>
+                                        </CardBody>
+                                    </Card>
+                                </TabPane>
+
+                                <TabPane tabId="3">
+                                    <Card>
+                                        <CardHeader>{translations.recent_payments} {arrRecentPayments.length ? arrRecentPayments.length : ''}</CardHeader>
+                                        <CardBody style={{ height: '285px', overflowY: 'auto' }}>
+                                            <ListGroup>
+                                                {recent_payments}
                                             </ListGroup>
                                         </CardBody>
                                     </Card>
@@ -2354,36 +2462,11 @@ export default class Dashboard extends Component {
                                 </TabPane>
 
                                 <TabPane tabId="5">
-                                    <Card>
-                                        <CardHeader>{translations.recent_payments} {arrRecentPayments.length ? arrRecentPayments.length : ''}</CardHeader>
-                                        <CardBody style={{ height: '285px', overflowY: 'auto' }}>
-                                            <ListGroup>
-                                                {recent_payments}
-                                            </ListGroup>
-                                        </CardBody>
-                                    </Card>
+
                                 </TabPane>
+
 
                                 <TabPane tabId="6">
-                                    <Card>
-                                        <CardHeader>{translations.overdue_orders} {arrOverdueOrders.length ? arrOverdueOrders.length : ''}</CardHeader>
-                                        <CardBody style={{ height: '285px', overflowY: 'auto' }}>
-                                            <ListGroup>
-                                                {overdue_orders}
-                                            </ListGroup>
-                                        </CardBody>
-                                    </Card>
-
-                                    <Card>
-                                        <CardHeader>{translations.recent_orders} {arrRecentOrders.length ? arrRecentOrders.length : ''}</CardHeader>
-                                        <CardBody style={{ height: '285px', overflowY: 'auto' }}>
-                                            <ListGroup>
-                                                {recent_orders}
-                                            </ListGroup>
-                                        </CardBody>
-                                    </Card>
-                                </TabPane>
-                                <TabPane tabId="7">
                                     <Card>
                                         <CardHeader>{translations.recent_tasks} {arrRecentTasks.length ? arrRecentTasks.length : ''}</CardHeader>
                                         <CardBody style={{ height: '285px', overflowY: 'auto' }}>
@@ -2402,7 +2485,7 @@ export default class Dashboard extends Component {
                                         </CardBody>
                                     </Card>
                                 </TabPane>
-                                <TabPane tabId="8">
+                                <TabPane tabId="7">
                                     <Card>
                                         <CardHeader>{translations.recent_expenses} {arrRecentExpenses.length ? arrRecentExpenses.length : ''}</CardHeader>
                                         <CardBody style={{ height: '285px', overflowY: 'auto' }}>
@@ -2419,7 +2502,7 @@ export default class Dashboard extends Component {
             </Row>
 
             <Row className={this.state.activeTab === '1' ? 'd-block z-index-high' : 'd-none'}>
-                <Col sm={12}>
+                <Col sm={7}>
                     {charts}
                 </Col>
             </Row>
