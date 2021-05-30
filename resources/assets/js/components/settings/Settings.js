@@ -536,16 +536,23 @@ class Settings extends Component {
             children: []
         }
 
-        tabs.children[0] =
+        tabs.children[0] = <Card>
+            <CardBody>
+                <FormBuilder
+                    handleChange={this.handleSettingsChange}
+                    formFieldsRows={this.getFormFields()}
+                />
+            </CardBody>
+        </Card>
 
-            tabs['children'][1] = <Card>
-                <CardBody>
-                    <FormBuilder
-                        handleChange={this.handleSettingsChange}
-                        formFieldsRows={this.getAddressFields()}
-                    />
-                </CardBody>
-            </Card>
+        tabs['children'][1] = <Card>
+            <CardBody>
+                <FormBuilder
+                    handleChange={this.handleSettingsChange}
+                    formFieldsRows={this.getAddressFields()}
+                />
+            </CardBody>
+        </Card>
 
         tabs.children[2] = <Card>
             <CardBody>

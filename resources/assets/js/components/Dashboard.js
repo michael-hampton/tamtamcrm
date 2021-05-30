@@ -51,6 +51,8 @@ import {getDefaultTableFields as defaultQuoteFields} from './presenters/QuotePre
 import {getDefaultTableFields as defaultPaymentFields} from './presenters/PaymentPresenter'
 import {getDefaultTableFields as defaultTaskFields} from './presenters/TaskPresenter'
 import {getDefaultTableFields as defaultExpenseFields} from './presenters/ExpensePresenter'
+import {getDefaultTableFields as defaultCreditFields} from './presenters/CreditPresenter'
+import CreditItem from "./credits/CreditItem";
 
 const brandPrimary = getStyle('--primary')
 const brandSuccess = getStyle('--success')
@@ -1726,28 +1728,53 @@ export default class Dashboard extends Component {
         }) : null
 
         let leads = ''
+        /**************************************************** Quotes ****************************************************/
         // expired
         const filterQuotesByExpiration = this.state.quotes && this.state.quotes.length ? filterOverdue(this.state.quotes) : []
         const arrOverdueQuotes = filterQuotesByExpiration.length ? groupByStatus(filterQuotesByExpiration, 2, 'status_id') : []
-
-        const filterOrdersByExpiration = this.state.orders && this.state.orders.length ? filterOverdue(this.state.orders) : []
-        const arrOverdueOrders = filterOrdersByExpiration.length ? groupByStatus(filterOrdersByExpiration, 2, 'status_id') : []
-
-        const filterInvociesByExpiration = this.state.invoices && this.state.invoices.length ? filterOverdue(this.state.invoices) : []
-        const arrOverdueInvoices = filterInvociesByExpiration.length ? groupByStatus(filterInvociesByExpiration, 2, 'status_id') : []
 
         // last 30 days
         const filterQuotesLast30Days = this.state.quotes && this.state.quotes.length ? getLast30Days(this.state.quotes) : []
         const arrRecentQuotes = filterQuotesLast30Days.length ? groupByStatus(filterQuotesLast30Days, 1, 'status_id') : []
 
+        /**************************************************** Credits ****************************************************/
+        // expired
+        const filterCreditsByExpiration = this.state.credits && this.state.credits.length ? filterOverdue(this.state.credits) : []
+        const arrOverdueCredits = filterCreditsByExpiration.length ? groupByStatus(filterCreditsByExpiration, 2, 'status_id') : []
+
+        // last 30 days
+        const filterCreditsLast30Days = this.state.credits && this.state.credits.length ? getLast30Days(this.state.credits) : []
+        const arrRecentCredits = filterCreditsLast30Days.length ? groupByStatus(filterCreditsLast30Days, 1, 'status_id') : []
+
+        /**************************************************** Orders ****************************************************/
+            // expired
+        const filterOrdersByExpiration = this.state.orders && this.state.orders.length ? filterOverdue(this.state.orders) : []
+        const arrOverdueOrders = filterOrdersByExpiration.length ? groupByStatus(filterOrdersByExpiration, 2, 'status_id') : []
+
+        // last 30 days
         const filterOrdersLast30Days = this.state.orders && this.state.orders.length ? getLast30Days(this.state.orders) : []
         const arrRecentOrders = filterOrdersLast30Days.length ? groupByStatus(filterOrdersLast30Days, 1, 'status_id') : []
 
+        /**************************************************** Invoice ****************************************************/
+        // expired
+        const filterInvociesByExpiration = this.state.invoices && this.state.invoices.length ? filterOverdue(this.state.invoices) : []
+        const arrOverdueInvoices = filterInvociesByExpiration.length ? groupByStatus(filterInvociesByExpiration, 2, 'status_id') : []
+
+        // last 30 days
+        const filterInvoicesLast30Days = this.state.invoices && this.state.invoices.length ? getLast30Days(this.state.invoices) : []
+        const arrRecentInvoices = filterInvoicesLast30Days.length ? groupByStatus(filterInvoicesLast30Days, 1, 'status_id') : []
+
+        /**************************************************** Payments ****************************************************/
+            // last 30 days
         const filterPaymentsLast30Days = this.state.payments && this.state.payments.length ? getLast30Days(this.state.payments) : []
         const arrRecentPayments = filterPaymentsLast30Days.length ? groupByStatus(filterPaymentsLast30Days, 4, 'status_id') : []
 
+        /**************************************************** Expenses ****************************************************/
+            // last 30 days
         const arrRecentExpenses = this.state.expenses.length ? getLast30Days(this.state.expenses) : []
 
+        /**************************************************** Tasks ****************************************************/
+            // last 30 days
         const filterTasksLast30Days = this.state.tasks.length ? getLast30Days(this.state.tasks) : []
         const arrRecentTasks = filterTasksLast30Days.length ? filterTasksLast30Days.filter((item) => {
             const taskModel = new TaskModel(item)
@@ -1760,9 +1787,8 @@ export default class Dashboard extends Component {
             return !item.deleted_at && taskModel.isRunning
         }) : []
 
-        const filterInvoicesLast30Days = this.state.invoices && this.state.invoices.length ? getLast30Days(this.state.invoices) : []
-        const arrRecentInvoices = filterInvoicesLast30Days.length ? groupByStatus(filterInvoicesLast30Days, 1, 'status_id') : []
 
+        /**************************************************** Invoices ****************************************************/
         const overdue_invoices = this.state.customers.length && arrOverdueInvoices.length
             ? <InvoiceItem ignoredColumns={defaultInvoiceFields()} showCheckboxes={false}
                 updateInvoice={(entities) => {
@@ -1790,6 +1816,7 @@ export default class Dashboard extends Component {
                 bulk={[]}
                 onChangeBulk={null}/> : null
 
+        /**************************************************** Tasks ****************************************************/
         const recent_tasks = this.state.customers.length && arrRecentTasks.length
             ? <TaskItem ignoredColumns={defaultTaskFields()} showCheckboxes={false} force_mobile={true}
                 action={(entities) => {
@@ -1817,6 +1844,7 @@ export default class Dashboard extends Component {
             bulk={[]}
             onChangeBulk={null}/> : null
 
+        /**************************************************** Expenses ****************************************************/
         const recent_expenses = this.state.customers.length && arrRecentExpenses.length
             ? <ExpenseItem ignoredColumns={defaultExpenseFields()} showCheckboxes={false}
                 updateExpenses={(entities) => {
@@ -1830,6 +1858,7 @@ export default class Dashboard extends Component {
                 bulk={[]}
                 onChangeBulk={null}/> : null
 
+        /**************************************************** Quotes ****************************************************/
         const overdue_quotes = this.state.customers.length && arrOverdueQuotes.length
             ? <QuoteItem ignoredColumns={defaultQuoteFields()} showCheckboxes={false} updateInvoice={(entities) => {
                 this.addUserToState('quotes', entities)
@@ -1854,6 +1883,7 @@ export default class Dashboard extends Component {
             bulk={[]}
             onChangeBulk={null}/> : null
 
+        /**************************************************** Orders ****************************************************/
         const overdue_orders = this.state.customers.length && arrOverdueOrders.length
             ? <OrderItem ignoredColumns={defaultOrderFields()} showCheckboxes={false} updateOrder={(entities) => {
                 this.addUserToState('orders', entities)
@@ -1878,6 +1908,7 @@ export default class Dashboard extends Component {
             bulk={[]}
             onChangeBulk={null}/> : null
 
+        /**************************************************** Payments ****************************************************/
         const recent_payments = this.state.customers.length && arrRecentPayments.length
             ? <PaymentItem ignoredColumns={defaultPaymentFields()} showCheckboxes={false}
                 updateCustomers={(entities) => {
@@ -1892,6 +1923,31 @@ export default class Dashboard extends Component {
                 }}
                 bulk={[]}
                 onChangeBulk={null}/> : null
+
+        /**************************************************** Credits ****************************************************/
+        const overdue_credits = this.state.customers.length && arrOverdueCredits.length
+            ? <CreditItem ignoredColumns={defaultCreditFields()} showCheckboxes={false} updateInvoice={(entities) => {
+                this.addUserToState('quotes', entities)
+            }} credits={arrOverdueCredits} force_mobile={true} show_list={true} users={[]}
+                         custom_fields={[]} customers={this.state.customers}
+                         viewId={this.state.viewId}
+                         toggleViewedEntity={(id, title = null, edit = null) => {
+                             this.toggleViewedEntity('Credit', this.state.credits, id, title, edit)
+                         }}
+                         bulk={[]}
+                         onChangeBulk={null}/> : null
+
+        const recent_credits = this.state.customers.length && arrRecentCredits.length
+            ? <CreditItem ignoredColumns={defaultCreditFields()} showCheckboxes={false} updateInvoice={(entities) => {
+                this.addUserToState('credits', entities)
+            }} credits={arrRecentCredits} force_mobile={true} show_list={true} users={[]}
+                         custom_fields={[]} customers={this.state.customers}
+                         viewId={this.state.viewId}
+                         toggleViewedEntity={(id, title = null, edit = null) => {
+                             this.toggleViewedEntity('Credit', this.state.credits, id, title, edit)
+                         }}
+                         bulk={[]}
+                         onChangeBulk={null}/> : null
 
         const modules = JSON.parse(localStorage.getItem('modules'))
 
@@ -2462,7 +2518,23 @@ export default class Dashboard extends Component {
                                 </TabPane>
 
                                 <TabPane tabId="5">
+                                    <Card>
+                                        <CardHeader>{translations.overdue_credits} {arrOverdueCredits.length ? arrOverdueCredits.length : ''}</CardHeader>
+                                        <CardBody style={{ height: '285px', overflowY: 'auto' }}>
+                                            <ListGroup>
+                                                {overdue_credits}
+                                            </ListGroup>
+                                        </CardBody>
+                                    </Card>
 
+                                    <Card>
+                                        <CardHeader>{translations.recent_credits} {arrRecentCredits.length ? arrRecentCredits.length : ''}</CardHeader>
+                                        <CardBody style={{ height: '285px', overflowY: 'auto' }}>
+                                            <ListGroup>
+                                                {recent_credits}
+                                            </ListGroup>
+                                        </CardBody>
+                                    </Card>
                                 </TabPane>
 
 

@@ -137,6 +137,8 @@ _localizedValues.en = {
     recent_quotes: 'Recent Quotes',
     overdue_orders: 'Overdue Orders',
     recent_orders: 'Recent Orders',
+    recent_credits: 'Recent Credits',
+    overdue_credits: 'Overdue Credits',
     recent_payments: 'Recent Payments',
     off: 'Off',
     when_created: 'When Created',
