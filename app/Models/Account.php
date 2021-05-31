@@ -334,6 +334,11 @@ class Account extends Model
         return $this->hasMany(Project::class);
     }
 
+    public function invitations()
+    {
+        return $this->hasMany(Invitation::class);
+    }
+
     public function subscriptions()
     {
         return $this->hasMany(Subscription::class);
@@ -413,6 +418,9 @@ class Account extends Model
         $export['users'] = $this->users->makeHidden('auth_token')->makeHidden('password')->makeHidden('accounts')->toArray();
         $export['company_tokens'] = $this->tokens()->where('is_web', false)->get()->toArray();
         $export['account_users'] = $this->account_users->toArray();
+        $export['designs'] = $this->designs->toArray();
+        $export['documents'] = File::where('account_id', $this->id)->toArray();
+        $export['invitations'] = $this->invitations->toArray();
 
         if ($return_array) {
             return $export;
