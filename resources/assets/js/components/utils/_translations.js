@@ -974,7 +974,8 @@ _localizedValues.en = {
     move_up: 'Move Up',
     move_down: 'Move Down',
     move_bottom: 'Move Bottom',
-    reminders: 'Reminders'
+    reminders: 'Reminders',
+    upgrade_to_paid_plan: 'Upgrade to a paid plan to enable the advanded settings',
 }
 
 let language = []

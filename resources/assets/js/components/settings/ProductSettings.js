@@ -7,7 +7,7 @@ import SnackbarMessage from '../common/SnackbarMessage'
 import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
 import CompanyModel from '../models/CompanyModel'
-import EditScaffold from "./EditScaffold";
+import EditScaffold from "../common/EditScaffold";
 
 class ProductSettings extends Component {
     constructor(props) {
@@ -19,7 +19,9 @@ class ProductSettings extends Component {
             settings: {},
             success: false,
             error: false,
-            changesMade: false
+            changesMade: false,
+            isSaving: false,
+            loaded: false
         }
 
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
@@ -85,6 +87,7 @@ class ProductSettings extends Component {
     }
 
     handleSubmit(e) {
+        this.setState({isSaving: true})
         const formData = new FormData()
         formData.append('settings', JSON.stringify(this.state.settings))
         formData.append('_method', 'PUT')
@@ -98,7 +101,8 @@ class ProductSettings extends Component {
                 this.setState({
                     success: true,
                     cached_settings: this.state.settings,
-                    changesMade: false
+                    changesMade: false,
+                    isSaving: false
                 }, () => this.model.updateSettings(this.state.settings))
             })
             .catch((error) => {
@@ -272,7 +276,10 @@ class ProductSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                                  message={translations.settings_not_saved}/>
 
-                <EditScaffold title={translations.product_settings} cancelButtonDisabled={!this.state.changesMade}
+                <EditScaffold isLoading={!this.state.loaded} isSaving={this.state.isSaving}
+                              isEditing={this.state.changesMade}
+                              title={translations.product_settings}
+                              cancelButtonDisabled={!this.state.changesMade}
                               handleCancel={this.handleCancel.bind(this)}
                               handleSubmit={this.handleSubmit.bind(this)}
                               tabs={tabs}/>

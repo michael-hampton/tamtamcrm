@@ -18,12 +18,13 @@ import FormBuilder from './FormBuilder'
 import ConfirmPassword from '../common/ConfirmPassword'
 import UpgradeAccount from './UpgradeAccount'
 import ApplyLicence from './ApplyLicence'
-import EditScaffold from "./EditScaffold";
+import EditScaffold from "../common/EditScaffold";
 
 class ModuleSettings extends Component {
     constructor(props) {
         super(props)
         this.state = {
+            loaded: false,
             id: localStorage.getItem('account_id'),
             success_message: translations.settings_saved,
             activeTab: 0,
@@ -32,6 +33,7 @@ class ModuleSettings extends Component {
             success: false,
             error: false,
             changesMade: false,
+            isSaving: false,
             showConfirm: false,
             modules: Object.prototype.hasOwnProperty.call(localStorage, 'modules') ? JSON.parse(localStorage.getItem('modules')) : {
                 recurringInvoices: false,
@@ -225,6 +227,7 @@ class ModuleSettings extends Component {
     }
 
     handleSubmit(e) {
+        this.setState({isSaving: true})
         const formData = new FormData()
         formData.append('settings', JSON.stringify(this.state.settings))
         formData.append('_method', 'PUT')
@@ -238,7 +241,8 @@ class ModuleSettings extends Component {
                 this.setState({
                     success: true,
                     cached_settings: this.state.settings,
-                    changesMade: false
+                    changesMade: false,
+                    isSaving: false
                 }, () => this.model.updateSettings(this.state.settings))
             })
             .catch((error) => {
@@ -466,7 +470,9 @@ class ModuleSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                                  message={translations.settings_not_saved}/>
 
-                <EditScaffold fullWidth={true} title={translations.account_management}
+                <EditScaffold isLoading={!this.state.loaded} isSaving={this.state.isSaving}
+                              isEditing={this.state.changesMade} fullWidth={true}
+                              title={translations.account_management}
                               cancelButtonDisabled={!this.state.changesMade}
                               handleCancel={this.handleCancel.bind(this)}
                               handleSubmit={this.handleSubmit.bind(this)}

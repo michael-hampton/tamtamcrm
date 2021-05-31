@@ -1,7 +1,7 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import {Button, Card, CardBody, CardHeader, FormGroup, Label} from 'reactstrap'
 import axios from 'axios'
-import { translations } from '../utils/_translations'
+import {translations} from '../utils/_translations'
 import FormBuilder from './FormBuilder'
 import ColorPicker from '../common/ColorPicker'
 import Header from './Header'
@@ -11,13 +11,14 @@ import CompanyModel from '../models/CompanyModel'
 import CaseTemplateDropdown from "../common/dropdowns/CaseTemplateDropdown";
 import BlockButton from "../common/BlockButton";
 import {icons} from "../utils/_icons";
-import EditScaffold from "./EditScaffold";
+import EditScaffold from "../common/EditScaffold";
 
 export default class DeviceSettings extends Component {
-    constructor (props) {
+    constructor(props) {
         super(props)
 
         this.state = {
+            loaded: false,
             success_message: translations.settings_saved,
             id: localStorage.getItem('account_id'),
             cached_settings: {},
@@ -28,7 +29,8 @@ export default class DeviceSettings extends Component {
             },
             success: false,
             error: false,
-            changesMade: false
+            changesMade: false,
+            isSaving: false
         }
 
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
@@ -39,19 +41,19 @@ export default class DeviceSettings extends Component {
         this.handleFooterColor = this.handleFooterColor.bind(this)
         this.refresh = this.refresh.bind(this)
 
-        this.model = new CompanyModel({ id: this.state.id })
+        this.model = new CompanyModel({id: this.state.id})
     }
 
-    componentDidMount () {
+    componentDidMount() {
         window.addEventListener('beforeunload', this.beforeunload.bind(this))
         // this.getAccount()
     }
 
-    componentWillUnmount () {
+    componentWillUnmount() {
         window.removeEventListener('beforeunload', this.beforeunload.bind(this))
     }
 
-    beforeunload (e) {
+    beforeunload(e) {
         if (this.state.changesMade) {
             if (!confirm(translations.changes_made_warning)) {
                 e.preventDefault()
@@ -60,7 +62,7 @@ export default class DeviceSettings extends Component {
         }
     }
 
-    getAccount () {
+    getAccount() {
         const accountRepository = new AccountRepository()
         accountRepository.getById(this.state.id).then(response => {
             if (!response) {
@@ -77,7 +79,7 @@ export default class DeviceSettings extends Component {
         })
     }
 
-    handleHeaderColor (event) {
+    handleHeaderColor(event) {
         const value = event.target.dataset.name
         const text = event.target.dataset.text
 
@@ -93,7 +95,7 @@ export default class DeviceSettings extends Component {
         })
     }
 
-    handleFooterColor (event) {
+    handleFooterColor(event) {
         const value = event.target.dataset.name
         const text = event.target.dataset.text
 
@@ -109,7 +111,7 @@ export default class DeviceSettings extends Component {
         })
     }
 
-    setStorage () {
+    setStorage() {
         const device_settings = {
             footer_background_color: this.state.settings.footer_background_color || 'bg-dark',
             footer_text_color: this.state.settings.footer_text_color || 'bg-light',
@@ -120,7 +122,7 @@ export default class DeviceSettings extends Component {
         localStorage.setItem('device_settings', JSON.stringify(device_settings))
     }
 
-    refresh () {
+    refresh() {
         axios.get('/api/accounts/refresh')
             .then((response) => {
                 if (response.data.success === true) {
@@ -156,12 +158,12 @@ export default class DeviceSettings extends Component {
                     localStorage.setItem('allowed_permissions', JSON.stringify(response.data.data.allowed_permissions))
                     localStorage.setItem('plan', JSON.stringify(response.data.data.plan))
 
-                    this.setState({ success_message: 'Refresh completed', success: true })
+                    this.setState({success_message: 'Refresh completed', success: true})
                 }
             })
     }
 
-    handleSettingsChange (event) {
+    handleSettingsChange(event) {
         const name = event.target.name
         let value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
         value = (value === 'true') ? true : ((value === 'false') ? false : (value))
@@ -192,7 +194,7 @@ export default class DeviceSettings extends Component {
         })
     }
 
-    getInventoryFields () {
+    getInventoryFields() {
         const settings = this.state.settings
 
         return [
@@ -313,7 +315,8 @@ export default class DeviceSettings extends Component {
         ]
     }
 
-    handleSubmit (e) {
+    handleSubmit(e) {
+        this.setState({isSaving: true})
         const formData = new FormData()
         formData.append('settings', JSON.stringify(this.state.settings))
         formData.append('first_month_of_year', this.state.first_month_of_year)
@@ -329,27 +332,28 @@ export default class DeviceSettings extends Component {
                 this.setState({
                     success: true,
                     cached_settings: this.state.settings,
-                    changesMade: false
+                    changesMade: false,
+                    isSaving: false
                 }, () => this.model.updateSettings(this.state.settings))
             })
             .catch((error) => {
-                this.setState({ error: true })
+                this.setState({error: true})
             })
     }
 
-    handleChange (event) {
-        this.setState({ [event.target.name]: event.target.value })
+    handleChange(event) {
+        this.setState({[event.target.name]: event.target.value})
     }
 
-    handleCancel () {
-        this.setState({ settings: this.state.cached_settings, changesMade: false })
+    handleCancel() {
+        this.setState({settings: this.state.cached_settings, changesMade: false})
     }
 
-    handleClose () {
-        this.setState({ success: false, error: false })
+    handleClose() {
+        this.setState({success: false, error: false})
     }
 
-    render () {
+    render() {
         const header_background_color = this.state.settings && this.state.settings.header_background_color ? this.state.settings.header_background_color : ''
         const footer_background_color = this.state.settings && this.state.settings.footer_background_color ? this.state.settings.footer_background_color : ''
 
@@ -393,12 +397,15 @@ export default class DeviceSettings extends Component {
         return (
             <React.Fragment>
                 <SnackbarMessage open={this.state.success} onClose={this.handleClose.bind(this)} severity="success"
-                    message={this.state.success_message}/>
+                                 message={this.state.success_message}/>
 
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
-                    message={this.state.settings_not_saved}/>
+                                 message={this.state.settings_not_saved}/>
 
-                <EditScaffold title={translations.device_settings} cancelButtonDisabled={!this.state.changesMade}
+                <EditScaffold isLoading={!this.state.loaded} isSaving={this.state.isSaving}
+                              isEditing={this.state.changesMade}
+                              title={translations.device_settings}
+                              cancelButtonDisabled={!this.state.changesMade}
                               handleCancel={this.handleCancel.bind(this)}
                               handleSubmit={this.handleSubmit.bind(this)}
                               tabs={tabs}/>

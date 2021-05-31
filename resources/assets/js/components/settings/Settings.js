@@ -7,24 +7,17 @@ import {
     CustomInput,
     FormGroup,
     Label,
-    Nav,
-    NavItem,
-    NavLink,
-    TabContent,
-    TabPane
 } from 'reactstrap'
 import axios from 'axios'
 import {translations} from '../utils/_translations'
 import {icons} from '../utils/_icons'
 import BlockButton from '../common/BlockButton'
 import SnackbarMessage from '../common/SnackbarMessage'
-import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
 import FileUploads from '../documents/FileUploads'
 import CompanyModel from '../models/CompanyModel'
 import DesignFields from "./DesignFields";
-import AppTabs from "../common/AppTabs";
-import EditScaffold from "./EditScaffold";
+import EditScaffold from "../common/EditScaffold";
 
 class Settings extends Component {
     constructor(props) {
@@ -39,7 +32,8 @@ class Settings extends Component {
             company_logo: null,
             activeTab: 0,
             success: false,
-            changesMade: false
+            changesMade: false,
+            isSaving: false
         }
 
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
@@ -61,7 +55,6 @@ class Settings extends Component {
     }
 
     beforeunload(e) {
-        alert('here')
         if (this.state.changesMade) {
             if (!confirm(translations.changes_made_warning)) {
                 e.preventDefault()
@@ -109,8 +102,10 @@ class Settings extends Component {
         value = value === 'true' ? true : value
         value = value === 'false' ? false : value
 
+        const value_changed = this.state.cached_settings[name] !== value
+
         this.setState(prevState => ({
-            changesMade: true,
+            changesMade: value_changed,
             settings: {
                 ...prevState.settings,
                 [name]: value
@@ -125,6 +120,7 @@ class Settings extends Component {
     }
 
     handleSubmit(e) {
+        this.setState({isSaving: true})
         const url = this.state.id === null ? '/api/accounts' : `/api/accounts/${this.state.id}`
 
         const formData = new FormData()
@@ -150,7 +146,8 @@ class Settings extends Component {
                 this.setState({
                     success: true,
                     cached_settings: this.state.settings,
-                    changesMade: false
+                    changesMade: false,
+                    isSaving: false
                 }, () => this.model.updateSettings(this.state.settings))
             })
             .catch((error) => {
@@ -627,7 +624,9 @@ class Settings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                                  message={translations.settings_not_saved}/>
 
-                <EditScaffold fullWidth={true} title={translations.account_details}
+                <EditScaffold isLoading={!this.state.loaded} isSaving={this.state.isSaving}
+                              title={translations.account_details}
+                              isEditing={this.state.changesMade}
                               cancelButtonDisabled={!this.state.changesMade}
                               handleCancel={this.handleCancel.bind(this)}
                               handleSubmit={this.handleSubmit}

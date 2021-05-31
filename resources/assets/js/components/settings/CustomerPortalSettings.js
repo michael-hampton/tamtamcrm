@@ -10,7 +10,7 @@ import AccountRepository from '../repositories/AccountRepository'
 import SectionItem from '../common/entityContainers/SectionItem'
 import {toast, ToastContainer} from 'react-toastify'
 import CompanyModel from '../models/CompanyModel'
-import EditScaffold from "./EditScaffold";
+import EditScaffold from "../common/EditScaffold";
 
 export default class CustomerPortalSettings extends Component {
     constructor(props) {
@@ -23,7 +23,9 @@ export default class CustomerPortalSettings extends Component {
             settings: {},
             success: false,
             error: false,
-            changesMade: false
+            changesMade: false,
+            isSaving: false,
+            loaded: false
         }
 
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
@@ -94,6 +96,7 @@ export default class CustomerPortalSettings extends Component {
     }
 
     handleSubmit(e) {
+        this.setState({isSaving: true})
         const formData = new FormData()
         formData.append('settings', JSON.stringify(this.state.settings))
         formData.append('_method', 'PUT')
@@ -107,7 +110,8 @@ export default class CustomerPortalSettings extends Component {
                 this.setState({
                     success: true,
                     cached_settings: this.state.settings,
-                    changesMade: false
+                    changesMade: false,
+                    isSaving: false
                 }, () => this.model.updateSettings(this.state.settings))
             })
             .catch((error) => {
@@ -365,7 +369,9 @@ export default class CustomerPortalSettings extends Component {
                     </Alert>
                 </Snackbar>
 
-                <EditScaffold fullWidth={true} title={translations.customer_portal}
+                <EditScaffold isAdvancedSettings={true} isLoading={!this.state.loaded} isSaving={this.state.isSaving}
+                              isEditing={this.state.changesMade} fullWidth={true}
+                              title={translations.customer_portal}
                               cancelButtonDisabled={!this.state.changesMade}
                               handleCancel={this.handleCancel.bind(this)}
                               handleSubmit={this.handleSubmit.bind(this)}

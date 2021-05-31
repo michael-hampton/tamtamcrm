@@ -6,7 +6,7 @@ import {translations} from '../utils/_translations'
 import {consts} from '../utils/_consts'
 import SnackbarMessage from '../common/SnackbarMessage'
 import Header from './Header'
-import EditScaffold from "./EditScaffold";
+import EditScaffold from "../common/EditScaffold";
 
 class CustomFieldSettings extends Component {
     constructor(props) {
@@ -15,9 +15,12 @@ class CustomFieldSettings extends Component {
         this.modules = JSON.parse(localStorage.getItem('modules'))
 
         this.state = {
+            loaded: false,
             success: false,
             error: false,
             activeTab: 0,
+            isSaving: false,
+            changesMade: false,
             quotes: [{name: 'custom_value1', label: '', type: consts.text}, {
                 name: 'custom_value2',
                 label: '',
@@ -144,7 +147,8 @@ class CustomFieldSettings extends Component {
                         companies: r.data.Company,
                         quotes: r.data.Quote,
                         credits: r.data.Credit,
-                        tasks: r.data.Task
+                        tasks: r.data.Task,
+                        loaded: true
                     })
                     console.log('response', r.data.Product)
                 }
@@ -171,7 +175,7 @@ class CustomFieldSettings extends Component {
         if (className === 'type' && value === 'select' && !this.state[entity].options) {
             const products = [...this.state[entity]]
             products[id].options = [{value: '', text: ''}]
-            this.setState({[entity]: products}, () => console.log(this.state))
+            this.setState({[entity]: products, changesMade: true}, () => console.log(this.state))
         }
     }
 
@@ -182,11 +186,12 @@ class CustomFieldSettings extends Component {
 
         const products = [...this.state[entity]]
         products[id].options = e.options
-        this.setState({[entity]: products}, () => console.log(this.state))
+        this.setState({[entity]: products, changesMade: true}, () => console.log(this.state))
         console.log('element', e)
     }
 
     handleSubmit(e) {
+        this.setState({isSaving: true})
         const fields = {}
         fields.Order = this.state.orders
         fields.Product = this.state.product
@@ -202,7 +207,7 @@ class CustomFieldSettings extends Component {
         axios.post('/api/accounts/fields', {
             fields: JSON.stringify(fields)
         }).then((response) => {
-            this.setState({success: true})
+            this.setState({success: true, changesMade: false, isSaving: false})
             localStorage.setItem('custom_fields', JSON.stringify(fields))
         })
             .catch((error) => {
@@ -503,7 +508,10 @@ class CustomFieldSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                                  message={this.state.settings_not_saved}/>
 
-                <EditScaffold title={translations.custom_fields} cancelButtonDisabled={!this.state.changesMade}
+                <EditScaffold isAdvancedSettings={true} isLoading={!this.state.loaded} isSaving={this.state.isSaving}
+                              isEditing={this.state.changesMade}
+                              title={translations.custom_fields}
+                              cancelButtonDisabled={!this.state.changesMade}
                               handleCancel={this.handleCancel.bind(this)}
                               handleSubmit={this.handleSubmit.bind(this)}
                               tabs={tabs}/>

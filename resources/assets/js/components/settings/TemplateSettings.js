@@ -10,7 +10,7 @@ import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
 import CompanyModel from '../models/CompanyModel'
 import Reminders from "./Reminders";
-import EditScaffold from "./EditScaffold";
+import EditScaffold from "../common/EditScaffold";
 
 class TemplateSettings extends Component {
     constructor(props) {
@@ -30,6 +30,7 @@ class TemplateSettings extends Component {
             company_logo: null,
             cached_settings: {},
             changesMade: false,
+            isSaving: false,
             templates: []
         }
 
@@ -192,6 +193,7 @@ class TemplateSettings extends Component {
     }
 
     handleSubmit(e) {
+        this.setState({isSaving: true})
         if (this.state.activeTab === '3') {
             return this.handleSubmitForReminder()
         }
@@ -201,7 +203,8 @@ class TemplateSettings extends Component {
                 this.setState({
                     success: true,
                     cached_settings: this.state.templates,
-                    changesMade: false
+                    changesMade: false,
+                    isSaving: false
                 })
             })
             .catch((error) => {
@@ -289,7 +292,9 @@ class TemplateSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                                  message={translations.settings_not_saved}/>
 
-                <EditScaffold fullWidth={true} title={translations.template_settings}
+                <EditScaffold isAdvancedSettings={true} isLoading={!this.state.loaded} isSaving={this.state.isSaving}
+                              isEditing={this.state.changesMade} fullWidth={true}
+                              title={translations.template_settings}
                               cancelButtonDisabled={!this.state.changesMade}
                               handleCancel={this.handleCancel.bind(this)}
                               handleSubmit={this.handleSubmit.bind(this)}

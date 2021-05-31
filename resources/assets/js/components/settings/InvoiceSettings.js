@@ -19,7 +19,7 @@ import BlockButton from '../common/BlockButton'
 import CompanyModel from '../models/CompanyModel'
 import DesignFields from './DesignFields'
 import CustomFieldSettingsForm from "./CustomFieldSettingsForm";
-import EditScaffold from "./EditScaffold";
+import EditScaffold from "../common/EditScaffold";
 
 class InvoiceSettings extends Component {
     constructor(props) {
@@ -32,7 +32,9 @@ class InvoiceSettings extends Component {
             activeTab: 0,
             success: false,
             error: false,
-            changesMade: false
+            changesMade: false,
+            isSaving: false,
+            loaded: false
         }
 
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
@@ -115,6 +117,7 @@ class InvoiceSettings extends Component {
     }
 
     handleSubmit() {
+        this.setState({isSaving: true})
         const {settings} = this.state
         const formData = new FormData()
         formData.append('settings', JSON.stringify(settings))
@@ -129,7 +132,8 @@ class InvoiceSettings extends Component {
                 this.setState({
                     success: true,
                     cached_settings: this.state.settings,
-                    changesMade: false
+                    changesMade: false,
+                    isSaving: false
                 }, () => this.model.updateSettings(this.state.settings))
             })
             .catch((error) => {
@@ -432,7 +436,10 @@ class InvoiceSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                                  message={translations.settings_not_saved}/>
 
-                <EditScaffold title={translations.invoice_settings} cancelButtonDisabled={!this.state.changesMade}
+                <EditScaffold isAdvancedSettings={true} isLoading={!this.state.loaded} isSaving={this.state.isSaving}
+                              isEditing={this.state.changesMade}
+                              title={translations.invoice_settings}
+                              cancelButtonDisabled={!this.state.changesMade}
                               handleCancel={this.handleCancel.bind(this)}
                               handleSubmit={this.handleSubmit.bind(this)}
                               tabs={tabs}/>

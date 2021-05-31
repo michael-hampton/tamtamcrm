@@ -11,7 +11,7 @@ import BlockButton from '../common/BlockButton'
 import {consts} from '../utils/_consts'
 import CaseTemplateDropdown from '../common/dropdowns/CaseTemplateDropdown'
 import CompanyModel from '../models/CompanyModel'
-import EditScaffold from "./EditScaffold";
+import EditScaffold from "../common/EditScaffold";
 
 export default class CaseSettings extends Component {
     constructor(props) {
@@ -24,7 +24,9 @@ export default class CaseSettings extends Component {
             activeTab: '1',
             success: false,
             error: false,
-            changesMade: false
+            changesMade: false,
+            isSaving: false,
+            loaded: false
         }
 
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
@@ -113,6 +115,7 @@ export default class CaseSettings extends Component {
     }
 
     handleSubmit(e) {
+        this.setState({isSaving: true})
         const formData = new FormData()
         formData.append('settings', JSON.stringify(this.state.settings))
         formData.append('_method', 'PUT')
@@ -126,7 +129,8 @@ export default class CaseSettings extends Component {
                 this.setState({
                     success: true,
                     cached_settings: this.state.settings,
-                    changesMade: false
+                    changesMade: false,
+                    isSaving: false
                 }, () => this.model.updateSettings(this.state.settings))
             })
             .catch((error) => {
@@ -258,7 +262,10 @@ export default class CaseSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                                  message={translations.settings_not_saved}/>
 
-                <EditScaffold title={translations.case_settings} cancelButtonDisabled={!this.state.changesMade}
+                <EditScaffold isLoading={!this.state.loaded} isSaving={this.state.isSaving}
+                              isEditing={this.state.changesMade}
+                              title={translations.case_settings}
+                              cancelButtonDisabled={!this.state.changesMade}
                               handleCancel={this.handleCancel.bind(this)}
                               handleSubmit={this.handleSubmit.bind(this)}
                               tabs={tabs}/>
