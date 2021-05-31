@@ -83,7 +83,10 @@ class ImportAccountData
         'users'              => User::class,
         'purchase_orders'    => PurchaseOrder::class,
         'company_tokens'     => CompanyToken::class,
-        'account_users'      => AccountUser::class
+        'account_users'      => AccountUser::class,
+        'designs'            => Design::class,
+        'documents'          => File::class,
+        'invitations'        => Invitation::class
     ];
 
     /**
