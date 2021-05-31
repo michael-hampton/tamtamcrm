@@ -19,9 +19,10 @@ export default class EditScaffold extends Component {
 
         this.state = {
             width: window.innerWidth,
-            container_width: 0,
+            container_width: window.innerWidth > 1024 ? 1302 : (window.innerWidth < 678 ? window.innerWidth - 1: 765),
             sidebar_open: true,
-            window_width: window.innerWidth
+            window_width: window.innerWidth,
+            height: this.props.tabs.tabs ? 100 : 62
         }
 
         this.handleWindowSizeChange = this.handleWindowSizeChange.bind(this)

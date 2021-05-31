@@ -292,6 +292,7 @@ class TemplateSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                                  message={translations.settings_not_saved}/>
 
+                {this.state.loaded &&
                 <EditScaffold isAdvancedSettings={true} isLoading={!this.state.loaded} isSaving={this.state.isSaving}
                               isEditing={this.state.changesMade} fullWidth={true}
                               title={translations.template_settings}
@@ -299,6 +300,8 @@ class TemplateSettings extends Component {
                               handleCancel={this.handleCancel.bind(this)}
                               handleSubmit={this.handleSubmit.bind(this)}
                               tabs={tabs}/>
+                }
+
             </React.Fragment>
         )
     }
