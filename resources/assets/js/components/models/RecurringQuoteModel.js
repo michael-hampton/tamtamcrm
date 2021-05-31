@@ -3,6 +3,7 @@ import moment from 'moment'
 import BaseModel, { EntityStats, LineItem } from './BaseModel'
 import { consts } from '../utils/_consts'
 import InvoiceCalculations from "./InvoiceCalculations";
+import {buildPdf} from "../utils/Pdf";
 
 export const quote_pdf_fields = ['$quote.quote_number', '$quote.po_number', '$quote.quote_date', '$quote.valid_until', '$quote.balance_due',
     '$quote.quote_total', '$quote.partial_due', '$quote.quote1', '$quote.quote2', '$quote.quote3', '$quote.quote4', '$quote.surcharge1',
@@ -359,7 +360,7 @@ class RecurringQuoteModel extends BaseModel {
             }
 
             // Don't forget to return something
-            return this.buildPdf(res.data)
+            return buildPdf(res.data)
         } catch (e) {
             alert(e)
             this.handleError(e)

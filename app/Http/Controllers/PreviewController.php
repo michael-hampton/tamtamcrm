@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CompanyToken;
 use App\Services\Pdf\GeneratePdf;
 use App\Components\Pdf\InvoicePdf;
 use App\Jobs\Pdf\CreatePdf;
@@ -28,6 +29,7 @@ class PreviewController extends Controller
      */
     public function show()
     {
+
         $show_html = request()->input('show_html');
 
         if (!empty(request()->input('entity')) && !empty(request()->input('entity_id'))) {
@@ -63,19 +65,22 @@ class PreviewController extends Controller
 
     private function blankEntity($show_html = false)
     {
+        $token_sent = \request()->bearerToken();
+        $token = CompanyToken::whereToken($token_sent)->first();
+
         DB::beginTransaction();
 
         $customer = Customer::factory()->create(
             [
-                'user_id'    => auth()->user()->id,
-                'account_id' => auth()->user()->account_user()->account_id,
+                'user_id'    => $token->user->id,
+                'account_id' => $token->account->id,
             ]
         );
 
         $contact = CustomerContact::factory()->create(
             [
-                'user_id'                    => auth()->user()->id,
-                'account_id'                 => auth()->user()->account_user()->account_id,
+                'user_id'                    => $token->user->id,
+                'account_id'                 => $token->account->id,
                 'customer_id'                => $customer->id,
                 'is_primary'                 => 1,
                 'email_notification_enabled' => true,
@@ -91,31 +96,23 @@ class PreviewController extends Controller
 
         $invoice = Invoice::factory()->create(
             [
-                'user_id'     => auth()->user()->id,
-                'account_id'  => auth()->user()->account_user()->account_id,
+                'user_id'     => $token->user->id,
+                'account_id'  => $token->account->id,
                 'customer_id' => $customer->id,
             ]
         );
 
-        $design = Design::find($invoice->design_id);
-
-        if (!empty(request()->input('design'))) {
-            $design_object = json_decode(
-                json_encode(request()->input('design'))
-            );
-
-            $design->design = $design_object->design;
-        }
+        $design_id = !empty(request()->input('design_id')) ? request()->input('design_id') : null;
 
         $objPdf = new InvoicePdf($invoice);
+
+        $data = CreatePdf::dispatchNow($objPdf, $invoice, $contact, true, $show_html, '', 'public', $design_id);
 
         $invoice->forceDelete();
         $contact->forceDelete();
         $customer->forceDelete();
 
         DB::rollBack();
-
-        $data = CreatePdf::dispatchNow($objPdf, $invoice, $contact, true, $show_html);
 
         if ($show_html === true) {
             return response()->json(['data' => $data]);

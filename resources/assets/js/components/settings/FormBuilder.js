@@ -2,7 +2,7 @@ import React from 'react'
 import { CustomInput, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, Label } from 'reactstrap'
 import CountryDropdown from '../common/dropdowns/CountryDropdown'
 import CurrencyDropdown from '../common/dropdowns/CurrencyDropdown'
-import Switch from '../common/Switch'
+import AppSwitch from '../common/AppSwitch'
 import PaymentTypeDropdown from '../common/dropdowns/PaymentTypeDropdown'
 import PaymentTermsDropdown from '../common/dropdowns/PaymentTermsDropdown'
 import { translations } from '../utils/_translations'
@@ -205,7 +205,7 @@ class FormBuilder extends React.Component {
                 </React.Fragment>
                 break
             case 'checkbox':
-                returnedField = <Switch
+                returnedField = <AppSwitch
                     key={field.id}
                     label={field.label}
                     name={field.name}

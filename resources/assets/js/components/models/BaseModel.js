@@ -108,21 +108,6 @@ export default class BaseModel {
         }
     }
 
-    buildPdf (data) {
-        // decode base64 string, remove space for IE compatibility
-        var binary = atob(data.data.replace(/\s/g, ''))
-        var len = binary.length
-        var buffer = new ArrayBuffer(len)
-        var view = new Uint8Array(buffer)
-        for (var i = 0; i < len; i++) {
-            view[i] = binary.charCodeAt(i)
-        }
-
-        // create the blob object with content-type "application/pdf"
-        var blob = new Blob([view], { type: 'application/pdf' })
-        return URL.createObjectURL(blob)
-    }
-
     copyToClipboard (content) {
         const mark = document.createElement('textarea')
         mark.setAttribute('readonly', 'readonly')

@@ -1,5 +1,6 @@
 import axios from 'axios'
 import BaseModel from './BaseModel'
+import {buildPdf} from "../utils/Pdf";
 
 export default class LeadModel extends BaseModel {
     constructor (data = null) {
@@ -155,7 +156,7 @@ export default class LeadModel extends BaseModel {
             }
 
             // Don't forget to return something
-            return this.buildPdf(res.data)
+            return buildPdf(res.data)
         } catch (e) {
             alert(e)
             this.handleError(e)

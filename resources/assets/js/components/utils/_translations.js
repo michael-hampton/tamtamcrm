@@ -976,6 +976,8 @@ _localizedValues.en = {
     move_bottom: 'Move Bottom',
     reminders: 'Reminders',
     upgrade_to_paid_plan: 'Upgrade to a paid plan to enable the advanded settings',
+    html_mode: 'HTML Mode',
+    html_mode_help: 'Preview updates faster but is less accurate',
 }
 
 let language = []

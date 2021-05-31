@@ -4,6 +4,7 @@ import BaseModel, {LineItem} from './BaseModel'
 import {consts} from '../utils/_consts'
 import {roundNumber} from "../utils/_formatting";
 import InvoiceCalculations from "./InvoiceCalculations";
+import {buildPdf} from "../utils/Pdf";
 
 export const invoice_pdf_fields = ['$invoice.number', '$invoice.po_number', '$invoice.invoice_date', '$invoice.invoice_datetime', '$invoice.invoice_status', '$invoice.invoice_agent', '$invoice.due_date',
     '$invoice.balance', '$invoice.invoice_total', '$invoice.partial_due', '$invoice.custom1', '$invoice.custom2', '$invoice.custom3',
@@ -468,7 +469,7 @@ class InvoiceModel extends BaseModel {
             }
 
             // Don't forget to return something
-            return this.buildPdf(res.data)
+            return buildPdf(res.data)
         } catch (e) {
             alert(e)
             this.handleError(e)

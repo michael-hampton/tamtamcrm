@@ -3,6 +3,7 @@ import moment from 'moment'
 import BaseModel, { LineItem } from './BaseModel'
 import { consts } from '../utils/_consts'
 import InvoiceCalculations from "./InvoiceCalculations";
+import {buildPdf} from "../utils/Pdf";
 
 export const quote_pdf_fields = ['$quote.number', '$quote.po_number', '$quote.quote_date', '$quote.valid_until', '$quote.balance_due', '$quote.quote_datetime', '$quote.quote_status', '$quote.quote_agent',
     '$quote.quote_total', '$quote.partial_due', '$quote.custom1', '$quote.custom2', '$quote.custom3', '$quote.custom4', '$quote.surcharge1',
@@ -351,7 +352,7 @@ class QuoteModel extends BaseModel {
             }
 
             // Don't forget to return something
-            return this.buildPdf(res.data)
+            return buildPdf(res.data)
         } catch (e) {
             alert(e)
             this.handleError(e)

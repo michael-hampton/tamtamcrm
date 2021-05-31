@@ -59,7 +59,7 @@ export default class EditScaffold extends Component {
     }
 
     handleWindowSizeChange() {
-        const container_width = document.getElementsByClassName('container')[0].clientWidth
+        const container_width = this.props.overide_width ? document.getElementById('scaffold-container').parentElement.clientWidth : document.getElementsByClassName('container')[0].clientWidth
         const sidebar_shown = document.getElementsByClassName('sidebar-show').length > 0
         const height = document.getElementsByClassName('MuiAppBar-root')[0].clientHeight
 
@@ -67,6 +67,12 @@ export default class EditScaffold extends Component {
     }
 
     render() {
+        let left = null
+
+        if(this.props.overide_width && document.getElementById('scaffold-container')) {
+            left = document.getElementById('scaffold-container').parentElement.getBoundingClientRect().left
+        }
+
         let showUpgradeBanner = false;
         let isEnabled = (this.state.window_width <= 768 ||
             this.props.isEditing) &&
@@ -81,7 +87,7 @@ export default class EditScaffold extends Component {
             }
         }
 
-        return <div className="mt-3 w-100" style={{maxWidth: '1275px'}}>
+        return <div id="scaffold-container" className="mt-3 w-100" style={{maxWidth: '1275px'}}>
             <AppBar position="fixed" style={{
                 zIndex: this.state.window_width <= 768 ? 9 : 9999,
                 background: 'transparent',
@@ -89,7 +95,8 @@ export default class EditScaffold extends Component {
                 borderTop: '4px solid #000',
                 top: '30px',
                 width: this.state.container_width - 30,
-                right: '16px'
+                right: '16px',
+                left: left !== null ? left + 16 : null
             }}>
                 <Card>
                     <CardBody className="p-0">

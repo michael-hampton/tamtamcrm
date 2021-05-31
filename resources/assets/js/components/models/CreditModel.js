@@ -3,6 +3,7 @@ import moment from 'moment'
 import BaseModel, { LineItem } from './BaseModel'
 import { consts } from '../utils/_consts'
 import InvoiceCalculations from "./InvoiceCalculations";
+import {buildPdf} from "../utils/Pdf";
 
 export const credit_pdf_fields = ['$credit.number', '$credit.po_number', '$credit.credit_date', '$credit.credit_amount', '$credit.credit_datetime', '$credit.credit_agent',
     '$credit.balance', '$credit.partial_due', '$credit.custom1', '$credit.custom2', '$credit.custom3', '$credit.custom4',
@@ -339,7 +340,7 @@ class CreditModel extends BaseModel {
             }
 
             // Don't forget to return something
-            return this.buildPdf(res.data)
+            return buildPdf(res.data)
         } catch (e) {
             alert(e)
             this.handleError(e)

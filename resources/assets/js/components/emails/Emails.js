@@ -10,7 +10,7 @@ import { translations } from '../utils/_translations'
 import ViewPdf from './ViewPdf'
 import AlertPopup from '../common/AlertPopup'
 import AccountRepository from "../repositories/AccountRepository";
-import Switch from "../common/Switch";
+import AppSwitch from "../common/AppSwitch";
 
 export default class Emails extends Component {
     constructor (props) {
@@ -280,12 +280,6 @@ export default class Emails extends Component {
                         <Card>
                             <CardHeader>{translations.pdf}</CardHeader>
                             <CardBody>
-                                <Switch name="Show HTML" isOn={this.state.show_html} handleToggle={(e) => {
-                                    this.setState({show_html: !this.state.show_html}, () => {
-                                        alert(this.state.show_html)
-                                    })
-                                }} />
-
                                 <ViewPdf show_html={this.state.show_html} width={this.props.width} model={this.props.model}/>
                             </CardBody>
                         </Card>

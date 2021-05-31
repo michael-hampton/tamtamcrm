@@ -34,6 +34,8 @@ class CreatePdf implements ShouldQueue
 
     private bool $html_version;
 
+    private ?int $design_id = null;
+
     /**
      * Create a new job instance.
      *
@@ -51,7 +53,8 @@ class CreatePdf implements ShouldQueue
         bool $update = false,
         bool $html_version = false,
         string $entity_string = '',
-        string $disk = 'public'
+        string $disk = 'public',
+        int $design_id = null
     )
     {
         $this->entity = $entity;
@@ -61,6 +64,7 @@ class CreatePdf implements ShouldQueue
         $this->update = $update;
         $this->entity_string = !empty($entity_string) ? $entity_string : $objPdf->getEntityString();
         $this->html_version = $html_version;
+        $this->design_id = $design_id;
     }
 
     public function handle()
@@ -79,7 +83,7 @@ class CreatePdf implements ShouldQueue
             return $this->file_path;
         }
 
-        $design = Design::find($this->entity->design_id);
+        $design = Design::find(!empty($this->design_id) ? $this->design_id : $this->entity->design_id);
 
         $html = $this->build($design);
 

@@ -1,6 +1,7 @@
 import axios from 'axios'
 import moment from 'moment'
 import BaseModel from './BaseModel'
+import {buildPdf} from "../utils/Pdf";
 
 export default class DealModel extends BaseModel {
     constructor (data = null, customers) {
@@ -156,7 +157,7 @@ export default class DealModel extends BaseModel {
             }
 
             // Don't forget to return something
-            return this.buildPdf(res.data)
+            return buildPdf(res.data)
         } catch (e) {
             alert(e)
             this.handleError(e)
