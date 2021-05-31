@@ -28,7 +28,9 @@ export default class EditScaffold extends Component {
     }
 
     componentDidMount() {
-        this.handleWindowSizeChange()
+        setTimeout(() => {
+            this.handleWindowSizeChange()
+        }, 400);
     }
 
     componentWillMount() {

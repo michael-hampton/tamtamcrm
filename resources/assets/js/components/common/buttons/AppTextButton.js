@@ -18,5 +18,5 @@ export default function AppTextButton(props) {
     }
 
     return <Button onClick={props.onPressed} disabled={!props.isInHeader}
-                   style={{color: primaryColor}}>{props.label}</Button>
+                   style={{color: primaryColor, textTransform: 'none'}}>{props.label}</Button>
 }
