@@ -33,7 +33,6 @@ export default class ViewPdf extends Component {
     }
 
     loadPdf() {
-        alert('yes')
         this.setState({obj_url: ''})
 
         this.props.model.loadPdf(this.state.show_html).then(response => {
