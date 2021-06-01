@@ -47,7 +47,7 @@ class Secondary
 $table_here
 
 <div class="mt-4 px-4 pt-4 pb-4 bg-secondary rounded py-2 text-white" style="width: 100%">
-    <div class="inline-block" style="width: 70%">
+    <div class="inline-block" style="width: 60%">
         <div>
             <p>$entity.customer_note</p>
         </div>
@@ -55,7 +55,7 @@ $table_here
     $costs
 </div>
 <div class="mt-4 pb-4 px-4" style="width: 100%">
-<div class="inline-block" style="width: 70%">
+<div class="inline-block" style="width: 60%">
     <div class="">
         <p class="font-weight-bold">$terms_label</p>
         <p>$terms</p>
@@ -67,13 +67,13 @@ $table_here
 
     public function totals()
     {
-        return '<div class="inline-block px-3 mt-1" style="width: 20%; padding-top: 30px">
-            <div class="col-6 text-left">
+        return '<div class="inline-block px-3 mt-1" style="width: 30%; padding-top: 30px; margin-left: 10px">
+            <div class="text-left">
                 <span style="margin-right: 40px">$discount_label </span>$discount <br>
                 <span style="margin-right: 40px">$tax_label </span>$tax <br>
                 <span style="margin-right: 40px">$shipping_cost_label </span>$shipping_cost <br>
                 <span style="margin-right: 40px">$voucher_label </span>$voucher <br>
-                <span style="margin-right: 40px">$balance_due_label </span>$balance_due <br>
+                <span style="margin-right: 22px">$balance_due_label </span>$balance_due <br>
             </div>
     </div>';
     }

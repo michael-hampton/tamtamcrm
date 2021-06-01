@@ -42,13 +42,13 @@ class Info
 $table_here
 
    <div class="px-4" style="width: 100%; margin-top: 80px; margin-bottom: 80px">
-    <div class="inline-block" style="width: 70%">
+    <div class="inline-block" style="width: 60%">
         $entity.customer_note
     </div>
     $costs
 </div>
 <div class="px-4 mt-4" style="width: 100%">
-    <div class="inline-block" style="width: 70%">
+    <div class="inline-block" style="width: 60%">
         <p class="font-weight-bold">$terms_label</p>
         $terms
     </div>
@@ -57,15 +57,15 @@ $table_here
 
     public function totals()
     {
-        return '<div class="inline-block" style="width: 20%">
-        <div class="col-6 text-left">
+        return '<div class="inline-block" style="width: 32%; margin-left: 26px">
+        <div class="text-left">
             <span style="margin-right: 20px">$subtotal_label</span> $subtotal<br>
-            <span style="margin-right: 20px">$discount_label</span> $discount<br>
-            <span style="margin-right: 20px">$tax_label</span> $tax<br>
-             <span style="margin-right: 20px">$shipping_cost_label</span> $shipping_cost<br>
-             <span style="margin-right: 20px">$voucher_label</span> $voucher<br>
-            <span class="font-weight-bold" style="margin-right: 20px">$balance_due_label</span> 
-            <span class="text-info"> $balance_due</span><br>
+            <span style="margin-right: 30px">$discount_label</span> $discount<br>
+            <span style="margin-right: 30px">$tax_label</span> $tax<br>
+             <span style="margin-right: 30px">$shipping_cost_label</span> $shipping_cost<br>
+             <span style="margin-right: 30px">$voucher_label</span> $voucher<br>
+            <span class="font-weight-bold" style="margin-right: 20px; font-size: 16px">$balance_due_label</span> 
+            <span class="text-info" style="font-size: 16px"> $balance_due</span><br>
         </div>
     </div>';
     }

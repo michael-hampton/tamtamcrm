@@ -344,6 +344,16 @@ class Account extends Model
         return $this->hasMany(Subscription::class);
     }
 
+    public function templates()
+    {
+        return $this->hasMany(EmailTemplate::class);
+    }
+
+    public function reminders()
+    {
+        return $this->hasMany(Reminders::class);
+    }
+
     public function plan_subscriptions()
     {
         return $this->hasMany(PlanSubscription::class);
@@ -418,9 +428,10 @@ class Account extends Model
         $export['users'] = $this->users->makeHidden('auth_token')->makeHidden('password')->makeHidden('accounts')->toArray();
         $export['company_tokens'] = $this->tokens()->where('is_web', false)->get()->toArray();
         $export['account_users'] = $this->account_users->toArray();
-        $export['designs'] = $this->designs->toArray();
-        $export['documents'] = File::where('account_id', $this->id)->toArray();
+        $export['documents'] = File::where('account_id', $this->id)->get()->toArray();
         $export['invitations'] = $this->invitations->toArray();
+        $export['reminders'] = $this->reminders->toArray();
+        $export['templates'] = $this->templates->toArray();
 
         if ($return_array) {
             return $export;

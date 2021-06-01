@@ -101,7 +101,7 @@ class AccountTest extends TestCase
 
         $this->assertZipContains($zipPath . '/' . $files[0], 'attributes.json', json_encode($account->selectPersonalData(null, true), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
 
-        //(new ImportAccountData($account,$zipPath . '/' . $files[0], 'attributes.json'))->importData();
+        (new ImportAccountData($account,$zipPath . '/' . $files[0], 'attributes.json'))->importData();
     }
 
     public function getFullPath(string $diskName, string $filename): string

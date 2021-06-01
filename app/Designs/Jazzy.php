@@ -45,8 +45,8 @@ class Jazzy
         <span>$due_date</span>
     </div>
     <div class="inline-block ml-4">
-        <span class="text-uppercase">$balance_due_label</span>
-        <span class="text-info">$balance_due</span>
+        <span class="text-uppercase" style="font-size: 16px">$balance_due_label</span>
+        <span class="text-info" style="font-size: 16px">$balance_due</span>
     </div>
 </div>
 </div>
@@ -54,7 +54,7 @@ class Jazzy
 $table_here
 
 <div class="mt-4">
-<div class="inline-block" style="width: 70%">
+<div class="inline-block" style="width: 60%">
     <div>
         <p>$entity.customer_note</p>
         <div class="pt-4">
@@ -71,12 +71,12 @@ $costs
 
     public function totals()
     {
-        return '<div class="inline-block" style="width: 20%">
-        <div class="col-6 text-left">
-            <span style="margin-right: 60px">$discount_label</span> $discount<br>
-            <span style="margin-right: 60px">$tax_label</span> $tax<br>
-             <span style="margin-right: 60px">$balance_due_label</span> $balance_due<br>
-             <span style="margin-right: 60px">$shipping_cost_label</span> $shipping_cost<br>
+        return '<div class="inline-block" style="width: 30%; margin-left: 45px">
+        <div class="text-left">
+            <span style="margin-right: 38px">$discount_label</span> $discount<br>
+            <span style="margin-right: 38px">$tax_label</span> $tax<br>
+             <span style="margin-right: 22px">$balance_due_label</span> $balance_due<br>
+             <span style="margin-right: 41px">$shipping_cost_label</span> $shipping_cost<br>
               <span style="margin-right: 60px">$voucher_label</span> $voucher<br>
         </div>
 </div>';

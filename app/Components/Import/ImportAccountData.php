@@ -18,9 +18,12 @@ use App\Models\CustomerContact;
 use App\Models\CustomerGateway;
 use App\Models\Deal;
 use App\Models\Design;
+use App\Models\EmailTemplate;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
+use App\Models\File;
 use App\Models\Group;
+use App\Models\Invitation;
 use App\Models\Invoice;
 use App\Models\Lead;
 use App\Models\Order;
@@ -34,6 +37,7 @@ use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringQuote;
+use App\Models\Reminders;
 use App\Models\Subscription;
 use App\Models\Task;
 use App\Models\TaskStatus;
@@ -84,9 +88,10 @@ class ImportAccountData
         'purchase_orders'    => PurchaseOrder::class,
         'company_tokens'     => CompanyToken::class,
         'account_users'      => AccountUser::class,
-        'designs'            => Design::class,
         'documents'          => File::class,
-        'invitations'        => Invitation::class
+        'invitations'        => Invitation::class,
+        'reminders'          => Reminders::class,
+        'templates'          => EmailTemplate::class
     ];
 
     /**
@@ -191,7 +196,7 @@ class ImportAccountData
                     if (in_array($entity, ['products', 'companies', 'customers', 'tax_rates', 'projects', 'payment_terms', 'tasks', 'expense_categories', 'task_statuses'])) {
 
                         $test = $class::firstOrNew([
-                            'name' => $object['name'],
+                            'name'       => $object['name'],
                             'account_id' => $object['account_id']
                         ]);
                     }
@@ -199,7 +204,7 @@ class ImportAccountData
                     if (in_array($entity, ['credits', 'quotes', 'invoices', 'payments', 'recurring_invoices', 'recurring_quotes', 'purchase_orders', 'orders'])) {
 
                         $test = $class::firstOrNew([
-                            'number' => $object['number'],
+                            'number'     => $object['number'],
                             'account_id' => $object['account_id']
                         ]);
                     }

@@ -27,7 +27,7 @@ class Happy
 
     public function body()
     {
-        return '<div class="mt-4 border-dashed border-top-4 border-bottom-4 border-info">
+        return '<div class="mt-4 border-dashed border-top-4 border-bottom-4 border-info m-1 p-1">
 <div class="inline-block" style="width: 50%">
     <div>
         <p class="font-weight-bold bg-info pl-4 pt-4 pb-4">$pdf_type</p>
@@ -53,7 +53,7 @@ class Happy
 $table_here
 
 <div class="mt-3 px-4">
-<div class="inline-block col-6" style="width: 70%">
+<div class="inline-block col-6" style="width: 60%">
     <div>
         <p>$entity.customer_note</p>
     </div>
@@ -61,16 +61,16 @@ $table_here
  $costs
 </div>
 <div class="w-100 mt-4 pb-4 px-4 mt-2">
-<div class="inline-block" style="width: 70%">
+<div class="inline-block" style="width: 60%">
     <div>
         <p class="font-weight-bold">$terms_label</p>
         <p>$terms</p>
     </div>
 </div>
-<div class="inline-block" style="width: 30%">
+<div class="inline-block text-center" style="width: 30%; margin-left: 22px; font-size: 20px;">
     <section class="bg-info py-2 px-3 pt-4 text-white">
-        <p class="text-right">$balance_due_label</p>
-        <p class="text-right">$balance_due</p>
+        <p>$balance_due_label</p>
+        <p>$balance_due</p>
     </section>
 </div>
 </div>
@@ -81,9 +81,9 @@ $table_here
 
     public function totals()
     {
-        return '<div class="inline-block" style="width: 30%">
+        return '<div class="inline-block" style="width: 38%">
     <div class="px-3 mt-2">
-        <div class="col-6 text-right">
+        <div class="text-right">
             <span style="margin-right: 20px"> $discount_label </span> $discount <br>
             <span style="margin-right: 20px"> $tax_label </span> $tax <br>
             <span style="margin-right: 20px"> $shipping_label </span> $shipping_cost <br>

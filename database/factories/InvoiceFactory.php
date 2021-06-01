@@ -59,6 +59,7 @@ class InvoiceFactory extends Factory
             'due_date'       => \Carbon\Carbon::now()->addDays(3)->format('Y-m-d'),
             'line_items'     => $line_items,
             'terms'          => $this->faker->text(500),
+            'customer_note'  => $this->faker->paragraph
             //'gateway_fee'    => 12.99
         ];
     }

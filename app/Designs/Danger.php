@@ -2,9 +2,6 @@
 
 namespace App\Designs;
 
-/**
- * @wip: Table margins act weird.
- */
 class Danger
 {
 
@@ -52,7 +49,7 @@ $table_here
 
 <div class="border-top-4 border-danger">
 <div class="px-4 pb-4" style="margin-top: 70px">
-    <div class="inline-block" style="width: 65%">
+    <div class="inline-block" style="width: 60%">
         <div class="">
             <p>$entity.customer_note</p>
         </div>
@@ -60,7 +57,7 @@ $table_here
     $costs
 </div>
 <div class="mt-1 pb-4 px-4">
-    <div style="width: 70%">
+    <div style="width: 60%">
         <div>
             <p class="font-weight-bold">$terms_label</p>
             <p>$terms</p>
@@ -75,15 +72,15 @@ $table_here
 
     public function totals()
     {
-        return '<div class="inline-block" style="width: 30%">
+        return '<div class="inline-block" style="width: 32%; margin-left: 26px">
         <div class="px-3 mt-2">
-            <div class="col-6 text-left">
-                <span style="margin-right: 80px">$subtotal_label</span> $subtotal <br>
-                <span style="margin-right: 80px">$discount_label</span> $discount <br>
-                <span style="margin-right: 80px">$tax_label</span> $tax <br>
-                <span style="margin-right: 80px">$shipping_cost_label</span> $shipping_cost <br>
-                <span style="margin-right: 80px">$voucher_label</span> $voucher <br>
-                <span style="margin-right: 80px">$balance_due_label</span> <span class="text-danger font-weight-bold">$balance_due</span> <br>
+            <div class="text-left">
+                <span style="margin-right: 36px; line-height: 24px">$subtotal_label</span> $subtotal <br>
+                <span style="margin-right: 42px; line-height: 24px">$discount_label</span> $discount <br>
+                <span style="margin-right: 42px; line-height: 24px">$tax_label</span> $tax <br>
+                <span style="margin-right: 42px; line-height: 24px">$shipping_cost_label</span> $shipping_cost <br>
+                <span style="margin-right: 42px; line-height: 24px">$voucher_label</span> $voucher <br>
+                <span style="margin-right: 24px; line-height: 24px">$balance_due_label</span> <span class="text-danger font-weight-bold">$balance_due</span> <br>
             </div>
         </div>
     </div>';
