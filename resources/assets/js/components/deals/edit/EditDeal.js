@@ -199,7 +199,8 @@ export default class EditDeal extends Component {
                 entity_id={this.state.id}/> : null
 
         let button = this.props.listView && this.props.listView === true
-            ? <DropdownItem onClick={this.toggle}><i className={`fa ${icons.edit}`}/>{translations.edit_deal}</DropdownItem>
+            ? <DropdownItem onClick={this.toggle}><i className={`fa ${icons.edit}`}/>{translations.edit_deal}
+            </DropdownItem>
             : null
 
         if (this.props.show_as_link === true) {

@@ -1,12 +1,9 @@
 import React from 'react'
-import { ListGroup, ListGroupItem, ListGroupItemHeading, ListGroupItemText, Row } from 'reactstrap'
-import ViewEntityHeader from '../../common/entityContainers/ViewEntityHeader'
+import { Row } from 'reactstrap'
 import { translations } from '../../utils/_translations'
-import InfoMessage from '../../common/entityContainers/InfoMessage'
 import EntityListTile from '../../common/entityContainers/EntityListTile'
 import { icons } from '../../utils/_icons'
 import FieldGrid from '../../common/entityContainers/FieldGrid'
-import FormatDate from '../../common/FormatDate'
 import FormatMoney from '../../common/FormatMoney'
 
 export default function Overview (props) {

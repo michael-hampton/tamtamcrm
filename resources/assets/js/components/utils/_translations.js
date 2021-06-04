@@ -44,7 +44,7 @@ _localizedValues.en = {
     show_password: 'Show Password',
     hide_password: 'Hide Password',
     password_is_too_easy:
-        'Password must contain an upper case character and a number',
+            'Password must contain an upper case character and a number',
     password_is_too_short: 'Password must be at least 8 character long',
     please_enter_your_password: 'Please enter your password',
     invoice_payment_deleted_status: 'Status of invoice after deleting payment',
@@ -53,7 +53,7 @@ _localizedValues.en = {
     logout: 'Logout',
     learn_more: 'Learn More',
     variables: 'Variables',
-    POS: "PO's",
+    POS: 'PO\'s',
     customer_can_view: 'Customer can view the document',
     customer_can_view_help_text: 'Should the customer be able to see the document in the portal',
     payment_term: 'Payment Term',
@@ -70,7 +70,7 @@ _localizedValues.en = {
     grace_period_help_text: 'Allow the customer n number of days to pay after being sent. If left blank the payment terms will be used.',
     enable_portal_password: 'Password Protect Invoices',
     enable_portal_password_help:
-        'Allows you to set a password for each contact. If a password is set, the contact will be required to enter a password before viewing invoices, quotes, orders or credits.',
+            'Allows you to set a password for each contact. If a password is set, the contact will be required to enter a password before viewing invoices, quotes, orders or credits.',
     under_payments_allowed: 'Allow lower payments',
     under_payments_allowed_help_text: 'Customer can make payments less than the invoice total',
     over_payments_allowed: 'Allow over payments',
@@ -495,7 +495,7 @@ _localizedValues.en = {
     purge_data: 'Purge Data',
     purge_successful: 'Successfully purged company data',
     purge_data_message:
-        'Warning: This will permanently erase your data, there is no undo.',
+            'Warning: This will permanently erase your data, there is no undo.',
     invoice_balance: 'Invoice Balance',
     delete: 'Delete',
     delete_message: 'Are you sure you want to delete this?',
@@ -550,10 +550,10 @@ _localizedValues.en = {
     account_management: 'Account Management',
     cancel_account: 'Delete Account',
     cancel_account_message:
-        'Warning: This will permanently delete your account, there is no undo.',
+            'Warning: This will permanently delete your account, there is no undo.',
     delete_account: 'Delete Account',
     delete_account_message:
-        'Warning: This will permanently delete your company, there is no undo.',
+            'Warning: This will permanently delete your company, there is no undo.',
     enable_modules: 'Enable Modules',
     converted_quote: 'Successfully converted quote',
     credit_design: 'Credit Design',
@@ -847,7 +847,7 @@ _localizedValues.en = {
     task_automation_enabled_help: 'Task should start automatically',
     show_tasks_onload: 'Show tasks on load',
     show_tasks_onload_help:
-        'Always show the tasks section when creating invoices',
+            'Always show the tasks section when creating invoices',
     include_times_on_invoice: 'Include times on invoice',
     include_times_on_invoice_help: 'Add time details to the invoice line items',
     include_dates_on_invoice: 'Include dates on invoice',
@@ -930,7 +930,7 @@ _localizedValues.en = {
     forgot_password_link_sent: 'A fresh verification link has been sent to your email address.',
     administrator: 'Administrator',
     administrator_help:
-        'Allow user to manage users, change settings and modify all records',
+            'Allow user to manage users, change settings and modify all records',
     enable_two_factor: 'Enable Two Factor Authentication',
     disable_two_factor: 'Disable Two Factor Authentication',
     two_factor_no_phone_entered: 'In order to enable two factor authentication you need to enter a mobile number.',
@@ -977,7 +977,7 @@ _localizedValues.en = {
     reminders: 'Reminders',
     upgrade_to_paid_plan: 'Upgrade to a paid plan to enable the advanded settings',
     html_mode: 'HTML Mode',
-    html_mode_help: 'Preview updates faster but is less accurate',
+    html_mode_help: 'Preview updates faster but is less accurate'
 }
 
 let language = []
@@ -996,4 +996,4 @@ if (Object.prototype.hasOwnProperty.call(localStorage, 'appState')) {
 }
 
 export const default_language = language.length ? language[0].locale : 'en'
-export const translations = _localizedValues[default_language] ? _localizedValues[default_language] : _localizedValues[en]
+export const translations = _localizedValues[default_language] ? _localizedValues[default_language] : _localizedValues.en

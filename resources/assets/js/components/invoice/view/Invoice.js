@@ -21,7 +21,7 @@ import ViewContacts from '../../common/entityContainers/ViewContacts'
 import AddPayment from '../../payments/edit/AddPayment'
 import Overview from './Overview'
 import InvoiceRepository from '../../repositories/InvoiceRepository'
-import InvoiceModel from "../../models/InvoiceModel";
+import InvoiceModel from '../../models/InvoiceModel'
 
 export default class Invoice extends Component {
     constructor (props) {

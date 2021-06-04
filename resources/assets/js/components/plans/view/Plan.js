@@ -1,11 +1,10 @@
 import React, { Component } from 'react'
-import { Alert, Nav, NavItem, NavLink, TabContent, TabPane } from 'reactstrap'
+import { Alert } from 'reactstrap'
 import { translations } from '../../utils/_translations'
 import BottomNavigationButtons from '../../common/BottomNavigationButtons'
 import Overview from './Overview'
 import AlertPopup from '../../common/AlertPopup'
 import PlanModel from '../../models/PlanModel'
-import InvoiceRepository from '../../repositories/InvoiceRepository'
 
 export default class Plan extends Component {
     constructor (props) {
@@ -56,12 +55,12 @@ export default class Plan extends Component {
         return (
             <React.Fragment>
                 <Overview model={this.planModel} entity={this.state.entity}
-                    invoices={this.state.invoices} />
+                    invoices={this.state.invoices}/>
 
                 {this.state.show_success &&
-                <Alert color="primary">
-                    {translations.action_completed}
-                </Alert>
+                    <Alert color="primary">
+                        {translations.action_completed}
+                    </Alert>
                 }
 
                 <BottomNavigationButtons button1_click={(e) => this.toggleTab('2')}

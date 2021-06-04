@@ -199,7 +199,7 @@ export default class RecurringQuotes extends Component {
     }
 
     render () {
-        const { cachedData, invoices, custom_fields, customers, allQuotes, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { cachedData, invoices, custom_fields, customers, allQuotes, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, pageLimit } = this.state
         const { start_date, end_date } = this.state.filters
         const fetchUrl = `/api/recurring-quote?start_date=${start_date}&end_date=${end_date}`
         const addButton = customers.length ? <UpdateRecurringQuote

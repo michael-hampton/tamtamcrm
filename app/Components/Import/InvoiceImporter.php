@@ -21,7 +21,16 @@ class InvoiceImporter extends BaseCsvImporter
 {
     use ImportMapper;
 
+    /**
+     * @var string
+     */
+    protected string $json;
+
     protected $entity;
+
+    /**
+     * @var array|string[]
+     */
     private array $export_columns = [
         'number'         => 'Number',
         'customer_id'    => 'Customer name',
@@ -190,7 +199,9 @@ class InvoiceImporter extends BaseCsvImporter
         }
 
         if ($is_json) {
-            return json_encode($invoices);
+            $this->export->sendJson('invoice', $invoices);
+            $this->json = json_encode($invoices);
+            return true;
         }
 
         $this->export->build(collect($invoices), $export_columns);
@@ -218,5 +229,13 @@ class InvoiceImporter extends BaseCsvImporter
     public function getTemplate()
     {
         return asset('storage/templates/invoice.csv');
+    }
+
+    /**
+     * @return string
+     */
+    public function getJson(): string
+    {
+        return $this->json;
     }
 }

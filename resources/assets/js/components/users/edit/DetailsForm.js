@@ -71,9 +71,9 @@ export default class DetailsForm extends React.Component {
                                 value={this.props.user.username}
                                 onChange={this.props.handleInput.bind(this)}/>
                             <small className="form-text text-muted">Your username must be
-                                    "firstname"."lastname"
-                                    eg
-                                    joe.bloggs.
+                                        "firstname"."lastname"
+                                        eg
+                                        joe.bloggs.
                             </small>
                             {this.props.renderErrorFor('username')}
                         </FormGroup>

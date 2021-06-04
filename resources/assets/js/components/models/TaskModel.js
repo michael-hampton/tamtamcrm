@@ -1,7 +1,7 @@
 import axios from 'axios'
 import moment from 'moment'
 import BaseModel from './BaseModel'
-import {buildPdf} from "../utils/Pdf";
+import { buildPdf } from '../utils/Pdf'
 
 export default class TaskModel extends BaseModel {
     constructor (data = null, customers) {

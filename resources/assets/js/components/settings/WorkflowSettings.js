@@ -1,18 +1,17 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import FormBuilder from './FormBuilder'
-import {Card, CardBody, Nav, NavItem, NavLink, TabContent, TabPane} from 'reactstrap'
+import { Card, CardBody } from 'reactstrap'
 import axios from 'axios'
-import {icons} from '../utils/_icons'
-import {translations} from '../utils/_translations'
-import {consts} from '../utils/_consts'
+import { icons } from '../utils/_icons'
+import { translations } from '../utils/_translations'
+import { consts } from '../utils/_consts'
 import SnackbarMessage from '../common/SnackbarMessage'
-import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
 import CompanyModel from '../models/CompanyModel'
-import EditScaffold from "../common/EditScaffold";
+import EditScaffold from '../common/EditScaffold'
 
 export default class WorkflowSettings extends Component {
-    constructor(props) {
+    constructor (props) {
         super(props)
 
         this.state = {
@@ -33,19 +32,19 @@ export default class WorkflowSettings extends Component {
         this.getAccount = this.getAccount.bind(this)
         this.toggle = this.toggle.bind(this)
 
-        this.model = new CompanyModel({id: this.state.id})
+        this.model = new CompanyModel({ id: this.state.id })
     }
 
-    componentDidMount() {
+    componentDidMount () {
         window.addEventListener('beforeunload', this.beforeunload.bind(this))
         this.getAccount()
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         window.removeEventListener('beforeunload', this.beforeunload.bind(this))
     }
 
-    beforeunload(e) {
+    beforeunload (e) {
         if (this.state.changesMade) {
             if (!confirm(translations.changes_made_warning)) {
                 e.preventDefault()
@@ -54,13 +53,13 @@ export default class WorkflowSettings extends Component {
         }
     }
 
-    toggle(event, tab) {
+    toggle (event, tab) {
         if (this.state.activeTab !== tab) {
-            this.setState({activeTab: tab})
+            this.setState({ activeTab: tab })
         }
     }
 
-    getAccount() {
+    getAccount () {
         const accountRepository = new AccountRepository()
         accountRepository.getById(this.state.id).then(response => {
             if (!response) {
@@ -77,11 +76,11 @@ export default class WorkflowSettings extends Component {
         })
     }
 
-    handleChange(event) {
-        this.setState({[event.target.name]: event.target.value})
+    handleChange (event) {
+        this.setState({ [event.target.name]: event.target.value })
     }
 
-    handleSettingsChange(event) {
+    handleSettingsChange (event) {
         const name = event.target.name
         let value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
         value = (value === 'true') ? true : ((value === 'false') ? false : (value))
@@ -95,12 +94,12 @@ export default class WorkflowSettings extends Component {
         }))
     }
 
-    handleCancel() {
-        this.setState({settings: this.state.cached_settings, changesMade: false})
+    handleCancel () {
+        this.setState({ settings: this.state.cached_settings, changesMade: false })
     }
 
-    handleSubmit(e) {
-        this.setState({isSaving: true})
+    handleSubmit (e) {
+        this.setState({ isSaving: true })
         const formData = new FormData()
         formData.append('settings', JSON.stringify(this.state.settings))
         formData.append('_method', 'PUT')
@@ -120,11 +119,11 @@ export default class WorkflowSettings extends Component {
             })
             .catch((error) => {
                 console.error(error)
-                this.setState({error: true})
+                this.setState({ error: true })
             })
     }
 
-    getPurchaseOrderFields() {
+    getPurchaseOrderFields () {
         const settings = this.state.settings
 
         return [
@@ -149,7 +148,7 @@ export default class WorkflowSettings extends Component {
         ]
     }
 
-    getInvoiceFields() {
+    getInvoiceFields () {
         const settings = this.state.settings
 
         return [
@@ -194,7 +193,7 @@ export default class WorkflowSettings extends Component {
         ]
     }
 
-    getOrderFields() {
+    getOrderFields () {
         const settings = this.state.settings
 
         return [
@@ -243,7 +242,7 @@ export default class WorkflowSettings extends Component {
         ]
     }
 
-    getLeadFields() {
+    getLeadFields () {
         const settings = this.state.settings
 
         return [
@@ -276,7 +275,7 @@ export default class WorkflowSettings extends Component {
         ]
     }
 
-    getQuoteFields() {
+    getQuoteFields () {
         const settings = this.state.settings
 
         return [
@@ -309,7 +308,7 @@ export default class WorkflowSettings extends Component {
         ]
     }
 
-    getDealFields() {
+    getDealFields () {
         const settings = this.state.settings
 
         return [
@@ -342,7 +341,7 @@ export default class WorkflowSettings extends Component {
         ]
     }
 
-    getPaymentFields() {
+    getPaymentFields () {
         const settings = this.state.settings
 
         return [
@@ -395,11 +394,11 @@ export default class WorkflowSettings extends Component {
         ]
     }
 
-    handleClose() {
-        this.setState({success: false, error: false})
+    handleClose () {
+        this.setState({ success: false, error: false })
     }
 
-    render() {
+    render () {
         const modules = JSON.parse(localStorage.getItem('modules'))
         const tabs = {
             settings: {
@@ -419,7 +418,7 @@ export default class WorkflowSettings extends Component {
                     />
                 </CardBody>
             </Card>)
-            tabs.tabs.push({label: translations.invoices})
+            tabs.tabs.push({ label: translations.invoices })
         }
 
         if (modules && modules.quotes) {
@@ -431,7 +430,7 @@ export default class WorkflowSettings extends Component {
                     />
                 </CardBody>
             </Card>)
-            tabs.tabs.push({label: translations.quotes})
+            tabs.tabs.push({ label: translations.quotes })
         }
 
         if (modules && modules.leads) {
@@ -443,7 +442,7 @@ export default class WorkflowSettings extends Component {
                     />
                 </CardBody>
             </Card>)
-            tabs.tabs.push({label: translations.leads})
+            tabs.tabs.push({ label: translations.leads })
         }
 
         if (modules && modules.orders) {
@@ -455,7 +454,7 @@ export default class WorkflowSettings extends Component {
                     />
                 </CardBody>
             </Card>)
-            tabs.tabs.push({label: translations.orders})
+            tabs.tabs.push({ label: translations.orders })
         }
 
         if (modules && modules.deals) {
@@ -467,7 +466,7 @@ export default class WorkflowSettings extends Component {
                     />
                 </CardBody>
             </Card>)
-            tabs.tabs.push({label: translations.deals})
+            tabs.tabs.push({ label: translations.deals })
         }
 
         if (modules && modules.purchase_orders) {
@@ -479,7 +478,7 @@ export default class WorkflowSettings extends Component {
                     />
                 </CardBody>
             </Card>)
-            tabs.tabs.push({label: translations.POS})
+            tabs.tabs.push({ label: translations.POS })
         }
 
         if (modules && modules.payments) {
@@ -491,24 +490,24 @@ export default class WorkflowSettings extends Component {
                     />
                 </CardBody>
             </Card>)
-            tabs.tabs.push({label: translations.payments})
+            tabs.tabs.push({ label: translations.payments })
         }
 
         return this.state.loaded === true ? (
             <React.Fragment>
                 <SnackbarMessage open={this.state.success} onClose={this.handleClose.bind(this)} severity="success"
-                                 message={translations.settings_saved}/>
+                    message={translations.settings_saved}/>
 
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
-                                 message={translations.settings_not_saved}/>
+                    message={translations.settings_not_saved}/>
 
                 <EditScaffold isAdvancedSettings={true} isLoading={!this.state.loaded} isSaving={this.state.isSaving}
-                              isEditing={this.state.changesMade} fullWidth={true}
-                              title={translations.workflow_settings}
-                              cancelButtonDisabled={!this.state.changesMade}
-                              handleCancel={this.handleCancel.bind(this)}
-                              handleSubmit={this.handleSubmit.bind(this)}
-                              tabs={tabs}/>
+                    isEditing={this.state.changesMade} fullWidth={true}
+                    title={translations.workflow_settings}
+                    cancelButtonDisabled={!this.state.changesMade}
+                    handleCancel={this.handleCancel.bind(this)}
+                    handleSubmit={this.handleSubmit.bind(this)}
+                    tabs={tabs}/>
 
             </React.Fragment>
         ) : null

@@ -21,6 +21,11 @@ class DealImporter extends BaseCsvImporter
     use ImportMapper;
     use DealTransformable;
 
+    /**
+     * @var string
+     */
+    protected string $json;
+
     protected $entity;
     private array $export_columns = [
         'name'          => 'name',
@@ -114,7 +119,7 @@ class DealImporter extends BaseCsvImporter
         return new DealRepository(new Deal());
     }
 
-    public function export()
+    public function export($is_json = false)
     {
         $export_columns = $this->getExportColumns();
 
@@ -122,6 +127,12 @@ class DealImporter extends BaseCsvImporter
         $search_request->replace(['column' => 'created_at', 'order' => 'desc']);
 
         $deals = (new DealSearch(new DealRepository(new Deal())))->filter($search_request, $this->account);
+
+        if ($is_json) {
+            $this->export->sendJson('deal', $deals);
+            $this->json = json_encode($deals);
+            return true;
+        }
 
         $this->export->build(collect($deals), $export_columns);
 
@@ -148,5 +159,13 @@ class DealImporter extends BaseCsvImporter
     public function getTemplate()
     {
         return asset('storage/templates/deal.csv');
+    }
+
+    /**
+     * @return string
+     */
+    public function getJson(): string
+    {
+        return $this->json;
     }
 }

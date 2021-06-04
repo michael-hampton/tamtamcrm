@@ -28,6 +28,11 @@ class ProductImporter extends BaseCsvImporter
     use ImportMapper;
     use ProductTransformable;
 
+    /**
+     * @var string
+     */
+    protected string $json;
+
     protected $entity;
     private array $export_columns = [
         'name'          => 'name',
@@ -211,7 +216,7 @@ class ProductImporter extends BaseCsvImporter
         return $this->categories[$id];
     }
 
-    public function export()
+    public function export($is_json = false)
     {
         $export_columns = $this->getExportColumns();
 
@@ -222,6 +227,12 @@ class ProductImporter extends BaseCsvImporter
 
         foreach ($products as $key => $product) {
             $products[$key]['category_id'] = implode(' | ', $product['category_ids']);
+        }
+
+        if ($is_json) {
+            $this->export->sendJson('product', $products);
+            $this->json = json_encode($products);
+            return true;
         }
 
         $this->export->build(collect($products), $export_columns);
@@ -244,6 +255,14 @@ class ProductImporter extends BaseCsvImporter
     public function getContent()
     {
         return $this->export->getContent();
+    }
+
+    /**
+     * @return string
+     */
+    public function getJson(): string
+    {
+        return $this->json;
     }
 
     public function getTemplate()

@@ -2,8 +2,8 @@ import axios from 'axios'
 import moment from 'moment'
 import BaseModel, { EntityStats, LineItem } from './BaseModel'
 import { consts } from '../utils/_consts'
-import InvoiceCalculations from "./InvoiceCalculations";
-import {buildPdf} from "../utils/Pdf";
+import InvoiceCalculations from './InvoiceCalculations'
+import { buildPdf } from '../utils/Pdf'
 
 export const invoice_pdf_fields = ['$invoice.invoice_number', '$invoice.po_number', '$invoice.invoice_date', '$invoice.due_date',
     '$invoice.balance_due', '$invoice.invoice_total', '$invoice.partial_due', '$invoice.invoice1', '$invoice.invoice2', '$invoice.invoice3',

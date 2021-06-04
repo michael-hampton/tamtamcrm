@@ -61,23 +61,23 @@ class LineItemEditor extends Component {
         this.setState({ [e.target.name]: !show })
     }
 
-    onMovedInvoiceItem(oldIndex, newIndex) {
+    onMovedInvoiceItem (oldIndex, newIndex) {
         // Create a local shallow copy of the state
-        const items = this.props.invoice.line_items.slice();
+        const items = this.props.invoice.line_items.slice()
 
         // Extract that item
-        const selectedItem = items[oldIndex];
+        const selectedItem = items[oldIndex]
 
         // Delete the item from the items array
-        items.splice(oldIndex, 1);
+        items.splice(oldIndex, 1)
 
         // Sort the items that are left over
-        items.sort(function(a, b) {
-            return a.id < b.id ? -1 : 1;
-        });
+        items.sort(function (a, b) {
+            return a.id < b.id ? -1 : 1
+        })
 
         // Insert the selected item back into the array
-        items.splice(newIndex, 0, selectedItem);
+        items.splice(newIndex, 0, selectedItem)
 
         // Set the state to the new array
         this.props.update(items, newIndex)
@@ -202,7 +202,7 @@ class LineItemEditor extends Component {
             return
         }
 
-       if (e.target.name === 'tax_2') {
+        if (e.target.name === 'tax_2') {
             const index = this.state.tax_rates.findIndex(taxRate => taxRate.id === parseInt(e.target.value))
             const taxRate = this.state.tax_rates[index]
             rows[row].tax_rate_id_2 = taxRate.id
@@ -213,7 +213,7 @@ class LineItemEditor extends Component {
             return
         }
 
-       if (e.target.name === 'tax_3') {
+        if (e.target.name === 'tax_3') {
             const index = this.state.tax_rates.findIndex(taxRate => taxRate.id === parseInt(e.target.value))
             const taxRate = this.state.tax_rates[index]
             rows[row].tax_rate_id_3 = taxRate.id

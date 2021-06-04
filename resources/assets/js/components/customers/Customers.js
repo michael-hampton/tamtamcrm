@@ -160,8 +160,8 @@ export default class Customers extends Component {
     }
 
     render () {
-        const { searchText, status, company_id, group_settings_id, start_date, end_date } = this.state.filters
-        const { custom_fields, customers, companies, error, view, filters, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { group_settings_id, start_date, end_date } = this.state.filters
+        const { custom_fields, customers, companies, error, view, filters, isOpen, error_message, success_message, show_success, currentInvoices, pageLimit } = this.state
         const fetchUrl = `/api/customers?group_settings_id=${group_settings_id}&start_date=${start_date}&end_date=${end_date}`
         const addButton = companies.length ? <AddCustomer
             large_buton={true}

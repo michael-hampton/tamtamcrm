@@ -174,7 +174,7 @@ export default class Order extends Component {
     }
 
     render () {
-        const { cachedData, orders, customers, custom_fields, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { cachedData, orders, customers, custom_fields, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, pageLimit } = this.state
         const { start_date, end_date } = this.state.filters
         const fetchUrl = `/api/order?start_date=${start_date}&end_date=${end_date}`
         const addButton = this.state.customers.length ? <EditOrder

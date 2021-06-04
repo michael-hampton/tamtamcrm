@@ -308,11 +308,13 @@ export default class EditCase extends React.Component {
                                         <Details cases={this.props.cases} customers={this.props.customers}
                                             errors={this.state.errors}
                                             hasErrorFor={this.hasErrorFor} case={this.state}
-                                            handleInput={this.handleInput} renderErrorFor={this.renderErrorFor}/>
+                                            handleInput={this.handleInput}
+                                            renderErrorFor={this.renderErrorFor}/>
                                     </CardBody>
                                 </Card>
 
-                                <Contacts handleInput={this.handleInput} case={this.state} errors={this.state.errors}
+                                <Contacts handleInput={this.handleInput} case={this.state}
+                                    errors={this.state.errors}
                                     contacts={this.state.contacts}
                                     invitations={this.state.invitations}
                                     handleContactChange={this.handleContactChange}/>

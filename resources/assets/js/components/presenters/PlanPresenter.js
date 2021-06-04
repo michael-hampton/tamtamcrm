@@ -1,6 +1,6 @@
 import React from 'react'
 import FormatDate from '../common/FormatDate'
-import FormatMoney from "../common/FormatMoney";
+import FormatMoney from '../common/FormatMoney'
 
 export function getDefaultTableFields () {
     return [
@@ -9,11 +9,11 @@ export function getDefaultTableFields () {
         'code',
         'trial_period',
         'price',
-        'active_subscribers_limit',
+        'active_subscribers_limit'
     ]
 }
 
-export default function PlanPresenter ( props) {
+export default function PlanPresenter (props) {
     const { field, entity } = props
 
     switch (field) {

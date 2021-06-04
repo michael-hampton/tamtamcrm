@@ -1,6 +1,6 @@
 import axios from 'axios'
 import BaseModel from './BaseModel'
-import {buildPdf} from "../utils/Pdf";
+import { buildPdf } from '../utils/Pdf'
 
 export default class LeadModel extends BaseModel {
     constructor (data = null) {

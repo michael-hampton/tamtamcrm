@@ -135,7 +135,8 @@ export default class LeadItem extends Component {
                             </span>
                             <span className="col-2">
                                 <LeadPresenter
-                                    field="valued_at" entity={lead} toggleViewedEntity={this.props.toggleViewedEntity}
+                                    field="valued_at" entity={lead}
+                                    toggleViewedEntity={this.props.toggleViewedEntity}
                                     edit={editButton}/>
                             </span>
 

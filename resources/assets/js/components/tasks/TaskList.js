@@ -201,7 +201,19 @@ export default class TaskList extends Component {
     }
 
     render () {
-        const { cachedData, tasks, users, customers, custom_fields, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const {
+            cachedData,
+            tasks,
+            users,
+            customers,
+            custom_fields,
+            isOpen,
+            error_message,
+            success_message,
+            show_success,
+            currentInvoices,
+            pageLimit
+        } = this.state
         const { start_date, end_date } = this.state.filters
         const fetchUrl = `/api/tasks?start_date=${start_date}&end_date=${end_date}`
         const { error, view } = this.state
@@ -254,19 +266,19 @@ export default class TaskList extends Component {
                     </div>
 
                     {error &&
-                    <Snackbar open={error} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
-                        <Alert severity="danger">
-                            {error_message}
-                        </Alert>
-                    </Snackbar>
+                        <Snackbar open={error} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
+                            <Alert severity="danger">
+                                {error_message}
+                            </Alert>
+                        </Snackbar>
                     }
 
                     {show_success &&
-                    <Snackbar open={show_success} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
-                        <Alert severity="success">
-                            {success_message}
-                        </Alert>
-                    </Snackbar>
+                        <Snackbar open={show_success} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
+                            <Alert severity="success">
+                                {success_message}
+                            </Alert>
+                        </Snackbar>
                     }
 
                     <div className={margin_class}>
@@ -300,10 +312,11 @@ export default class TaskList extends Component {
                                 />
 
                                 {total > 0 &&
-                                <div className="d-flex flex-row py-4 align-items-center">
-                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
-                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
-                                </div>
+                                    <div className="d-flex flex-row py-4 align-items-center">
+                                        <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                            pageNeighbours={1}
+                                            onPageChanged={this.onPageChanged.bind(this)}/>
+                                    </div>
                                 }
                             </CardBody>
                         </Card>

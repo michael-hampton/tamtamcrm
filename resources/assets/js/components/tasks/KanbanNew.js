@@ -348,7 +348,7 @@ export default class KanbanNew extends Component {
 
             const statusIndex = columns.findIndex(column => parseInt(column.id) === parseInt(entity.task_status_id))
 
-            if(columns[statusIndex]) {
+            if (columns[statusIndex]) {
                 columns[statusIndex].items.push(entity)
             } else {
                 console.log('invalid status', statusIndex)
@@ -408,7 +408,7 @@ export default class KanbanNew extends Component {
 
     onDragEnd (result, columns, setColumns) {
         if (!result.destination) return
-        const { source, destination, type } = result
+        const { source, destination } = result
 
         if (source.droppableId !== destination.droppableId) {
             const sourceIndex = columns.findIndex(column => parseInt(column.id) === parseInt(source.droppableId))
@@ -495,9 +495,9 @@ export default class KanbanNew extends Component {
                     <Col sm={12} className="mt-2 mb-3">
                         <div className="d-flex justify-content-between align-items-center">
                             {type === 'task' &&
-                            <ProjectDropdown projects={this.state.projects} handleInputChanges={this.handleInput}
-                                project={project_id} name="project_id"
-                            />
+                                <ProjectDropdown projects={this.state.projects} handleInputChanges={this.handleInput}
+                                    project={project_id} name="project_id"
+                                />
                             }
 
                             <AddTaskStatus
@@ -524,9 +524,10 @@ export default class KanbanNew extends Component {
                             >
                                 {provided => {
                                     return <div {...provided.droppableProps}
-                                        ref={provided.innerRef} className="row flex-row flex-sm-nowrap py-3">
+                                        ref={provided.innerRef}
+                                        className="row flex-row flex-sm-nowrap py-3">
                                         {columns.map((column, index) => {
-                                            return <Columns updateTasks={this.updateTasks}
+                                            return <Columns key={column.id} updateTasks={this.updateTasks}
                                                 projects={this.state.projects}
                                                 customers={this.state.customers} columnId={column.id}
                                                 column={column} index={index}

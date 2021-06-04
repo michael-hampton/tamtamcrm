@@ -171,7 +171,19 @@ export default class Leads extends Component {
     }
 
     render () {
-        const { cachedData, leads, users, custom_fields, view, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const {
+            cachedData,
+            leads,
+            users,
+            custom_fields,
+            view,
+            isOpen,
+            error_message,
+            success_message,
+            show_success,
+            currentInvoices,
+            pageLimit
+        } = this.state
         const { start_date, end_date } = this.state.filters
         const fetchUrl = `/api/leads?start_date=${start_date}&end_date=${end_date}`
         const { error } = this.state
@@ -200,19 +212,19 @@ export default class Leads extends Component {
                     </div>
 
                     {error &&
-                    <Snackbar open={error} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
-                        <Alert severity="danger">
-                            {error_message}
-                        </Alert>
-                    </Snackbar>
+                        <Snackbar open={error} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
+                            <Alert severity="danger">
+                                {error_message}
+                            </Alert>
+                        </Snackbar>
                     }
 
                     {show_success &&
-                    <Snackbar open={show_success} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
-                        <Alert severity="success">
-                            {success_message}
-                        </Alert>
-                    </Snackbar>
+                        <Snackbar open={show_success} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
+                            <Alert severity="success">
+                                {success_message}
+                            </Alert>
+                        </Snackbar>
                     }
 
                     <div className={margin_class}>
@@ -241,10 +253,11 @@ export default class Leads extends Component {
                                 />
 
                                 {total > 0 &&
-                                <div className="d-flex flex-row py-4 align-items-center">
-                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
-                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
-                                </div>
+                                    <div className="d-flex flex-row py-4 align-items-center">
+                                        <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                            pageNeighbours={1}
+                                            onPageChanged={this.onPageChanged.bind(this)}/>
+                                    </div>
                                 }
                             </CardBody>
                         </Card>

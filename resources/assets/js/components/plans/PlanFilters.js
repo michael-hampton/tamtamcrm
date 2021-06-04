@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
-import { Col, FormGroup, Row, Button } from 'reactstrap'
+import { Button, Col, FormGroup, Row } from 'reactstrap'
 import TableSearch from '../common/TableSearch'
 import FilterTile from '../common/FilterTile'
 import DateFilter from '../common/DateFilter'
 import CsvImporter from '../common/CsvImporter'
 import StatusDropdown from '../common/StatusDropdown'
 import { filterStatuses } from '../utils/_search'
-import { translations } from "../utils/_translations";
+import { translations } from '../utils/_translations'
 
 export default class PlanFilters extends Component {
     constructor (props) {

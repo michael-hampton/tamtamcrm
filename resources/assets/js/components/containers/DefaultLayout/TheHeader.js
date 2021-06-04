@@ -20,12 +20,12 @@ const TheHeader = () => {
 
     const toggleSidebar = () => {
         const val = [true, 'responsive'].includes(sidebarShow) ? false : 'responsive'
-        dispatch({type: 'set', sidebarShow: val})
+        dispatch({ type: 'set', sidebarShow: val })
     }
 
     const toggleSidebarMobile = () => {
         const val = [false, 'responsive'].includes(sidebarShow) ? true : 'responsive'
-        dispatch({type: 'set', sidebarShow: val})
+        dispatch({ type: 'set', sidebarShow: val })
     }
 
     return (
@@ -46,7 +46,7 @@ const TheHeader = () => {
                 <CHeaderNavItem className="px-3" >
                     <CHeaderNavLink to="/dashboard">Dashboard</CHeaderNavLink>
                 </CHeaderNavItem>
-                <CHeaderNavItem  className="px-3">
+                <CHeaderNavItem className="px-3">
                     <CHeaderNavLink to="/users">Users</CHeaderNavLink>
                 </CHeaderNavItem>
                 <CHeaderNavItem className="px-3">

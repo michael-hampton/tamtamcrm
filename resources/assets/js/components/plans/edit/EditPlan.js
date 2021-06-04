@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, DropdownItem, Modal, ModalBody } from 'reactstrap'
+import { DropdownItem, Modal, ModalBody } from 'reactstrap'
 import { icons } from '../../utils/_icons'
 import { translations } from '../../utils/_translations'
 import Details from './Details'

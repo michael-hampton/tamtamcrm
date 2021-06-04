@@ -75,7 +75,7 @@ export default class PlanItem extends Component {
                     return <td key={key}
                         onClick={() => this.props.toggleViewedEntity(plan, plan.name, editButton)}
                         data-label={key}><PlanSubscriptionPresenter toggleViewedEntity={this.props.toggleViewedEntity}
-                                                                    field={key} entity={plan} edit={editButton}/></td>
+                            field={key} entity={plan} edit={editButton}/></td>
                 })
 
                 const checkboxClass = this.props.showCheckboxes === true ? '' : 'd-none'
@@ -115,17 +115,17 @@ export default class PlanItem extends Component {
                         className={`border-top-0 list-group-item-action flex-column align-items-start ${list_class}`}>
                         <div className="d-flex w-100 justify-content-between">
                             <h5 className="mb-1">{<PlanSubscriptionPresenter field="name"
-                                                                             entity={plan}
-                                                                             toggleViewedEntity={this.props.toggleViewedEntity}
-                                                                             edit={editButton}/>}
+                                entity={plan}
+                                toggleViewedEntity={this.props.toggleViewedEntity}
+                                edit={editButton}/>}
                             {<PlanSubscriptionPresenter field="starts_at"
-                                                        entity={plan}
-                                                        toggleViewedEntity={this.props.toggleViewedEntity}
-                                                        edit={editButton}/>}
+                                entity={plan}
+                                toggleViewedEntity={this.props.toggleViewedEntity}
+                                edit={editButton}/>}
                             {<PlanSubscriptionPresenter field="ends_at"
-                                                        entity={plan}
-                                                        toggleViewedEntity={this.props.toggleViewedEntity}
-                                                        edit={editButton}/>}
+                                entity={plan}
+                                toggleViewedEntity={this.props.toggleViewedEntity}
+                                edit={editButton}/>}
                             </h5>
                         </div>
                     </ListGroupItem>
@@ -143,17 +143,17 @@ export default class PlanItem extends Component {
                         className={`border-top-0 list-group-item-action flex-column align-items-start ${list_class}`}>
                         <div className="d-flex w-100 justify-content-between">
                             <h5 className="mb-1">{<PlanSubscriptionPresenter field="name"
-                                                                             entity={plan}
-                                                                             toggleViewedEntity={this.props.toggleViewedEntity}
-                                                                             edit={editButton}/>} .
+                                entity={plan}
+                                toggleViewedEntity={this.props.toggleViewedEntity}
+                                edit={editButton}/>} .
                             {<PlanSubscriptionPresenter field="starts_at"
-                                                        entity={plan}
-                                                        toggleViewedEntity={this.props.toggleViewedEntity}
-                                                        edit={editButton}/>}
+                                entity={plan}
+                                toggleViewedEntity={this.props.toggleViewedEntity}
+                                edit={editButton}/>}
                             {<PlanSubscriptionPresenter field="ends_at"
-                                                        entity={plan}
-                                                        toggleViewedEntity={this.props.toggleViewedEntity}
-                                                        edit={editButton}/>}
+                                entity={plan}
+                                toggleViewedEntity={this.props.toggleViewedEntity}
+                                edit={editButton}/>}
                             </h5>
                         </div>
                     </ListGroupItem>

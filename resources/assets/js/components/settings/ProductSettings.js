@@ -1,16 +1,15 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import FormBuilder from './FormBuilder'
-import {Card, CardBody} from 'reactstrap'
+import { Card, CardBody } from 'reactstrap'
 import axios from 'axios'
-import {translations} from '../utils/_translations'
+import { translations } from '../utils/_translations'
 import SnackbarMessage from '../common/SnackbarMessage'
-import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
 import CompanyModel from '../models/CompanyModel'
-import EditScaffold from "../common/EditScaffold";
+import EditScaffold from '../common/EditScaffold'
 
 class ProductSettings extends Component {
-    constructor(props) {
+    constructor (props) {
         super(props)
 
         this.state = {
@@ -30,19 +29,19 @@ class ProductSettings extends Component {
         this.handleCheckboxChange = this.handleCheckboxChange.bind(this)
         this.getAccount = this.getAccount.bind(this)
 
-        this.model = new CompanyModel({id: this.state.id})
+        this.model = new CompanyModel({ id: this.state.id })
     }
 
-    componentDidMount() {
+    componentDidMount () {
         window.addEventListener('beforeunload', this.beforeunload.bind(this))
         this.getAccount()
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         window.removeEventListener('beforeunload', this.beforeunload.bind(this))
     }
 
-    beforeunload(e) {
+    beforeunload (e) {
         if (this.state.changesMade) {
             if (!confirm(translations.changes_made_warning)) {
                 e.preventDefault()
@@ -51,7 +50,7 @@ class ProductSettings extends Component {
         }
     }
 
-    getAccount() {
+    getAccount () {
         const accountRepository = new AccountRepository()
         accountRepository.getById(this.state.id).then(response => {
             if (!response) {
@@ -68,11 +67,11 @@ class ProductSettings extends Component {
         })
     }
 
-    handleChange(event) {
-        this.setState({[event.target.name]: event.target.value})
+    handleChange (event) {
+        this.setState({ [event.target.name]: event.target.value })
     }
 
-    handleSettingsChange(event) {
+    handleSettingsChange (event) {
         const name = event.target.name
         let value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
         value = (value === 'true') ? true : ((value === 'false') ? false : (value))
@@ -86,8 +85,8 @@ class ProductSettings extends Component {
         }))
     }
 
-    handleSubmit(e) {
-        this.setState({isSaving: true})
+    handleSubmit (e) {
+        this.setState({ isSaving: true })
         const formData = new FormData()
         formData.append('settings', JSON.stringify(this.state.settings))
         formData.append('_method', 'PUT')
@@ -107,11 +106,11 @@ class ProductSettings extends Component {
             })
             .catch((error) => {
                 console.error(error)
-                this.setState({error: true})
+                this.setState({ error: true })
             })
     }
 
-    getInventoryFields() {
+    getInventoryFields () {
         const settings = this.state.settings
 
         return [
@@ -158,7 +157,7 @@ class ProductSettings extends Component {
         ]
     }
 
-    getProductFields() {
+    getProductFields () {
         const settings = this.state.settings
 
         return [
@@ -221,7 +220,7 @@ class ProductSettings extends Component {
         ]
     }
 
-    handleCheckboxChange(e) {
+    handleCheckboxChange (e) {
         const value = e.target.checked
         const name = e.target.name
 
@@ -233,15 +232,15 @@ class ProductSettings extends Component {
         }))
     }
 
-    handleCancel() {
-        this.setState({settings: this.state.cached_settings, changesMade: false})
+    handleCancel () {
+        this.setState({ settings: this.state.cached_settings, changesMade: false })
     }
 
-    handleClose() {
-        this.setState({success: false, error: false})
+    handleClose () {
+        this.setState({ success: false, error: false })
     }
 
-    render() {
+    render () {
         const tabs = {
             children: []
         }
@@ -271,19 +270,18 @@ class ProductSettings extends Component {
         return this.state.loaded === true ? (
             <React.Fragment>
                 <SnackbarMessage open={this.state.success} onClose={this.handleClose.bind(this)} severity="success"
-                                 message={translations.settings_saved}/>
+                    message={translations.settings_saved}/>
 
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
-                                 message={translations.settings_not_saved}/>
+                    message={translations.settings_not_saved}/>
 
                 <EditScaffold isLoading={!this.state.loaded} isSaving={this.state.isSaving}
-                              isEditing={this.state.changesMade}
-                              title={translations.product_settings}
-                              cancelButtonDisabled={!this.state.changesMade}
-                              handleCancel={this.handleCancel.bind(this)}
-                              handleSubmit={this.handleSubmit.bind(this)}
-                              tabs={tabs}/>
-
+                    isEditing={this.state.changesMade}
+                    title={translations.product_settings}
+                    cancelButtonDisabled={!this.state.changesMade}
+                    handleCancel={this.handleCancel.bind(this)}
+                    handleSubmit={this.handleSubmit.bind(this)}
+                    tabs={tabs}/>
 
             </React.Fragment>
         ) : null

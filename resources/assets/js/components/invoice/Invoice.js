@@ -188,7 +188,7 @@ export default class Invoice extends Component {
     }
 
     render () {
-        const { cachedData, invoices, customers, custom_fields, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { cachedData, invoices, customers, custom_fields, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, pageLimit } = this.state
         const { start_date, end_date, id } = this.state.filters
         const total = invoices.length
         const fetchUrl = `/api/invoice?id=${id}&start_date=${start_date}&end_date=${end_date}`

@@ -215,7 +215,8 @@ class EditLeadForm extends React.Component {
     render () {
         const { loading } = this.state
         const email_editor = this.state.id
-            ? <Emails model={this.leadModel} emails={this.state.emails} template="email_template_lead" show_editor={true}
+            ? <Emails model={this.leadModel} emails={this.state.emails} template="email_template_lead"
+                show_editor={true}
                 entity_object={this.state} entity="lead"
                 entity_id={this.state.id}/> : null
         const contact = <Contact handleInputChanges={this.handleInputChanges} errors={this.state.errors}

@@ -1,10 +1,10 @@
 import axios from 'axios'
 import moment from 'moment'
-import BaseModel, {LineItem} from './BaseModel'
-import {consts} from '../utils/_consts'
-import {roundNumber} from "../utils/_formatting";
-import InvoiceCalculations from "./InvoiceCalculations";
-import {buildPdf} from "../utils/Pdf";
+import BaseModel, { LineItem } from './BaseModel'
+import { consts } from '../utils/_consts'
+import { roundNumber } from '../utils/_formatting'
+import InvoiceCalculations from './InvoiceCalculations'
+import { buildPdf } from '../utils/Pdf'
 
 export const invoice_pdf_fields = ['$invoice.number', '$invoice.po_number', '$invoice.invoice_date', '$invoice.invoice_datetime', '$invoice.invoice_status', '$invoice.invoice_agent', '$invoice.due_date',
     '$invoice.balance', '$invoice.invoice_total', '$invoice.partial_due', '$invoice.custom1', '$invoice.custom2', '$invoice.custom3',
@@ -12,7 +12,7 @@ export const invoice_pdf_fields = ['$invoice.number', '$invoice.po_number', '$in
 ]
 
 class InvoiceModel extends BaseModel {
-    constructor(data = null, customers = []) {
+    constructor (data = null, customers = []) {
         super()
         this.customers = customers
         this._url = '/api/invoice'
@@ -108,7 +108,7 @@ class InvoiceModel extends BaseModel {
         this.partial = consts.invoice_status_partial
 
         if (data !== null) {
-            this._fields = {...this.fields, ...data}
+            this._fields = { ...this.fields, ...data }
             this.updateCustomer()
         }
 
@@ -119,7 +119,7 @@ class InvoiceModel extends BaseModel {
         this.account = user_account[0]
     }
 
-    get currency() {
+    get currency () {
         const currency_id = this.customer.length && this.customer.currency_id.toString().length ? this.customer.currency_id : this.settings.currency_id
 
         if (!currency_id) {
@@ -129,31 +129,31 @@ class InvoiceModel extends BaseModel {
         return JSON.parse(localStorage.getItem('currencies')).filter(currency => currency.id === parseInt(currency_id))[0]
     }
 
-    get isNew() {
+    get isNew () {
         return !this.fields.id || !this.fields.id.toString().length || parseInt(this.fields.id) <= 0
     }
 
-    get fields() {
+    get fields () {
         return this._fields
     }
 
-    get exchange_rate() {
+    get exchange_rate () {
         return this.fields.exchange_rate
     }
 
-    set exchange_rate(exchange_rate) {
+    set exchange_rate (exchange_rate) {
         this.fields.exchange_rate = exchange_rate
     }
 
-    get customer() {
+    get customer () {
         return this._customer || []
     }
 
-    set customer(customer) {
+    set customer (customer) {
         this._customer = customer
     }
 
-    get default_notes() {
+    get default_notes () {
         if (!this.customer) {
             return ''
         }
@@ -161,129 +161,129 @@ class InvoiceModel extends BaseModel {
         return this.customer.customer_note || ''
     }
 
-    get default_terms() {
+    get default_terms () {
         const merged_settings = this.merged_settings
         return merged_settings.invoice_terms || ''
     }
 
-    get default_footer() {
+    get default_footer () {
         const merged_settings = this.merged_settings
         return merged_settings.invoice_footer || ''
     }
 
-    get isViewed() {
+    get isViewed () {
         return parseInt(this.fields.status_id) === this.sent && this.fields.viewed === true
     }
 
-    get isApproved() {
+    get isApproved () {
         return parseInt(this.fields.status_id) === this.approved
     }
 
-    get isReversed() {
+    get isReversed () {
         return parseInt(this.fields.status_id) === this.reversed
     }
 
-    get isCancelled() {
+    get isCancelled () {
         return parseInt(this.fields.status_id) === this.cancelled
     }
 
-    get balanceOrAmount() {
+    get balanceOrAmount () {
         return this.fields.status_id > consts.invoice_status_draft ? this.fields.balance : this.fields.total
     }
 
-    get netAmount() {
+    get netAmount () {
         return this.fields.total - this.taxAmount
     }
 
-    get netBalance() {
+    get netBalance () {
         return this.fields.balance - (this.taxAmount * this.fields.balance / this.fields.total)
     }
 
-    get taxAmount() {
+    get taxAmount () {
         return this.fields.tax_total
     }
 
-    get isPaid() {
+    get isPaid () {
         return parseInt(this.fields.status_id) === this.paid
     }
 
-    get isDraft() {
+    get isDraft () {
         return parseInt(this.fields.status_id) === consts.invoice_status_draft
     }
 
-    get isSent() {
+    get isSent () {
         return parseInt(this.fields.status_id) === this.sent
     }
 
-    get isPartial() {
+    get isPartial () {
         return parseInt(this.fields.status_id) === this.partial
     }
 
-    get isDeleted() {
+    get isDeleted () {
         return this.fields.deleted_at && this.fields.deleted_at.length > 0
     }
 
-    get isEditable() {
+    get isEditable () {
         return !this.isReversed && !this.isCancelled && !this.isDeleted
     }
 
-    get id() {
+    get id () {
         return this.fields.id
     }
 
-    get fileCount() {
+    get fileCount () {
         return this._file_count || 0
     }
 
-    set fileCount(files) {
+    set fileCount (files) {
         this._file_count = files ? files.length : 0
     }
 
-    get invitations() {
+    get invitations () {
         return this.fields.invitations
     }
 
-    get invitation_link() {
+    get invitation_link () {
         return `http://${this.account.account.subdomain}portal/invoices/$key`
     }
 
-    get getInvitationViewLink() {
+    get getInvitationViewLink () {
         return !this.invitations || !this.invitations.length ? '' : `http://${this.account.account.subdomain}portal/view/invoice/${this.invitations[0].key}`
     }
 
-    get customer_id() {
+    get customer_id () {
         return this.fields.customer_id
     }
 
-    set customer_id(customer_id) {
+    set customer_id (customer_id) {
         this.fields.customer_id = customer_id
         this.updateCustomer()
     }
 
-    get contacts() {
+    get contacts () {
         const index = this.customers.findIndex(customer => customer.id === this.fields.customer_id)
         const customer = this.customers[index]
         return customer.contacts ? customer.contacts : []
     }
 
-    get url() {
+    get url () {
         return this._url
     }
 
-    updateCustomer() {
+    updateCustomer () {
         if (this.customers.length && this._fields.customer_id) {
             const customer = this.customers.filter(customer => customer.id === parseInt(this._fields.customer_id))
             this.customer = customer[0]
         }
     }
 
-    buildInvitations(contact, add = false) {
+    buildInvitations (contact, add = false) {
         const invitations = this.fields.invitations
 
         // check if the check box is checked or unchecked
         if (add) {
             // add the numerical value of the checkbox to options array
-            invitations.push({contact_id: contact})
+            invitations.push({ contact_id: contact })
         } else {
             // or remove the value from the unchecked checkbox from the array
             const index = invitations.findIndex(contact => contact.contact_id === contact)
@@ -293,7 +293,7 @@ class InvoiceModel extends BaseModel {
         return invitations
     }
 
-    buildDropdownMenu() {
+    buildDropdownMenu () {
         const actions = []
 
         if (this.fields.invitations.length) {
@@ -365,20 +365,20 @@ class InvoiceModel extends BaseModel {
         return actions
     }
 
-    addItem() {
+    addItem () {
         // const newArray = this.fields.line_items.slice()
         this.fields.line_items.push(LineItem)
         return this.fields.line_items
     }
 
-    removeItem(index) {
+    removeItem (index) {
         const array = [...this.fields.line_items] // make a separate copy of the array
         array.splice(index, 1)
         this.fields.line_items = array
         return array
     }
 
-    async completeAction(data, action) {
+    async completeAction (data, action) {
         if (!this.fields.id) {
             return false
         }
@@ -401,7 +401,7 @@ class InvoiceModel extends BaseModel {
         }
     }
 
-    async update(data) {
+    async update (data) {
         if (!this.fields.id) {
             return false
         }
@@ -424,14 +424,14 @@ class InvoiceModel extends BaseModel {
         }
     }
 
-    isLate() {
+    isLate () {
         const dueDate = moment(this._fields.due_date).format('YYYY-MM-DD HH::MM:SS')
         const pending_statuses = [consts.invoice_status_draft, consts.invoice_status_sent, consts.invoice_status_partial]
 
         return moment().isAfter(dueDate) && pending_statuses.includes(this._fields.status_id)
     }
 
-    async save(data) {
+    async save (data) {
         if (this.fields.id) {
             return this.update(data)
         }
@@ -453,18 +453,18 @@ class InvoiceModel extends BaseModel {
         }
     }
 
-    async loadPdf(show_html = false) {
+    async loadPdf (show_html = false) {
         try {
             this.errors = []
             this.error_message = ''
-            const res = await axios.post('api/preview', {entity: this.entity, entity_id: this._fields.id, show_html: show_html})
+            const res = await axios.post('api/preview', { entity: this.entity, entity_id: this._fields.id, show_html: show_html })
 
             if (res.status === 200) {
                 // test for status you want, etc
                 console.log(res.status)
             }
 
-            if(show_html === true) {
+            if (show_html === true) {
                 return res.data
             }
 
@@ -477,7 +477,7 @@ class InvoiceModel extends BaseModel {
         }
     }
 
-    customerChange(customer_id) {
+    customerChange (customer_id) {
         const index = this.customers.findIndex(customer => customer.id === parseInt(customer_id))
         const customer = this.customers[index]
         const address = customer.billing ? {
@@ -502,4 +502,3 @@ class InvoiceModel extends BaseModel {
 Object.assign(InvoiceModel.prototype, InvoiceCalculations)
 
 export default InvoiceModel
-

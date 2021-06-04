@@ -6,7 +6,7 @@ import { consts } from '../utils/_consts'
 import { translations } from '../utils/_translations'
 import { invoiceStatuses } from '../utils/_statuses'
 import { invoiceStatusColors } from '../utils/_colors'
-import InvoiceModel from "../models/InvoiceModel";
+import InvoiceModel from '../models/InvoiceModel'
 
 export function getDefaultTableFields () {
     return [

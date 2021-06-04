@@ -67,7 +67,15 @@ export default class LeadFilters extends Component {
     }
 
     getFilters () {
-        const { project_id, task_status_id, searchText, start_date, end_date, customer_id, user_id } = this.state.filters
+        const {
+            project_id,
+            task_status_id,
+            searchText,
+            start_date,
+            end_date,
+            customer_id,
+            user_id
+        } = this.state.filters
 
         return (
             <Row form>

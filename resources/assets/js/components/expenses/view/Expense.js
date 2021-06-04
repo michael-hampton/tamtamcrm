@@ -11,7 +11,7 @@ import Overview from './Overview'
 import InvoiceRepository from '../../repositories/InvoiceRepository'
 import ExpenseRepository from '../../repositories/ExpenseRepository'
 import AlertPopup from '../../common/AlertPopup'
-import InvoiceModel from "../../models/InvoiceModel";
+import InvoiceModel from '../../models/InvoiceModel'
 
 export default class Expense extends Component {
     constructor (props) {

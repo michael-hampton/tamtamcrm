@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { FormGroup, Input, Label } from 'reactstrap'
 import FormBuilder from './FormBuilder'
 import { translations } from '../utils/_translations'
-import { consts, frequencyOptions } from '../utils/_consts'
+import { frequencyOptions } from '../utils/_consts'
 
 class EmailFields extends Component {
     constructor (props) {
@@ -401,7 +401,7 @@ class EmailFields extends Component {
                         label: translations.schedule,
                         type: 'select',
                         options: frequencies,
-                        value: templates.endless.frequency_id,
+                        value: templates.endless.frequency_id
                     },
                     {
                         id: 'amount_to_charge_endless',
@@ -500,7 +500,7 @@ class EmailFields extends Component {
                         group: 1
                     }
                 ]
-            },
+            }
         }
 
         return key !== null ? formFields[key] : formFields
@@ -546,7 +546,7 @@ class EmailFields extends Component {
             <FormGroup>
                 <Label>{translations.template}</Label>
                 <Input type="select"
-                       value={this.props.selected_template || this.props.template_type}
+                    value={this.props.selected_template || this.props.template_type}
                     name="template_type"
                     onChange={this.props.handleChange}
                 >

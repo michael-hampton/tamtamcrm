@@ -1,6 +1,6 @@
-import React from "react";
+import React from 'react'
 
-export default function HtmlViewer(props) {
+export default function HtmlViewer (props) {
     let html = '<div style="background-color: #FFF">' + props.html + '</div>'
 
     html += '<style>.inline-block { display: inline-block; }.m-0 {\n' +
@@ -349,12 +349,11 @@ export default function HtmlViewer(props) {
         '    width: 50%;\n' +
         '}</style>'
 
+    const content = 'data:text/html;charset=utf-8,' + escape(html)
 
-    const content = "data:text/html;charset=utf-8," + escape(html);
-
-    return <div style={{minHeight: '600px'}} className="embed-responsive embed-responsive-21by9">
-        <iframe style={{width: `${props.width}`, height: props.height || '400px'}}
-                className="embed-responsive-item" id="viewer"
-                src={content}/>
+    return <div style={{ minHeight: '600px' }} className="embed-responsive embed-responsive-21by9">
+        <iframe style={{ width: `${props.width}`, height: props.height || '400px' }}
+            className="embed-responsive-item" id="viewer"
+            src={content}/>
     </div>
 }

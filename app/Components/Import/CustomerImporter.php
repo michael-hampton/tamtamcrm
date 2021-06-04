@@ -24,6 +24,11 @@ class CustomerImporter extends BaseCsvImporter
     use ImportMapper;
     use CustomerTransformable;
 
+    /**
+     * @var string
+     */
+    protected string $json;
+
     protected $entity;
     private array $export_columns = [
         'number'             => 'Number',
@@ -199,7 +204,7 @@ class CustomerImporter extends BaseCsvImporter
         return $customer->fresh();
     }
 
-    public function export()
+    public function export($is_json = false)
     {
         $export_columns = $this->getExportColumns();
 
@@ -234,6 +239,12 @@ class CustomerImporter extends BaseCsvImporter
             }
         }
 
+        if ($is_json) {
+            $this->export->sendJson('customer', $customers);
+            $this->json = json_encode($customers);
+            return true;
+        }
+
         $this->export->build(collect($customers), $export_columns);
 
         $this->export->notifyUser('customer');
@@ -259,5 +270,13 @@ class CustomerImporter extends BaseCsvImporter
     public function getTemplate()
     {
         return asset('storage/templates/customer.csv');
+    }
+
+    /**
+     * @return string
+     */
+    public function getJson(): string
+    {
+        return $this->json;
     }
 }

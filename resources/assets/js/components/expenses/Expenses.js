@@ -195,7 +195,7 @@ export default class Excuspenses extends Component {
     }
 
     render () {
-        const { cachedData, expenses, customers, custom_fields, view, companies, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { cachedData, expenses, customers, custom_fields, view, companies, error, isOpen, error_message, success_message, show_success, currentInvoices, pageLimit } = this.state
         const { start_date, end_date } = this.state.filters
         const fetchUrl = `/api/expenses?start_date=${start_date}&end_date=${end_date}`
         const addButton = customers.length ? <AddExpense

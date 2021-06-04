@@ -129,9 +129,9 @@ export default class Deal extends Component {
                 </TabContent>
 
                 {this.state.show_success &&
-                <Alert color="primary">
-                    {translations.action_completed}
-                </Alert>
+                    <Alert color="primary">
+                        {translations.action_completed}
+                    </Alert>
                 }
 
                 <BottomNavigationButtons button1_click={(e) => this.toggleTab('3')}

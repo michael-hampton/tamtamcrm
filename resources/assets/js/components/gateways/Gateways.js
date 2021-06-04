@@ -210,12 +210,11 @@ export default class Gateways extends Component {
 
         const has_changed = this.arraysEqual(ids, this.state.gateway_ids)
 
-        if(has_changed) {
+        if (has_changed) {
             return false
         }
 
         this.setState({ gateway_ids: ids }, () => {
-
             setTimeout(() => {
                 this.save()
             }, 2000)

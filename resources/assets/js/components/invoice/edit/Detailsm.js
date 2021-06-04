@@ -6,8 +6,8 @@ import { translations } from '../../utils/_translations'
 import UserDropdown from '../../common/dropdowns/UserDropdown'
 import ProjectDropdown from '../../common/dropdowns/ProjectDropdown'
 import AddCustomer from '../../customers/edit/AddCustomer'
-import {icons} from "../../utils/_icons";
-import SwitchWithIcon from "../../common/SwitchWithIcon";
+import { icons } from '../../utils/_icons'
+import SwitchWithIcon from '../../common/SwitchWithIcon'
 
 export default class Detailsm extends Component {
     constructor (props, context) {

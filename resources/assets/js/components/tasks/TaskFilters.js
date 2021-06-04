@@ -71,7 +71,16 @@ export default class TaskFilters extends Component {
     }
 
     getFilters () {
-        const { searchText, start_date, end_date, customer_id, project_id, task_status_id, task_type, user_id } = this.state.filters
+        const {
+            searchText,
+            start_date,
+            end_date,
+            customer_id,
+            project_id,
+            task_status_id,
+            task_type,
+            user_id
+        } = this.state.filters
 
         return (
 

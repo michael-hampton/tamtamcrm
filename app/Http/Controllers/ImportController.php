@@ -140,8 +140,9 @@ class ImportController extends Controller
             auth()->user()
         );
 
-        $objImporter->export();
+        $objImporter->export($request->input('is_json'));
+        $content = $request->input('is_json') === true ? $objImporter->getJson() : $objImporter->getContent();
 
-        return response()->json(['data' => $objImporter->getContent()]);
+        return response()->json(['data' => $content]);
     }
 }

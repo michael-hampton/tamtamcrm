@@ -2,8 +2,8 @@ import axios from 'axios'
 import moment from 'moment'
 import BaseModel, { LineItem } from './BaseModel'
 import { consts } from '../utils/_consts'
-import InvoiceCalculations from "./InvoiceCalculations";
-import {buildPdf} from "../utils/Pdf";
+import InvoiceCalculations from './InvoiceCalculations'
+import { buildPdf } from '../utils/Pdf'
 
 export const purchase_order_pdf_fields = ['$purchaseorder.number', '$purchaseorder.po_number', '$purchaseorder.quote_date', '$purchaseorder.valid_until', '$purchaseorder.balance_due', '$purchaseorder.purchaseorder_datetime', '$purchaseorder.purchaseorder_status', '$purchaseorder.purchaseorder_agent',
     '$purchaseorder.quote_total', '$purchaseorder.partial_due', '$purchaseorder.custom1', '$purchaseorder.custom2', '$purchaseorder.custom3', '$purchaseorder.custom4', '$quote.surcharge1',

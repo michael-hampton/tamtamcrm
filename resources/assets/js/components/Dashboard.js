@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import {
     Button,
     ButtonGroup,
@@ -23,19 +23,19 @@ import {
     TabContent,
     TabPane
 } from 'reactstrap'
-import {CardModule} from './common/Card.jsx'
+import { CardModule } from './common/Card.jsx'
 import ReactEcharts from 'echarts-for-react'
 import axios from 'axios'
 import MessageContainer from './activity/MessageContainer'
 import Line from 'react-chartjs-2'
 import moment from 'moment'
-import {CustomTooltips} from '@coreui/coreui-plugin-chartjs-custom-tooltips'
-import {getStyle, hexToRgba} from '@coreui/coreui/dist/js/coreui-utilities'
+import { CustomTooltips } from '@coreui/coreui-plugin-chartjs-custom-tooltips'
+import { getStyle, hexToRgba } from '@coreui/coreui/dist/js/coreui-utilities'
 import MonthPicker from './common/MonthPicker'
-import {icons} from './utils/_icons'
+import { icons } from './utils/_icons'
 import FormatMoney from './common/FormatMoney'
-import {consts} from './utils/_consts'
-import {translations} from './utils/_translations'
+import { consts } from './utils/_consts'
+import { translations } from './utils/_translations'
 import SettingsWizard from './settings/settings_wizard/SettingsWizard'
 import ViewEntity from './common/ViewEntity'
 import TaskItem from './tasks/TaskItem'
@@ -45,14 +45,14 @@ import QuoteItem from './quotes/QuoteItem'
 import OrderItem from './orders/OrderItem'
 import TaskModel from './models/TaskModel'
 import InvoiceItem from './invoice/InvoiceItem'
-import {getDefaultTableFields as defaultOrderFields} from './presenters/OrderPresenter'
-import {getDefaultTableFields as defaultInvoiceFields} from './presenters/InvoicePresenter'
-import {getDefaultTableFields as defaultQuoteFields} from './presenters/QuotePresenter'
-import {getDefaultTableFields as defaultPaymentFields} from './presenters/PaymentPresenter'
-import {getDefaultTableFields as defaultTaskFields} from './presenters/TaskPresenter'
-import {getDefaultTableFields as defaultExpenseFields} from './presenters/ExpensePresenter'
-import {getDefaultTableFields as defaultCreditFields} from './presenters/CreditPresenter'
-import CreditItem from "./credits/CreditItem";
+import { getDefaultTableFields as defaultOrderFields } from './presenters/OrderPresenter'
+import { getDefaultTableFields as defaultInvoiceFields } from './presenters/InvoicePresenter'
+import { getDefaultTableFields as defaultQuoteFields } from './presenters/QuotePresenter'
+import { getDefaultTableFields as defaultPaymentFields } from './presenters/PaymentPresenter'
+import { getDefaultTableFields as defaultTaskFields } from './presenters/TaskPresenter'
+import { getDefaultTableFields as defaultExpenseFields } from './presenters/ExpensePresenter'
+import { getDefaultTableFields as defaultCreditFields } from './presenters/CreditPresenter'
+import CreditItem from './credits/CreditItem'
 
 const brandPrimary = getStyle('--primary')
 const brandSuccess = getStyle('--success')
@@ -371,7 +371,7 @@ export default class Dashboard extends Component {
     }
 
     componentDidMount () {
-        window.addEventListener('scroll', this.handleScroll);
+        window.addEventListener('scroll', this.handleScroll)
 
         this.fetchData()
 
@@ -390,17 +390,17 @@ export default class Dashboard extends Component {
         // }, 5000)
     }
 
-    handleScroll() {
+    handleScroll () {
         if (this.state.isMobile) {
-            return;
+            return
         }
 
         const offset = document.documentElement.scrollTop
         const offsetIndex = Math.floor((offset + 120) / 622)
 
         if (parseInt(this.state.activeTab2) !== offsetIndex.toString() && offsetIndex > 0 && offsetIndex < 8) {
-            this.setState({activeTab2: offsetIndex.toString()}, () => {
-                //alert(selected_tab.toString())
+            this.setState({ activeTab2: offsetIndex.toString() }, () => {
+                // alert(selected_tab.toString())
             })
         }
     }
@@ -1566,7 +1566,7 @@ export default class Dashboard extends Component {
                 alert('here 1 ' + tab)
                 this.setState({ activeTab2: tab }, () => {
                     if (this.state.activeTab !== '1') {
-                        return;
+                        return
                     }
 
                     const index = parseInt(this.state.activeTab2)
@@ -1575,7 +1575,7 @@ export default class Dashboard extends Component {
                     const selected_tab = offsetIndex + 2
 
                     if (index !== offsetIndex) {
-                        document.documentElement.scrollTop = (index * 622) + 1 //1145
+                        document.documentElement.scrollTop = (index * 622) + 1 // 1145
                     }
                 })
             }
@@ -1638,7 +1638,7 @@ export default class Dashboard extends Component {
         const dashboard_minimized = this.state.dashboard_minimized
         const dashboardFilterEntities = Object.keys(this.state.dashboard_filters)
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
-        const dashboardRightStyle = !this.state.isMobile ? {position: 'fixed', right: '0px', width: '540px', top: '44px'} : {}
+        const dashboardRightStyle = !this.state.isMobile ? { position: 'fixed', right: '0px', width: '540px', top: '44px' } : {}
 
         const dashboardBody = dashboardFilterEntities.map((entity, index) => {
             return (
@@ -1682,7 +1682,7 @@ export default class Dashboard extends Component {
             })
 
             return (<Row key={index}>
-                <Col style={{height: '600px'}}>
+                <Col style={{ height: '600px' }}>
                     <Card>
                         <CardBody>
                             <Row>
@@ -1728,7 +1728,7 @@ export default class Dashboard extends Component {
         }) : null
 
         let leads = ''
-        /**************************************************** Quotes ****************************************************/
+        /** ************************************************** Quotes ****************************************************/
         // expired
         const filterQuotesByExpiration = this.state.quotes && this.state.quotes.length ? filterOverdue(this.state.quotes) : []
         const arrOverdueQuotes = filterQuotesByExpiration.length ? groupByStatus(filterQuotesByExpiration, 2, 'status_id') : []
@@ -1737,7 +1737,7 @@ export default class Dashboard extends Component {
         const filterQuotesLast30Days = this.state.quotes && this.state.quotes.length ? getLast30Days(this.state.quotes) : []
         const arrRecentQuotes = filterQuotesLast30Days.length ? groupByStatus(filterQuotesLast30Days, 1, 'status_id') : []
 
-        /**************************************************** Credits ****************************************************/
+        /** ************************************************** Credits ****************************************************/
         // expired
         const filterCreditsByExpiration = this.state.credits && this.state.credits.length ? filterOverdue(this.state.credits) : []
         const arrOverdueCredits = filterCreditsByExpiration.length ? groupByStatus(filterCreditsByExpiration, 2, 'status_id') : []
@@ -1746,8 +1746,8 @@ export default class Dashboard extends Component {
         const filterCreditsLast30Days = this.state.credits && this.state.credits.length ? getLast30Days(this.state.credits) : []
         const arrRecentCredits = filterCreditsLast30Days.length ? groupByStatus(filterCreditsLast30Days, 1, 'status_id') : []
 
-        /**************************************************** Orders ****************************************************/
-            // expired
+        /** ************************************************** Orders ****************************************************/
+        // expired
         const filterOrdersByExpiration = this.state.orders && this.state.orders.length ? filterOverdue(this.state.orders) : []
         const arrOverdueOrders = filterOrdersByExpiration.length ? groupByStatus(filterOrdersByExpiration, 2, 'status_id') : []
 
@@ -1755,7 +1755,7 @@ export default class Dashboard extends Component {
         const filterOrdersLast30Days = this.state.orders && this.state.orders.length ? getLast30Days(this.state.orders) : []
         const arrRecentOrders = filterOrdersLast30Days.length ? groupByStatus(filterOrdersLast30Days, 1, 'status_id') : []
 
-        /**************************************************** Invoice ****************************************************/
+        /** ************************************************** Invoice ****************************************************/
         // expired
         const filterInvociesByExpiration = this.state.invoices && this.state.invoices.length ? filterOverdue(this.state.invoices) : []
         const arrOverdueInvoices = filterInvociesByExpiration.length ? groupByStatus(filterInvociesByExpiration, 2, 'status_id') : []
@@ -1764,17 +1764,17 @@ export default class Dashboard extends Component {
         const filterInvoicesLast30Days = this.state.invoices && this.state.invoices.length ? getLast30Days(this.state.invoices) : []
         const arrRecentInvoices = filterInvoicesLast30Days.length ? groupByStatus(filterInvoicesLast30Days, 1, 'status_id') : []
 
-        /**************************************************** Payments ****************************************************/
-            // last 30 days
+        /** ************************************************** Payments ****************************************************/
+        // last 30 days
         const filterPaymentsLast30Days = this.state.payments && this.state.payments.length ? getLast30Days(this.state.payments) : []
         const arrRecentPayments = filterPaymentsLast30Days.length ? groupByStatus(filterPaymentsLast30Days, 4, 'status_id') : []
 
-        /**************************************************** Expenses ****************************************************/
-            // last 30 days
+        /** ************************************************** Expenses ****************************************************/
+        // last 30 days
         const arrRecentExpenses = this.state.expenses.length ? getLast30Days(this.state.expenses) : []
 
-        /**************************************************** Tasks ****************************************************/
-            // last 30 days
+        /** ************************************************** Tasks ****************************************************/
+        // last 30 days
         const filterTasksLast30Days = this.state.tasks.length ? getLast30Days(this.state.tasks) : []
         const arrRecentTasks = filterTasksLast30Days.length ? filterTasksLast30Days.filter((item) => {
             const taskModel = new TaskModel(item)
@@ -1787,8 +1787,7 @@ export default class Dashboard extends Component {
             return !item.deleted_at && taskModel.isRunning
         }) : []
 
-
-        /**************************************************** Invoices ****************************************************/
+        /** ************************************************** Invoices ****************************************************/
         const overdue_invoices = this.state.customers.length && arrOverdueInvoices.length
             ? <InvoiceItem ignoredColumns={defaultInvoiceFields()} showCheckboxes={false}
                 updateInvoice={(entities) => {
@@ -1816,7 +1815,7 @@ export default class Dashboard extends Component {
                 bulk={[]}
                 onChangeBulk={null}/> : null
 
-        /**************************************************** Tasks ****************************************************/
+        /** ************************************************** Tasks ****************************************************/
         const recent_tasks = this.state.customers.length && arrRecentTasks.length
             ? <TaskItem ignoredColumns={defaultTaskFields()} showCheckboxes={false} force_mobile={true}
                 action={(entities) => {
@@ -1844,7 +1843,7 @@ export default class Dashboard extends Component {
             bulk={[]}
             onChangeBulk={null}/> : null
 
-        /**************************************************** Expenses ****************************************************/
+        /** ************************************************** Expenses ****************************************************/
         const recent_expenses = this.state.customers.length && arrRecentExpenses.length
             ? <ExpenseItem ignoredColumns={defaultExpenseFields()} showCheckboxes={false}
                 updateExpenses={(entities) => {
@@ -1858,7 +1857,7 @@ export default class Dashboard extends Component {
                 bulk={[]}
                 onChangeBulk={null}/> : null
 
-        /**************************************************** Quotes ****************************************************/
+        /** ************************************************** Quotes ****************************************************/
         const overdue_quotes = this.state.customers.length && arrOverdueQuotes.length
             ? <QuoteItem ignoredColumns={defaultQuoteFields()} showCheckboxes={false} updateInvoice={(entities) => {
                 this.addUserToState('quotes', entities)
@@ -1883,7 +1882,7 @@ export default class Dashboard extends Component {
             bulk={[]}
             onChangeBulk={null}/> : null
 
-        /**************************************************** Orders ****************************************************/
+        /** ************************************************** Orders ****************************************************/
         const overdue_orders = this.state.customers.length && arrOverdueOrders.length
             ? <OrderItem ignoredColumns={defaultOrderFields()} showCheckboxes={false} updateOrder={(entities) => {
                 this.addUserToState('orders', entities)
@@ -1908,7 +1907,7 @@ export default class Dashboard extends Component {
             bulk={[]}
             onChangeBulk={null}/> : null
 
-        /**************************************************** Payments ****************************************************/
+        /** ************************************************** Payments ****************************************************/
         const recent_payments = this.state.customers.length && arrRecentPayments.length
             ? <PaymentItem ignoredColumns={defaultPaymentFields()} showCheckboxes={false}
                 updateCustomers={(entities) => {
@@ -1924,30 +1923,30 @@ export default class Dashboard extends Component {
                 bulk={[]}
                 onChangeBulk={null}/> : null
 
-        /**************************************************** Credits ****************************************************/
+        /** ************************************************** Credits ****************************************************/
         const overdue_credits = this.state.customers.length && arrOverdueCredits.length
             ? <CreditItem ignoredColumns={defaultCreditFields()} showCheckboxes={false} updateInvoice={(entities) => {
                 this.addUserToState('quotes', entities)
             }} credits={arrOverdueCredits} force_mobile={true} show_list={true} users={[]}
-                         custom_fields={[]} customers={this.state.customers}
-                         viewId={this.state.viewId}
-                         toggleViewedEntity={(id, title = null, edit = null) => {
-                             this.toggleViewedEntity('Credit', this.state.credits, id, title, edit)
-                         }}
-                         bulk={[]}
-                         onChangeBulk={null}/> : null
+            custom_fields={[]} customers={this.state.customers}
+            viewId={this.state.viewId}
+            toggleViewedEntity={(id, title = null, edit = null) => {
+                this.toggleViewedEntity('Credit', this.state.credits, id, title, edit)
+            }}
+            bulk={[]}
+            onChangeBulk={null}/> : null
 
         const recent_credits = this.state.customers.length && arrRecentCredits.length
             ? <CreditItem ignoredColumns={defaultCreditFields()} showCheckboxes={false} updateInvoice={(entities) => {
                 this.addUserToState('credits', entities)
             }} credits={arrRecentCredits} force_mobile={true} show_list={true} users={[]}
-                         custom_fields={[]} customers={this.state.customers}
-                         viewId={this.state.viewId}
-                         toggleViewedEntity={(id, title = null, edit = null) => {
-                             this.toggleViewedEntity('Credit', this.state.credits, id, title, edit)
-                         }}
-                         bulk={[]}
-                         onChangeBulk={null}/> : null
+            custom_fields={[]} customers={this.state.customers}
+            viewId={this.state.viewId}
+            toggleViewedEntity={(id, title = null, edit = null) => {
+                this.toggleViewedEntity('Credit', this.state.credits, id, title, edit)
+            }}
+            bulk={[]}
+            onChangeBulk={null}/> : null
 
         const modules = JSON.parse(localStorage.getItem('modules'))
 
@@ -2419,7 +2418,6 @@ export default class Dashboard extends Component {
                                 </NavItem>
                                 }
 
-
                                 {modules && modules.tasks &&
                                 <NavItem>
                                     <NavLink
@@ -2536,7 +2534,6 @@ export default class Dashboard extends Component {
                                         </CardBody>
                                     </Card>
                                 </TabPane>
-
 
                                 <TabPane tabId="6">
                                     <Card>

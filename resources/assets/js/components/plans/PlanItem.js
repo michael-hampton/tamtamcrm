@@ -66,7 +66,8 @@ export default class PlanItem extends Component {
                     ? <DeleteModal archive={true} deleteFunction={this.deletePlan} id={plan.id}/> : null
 
                 const editButton = !plan.deleted_at
-                    ? <EditPlan plan_types={this.props.plan_types} plan={plan} plans={entities} action={this.props.addUserToState}/>
+                    ? <EditPlan plan_types={this.props.plan_types} plan={plan} plans={entities}
+                        action={this.props.addUserToState}/>
                     : null
 
                 const columnList = Object.keys(plan).filter(key => {

@@ -24,6 +24,11 @@ class CompanyImporter extends BaseCsvImporter
     use ImportMapper;
     use CompanyTransformable;
 
+    /**
+     * @var string
+     */
+    protected string $json;
+
     protected $entity;
     private array $export_columns = [
         'number'        => 'Number',
@@ -171,7 +176,7 @@ class CompanyImporter extends BaseCsvImporter
         return $company->fresh();
     }
 
-    public function export()
+    public function export($is_json = false)
     {
         $export_columns = $this->getExportColumns();
 
@@ -188,6 +193,12 @@ class CompanyImporter extends BaseCsvImporter
                     $companies[$key] = array_merge($companies[$key], $contact);
                 }
             }
+        }
+
+        if ($is_json) {
+            $this->export->sendJson('company', $companies);
+            $this->json = json_encode($companies);
+            return true;
         }
 
         $this->export->build(collect($companies), $export_columns);
@@ -215,5 +226,13 @@ class CompanyImporter extends BaseCsvImporter
     public function getTemplate()
     {
         return asset('storage/templates/companies.csv');
+    }
+
+    /**
+     * @return string
+     */
+    public function getJson(): string
+    {
+        return $this->json;
     }
 }

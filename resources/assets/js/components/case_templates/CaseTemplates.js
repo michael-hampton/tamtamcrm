@@ -123,7 +123,7 @@ export default class CaseTemplates extends Component {
 
     render () {
         const { start_date, end_date } = this.state.filters
-        const { cachedData, view, templates, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { cachedData, view, templates, error, isOpen, error_message, success_message, show_success, currentInvoices, pageLimit } = this.state
         const fetchUrl = `/api/case_template?start_date=${start_date}&end_date=${end_date} `
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'

@@ -2,8 +2,8 @@ import axios from 'axios'
 import moment from 'moment'
 import BaseModel, { LineItem } from './BaseModel'
 import { consts } from '../utils/_consts'
-import InvoiceCalculations from "./InvoiceCalculations";
-import {buildPdf} from "../utils/Pdf";
+import InvoiceCalculations from './InvoiceCalculations'
+import { buildPdf } from '../utils/Pdf'
 
 export const order_pdf_fields = ['$order.number', '$order.po_number', '$order.order_date', '$order.order_total', '$order.order_datetime', '$order.order_status', '$order.order_agent',
     '$order.balance', '$order.partial_due', '$order.custom1', '$order.custom2', '$order.custom3', '$order.custom4',

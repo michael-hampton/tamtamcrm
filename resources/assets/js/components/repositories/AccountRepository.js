@@ -1,6 +1,6 @@
 import axios from 'axios'
 import BaseRepository from './BaseRepository'
-import {buildPdf} from "../utils/Pdf";
+import { buildPdf } from '../utils/Pdf'
 
 export default class AccountRepository extends BaseRepository {
     constructor () {
@@ -126,7 +126,7 @@ export default class AccountRepository extends BaseRepository {
 
             // Don't forget to return something
 
-            if(show_html === true) {
+            if (show_html === true) {
                 return res.data
             }
 

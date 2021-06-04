@@ -71,7 +71,6 @@ class Login extends Component {
         })
             .then((response) => {
                 if (response.data.success === true) {
-
                     console.log('data', response.data)
 
                     const userData = {

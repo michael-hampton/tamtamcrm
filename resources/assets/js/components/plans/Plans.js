@@ -8,8 +8,7 @@ import { filterStatuses } from '../utils/_search'
 import PlanItem from './PlanItem'
 import AddPlan from './edit/AddPlan'
 import PlanFilters from './PlanFilters'
-import PlanRepository from '../repositories/PlanRepository'
-import { getDefaultTableFields } from "../presenters/PlanPresenter";
+import { getDefaultTableFields } from '../presenters/PlanPresenter'
 
 export default class Plans extends Component {
     constructor (props) {
@@ -125,7 +124,22 @@ export default class Plans extends Component {
     }
 
     render () {
-        const { plan_types, cachedData, plans, error, view, filters, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const {
+            plan_types,
+            cachedData,
+            plans,
+            error,
+            view,
+            filters,
+            isOpen,
+            error_message,
+            success_message,
+            show_success,
+            currentInvoices,
+            currentPage,
+            totalPages,
+            pageLimit
+        } = this.state
         const { start_date, end_date } = this.state.filters
         const fetchUrl = `/api/plans?start_date=${start_date}&end_date=${end_date}`
         const addButton = <AddPlan plans={cachedData} action={this.addUserToState}/>
@@ -153,19 +167,19 @@ export default class Plans extends Component {
                     </div>
 
                     {error &&
-                    <Snackbar open={error} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
-                        <Alert severity="danger">
-                            {error_message}
-                        </Alert>
-                    </Snackbar>
+                        <Snackbar open={error} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
+                            <Alert severity="danger">
+                                {error_message}
+                            </Alert>
+                        </Snackbar>
                     }
 
                     {show_success &&
-                    <Snackbar open={show_success} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
-                        <Alert severity="success">
-                            {success_message}
-                        </Alert>
-                    </Snackbar>
+                        <Snackbar open={show_success} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
+                            <Alert severity="success">
+                                {success_message}
+                            </Alert>
+                        </Snackbar>
                     }
 
                     <div className={margin_class}>
@@ -191,10 +205,11 @@ export default class Plans extends Component {
                                 />
 
                                 {total > 0 &&
-                                <div className="d-flex flex-row py-4 align-items-center">
-                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
-                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
-                                </div>
+                                    <div className="d-flex flex-row py-4 align-items-center">
+                                        <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                            pageNeighbours={1}
+                                            onPageChanged={this.onPageChanged.bind(this)}/>
+                                    </div>
                                 }
                             </CardBody>
                         </Card>

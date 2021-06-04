@@ -190,7 +190,7 @@ export default class ProductList extends Component {
     }
 
     render () {
-        const { cachedData, products, custom_fields, companies, categories, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { cachedData, products, custom_fields, companies, categories, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, pageLimit } = this.state
         const { start_date, end_date } = this.state.filters
         const fetchUrl = `/api/products?start_date=${start_date}&end_date=${end_date}`
         const addButton = companies.length && categories.length ? <AddProduct

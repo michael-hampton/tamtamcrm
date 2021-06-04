@@ -1,19 +1,18 @@
-import BaseModel from "./BaseModel";
-import {roundNumber} from "../utils/_formatting";
+import BaseModel from './BaseModel'
+import { roundNumber } from '../utils/_formatting'
 
-export default class LineItemModel extends BaseModel{
-
+export default class LineItemModel extends BaseModel {
     constructor (line_item, invoice) {
-        super();
+        super()
         this.line_item = line_item
         this.invoice = invoice
     }
 
-    netTotal(invoice, precision) {
-        return this.total() - this.taxAmount(invoice, precision);
+    netTotal (invoice, precision) {
+        return this.total() - this.taxAmount(invoice, precision)
     }
 
-    taxAmount() {
+    taxAmount () {
         let tax_total = 0
 
         if (this.line_item.unit_tax > 0) {
@@ -31,41 +30,41 @@ export default class LineItemModel extends BaseModel{
         return tax_total
     }
 
-    calculateTaxAmount(rate, precision) {
-        let taxAmount;
+    calculateTaxAmount (rate, precision) {
+        let taxAmount
 
         if (rate === 0) {
-            return 0;
+            return 0
         }
 
-        const lineTotal = this.total();
+        const lineTotal = this.total()
 
         if (this.settings.inclusive_taxes) {
-            taxAmount = lineTotal - (lineTotal / (1 + (rate / 100)));
+            taxAmount = lineTotal - (lineTotal / (1 + (rate / 100)))
         } else {
-            taxAmount = lineTotal * rate / 100;
+            taxAmount = lineTotal * rate / 100
         }
 
-        return roundNumber(taxAmount, precision);
+        return roundNumber(taxAmount, precision)
     }
 
-    discountAmount() {
+    discountAmount () {
         if (!this.line_item.unit_discount || this.line_item.unit_discount < 0) {
-            return 0;
+            return 0
         }
 
-        let total = this.line_item.quantity * this.line_item.unit_price
+        const total = this.line_item.quantity * this.line_item.unit_price
 
         if (this.line_item.unit_discount > 0) {
             if (this.invoice.is_amount_discount === true) {
-                return this.line_item.unit_discount;
+                return this.line_item.unit_discount
             } else {
-                return this.line_item.unit_discount / 100 * total;
+                return this.line_item.unit_discount / 100 * total
             }
         }
     }
 
-    total() {
+    total () {
         let total = this.line_item.quantity * this.line_item.unit_price
 
         total = total - this.discountAmount()

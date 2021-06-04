@@ -62,7 +62,7 @@ const TaskTimeInputs = (props) => {
                     </Row>
 
                     {idx !== 0 &&
-                    <Button color="danger" onClick={() => props.removeLine(idx)}>{translations.remove}</Button>
+                            <Button color="danger" onClick={() => props.removeLine(idx)}>{translations.remove}</Button>
                     }
 
                 </div>

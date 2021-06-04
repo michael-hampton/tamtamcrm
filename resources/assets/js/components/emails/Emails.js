@@ -9,8 +9,8 @@ import EmailPreview from '../settings/EmailPreview'
 import { translations } from '../utils/_translations'
 import ViewPdf from './ViewPdf'
 import AlertPopup from '../common/AlertPopup'
-import AccountRepository from "../repositories/AccountRepository";
-import AppSwitch from "../common/AppSwitch";
+import AccountRepository from '../repositories/AccountRepository'
+import AppSwitch from '../common/AppSwitch'
 
 export default class Emails extends Component {
     constructor (props) {
@@ -59,7 +59,7 @@ export default class Emails extends Component {
         this.setState({ is_mobile: window.innerWidth <= 768 })
     }
 
-    getTemplates() {
+    getTemplates () {
         const accountRepository = new AccountRepository()
         accountRepository.getTemplates().then(response => {
             if (!response) {
@@ -93,14 +93,14 @@ export default class Emails extends Component {
         })
     }
 
-    handleSettingsChange(event) {
+    handleSettingsChange (event) {
         const name = event.target.name
         let value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
         value = (value === 'true') ? true : ((value === 'false') ? false : (value))
 
         const user_id = JSON.parse(localStorage.getItem('appState')).user.id
 
-        const templates = {...this.state.templates}
+        const templates = { ...this.state.templates }
 
         if (!templates[this.state.template_type]) {
             templates[this.state.template_type] = {
@@ -113,7 +113,7 @@ export default class Emails extends Component {
 
         templates[this.state.template_type][name] = value
 
-        this.setState({templates: templates})
+        this.setState({ templates: templates })
     }
 
     buildPreviewData () {
@@ -171,12 +171,12 @@ export default class Emails extends Component {
         const fields = this.state.templates[this.state.template_type] && Object.keys(this.state.templates[this.state.template_type]).length
             ? <EmailFields custom_only={true} return_form={false} templates={this.state.templates}
                 template_type={this.props.template}
-                           selected_template={this.state.template_type}
+                selected_template={this.state.template_type}
                 handleSettingsChange={this.handleSettingsChange}
                 handleChange={this.handleChange}/> : null
         const preview = this.state.showPreview && this.state.preview && Object.keys(this.state.preview).length && this.state.templates[this.state.template_type] && Object.keys(this.state.templates[this.state.template_type]).length
             ? <EmailPreview preview={this.state.preview} entity={this.props.entity} entity_id={this.props.entity_id}
-                            template_type={this.state.template_type}/> : null
+                template_type={this.state.template_type}/> : null
         const editor = this.state.subject.length && this.state.body.length
             ? <EmailEditorForm
                 model={this.props.model}

@@ -376,18 +376,18 @@ class EditUser extends React.Component {
                         <TabContent activeTab={this.state.activeTab} className="bg-transparent">
                             <TabPane tabId="1">
                                 {Object.keys(this.state.user).length &&
-                                <React.Fragment>
-                                    <DetailsForm user={this.state} setDate={this.setDate} errors={this.state.errors}
-                                        hasErrorFor={this.hasErrorFor} renderErrorFor={this.renderErrorFor}
-                                        handleInput={this.handleInput}/>
+                                    <React.Fragment>
+                                        <DetailsForm user={this.state} setDate={this.setDate} errors={this.state.errors}
+                                            hasErrorFor={this.hasErrorFor} renderErrorFor={this.renderErrorFor}
+                                            handleInput={this.handleInput}/>
 
-                                    <CustomFieldsForm handleInput={this.handleInput}
-                                        custom_value1={this.state.custom_value1}
-                                        custom_value2={this.state.custom_value2}
-                                        custom_value3={this.state.custom_value3}
-                                        custom_value4={this.state.custom_value4}
-                                        custom_fields={this.props.custom_fields}/>
-                                </React.Fragment>
+                                        <CustomFieldsForm handleInput={this.handleInput}
+                                            custom_value1={this.state.custom_value1}
+                                            custom_value2={this.state.custom_value2}
+                                            custom_value3={this.state.custom_value3}
+                                            custom_value4={this.state.custom_value4}
+                                            custom_fields={this.props.custom_fields}/>
+                                    </React.Fragment>
 
                                 }
 
@@ -395,14 +395,14 @@ class EditUser extends React.Component {
 
                             <TabPane tabId="2">
                                 {this.state.username && this.state.username.length &&
-                                <PermissionsForm has_custom_permissions={this.state.has_custom_permissions}
-                                    setPermissions={this.setPermissions.bind(this)}
-                                    handleInput={this.handleInput} errors={this.state.errors}
-                                    setAccounts={this.setSelectedAccounts}
-                                    departments={this.props.departments} accounts={this.props.accounts}
-                                    selectedAccounts={this.state.selectedAccounts}
-                                    handleMultiSelect={this.handleMultiSelect}
-                                    selectedRoles={this.state.selectedRoles}/>
+                                    <PermissionsForm has_custom_permissions={this.state.has_custom_permissions}
+                                        setPermissions={this.setPermissions.bind(this)}
+                                        handleInput={this.handleInput} errors={this.state.errors}
+                                        setAccounts={this.setSelectedAccounts}
+                                        departments={this.props.departments} accounts={this.props.accounts}
+                                        selectedAccounts={this.state.selectedAccounts}
+                                        handleMultiSelect={this.handleMultiSelect}
+                                        selectedRoles={this.state.selectedRoles}/>
 
                                 }
 
@@ -433,7 +433,8 @@ class EditUser extends React.Component {
 
                     <DefaultModalFooter show_success={true} toggle={this.toggle}
                         saveData={this.handleClick.bind(this)}
-                        loading={false} extra_button={<ConfirmEmail callback={(success, message) => {
+                        loading={false}
+                        extra_button={<ConfirmEmail callback={(success, message) => {
                             if (success) {
                                 toast.success(translations.email_confirmed, {
                                     position: 'top-center',

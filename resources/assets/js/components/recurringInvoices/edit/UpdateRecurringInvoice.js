@@ -46,7 +46,7 @@ import ProjectRepository from '../../repositories/ProjectRepository'
 import { getExchangeRateWithMap } from '../../utils/_money'
 import Recurringm from './Recurringm'
 import { toast, ToastContainer } from 'react-toastify'
-import InvoiceModel from "../../models/InvoiceModel";
+import InvoiceModel from '../../models/InvoiceModel'
 
 class UpdateRecurringInvoice extends Component {
     constructor (props, context) {

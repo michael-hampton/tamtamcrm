@@ -51,7 +51,7 @@ export function convertTimeToSeconds (time) {
 
 export function roundNumber (number, decimalPlaces) {
     if (number == null || number.isNaN) {
-        return 0;
+        return 0
     }
 
     const factorOfTen = Math.pow(10, decimalPlaces)

@@ -53,28 +53,32 @@ export default class Details extends Component {
                     <TabPane tabId="1">
                         <FormGroup className="mb-3">
                             <Label>{translations.name}</Label>
-                            <Input className={this.props.hasErrorFor('name') ? 'is-invalid' : ''} type="text" name="name"
+                            <Input className={this.props.hasErrorFor('name') ? 'is-invalid' : ''} type="text"
+                                name="name"
                                 value={this.props.plan.name} onChange={this.props.handleInput}/>
                             {this.props.renderErrorFor('name')}
                         </FormGroup>
 
                         <FormGroup className="mb-3">
                             <Label>{translations.description}</Label>
-                            <Input className={this.props.hasErrorFor('description') ? 'is-invalid' : ''} type="text" name="description"
+                            <Input className={this.props.hasErrorFor('description') ? 'is-invalid' : ''} type="text"
+                                name="description"
                                 value={this.props.plan.description} onChange={this.props.handleInput}/>
                             {this.props.renderErrorFor('description')}
                         </FormGroup>
 
                         <FormGroup className="mb-3">
                             <Label>{translations.code}</Label>
-                            <Input className={this.props.hasErrorFor('code') ? 'is-invalid' : ''} type="text" name="code"
+                            <Input className={this.props.hasErrorFor('code') ? 'is-invalid' : ''} type="text"
+                                name="code"
                                 value={this.props.plan.code} onChange={this.props.handleInput}/>
                             {this.props.renderErrorFor('code')}
                         </FormGroup>
 
                         <FormGroup className="mb-3">
                             <Label>{translations.price}</Label>
-                            <Input className={this.props.hasErrorFor('name') ? 'is-invalid' : ''} type="text" name="price"
+                            <Input className={this.props.hasErrorFor('name') ? 'is-invalid' : ''} type="text"
+                                name="price"
                                 value={this.props.plan.price} onChange={this.props.handleInput}/>
                             {this.props.renderErrorFor('price')}
                         </FormGroup>
@@ -94,11 +98,14 @@ export default class Details extends Component {
                         <div className="form-row">
                             <FormGroup className="col-md-6">
                                 <Label>{translations.invoice_frequency}</Label>
-                                <Input value={this.props.plan.invoice_period} type="text" onChange={this.props.handleInput} name="invoice_period" placeholder={translations.days} />
+                                <Input value={this.props.plan.invoice_period} type="text"
+                                    onChange={this.props.handleInput} name="invoice_period"
+                                    placeholder={translations.days}/>
                             </FormGroup>
                             <FormGroup className="col-md-6">
                                 <Label>{translations.frequency}</Label>
-                                <Input value={this.props.plan.invoice_interval} type="select" onChange={this.props.handleInput} name="invoice_interval">
+                                <Input value={this.props.plan.invoice_interval} type="select"
+                                    onChange={this.props.handleInput} name="invoice_interval">
                                     <option value="">{translations.select_option}</option>
                                     <option value="day">{translations.day}</option>
                                     <option value="month">{translations.month}</option>
@@ -110,11 +117,13 @@ export default class Details extends Component {
                         <div className="form-row">
                             <FormGroup className="col-md-6">
                                 <Label>{translations.grace_period}</Label>
-                                <Input value={this.props.plan.grace_period} type="text" onChange={this.props.handleInput} name="grace_period" />
+                                <Input value={this.props.plan.grace_period} type="text"
+                                    onChange={this.props.handleInput} name="grace_period"/>
                             </FormGroup>
                             <FormGroup className="col-md-6">
                                 <Label>{translations.frequency}</Label>
-                                <Input value={this.props.plan.grace_interval} type="select" onChange={this.props.handleInput} name="grace_interval">
+                                <Input value={this.props.plan.grace_interval} type="select"
+                                    onChange={this.props.handleInput} name="grace_interval">
                                     <option value="">{translations.select_option}</option>
                                     <option value="day">{translations.day}</option>
                                     <option value="month">{translations.month}</option>
@@ -126,11 +135,13 @@ export default class Details extends Component {
                         <div className="form-row">
                             <FormGroup className="col-md-6">
                                 <Label>{translations.trial_period}</Label>
-                                <Input value={this.props.plan.trial_period} type="text" onChange={this.props.handleInput} name="trial_period" />
+                                <Input value={this.props.plan.trial_period} type="text"
+                                    onChange={this.props.handleInput} name="trial_period"/>
                             </FormGroup>
                             <FormGroup className="col-md-6">
                                 <Label>{translations.frequency}</Label>
-                                <Input value={this.props.plan.trial_interval} type="select" onChange={this.props.handleInput} name="trial_interval">
+                                <Input value={this.props.plan.trial_interval} type="select"
+                                    onChange={this.props.handleInput} name="trial_interval">
                                     <option value="">{translations.select_option}</option>
                                     <option value="day">{translations.day}</option>
                                     <option value="month">{translations.month}</option>
@@ -159,17 +170,19 @@ export default class Details extends Component {
 
                         <FormGroup className="mb-3">
                             <Label>{translations.active_subscribers_limit}</Label>
-                            <Input className={this.props.hasErrorFor('active_subscribers_limit') ? 'is-invalid' : ''} type="text" name="active_subscribers_limit"
-                                value={this.props.plan.active_subscribers_limit} onChange={this.props.handleInput}/>
+                            <Input className={this.props.hasErrorFor('active_subscribers_limit') ? 'is-invalid' : ''}
+                                type="text" name="active_subscribers_limit"
+                                value={this.props.plan.active_subscribers_limit}
+                                onChange={this.props.handleInput}/>
                             {this.props.renderErrorFor('active_subscribers_limit')}
                         </FormGroup>
                     </TabPane>
                 </TabContent>
 
                 {this.state.show_success &&
-                <Alert color="primary">
-                    {translations.action_completed}
-                </Alert>
+                    <Alert color="primary">
+                        {translations.action_completed}
+                    </Alert>
                 }
             </React.Fragment>
         )

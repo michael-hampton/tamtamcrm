@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
-import { Col, FormGroup, Row } from 'reactstrap'
+import { Col, FormGroup, Row, Button } from 'reactstrap'
 import TableSearch from '../common/TableSearch'
 import DateFilter from '../common/DateFilter'
 import FilterTile from '../common/FilterTile'
 import StatusDropdown from '../common/StatusDropdown'
 import { filterStatuses } from '../utils/_search'
+import { translations } from '../utils/_translations'
 
 export default class SubscriptionFilters extends Component {
     constructor (props) {

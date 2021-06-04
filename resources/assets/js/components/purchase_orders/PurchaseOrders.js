@@ -180,7 +180,7 @@ export default class PurchaseOrders extends Component {
     }
 
     render () {
-        const { cachedData, purchase_orders, custom_fields, companies, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { cachedData, purchase_orders, custom_fields, companies, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, pageLimit } = this.state
         const { start_date, end_date } = this.state.filters
         const fetchUrl = `/api/purchase_order?start_date=${start_date}&end_date=${end_date}`
         const addButton = companies.length ? <EditPurchaseOrder

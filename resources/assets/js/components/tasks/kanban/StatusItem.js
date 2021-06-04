@@ -1,11 +1,7 @@
-import axios from 'axios'
 import React, { Component } from 'react'
-import { Input, Button, FormGroup, Label } from 'reactstrap'
+import { Button, FormGroup, Input, Label } from 'reactstrap'
 import { Draggable } from 'react-beautiful-dnd'
 import { translations } from '../../utils/_translations'
-import TaskModel from '../../models/TaskModel'
-import DealModel from '../../models/DealModel'
-import LeadModel from '../../models/LeadModel'
 import TaskStatusModel from '../../models/TaskStatusModel'
 
 export default class StatusItem extends Component {
@@ -64,15 +60,17 @@ export default class StatusItem extends Component {
                                     <div className="card-body">
                                         <FormGroup className="mb-2">
                                             <Label>{translations.name}</Label>
-                                            <Input type="text" name="name" value={this.state.name} onChange={(e) => {
-                                                this.setState({ name: e.target.value })
-                                            }}/>
+                                            <Input type="text" name="name" value={this.state.name}
+                                                onChange={(e) => {
+                                                    this.setState({ name: e.target.value })
+                                                }}/>
                                         </FormGroup>
 
                                         <Button color="link" onClick={(e) => {
                                             this.setState({ show_edit: false })
                                         }}>{translations.cancel}</Button>
-                                        <Button color="primary" className="ml-2" onClick={this.saveStatus}>{translations.save}</Button>
+                                        <Button color="primary" className="ml-2"
+                                            onClick={this.saveStatus}>{translations.save}</Button>
                                     </div>
                                 </div>
                             </div>

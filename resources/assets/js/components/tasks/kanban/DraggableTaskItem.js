@@ -1,6 +1,5 @@
-import axios from 'axios'
 import React, { Component } from 'react'
-import { Input, Button, FormGroup, Label, UncontrolledTooltip } from 'reactstrap'
+import { Button, FormGroup, Input, Label, UncontrolledTooltip } from 'reactstrap'
 import { Draggable } from 'react-beautiful-dnd'
 import { translations } from '../../utils/_translations'
 import TaskModel from '../../models/TaskModel'
@@ -12,7 +11,6 @@ import { icons } from '../../utils/_icons'
 import EditTaskDesktop from '../edit/EditTaskDesktop'
 import EditLead from '../../leads/edit/EditLeadForm'
 import EditDeal from '../../deals/edit/EditDeal'
-import Columns from './Columns'
 
 export default class DraggableTaskItem extends Component {
     constructor (props) {
@@ -186,22 +184,23 @@ export default class DraggableTaskItem extends Component {
                             }}
                         >
                             <div className="card-body p-2">
-                                <div className={`${this.state.show_edit === true ? 'd-none' : 'd-block'} card-title lead`} onClick={(e) => {
-                                    this.setState({ show_edit: true })
-                                }}>
+                                <div className={`${this.state.show_edit === true ? 'd-none' : 'd-block'} card-title lead`}
+                                    onClick={(e) => {
+                                        this.setState({ show_edit: true })
+                                    }}>
                                     {this.state.entity.name}
                                 </div>
 
                                 <p className={this.state.show_edit === true ? 'd-none' : 'd-block'}>
                                     <small className={`${this.state.show_edit === true ? 'd-none' : 'd-block'} ${text_color}`}>
                                         {customer[0].name} {project !== null &&
-                                    <React.Fragment>
-                                        <UncontrolledTooltip placement="right" target="projectTooltip">
-                                            {project.name}
-                                        </UncontrolledTooltip>
-                                        <i id="projectTooltip" style={{ fontSize: '18px' }}
-                                            className={`fa ${icons.project} mr-3`}/>
-                                    </React.Fragment>
+                                            <React.Fragment>
+                                                <UncontrolledTooltip placement="right" target="projectTooltip">
+                                                    {project.name}
+                                                </UncontrolledTooltip>
+                                                <i id="projectTooltip" style={{ fontSize: '18px' }}
+                                                    className={`fa ${icons.project} mr-3`}/>
+                                            </React.Fragment>
 
                                         }
                                     </small>
@@ -238,47 +237,47 @@ export default class DraggableTaskItem extends Component {
                                 }}>{translations.view}</Button>
 
                                 {this.props.type === 'task' &&
-                                <EditTaskDesktop
-                                    projects={this.props.projects}
-                                    customers={this.props.customers}
-                                    show_as_link={true}
-                                    add={false}
-                                    modal={true}
-                                    listView={true}
-                                    custom_fields={[]}
-                                    users={[]}
-                                    task={this.state.entity}
-                                    tasks={this.props.items}
-                                    action={this.updateTask}
-                                />
+                                        <EditTaskDesktop
+                                            projects={this.props.projects}
+                                            customers={this.props.customers}
+                                            show_as_link={true}
+                                            add={false}
+                                            modal={true}
+                                            listView={true}
+                                            custom_fields={[]}
+                                            users={[]}
+                                            task={this.state.entity}
+                                            tasks={this.props.items}
+                                            action={this.updateTask}
+                                        />
                                 }
 
                                 {this.props.type === 'lead' &&
-                                <EditLead
-                                    projects={this.props.projects}
-                                    show_as_link={true}
-                                    listView={true}
-                                    custom_fields={[]}
-                                    users={[]}
-                                    lead={this.state.entity}
-                                    leads={this.props.items}
-                                    action={this.updateTask}
-                                />
+                                        <EditLead
+                                            projects={this.props.projects}
+                                            show_as_link={true}
+                                            listView={true}
+                                            custom_fields={[]}
+                                            users={[]}
+                                            lead={this.state.entity}
+                                            leads={this.props.items}
+                                            action={this.updateTask}
+                                        />
                                 }
 
                                 {this.props.type === 'deal' &&
-                                <EditDeal
-                                    projects={this.props.projects}
-                                    customers={this.props.customers}
-                                    show_as_link={true}
-                                    modal={true}
-                                    listView={true}
-                                    custom_fields={[]}
-                                    users={[]}
-                                    deal={this.state.entity}
-                                    deals={this.props.items}
-                                    action={this.props.updateTasks}
-                                />
+                                        <EditDeal
+                                            projects={this.props.projects}
+                                            customers={this.props.customers}
+                                            show_as_link={true}
+                                            modal={true}
+                                            listView={true}
+                                            custom_fields={[]}
+                                            users={[]}
+                                            deal={this.state.entity}
+                                            deals={this.props.items}
+                                            action={this.props.updateTasks}
+                                        />
                                 }
 
                                 <Button className={text_color} color="link"

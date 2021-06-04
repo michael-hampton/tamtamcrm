@@ -123,9 +123,9 @@ export default class TwoFactorAuthentication extends Component {
                     <ModalHeader toggle={this.toggle}>{translations.enable_two_factor}</ModalHeader>
                     <ModalBody className={theme}>
                         {this.state.qr_code.length && this.state.secret.length &&
-                        <div className="m-4 text-center">
-                            <QRCode value={this.state.qr_code}/>
-                        </div>
+                            <div className="m-4 text-center">
+                                <QRCode value={this.state.qr_code}/>
+                            </div>
                         }
 
                         <FormGroup>

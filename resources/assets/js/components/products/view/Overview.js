@@ -5,7 +5,7 @@ import { translations } from '../../utils/_translations'
 import { icons } from '../../utils/_icons'
 import FormatMoney from '../../common/FormatMoney'
 import InfoItem from '../../common/entityContainers/InfoItem'
-import FieldGrid from "../../common/entityContainers/FieldGrid";
+import FieldGrid from '../../common/entityContainers/FieldGrid'
 
 export default function Overview (props) {
     const listClass = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'list-group-item-dark' : ''

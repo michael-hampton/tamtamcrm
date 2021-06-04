@@ -1,20 +1,19 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import FormBuilder from './FormBuilder'
-import {Card, CardBody, CardHeader, FormGroup, Label} from 'reactstrap'
+import { Card, CardBody, CardHeader, FormGroup, Label } from 'reactstrap'
 import axios from 'axios'
-import {icons} from '../utils/_icons'
-import {translations} from '../utils/_translations'
+import { icons } from '../utils/_icons'
+import { translations } from '../utils/_translations'
 import SnackbarMessage from '../common/SnackbarMessage'
-import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
 import BlockButton from '../common/BlockButton'
-import {consts} from '../utils/_consts'
+import { consts } from '../utils/_consts'
 import CaseTemplateDropdown from '../common/dropdowns/CaseTemplateDropdown'
 import CompanyModel from '../models/CompanyModel'
-import EditScaffold from "../common/EditScaffold";
+import EditScaffold from '../common/EditScaffold'
 
 export default class CaseSettings extends Component {
-    constructor(props) {
+    constructor (props) {
         super(props)
 
         this.state = {
@@ -35,19 +34,19 @@ export default class CaseSettings extends Component {
         this.getAccount = this.getAccount.bind(this)
         this.toggle = this.toggle.bind(this)
 
-        this.model = new CompanyModel({id: this.state.id})
+        this.model = new CompanyModel({ id: this.state.id })
     }
 
-    componentDidMount() {
+    componentDidMount () {
         window.addEventListener('beforeunload', this.beforeunload.bind(this))
         this.getAccount()
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         window.removeEventListener('beforeunload', this.beforeunload.bind(this))
     }
 
-    beforeunload(e) {
+    beforeunload (e) {
         if (this.state.changesMade) {
             if (!confirm(translations.changes_made_warning)) {
                 e.preventDefault()
@@ -56,9 +55,9 @@ export default class CaseSettings extends Component {
         }
     }
 
-    toggle(tab, e) {
+    toggle (tab, e) {
         if (this.state.activeTab !== tab) {
-            this.setState({activeTab: tab})
+            this.setState({ activeTab: tab })
         }
 
         const parent = e.currentTarget.parentNode
@@ -79,7 +78,7 @@ export default class CaseSettings extends Component {
         }
     }
 
-    getAccount() {
+    getAccount () {
         const accountRepository = new AccountRepository()
         accountRepository.getById(this.state.id).then(response => {
             if (!response) {
@@ -96,11 +95,11 @@ export default class CaseSettings extends Component {
         })
     }
 
-    handleChange(event) {
-        this.setState({[event.target.name]: event.target.value})
+    handleChange (event) {
+        this.setState({ [event.target.name]: event.target.value })
     }
 
-    handleSettingsChange(event) {
+    handleSettingsChange (event) {
         const name = event.target.name
         let value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
         value = (value === 'true') ? true : ((value === 'false') ? false : (value))
@@ -114,8 +113,8 @@ export default class CaseSettings extends Component {
         }))
     }
 
-    handleSubmit(e) {
-        this.setState({isSaving: true})
+    handleSubmit (e) {
+        this.setState({ isSaving: true })
         const formData = new FormData()
         formData.append('settings', JSON.stringify(this.state.settings))
         formData.append('_method', 'PUT')
@@ -135,11 +134,11 @@ export default class CaseSettings extends Component {
             })
             .catch((error) => {
                 console.error(error)
-                this.setState({error: true})
+                this.setState({ error: true })
             })
     }
 
-    getCaseFields() {
+    getCaseFields () {
         const settings = this.state.settings
 
         return [
@@ -194,15 +193,15 @@ export default class CaseSettings extends Component {
         ]
     }
 
-    handleCancel() {
-        this.setState({settings: this.state.cached_settings, changesMade: false})
+    handleCancel () {
+        this.setState({ settings: this.state.cached_settings, changesMade: false })
     }
 
-    handleClose() {
-        this.setState({success: false, error: false})
+    handleClose () {
+        this.setState({ success: false, error: false })
     }
 
-    render() {
+    render () {
         const tabs = {
             children: []
         }
@@ -251,24 +250,24 @@ export default class CaseSettings extends Component {
             </Card>
 
             <BlockButton icon={icons.percent} button_text={translations.configure_categories}
-                         button_link="/#/case_categories"/>
+                button_link="/#/case_categories"/>
         </>
 
         return this.state.loaded === true ? (
             <React.Fragment>
                 <SnackbarMessage open={this.state.success} onClose={this.handleClose.bind(this)} severity="success"
-                                 message={translations.settings_saved}/>
+                    message={translations.settings_saved}/>
 
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
-                                 message={translations.settings_not_saved}/>
+                    message={translations.settings_not_saved}/>
 
                 <EditScaffold isLoading={!this.state.loaded} isSaving={this.state.isSaving}
-                              isEditing={this.state.changesMade}
-                              title={translations.case_settings}
-                              cancelButtonDisabled={!this.state.changesMade}
-                              handleCancel={this.handleCancel.bind(this)}
-                              handleSubmit={this.handleSubmit.bind(this)}
-                              tabs={tabs}/>
+                    isEditing={this.state.changesMade}
+                    title={translations.case_settings}
+                    cancelButtonDisabled={!this.state.changesMade}
+                    handleCancel={this.handleCancel.bind(this)}
+                    handleSubmit={this.handleSubmit.bind(this)}
+                    tabs={tabs}/>
             </React.Fragment>
         ) : null
     }

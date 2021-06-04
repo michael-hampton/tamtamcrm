@@ -166,7 +166,8 @@ export default class AddCase extends React.Component {
                                         <Details cases={this.props.cases} customers={this.props.customers}
                                             errors={this.state.errors}
                                             hasErrorFor={this.hasErrorFor} case={this.state}
-                                            handleInput={this.handleInput} renderErrorFor={this.renderErrorFor}/>
+                                            handleInput={this.handleInput}
+                                            renderErrorFor={this.renderErrorFor}/>
                                     </CardBody>
                                 </Card>
 

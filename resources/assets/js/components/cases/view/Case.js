@@ -92,7 +92,8 @@ export default class Case extends Component {
                 </Nav>
                 <TabContent activeTab={this.state.activeTab}>
                     <TabPane tabId="1">
-                        <Overview model={this.caseModel} entity={this.state.entity} customers={this.props.customers}/>
+                        <Overview model={this.caseModel} entity={this.state.entity}
+                            customers={this.props.customers}/>
 
                     </TabPane>
 
@@ -129,9 +130,9 @@ export default class Case extends Component {
                 </TabContent>
 
                 {this.state.show_success &&
-                <Alert color="primary">
-                    {translations.action_completed}
-                </Alert>
+                    <Alert color="primary">
+                        {translations.action_completed}
+                    </Alert>
                 }
 
                 <BottomNavigationButtons button1_click={(e) => this.toggleTab('3')}

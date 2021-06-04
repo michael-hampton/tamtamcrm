@@ -21,6 +21,11 @@ class LeadImporter extends BaseCsvImporter
     use ImportMapper;
     use LeadTransformable;
 
+    /**
+     * @var string
+     */
+    protected string $json;
+
     protected $entity;
     private array $export_columns = [
         'first_name'    => 'first name',
@@ -138,7 +143,7 @@ class LeadImporter extends BaseCsvImporter
         return new LeadRepository(new Lead());
     }
 
-    public function export()
+    public function export($is_json = false)
     {
         $export_columns = $this->getExportColumns();
 
@@ -146,6 +151,12 @@ class LeadImporter extends BaseCsvImporter
         $search_request->replace(['column' => 'created_at', 'order' => 'desc']);
 
         $leads = (new LeadSearch(new LeadRepository(new Lead())))->filter($search_request, $this->account);
+
+        if ($is_json) {
+            $this->export->sendJson('lead', $leads);
+            $this->json = json_encode($leads);
+            return true;
+        }
 
         $this->export->build(collect($leads), $export_columns);
 
@@ -172,5 +183,13 @@ class LeadImporter extends BaseCsvImporter
     public function getTemplate()
     {
         return asset('storage/templates/leads.csv');
+    }
+
+    /**
+     * @return string
+     */
+    public function getJson(): string
+    {
+        return $this->json;
     }
 }

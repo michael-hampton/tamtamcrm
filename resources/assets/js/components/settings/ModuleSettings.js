@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import axios from 'axios'
 import {
     Card,
@@ -8,9 +8,9 @@ import {
     FormGroup,
     Label
 } from 'reactstrap'
-import {translations} from '../utils/_translations'
+import { translations } from '../utils/_translations'
 import BlockButton from '../common/BlockButton'
-import {icons} from '../utils/_icons'
+import { icons } from '../utils/_icons'
 import SnackbarMessage from '../common/SnackbarMessage'
 import CompanyModel from '../models/CompanyModel'
 import AccountRepository from '../repositories/AccountRepository'
@@ -18,10 +18,10 @@ import FormBuilder from './FormBuilder'
 import ConfirmPassword from '../common/ConfirmPassword'
 import UpgradeAccount from './UpgradeAccount'
 import ApplyLicence from './ApplyLicence'
-import EditScaffold from "../common/EditScaffold";
+import EditScaffold from '../common/EditScaffold'
 
 class ModuleSettings extends Component {
-    constructor(props) {
+    constructor (props) {
         super(props)
         this.state = {
             loaded: false,
@@ -113,7 +113,7 @@ class ModuleSettings extends Component {
                     label: translations.deals,
                     isChecked: false
                 },
-                {id: 'tasks', value: 8, label: 'Tasks', isChecked: false},
+                { id: 'tasks', value: 8, label: 'Tasks', isChecked: false },
                 {
                     id: 'expenses',
                     value: 16,
@@ -192,19 +192,19 @@ class ModuleSettings extends Component {
         this.handleSubmit = this.handleSubmit.bind(this)
         this.backupData = this.backupData.bind(this)
 
-        this.model = new CompanyModel({id: this.state.id})
+        this.model = new CompanyModel({ id: this.state.id })
     }
 
-    componentDidMount() {
+    componentDidMount () {
         window.addEventListener('beforeunload', this.beforeunload.bind(this))
         this.getAccount()
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         window.removeEventListener('beforeunload', this.beforeunload.bind(this))
     }
 
-    beforeunload(e) {
+    beforeunload (e) {
         if (this.state.changesMade) {
             if (!confirm(translations.changes_made_warning)) {
                 e.preventDefault()
@@ -213,21 +213,21 @@ class ModuleSettings extends Component {
         }
     }
 
-    backupData() {
+    backupData () {
         const accountRepository = new AccountRepository()
 
         accountRepository.backupData().then(response => {
             if (!response) {
-                this.setState({error: true})
+                this.setState({ error: true })
                 return
             }
 
-            this.setState({success: true, success_message: translations.account_export_completed})
+            this.setState({ success: true, success_message: translations.account_export_completed })
         })
     }
 
-    handleSubmit(e) {
-        this.setState({isSaving: true})
+    handleSubmit (e) {
+        this.setState({ isSaving: true })
         const formData = new FormData()
         formData.append('settings', JSON.stringify(this.state.settings))
         formData.append('_method', 'PUT')
@@ -246,11 +246,11 @@ class ModuleSettings extends Component {
                 }, () => this.model.updateSettings(this.state.settings))
             })
             .catch((error) => {
-                this.setState({error: true})
+                this.setState({ error: true })
             })
     }
 
-    getAccount() {
+    getAccount () {
         const accountRepository = new AccountRepository()
         accountRepository.getById(this.state.id).then(response => {
             if (!response) {
@@ -267,7 +267,7 @@ class ModuleSettings extends Component {
         })
     }
 
-    handleSettingsChange(event) {
+    handleSettingsChange (event) {
         const name = event.target.name
         const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
 
@@ -280,7 +280,7 @@ class ModuleSettings extends Component {
         }))
     }
 
-    getSettingFields() {
+    getSettingFields () {
         const settings = this.state.settings
 
         return [
@@ -320,20 +320,20 @@ class ModuleSettings extends Component {
         ]
     }
 
-    toggleTab(event, tab) {
+    toggleTab (event, tab) {
         if (this.state.activeTab !== tab) {
-            this.setState({activeTab: tab})
+            this.setState({ activeTab: tab })
         }
     }
 
-    deleteAccount(id, password) {
+    deleteAccount (id, password) {
         if (!password.trim().length) {
-            this.setState({error: true})
+            this.setState({ error: true })
             return false
         }
 
         const url = `/api/account/${this.state.id}`
-        axios.delete(url, {password: password})
+        axios.delete(url, { password: password })
             .then((r) => {
                 this.setState({
                     showConfirm: false
@@ -342,17 +342,17 @@ class ModuleSettings extends Component {
                 location.href = '/Login#/login'
             })
             .catch((e) => {
-                this.setState({error: true})
+                this.setState({ error: true })
             })
     }
 
-    handleAllChecked(event) {
+    handleAllChecked (event) {
         const modules = this.state.modules
         Object.keys(modules).forEach(module => modules[module] = event.target.checked)
-        this.setState({modules: modules}, () => localStorage.setItem('modules', JSON.stringify(this.state.modules)))
+        this.setState({ modules: modules }, () => localStorage.setItem('modules', JSON.stringify(this.state.modules)))
     }
 
-    customInputSwitched(buttonName, e) {
+    customInputSwitched (buttonName, e) {
         const name = e.target.id
         const checked = e.target.checked
 
@@ -364,15 +364,15 @@ class ModuleSettings extends Component {
         }), () => localStorage.setItem('modules', JSON.stringify(this.state.modules)))
     }
 
-    handleClose() {
-        this.setState({success: false, error: false, success_message: translations.settings_saved})
+    handleClose () {
+        this.setState({ success: false, error: false, success_message: translations.settings_saved })
     }
 
-    handleCancel() {
-        this.setState({settings: this.state.cached_settings, changesMade: false})
+    handleCancel () {
+        this.setState({ settings: this.state.cached_settings, changesMade: false })
     }
 
-    render() {
+    render () {
         const tabs = {
             settings: {
                 activeTab: this.state.activeTab,
@@ -404,23 +404,23 @@ class ModuleSettings extends Component {
                 </div>
 
                 <BlockButton icon={icons.link} button_text={translations.webhooks}
-                             button_link="/#/subscriptions"/>
+                    button_link="/#/subscriptions"/>
                 <BlockButton icon={icons.token} button_text={translations.tokens}
-                             button_link="/#/tokens"/>
+                    button_link="/#/tokens"/>
 
                 <ConfirmPassword id={this.state.id} callback={(id, password) => {
                     this.deleteAccount(id, password)
                 }
                 } text={translations.delete_account_message} icon={icons.delete}
-                                 button_color="btn-danger btn-lg btn-block"
-                                 button_label={translations.delete_account} icon_style={{
+                button_color="btn-danger btn-lg btn-block"
+                button_label={translations.delete_account} icon_style={{
                     transform: 'rotate(20deg)',
                     marginRight: '14px',
                     fontSize: '24px'
                 }}/>
 
                 <BlockButton icon={icons.download} button_text={translations.export}
-                             onClick={this.backupData}/>
+                    onClick={this.backupData}/>
             </CardBody>
         </Card>
 
@@ -429,24 +429,24 @@ class ModuleSettings extends Component {
                 <Form>
                     <FormGroup>
                         <Label for="exampleCheckbox">Switches <input type="checkbox"
-                                                                     onClick={this.handleAllChecked}/>Check
+                            onClick={this.handleAllChecked}/>Check
                             all </Label>
                         {this.state.moduleTypes.map((module, index) => {
-                                const isChecked = this.state.modules[module.id]
+                            const isChecked = this.state.modules[module.id]
 
-                                return (
-                                    <div key={index}>
-                                        <CustomInput
-                                            checked={isChecked}
-                                            type="switch"
-                                            id={module.id}
-                                            name="customSwitch"
-                                            label={module.label}
-                                            onChange={this.customInputSwitched.bind(this, module.value)}
-                                        />
-                                    </div>
-                                )
-                            }
+                            return (
+                                <div key={index}>
+                                    <CustomInput
+                                        checked={isChecked}
+                                        type="switch"
+                                        id={module.id}
+                                        name="customSwitch"
+                                        label={module.label}
+                                        onChange={this.customInputSwitched.bind(this, module.value)}
+                                    />
+                                </div>
+                            )
+                        }
                         )}
                     </FormGroup>
                 </Form>
@@ -465,18 +465,18 @@ class ModuleSettings extends Component {
         return (
             <React.Fragment>
                 <SnackbarMessage open={this.state.success} onClose={this.handleClose.bind(this)} severity="success"
-                                 message={this.state.success_message}/>
+                    message={this.state.success_message}/>
 
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
-                                 message={translations.settings_not_saved}/>
+                    message={translations.settings_not_saved}/>
 
                 <EditScaffold isLoading={!this.state.loaded} isSaving={this.state.isSaving}
-                              isEditing={this.state.changesMade} fullWidth={true}
-                              title={translations.account_management}
-                              cancelButtonDisabled={!this.state.changesMade}
-                              handleCancel={this.handleCancel.bind(this)}
-                              handleSubmit={this.handleSubmit.bind(this)}
-                              tabs={tabs}/>
+                    isEditing={this.state.changesMade} fullWidth={true}
+                    title={translations.account_management}
+                    cancelButtonDisabled={!this.state.changesMade}
+                    handleCancel={this.handleCancel.bind(this)}
+                    handleSubmit={this.handleSubmit.bind(this)}
+                    tabs={tabs}/>
 
             </React.Fragment>
 

@@ -29,7 +29,8 @@ class App extends Component {
                             render={props => <PasswordReset {...props}/>}/>
                         <Route exact path="/reset-password" name="Reset Password"
                             render={props => <ConfirmPasswordReset {...props}/>}/>
-                        <Route exact path="/register" name="Register Page" render={props => <Register {...props}/>}/>
+                        <Route exact path="/register" name="Register Page"
+                            render={props => <Register {...props}/>}/>
                         <Route exact path="/404" name="Page 404" render={props => <Page404 {...props}/>}/>
                         <Route exact path="/500" name="Page 500" render={props => <Page500 {...props}/>}/>
                         <Route path="/" name="Home" render={props => <DefaultLayout {...props}/>}/>
@@ -71,7 +72,7 @@ if (localStorage.getItem('access_token')) {
     axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
 }
 
-var full = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
+var full = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '')
 
 axios.defaults.baseURL = full
 

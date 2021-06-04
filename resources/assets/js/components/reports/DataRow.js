@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import FormatMoney from '../common/FormatMoney'
 import FormatDate from '../common/FormatDate'
-import {translations} from "../utils/_translations";
+import { translations } from '../utils/_translations'
 
 class DataRow extends Component {
     static noop () {

@@ -1,9 +1,5 @@
 import React, { Component } from 'react'
 import Column from './Column'
-import { Draggable } from 'react-beautiful-dnd'
-import {
-    Button
-} from 'reactstrap'
 import AddDeal from '../../deals/edit/AddDeal'
 import AddLead from '../../leads/edit/AddLeadForm'
 import EditTaskDesktop from '../edit/EditTaskDesktop'

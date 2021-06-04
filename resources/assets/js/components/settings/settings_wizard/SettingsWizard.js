@@ -11,7 +11,6 @@ import UserModel from '../../models/UserModel'
 import AccountModel from '../../models/AccountModel'
 import { Button } from 'reactstrap'
 
-
 export default class SettingsWizard extends Component {
     constructor (props) {
         super(props)

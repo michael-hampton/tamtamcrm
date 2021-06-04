@@ -1,7 +1,7 @@
 import React from 'react'
 import { translations } from '../../utils/_translations'
 import FormatMoney from '../../common/FormatMoney'
-import InvoiceModel from "../../models/InvoiceModel";
+import InvoiceModel from '../../models/InvoiceModel'
 
 export default function TotalsBox (props) {
     const invoiceModel = new InvoiceModel(props.invoice)

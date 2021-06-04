@@ -1,17 +1,16 @@
-import React, {Component} from 'react'
-import {Card, CardBody, FormGroup, Input, Label} from 'reactstrap'
+import React, { Component } from 'react'
+import { Card, CardBody, FormGroup, Input, Label } from 'reactstrap'
 import axios from 'axios'
 import moment from 'moment'
-import {translations} from '../utils/_translations'
+import { translations } from '../utils/_translations'
 import FormBuilder from './FormBuilder'
 import SnackbarMessage from '../common/SnackbarMessage'
-import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
 import CompanyModel from '../models/CompanyModel'
-import EditScaffold from "../common/EditScaffold";
+import EditScaffold from '../common/EditScaffold'
 
 export default class LocalisationSettings extends Component {
-    constructor(props) {
+    constructor (props) {
         super(props)
 
         this.state = {
@@ -33,19 +32,19 @@ export default class LocalisationSettings extends Component {
         this.getAccount = this.getAccount.bind(this)
         this.handleChange = this.handleChange.bind(this)
 
-        this.model = new CompanyModel({id: this.state.id})
+        this.model = new CompanyModel({ id: this.state.id })
     }
 
-    componentDidMount() {
+    componentDidMount () {
         window.addEventListener('beforeunload', this.beforeunload.bind(this))
         this.getAccount()
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         window.removeEventListener('beforeunload', this.beforeunload.bind(this))
     }
 
-    beforeunload(e) {
+    beforeunload (e) {
         if (this.state.changesMade) {
             if (!confirm(translations.changes_made_warning)) {
                 e.preventDefault()
@@ -54,7 +53,7 @@ export default class LocalisationSettings extends Component {
         }
     }
 
-    getAccount() {
+    getAccount () {
         const accountRepository = new AccountRepository()
         accountRepository.getById(this.state.id).then(response => {
             if (!response) {
@@ -71,7 +70,7 @@ export default class LocalisationSettings extends Component {
         })
     }
 
-    handleSettingsChange(event) {
+    handleSettingsChange (event) {
         const name = event.target.name
         let value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
         value = (value === 'true') ? true : ((value === 'false') ? false : (value))
@@ -101,7 +100,7 @@ export default class LocalisationSettings extends Component {
         })
     }
 
-    getLanguageFields() {
+    getLanguageFields () {
         const settings = this.state.settings
 
         return [
@@ -118,7 +117,7 @@ export default class LocalisationSettings extends Component {
         ]
     }
 
-    getCurrencyFields() {
+    getCurrencyFields () {
         const settings = this.state.settings
 
         return [
@@ -152,8 +151,8 @@ export default class LocalisationSettings extends Component {
         ]
     }
 
-    handleSubmit(e) {
-        this.setState({isSaving: true})
+    handleSubmit (e) {
+        this.setState({ isSaving: true })
         const formData = new FormData()
         formData.append('settings', JSON.stringify(this.state.settings))
         formData.append('first_month_of_year', this.state.first_month_of_year)
@@ -181,24 +180,24 @@ export default class LocalisationSettings extends Component {
                 console.log('user account', appState.accounts[index].account.settings.language_id)
             })
             .catch((error) => {
-                this.setState({error: true})
+                this.setState({ error: true })
             })
     }
 
-    handleChange(event) {
-        this.setState({[event.target.name]: event.target.value})
+    handleChange (event) {
+        this.setState({ [event.target.name]: event.target.value })
     }
 
-    handleCancel() {
-        this.setState({settings: this.state.cached_settings, changesMade: false})
+    handleCancel () {
+        this.setState({ settings: this.state.cached_settings, changesMade: false })
     }
 
-    handleClose() {
-        this.setState({success: false, error: false})
+    handleClose () {
+        this.setState({ success: false, error: false })
     }
 
-    render() {
-        const {date_formats} = this.state
+    render () {
+        const { date_formats } = this.state
         const days = moment.weekdays()
         const months = moment.months()
 
@@ -214,7 +213,7 @@ export default class LocalisationSettings extends Component {
 
         const date_format_list = date_formats && date_formats.length ? date_formats.map(date_format => {
             return <option key={date_format.id}
-                           value={date_format.id}>{moment().format(date_format.format_moment)}</option>
+                value={date_format.id}>{moment().format(date_format.format_moment)}</option>
         }) : null
 
         const tabs = {
@@ -267,18 +266,18 @@ export default class LocalisationSettings extends Component {
         return date_formats && date_formats.length ? (
             <React.Fragment>
                 <SnackbarMessage open={this.state.success} onClose={this.handleClose.bind(this)} severity="success"
-                                 message={this.state.success_message}/>
+                    message={this.state.success_message}/>
 
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
-                                 message={translations.settings_saved}/>
+                    message={translations.settings_saved}/>
 
                 <EditScaffold isLoading={!this.state.loaded} isSaving={this.state.isSaving}
-                              isEditing={this.state.changesMade}
-                              title={translations.localisation_settings}
-                              cancelButtonDisabled={!this.state.changesMade}
-                              handleCancel={this.handleCancel.bind(this)}
-                              handleSubmit={this.handleSubmit.bind(this)}
-                              tabs={tabs}/>
+                    isEditing={this.state.changesMade}
+                    title={translations.localisation_settings}
+                    cancelButtonDisabled={!this.state.changesMade}
+                    handleCancel={this.handleCancel.bind(this)}
+                    handleSubmit={this.handleSubmit.bind(this)}
+                    tabs={tabs}/>
             </React.Fragment>
         ) : null
     }

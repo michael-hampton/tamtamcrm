@@ -252,40 +252,40 @@ export default class DataTable extends Component {
         }, {})
     }
 
-    compareValues(key, order = 'asc') {
-        return function innerSort(a, b) {
+    compareValues (key, order = 'asc') {
+        return function innerSort (a, b) {
             if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
                 // property doesn't exist on either object
-                return 0;
+                return 0
             }
 
             let varA = (typeof a[key] === 'string')
-                ? a[key].toUpperCase() : a[key];
+                ? a[key].toUpperCase() : a[key]
             let varB = (typeof b[key] === 'string')
-                ? b[key].toUpperCase() : b[key];
+                ? b[key].toUpperCase() : b[key]
 
-            if(key.includes(['balance', 'amount_paid'])) {
+            if (key.includes(['balance', 'amount_paid'])) {
                 varA = abs(varA)
                 varB = abs(varB)
             }
 
-            let comparison = 0;
+            let comparison = 0
             if (varA > varB) {
-                comparison = 1;
+                comparison = 1
             } else if (varA < varB) {
-                comparison = -1;
+                comparison = -1
             }
 
             return (
                 (order === 'desc') ? (comparison * -1) : comparison
-            );
-        };
+            )
+        }
     }
 
     sortBy (column, order) {
         let sorted = []
 
-         if (column === 'currency_id') {
+        if (column === 'currency_id') {
             const currencies = JSON.parse(localStorage.getItem('currencies'))
             sorted = this.sortArray(currencies, 'name', this.state.data, 'currency_id', order)
         } else if (column === 'language_id') {
@@ -316,8 +316,8 @@ export default class DataTable extends Component {
         } else {
             // sorted = order === 'asc' ? this.state.data.sort((a, b) => a[column] - b[column]) : this.state.data.sort((a, b) => b[column] - a[column])
 
-             sorted = this.state.data.sort(this.compareValues(column, order));
-            //sorted = this.state.data.sort(sort_by(column, order === 'desc', (a) => a && a.length ? a.toLowerCase() : ''))
+            sorted = this.state.data.sort(this.compareValues(column, order))
+            // sorted = this.state.data.sort(sort_by(column, order === 'desc', (a) => a && a.length ? a.toLowerCase() : ''))
         }
 
         console.log('sorted', sorted)

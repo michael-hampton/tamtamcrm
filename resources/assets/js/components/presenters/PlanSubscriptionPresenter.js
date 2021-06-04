@@ -13,7 +13,7 @@ export function getDefaultTableFields () {
     ]
 }
 
-export default function PlanSubscriptionPresenter ( props) {
+export default function PlanSubscriptionPresenter (props) {
     const { field, entity } = props
 
     switch (field) {

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, DropdownItem, Modal, ModalBody, Nav, NavItem, NavLink, TabContent, TabPane } from 'reactstrap'
+import { Button, Modal, ModalBody, Nav, NavItem, NavLink, TabContent, TabPane } from 'reactstrap'
 import axios from 'axios'
 import AddButtons from '../../common/AddButtons'
 import LeadModel from '../../models/LeadModel'
@@ -11,7 +11,6 @@ import { translations } from '../../utils/_translations'
 import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
 import CustomFieldsForm from '../../common/CustomFieldsForm'
-import { icons } from '../../utils/_icons'
 
 class AddLeadForm extends React.Component {
     constructor (props) {

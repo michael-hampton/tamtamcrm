@@ -1,9 +1,9 @@
 import React from 'react'
-import { Card, CardBody, CardHeader, CustomInput, FormGroup, Input, Label } from 'reactstrap'
+import { Card, CardBody, CardHeader, FormGroup, Input, Label } from 'reactstrap'
 import { translations } from '../../utils/_translations'
 import { icons } from '../../utils/_icons'
 import QuoteDropdown from '../../common/dropdowns/QuoteDropdown'
-import SwitchWithIcon from "../../common/SwitchWithIcon";
+import SwitchWithIcon from '../../common/SwitchWithIcon'
 
 export default function Details (props) {
     return (

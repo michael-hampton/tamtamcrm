@@ -218,7 +218,7 @@ class AddModal extends React.Component {
             <div>
                 {this.state.submitSuccess && (
                     <div className="mt-3 alert alert-info" role="alert">
-                        The event has been created successfully </div>
+                                The event has been created successfully </div>
                 )}
                 {form}
 

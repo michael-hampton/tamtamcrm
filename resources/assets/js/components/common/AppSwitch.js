@@ -1,10 +1,10 @@
 import React from 'react'
-import Switch from '@material-ui/core/Switch';
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormControl from '@material-ui/core/FormControl';
+import Switch from '@material-ui/core/Switch'
+import FormGroup from '@material-ui/core/FormGroup'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
+import FormControl from '@material-ui/core/FormControl'
 
-export default function AppSwitch(props) {
+export default function AppSwitch (props) {
     return (
         <FormControl component="fieldset">
             <FormGroup aria-label="position" row>

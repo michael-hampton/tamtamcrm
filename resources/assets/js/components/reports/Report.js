@@ -11,10 +11,6 @@ import { Bar } from 'react-chartjs-2'
 import { getStyle, hexToRgba } from '@coreui/coreui/dist/js/coreui-utilities'
 
 const brandPrimary = getStyle('--primary')
-const brandSuccess = getStyle('--success')
-const brandInfo = getStyle('--info')
-const brandWarning = getStyle('--warning')
-const brandDanger = getStyle('--danger')
 
 export default class Report extends React.Component {
     constructor (props) {

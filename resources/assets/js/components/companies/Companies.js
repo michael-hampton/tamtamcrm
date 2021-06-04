@@ -169,7 +169,7 @@ export default class Companies extends Component {
     }
 
     render () {
-        const { cachedData, custom_fields, users, error, view, brands, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const { cachedData, custom_fields, users, error, view, brands, isOpen, error_message, success_message, show_success, currentInvoices, pageLimit } = this.state
         const { start_date, end_date } = this.state.filters
         const fetchUrl = `/api/companies?start_date=${start_date}&end_date=${end_date}`
         const addButton = users.length

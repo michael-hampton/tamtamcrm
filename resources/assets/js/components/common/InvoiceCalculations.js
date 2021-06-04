@@ -1,6 +1,6 @@
 import React from 'react'
-import InvoiceModel from "../models/InvoiceModel";
-import LineItemModel from "../models/LineItemModel";
+import InvoiceModel from '../models/InvoiceModel'
+import LineItemModel from '../models/LineItemModel'
 
 export const CalculateTotal = (props) => {
     const { invoice } = props

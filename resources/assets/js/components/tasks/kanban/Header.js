@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
-import Column from './Column'
-import { Draggable, DragDropContext, Droppable } from 'react-beautiful-dnd'
+import { DragDropContext, Droppable } from 'react-beautiful-dnd'
 import StatusItem from './StatusItem'
 
 export default class Header extends Component {

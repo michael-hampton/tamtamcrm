@@ -24,6 +24,11 @@ class ExpenseImporter extends BaseCsvImporter
     use ImportMapper;
     use ExpenseTransformable;
 
+    /**
+     * @var string
+     */
+    protected string $json;
+
     protected $entity;
     private array $export_columns = [
         'expense_category_id' => 'expense category name',
@@ -164,13 +169,19 @@ class ExpenseImporter extends BaseCsvImporter
         return $expense_category['id'];
     }
 
-    public function export()
+    public function export($is_json = false)
     {
         $export_columns = $this->getExportColumns();
         $search_request = new SearchRequest();
         $search_request->replace(['column' => 'created_at', 'order' => 'desc']);
 
         $expenses = (new ExpenseSearch(new ExpenseRepository(new Expense())))->filter($search_request, $this->account);
+
+        if ($is_json) {
+            $this->export->sendJson('expense', $expenses);
+            $this->json = json_encode($expenses);
+            return true;
+        }
 
         $this->export->build(collect($expenses), $export_columns);
 
@@ -197,5 +208,13 @@ class ExpenseImporter extends BaseCsvImporter
     public function getTemplate()
     {
         return asset('storage/templates/expense.csv');
+    }
+
+    /**
+     * @return string
+     */
+    public function getJson(): string
+    {
+        return $this->json;
     }
 }

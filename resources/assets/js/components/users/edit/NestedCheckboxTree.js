@@ -176,21 +176,22 @@ export default class NestedCheckboxTree extends React.Component {
                 </div>
 
                 {this.state.customize &&
-                <div className="row">
-                    <div className="col-12">
-                        <div className="col-md-4"/>
-                        {sections.map((section) => (
-                            <CheckboxSection customize={this.state.customize} name={section} key={section}
-                                onSectionChange={this.onSectionChange}/>
-                        ))}
+                    <div className="row">
+                        <div className="col-12">
+                            <div className="col-md-4"/>
+                            {sections.map((section) => (
+                                <CheckboxSection customize={this.state.customize} name={section} key={section}
+                                    onSectionChange={this.onSectionChange}/>
+                            ))}
+                        </div>
                     </div>
-                </div>
                 }
 
                 <div className="row">
                     <div className="col-md-12">
                         {Object.keys(this.state.permissions).map((item) => (
-                            <CheckboxGroup customize={this.state.customize} key={this.state.permissions[item].name}
+                            <CheckboxGroup customize={this.state.customize}
+                                key={this.state.permissions[item].name}
                                 onGroupChange={this.onGroupChange}
                                 onItemChange={this.onChildChange} {...this.state.permissions[item]} />
                         ))}

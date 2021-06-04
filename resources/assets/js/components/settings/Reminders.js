@@ -1,11 +1,11 @@
-import React, {useState, useEffect, useRef, Component} from "react";
-import {Col, FormGroup, Input, Label, Row, Form, Button} from 'reactstrap'
-import {translations} from "../utils/_translations";
-import {consts} from "../utils/_consts";
-import AccountRepository from "../repositories/AccountRepository";
+import React, { Component } from 'react'
+import { Col, FormGroup, Input, Label, Row, Form, Button } from 'reactstrap'
+import { translations } from '../utils/_translations'
+import { consts } from '../utils/_consts'
+import AccountRepository from '../repositories/AccountRepository'
 
 export default class Reminders extends Component {
-    constructor(props) {
+    constructor (props) {
         super(props)
 
         this.state = {
@@ -42,7 +42,7 @@ export default class Reminders extends Component {
             }
 
             this.setState({
-                reminders: response,
+                reminders: response
             }, () => {
                 console.log(response)
             })
@@ -51,24 +51,24 @@ export default class Reminders extends Component {
 
     // handle input change
     handleInputChange = (e, index) => {
-        let {name, value, type} = e.target;
+        let { name, value, type } = e.target
 
         if (type === 'checkbox') {
             value = e.target.checked
         }
 
-        const list = [...this.state.reminders];
-        list[index][name] = value;
-        this.setState({reminders: list});
+        const list = [...this.state.reminders]
+        list[index][name] = value
+        this.setState({ reminders: list })
     };
 
     // handle click event of the Remove button
     handleRemoveClick = index => {
-        const list = [...this.state.reminders];
-        list.splice(index, 1);
-        this.setState({reminders: list}, () => {
+        const list = [...this.state.reminders]
+        list.splice(index, 1)
+        this.setState({ reminders: list }, () => {
             this.props.setReminders(this.state.reminders)
-        });
+        })
     };
 
     // handle click event of the Add button
@@ -88,8 +88,8 @@ export default class Reminders extends Component {
         })
     };
 
-    render() {
-        const {reminders} = this.state
+    render () {
+        const { reminders } = this.state
 
         return (
             <div className="App">
@@ -201,17 +201,16 @@ export default class Reminders extends Component {
 
                             <div className="btn-box">
                                 {reminders.length !== 1 && <Button color="danger"
-                                                                   className="mr-2"
-                                                                   onClick={() => this.handleRemoveClick(i)}>{translations.remove}</Button>}
+                                    className="mr-2"
+                                    onClick={() => this.handleRemoveClick(i)}>{translations.remove}</Button>}
                                 {reminders.length - 1 === i &&
                                 <Button color="success" onClick={this.handleAddClick}>{translations.add}</Button>}
                             </div>
                         </Form>
 
-                    );
+                    )
                 })}
             </div>
-        );
+        )
     }
-
 }

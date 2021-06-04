@@ -2,8 +2,8 @@ import React, { Component } from 'react'
 import { Card, CardBody, CardHeader, FormGroup, Input, Label } from 'reactstrap'
 import Datepicker from '../../common/Datepicker'
 import { translations } from '../../utils/_translations'
-import {icons} from "../../utils/_icons";
-import SwitchWithIcon from "../../common/SwitchWithIcon";
+import { icons } from '../../utils/_icons'
+import SwitchWithIcon from '../../common/SwitchWithIcon'
 
 export default class Details extends Component {
     constructor (props, context) {

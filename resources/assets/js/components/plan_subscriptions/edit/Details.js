@@ -2,8 +2,8 @@ import React, { Component } from 'react'
 import { FormGroup, Input, Label } from 'reactstrap'
 import { translations } from '../../utils/_translations'
 import PlanDropdown from '../../common/dropdowns/PlanDropdown'
-import AddCustomer from "../../customers/edit/AddCustomer";
-import CustomerDropdown from "../../common/dropdowns/CustomerDropdown";
+import AddCustomer from '../../customers/edit/AddCustomer'
+import CustomerDropdown from '../../common/dropdowns/CustomerDropdown'
 
 export default class Details extends Component {
     render () {

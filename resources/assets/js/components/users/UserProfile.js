@@ -97,7 +97,7 @@ class UserProfile extends React.Component {
 
             uploadButton = parseInt(JSON.parse(localStorage.getItem('appState')).user.id) === this.state.user.id
                 ? <label className="btn btn-default btn-file">
-                    Browse <input onChange={this.fileChangedHandler.bind(this)} type="file"
+                        Browse <input onChange={this.fileChangedHandler.bind(this)} type="file"
                         style={{ display: 'none' }}/>
                 </label>
                 : ''
@@ -120,7 +120,7 @@ class UserProfile extends React.Component {
                     </section>
 
                     <h6 className="text-uppercase font-weight-light text-secondary">
-                        Contact Information
+                            Contact Information
                     </h6>
                     <dl className="row mt-4 mb-4 pb-3">
                         <dt className="col-sm-3">Phone</dt>
@@ -133,7 +133,7 @@ class UserProfile extends React.Component {
                     </dl>
 
                     <h6 className="text-uppercase font-weight-light text-secondary">
-                        Basic Information
+                            Basic Information
                     </h6>
                     <dl className="row mt-4 mb-4 pb-3">
                         <dt className="col-sm-3">Birthday</dt>
@@ -153,7 +153,7 @@ class UserProfile extends React.Component {
                         <div className="pt-4 mt-2">
                             <section className="mb-4 pb-1">
                                 <h3 className="h6 font-weight-light text-secondary text-uppercase"> Change Profile
-                                    Picture</h3>
+                                        Picture</h3>
                                 <div className="pt-2">
                                     <ToastContainer/>
                                     <Progress max="100" color="success"

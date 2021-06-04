@@ -231,6 +231,24 @@ class Export
         return $full_path;
     }
 
+    public function sendJson(string $type, array $content): string
+    {
+
+        $filename = date('YmdHi') . '-' . $type . '.json';
+        $path = public_path(config('taskmanager.exports_dir'));
+        $full_path = $path . '/' . $filename;
+
+        if (File::exists($full_path)) {
+            File::delete($full_path);
+        }
+
+        Storage::put('exports/' . $filename, json_encode($content));
+
+        $this->user->notify(new AccountDataExportedNotification($full_path));
+
+        return $full_path;
+    }
+
     /**
      * Download the CSV file.
      *

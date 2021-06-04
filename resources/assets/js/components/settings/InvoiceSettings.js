@@ -1,28 +1,26 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import FormBuilder from './FormBuilder'
-import {Card, CardBody, Nav, NavItem, NavLink, TabContent, TabPane} from 'reactstrap'
+import { Card, CardBody } from 'reactstrap'
 import axios from 'axios'
-import {credit_pdf_fields} from '../models/CreditModel'
-import {quote_pdf_fields} from '../models/QuoteModel'
-import {invoice_pdf_fields} from '../models/InvoiceModel'
+import { credit_pdf_fields } from '../models/CreditModel'
+import { quote_pdf_fields } from '../models/QuoteModel'
+import { invoice_pdf_fields } from '../models/InvoiceModel'
 import PdfFields from './PdfFields'
-import {translations} from '../utils/_translations'
-import {order_pdf_fields} from '../models/OrderModel'
-import {purchase_order_pdf_fields} from '../models/PurchaseOrderModel'
-import {customer_pdf_fields} from '../models/CustomerModel'
-import {account_pdf_fields} from '../models/AccountModel'
+import { translations } from '../utils/_translations'
+import { order_pdf_fields } from '../models/OrderModel'
+import { purchase_order_pdf_fields } from '../models/PurchaseOrderModel'
+import { customer_pdf_fields } from '../models/CustomerModel'
+import { account_pdf_fields } from '../models/AccountModel'
 import SnackbarMessage from '../common/SnackbarMessage'
-import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
-import {icons} from '../utils/_icons'
+import { icons } from '../utils/_icons'
 import BlockButton from '../common/BlockButton'
 import CompanyModel from '../models/CompanyModel'
 import DesignFields from './DesignFields'
-import CustomFieldSettingsForm from "./CustomFieldSettingsForm";
-import EditScaffold from "../common/EditScaffold";
+import EditScaffold from '../common/EditScaffold'
 
 class InvoiceSettings extends Component {
-    constructor(props) {
+    constructor (props) {
         super(props)
 
         this.state = {
@@ -44,20 +42,20 @@ class InvoiceSettings extends Component {
         this.getAccount = this.getAccount.bind(this)
         this.toggle = this.toggle.bind(this)
 
-        this.model = new CompanyModel({id: this.state.id})
+        this.model = new CompanyModel({ id: this.state.id })
         this.modules = JSON.parse(localStorage.getItem('modules'))
     }
 
-    componentDidMount() {
+    componentDidMount () {
         window.addEventListener('beforeunload', this.beforeunload.bind(this))
         this.getAccount()
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         window.removeEventListener('beforeunload', this.beforeunload.bind(this))
     }
 
-    beforeunload(e) {
+    beforeunload (e) {
         if (this.state.changesMade) {
             if (!confirm(translations.changes_made_warning)) {
                 e.preventDefault()
@@ -66,13 +64,13 @@ class InvoiceSettings extends Component {
         }
     }
 
-    toggle(event, tab) {
+    toggle (event, tab) {
         if (this.state.activeTab !== tab) {
-            this.setState({activeTab: tab})
+            this.setState({ activeTab: tab })
         }
     }
 
-    getAccount() {
+    getAccount () {
         const accountRepository = new AccountRepository()
         accountRepository.getById(this.state.id).then(response => {
             if (!response) {
@@ -89,11 +87,11 @@ class InvoiceSettings extends Component {
         })
     }
 
-    handleChange(event) {
-        this.setState({[event.target.name]: event.target.value})
+    handleChange (event) {
+        this.setState({ [event.target.name]: event.target.value })
     }
 
-    handleSettingsChange(event) {
+    handleSettingsChange (event) {
         const name = event.target.name
         let value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
         value = (value === 'true') ? true : ((value === 'false') ? false : (value))
@@ -107,7 +105,7 @@ class InvoiceSettings extends Component {
         }))
     }
 
-    handleColumnChange(values) {
+    handleColumnChange (values) {
         this.setState(prevState => ({
             settings: {
                 ...prevState.settings,
@@ -116,9 +114,9 @@ class InvoiceSettings extends Component {
         }), () => this.handleSubmit())
     }
 
-    handleSubmit() {
-        this.setState({isSaving: true})
-        const {settings} = this.state
+    handleSubmit () {
+        this.setState({ isSaving: true })
+        const { settings } = this.state
         const formData = new FormData()
         formData.append('settings', JSON.stringify(settings))
         formData.append('_method', 'PUT')
@@ -138,11 +136,11 @@ class InvoiceSettings extends Component {
             })
             .catch((error) => {
                 console.error(error)
-                this.setState({error: true})
+                this.setState({ error: true })
             })
     }
 
-    getSettingFields() {
+    getSettingFields () {
         const settings = this.state.settings
         const design_fields = DesignFields(settings)
 
@@ -185,7 +183,7 @@ class InvoiceSettings extends Component {
         return [design_fields]
     }
 
-    getInvoiceSettingFields() {
+    getInvoiceSettingFields () {
         const settings = this.state.settings
 
         return [
@@ -245,43 +243,43 @@ class InvoiceSettings extends Component {
         ]
     }
 
-    getInvoiceFields() {
+    getInvoiceFields () {
         return invoice_pdf_fields
     }
 
-    getOrderFields() {
+    getOrderFields () {
         return order_pdf_fields
     }
 
-    getPurchaseOrderFields() {
+    getPurchaseOrderFields () {
         return purchase_order_pdf_fields
     }
 
-    getQuoteFields() {
+    getQuoteFields () {
         return quote_pdf_fields
     }
 
-    getCreditFields() {
+    getCreditFields () {
         return credit_pdf_fields
     }
 
-    getProductFields() {
+    getProductFields () {
         return []
     }
 
-    getTaskFields() {
+    getTaskFields () {
         return []
     }
 
-    handleCancel() {
-        this.setState({settings: this.state.cached_settings, changesMade: false})
+    handleCancel () {
+        this.setState({ settings: this.state.cached_settings, changesMade: false })
     }
 
-    handleClose() {
-        this.setState({success: false, error: false})
+    handleClose () {
+        this.setState({ success: false, error: false })
     }
 
-    render() {
+    render () {
         const tabs = {
             settings: {
                 activeTab: this.state.activeTab,
@@ -299,7 +297,7 @@ class InvoiceSettings extends Component {
                 },
                 {
                     label: translations.account
-                },
+                }
             ],
             children: []
         }
@@ -307,7 +305,7 @@ class InvoiceSettings extends Component {
         tabs.children[0] =
             <>
                 <BlockButton icon={icons.link} button_text={translations.customize_and_preview}
-                             button_link="/#/designs"/>
+                    button_link="/#/designs"/>
 
                 <Card>
                     <CardBody>
@@ -318,7 +316,6 @@ class InvoiceSettings extends Component {
                     </CardBody>
                 </Card>
             </>
-
 
         tabs.children[1] = <Card>
             <CardBody>
@@ -332,118 +329,116 @@ class InvoiceSettings extends Component {
         tabs.children[2] = <Card>
             <CardBody>
                 <PdfFields onChange2={this.handleColumnChange} settings={this.state.settings}
-                           section="client_details" columns={customer_pdf_fields}
-                           ignored_columns={this.state.settings.pdf_variables}/>
+                    section="client_details" columns={customer_pdf_fields}
+                    ignored_columns={this.state.settings.pdf_variables}/>
             </CardBody>
         </Card>
 
         tabs.children[3] = <Card>
             <CardBody>
                 <PdfFields onChange2={this.handleColumnChange} settings={this.state.settings}
-                           section="company_details" columns={account_pdf_fields}
-                           ignored_columns={this.state.settings.pdf_variables}/>
+                    section="company_details" columns={account_pdf_fields}
+                    ignored_columns={this.state.settings.pdf_variables}/>
             </CardBody>
         </Card>
-
 
         if (this.modules && this.modules.invoices === true) {
             tabs.children.push(<Card>
                 <CardBody>
                     <PdfFields onChange2={this.handleColumnChange} settings={this.state.settings}
-                               section="invoice" columns={this.getInvoiceFields()}
-                               ignored_columns={this.state.settings.pdf_variables}/>
+                        section="invoice" columns={this.getInvoiceFields()}
+                        ignored_columns={this.state.settings.pdf_variables}/>
                 </CardBody>
             </Card>)
 
-            tabs.tabs.push({label: translations.invoice})
+            tabs.tabs.push({ label: translations.invoice })
         }
 
         if (this.modules && this.modules.quotes === true) {
             tabs.children.push(<Card>
                 <CardBody>
                     <PdfFields onChange2={this.handleColumnChange} settings={this.state.settings}
-                               section="quote" columns={this.getQuoteFields()}
-                               ignored_columns={this.state.settings.pdf_variables}/>
+                        section="quote" columns={this.getQuoteFields()}
+                        ignored_columns={this.state.settings.pdf_variables}/>
                 </CardBody>
             </Card>)
 
-            tabs.tabs.push({label: translations.quote})
+            tabs.tabs.push({ label: translations.quote })
         }
 
         if (this.modules && this.modules.orders === true) {
             tabs.children.push(<Card>
                 <CardBody>
                     <PdfFields onChange2={this.handleColumnChange} settings={this.state.settings}
-                               section="order" columns={this.getOrderFields()}
-                               ignored_columns={this.state.settings.pdf_variables}/>
+                        section="order" columns={this.getOrderFields()}
+                        ignored_columns={this.state.settings.pdf_variables}/>
                 </CardBody>
             </Card>)
 
-            tabs.tabs.push({label: translations.order})
+            tabs.tabs.push({ label: translations.order })
         }
 
         if (this.modules && this.modules.purchase_orders === true) {
             tabs.children.push(<Card>
                 <CardBody>
                     <PdfFields onChange2={this.handleColumnChange} settings={this.state.settings}
-                               section="purchase_order" columns={this.getPurchaseOrderFields()}
-                               ignored_columns={this.state.settings.pdf_variables}/>
+                        section="purchase_order" columns={this.getPurchaseOrderFields()}
+                        ignored_columns={this.state.settings.pdf_variables}/>
                 </CardBody>
             </Card>)
 
-            tabs.tabs.push({label: translations.POS})
+            tabs.tabs.push({ label: translations.POS })
         }
 
         if (this.modules && this.modules.credits === true) {
             tabs.children.push(<Card>
                 <CardBody>
                     <PdfFields onChange2={this.handleColumnChange} settings={this.state.settings}
-                               section="credit" columns={this.getCreditFields()}
-                               ignored_columns={this.state.settings.pdf_variables}/>
+                        section="credit" columns={this.getCreditFields()}
+                        ignored_columns={this.state.settings.pdf_variables}/>
                 </CardBody>
             </Card>)
 
-            tabs.tabs.push({label: translations.credit})
+            tabs.tabs.push({ label: translations.credit })
         }
 
         tabs.children.push(<Card>
             <CardBody>
                 <PdfFields onChange2={this.handleColumnChange} settings={this.state.settings}
-                           section="product_columns" columns={this.getProductFields()}
-                           ignored_columns={this.state.settings.pdf_variables}/>
+                    section="product_columns" columns={this.getProductFields()}
+                    ignored_columns={this.state.settings.pdf_variables}/>
             </CardBody>
         </Card>)
 
-        tabs.tabs.push({label: translations.product})
+        tabs.tabs.push({ label: translations.product })
 
         if (this.modules && this.modules.tasks === true) {
             tabs.children.push(<Card>
                 <CardBody>
                     <PdfFields onChange2={this.handleColumnChange} settings={this.state.settings}
-                               section="task_columns" columns={this.getTaskFields()}
-                               ignored_columns={this.state.settings.pdf_variables}/>
+                        section="task_columns" columns={this.getTaskFields()}
+                        ignored_columns={this.state.settings.pdf_variables}/>
                 </CardBody>
             </Card>)
 
-            tabs.tabs.push({label: translations.task})
+            tabs.tabs.push({ label: translations.task })
         }
 
         return this.state.loaded === true ? (
             <React.Fragment>
                 <SnackbarMessage open={this.state.success} onClose={this.handleClose.bind(this)} severity="success"
-                                 message={translations.settings_saved}/>
+                    message={translations.settings_saved}/>
 
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
-                                 message={translations.settings_not_saved}/>
+                    message={translations.settings_not_saved}/>
 
                 <EditScaffold isAdvancedSettings={true} isLoading={!this.state.loaded} isSaving={this.state.isSaving}
-                              isEditing={this.state.changesMade}
-                              title={translations.invoice_settings}
-                              cancelButtonDisabled={!this.state.changesMade}
-                              handleCancel={this.handleCancel.bind(this)}
-                              handleSubmit={this.handleSubmit.bind(this)}
-                              tabs={tabs}/>
-
+                    isEditing={this.state.changesMade}
+                    title={translations.invoice_settings}
+                    cancelButtonDisabled={!this.state.changesMade}
+                    handleCancel={this.handleCancel.bind(this)}
+                    handleSubmit={this.handleSubmit.bind(this)}
+                    tabs={tabs}/>
 
             </React.Fragment>
         ) : null

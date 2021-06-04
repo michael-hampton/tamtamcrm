@@ -24,6 +24,11 @@ class PaymentImporter extends BaseCsvImporter
     use ImportMapper;
     use PaymentTransformable;
 
+    /**
+     * @var string
+     */
+    protected string $json;
+
     protected $entity;
     private array $export_columns = [
         'number'               => 'Number',
@@ -128,7 +133,9 @@ class PaymentImporter extends BaseCsvImporter
         }
 
         if ($is_json) {
-            return json_encode($payments);
+            $this->export->sendJson('payment', $payments);
+            $this->json = json_encode($payments);
+            return true;
         }
 
         $this->export->build(collect($payments), $export_columns);
@@ -192,5 +199,13 @@ class PaymentImporter extends BaseCsvImporter
         }
 
         return PaymentFactory::create($this->customer, $this->user, $this->account);
+    }
+
+    /**
+     * @return string
+     */
+    public function getJson(): string
+    {
+        return $this->json;
     }
 }
