@@ -4,8 +4,6 @@
 namespace App\Components\Import;
 
 
-use App\Components\Setup\DatabaseManager;
-use App\Exceptions\InvalidAccountImportDataException;
 use App\Models\Account;
 use App\Models\AccountUser;
 use App\Models\Company;
@@ -47,9 +45,6 @@ use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use phpDocumentor\Reflection\Types\False_;
-use PHPUnit\Framework\Assert;
-use Spatie\TemporaryDirectory\TemporaryDirectory;
 
 class ImportAccountData
 {
@@ -128,11 +123,18 @@ class ImportAccountData
         $this->user = !empty($owner) ? $owner : $this->account->users->first();
     }
 
-    public function importData()
+    /**
+     * @return bool
+     */
+    public function importData(): bool
     {
         $file_contents = $this->getFileContents();
 
         if (!$file_contents) {
+            return false;
+        }
+
+        if (!$this->checkCounts()) {
             return false;
         }
 
@@ -222,6 +224,8 @@ class ImportAccountData
         }
 
         DB::commit();
+
+        return true;
     }
 
     private function formatCompanyGateways(array $data)
@@ -247,6 +251,19 @@ class ImportAccountData
         }
 
         return $data;
+    }
+
+    private function checkCounts(): bool
+    {
+        if ($this->user->account_user()->account->domains->users->count() >= $this->user->account_user()->account->getNumberOfAllowedUsers()) {
+            return false;
+        }
+
+        if ($this->user->account_user()->account->customers->count() >= $this->user->account_user()->account->getNumberOfAllowedCustomers()) {
+            return false;
+        }
+
+        return true;
     }
 
     private function getFileContents()
