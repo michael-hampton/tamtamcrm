@@ -95,19 +95,19 @@ class BaseSettings
             'default_value'    => false,
             'type'             => 'bool'
         ],
-        'show_line_item_tax_rate1'                       => [
+        'show_line_item_tax_rate1'             => [
             'required'         => false,
             'translated_value' => '',
             'default_value'    => true,
             'type'             => 'bool'
         ],
-        'show_line_item_tax_rate2'                       => [
+        'show_line_item_tax_rate2'             => [
             'required'         => false,
             'translated_value' => '',
             'default_value'    => false,
             'type'             => 'bool'
         ],
-        'show_line_item_tax_rate3'                       => [
+        'show_line_item_tax_rate3'             => [
             'required'         => false,
             'translated_value' => '',
             'default_value'    => false,
@@ -381,6 +381,12 @@ class BaseSettings
             'required'         => false,
             'translated_value' => '',
             'default_value'    => 32400,
+            'type'             => 'int'
+        ],
+        'time_to_send'                         => [
+            'required'         => false,
+            'translated_value' => '',
+            'default_value'    => 0,
             'type'             => 'int'
         ],
         'invoice_payment_deleted_status'       => [

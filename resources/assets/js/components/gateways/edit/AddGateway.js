@@ -83,7 +83,8 @@ class AddGateway extends React.Component {
     }
 
     handleInput (e) {
-        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value
+        const value = e.target.type && e.target.type === 'checkbox' ? e.target.checked : e.target.value
+
         this.setState({
             [e.target.name]: value
         })
@@ -207,6 +208,7 @@ class AddGateway extends React.Component {
                                     handleInput={this.handleInput}
                                     gateway={this.state}
                                     updateFields={this.updateFields}
+                                    handleConfig={this.handleConfig}
                                     updateCards={this.updateCards}/>
                             </TabPane>
 

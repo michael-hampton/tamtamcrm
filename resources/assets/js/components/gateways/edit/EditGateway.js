@@ -85,7 +85,8 @@ class EditGateway extends React.Component {
     }
 
     handleInput (e) {
-        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value
+        const value = e.target.type && e.target.type === 'checkbox' ? e.target.checked : e.target.value
+
         this.setState({
             [e.target.name]: value
         })
@@ -213,6 +214,7 @@ class EditGateway extends React.Component {
                             <TabPane tabId="2">
                                 <Settings renderErrorFor={this.renderErrorFor} errors={this.state.errors}
                                     handleInput={this.handleInput}
+                                    handleConfig={this.handleConfig}
                                     gateway={this.state}
                                     updateFields={this.updateFields}
                                     updateCards={this.updateCards}/>

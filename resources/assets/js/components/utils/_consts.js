@@ -223,7 +223,16 @@ export const consts = {
     advanced_yearly_account_price: 350,
     advanced_monthly_account_price: 25,
     web_url: 'https://michael-hampton.github.io/tamtam',
-    github_url: 'https://github.com/michael-hampton/tamtamcrm'
+    github_url: 'https://github.com/michael-hampton/tamtamcrm',
+    gateway_credit_card: 1,
+    gateway_paypal: 2,
+    gateway_bank_transfer: 3,
+    gateway_sofort: 4,
+    gateway_alipay: 5,
+    gateway_apple_pay: 6,
+    gateway_sepa: 7,
+    gateway_credit: 8,
+    gateway_custom: 9
 }
 
 export const caseLinkTypes = {
@@ -253,6 +262,23 @@ export const taskTypes = {
     task: 1,
     deal: 2,
     lead: 3
+}
+
+export const gateway_types = {
+    1: 'credit_card',
+    3: 'bank_transfer',
+    2: 'paypal',
+    9: 'custom',
+    5: 'alipay',
+    4: 'sofort',
+    6: 'apple_pay'
+}
+
+export const enabled_gateway_types = {
+    '13bb8d58': [1, 3, 4, 5],
+    dlmqa4gvpy: [1, 2],
+    '8ab2dce2': [1],
+    '7iaq7lbecv': [1]
 }
 
 export const subscriptions = {

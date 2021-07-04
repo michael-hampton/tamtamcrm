@@ -3,13 +3,17 @@ import { Card, CardBody, CardHeader, Col, FormGroup, Row } from 'reactstrap'
 import { translations } from '../../utils/_translations'
 import FormBuilder from '../../settings/FormBuilder'
 import Checkbox from '../../common/Checkbox'
-import { consts } from '../../utils/_consts'
+import { consts, enabled_gateway_types, gateway_types } from '../../utils/_consts'
 import { icons } from '../../utils/_icons'
 import SwitchWithIcon from '../../common/SwitchWithIcon'
 
 export default class Settings extends React.Component {
     constructor (props) {
         super(props)
+
+        this.state = {
+            enabled_gateway_types: []
+        }
 
         this.card_types = [
             {
@@ -130,6 +134,49 @@ export default class Settings extends React.Component {
                     />
                 </CardBody>
             </Card>
+
+            {!!this.props.gateway.gateway_key.length &&
+            enabled_gateway_types[this.props.gateway.gateway_key].map((item, index) => (
+                <SwitchWithIcon
+                    key={index}
+                    label={translations[gateway_types[item]]}
+                    checked={this.props.gateway.required_fields.get(item.name)}
+                    name={item}
+                    handleInput={(e) => {
+                        if (e.target.checked) {
+                            if (!this.state.enabled_gateway_types.includes(e.target.value)) {
+                                this.setState(prevState => ({ enabled_gateway_types: [...prevState.enabled_gateway_types, e.target.name] }), () => {
+                                    const e = {}
+
+                                    e.target = {
+                                        name: 'enabled_gateway_types',
+                                        value: this.state.enabled_gateway_types
+                                    }
+
+                                    console.log('e', e)
+
+                                    this.props.handleConfig(e)
+                                })
+                            }
+                        } else {
+                            this.setState(prevState => ({ enabled_gateway_types: prevState.enabled_gateway_types.filter(day => day !== e.target.name) }), () => {
+                                const e = {}
+
+                                e.target = {
+                                    name: 'enabled_gateway_types',
+                                    value: this.state.enabled_gateway_types
+                                }
+
+                                console.log('e', e)
+
+                                this.props.handleConfig(e)
+                            })
+                        }
+                    }}
+                />
+
+            ))
+            }
 
             {!is_offsite &&
             <Card>

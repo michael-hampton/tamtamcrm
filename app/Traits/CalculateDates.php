@@ -10,6 +10,7 @@ use DateTime;
 
 trait CalculateDates
 {
+    use DateFormatter;
 
     public function calculateDateRanges()
     {
@@ -114,44 +115,46 @@ trait CalculateDates
     {
         switch ($frequency) {
             case 'DAILY':
-                return Carbon::today()->addDay();
+                $date = Carbon::today()->addDay();
                 break;
 
             case 'WEEKLY':
-                return Carbon::today()->addWeek();
+                $date = Carbon::today()->addWeek();
                 break;
 
             case 'FORTNIGHT':
-                return Carbon::today()->addWeeks(2);
+                $date = Carbon::today()->addWeeks(2);
                 break;
 
             case 'MONTHLY':
-                return Carbon::today()->addMonthNoOverflow();
+                $date = Carbon::today()->addMonthNoOverflow();
                 break;
 
             case 'TWO_MONTHS':
-                return Carbon::today()->addMonthsNoOverflow(2);
+                $date = Carbon::today()->addMonthsNoOverflow(2);
                 break;
 
             case 'THREE_MONTHS':
-                return Carbon::today()->addMonthsNoOverflow(3);
+                $date = Carbon::today()->addMonthsNoOverflow(3);
                 break;
 
             case 'FOUR_MONTHS':
-                return Carbon::today()->addMonthsNoOverflow(4);
+                $date = Carbon::today()->addMonthsNoOverflow(4);
                 break;
 
             case 'SIX_MONTHS':
-                return Carbon::today()->addMonthsNoOverflow(6);
+                $date = Carbon::today()->addMonthsNoOverflow(6);
                 break;
 
             case 'YEARLY':
-                return Carbon::today()->addYear();
+                $date = Carbon::today()->addYear();
                 break;
             default:
-                return Carbon::today();
+                $date = Carbon::today();
                 break;
         }
+
+        return !empty($this->account->settings->time_to_send) ? $this->convertTimezone($this, $date) : $date;
     }
 
     private function calculateDateToSend($date)
@@ -220,6 +223,6 @@ trait CalculateDates
             $date_to_send = $next_send_date->format('Y-m-d');
         }
 
-        return $date_to_send;
+        return !empty($this->account->settings->time_to_send) ? $this->convertTimezone($this, $date_to_send) : $date_to_send;
     }
 }
