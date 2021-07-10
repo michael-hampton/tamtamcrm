@@ -7,6 +7,8 @@ use App\Models\Account;
 use App\Models\Cases;
 use App\Models\Customer;
 use App\Models\Deal;
+use App\Models\Task;
+use App\Models\TaskStatus;
 use App\Models\User;
 use App\Repositories\DealRepository;
 use App\Requests\SearchRequest;
@@ -36,7 +38,7 @@ class DealTest extends TestCase
     }
 
     /** @test */
-    public function it_can_show_all_the_tasks()
+    public function it_can_show_all_the_deals()
     {
         Deal::factory()->create();
 
@@ -68,20 +70,20 @@ class DealTest extends TestCase
     }
 
     /** @test */
-    public function it_can_update_the_task()
+    public function it_can_update_the_deal()
     {
         $deal = Deal::factory()->create();
         $name = $this->faker->word;
         $data = ['name' => $name];
         $dealRepo = new DealRepository($deal);
-        $deal = $dealRepo->updateDeal($data, $deal);
+        $deal = $dealRepo->update($data, $deal);
         $found = $dealRepo->findDealById($deal->id);
         $this->assertInstanceOf(Deal::class, $deal);
         $this->assertEquals($data['name'], $found->name);
     }
 
     /** @test */
-    public function it_can_show_the_task()
+    public function it_can_show_the_deal()
     {
         $deal = Deal::factory()->create();
         $dealRepo = new DealRepository(new Deal);
@@ -91,7 +93,7 @@ class DealTest extends TestCase
     }
 
     /** @test */
-    public function it_can_create_a_task()
+    public function it_can_create_a_deal()
     {
         $data = [
             'account_id'   => $this->account->id,
@@ -103,10 +105,16 @@ class DealTest extends TestCase
             'due_date'     => $this->faker->dateTime,
         ];
 
+        $order_id = Deal::max('order_id') + 1;
+        $task_status = TaskStatus::ByTaskType(2)->orderBy('order_id', 'asc')->first();
+
         $dealRepo = new DealRepository(new Deal);
         $factory = (new DealFactory())->create($this->user, $this->account);
-        $deal = $dealRepo->createDeal($data, $factory);
+        $deal = $dealRepo->create($data, $factory);
+
         $this->assertInstanceOf(Deal::class, $deal);
+        $this->assertEquals($deal->task_status_id, $task_status->id);
+        $this->assertEquals($deal->order_id, $order_id);
         $this->assertEquals($data['name'], $deal->name);
     }
 

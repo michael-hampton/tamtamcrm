@@ -12,11 +12,24 @@ use App\Models\RecurringInvoiceInvitation;
 
 trait RecurringInvoiceTransformable
 {
+    public function transformAuditsForRecurringInvoice($audits)
+    {
+        if (empty($audits)) {
+            return [];
+        }
+
+        return $audits->map(
+            function (Audit $audit) {
+                return (new AuditTransformable)->transformAudit($audit);
+            }
+        )->all();
+    }
+
     /**
      * @param RecurringInvoice $invoice
      * @return array
      */
-    protected function transformRecurringInvoice(RecurringInvoice $invoice)
+    protected function transformRecurringInvoice(RecurringInvoice $invoice, $files = null)
     {
         return [
             'id'                    => (int)$invoice->id,
@@ -45,8 +58,8 @@ trait RecurringInvoiceTransformable
             'deleted_at'            => $invoice->deleted_at,
             'created_at'            => $invoice->created_at,
             'status_id'             => $invoice->status_id,
-            'public_notes'          => $invoice->public_notes ?: '',
-            'private_notes'         => $invoice->private_notes ?: '',
+            'customer_note'         => $invoice->customer_note ?: '',
+            'internal_note'         => $invoice->internal_note ?: '',
             'terms'                 => $invoice->terms,
             'footer'                => $invoice->footer,
             'line_items'            => $invoice->line_items,
@@ -60,11 +73,13 @@ trait RecurringInvoiceTransformable
             'gateway_percentage'    => (bool)$invoice->gateway_percentage,
             'transaction_fee_tax'   => (bool)$invoice->transaction_fee_tax,
             'shipping_cost_tax'     => (bool)$invoice->shipping_cost_tax,
-            'audits'                => $this->transformAuditsForRecurringInvoice($invoice->audits),
-            'files'                 => $this->transformRecurringInvoiceFiles($invoice->files),
+            //'audits'                => $this->transformAuditsForRecurringInvoice($invoice->audits),
+            'files'                 => !empty($files) && !empty($files[$invoice->id]) ? $this->transformRecurringInvoiceFiles(
+                $files[$invoice->id]
+            ) : [],
             'invitations'           => $this->transformRecurringInvoiceInvitations($invoice->invitations),
             'invoices'              => $this->transformInvoicesCreated($invoice->invoices),
-            'schedule'              => $invoice->calculateDateRanges(),
+            'schedule'              => !empty($invoice->frequency) ? $invoice->calculateDateRanges() : [],
             'tax_rate'              => (float)$invoice->tax_rate,
             'tax_2'                 => (float)$invoice->tax_2,
             'tax_3'                 => (float)$invoice->tax_3,
@@ -72,21 +87,8 @@ trait RecurringInvoiceTransformable
             'tax_rate_name_2'       => $invoice->tax_rate_name_2,
             'tax_rate_name_3'       => $invoice->tax_rate_name_3,
             'viewed'                => (bool)$invoice->viewed,
-            'is_deleted'            => (bool)$invoice->is_deleted,
+            'hide'                  => (bool)$invoice->hide,
         ];
-    }
-
-    public function transformAuditsForRecurringInvoice($audits)
-    {
-        if (empty($audits)) {
-            return [];
-        }
-
-        return $audits->map(
-            function (Audit $audit) {
-                return (new AuditTransformable)->transformAudit($audit);
-            }
-        )->all();
     }
 
     /**

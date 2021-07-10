@@ -12,6 +12,7 @@ use App\Requests\SearchRequest;
 use App\Search\RecurringQuoteSearch;
 use App\Traits\BuildVariables;
 use App\Traits\CalculateRecurring;
+use App\Traits\CalculateDates;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
@@ -20,7 +21,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 class RecurringQuoteRepository extends BaseRepository
 {
     use BuildVariables;
-    use CalculateRecurring;
+    use CalculateDates;
 
     /**
      * RecurringQuoteRepository constructor.
@@ -37,7 +38,7 @@ class RecurringQuoteRepository extends BaseRepository
      * @param RecurringQuote $recurring_quote
      * @return RecurringQuote|null
      */
-    public function createQuote(array $data, RecurringQuote $recurring_quote): ?RecurringQuote
+    public function create(array $data, RecurringQuote $recurring_quote): ?RecurringQuote
     {
         $recurring_quote->date_to_send = $this->calculateDate(
             !empty($data['frequency']) ? $data['frequency'] : 'MONTHLY'
@@ -62,23 +63,27 @@ class RecurringQuoteRepository extends BaseRepository
      */
     public function save(array $data, RecurringQuote $quote): ?RecurringQuote
     {
-        $is_add = empty($quote->id);
         $quote->fill($data);
+        $quote = $this->calculateTotals($quote);
+        $quote = $quote->convertCurrencies($quote, $quote->total, config('taskmanager.use_live_exchange_rates'));
         $quote = $this->populateDefaults($quote);
         $quote = $this->formatNotes($quote);
-        $quote = $quote->service()->calculateInvoiceTotals();
         $quote->setNumber();
-        $quote->setExchangeRate();
 
         $quote->save();
 
         $this->saveInvitations($quote, $data);
 
-        if (!$is_add) {
-            event(new RecurringQuoteWasUpdated($quote));
-        }
-
         return $quote->fresh();
+    }
+
+    public function update(array $data, RecurringQuote $recurring_quote): ?RecurringQuote
+    {
+        $recurring_quote = $this->save($data, $recurring_quote);
+
+        event(new RecurringQuoteWasUpdated($recurring_quote));
+
+        return $recurring_quote;
     }
 
     /**

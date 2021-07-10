@@ -55,8 +55,8 @@ class AddRecurringExpense extends Component {
             custom_value2: this.state.custom_value2,
             custom_value3: this.state.custom_value3,
             custom_value4: this.state.custom_value4,
-            public_notes: this.state.public_notes,
-            private_notes: this.state.private_notes
+            customer_note: this.state.customer_note,
+            internal_note: this.state.internal_note
         }
 
         this.recurringExpenseModel.save(data).then(response => {
@@ -156,7 +156,7 @@ class AddRecurringExpense extends Component {
                             />
                         </FormGroup>
 
-                        <Notes private_notes={this.state.private_notes} public_notes={this.state.public_notes}
+                        <Notes internal_note={this.state.internal_note} customer_note={this.state.customer_note}
                             handleInput={this.handleInput}/>
                     </ModalBody>
                     <ModalFooter>

@@ -9,11 +9,17 @@ import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import CompanyRepository from '../repositories/CompanyRepository'
 import { getDefaultTableFields } from '../presenters/ProductPresenter'
+import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class ProductList extends Component {
     constructor (props) {
         super(props)
         this.state = {
+            currentPage: 1,
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             error: '',
@@ -57,11 +63,36 @@ export default class ProductList extends Component {
         this.getCustomFields()
     }
 
-    addProductToState (products) {
+    onPageChanged (data) {
+        let { products, pageLimit } = this.state
+        const { currentPage, totalPages } = data
+
+        if (data.invoices) {
+            products = data.invoices
+        }
+
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = products.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
+
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
+    }
+
+    addProductToState (products, do_filter = false, filters = null) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? products : this.state.cachedData
+
+        if (should_filter) {
+            products = filterStatuses(products, '', this.state.filters)
+        }
+
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             products: products,
             cachedData: cachedData
+        }, () => {
+            const totalPages = Math.ceil(products.length / this.state.pageLimit)
+            this.onPageChanged({ invoices: products, currentPage: this.state.currentPage, totalPages: totalPages })
         })
     }
 
@@ -77,7 +108,8 @@ export default class ProductList extends Component {
         const companyRepository = new CompanyRepository()
         companyRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
             }
 
             this.setState({ companies: response }, () => {
@@ -128,13 +160,15 @@ export default class ProductList extends Component {
     }
 
     userList (props) {
-        const { products, custom_fields, companies, categories } = this.state
+        const { pageLimit, custom_fields, companies, categories, currentInvoices, cachedData } = this.state
 
-        return <ProductItem showCheckboxes={props.showCheckboxes} products={products} categories={categories}
-            show_list={props.show_list}
+        return <ProductItem showCheckboxes={props.showCheckboxes} products={currentInvoices} categories={categories}
+            show_list={props.show_list} entities={cachedData}
+            onPageChanged={this.addProductToState}
+            pageLimit={pageLimit}
             viewId={props.viewId}
             companies={companies} custom_fields={custom_fields}
-            ignoredColumns={props.ignoredColumns} addProductToState={this.addProductToState}
+            ignoredColumns={props.default_columns} addProductToState={this.addProductToState}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -156,19 +190,20 @@ export default class ProductList extends Component {
     }
 
     render () {
-        const { products, custom_fields, companies, categories, view, filters, error, isOpen, error_message, success_message, show_success } = this.state
-        const { status, searchText, category_id, company_id, start_date, end_date } = this.state.filters
-        const fetchUrl = `/api/products?search_term=${searchText}&status=${status}&category_id=${category_id}&company_id=${company_id}&start_date=${start_date}&end_date=${end_date}`
+        const { cachedData, products, custom_fields, companies, categories, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, pageLimit } = this.state
+        const { start_date, end_date } = this.state.filters
+        const fetchUrl = `/api/products?start_date=${start_date}&end_date=${end_date}`
         const addButton = companies.length && categories.length ? <AddProduct
             custom_fields={custom_fields}
             companies={companies}
             categories={categories}
-            products={products}
+            products={cachedData}
             action={this.addProductToState}
         /> : null
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable-large fixed-margin-datatable-large-mobile'
+        const total = products.length
 
         return (
             <Row>
@@ -176,7 +211,11 @@ export default class ProductList extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <ProductFilters setFilterOpen={this.setFilterOpen.bind(this)} companies={companies}
+                                <ProductFilters
+                                    pageLimit={pageLimit}
+                                    cachedData={cachedData}
+                                    updateList={this.onPageChanged.bind(this)}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} companies={companies}
                                     products={products}
                                     filters={filters} filter={this.filterProducts}
                                     saveBulk={this.saveBulk}/>
@@ -205,6 +244,12 @@ export default class ProductList extends Component {
                         <Card>
                             <CardBody>
                                 <DataTable
+
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
+
                                     default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
                                     setError={this.setError.bind(this)}
@@ -218,6 +263,13 @@ export default class ProductList extends Component {
                                     fetchUrl={fetchUrl}
                                     updateState={this.addProductToState}
                                 />
+
+                                {total > 0 &&
+                                <div className="d-flex flex-row py-4 align-items-center">
+                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>

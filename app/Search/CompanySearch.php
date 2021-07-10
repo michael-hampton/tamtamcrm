@@ -43,6 +43,8 @@ class CompanySearch extends BaseSearch
 
         if ($request->has('status')) {
             $this->status('companies', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->has('search_term') && !empty($request->search_term)) {
@@ -50,14 +52,14 @@ class CompanySearch extends BaseSearch
         }
 
         if ($request->filled('id')) {
-            $this->query->whereId($request->id);
+            $this->query->byId($request->id);
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
-            $this->filterDates($request);
+            $this->query->byDate($request->input('start_date'), $request->input('end_date'));
         }
 
-        $this->addAccount($account, 'companies');
+        $this->query->byAccount($account, 'companies');
 
         $this->checkPermissions('companycontroller.index', 'companies');
 
@@ -107,7 +109,7 @@ class CompanySearch extends BaseSearch
      */
     private function transformList()
     {
-        $list = $this->query->get();
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['companies'])->get();
         $companies = $list->map(
             function (Company $company) {
                 return $this->transformCompany($company);

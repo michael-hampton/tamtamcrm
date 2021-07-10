@@ -12,9 +12,7 @@ use App\Requests\SearchRequest;
 use App\Search\InvoiceSearch;
 use App\Search\ProjectSearch;
 use Exception;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection as Support;
 
 class ProjectRepository extends BaseRepository implements ProjectRepositoryInterface
 {
@@ -57,55 +55,31 @@ class ProjectRepository extends BaseRepository implements ProjectRepositoryInter
     }
 
     /**
-     * @return bool
-     * @throws Exception
-     */
-    public function deleteProject(): bool
-    {
-        return $this->delete();
-    }
-
-    /**
-     * @param array $columns
-     * @param string $orderBy
-     * @param string $sortBy
-     *
-     * @return Collection
-     */
-    public function listProjects($columns = array('*'), string $orderBy = 'id', string $sortBy = 'asc'): Support
-    {
-        return $this->all($columns, $orderBy, $sortBy);
-    }
-
-    /**
-     * @param string $text
-     * @return mixed
-     */
-    public function searchProject(string $text = null): Collection
-    {
-        if (is_null($text)) {
-            return $this->all();
-        }
-        return $this->model->searchProject($text)->get();
-    }
-
-    /**
-     * @param $data
+     * @param array $data
      * @param Project $project
-     * @return Project|null
+     * @return Project
      */
-    public function save($data, Project $project): ?Project
+    public function create(array $data, Project $project): Project
     {
-        $is_add = empty($project->id);
         $project->fill($data);
         $project->setNumber();
         $project->save();
 
-        if (!$is_add) {
-            event(new ProjectWasUpdated($project));
-        } else {
-            event(new ProjectWasCreated($project));
-        }
+        event(new ProjectWasCreated($project));
+
+        return $project;
+    }
+
+    /**
+     * @param array $data
+     * @param Project $project
+     * @return Project
+     */
+    public function update(array $data, Project $project): Project
+    {
+        $project->update($data);
+
+        event(new ProjectWasUpdated($project));
 
         return $project;
     }

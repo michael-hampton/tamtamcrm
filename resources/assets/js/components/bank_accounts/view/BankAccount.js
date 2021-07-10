@@ -60,9 +60,9 @@ export default class BankAccount extends Component {
             <React.Fragment>
                 <PlainEntityHeader heading_1={translations.name} value_1={this.props.entity.name}/>
 
-                {!!this.props.entity.private_notes.length &&
+                {!!this.props.entity.internal_note.length &&
                 <Row>
-                    <InfoMessage message={this.props.entity.private_notes}/>
+                    <InfoMessage message={this.props.entity.internal_note}/>
                 </Row>
                 }
 

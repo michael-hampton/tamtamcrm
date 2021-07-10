@@ -10,15 +10,22 @@ import { translations } from '../utils/_translations'
 import CustomerRepository from '../repositories/CustomerRepository'
 import UserRepository from '../repositories/UserRepository'
 import { getDefaultTableFields } from '../presenters/DealPresenter'
+import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class DealList extends Component {
     constructor (props) {
         super(props)
 
         this.state = {
+            currentPage: 1,
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             dropdownButtonActions: ['download'],
+            cachedData: [],
             deals: [],
             users: [],
             customers: [],
@@ -62,8 +69,37 @@ export default class DealList extends Component {
         this.getCustomFields()
     }
 
-    addUserToState (deals) {
-        this.setState({ deals: deals })
+    addUserToState (deals, do_filter = false, filters = null) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
+        const cachedData = !this.state.cachedData.length ? deals : this.state.cachedData
+
+        if (should_filter) {
+            deals = filterStatuses(deals, '', this.state.filters)
+        }
+
+        this.setState({
+            filters: filters !== null ? filters : this.state.filters,
+            deals: deals,
+            cachedData: cachedData
+        }, () => {
+            const totalPages = Math.ceil(deals.length / this.state.pageLimit)
+            this.onPageChanged({ invoices: deals, currentPage: this.state.currentPage, totalPages: totalPages })
+        })
+    }
+
+    onPageChanged (data) {
+        let { deals, pageLimit } = this.state
+        const { currentPage, totalPages } = data
+
+        if (data.invoices) {
+            deals = data.invoices
+        }
+
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = deals.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
+
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     handleClose () {
@@ -77,13 +113,16 @@ export default class DealList extends Component {
     }
 
     userList (props) {
-        const { deals, custom_fields, users, customers } = this.state
+        const { pageLimit, custom_fields, users, customers, currentInvoices, cachedData } = this.state
 
-        return <DealItem showCheckboxes={props.showCheckboxes} action={this.addUserToState} deals={deals} users={users}
-            show_list={props.show_list}
+        return <DealItem showCheckboxes={props.showCheckboxes} action={this.addUserToState} deals={currentInvoices}
+            users={users}
+            show_list={props.show_list} entities={cachedData}
+            onPageChanged={this.onPageChanged.bind(this)}
+            pageLimit={pageLimit}
             custom_fields={custom_fields} customers={customers}
             viewId={props.viewId}
-            ignoredColumns={getDefaultTableFields()} addUserToState={this.addUserToState}
+            ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -119,7 +158,8 @@ export default class DealList extends Component {
         const userRepository = new UserRepository()
         userRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
             }
 
             this.setState({ users: response }, () => {
@@ -132,7 +172,8 @@ export default class DealList extends Component {
         const customerRepository = new CustomerRepository()
         customerRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
             }
 
             this.setState({ customers: response }, () => {
@@ -157,9 +198,21 @@ export default class DealList extends Component {
     }
 
     render () {
-        const { deals, users, customers, custom_fields, isOpen, error_message, success_message, show_success } = this.state
-        const { task_status, customer_id, user_id, searchText, start_date, end_date } = this.state.filters
-        const fetchUrl = `/api/deals?search_term=${searchText}&task_status=${task_status}&customer_id=${customer_id}&user_id=${user_id}&start_date=${start_date}&end_date=${end_date}`
+        const {
+            cachedData,
+            deals,
+            users,
+            customers,
+            custom_fields,
+            isOpen,
+            error_message,
+            success_message,
+            show_success,
+            currentInvoices,
+            pageLimit
+        } = this.state
+        const { start_date, end_date } = this.state.filters
+        const fetchUrl = `/api/deals?start_date=${start_date}&end_date=${end_date}`
         const { error, view } = this.state
 
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
@@ -173,8 +226,10 @@ export default class DealList extends Component {
             customers={customers}
             users={users}
             action={this.addUserToState}
-            deals={deals}
+            deals={cachedData}
         /> : null
+
+        const total = deals.length
 
         return customers.length ? (
             <Row>
@@ -182,7 +237,11 @@ export default class DealList extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <DealFilters setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
+                                <DealFilters
+                                    pageLimit={pageLimit}
+                                    cachedData={cachedData}
+                                    updateList={this.addUserToState}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
                                     users={users}
                                     deals={deals}
                                     filters={this.state.filters} filter={this.filterDeals}
@@ -193,25 +252,31 @@ export default class DealList extends Component {
                     </div>
 
                     {error &&
-                    <Snackbar open={error} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
-                        <Alert severity="danger">
-                            {error_message}
-                        </Alert>
-                    </Snackbar>
+                        <Snackbar open={error} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
+                            <Alert severity="danger">
+                                {error_message}
+                            </Alert>
+                        </Snackbar>
                     }
 
                     {show_success &&
-                    <Snackbar open={show_success} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
-                        <Alert severity="success">
-                            {success_message}
-                        </Alert>
-                    </Snackbar>
+                        <Snackbar open={show_success} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
+                            <Alert severity="success">
+                                {success_message}
+                            </Alert>
+                        </Snackbar>
                     }
 
                     <div className={margin_class}>
                         <Card>
                             <CardBody>
                                 <DataTable
+
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
+                                    columnMapping={{ customer_id: 'CUSTOMER', status_name: 'Status' }}
                                     default_columns={getDefaultTableFields()}
                                     customers={customers}
                                     setSuccess={this.setSuccess.bind(this)}
@@ -226,6 +291,14 @@ export default class DealList extends Component {
                                     fetchUrl={fetchUrl}
                                     updateState={this.addUserToState}
                                 />
+
+                                {total > 0 &&
+                                    <div className="d-flex flex-row py-4 align-items-center">
+                                        <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                            pageNeighbours={1}
+                                            onPageChanged={this.onPageChanged.bind(this)}/>
+                                    </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>

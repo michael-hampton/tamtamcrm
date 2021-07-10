@@ -2,11 +2,8 @@
 
 namespace App\Repositories;
 
-use App\Models\Account;
 use App\Models\ExpenseCategory;
 use App\Repositories\Base\BaseRepository;
-use Exception;
-use Illuminate\Support\Collection;
 
 class ExpenseCategoryRepository extends BaseRepository
 {
@@ -25,57 +22,20 @@ class ExpenseCategoryRepository extends BaseRepository
         return $this->model;
     }
 
-    /**
-     * List all the categories
-     *
-     * @param string $order
-     * @param string $sort
-     * @param Account $account
-     * @param array $except
-     * @return Collection
-     */
-    public function listCategories(
-        string $order = 'id',
-        string $sort = 'desc',
-        Account $account,
-        $except = []
-    ): Collection {
-        return $this->model
-            ->where('account_id', '=', $account->id)
-            ->orderBy($order, $sort)
-            ->get()
-            ->except($except);
+    public function create(array $data, ExpenseCategory $expense_category): ExpenseCategory
+    {
+        $expense_category->fill($data);
+
+        $expense_category->save();
+
+        return $expense_category;
     }
 
-    /**
-     * List all root categories
-     *
-     * @param string $order
-     * @param string $sort
-     * @param array $except
-     * @return Collection
-     */
-    public function rootCategories(string $order = 'id', string $sort = 'desc', $except = []): Collection
+    public function update(array $data, ExpenseCategory $expense_category): ExpenseCategory
     {
-        return $this->model->whereIsRoot()->orderBy($order, $sort)->get()->except($except);
-    }
+        $expense_category->update($data);
 
-    /**
-     * @param array $params
-     * @param ExpenseCategory $category
-     * @return ExpenseCategory
-     */
-    public function save(array $params, ExpenseCategory $category): ExpenseCategory
-    {
-        $category->fill($params);
-
-        if (isset($params['parent']) && !empty($params['parent'])) {
-            $parent = $this->findCategoryById($params['parent']);
-            $category->parent()->associate($parent);
-        }
-
-        $category->save();
-        return $category;
+        return $expense_category;
     }
 
     /**
@@ -85,33 +45,6 @@ class ExpenseCategoryRepository extends BaseRepository
     public function findCategoryById(int $id): ExpenseCategory
     {
         return $this->findOneOrFail($id);
-    }
-
-    /**
-     * Delete a category
-     *
-     * @return bool
-     * @throws Exception
-     */
-    public function deleteCategory(): bool
-    {
-        return $this->model->delete();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function findParentCategory()
-    {
-        return $this->model->parent;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function findChildren()
-    {
-        return $this->model->children;
     }
 
 }

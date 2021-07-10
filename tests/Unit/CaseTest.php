@@ -126,7 +126,7 @@ class CaseTest extends TestCase
         // Given: we have an e-mail﻿
         $email = new TestMail(
             $sender = 'michaelhamptondesign@yahoo.com',
-            $subject = 'Test E-mail',
+            $subject = 'TemplateTest E-mail',
             $body = 'Some example text in the body'
         );
 

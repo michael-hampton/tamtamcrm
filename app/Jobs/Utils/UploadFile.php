@@ -13,6 +13,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 
 class UploadFile implements ShouldQueue
@@ -24,13 +25,23 @@ class UploadFile implements ShouldQueue
     /**
      * @var User
      */
-    protected User $user;
+    private User $user;
     /**
      * @var Account
      */
-    protected Account $account;
-    protected $uploaded_by_customer;
-    protected $customer_can_view;
+    private Account $account;
+
+    /**
+     * @var bool
+     */
+    private bool $uploaded_by_customer;
+
+    /**
+     * @var bool
+     */
+    private bool $customer_can_view;
+
+    private string $disk;
 
     /**
      * UploadFile constructor.
@@ -47,14 +58,17 @@ class UploadFile implements ShouldQueue
         Account $account,
         $entity,
         $uploaded_by_customer = false,
-        $customer_can_view = false
-    ) {
+        $customer_can_view = false,
+        $disk = 'public'
+    )
+    {
         $this->file = $file;
         $this->user = $user;
         $this->account = $account;
         $this->entity = $entity;
         $this->uploaded_by_customer = $uploaded_by_customer;
         $this->customer_can_view = $customer_can_view;
+        $this->disk = $disk;
     }
 
     /**
@@ -66,10 +80,16 @@ class UploadFile implements ShouldQueue
     {
         $extension = $this->file->getClientOriginalExtension();
         $originalname = time() . '.' . $extension;
-        $destinationPath = 'storage/' . $this->account->id . '/uploads/';
-        $path = $this->file->move(public_path($destinationPath), $originalname);
+        $destinationPath = $this->account->id . '/uploads/';
+        $full_path = $destinationPath . $originalname;
 
-        $imgsizes = $path->getSize();
+        Storage::disk($this->disk)->putFileAs(
+            $destinationPath, $this->file, $originalname
+        );
+
+        $path = Storage::disk($this->disk)->path($full_path);
+
+        $size = Storage::disk($this->disk)->size($full_path);
         $data = getimagesize($path);
 
         $width = !empty($data) ? $data[0] : null;
@@ -81,8 +101,8 @@ class UploadFile implements ShouldQueue
         $file->preview = $preview;
         $file->user_id = $this->user->id;
         $file->account_id = $this->account->id;
-        $file->file_path = $destinationPath . $originalname;
-        $file->size = $imgsizes;
+        $file->file_path = $full_path;
+        $file->size = $size;
         $file->name = $originalname;
         $file->type = $extension;
         $file->width = $width;
@@ -115,7 +135,7 @@ class UploadFile implements ShouldQueue
         //https://quickadminpanel.com/blog/file-upload-in-laravel-the-ultimate-guide/
         $extension = $this->file->getClientOriginalExtension();
         $originalname = time() . '-thumb.' . $extension;
-        $destinationPath = 'storage/' . $this->account->id . '/uploads/';
+        $destinationPath = $this->account->id . '/uploads/';
         Image::make($file)->resize(300, 200)->save($destinationPath . $originalname);
         return $destinationPath . $originalname;
     }

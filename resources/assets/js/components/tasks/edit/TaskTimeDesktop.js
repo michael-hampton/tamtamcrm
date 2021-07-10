@@ -7,15 +7,24 @@ export default class TaskTimeDesktop extends Component {
     constructor (props) {
         super(props)
 
+        const account_id = JSON.parse(localStorage.getItem('appState')).user.account_id
+        const user_account = JSON.parse(localStorage.getItem('appState')).accounts.filter(account => account.account_id === parseInt(account_id))
+        const settings = user_account[0].account.settings
+
+        const timer = settings.task_automation_enabled === true ? [{
+            id: Date.now(),
+            date: moment(new Date()).format('YYYY-MM-DD'),
+            end_date: '',
+            start_time: '',
+            end_time: '',
+            // start_time: moment().format('HH:MM:ss'),
+            // end_date: moment(new Date()).format('YYYY-MM-DD'),
+            // end_time: moment().add('1', 'hour').format('HH:MM:ss'),
+            duration: null
+        }] : []
+
         this.state = {
-            timers: this.props.timers && this.props.timers.length ? this.props.timers : [{
-                id: Date.now(),
-                date: moment(new Date()).format('YYYY-MM-DD'),
-                start_time: moment().format('HH:MM:ss'),
-                end_date: moment(new Date()).format('YYYY-MM-DD'),
-                end_time: moment().add('1', 'hour').format('HH:MM:ss'),
-                duration: null
-            }]
+            timers: this.props.timers && this.props.timers.length ? this.props.timers : timer
         }
 
         this.timerModel = new TimerModel()
@@ -45,14 +54,14 @@ export default class TaskTimeDesktop extends Component {
         console.log('times', times)
     }
 
-    handleChange (e) {
+    handleChange (e, text = false) {
         const value = e.target.value
 
         if (!value || !value.length) {
             return true
         }
 
-        const times = this.timerModel.addDuration(this.state.currentIndex, value)
+        const times = this.timerModel.addDuration(this.state.currentIndex || 0, value)
         this.setState({ timers: times }, () => {
             this.props.handleTaskTimeChange(times)
         })

@@ -23,7 +23,7 @@ export default class PaymentModel extends BaseModel {
         this._fields = {
             modal: false,
             deleted_at: null,
-            is_deleted: false,
+            hide: false,
             assigned_to: '',
             customer_id: '',
             company_gateway_id: null,
@@ -41,7 +41,7 @@ export default class PaymentModel extends BaseModel {
             custom_value2: '',
             custom_value3: '',
             custom_value4: '',
-            private_notes: '',
+            internal_note: '',
             errors: [],
             send_email: this.settings.should_send_email_for_manual_payment || false,
             selectedInvoices: [],
@@ -121,11 +121,11 @@ export default class PaymentModel extends BaseModel {
     }
 
     get isArchived () {
-        return this.fields.deleted_at && this.fields.deleted_at.toString().length > 0 && this.fields.is_deleted === false
+        return this.fields.deleted_at && this.fields.deleted_at.toString().length > 0 && this.fields.hide === false
     }
 
     get isActive () {
-        return !this.fields.deleted_at && this.fields.is_deleted === false
+        return !this.fields.deleted_at && this.fields.hide === false
     }
 
     get isCompleted () {

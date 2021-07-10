@@ -22,21 +22,14 @@ interface DealRepositoryInterface extends BaseRepositoryInterface
      * @param Deal $deal
      * @return mixed
      */
-    public function createDeal(array $data, Deal $deal): ?Deal;
+    public function create(array $data, Deal $deal): ?Deal;
 
     /**
      * @param array $data
      * @param Deal $deal
      * @return mixed
      */
-    public function updateDeal(array $data, Deal $deal): ?Deal;
-
-    /**
-     * @param $data
-     * @param Deal $task
-     * @return Deal|null
-     */
-    public function save($data, Deal $task): ?Deal;
+    public function update(array $data, Deal $deal): ?Deal;
 
     /**
      *

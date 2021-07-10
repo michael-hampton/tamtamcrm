@@ -28,14 +28,19 @@ class CustomerArchived implements ShouldQueue
      */
     public function handle($event)
     {
-        $fields = [];
-        $fields['data']['id'] = $event->customer->id;
-        $fields['data']['message'] = 'A customer was archived';
-        $fields['notifiable_id'] = $event->customer->user_id;
-        $fields['account_id'] = $event->customer->account_id;
-        $fields['notifiable_type'] = get_class($event->customer);
-        $fields['type'] = get_class($this);
-        $fields['data'] = json_encode($fields['data']);
+        $data = [
+            'id'      => $event->customer->id,
+            'message' => 'A customer was archived'
+        ];
+
+        $fields = [
+            'notifiable_id'   => $event->customer->user_id,
+            'account_id'      => $event->customer->account_id,
+            'notifiable_type' => get_class($event->customer),
+            'type'            => get_class($this),
+            'data'            => json_encode($data),
+            'action'          => 'archived'
+        ];
 
         $notification = NotificationFactory::create($event->customer->account_id, $event->customer->user_id);
         $notification->entity_id = $event->customer->id;

@@ -8,17 +8,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
-use Laracasts\Presenter\PresentableTrait;
+use Illuminate\Support\Facades\Hash;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class CustomerContact extends Model implements ContactInterface
 {
-    use PresentableTrait;
     use SoftDeletes;
     use Notifiable;
     use HasFactory;
     use Archiveable;
+    use QueryCacheable;
 
-    protected $presenter = 'App\Presenters\ClientContactPresenter';
+    protected static $flushCacheOnUpdate = true;
 
     protected $dates = [
         'deleted_at'
@@ -33,12 +34,12 @@ class CustomerContact extends Model implements ContactInterface
     protected $hidden = [
         'user_id',
         'account_id',
-        'customer_id',
         'token',
         'password',
     ];
 
     protected $fillable = [
+        'customer_id',
         'contact_key',
         'first_name',
         'last_name',
@@ -51,6 +52,19 @@ class CustomerContact extends Model implements ContactInterface
         'is_primary',
         'password'
     ];
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'customer_contact',
+        ];
+    }
 
     /**/
     public function getRouteKeyName()
@@ -86,5 +100,10 @@ class CustomerContact extends Model implements ContactInterface
     public function user()
     {
         return $this->belongsTo(Models\User::class)->withTrashed();
+    }
+
+    public function setPasswordAttribute(string $value)
+    {
+        $this->attributes['password'] = Hash::make($value);
     }
 }

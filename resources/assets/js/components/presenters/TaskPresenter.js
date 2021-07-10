@@ -23,11 +23,15 @@ export default function TaskPresenter (props) {
 
     const color = entity.task_status && entity.task_status.column_color && entity.task_status.column_color.length ? entity.task_status.column_color : '#20a8d8'
 
-    const status = (entity.deleted_at)
+    let status = (entity.deleted_at && !entity.hide)
         ? (<Badge color="warning">{translations.archived}</Badge>)
         : ((entity.invoice_id) ? (<Badge color="success">{translations.invoiced}</Badge>)
             : (<span style={{ backgroundColor: color, color: contrast(color) }}
-                className="badge">{entity.status_name.length ? entity.status_name : translations.logged}</span>))
+                className="badge">{entity.status_name && entity.status_name.length ? entity.status_name : translations.logged}</span>))
+
+    if (entity.deleted_at && entity.hide) {
+        status = <Badge className="mr-2" color="danger">{translations.deleted}</Badge>
+    }
 
     switch (field) {
         case 'assigned_to': {
@@ -69,6 +73,6 @@ export default function TaskPresenter (props) {
         case 'project':
             return props.entity.project && props.entity.project.name ? props.entity.project.name : ''
         default:
-            return entity[field]
+            return typeof entity[field] === 'object' ? JSON.stringify(entity[field]) : entity[field]
     }
 }

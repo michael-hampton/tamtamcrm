@@ -33,7 +33,7 @@ class AutobillInvoice implements ShouldQueue
 
     public function handle()
     {
-        if ($this->invoice->is_deleted || !in_array(
+        if ($this->invoice->hide || !in_array(
                 $this->invoice->status_id,
                 [
                     Invoice::STATUS_SENT,

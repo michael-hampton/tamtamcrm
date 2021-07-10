@@ -120,7 +120,7 @@ class DealRepository extends BaseRepository implements DealRepositoryInterface
     {
         $date = Carbon::today()->subDays($number_of_days);
         $result = $this->model->select(DB::raw('count(*) as total'))->where('created_at', '>=', $date)
-                              ->where('account_id', $account_id)->get();
+                              ->byAccount($account_id)->get();
 
         return !empty($result[0]) ? $result[0]['total'] : 0;
     }
@@ -132,7 +132,7 @@ class DealRepository extends BaseRepository implements DealRepositoryInterface
     public function getNewDeals(int $account_id)
     {
         $result = $this->model->select(DB::raw('count(*) as total'))
-                              ->where('account_id', $account_id)->get();
+                              ->byAccount($account_id)->get();
 
         return !empty($result[0]) ? $result[0]['total'] : 0;
     }
@@ -150,29 +150,17 @@ class DealRepository extends BaseRepository implements DealRepositoryInterface
     /**
      * @param array $data
      * @param Deal $deal
-     * @return Deal|Task|null
-     * @throws Exception
-     */
-    public function createDeal(array $data, Deal $deal): ?Deal
-    {
-        $data['source_type'] = empty($data['source_type']) ? 1 : $data['source_type'];
-        $deal = $this->save($data, $deal);
-
-        event(new DealWasCreated($deal));
-
-        return $deal;
-    }
-
-    /**
-     * @param $data
-     * @param Deal $deal
      * @return Deal|null
      */
-    public function save($data, Deal $deal): ?Deal
+    public function create(array $data, Deal $deal): ?Deal
     {
+        $data['source_type'] = empty($data['source_type']) ? 1 : $data['source_type'];
+
         $deal->fill($data);
         $deal->setNumber();
         $deal->save();
+
+        event(new DealWasCreated($deal));
 
         return $deal->fresh();
     }
@@ -180,12 +168,11 @@ class DealRepository extends BaseRepository implements DealRepositoryInterface
     /**
      * @param array $data
      * @param Deal $deal
-     * @return Deal|Task|null
-     * @throws Exception
+     * @return Deal|null
      */
-    public function updateDeal(array $data, Deal $deal): ?Deal
+    public function update(array $data, Deal $deal): ?Deal
     {
-        $deal = $this->save($data, $deal);
+        $deal->update($data);
 
         event(new DealWasUpdated($deal));
 

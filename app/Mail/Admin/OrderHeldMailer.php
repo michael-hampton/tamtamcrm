@@ -4,6 +4,8 @@ namespace App\Mail\Admin;
 
 use App\Models\Order;
 use App\Models\User;
+use App\ViewModels\AccountViewModel;
+use App\ViewModels\CustomerViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 
@@ -41,7 +43,8 @@ class OrderHeldMailer extends AdminMailer
 
         $this->setSubject($data);
         $this->setMessage($data);
-        $this->execute($this->buildMessage());
+        $this->buildButton();
+        $this->execute();
     }
 
     /**
@@ -51,7 +54,7 @@ class OrderHeldMailer extends AdminMailer
     {
         return [
             'total'    => $this->order->getFormattedTotal(),
-            'customer' => $this->order->customer->present()->name(),
+            'customer' => (new CustomerViewModel($this->order->customer))->name(),
             'order'    => $this->order->getNumber(),
         ];
     }
@@ -59,15 +62,11 @@ class OrderHeldMailer extends AdminMailer
     /**
      * @return array
      */
-    private function buildMessage(): array
+    private function buildButton(): void
     {
-        return [
-            'title'       => $this->subject,
-            'body'        => $this->message,
+        $this->button = [
             'url'         => $this->getUrl() . 'orders/' . $this->order->id,
-            'button_text' => trans('texts.view_order'),
-            'signature'   => isset($this->order->account->settings->email_signature) ? $this->order->account->settings->email_signature : '',
-            'logo'        => $this->order->account->present()->logo(),
+            'button_text' => trans('texts.view_order')
         ];
     }
 }

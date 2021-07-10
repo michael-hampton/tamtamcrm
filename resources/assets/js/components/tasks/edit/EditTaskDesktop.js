@@ -50,6 +50,10 @@ export default class EditTaskDesktop extends Component {
         this.taskModel.start_date = this.initialState.start_date
         this.taskModel.due_date = this.initialState.due_date
 
+        if (this.props.task_status) {
+            this.initialState.task_status_id = this.props.task_status
+        }
+
         this.state = this.initialState
 
         this.handleSave = this.handleSave.bind(this)
@@ -64,6 +68,21 @@ export default class EditTaskDesktop extends Component {
         this.toggleMenu = this.toggleMenu.bind(this)
         this.hasErrorFor = this.hasErrorFor.bind(this)
         this.renderErrorFor = this.renderErrorFor.bind(this)
+    }
+
+    static getDerivedStateFromProps (props, state) {
+        if (props.task && props.task.id && props.task.id !== state.id) {
+            const invoiceModel = new TaskModel(props.task, props.customers)
+            return invoiceModel.fields
+        }
+
+        return null
+    }
+
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.task && this.props.task.id && this.props.task.id !== prevProps.task.id) {
+            this.taskModel = new TaskModel(this.props.task, this.props.customers)
+        }
     }
 
     hasErrorFor (field) {
@@ -145,8 +164,8 @@ export default class EditTaskDesktop extends Component {
             custom_value2: this.state.custom_value2,
             custom_value3: this.state.custom_value3,
             custom_value4: this.state.custom_value4,
-            public_notes: this.state.public_notes,
-            private_notes: this.state.private_notes,
+            customer_note: this.state.customer_note,
+            internal_note: this.state.internal_note,
             project_id: this.state.project_id,
             task_status_id: this.state.task_status_id
         }
@@ -156,7 +175,7 @@ export default class EditTaskDesktop extends Component {
         if (this.props.allTasks) {
             const index = this.props.allTasks.findIndex(task => task.id === this.props.task.id)
             this.props.allTasks[index] = response
-            this.props.action(this.props.allTasks)
+            this.props.action(this.props.allTasks, true)
             this.setState({ timers: response.timers })
             this.taskModel = new TaskModel(response, this.props.customers)
         }
@@ -171,24 +190,43 @@ export default class EditTaskDesktop extends Component {
                     errors: this.taskModel.errors,
                     message: this.taskModel.error_message
                 })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.task), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
 
+            toast.success(translations.updated_successfully.replace('{entity}', translations.task), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
+
             if (!this.state.id) {
                 const allTasks = this.props.tasks
-                allTasks.push(response)
-                this.props.action(allTasks)
+                allTasks.unshift(response)
+                this.props.action(allTasks, true)
                 localStorage.removeItem('taskForm')
                 this.setState(this.initialState)
-
-                console.log('response', response)
 
                 return
             }
 
             const index = this.props.tasks.findIndex(task => task.id === this.state.id)
             this.props.tasks[index] = response
-            this.props.action(this.props.tasks)
+            this.props.action(this.props.tasks, true)
             this.setState({ loading: false, changesMade: false })
         })
     }
@@ -228,7 +266,6 @@ export default class EditTaskDesktop extends Component {
     }
 
     render () {
-        console.log('timers', this.state.timers)
         const email_editor = this.state.id
             ? <Emails width={400} model={this.taskModel} emails={this.state.emails} template="email_template_task"
                 show_editor={true}
@@ -422,7 +459,8 @@ export default class EditTaskDesktop extends Component {
                 <span>
                     {translations.duration + ' '}
                     <LiveText
-                        duration={formatSecondsToTime(this.taskModel.getTotalDuration(this.taskModel.autoStartTask))} task_automation_enabled={this.taskModel.autoStartTask}/>
+                        duration={formatSecondsToTime(this.taskModel.getTotalDuration(this.taskModel.autoStartTask))}
+                        task_automation_enabled={this.taskModel.autoStartTask}/>
                 </span>
                 }
 
@@ -447,9 +485,18 @@ export default class EditTaskDesktop extends Component {
 
         </React.Fragment>
 
-        const button = this.props.add === true ? <AddButtons toggle={this.toggle}/>
-            : <DropdownItem onClick={this.toggle}><i className={`fa ${icons.edit}`}/>{translations.edit_task}
-            </DropdownItem>
+        let button = null
+
+        if (this.props.add === true) {
+            button = this.props.large_button
+                ? <Button onClick={this.toggle} size="lg" color="primary" block>{translations.add_task}</Button>
+                : <AddButtons toggle={this.toggle}/>
+        } else {
+            button = this.props.show_as_link === true
+                ? <Button className="text-white" color="link" onClick={this.toggle}>{translations.edit_task}</Button>
+                : <DropdownItem onClick={this.toggle}><i className={`fa ${icons.edit}`}/>{translations.edit_task}
+                </DropdownItem>
+        }
 
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
 

@@ -26,6 +26,6 @@ export default function CompanyPresenter (props) {
         case 'logo':
             return <img style={{ width: '100px' }} src={entity.logo}/>
         default:
-            return entity[field]
+            return typeof entity[field] === 'object' ? JSON.stringify(entity[field]) : entity[field]
     }
 }

@@ -4,11 +4,14 @@ namespace App\Models;
 
 use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Model;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Transaction extends Model
 {
     use Archiveable;
+    use QueryCacheable;
 
+    protected static $flushCacheOnUpdate = true;
     protected $fillable = [
         'customer_id',
         'updated_balance',
@@ -17,6 +20,19 @@ class Transaction extends Model
         'account_id',
         'user_id'
     ];
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'transactions',
+        ];
+    }
 
     public function user()
     {
@@ -70,6 +86,8 @@ class Transaction extends Model
     public function getEntity()
     {
         $class_name = $this->transactionable_type;
-        return $class_name::where('id', $this->transactionable_id)->withTrashed()->first();
+        return $class_name::where('id', $this->transactionable_id)->cacheFor(now()->addMonthNoOverflow())->cacheTags(
+            ['transactions']
+        )->withTrashed()->first();
     }
 }

@@ -2,13 +2,17 @@
 
 namespace App\Services\Invoice;
 
+use App\Services\BaseActions;
+use App\Services\Transaction\TriggerTransaction;
+use App\Events\Invoice\InvoiceWasPaid;
 use App\Factory\InvoiceToPaymentFactory;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Repositories\InvoiceRepository;
 use App\Repositories\PaymentRepository;
 
-class CreatePayment
+class CreatePayment extends BaseActions
 {
     /**
      * @var Invoice
@@ -21,19 +25,26 @@ class CreatePayment
     private PaymentRepository $payment_repo;
 
     /**
+     * @var InvoiceRepository
+     */
+    private InvoiceRepository $invoice_repo;
+
+    /**
      * CreatePayment constructor.
      * @param Invoice $invoice
+     * @param InvoiceRepository $invoice_repo
      * @param PaymentRepository $payment_repo
      */
-    public function __construct(Invoice $invoice, PaymentRepository $payment_repo)
+    public function __construct(Invoice $invoice, InvoiceRepository $invoice_repo, PaymentRepository $payment_repo)
     {
         $this->invoice = $invoice;
         $this->payment_repo = $payment_repo;
+        $this->invoice_repo = $invoice_repo;
     }
 
     public function execute()
     {
-        if ($this->invoice->balance < 0 || $this->invoice->status_id == Invoice::STATUS_PAID || $this->invoice->is_deleted === true) {
+        if ($this->invoice->balance < 0 || $this->invoice->status_id == Invoice::STATUS_PAID || $this->invoice->hide === true) {
             return false;
         }
 
@@ -45,6 +56,12 @@ class CreatePayment
 
         // update customer
         $this->updateCustomer($payment);
+
+        $payment = $this->invoice->payments->first();
+
+        event(new InvoiceWasPaid($this->invoice, $payment));
+
+        $this->sendPaymentEmail($this->invoice, $this->invoice_repo);
 
         return $this->invoice;
     }
@@ -91,7 +108,7 @@ class CreatePayment
         $customer->increaseAmountPaid($payment->amount);
         $customer->save();
 
-        $payment->transaction_service()->createTransaction(
+        (new TriggerTransaction($payment))->execute(
             $payment->amount * -1,
             $customer->balance,
             "Update customer balance {$this->invoice->getNumber()}"

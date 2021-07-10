@@ -9,11 +9,17 @@ import { translations } from '../utils/_translations'
 import CustomerRepository from '../repositories/CustomerRepository'
 import queryString from 'query-string'
 import { getDefaultTableFields } from '../presenters/CreditPresenter'
+import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class Credits extends Component {
     constructor (props) {
         super(props)
         this.state = {
+            currentInvoices: [],
+            currentPage: 1,
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             error: '',
@@ -57,6 +63,21 @@ export default class Credits extends Component {
         this.getCustomFields()
     }
 
+    onPageChanged (data) {
+        let { credits, pageLimit } = this.state
+        const { currentPage, totalPages } = data
+
+        if (data.invoices) {
+            credits = data.invoices
+        }
+
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = credits.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
+
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
+    }
+
     filterCredits (filters) {
         this.setState({ filters: filters })
     }
@@ -69,7 +90,8 @@ export default class Credits extends Component {
         const customerRepository = new CustomerRepository()
         customerRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
             }
 
             this.setState({ customers: response }, () => {
@@ -104,21 +126,33 @@ export default class Credits extends Component {
             }) */
     }
 
-    updateCustomers (credits) {
+    updateCustomers (credits, do_filter = false, filters = null) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? credits : this.state.cachedData
+
+        if (should_filter) {
+            credits = filterStatuses(credits, '', this.state.filters)
+        }
+
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             credits: credits,
             cachedData: cachedData
+        }, () => {
+            const totalPages = Math.ceil(credits.length / this.state.pageLimit)
+            this.onPageChanged({ invoices: credits, currentPage: this.state.currentPage, totalPages: totalPages })
         })
     }
 
     customerList (props) {
-        const { credits, customers, custom_fields } = this.state
-        return <CreditItem showCheckboxes={props.showCheckboxes} credits={credits} customers={customers}
+        const { pageLimit, customers, custom_fields, currentInvoices, cachedData } = this.state
+        return <CreditItem showCheckboxes={props.showCheckboxes} credits={currentInvoices} customers={customers}
             show_list={props.show_list}
+            onPageChanged={this.onPageChanged.bind(this)}
+            pageLimit={pageLimit} entities={cachedData}
             custom_fields={custom_fields}
             viewId={props.viewId}
-            ignoredColumns={getDefaultTableFields()} updateCustomers={this.updateCustomers}
+            ignoredColumns={props.default_columns} updateCustomers={this.updateCustomers}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -140,8 +174,8 @@ export default class Credits extends Component {
     }
 
     render () {
-        const { customers, credits, custom_fields, view, filters, error, isOpen, error_message, success_message, show_success } = this.state
-        const fetchUrl = `/api/credits?search_term=${this.state.filters.searchText}&status=${this.state.filters.status_id}&customer_id=${this.state.filters.customer_id}&user_id=${this.state.filters.user_id}&project_id=${this.state.filters.project_id}&start_date=${this.state.filters.start_date}&end_date=${this.state.filters.end_date}`
+        const { cachedData, customers, credits, custom_fields, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, pageLimit } = this.state
+        const fetchUrl = `/api/credits?start_date=${this.state.filters.start_date}&end_date=${this.state.filters.end_date}`
         const addButton = customers.length ? <EditCredit
             entity_id={this.state.entity_id}
             entity_type={this.state.entity_type}
@@ -149,12 +183,13 @@ export default class Credits extends Component {
             customers={customers}
             add={true}
             action={this.updateCustomers}
-            credits={credits}
+            credits={cachedData}
             modal={true}
         /> : null
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable fixed-margin-datatable-mobile'
+        const total = credits.length
 
         return customers.length ? (
             <Row>
@@ -162,7 +197,11 @@ export default class Credits extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <CreditFilters setFilterOpen={this.setFilterOpen.bind(this)} credits={credits}
+                                <CreditFilters
+                                    pageLimit={pageLimit}
+                                    cachedData={cachedData}
+                                    updateList={this.updateCustomers}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} credits={credits}
                                     customers={customers}
                                     filters={filters} filter={this.filterCredits}
                                     saveBulk={this.saveBulk}/>
@@ -191,6 +230,12 @@ export default class Credits extends Component {
                         <Card>
                             <CardBody>
                                 <DataTable
+
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
+
                                     default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
                                     setError={this.setError.bind(this)}
@@ -199,13 +244,20 @@ export default class Credits extends Component {
                                     entity_type="Credit"
                                     bulk_save_url="/api/credit/bulk"
                                     view={view}
-                                    columnMapping={{ customer_id: 'CUSTOMER' }}
+                                    columnMapping={{ customer_id: 'CUSTOMER', status_id: 'status' }}
                                     disableSorting={['id']}
                                     defaultColumn='number'
                                     userList={this.customerList}
                                     fetchUrl={fetchUrl}
                                     updateState={this.updateCustomers}
                                 />
+
+                                {total > 0 &&
+                                <div className="d-flex flex-row py-4 align-items-center">
+                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>

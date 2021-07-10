@@ -36,10 +36,11 @@ export default class RecurringQuoteItem extends Component {
         const self = this
         axios.delete(url)
             .then(function (response) {
-                const arrQuotes = [...self.props.invoices]
+                const arrQuotes = [...self.props.entities]
                 const index = arrQuotes.findIndex(payment => payment.id === id)
-                arrQuotes.splice(index, 1)
-                self.props.updateInvoice(arrQuotes)
+                arrQuotes[index].hide = archive !== true
+                arrQuotes[index].deleted_at = new Date()
+                self.props.updateInvoice(arrQuotes, true)
             })
             .catch(function (error) {
                 self.setState(
@@ -51,11 +52,11 @@ export default class RecurringQuoteItem extends Component {
     }
 
     render () {
-        const { invoices, custom_fields, customers, allQuotes } = this.props
+        const { invoices, custom_fields, customers, allQuotes, entities } = this.props
         if (invoices && invoices.length && customers.length) {
             return invoices.map((user, index) => {
                 const restoreButton = user.deleted_at
-                    ? <RestoreModal id={user.id} entities={invoices} updateState={this.props.updateInvoice}
+                    ? <RestoreModal id={user.id} entities={entities} updateState={this.props.updateInvoice}
                         url={`/api/recurringQuote/restore/${user.id}`}/> : null
                 const archiveButton = !user.deleted_at
                     ? <DeleteModal archive={true} deleteFunction={this.deleteInvoice} id={user.id}/> : null
@@ -72,7 +73,7 @@ export default class RecurringQuoteItem extends Component {
                     invoice={user}
                     invoice_id={user.id}
                     action={this.props.updateInvoice}
-                    invoices={invoices}
+                    invoices={entities}
                 /> : null
 
                 const columnList = Object.keys(user).filter(key => {

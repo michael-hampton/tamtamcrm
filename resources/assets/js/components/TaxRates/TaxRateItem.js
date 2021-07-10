@@ -36,10 +36,11 @@ export default class TaxRateItem extends Component {
         const self = this
         axios.delete(url)
             .then(function (response) {
-                const arrTaxRates = [...self.props.taxRates]
+                const arrTaxRates = [...self.props.entities]
                 const index = arrTaxRates.findIndex(taxRate => taxRate.id === id)
-                arrTaxRates.splice(index, 1)
-                self.props.addUserToState(arrTaxRates)
+                arrTaxRates[index].hide = archive !== true
+                arrTaxRates[index].deleted_at = new Date()
+                self.props.addUserToState(arrTaxRates, true)
             })
             .catch(function (error) {
                 self.setState(
@@ -51,11 +52,11 @@ export default class TaxRateItem extends Component {
     }
 
     render () {
-        const { taxRates, ignoredColumns } = this.props
+        const { taxRates, ignoredColumns, entities } = this.props
         if (taxRates && taxRates.length) {
             return taxRates.map((taxRate, index) => {
                 const restoreButton = taxRate.deleted_at
-                    ? <RestoreModal id={taxRate.id} entities={taxRates} updateState={this.props.addUserToState}
+                    ? <RestoreModal id={taxRate.id} entities={entities} updateState={this.props.addUserToState}
                         url={`/api/taxRate/restore/${taxRate.id}`}/> : null
 
                 const deleteButton = !taxRate.deleted_at
@@ -65,7 +66,7 @@ export default class TaxRateItem extends Component {
                     ? <DeleteModal archive={true} deleteFunction={this.deleteTaxRate} id={taxRate.id}/> : null
 
                 const editButton = !taxRate.deleted_at
-                    ? <EditTaxRate taxRate={taxRate} taxRates={taxRates} action={this.props.addUserToState}/>
+                    ? <EditTaxRate taxRate={taxRate} taxRates={entities} action={this.props.addUserToState}/>
                     : null
 
                 const columnList = Object.keys(taxRate).filter(key => {

@@ -40,6 +40,6 @@ export default function ProjectPresenter (props) {
             return customer.name
         }
         default:
-            return entity[field]
+            return typeof entity[field] === 'object' ? JSON.stringify(entity[field]) : entity[field]
     }
 }

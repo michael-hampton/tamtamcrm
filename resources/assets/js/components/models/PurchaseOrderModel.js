@@ -2,13 +2,15 @@ import axios from 'axios'
 import moment from 'moment'
 import BaseModel, { LineItem } from './BaseModel'
 import { consts } from '../utils/_consts'
+import InvoiceCalculations from './InvoiceCalculations'
+import { buildPdf } from '../utils/Pdf'
 
-export const purchase_order_pdf_fields = ['$purchaseorder.number', '$purchaseorder.po_number', '$purchaseorder.quote_date', '$purchaseorder.valid_until', '$purchaseorder.balance_due', '$purchaseorder.purchaseorder_datetime', '$purchaseorder.purchaseorder_agent',
+export const purchase_order_pdf_fields = ['$purchaseorder.number', '$purchaseorder.po_number', '$purchaseorder.quote_date', '$purchaseorder.valid_until', '$purchaseorder.balance_due', '$purchaseorder.purchaseorder_datetime', '$purchaseorder.purchaseorder_status', '$purchaseorder.purchaseorder_agent',
     '$purchaseorder.quote_total', '$purchaseorder.partial_due', '$purchaseorder.custom1', '$purchaseorder.custom2', '$purchaseorder.custom3', '$purchaseorder.custom4', '$quote.surcharge1',
     '$quote.surcharge2', '$invoice.surcharge3', '$invoice.surcharge4'
 ]
 
-export default class PurchaseOrderModel extends BaseModel {
+class PurchaseOrderModel extends BaseModel {
     constructor (data = null, companies = []) {
         super()
         this.companies = companies
@@ -61,8 +63,8 @@ export default class PurchaseOrderModel extends BaseModel {
             partial: 0,
             has_partial: false,
             partial_due_date: moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
-            public_notes: '',
-            private_notes: '',
+            customer_note: '',
+            internal_note: '',
             terms: '',
             footer: '',
             visible: 'collapse',
@@ -83,7 +85,7 @@ export default class PurchaseOrderModel extends BaseModel {
             recurring: '',
             activeTab: '1',
             po_number: '',
-            design_id: '',
+            design_id: this.settings.purchase_order_design_id ? this.settings.purchase_order_design_id : null,
             currency_id: this.settings.currency_id.toString().length ? this.settings.currency_id : consts.default_currency,
             exchange_rate: 1,
             success: false,
@@ -222,7 +224,7 @@ export default class PurchaseOrderModel extends BaseModel {
             actions.push('markSent')
         }
 
-        if (!this.fields.is_deleted) {
+        if (!this.fields.hide) {
             actions.push('delete')
         }
 
@@ -234,7 +236,7 @@ export default class PurchaseOrderModel extends BaseModel {
             actions.push('getProducts')
         }
 
-        if (!this.isSent) {
+        if (this.isSent) {
             actions.push('approve')
             actions.push('reject')
         }
@@ -316,11 +318,11 @@ export default class PurchaseOrderModel extends BaseModel {
         }
     }
 
-    async loadPdf () {
+    async loadPdf (show_html = false) {
         try {
             this.errors = []
             this.error_message = ''
-            const res = await axios.post('api/preview', { entity: this.entity, entity_id: this._fields.id })
+            const res = await axios.post('api/preview', { entity: this.entity, entity_id: this._fields.id, show_html: show_html })
 
             if (res.status === 200) {
                 // test for status you want, etc
@@ -328,7 +330,7 @@ export default class PurchaseOrderModel extends BaseModel {
             }
 
             // Don't forget to return something
-            return this.buildPdf(res.data)
+            return buildPdf(res.data)
         } catch (e) {
             alert(e)
             this.handleError(e)
@@ -403,3 +405,7 @@ export default class PurchaseOrderModel extends BaseModel {
         }
     }
 }
+
+Object.assign(PurchaseOrderModel.prototype, InvoiceCalculations)
+
+export default PurchaseOrderModel

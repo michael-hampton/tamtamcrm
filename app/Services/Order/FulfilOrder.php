@@ -22,7 +22,7 @@ class FulfilOrder
      * @param Order $order
      * @param OrderRepository $order_repository
      */
-    public function __construct(Order $order, OrderRepository $order_repository)
+    public function __construct(Order $order)
     {
         $this->order = $order;
     }
@@ -36,7 +36,7 @@ class FulfilOrder
         // if out of stock items is more than 0 and no partial orders allowed fail order
         // if out of stock and backorders not allowed fail order
 
-        $order = $this->order->service()->checkStock();
+        $order = (new CheckStock($this->order))->execute();
 
         if (empty($order) || ($order->status_id === Order::STATUS_BACKORDERED && $order->customer->getSetting(
                     'allow_backorders'

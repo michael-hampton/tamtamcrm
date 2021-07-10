@@ -8,12 +8,18 @@ import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import UserRepository from '../repositories/UserRepository'
 import { getDefaultTableFields } from '../presenters/CompanyPresenter'
+import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class Companies extends Component {
     constructor (props) {
         super(props)
 
         this.state = {
+            currentPage: 1,
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             users: [],
@@ -52,8 +58,37 @@ export default class Companies extends Component {
         this.getCustomFields()
     }
 
-    addUserToState (brands) {
-        this.setState({ brands: brands })
+    addUserToState (brands, do_filter = false, filters = null) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
+        const cachedData = !this.state.cachedData.length ? brands : this.state.cachedData
+
+        if (should_filter) {
+            brands = filterStatuses(brands, '', this.state.filters)
+        }
+
+        this.setState({
+            filters: filters !== null ? filters : this.state.filters,
+            brands: brands,
+            cachedData: cachedData
+        }, () => {
+            const totalPages = Math.ceil(brands.length / this.state.pageLimit)
+            this.onPageChanged({ invoices: brands, currentPage: this.state.currentPage, totalPages: totalPages })
+        })
+    }
+
+    onPageChanged (data) {
+        let { brands, pageLimit } = this.state
+        const { currentPage, totalPages } = data
+
+        if (data.invoices) {
+            brands = data.invoices
+        }
+
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = brands.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
+
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     handleClose () {
@@ -65,11 +100,13 @@ export default class Companies extends Component {
     }
 
     userList (props) {
-        const { brands, custom_fields, users } = this.state
-        return <CompanyItem showCheckboxes={props.showCheckboxes} brands={brands} users={users}
-            show_list={props.show_list}
+        const { pageLimit, custom_fields, users, currentInvoices, cachedData } = this.state
+        return <CompanyItem showCheckboxes={props.showCheckboxes} brands={currentInvoices} users={users}
+            show_list={props.show_list} entities={cachedData}
+            onPageChanged={this.onPageChanged.bind(this)}
+            pageLimit={pageLimit}
             custom_fields={custom_fields}
-            ignoredColumns={getDefaultTableFields()} addUserToState={this.addUserToState}
+            ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             viewId={props.viewId}
             bulk={props.bulk}
@@ -106,7 +143,8 @@ export default class Companies extends Component {
         const userRepository = new UserRepository()
         userRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
             }
 
             this.setState({ users: response }, () => {
@@ -131,15 +169,16 @@ export default class Companies extends Component {
     }
 
     render () {
-        const { custom_fields, users, error, view, brands, isOpen, error_message, success_message, show_success } = this.state
-        const { searchText, status_id, start_date, end_date } = this.state.filters
-        const fetchUrl = `/api/companies?search_term=${searchText}&status=${status_id}&start_date=${start_date}&end_date=${end_date}`
+        const { cachedData, custom_fields, users, error, view, brands, isOpen, error_message, success_message, show_success, currentInvoices, pageLimit } = this.state
+        const { start_date, end_date } = this.state.filters
+        const fetchUrl = `/api/companies?start_date=${start_date}&end_date=${end_date}`
         const addButton = users.length
-            ? <AddCompany brands={brands} users={users} action={this.addUserToState}
+            ? <AddCompany brands={cachedData} users={users} action={this.addUserToState}
                 custom_fields={custom_fields}/> : null
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable fixed-margin-datatable-mobile'
+        const total = brands.length
 
         return (
             <Row>
@@ -147,7 +186,11 @@ export default class Companies extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <CompanyFilters setFilterOpen={this.setFilterOpen.bind(this)} brands={brands}
+                                <CompanyFilters
+                                    pageLimit={pageLimit}
+                                    cachedData={cachedData}
+                                    updateList={this.addUserToState}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} brands={brands}
                                     filters={this.state.filters} filter={this.filterCompanies}
                                     saveBulk={this.saveBulk}/>
                                 {addButton}
@@ -175,6 +218,11 @@ export default class Companies extends Component {
                         <Card>
                             <CardBody>
                                 <DataTable
+
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
                                     default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
                                     setError={this.setError.bind(this)}
@@ -189,6 +237,13 @@ export default class Companies extends Component {
                                     fetchUrl={fetchUrl}
                                     updateState={this.addUserToState}
                                 />
+
+                                {total > 0 &&
+                                <div className="d-flex flex-row py-4 align-items-center">
+                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>

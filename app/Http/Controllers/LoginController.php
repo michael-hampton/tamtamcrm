@@ -2,37 +2,34 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Account;
 use App\Models\AccountUser;
 use App\Models\CompanyToken;
-use App\Models\Country;
-use App\Models\Currency;
-use App\Models\Language;
-use App\Models\PaymentGateway;
-use App\Models\PaymentMethod;
-use App\Models\TaxRate;
 use App\Models\User;
 use App\Requests\LoginRequest;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use JWTAuth;
 use JWTAuthException;
 use Laravel\Socialite;
 
-class LoginController extends Controller
+class LoginController extends BaseController
 {
     use AuthenticatesUsers;
 
     public function doLogin(LoginRequest $request)
     {
-        $this->forced_includes = ['company_users'];
-
         $this->validateLogin($request);
 
         if ($this->hasTooManyLoginAttempts($request)) {
@@ -42,18 +39,19 @@ class LoginController extends Controller
         }
 
         if ($token = auth()->attempt($request->all())) {
-            $token = $this->getToken($request->email, $request->password);
             $user = auth()->user();
+
+            DB::enableQueryLog();
+
+            $default_account = $user->accounts->first()->domains->default_company;
+
+            $token = $this->getToken($request, $default_account);
+
             $user->auth_token = $token;
             $user->save();
 
-            $default_account = $user->accounts->first()->domains->default_company;
-            //$user->setAccount($default_account);
-
-            $accounts = AccountUser::whereUserId($user->id)->with('account')->get();
-
             CompanyToken::updateOrCreate(
-                ['user_id' => $user->id],
+                ['user_id' => $user->id, 'is_web' => true],
                 [
                     'is_web'     => true,
                     'token'      => $token,
@@ -65,26 +63,10 @@ class LoginController extends Controller
 
             $response = [
                 'success' => true,
-                'data'    => [
-                    'account_id'         => $default_account->id,
-                    'id'                 => $user->id,
-                    'auth_token'         => $user->auth_token,
-                    'name'               => $user->name,
-                    'email'              => $user->email,
-                    'accounts'           => $accounts,
-                    'number_of_accounts' => $user->accounts->count(),
-                    'currencies'         => Currency::all()->toArray(),
-                    'languages'          => Language::all()->toArray(),
-                    'countries'          => Country::all()->toArray(),
-                    'payment_types'      => PaymentMethod::all()->toArray(),
-                    'gateways'           => PaymentGateway::all()->toArray(),
-                    'tax_rates'          => TaxRate::all()->toArray(),
-                    'custom_fields'      => auth()->user()->account_user()->account->custom_fields,
-                    'users'              => User::where('is_active', '=', 1)->get(
-                        ['first_name', 'last_name', 'phone_number', 'id']
-                    )->toArray()
-                ]
+                'data'    => $this->getIncludes($user)
             ];
+
+            Cache::put('reauthenticate_last_authentication', strtotime('now'));
 
             return response()->json($response, 201);
         }
@@ -92,12 +74,15 @@ class LoginController extends Controller
         return response()->json(['success' => false, 'data' => 'Record doesnt exists']);
     }
 
-    private function getToken($email, $password)
+    private function getToken(LoginRequest $request, Account $account)
     {
+        $expiration_time = !empty($account->settings->default_logout_time) ? $account->settings->default_logout_time : null;
+        config()->set('jwt.ttl', $expiration_time);
         $token = null;
-        //$credentials = $request->only('email', 'password');
+
         try {
-            if (!$token = JWTAuth::attempt(['email' => $email, 'password' => $password])) {
+            if (!$token = JWTAuth::attempt(['email' => $request->email, 'password' => $request->password])) {
+
                 return response()->json(
                     [
                         'response' => 'error',
@@ -114,6 +99,7 @@ class LoginController extends Controller
                 ]
             );
         }
+
         return $token;
     }
 
@@ -121,12 +107,6 @@ class LoginController extends Controller
     {
         // show the form
         return View::make('login');
-    }
-
-    public function doLogout()
-    {
-        Auth::logout(); // log the user out of our application
-        return Redirect::to('login'); // redirect the user to the login screen
     }
 
     /**
@@ -157,6 +137,7 @@ class LoginController extends Controller
 
             if ($finduser) {
                 Auth::login($finduser);
+                Cache::put('reauthenticate_last_authentication', strtotime('now'));
                 $response = $this->executeLogin(Str::random(64));
                 return view('google-login')->with($response);
             } else {
@@ -206,31 +187,30 @@ class LoginController extends Controller
             ]
         );
 
-        return [
+        $response = [
             'success' => true,
-            'data'    => [
-                'redirect'           => 'http://taskman2.develop',
-                'account_id'         => $default_account->id,
-                'id'                 => $user->id,
-                'auth_token'         => $user->auth_token,
-                'name'               => $user->first_name . ' ' . $user->last_name,
-                'email'              => $user->email,
-                'accounts'           => json_encode($accounts),
-                'number_of_accounts' => $user->accounts->count(),
-                'currencies'         => json_encode(Currency::all()->toArray()),
-                'languages'          => json_encode(Language::all()->toArray()),
-                'countries'          => json_encode(Country::all()->toArray()),
-                'payment_types'      => json_encode(PaymentMethod::all()->toArray()),
-                'gateways'           => json_encode(PaymentGateway::all()->toArray()),
-                'tax_rates'          => json_encode(TaxRate::all()->toArray()),
-                'custom_fields'      => json_encode(auth()->user()->account_user()->account->custom_fields),
-                'users'              => json_encode(
-                    User::where('is_active', '=', 1)->get(
-                        ['first_name', 'last_name', 'phone_number', 'id']
-                    )->toArray()
-                )
-            ]
+            'data'    => $this->getIncludes($user)
         ];
+
+        return response()->json($response, 201);
+    }
+
+    public function enable($provider, Request $request)
+    {
+        $key = "{$provider}_id";
+        $key2 = "{$provider}_secret";
+
+        $user = User::where('id', $request->input('user'))->first();
+
+        if (!empty($user->{$key}) || !empty($user->{$key2})) {
+            return response()->json('User already has account');
+        }
+
+        $user->{$key} = $request->input('user_id');
+        $user->{$key2} = $request->input('secret');
+        $user->save();
+
+        return response()->json('success');
     }
 
 }

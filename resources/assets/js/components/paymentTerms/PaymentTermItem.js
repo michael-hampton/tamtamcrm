@@ -35,10 +35,11 @@ export default class PaymentTermItem extends Component {
         const self = this
         axios.delete(url)
             .then(function (response) {
-                const arrPaymentTerms = [...self.props.paymentTerms]
+                const arrPaymentTerms = [...self.props.entities]
                 const index = arrPaymentTerms.findIndex(payment_term => payment_term.id === id)
-                arrPaymentTerms.splice(index, 1)
-                self.props.addUserToState(arrPaymentTerms)
+                arrPaymentTerms[index].hide = archive !== true
+                arrPaymentTerms[index].deleted_at = new Date()
+                self.props.addUserToState(arrPaymentTerms, true)
             })
             .catch(function (error) {
                 console.log(error)
@@ -46,11 +47,11 @@ export default class PaymentTermItem extends Component {
     }
 
     render () {
-        const { paymentTerms, ignoredColumns } = this.props
+        const { paymentTerms, ignoredColumns, entities } = this.props
         if (paymentTerms && paymentTerms.length) {
             return paymentTerms.map((payment_term, index) => {
                 const restoreButton = payment_term.deleted_at
-                    ? <RestoreModal id={payment_term.id} entities={paymentTerms} updateState={this.props.addUserToState}
+                    ? <RestoreModal id={payment_term.id} entities={entities} updateState={this.props.addUserToState}
                         url={`/api/payment_terms/restore/${payment_term.id}`}/> : null
                 const deleteButton = !payment_term.deleted_at
                     ? <DeleteModal archive={false} deleteFunction={this.deletePaymentTerm} id={payment_term.id}/> : null
@@ -58,13 +59,13 @@ export default class PaymentTermItem extends Component {
                     ? <DeleteModal archive={true} deleteFunction={this.deletePaymentTerm} id={payment_term.id}/> : null
 
                 const editButton = !payment_term.deleted_at ? <EditPaymentTerm
-                    payment_terms={paymentTerms}
+                    payment_terms={entities}
                     payment_term={payment_term}
                     action={this.props.addUserToState}
                 /> : null
 
                 const columnList = Object.keys(payment_term).filter(key => {
-                    return ignoredColumns && !ignoredColumns.includes(key)
+                    return ignoredColumns && ignoredColumns.includes(key)
                 }).map(key => {
                     return <td onClick={() => this.props.toggleViewedEntity(payment_term, payment_term.name)}
                         data-label={key}

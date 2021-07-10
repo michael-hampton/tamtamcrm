@@ -108,8 +108,8 @@ class AddProduct extends React.Component {
                 this.setState({ errors: this.productModel.errors, message: this.productModel.error_message })
                 return
             }
-            this.props.products.push(response)
-            this.props.action(this.props.products)
+            this.props.products.unshift(response)
+            this.props.action(this.props.products, true)
             this.setState(this.initialState)
             localStorage.removeItem('productForm')
         })
@@ -159,7 +159,7 @@ class AddProduct extends React.Component {
 
         return (
             <React.Fragment>
-                <AddButtons toggle={this.toggle}/>
+                <AddButtons small_button={this.props.small_button} toggle={this.toggle}/>
                 <Modal size="lg" isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
                     <DefaultModalHeader toggle={this.toggle} title={translations.add_product}/>
 

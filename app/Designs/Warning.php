@@ -42,23 +42,19 @@ class Warning
 $table_here
 
 <div class="px-4 mt-4 w-100" style="page-break-inside: avoid;">
-			        <div class="inline-block" style="width: 70%">
-			            $entity.public_notes
+			        <div class="inline-block" style="width: 60%">
+			            $entity.customer_note
 			        </div>
 			        $costs
 			    </div>
 			    <div class="px-4 mt-4 mt-4 inline-block" style="page-break-inside: avoid; width: 100%">
-			        <div style="page-break-inside: avoid; width: 70%">
+			        <div class="inline-block" style="page-break-inside: avoid; width: 60%">
 			            <p class="font-weight-bold">$terms_label</p>
 			            $terms
 			        </div>
-			    </div>
-			    <div class="px-4 py-2 bg-secondary text-white inline-block" style="page-break-inside: avoid; width: 20%; float: right">
-			        <div class="inline-block" style="width: 70%"></div>
-			        <div class="" style="page-break-inside: avoid; width: 100%" >
-			            <div style="page-break-inside: avoid;">
-			                <p class="font-weight-bold">$balance_due_label</p>
-			            </div>
+			        
+			        <div class="inline-block bg-warning text-white text-center" style="page-break-inside: avoid; width: 30%; margin-left: 26px; font-size: 20px;" >
+			            <p class="font-weight-bold">$balance_due_label</p>
 			            <p>$balance_due</p>
 			        </div>
 			    </div>
@@ -69,8 +65,8 @@ $table_here
 
     public function totals()
     {
-        return '<div class="inline-block" style="page-break-inside: avoid; width: 20%">
-			            <div class="col-6 text-left" style="page-break-inside: avoid;">
+        return '<div class="inline-block" style="page-break-inside: avoid; width: 32%; margin-left: 20px">
+			            <div class="text-left" style="page-break-inside: avoid;">
 			            	<span style="margin-right: 20px">$discount_label</span> <span style="margin-left: 16px"> $discount </span> <br>
 			                <span style="margin-right: 20px">$tax_label</span> <span style="margin-left: 16px">$tax</span> <br>
 			                <span style="margin-right: 20px">$shipping_cost_label</span> <span style="margin-left: 16px"> $shipping_cost</span> <br>

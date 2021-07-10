@@ -48,7 +48,7 @@ export default class NoteTabs extends Component {
                                     this.toggleNoteTabs('1')
                                 }}
                             >
-                                {translations.public_notes}
+                                {translations.customer_note}
                             </NavLink>
                         </NavItem>
                         <NavItem>
@@ -58,7 +58,7 @@ export default class NoteTabs extends Component {
                                     this.toggleNoteTabs('2')
                                 }}
                             >
-                                {translations.private_notes}
+                                {translations.internal_note}
                             </NavLink>
                         </NavItem>
 
@@ -99,13 +99,13 @@ export default class NoteTabs extends Component {
                     <TabContent activeTab={this.state.active_note_tab}>
                         <TabPane tabId="1">
                             <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                                <Label>{translations.public_notes}</Label>
+                                <Label>{translations.customer_note}</Label>
                                 <Input
                                     placeholder={this.props.model && this.props.model.default_notes.length ? this.props.model.default_notes : ''}
-                                    value={this.props.public_notes}
+                                    value={this.props.customer_note}
                                     type='textarea'
-                                    name='public_notes'
-                                    id='public_notes'
+                                    name='customer_note'
+                                    id='customer_note'
                                     onChange={this.props.handleInput}
                                 />
                             </FormGroup>
@@ -114,12 +114,12 @@ export default class NoteTabs extends Component {
 
                         <TabPane tabId="2">
                             <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                                <Label>{translations.private_notes}</Label>
+                                <Label>{translations.internal_note}</Label>
                                 <Input
-                                    value={this.props.private_notes}
+                                    value={this.props.internal_note}
                                     type='textarea'
-                                    name='private_notes'
-                                    id='private_notes'
+                                    name='internal_note'
+                                    id='internal_note'
                                     onChange={this.props.handleInput}
                                 />
                             </FormGroup>
@@ -201,11 +201,15 @@ export default class NoteTabs extends Component {
 
                                 <FormGroup>
                                     <Label>{translations.reminder}</Label>
-                                    <Input type="select" name="reminder" value={this.props.invoice.late_fee_reminder} onChange={this.props.handleInput}>
+                                    <Input type="select" name="reminder" value={this.props.invoice.late_fee_reminder}
+                                        onChange={this.props.handleInput}>
                                         <option value="">{translations.select_option}</option>
-                                        <option value="1">{`${translations.reminder_1} ${translations.amount} - ${this.props.model.settings.amount_to_charge_1} ${translations.percent} - ${this.props.model.settings.percent_to_charge_1}`}</option>
-                                        <option value="2">{`${translations.reminder_2} ${translations.amount} - ${this.props.model.settings.amount_to_charge_2} ${translations.percent} - ${this.props.model.settings.percent_to_charge_2}`}</option>
-                                        <option value="3">{`${translations.reminder_3} ${translations.amount} - ${this.props.model.settings.amount_to_charge_3} ${translations.percent} - ${this.props.model.settings.percent_to_charge_3}`}</option>
+                                        <option
+                                            value="1">{`${translations.reminder_1} ${translations.amount} - ${this.props.model.settings.amount_to_charge_1} ${translations.percent} - ${this.props.model.settings.percent_to_charge_1}`}</option>
+                                        <option
+                                            value="2">{`${translations.reminder_2} ${translations.amount} - ${this.props.model.settings.amount_to_charge_2} ${translations.percent} - ${this.props.model.settings.percent_to_charge_2}`}</option>
+                                        <option
+                                            value="3">{`${translations.reminder_3} ${translations.amount} - ${this.props.model.settings.amount_to_charge_3} ${translations.percent} - ${this.props.model.settings.percent_to_charge_3}`}</option>
                                     </Input>
                                 </FormGroup>
 

@@ -2,6 +2,7 @@
 
 namespace App\Transformations;
 
+use App\Models\File;
 use App\Models\Payment;
 use App\Models\Paymentable;
 
@@ -11,7 +12,7 @@ trait PaymentTransformable
      * @param Payment $payment
      * @return array
      */
-    public function transformPayment(Payment $payment)
+    public function transformPayment(Payment $payment, $files = null)
     {
         return [
             'id'                   => (int)$payment->id,
@@ -32,7 +33,7 @@ trait PaymentTransformable
             ) : [],
             'deleted_at'           => $payment->deleted_at,
             //$obj->archived_at = $payment->deleted_at;
-            'is_deleted'           => (bool)$payment->is_deleted,
+            'hide'                 => (bool)$payment->hide,
             'payment_method_id'    => (string)$payment->payment_method_id,
             'invitation_id'        => (string)$payment->invitation_id ?: '',
             'invoice_id'           => $payment->invoices->pluck('id')->toArray(),
@@ -41,7 +42,7 @@ trait PaymentTransformable
             'task_id'              => (int)$payment->task_id,
             'company_id'           => (int)$payment->company_id,
             'applied'              => (float)$payment->applied,
-            'private_notes'        => $payment->private_notes ?: '',
+            'internal_note'        => $payment->internal_note ?: '',
             'currency_id'          => (int)$payment->currency_id ?: null,
             'exchange_rate'        => (float)$payment->exchange_rate ?: 1,
             'exchange_currency_id' => (float)$payment->exchange_currency_id ?: '',
@@ -50,6 +51,9 @@ trait PaymentTransformable
             'custom_value2'        => $payment->custom_value2 ?: '',
             'custom_value3'        => $payment->custom_value3 ?: '',
             'custom_value4'        => $payment->custom_value4 ?: '',
+            'files'                => !empty($files) && !empty($files[$payment->id]) ? $this->transformPaymentFiles(
+                $files[$payment->id]
+            ) : [],
         ];
     }
 
@@ -62,6 +66,19 @@ trait PaymentTransformable
         return $paymentables->map(
             function (Paymentable $paymentable) {
                 return (new PaymentableTransformer())->transform($paymentable);
+            }
+        )->all();
+    }
+
+    private function transformPaymentFiles($files)
+    {
+        if (empty($files)) {
+            return [];
+        }
+
+        return $files->map(
+            function (File $file) {
+                return (new FileTransformable())->transformFile($file);
             }
         )->all();
     }

@@ -6,6 +6,7 @@ import SubscriptionModel from '../../models/SubscriptionModel'
 import Details from './Details'
 import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
+import { toast, ToastContainer } from 'react-toastify'
 
 export default class EditSubscription extends React.Component {
     constructor (props) {
@@ -18,6 +19,21 @@ export default class EditSubscription extends React.Component {
         this.toggle = this.toggle.bind(this)
         this.hasErrorFor = this.hasErrorFor.bind(this)
         this.renderErrorFor = this.renderErrorFor.bind(this)
+    }
+
+    static getDerivedStateFromProps (props, state) {
+        if (props.subscription & props.subscription.id && props.subscription.id !== state.id) {
+            const invoiceModel = new SubscriptionModel(props.subscription)
+            return invoiceModel.fields
+        }
+
+        return null
+    }
+
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.subscription && this.props.subscription.id && this.props.subscription.id !== prevProps.subscription.id) {
+            this.subscriptionModel = new SubscriptionModel(this.props.subscription)
+        }
     }
 
     handleInput (e) {
@@ -54,12 +70,33 @@ export default class EditSubscription extends React.Component {
                     errors: this.subscriptionModel.errors,
                     message: this.subscriptionModel.error_message
                 })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.webhook), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
 
+            toast.success(translations.updated_successfully.replace('{entity}', translations.webhook), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
+
             const index = this.props.subscriptions.findIndex(subscription => subscription.id === this.props.subscription.id)
             this.props.subscriptions[index] = response
-            this.props.action(this.props.subscriptions)
+            this.props.action(this.props.subscriptions, true)
             this.setState({
                 editMode: false,
                 changesMade: false
@@ -88,12 +125,24 @@ export default class EditSubscription extends React.Component {
 
         return (
             <React.Fragment>
-                <DropdownItem onClick={this.toggle}><i className={`fa ${icons.edit}`}/>{translations.edit_subscription}
+                <DropdownItem onClick={this.toggle}><i className={`fa ${icons.edit}`}/>{translations.edit_webhook}
                 </DropdownItem>
                 <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
-                    <DefaultModalHeader toggle={this.toggle} title={translations.edit_subscription}/>
+                    <DefaultModalHeader toggle={this.toggle} title={translations.edit_webhook}/>
 
                     <ModalBody className={theme}>
+                        <ToastContainer
+                            position="top-center"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
+
                         <Details hasErrorFor={this.hasErrorFor} subscription={this.state}
                             renderErrorFor={this.renderErrorFor} handleInput={this.handleInput.bind(this)}/>
                     </ModalBody>

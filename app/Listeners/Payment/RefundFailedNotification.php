@@ -39,7 +39,7 @@ class RefundFailedNotification implements ShouldQueue
 
                     if (!empty($notification_types) && in_array('mail', $notification_types)) {
                         $account_user->user->notify(
-                            new \App\Notifications\Admin\RefundFailedNotification($payment, 'mail')
+                            new \App\Notifications\Payment\RefundFailedNotification($payment, 'mail')
                         );
                     }
                 }
@@ -48,7 +48,7 @@ class RefundFailedNotification implements ShouldQueue
 
         if (!empty($payment->account->slack_webhook_url)) {
             Notification::route('slack', $payment->account->slack_webhook_url)
-                        ->notify(new \App\Notifications\Admin\RefundFailedNotification($payment, 'slack'));
+                        ->notify(new \App\Notifications\Payment\RefundFailedNotification($payment, 'slack'));
         }
     }
 }

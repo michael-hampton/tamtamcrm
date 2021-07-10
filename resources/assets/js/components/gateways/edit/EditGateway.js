@@ -25,6 +25,13 @@ class EditGateway extends React.Component {
         this.updateFields = this.updateFields.bind(this)
         this.handleInput = this.handleInput.bind(this)
         this.updateFeesAndLimits = this.updateFeesAndLimits.bind(this)
+        this.refresh = this.refresh.bind(this)
+    }
+
+    refresh (gateway) {
+        this.gatewayModel = new GatewayModel(gateway)
+        this.initialState = this.gatewayModel.fields
+        this.state = this.initialState
     }
 
     handleConfig (e) {
@@ -78,7 +85,8 @@ class EditGateway extends React.Component {
     }
 
     handleInput (e) {
-        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value
+        const value = e.target.type && e.target.type === 'checkbox' ? e.target.checked : e.target.value
+
         this.setState({
             [e.target.name]: value
         })
@@ -196,7 +204,7 @@ class EditGateway extends React.Component {
 
                         <TabContent activeTab={this.state.activeTab}>
                             <TabPane tabId="1">
-                                <Details is_edit={true} renderErrorFor={this.renderErrorFor}
+                                <Details is_add={false} refresh={this.refresh} is_edit={true} renderErrorFor={this.renderErrorFor}
                                     errors={this.state.errors}
                                     handleInput={this.handleInput}
                                     gateway={this.state}
@@ -206,6 +214,7 @@ class EditGateway extends React.Component {
                             <TabPane tabId="2">
                                 <Settings renderErrorFor={this.renderErrorFor} errors={this.state.errors}
                                     handleInput={this.handleInput}
+                                    handleConfig={this.handleConfig}
                                     gateway={this.state}
                                     updateFields={this.updateFields}
                                     updateCards={this.updateCards}/>

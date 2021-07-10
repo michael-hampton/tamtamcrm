@@ -17,6 +17,6 @@ export default function TaxRatePresenter (props) {
         case 'rate':
             return `${parseFloat(entity[field]).toFixed(2)}%`
         default:
-            return entity[field]
+            return typeof entity[field] === 'object' ? JSON.stringify(entity[field]) : entity[field]
     }
 }

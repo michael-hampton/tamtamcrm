@@ -15,7 +15,7 @@ class QuoteTransformable
      * @param Quote $quote
      * @return array
      */
-    public function transformQuote(Quote $quote)
+    public function transformQuote(Quote $quote, $files = null)
     {
         return [
             'id'                  => (int)$quote->id,
@@ -28,8 +28,8 @@ class QuoteTransformable
             'company_id'          => (int)$quote->company_id ?: null,
             'currency_id'         => (int)$quote->currency_id ?: null,
             'exchange_rate'       => (float)$quote->exchange_rate,
-            'public_notes'        => $quote->public_notes ?: '',
-            'private_notes'       => $quote->private_notes ?: '',
+            'customer_note'       => $quote->customer_note ?: '',
+            'internal_note'       => $quote->internal_note ?: '',
             'customer_id'         => (int)$quote->customer_id,
             'invoice_id'          => (int)$quote->invoice_id,
             'date'                => $quote->date ?: '',
@@ -58,8 +58,10 @@ class QuoteTransformable
             'transaction_fee_tax' => (bool)$quote->transaction_fee_tax,
             'shipping_cost_tax'   => (bool)$quote->shipping_cost_tax,
             'emails'              => $this->transformQuoteEmails($quote->emails()),
-            'audits'              => $this->transformAuditsForQuote($quote->audits),
-            'files'               => $this->transformQuoteFiles($quote->files),
+            //'audits'              => $this->transformAuditsForQuote($quote->audits),
+            'files'               => !empty($files) && !empty($files[$quote->id]) ? $this->transformQuoteFiles(
+                $files[$files->id]
+            ) : [],
             'recurring'           => $quote->recurring_quote,
             'recurring_quote_id'  => $quote->recurring_quote_id,
             'tax_rate'            => (float)$quote->tax_rate,
@@ -69,7 +71,7 @@ class QuoteTransformable
             'tax_rate_name_2'     => $quote->tax_rate_name_2,
             'tax_rate_name_3'     => $quote->tax_rate_name_3,
             'viewed'              => (bool)$quote->viewed,
-            'is_deleted'          => (bool)$quote->is_deleted,
+            'hide'                => (bool)$quote->hide,
         ];
     }
 
@@ -107,19 +109,6 @@ class QuoteTransformable
         )->all();
     }
 
-    public function transformAuditsForQuote($audits)
-    {
-        if (empty($audits)) {
-            return [];
-        }
-
-        return $audits->map(
-            function (Audit $audit) {
-                return (new AuditTransformable)->transformAudit($audit);
-            }
-        )->all();
-    }
-
     /**
      * @param $files
      * @return array
@@ -133,6 +122,19 @@ class QuoteTransformable
         return $files->map(
             function (File $file) {
                 return (new FileTransformable())->transformFile($file);
+            }
+        )->all();
+    }
+
+    public function transformAuditsForQuote($audits)
+    {
+        if (empty($audits)) {
+            return [];
+        }
+
+        return $audits->map(
+            function (Audit $audit) {
+                return (new AuditTransformable)->transformAudit($audit);
             }
         )->all();
     }

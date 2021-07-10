@@ -23,8 +23,8 @@ class CloneLeadToCustomerFactory
         $client_contact->name = $lead->first_name . ' ' . $lead->last_name;
         $client_contact->phone = $lead->phone;
         $client_contact->website = $lead->website;
-        $client_contact->public_notes = $lead->public_notes;
-        $client_contact->private_notes = $lead->private_notes;
+        $client_contact->customer_note = $lead->customer_note;
+        $client_contact->internal_note = $lead->internal_note;
         $client_contact->currency_id = 2;
 
         return $client_contact;

@@ -10,7 +10,7 @@ use App\Repositories\Interfaces\InvoiceRepositoryInterface;
 use App\Repositories\Interfaces\PurchaseOrderRepositoryInterface;
 use App\Repositories\Interfaces\QuoteRepositoryInterface;
 use App\Requests\PurchaseOrder\CreatePurchaseOrderRequest;
-use App\Requests\Quote\UpdatePurchaseOrderRequest;
+use App\Requests\PurchaseOrder\UpdatePurchaseOrderRequest;
 use App\Requests\SearchRequest;
 use App\Search\PurchaseOrderSearch;
 use App\Transformations\PurchaseOrderTransformable;
@@ -69,10 +69,9 @@ class PurchaseOrderController extends BaseController
      * @param int $po_id
      * @return mixed
      */
-    public function show(int $po_id)
+    public function show(PurchaseOrder $purchase_order)
     {
-        $po = $this->purchase_order_repo->findPurchaseOrderById($po_id);
-        return response()->json($po);
+        return response()->json($purchase_order);
     }
 
     /**
@@ -95,13 +94,11 @@ class PurchaseOrderController extends BaseController
      * @param int $id
      * @return mixed
      */
-    public function update(UpdatePurchaseOrderRequest $request, int $id)
+    public function update(UpdatePurchaseOrderRequest $request, PurchaseOrder $purchase_order)
     {
-        $po = $this->purchase_order_repo->findPurchaseOrderById($id);
+        $purchase_order = $this->purchase_order_repo->updatePurchaseOrder($request->all(), $purchase_order);
 
-        $po = $this->purchase_order_repo->updatePurchaseOrder($request->all(), $po);
-
-        return response()->json($this->transformPurchaseOrder($po));
+        return response()->json($this->transformPurchaseOrder($purchase_order));
     }
 
     /**
@@ -121,9 +118,8 @@ class PurchaseOrderController extends BaseController
      * @param int $id
      * @return mixed
      */
-    public function archive(int $id)
+    public function archive(PurchaseOrder $purchase_order)
     {
-        $purchase_order = $this->purchase_order_repo->findPurchaseOrderById($id);
         $purchase_order->archive();
         return response()->json([], 200);
     }
@@ -133,9 +129,8 @@ class PurchaseOrderController extends BaseController
      * @return mixed
      * @throws AuthorizationException
      */
-    public function destroy(int $id)
+    public function destroy(PurchaseOrder $purchase_order)
     {
-        $purchase_order = PurchaseOrder::withTrashed()->where('id', '=', $id)->first();
         $this->authorize('delete', $purchase_order);
         $purchase_order->deleteEntity();
         return response()->json([], 200);

@@ -7,11 +7,17 @@ import { icons } from '../utils/_icons'
 import DynamicDataTable from './DynamicDataTable'
 import { download, generateCsv } from './_utilities'
 import Datepicker from '../common/Datepicker'
+import { Bar } from 'react-chartjs-2'
+import { getStyle, hexToRgba } from '@coreui/coreui/dist/js/coreui-utilities'
+
+const brandPrimary = getStyle('--primary')
 
 export default class Report extends React.Component {
     constructor (props) {
         super(props)
         this.state = {
+            chart_type: '',
+            group_by_frequency: '',
             width: window.innerWidth,
             manual_date_field: '',
             show: false,
@@ -39,12 +45,28 @@ export default class Report extends React.Component {
             disallowOrderingBy: [],
             checkedItems: new Map(),
             groups: {
+                income: [{ field: 'company_id', label: 'company' }, { field: 'customer_id', label: 'customer' }],
                 customer: [{ field: 'currency_id', label: 'currency' }, { field: 'country_id', label: 'country' }],
-                invoice: [{ field: 'customer_id', label: 'customer' }, { field: 'invoices.status_id', label: 'status' }],
-                credit: [{ field: 'customer_id', label: 'customer' }, { field: 'credits.status_id', label: 'status' }],
-                quote: [{ field: 'customer_id', label: 'customer' }, { field: 'quotes.status_id', label: 'status' }],
-                purchase_order: [{ field: 'company_id', label: 'company' }, { field: 'purchase_orders.status_id', label: 'status' }],
-                order: [{ field: 'customer_id', label: 'customer' }, { field: 'product_task.status_id', label: 'status' }],
+                invoice: [{ field: 'customer_id', label: 'customer' }, {
+                    field: 'date',
+                    label: 'date'
+                }, { field: 'due_date', label: 'due_date' }, { field: 'status_id', label: 'status' }],
+                credit: [{ field: 'customer_id', label: 'customer' }, {
+                    field: 'date',
+                    label: 'date'
+                }, { field: 'due_date', label: 'due_date' }, { field: 'status_id', label: 'status' }],
+                quote: [{ field: 'customer_id', label: 'customer' }, {
+                    field: 'date',
+                    label: 'date'
+                }, { field: 'due_date', label: 'due_date' }, { field: 'status_id', label: 'status' }],
+                purchase_order: [{ field: 'company_id', label: 'company' }, {
+                    field: 'date',
+                    label: 'date'
+                }, { field: 'due_date', label: 'due_date' }, { field: 'status_id', label: 'status' }],
+                order: [{ field: 'customer_id', label: 'customer' }, {
+                    field: 'date',
+                    label: 'date'
+                }, { field: 'due_date', label: 'due_date' }, { field: 'status_id', label: 'status' }],
                 lead: [{ field: 'source_type', label: 'source_type' }, {
                     field: 'task_status_id',
                     label: 'status'
@@ -60,28 +82,56 @@ export default class Report extends React.Component {
                     field: 'task_status_id',
                     label: 'status'
                 }, { field: 'assigned_to', label: 'assigned_user' }, { field: 'project_id', label: 'project' }],
-                expense: [{ field: 'customer_id', label: 'customer' }, {
+                expense: [{ field: 'customer_id', label: 'customer' }, { field: 'date', label: 'date' }, {
                     field: 'expenses.company_id',
                     label: 'company'
-                }, { field: 'expense_category_id', label: 'category' }, { field: 'expenses.status_id', label: 'status' }],
-                payment: [{ field: 'customer_id', label: 'customer' }, { field: 'status_id', label: 'status' }],
+                }, { field: 'expense_category_id', label: 'category' }, {
+                    field: 'status_id',
+                    label: 'status'
+                }],
+                payment: [{ field: 'customer_id', label: 'customer' }, {
+                    field: 'date',
+                    label: 'date'
+                }, { field: 'status_id', label: 'status' }],
                 line_item: [{ field: 'product', label: 'product' }, { field: 'invoice', label: 'invoice' }],
-                tax_rate: [{ field: 'number', label: 'number' }, { field: 'tax_name', label: 'name' }]
+                quote_line_item: [{ field: 'product', label: 'product' }, { field: 'quote', label: 'quote' }],
+                tax_rate: [{ field: 'number', label: 'number' }, { field: 'tax_name', label: 'name' }],
+                document: [{ field: 'files.type', label: 'file_type' }, {
+                    field: 'files.fileable_type',
+                    label: 'record_type'
+                }]
             },
-            date_fields: {
-                customer: [],
-                line_item: ['date'],
-                tax_rate: ['date'],
-                invoice: ['date', 'due_date'],
-                credit: ['date', 'due_date'],
-                quote: ['date', 'due_date'],
-                purchase_order: ['date', 'due_date'],
-                order: ['date', 'due_date'],
-                lead: [],
-                deal: ['due_date'],
-                task: ['due_date'],
-                expense: ['date'],
-                payment: ['date']
+            charts: {
+                income: ['amount'],
+                customer: ['balance', 'amount_paid'],
+                invoice: ['total', 'balance'],
+                credit: ['total', 'balance'],
+                quote: ['total', 'balance'],
+                purchase_order: ['total', 'balance'],
+                order: ['total', 'balance'],
+                lead: ['source_type'],
+                deal: ['source_type'],
+                task: ['duration'],
+                expense: ['amount'],
+                payment: ['amount'],
+                line_item: ['total', 'price'],
+                quote_line_item: ['total', 'price'],
+                tax_rate: ['tax_amount', 'tax_paid'],
+                document: []
+            },
+            default_columns: {
+                income: ['customer', 'company', 'amount', 'date', 'category', 'type'],
+                document: ['name', 'file_type', 'record_type'],
+                credit: ['number', 'total', 'balance', 'date', 'due_date', 'customer', 'status'],
+                purchase_order: ['number', 'total', 'balance', 'date', 'due_date', 'customer', 'status'],
+                invoice: ['number', 'total', 'balance', 'date', 'due_date', 'customer', 'status'],
+                quote: ['number', 'total', 'balance', 'date', 'due_date', 'customer', 'status'],
+                order: ['number', 'total', 'balance', 'date', 'due_date', 'customer', 'status'],
+                expense: ['number', 'amount', 'reference_number', 'invoice', 'company', 'category', 'customer', 'status'],
+                payment: ['number', 'amount', 'reference_number', 'date', 'customer', 'status'],
+                task: ['started_at', 'stopped_at', 'duration', 'name', 'description', 'project', 'status', 'customer'],
+                deal: ['project', 'valued_at', 'due_date', 'status', 'source_type', 'assigned_to', 'customer'],
+                customer: ['name', 'contact_email', 'contact_first_name', 'contact_last_name', 'number', 'vat_number', 'currency', 'balance', 'amount_paid', 'country']
             },
             all_columns: [],
             apiUrl: '/api/reports',
@@ -89,6 +139,7 @@ export default class Report extends React.Component {
         }
 
         this.buildSelectList = this.buildSelectList.bind(this)
+        this.buildFrequencyList = this.buildFrequencyList.bind(this)
         this.handleInputChanges = this.handleInputChanges.bind(this)
         this.changePage = this.changePage.bind(this)
         this.changeOrder = this.changeOrder.bind(this)
@@ -100,12 +151,29 @@ export default class Report extends React.Component {
         this.handleWindowSizeChange = this.handleWindowSizeChange.bind(this)
     }
 
+    get loading () {
+        const { loading: state } = this.state
+        const { loading: prop } = this.props
+
+        return state || prop
+    }
+
+    get disallowOrderingBy () {
+        const { disallowOrderingBy: state } = this.state
+        const { disallowOrderingBy: prop } = this.props
+
+        return [
+            ...state,
+            ...prop
+        ]
+    }
+
     componentWillMount () {
         window.addEventListener('resize', this.handleWindowSizeChange)
     }
 
     componentDidMount () {
-        this.loadPage(1)
+        this.loadPage(1, true)
     }
 
     componentDidUpdate (prevProps) {
@@ -122,29 +190,12 @@ export default class Report extends React.Component {
         this.setState({ width: window.innerWidth })
     }
 
-    get loading () {
-        const { loading: state } = this.state
-        const { loading: prop } = this.props
-
-        return state || prop
-    }
-
     handleColumnChange (e) {
         const item = e.target.name
         const isChecked = e.target.checked
         this.setState(prevState => ({ checkedItems: prevState.checkedItems.set(item, isChecked) }), () => {
             console.log('checked items', this.state.checkedItems)
         })
-    }
-
-    get disallowOrderingBy () {
-        const { disallowOrderingBy: state } = this.state
-        const { disallowOrderingBy: prop } = this.props
-
-        return [
-            ...state,
-            ...prop
-        ]
     }
 
     renderFooter (args) {
@@ -168,7 +219,7 @@ export default class Report extends React.Component {
         }
 
         const cached_data = !this.state.cached_data.length ? this.state.rows : this.state.cached_data
-        const rows = this.state.rows.filter(row => row[column].toString().toLowerCase().trim().includes(value.toLowerCase().trim()))
+        const rows = cached_data.filter(row => row[column].toString().toLowerCase().trim().includes(value.toLowerCase().trim()))
 
         if (!rows.length) {
             alert('No search results')
@@ -207,9 +258,30 @@ export default class Report extends React.Component {
     }
 
     changeImportType (e) {
-        this.setState({ [e.target.name]: e.target.value, group_by: '', date_format: '' }, () => {
-            this.reload()
+        this.setState({
+            [e.target.name]: e.target.value,
+            group_by: '',
+            date_format: '',
+            group_by_frequency: ''
+        }, () => {
+            this.reload(1, true)
         })
+    }
+
+    buildFrequencyList () {
+        return (
+            <select className="form-control w-100" onChange={(e) => {
+                this.setState({ group_by_frequency: e.target.value }, () => {
+                    this.reload()
+                })
+            }}
+            name="group_by_frequency" id="group_by_frequency">
+                <option value="">{translations.select_option}</option>
+                <option value="year">{translations.year}</option>
+                <option value="month">{translations.month}</option>
+                <option value="day">{translations.day}</option>
+            </select>
+        )
     }
 
     buildSelectList () {
@@ -226,37 +298,32 @@ export default class Report extends React.Component {
 
         return (
             <select className="form-control w-100" onChange={this.handleInputChanges}
-                name="report_type" id="report_type">
+                name="group_by" id="group_by" value={this.state.group_by}>
                 <option value="">{translations.select_option}</option>
                 {columns}
             </select>
         )
     }
 
-    buildDateOptions (header) {
+    buildChartOptions () {
         let columns = null
-        if (!this.state.report_type.length || !this.state.date_fields[this.state.report_type].length) {
+        if (!this.state.report_type.length) {
             columns = <option value="">Loading...</option>
         } else {
-            columns = this.state.date_fields[this.state.report_type].map((column, index) => {
+            columns = this.state.charts[this.state.report_type].map((column, index) => {
                 const formatted_column = column.replace(/ /g, '_').toLowerCase()
                 const value = translations[formatted_column] ? translations[formatted_column] : column
-                return <React.Fragment>
-                    <option key={index} value={`${column}|7`}>{value} 7 days</option>
-                    <option key={index} value={`${column}|30`}>{value} 30 days</option>
-                    <option key={index} value={`${column}|last_month`}>{value} Last Month</option>
-                    <option key={index} value={`${column}|last_year`}>{value} Last Year</option>
-                </React.Fragment>
+                return <option key={index} value={column}>{value}</option>
             })
         }
 
         return (
             <select className="form-control w-100" onChange={(e) => {
-                this.setState({ date_format: e.target.value }, () => {
-                    this.loadPage(1)
+                this.setState({ chart_type: e.target.value }, () => {
+
                 })
             }}
-            name={header} id={header}>
+            name="chart_type" id="chart_type" value={this.state.chart_type}>
                 <option value="">{translations.select_option}</option>
                 {columns}
             </select>
@@ -264,17 +331,21 @@ export default class Report extends React.Component {
     }
 
     handleInputChanges (e) {
-        this.setState({ group_by: e.target.value }, () => {
+        this.setState({ group_by: e.target.value, group_by_frequency: '', chart_type: '' }, () => {
+            if ((this.state.group_by === 'date' || this.state.group_by === 'due_date') && !this.state.group_by_frequency.length) {
+                return true
+            }
+
             this.reload()
         })
     }
 
-    reload (page = 1) {
-        this.loadPage(page)
+    reload (page = 1, buildColumns = false) {
+        this.loadPage(page, buildColumns)
     }
 
-    loadPage (page) {
-        const { perPage, orderByField, orderByDirection, report_type, group_by, start_date, end_date, date_format, manual_date_field } = this.state
+    loadPage (page, buildColumns = false) {
+        const { perPage, orderByField, orderByDirection, report_type, group_by, start_date, end_date, date_format, manual_date_field, group_by_frequency } = this.state
 
         this.setState(
             { loading: true },
@@ -291,7 +362,8 @@ export default class Report extends React.Component {
                         start_date,
                         end_date,
                         date_format,
-                        manual_date_field
+                        manual_date_field,
+                        group_by_frequency
                     }
 
                 }).then(({ data: response }) => {
@@ -303,17 +375,23 @@ export default class Report extends React.Component {
                         ({ disallow_ordering_by, ...meta } = response.meta)
                     }
 
-                    var map = new Map()
+                    if (buildColumns) {
+                        var map = new Map()
 
-                    if (report.data.length) {
-                        Object.keys(report.data[0]).map((column, index) => {
-                            map.set(column, true)
-                        })
-                        console.log('new map', map)
+                        if (report.data.length) {
+                            Object.keys(report.data[0]).filter((column) => {
+                                return !this.state.default_columns[report_type] || this.state.default_columns[report_type].includes(column)
+                            }).map((column, index) => {
+                                map.set(column, true)
+                            })
+
+                            alert('map')
+                            console.log('new map', map)
+                        }
                     }
 
                     const newState = {
-                        checkedItems: map,
+                        checkedItems: map || this.state.checkedItems,
                         all_columns: report.data.length ? Object.keys(report.data[0]) : [],
                         rows: report.data,
                         currency_report: currency_report || [],
@@ -436,9 +514,26 @@ export default class Report extends React.Component {
         })
     }
 
+    isDateField (field) {
+        return ['due_date', 'date', 'started_at', 'stopped_at'].includes(field)
+    }
+
+    formatDuration (duration) {
+        const parts = duration.split(':')
+        return `${parts[0]}.${parts[1]}`
+    }
+
+    arrayColumn (array, columnName) {
+        return array.map((value, index) => {
+            return columnName === 'duration' ? this.formatDuration(value[columnName].replace(/^0+/, '')) : value[columnName]
+        })
+    }
+
     render () {
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
         const { rows, currency_report, message, success_message, error_message, error, show_success, totalRows, currentPage, totalPages, orderByField, orderByDirection, disallowOrderingBy, footer, perPage } = this.state
+
+        console.log('checked items', this.state.checkedItems)
 
         const all_columns = this.state.all_columns.length ? this.state.all_columns.map((column, index) => {
             const formatted_column = column.replace(/ /g, '_').toLowerCase()
@@ -452,7 +547,84 @@ export default class Report extends React.Component {
             </div>
         }) : null
 
+        let chart = null
+        if (this.state.chart_type.length && this.state.group_by.length && this.state.rows.length) {
+            const group = this.state.groups[this.state.report_type].filter(row => row.field === this.state.group_by)
+            const labels = this.arrayColumn(this.state.rows, group[0].label)
+            const chart_values = this.arrayColumn(this.state.rows, this.state.chart_type)
+
+            const chart_data = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: translations[this.state.chart_type],
+                        backgroundColor: hexToRgba(brandPrimary, 10),
+                        borderColor: brandPrimary,
+                        borderWidth: 2,
+                        hoverBackgroundColor: 'rgba(255,99,132,0.4)',
+                        hoverBorderColor: 'rgba(255,99,132,1)',
+                        data: chart_values
+                    }
+                ]
+            }
+
+            chart = <Bar
+                data={chart_data}
+                width={600}
+                height={400}
+                options={{
+                    legend: {
+                        labels: {
+                            fontColor: 'white',
+                            fontSize: 14
+                        }
+                    },
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                fontColor: 'white',
+                                fontSize: 14
+                                // stepSize: 1,
+                                // beginAtZero: true
+                            }
+                        }],
+                        xAxes: [{
+                            ticks: {
+                                fontColor: 'white',
+                                fontSize: 14
+                                // stepSize: 1,
+                                // beginAtZero: true
+                            }
+                        }]
+                    },
+                    maintainAspectRatio: false
+                }}
+            />
+        }
+
         const is_mobile = this.state.width <= 768
+
+        const report_selector = <select name="report_type" id="report_type" className="form-control"
+            value={this.state.report_type}
+            onChange={this.changeImportType.bind(this)}>
+            <option value="">{translations.select_option}</option>
+            <option value="invoice">{translations.invoice}</option>
+            <option value="customer">{translations.customer}</option>
+            <option value="lead">{translations.lead}</option>
+            <option value="deal">{translations.deal}</option>
+            <option value="task">{translations.task}</option>
+            <option value="expense">{translations.expense}</option>
+            <option value="order">{translations.order}</option>
+            <option value="credit">{translations.credit}</option>
+            <option value="quote">{translations.quote}</option>
+            <option value="purchase_order">{translations.purchase_order}</option>
+            <option value="payment">{translations.payment}</option>
+            <option value="line_item">{translations.line_items}</option>
+            <option value="quote_line_item">{translations.quote_line_items}</option>
+            <option value="tax_rate">{translations.tax_rate}</option>
+            <option value="income">{translations.income}</option>
+            <option value="document">{translations.document}</option>
+        </select>
 
         const filters = is_mobile ? <div className="row">
             <div className="col-12">
@@ -461,29 +633,22 @@ export default class Report extends React.Component {
                         <div>
                             <div className="row">
                                 <div className="col-md-3 col-sm-12 mt-2">
-                                    <select name="report_type" id="report_type" className="form-control"
-                                        value={this.state.report_type}
-                                        onChange={this.changeImportType.bind(this)}>
-                                        <option value="">{translations.select_option}</option>
-                                        <option value="invoice">{translations.invoice}</option>
-                                        <option value="customer">{translations.customer}</option>
-                                        <option value="lead">{translations.lead}</option>
-                                        <option value="deal">{translations.deal}</option>
-                                        <option value="task">{translations.task}</option>
-                                        <option value="expense">{translations.expense}</option>
-                                        <option value="order">{translations.order}</option>
-                                        <option value="credit">{translations.credit}</option>
-                                        <option value="quote">{translations.quote}</option>
-                                        <option value="purchase_order">{translations.purchase_order}</option>
-                                        <option value="payment">{translations.payment}</option>
-                                        <option value="line_item">{translations.line_items}</option>
-                                        <option value="tax_rate">{translations.tax_rate}</option>
-                                    </select>
+                                    {report_selector}
                                 </div>
 
                                 <div className="col-md-3 col-sm-12 mt-2">
                                     {this.buildSelectList()}
+
+                                    {!!this.state.group_by.length &&
+                                        this.buildChartOptions()
+                                    }
                                 </div>
+
+                                {!!this.isDateField(this.state.group_by) &&
+                                    <div className="col-md-3 col-sm-12 mt-2">
+                                        {this.buildFrequencyList()}
+                                    </div>
+                                }
 
                                 <Collapse isOpen={this.state.date_container_open}>
                                     <FormGroup>
@@ -531,24 +696,7 @@ export default class Report extends React.Component {
                         <div className="card mt-2">
                             <div className="card-body">
                                 <label>{translations.report_type}</label>
-                                <select name="report_type" id="report_type" className="form-control"
-                                    value={this.state.report_type}
-                                    onChange={this.changeImportType.bind(this)}>
-                                    <option value="">{translations.select_option}</option>
-                                    <option value="invoice">{translations.invoice}</option>
-                                    <option value="customer">{translations.customer}</option>
-                                    <option value="lead">{translations.lead}</option>
-                                    <option value="deal">{translations.deal}</option>
-                                    <option value="task">{translations.task}</option>
-                                    <option value="expense">{translations.expense}</option>
-                                    <option value="order">{translations.order}</option>
-                                    <option value="credit">{translations.credit}</option>
-                                    <option value="quote">{translations.quote}</option>
-                                    <option value="purchase_order">{translations.purchase_order}</option>
-                                    <option value="payment">{translations.payment}</option>
-                                    <option value="line_item">{translations.line_items}</option>
-                                    <option value="tax_rate">{translations.tax_rate}</option>
-                                </select>
+                                {report_selector}
                             </div>
                         </div>
                     </div>
@@ -556,18 +704,32 @@ export default class Report extends React.Component {
                     <div className="col-md-4">
                         <div className="card mt-2">
                             <div className="card-body">
-                                <label>{translations.group}</label>
-                                {this.buildSelectList()}
-                            </div>
-                        </div>
-                    </div>
+                                <FormGroup>
+                                    <label>{translations.group}</label>
+                                    {this.buildSelectList()}
+                                </FormGroup>
 
-                    <div className="col-md-4">
-                        <div className="card mt-2">
-                            <div className="card-body">
-                                {!this.state.date_container_open &&
-                                <span>charts</span>
+                                {!!this.isDateField(this.state.group_by) &&
+                                <FormGroup>
+                                    <Label>{translations.frequency}</Label>
+                                    {this.buildFrequencyList()}
+                                </FormGroup>
+
                                 }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="col-md-4">
+                        <div className="card mt-2">
+                            <div className="card-body">
+                                <FormGroup>
+                                    <label>{translations.chart}</label>
+                                    {!this.state.date_container_open && this.state.group_by.length &&
+                                    this.buildChartOptions()
+                                    }
+
+                                </FormGroup>
 
                                 {!!this.state.date_container_open &&
                                 <React.Fragment>
@@ -636,6 +798,18 @@ export default class Report extends React.Component {
 
                 {filters}
 
+                {chart &&
+                <div className="row">
+                    <div className="col-12">
+                        <div className="card mt-2">
+                            <div className="card-body">
+                                {chart}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                }
+
                 <div className="row">
                     <div className="col-12">
 
@@ -645,27 +819,24 @@ export default class Report extends React.Component {
                                 className="card-header">{translations.currencies}
                             </div>
                             <div className="card-body">
-                                <div className="card-body">
-                                    <DynamicDataTable
-                                        rows={currency_report}
-                                        totalRows={totalRows}
-                                        currentPage={currentPage}
-                                        perPage={this.state.perPage}
-                                        totalPages={totalPages}
-                                        orderByField={orderByField}
-                                        orderByDirection={orderByDirection}
-                                        loading={this.loading}
-                                        fieldsToExclude={[]}
-                                        // changePage={this.changePage}
-                                        // changeOrder={this.changeOrder}
-                                        // changePerPage={this.changePerPage}
-                                        disallowOrderingBy={[]}
-                                        footer={footer ? this.renderFooter : undefined}
-                                        hoverable={true}
-                                    />
-
-                                </div>
-
+                                <DynamicDataTable
+                                    rows={currency_report}
+                                    totalRows={totalRows}
+                                    currentPage={currentPage}
+                                    perPage={this.state.perPage}
+                                    totalPages={totalPages}
+                                    orderByField={orderByField}
+                                    orderByDirection={orderByDirection}
+                                    loading={this.loading}
+                                    fieldsToExclude={[]}
+                                    // changePage={this.changePage}
+                                    // changeOrder={this.changeOrder}
+                                    // changePerPage={this.changePerPage}
+                                    disallowOrderingBy={[]}
+                                    footer={footer ? this.renderFooter : undefined}
+                                    hoverable={true}
+                                    hide_pagination={true}
+                                />
                             </div>
                         </div>
                         }
@@ -680,36 +851,33 @@ export default class Report extends React.Component {
                                 className="card-header">{translations[this.state.report_type]}
                             </div>
                             <div className="card-body">
-                                <div className="card-body">
-                                    <DynamicDataTable
-                                        perPageOptions={[10, this.state.perPage, 50]}
-                                        fieldsToExclude={this.state.checkedItems}
-                                        rows={rows}
-                                        totalRows={totalRows}
-                                        currentPage={currentPage}
-                                        perPage={perPage}
-                                        totalPages={totalPages}
-                                        orderByField={orderByField}
-                                        orderByDirection={orderByDirection}
-                                        loading={this.loading}
-                                        changePage={this.changePage}
-                                        changeOrder={this.changeOrder}
-                                        changePerPage={this.changePerPage}
-                                        disallowOrderingBy={disallowOrderingBy}
-                                        orderByAscIcon={<i className={`fa ${icons.down} mr-2`}/>}
-                                        orderByDescIcon={<i className={`fa ${icons.up} mr-2`}/>}
-                                        footer={footer ? this.renderFooter : undefined}
-                                        prependOrderByIcon={true}
-                                        hoverable={true}
-                                        filterable={true}
-                                        handleColumnFilter={this.handleColumnFilter.bind(this)}
-                                        clearSearch={this.clearSearch.bind(this)}
-                                        search_filters={this.state.filtered_value}
-                                        setDateFormat={this.setDateFormat.bind(this)}
-                                        date_format={this.state.date_format}
-                                    />
-
-                                </div>
+                                <DynamicDataTable
+                                    perPageOptions={[10, this.state.perPage, 50]}
+                                    fieldsToExclude={this.state.checkedItems}
+                                    rows={rows}
+                                    totalRows={totalRows}
+                                    currentPage={currentPage}
+                                    perPage={perPage}
+                                    totalPages={totalPages}
+                                    orderByField={orderByField}
+                                    orderByDirection={orderByDirection}
+                                    loading={this.loading}
+                                    changePage={this.changePage}
+                                    changeOrder={this.changeOrder}
+                                    changePerPage={this.changePerPage}
+                                    disallowOrderingBy={disallowOrderingBy}
+                                    orderByAscIcon={<i className={`fa ${icons.down} mr-2`}/>}
+                                    orderByDescIcon={<i className={`fa ${icons.up} mr-2`}/>}
+                                    footer={footer ? this.renderFooter : undefined}
+                                    prependOrderByIcon={true}
+                                    hoverable={true}
+                                    filterable={true}
+                                    handleColumnFilter={this.handleColumnFilter.bind(this)}
+                                    clearSearch={this.clearSearch.bind(this)}
+                                    search_filters={this.state.filtered_value}
+                                    setDateFormat={this.setDateFormat.bind(this)}
+                                    date_format={this.state.manual_date_field.length ? 'manual' : this.state.date_format}
+                                />
 
                             </div>
                         </div>

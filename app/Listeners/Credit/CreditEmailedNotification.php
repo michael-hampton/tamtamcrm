@@ -2,7 +2,7 @@
 
 namespace App\Listeners\Credit;
 
-use App\Notifications\Admin\EntitySentNotification;
+use App\Notifications\Entity\EntitySentNotification;
 use App\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -36,6 +36,10 @@ class CreditEmailedNotification implements ShouldQueue
                 'credit',
                 ['all_notifications', 'credit_sent']
             );
+
+            if (empty($notification->method)) {
+                continue;
+            }
 
             $user->notify($notification);
         }

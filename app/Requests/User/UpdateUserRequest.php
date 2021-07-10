@@ -2,7 +2,6 @@
 
 namespace App\Requests\User;
 
-use App\Models\User;
 use App\Repositories\Base\BaseFormRequest;
 use Illuminate\Validation\Rule;
 
@@ -15,8 +14,7 @@ class UpdateUserRequest extends BaseFormRequest
      */
     public function authorize()
     {
-        $user = User::find($this->user_id);
-        return auth()->user()->can('update', $user);
+        return auth()->user()->can('update', $this->user);
     }
 
     /**
@@ -39,7 +37,7 @@ class UpdateUserRequest extends BaseFormRequest
             'last_name'       => 'required|string',
             'email'           => [
                 'required',
-                Rule::unique('users')->ignore($this->route('user_id'))
+                Rule::unique('users')->ignore($this->user->id)
             ]
         ];
 

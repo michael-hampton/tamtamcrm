@@ -29,7 +29,7 @@ class PaymentFactory extends Factory
         return [
             'user_id'           => $user->id,
             'account_id'        => 1,
-            'is_deleted'        => false,
+            'hide'              => false,
             'amount'            => $this->faker->numberBetween(1, 10),
             'date'              => $this->faker->date(),
             'reference_number'  => $this->faker->text(10),

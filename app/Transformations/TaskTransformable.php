@@ -12,19 +12,19 @@ use Exception;
 
 trait TaskTransformable
 {
-    use CustomerTransformable;
+    //use CustomerTransformable;
 
     /**
      * @param Task $task
      * @return array
      * @throws Exception
      */
-    protected function transformTask(Task $task)
+    protected function transformTask(Task $task, $files = null)
     {
         return [
             'id'                   => (int)$task->id,
             'number'               => (string)$task->number,
-            'customer_name'        => $task->customer->present()->name,
+            'customer_name'        => $task->customer->name ?: '',
             'name'                 => $task->name,
             'description'          => $task->description,
             'design_id'            => (int)$task->design_id,
@@ -35,26 +35,28 @@ trait TaskTransformable
             'task_status'          => $task->taskStatus,
             'task_status_id'       => (int)$task->task_status_id,
             'deleted_at'           => $task->deleted_at,
-            'customer'             => $this->transformCustomer($task->customer),
+            'customer'             => $task->customer,
             'customer_id'          => $task->customer_id,
             'assigned_to'          => $task->assigned_to,
             'users'                => $task->users,
             'contributors'         => $task->users()->pluck('user_id')->all(),
             'is_active'            => $task->is_active,
             'project_id'           => $task->project_id,
-            'is_deleted'           => (bool)$task->is_deleted,
+            'hide'                 => (bool)$task->hide,
             'timers'               => $this->transformTimers($task->timers),
             'custom_value1'        => $task->custom_value1 ?: '',
             'custom_value2'        => $task->custom_value2 ?: '',
             'custom_value3'        => $task->custom_value3 ?: '',
             'custom_value4'        => $task->custom_value4 ?: '',
-            'public_notes'         => $task->public_notes ?: '',
-            'private_notes'        => $task->private_notes ?: '',
+            'customer_note'         => $task->customer_note ?: '',
+            'internal_note'        => $task->internal_note ?: '',
             'duration'             => (new TimerRepository(new Timer()))->getTotalDuration($task),
-            'calculated_task_rate' => $task->getTaskRate(),
+            'calculated_task_rate' => $task->calculated_task_rate,
             'task_rate'            => $task->task_rate,
-            'task_sort_order'      => (int)$task->task_status_sort_order,
-            'files'                => $this->transformTaskFiles($task->files),
+            'order_id'             => (int)$task->order_id,
+            'files'                => !empty($files) && !empty($files[$task->id]) ? $this->transformTaskFiles(
+                $files[$task->id]
+            ) : [],
             'emails'               => $this->transformTaskEmails($task->emails()),
             'is_recurring'         => (bool)$task->is_recurring ?: false,
             'recurring_start_date' => $task->recurring_start_date ?: '',

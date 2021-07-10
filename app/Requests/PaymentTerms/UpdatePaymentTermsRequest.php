@@ -2,7 +2,6 @@
 
 namespace App\Requests\PaymentTerms;
 
-use App\Models\PaymentTerms;
 use App\Repositories\Base\BaseFormRequest;
 
 class UpdatePaymentTermsRequest extends BaseFormRequest
@@ -14,8 +13,7 @@ class UpdatePaymentTermsRequest extends BaseFormRequest
      */
     public function authorize()
     {
-        $payment_term = PaymentTerms::find(request()->segment(3));
-        return auth()->user()->can('update', $payment_term);
+        return auth()->user()->can('update', $this->payment_term);
     }
 
     public function rules()

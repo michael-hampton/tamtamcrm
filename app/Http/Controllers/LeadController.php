@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Lead\ConvertLead;
+use App\Services\Pdf\GeneratePdf;
 use App\Events\Lead\LeadWasCreated;
 use App\Factory\Lead\CloneLeadToDealFactory;
 use App\Factory\Lead\CloneLeadToTaskFactory;
@@ -63,9 +65,9 @@ class LeadController extends Controller
      */
     public function store(CreateLeadRequest $request)
     {
-        $lead = $this->lead_repo->createLead(
-            LeadFactory::create(auth()->user()->account_user()->account, auth()->user()),
-            $request->all()
+        $lead = $this->lead_repo->create(
+            $request->all(),
+            LeadFactory::create(auth()->user()->account_user()->account, auth()->user())
         );
 
         event(new LeadWasCreated($lead));
@@ -77,10 +79,9 @@ class LeadController extends Controller
      * @param UpdateLeadRequest $request
      * @return JsonResponse
      */
-    public function update(int $id, UpdateLeadRequest $request)
+    public function update(UpdateLeadRequest $request, Lead $lead)
     {
-        $lead = $this->lead_repo->findLeadById($id);
-        $lead = $this->lead_repo->updateLead($lead, $request->all());
+        $lead = $this->lead_repo->update($request->all(), $lead);
         return response()->json($lead);
     }
 
@@ -88,23 +89,19 @@ class LeadController extends Controller
      * @param int $id
      * @return mixed
      */
-    public function convert(int $id)
+    public function convert(Lead $lead)
     {
-        $lead = $this->lead_repo->findLeadById($id);
-        $lead = $lead->service()->convertLead();
+        $lead = (new ConvertLead($lead))->execute();
         return response()->json($lead);
     }
 
-    public function archive(int $id)
+    public function archive(Lead $lead)
     {
-        $lead = $this->lead_repo->findLeadById($id);
         $lead->archive();
     }
 
-    public function destroy(int $id)
+    public function destroy(Lead $lead)
     {
-        $lead = $this->lead_repo->findLeadById($id);
-
         $this->authorize('delete', $lead);
 
         $lead->deleteEntity();
@@ -120,6 +117,15 @@ class LeadController extends Controller
         $lead = Lead::withTrashed()->where('id', '=', $id)->first();
         $lead->restoreEntity();
         return response()->json([], 200);
+    }
+
+    /**
+     * @param $id
+     * @return JsonResponse
+     */
+    public function show(Lead $lead)
+    {
+        return response()->json($this->transformLead($lead));
     }
 
     /**
@@ -155,7 +161,7 @@ class LeadController extends Controller
                 break;
             case 'download': //done
                 $disk = config('filesystems.default');
-                $content = Storage::disk($disk)->get($lead->service()->generatePdf(null));
+                $content = Storage::disk($disk)->get((new GeneratePdf($lead))->execute(null));
                 $response = ['data' => base64_encode($content)];
 
                 return response()->json($response);
@@ -168,8 +174,10 @@ class LeadController extends Controller
         foreach ($request->input('tasks') as $data) {
             $task = $this->lead_repo->findLeadById($data['id']);
 
-            $task->task_sort_order = $data['task_sort_order'];
+            $task->order_id = $data['order_id'];
             $task->save();
         }
+
+        return response()->json(['message' => 'success']);
     }
 }

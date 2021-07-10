@@ -2,6 +2,11 @@
 
 namespace Tests\Unit;
 
+use App\Events\Credit\CreditWasEmailed;
+use App\Events\Payment\PaymentWasEmailed;
+use App\Models\EmailTemplate;
+use App\Repositories\EmailTemplateRepository;
+use App\Services\Email\DispatchEmail;
 use App\Factory\CreditFactory;
 use App\Models\Account;
 use App\Models\Credit;
@@ -13,6 +18,7 @@ use App\Requests\SearchRequest;
 use App\Search\CreditSearch;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 /**
@@ -73,7 +79,7 @@ class CreditTest extends TestCase
         $customer_id = $this->customer->id;
         $data = ['customer_id' => $customer_id];
         $creditRepo = new CreditRepository($credit);
-        $updated = $creditRepo->updateCreditNote($data, $credit);
+        $updated = $creditRepo->update($data, $credit);
         $found = $creditRepo->findCreditById($credit->id);
         $this->assertInstanceOf(Credit::class, $updated);
         $this->assertEquals($data['customer_id'], $found->customer_id);
@@ -92,32 +98,62 @@ class CreditTest extends TestCase
     /** @test */
     public function it_can_create_a_credit()
     {
-        $user = User::factory()->create();
+        //$user = User::factory()->create();
+        $user = User::find(5);
         $factory = (new CreditFactory)->create($this->account, $user, $this->customer);
 
-        $data = [
-            'account_id'  => $this->account->id,
-            'user_id'     => $user->id,
-            'customer_id' => $this->customer->id,
-            'total'       => $this->faker->randomFloat()
-        ];
+        $data = $this->generateCreditNote();
 
         $creditRepo = new CreditRepository(new Credit);
-        $credit = $creditRepo->createCreditNote($data, $factory);
+        $credit = $creditRepo->create($data, $factory);
+        $this->assertEquals($this->customer->id, $credit->customer_id);
         $this->assertInstanceOf(Credit::class, $credit);
-        $this->assertEquals($data['customer_id'], $credit->customer_id);
+        $this->assertEquals($data['number'], $credit->number);
         $this->assertNotEmpty($credit->invitations);
+    }
+
+    private function generateCreditNote() {
+
+        for ($x = 0; $x < 5; $x++) {
+            $line_items[] = (new \App\Components\InvoiceCalculator\LineItem)
+                ->setQuantity($this->faker->numberBetween(1, 10))
+                ->setUnitPrice($this->faker->randomFloat(2, 1, 1000))
+                ->calculateSubTotal()->setUnitDiscount($this->faker->numberBetween(1, 10))
+                ->setTaxRateEntity('unit_tax', 10.00)
+                ->setProductId($this->faker->word())
+                ->setNotes($this->faker->realText(50))
+                ->toObject();
+        }
+
+        return [
+            'account_id'     => 1,
+            'status_id'      => Credit::STATUS_DRAFT,
+            'number'         => $this->faker->ean8(),
+            'total'          => 800,
+            'balance'        => 800,
+            'tax_total'      => $this->faker->randomFloat(2),
+            'discount_total' => $this->faker->randomFloat(2),
+            'hide'           => false,
+            'po_number'      => $this->faker->text(10),
+            'date'           => $this->faker->date(),
+            'due_date'       => $this->faker->date(),
+            'line_items'     => $line_items,
+            'terms'          => $this->faker->text(500),
+            'gateway_fee'    => 12.99
+        ];
     }
 
     public function testEmail()
     {
-        $credit = CreditFactory::create($this->account, $this->user, $this->customer);
-        $credit = (new CreditRepository(new Credit()))->save([], $credit);
+        Event::fake();
 
-        $template = strtolower('credit');
-        $subject = $credit->customer->getSetting('email_subject_' . $template);
-        $body = $credit->customer->getSetting('email_template_' . $template);
-        $result = $credit->service()->sendEmail(null, $subject, $body);
-        $this->assertInstanceOf(Credit::class, $result);
+        $credit_note_data = $this->generateCreditNote();
+        $credit = CreditFactory::create($this->account, $this->user, $this->customer);
+        $credit_note = (new CreditRepository(new Credit()))->create($credit_note_data, $credit);
+
+        $template = (new EmailTemplateRepository(new EmailTemplate()))->getTemplateForType('credit');
+        (new DispatchEmail($credit_note))->execute(null, $template->subject, $template->message);
+
+        Event::assertDispatched(CreditWasEmailed::class);
     }
 }

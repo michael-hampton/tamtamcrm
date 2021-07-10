@@ -3,13 +3,13 @@
 
 namespace App\Models;
 
-
-use App\Services\Cases\CasesService;
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Cases extends Model
 {
@@ -17,6 +17,8 @@ class Cases extends Model
     use PresentableTrait;
     use HasFactory;
     use Archiveable;
+    use QueryCacheable;
+    use QueryScopes;
 
     const STATUS_DRAFT = 1;
     const STATUS_OPEN = 2;
@@ -27,6 +29,7 @@ class Cases extends Model
     const PRIORITY_HIGH = 3;
     const CASE_LINK_TYPE_PRODUCT = 1;
     const CASE_LINK_TYPE_PROJECT = 2;
+    protected static $flushCacheOnUpdate = true;
     protected $fillable = [
         'status_id',
         'priority_id',
@@ -36,7 +39,7 @@ class Cases extends Model
         'date_closed',
         'opened_by',
         'closed_by',
-        'private_notes',
+        'internal_note',
         'subject',
         'number',
         'message',
@@ -66,6 +69,19 @@ class Cases extends Model
         3 => 'High'
     ];
 
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'cases',
+        ];
+    }
+
     public function account()
     {
         return $this->belongsTo('App\Models\Account');
@@ -87,11 +103,6 @@ class Cases extends Model
     public function category()
     {
         return $this->belongsTo(CaseCategory::class)->withTrashed();
-    }
-
-    public function service(): CasesService
-    {
-        return new CasesService($this);
     }
 
     /**
@@ -170,22 +181,22 @@ class Cases extends Model
         return true;
     }
 
-    public function getDesignId()
+    public function getDesignIdAttribute()
     {
         return !empty($this->design_id) ? $this->design_id : $this->customer->getSetting('case_design_id');
     }
 
-    public function getPdfFilename()
+    public function getPdfFilenameAttribute()
     {
         return 'storage/' . $this->account->id . '/' . $this->customer->id . '/cases/' . $this->number . '.pdf';
     }
 
-    public function getStatusName()
+    public function getStatusNameAttribute()
     {
         return $this->arrStatuses[$this->status_id];
     }
 
-    public function getPriorityName()
+    public function getPriorityNameAttribute()
     {
         return $this->arrPriorities[$this->priority_id];
     }

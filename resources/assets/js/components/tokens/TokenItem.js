@@ -36,10 +36,11 @@ export default class TokenItem extends Component {
         const self = this
         axios.delete(url)
             .then(function (response) {
-                const arrTokens = [...self.props.tokens]
+                const arrTokens = [...self.props.entities]
                 const index = arrTokens.findIndex(token => token.id === id)
-                arrTokens.splice(index, 1)
-                self.props.addUserToState(arrTokens)
+                arrTokens[index].hide = archive !== true
+                arrTokens[index].deleted_at = new Date()
+                self.props.addUserToState(arrTokens, true)
             })
             .catch(function (error) {
                 console.log(error)
@@ -47,11 +48,11 @@ export default class TokenItem extends Component {
     }
 
     render () {
-        const { tokens, ignoredColumns } = this.props
+        const { tokens, ignoredColumns, entities } = this.props
         if (tokens && tokens.length) {
             return tokens.map((token, index) => {
                 const restoreButton = token.deleted_at
-                    ? <RestoreModal id={token.id} entities={tokens} updateState={this.props.addUserToState}
+                    ? <RestoreModal id={token.id} entities={entities} updateState={this.props.addUserToState}
                         url={`/api/tokens/restore/${token.id}`}/> : null
                 const deleteButton = !token.deleted_at
                     ? <DeleteModal archive={false} deleteFunction={this.deleteToken} id={token.id}/> : null
@@ -59,7 +60,7 @@ export default class TokenItem extends Component {
                     ? <DeleteModal archive={true} deleteFunction={this.deleteToken} id={token.id}/> : null
 
                 const editButton = !token.deleted_at ? <EditToken
-                    tokens={tokens}
+                    tokens={entities}
                     token={token}
                     action={this.props.addUserToState}
                 /> : null

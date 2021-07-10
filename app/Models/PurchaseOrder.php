@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Services\PurchaseOrder\PurchaseOrderService;
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use App\Traits\Balancer;
 use App\Traits\MoneyVendor;
@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Laracasts\Presenter\PresentableTrait;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class PurchaseOrder extends Model
 {
@@ -20,6 +21,8 @@ class PurchaseOrder extends Model
     use Balancer;
     use HasFactory;
     use Archiveable;
+    use QueryCacheable;
+    use QueryScopes;
 
     const STATUS_DRAFT = 1;
     const STATUS_SENT = 2;
@@ -28,7 +31,7 @@ class PurchaseOrder extends Model
     const STATUS_EXPIRED = -1;
     const STATUS_REJECTED = 5;
     const STATUS_CHANGE_REQUESTED = 6;
-
+    protected static $flushCacheOnUpdate = true;
     protected $presenter = 'App\Presenters\QuotePresenter';
     protected $casts = [
         'company_id' => 'integer',
@@ -37,10 +40,9 @@ class PurchaseOrder extends Model
         'line_items' => 'object',
         'updated_at' => 'timestamp',
         'deleted_at' => 'timestamp',
-        'is_deleted' => 'boolean',
+        'hide'       => 'boolean',
         'viewed'     => 'boolean'
     ];
-
     /**
      * The attributes that are mass assignable.
      *
@@ -71,8 +73,8 @@ class PurchaseOrder extends Model
         'end_date',
         'frequency',
         'recurring_due_date',
-        'public_notes',
-        'private_notes',
+        'customer_note',
+        'internal_note',
         'terms',
         'footer',
         'partial',
@@ -98,6 +100,19 @@ class PurchaseOrder extends Model
         'gateway_fee',
         'gateway_percentage',
     ];
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'purchase_orders',
+        ];
+    }
 
     public function tasks()
     {
@@ -144,11 +159,6 @@ class PurchaseOrder extends Model
     public function user()
     {
         return $this->belongsTo(User::class)->withTrashed();
-    }
-
-    public function service(): PurchaseOrderService
-    {
-        return new PurchaseOrderService($this);
     }
 
     public function files()
@@ -206,11 +216,14 @@ class PurchaseOrder extends Model
         return true;
     }
 
-    public function setExchangeRate()
+    public function setExchangeRateAttribute($value)
     {
-        $exchange_rate = $this->company->getExchangeRate();
-        $this->exchange_rate = !empty($exchange_rate) ? $exchange_rate : null;
-        return true;
+        $this->attributes['exchange_rate'] = $value;
+    }
+
+    public function setCurrencyAttribute($value)
+    {
+        $this->attributes['currency_id'] = (int) $value;
     }
 
     public function getNumber()
@@ -218,12 +231,12 @@ class PurchaseOrder extends Model
         return $this->number;
     }
 
-    public function getDesignId()
+    public function getDesignIdAttribute()
     {
         return !empty($this->design_id) ? $this->design_id : $this->account->settings->purchase_order_design_id;
     }
 
-    public function getPdfFilename()
+    public function getPdfFilenameAttribute()
     {
         return 'storage/' . $this->account->id . '/' . $this->company->id . '/purchase_orders/' . $this->number . '.pdf';
     }
@@ -231,5 +244,19 @@ class PurchaseOrder extends Model
     public function canBeSent()
     {
         return $this->status_id === self::STATUS_DRAFT;
+    }
+
+    public function scopePermissions($query, User $user)
+    {
+        if ($user->isAdmin() || $user->isOwner() || $user->hasPermissionTo('purchaseordercontroller.index')) {
+            return $query;
+        }
+
+        $query->where(
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('assigned_to', auth()->user($user)->id);
+            }
+        );
     }
 }

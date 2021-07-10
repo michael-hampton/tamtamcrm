@@ -2,7 +2,7 @@
 
 namespace App\Listeners\PurchaseOrder;
 
-use App\Notifications\Admin\EntitySentNotification;
+use App\Notifications\Entity\EntitySentNotification;
 use App\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -36,6 +36,10 @@ class PurchaseOrderEmailedNotification implements ShouldQueue
                 'purchase_order',
                 ['all_notifications', 'purchase_order_sent']
             );
+
+            if (empty($notification->method)) {
+                continue;
+            }
 
             $user->notify($notification);
         }

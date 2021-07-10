@@ -4,6 +4,14 @@ import { translations } from '../utils/_translations'
 import { caseStatusColors } from '../utils/_colors'
 import { caseStatuses } from '../utils/_statuses'
 
+export function getDefaultTableFields () {
+    return [
+        'name',
+        'description',
+        'send_on'
+    ]
+}
+
 export default function CaseTemplatePresenter (props) {
     const { field, entity } = props
 
@@ -13,10 +21,8 @@ export default function CaseTemplatePresenter (props) {
 
     switch (field) {
         case 'send_on':
-            return <td onClick={() => props.toggleViewedEntity(entity, entity.name, props.edit)}
-                data-label="Send On">{status}</td>
+            return status
         default:
-            return <td onClick={() => props.toggleViewedEntity(entity, entity.name, props.edit)} key={field}
-                data-label={field}>{entity[field]}</td>
+            return entity[field]
     }
 }

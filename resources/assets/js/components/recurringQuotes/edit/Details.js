@@ -1,8 +1,9 @@
 import React from 'react'
-import { Card, CardBody, CardHeader, CustomInput, FormGroup, Input, Label } from 'reactstrap'
+import { Card, CardBody, CardHeader, FormGroup, Input, Label } from 'reactstrap'
 import { translations } from '../../utils/_translations'
 import { icons } from '../../utils/_icons'
 import QuoteDropdown from '../../common/dropdowns/QuoteDropdown'
+import SwitchWithIcon from '../../common/SwitchWithIcon'
 
 export default function Details (props) {
     return (
@@ -41,26 +42,14 @@ export default function Details (props) {
                     {props.renderErrorFor('po_number')}
                 </FormGroup>
 
-                <a href="#"
-                    className="list-group-item-dark list-group-item list-group-item-action flex-column align-items-start">
-                    <div className="d-flex w-100 justify-content-between">
-                        <h5 className="mb-1">
-                            <i style={{ fontSize: '24px', marginRight: '20px' }} className={`fa ${icons.credit_card}`}/>
-                            {translations.auto_billing_enabled}
-                        </h5>
-                        <CustomInput
-                            checked={props.recurring_quote.auto_billing_enabled}
-                            type="switch"
-                            id="auto_billing_enabled"
-                            name="auto_billing_enabled"
-                            label=""
-                            onChange={props.handleInput}/>
-                    </div>
-
-                    <h6 id="passwordHelpBlock" className="form-text text-muted">
-                        {translations.auto_billing_enabled_help_text}
-                    </h6>
-                </a>
+                <SwitchWithIcon
+                    label={translations.auto_billing_enabled}
+                    icon={icons.credit_card}
+                    checked={props.recurring_quote.auto_billing_enabled}
+                    name="auto_billing_enabled"
+                    handleInput={props.handleInput}
+                    help_text={translations.auto_billing_enabled_help_text}
+                />
             </CardBody>
         </Card>
 

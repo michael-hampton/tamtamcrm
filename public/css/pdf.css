@@ -1126,6 +1126,14 @@ a.bg-dark:focus, a.bg-dark:hover, button.bg-dark:focus, button.bg-dark:hover {
     border-top: 0 !important
 }
 
+.border-dashed {
+    border: dashed;
+}
+
+.border-top-4 {
+    border-top: 4px solid;
+}
+
 .border-right-0 {
     border-right: 0 !important
 }
@@ -1186,6 +1194,10 @@ a.bg-dark:focus, a.bg-dark:hover, button.bg-dark:focus, button.bg-dark:hover {
 .rounded-right {
     border-top-right-radius: .25rem !important;
     border-bottom-right-radius: .25rem !important
+}
+
+.col-6 {
+    width: 50%;
 }
 
 .rounded-bottom {

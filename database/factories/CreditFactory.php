@@ -33,7 +33,7 @@ class CreditFactory extends Factory
                 ->setQuantity($this->faker->numberBetween(1, 10))
                 ->setUnitPrice($this->faker->randomFloat(2, 1, 1000))
                 ->calculateSubTotal()->setUnitDiscount($this->faker->numberBetween(1, 10))
-                ->setUnitTax(10.00)
+                ->setTaxRateEntity('unit_tax', 10.00)
                 ->setProductId($this->faker->word())
                 ->setNotes($this->faker->realText(50))
                 ->toObject();
@@ -49,7 +49,7 @@ class CreditFactory extends Factory
             'discount_total' => $this->faker->randomFloat(2),
             'customer_id'    => $customer->id,
             'user_id'        => $user->id,
-            'is_deleted'     => false,
+            'hide'           => false,
             'po_number'      => $this->faker->text(10),
             'date'           => $this->faker->date(),
             'due_date'       => $this->faker->date(),

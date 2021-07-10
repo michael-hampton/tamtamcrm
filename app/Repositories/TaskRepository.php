@@ -93,7 +93,7 @@ class TaskRepository extends BaseRepository implements TaskRepositoryInterface
 
     public function getTasksWithProducts(): Support
     {
-        return $this->model->join('product_task', 'product_task.task_id', '=', 'tasks.id')->select('tasks.*')
+        return $this->model->join('orders', 'orders.task_id', '=', 'tasks.id')->select('tasks.*')
                            ->groupBy('tasks.id')->get();
     }
 
@@ -148,7 +148,7 @@ class TaskRepository extends BaseRepository implements TaskRepositoryInterface
     {
         $date = Carbon::today()->subDays($number_of_days);
         $result = $this->model->select(DB::raw('count(*) as total'))->where('created_at', '>=', $date)
-                              ->where('account_id', $account_id)->get();
+                              ->byAccount($account_id)->get();
 
         return !empty($result[0]) ? $result[0]['total'] : 0;
     }

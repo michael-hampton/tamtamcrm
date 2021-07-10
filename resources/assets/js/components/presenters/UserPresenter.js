@@ -18,6 +18,6 @@ export default function UserPresenter (props) {
         }
 
         default:
-            return entity[field]
+            return typeof entity[field] === 'object' ? JSON.stringify(entity[field]) : entity[field]
     }
 }

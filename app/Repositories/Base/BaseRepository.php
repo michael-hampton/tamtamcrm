@@ -2,7 +2,10 @@
 
 namespace App\Repositories\Base;
 
+use App\Services\Order\SendOrder;
+use App\Components\Currency\CurrencyConverter;
 use App\Components\Invitations;
+use App\Components\InvoiceCalculator\InvoiceCalculator;
 use App\Models\Invitation;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
@@ -24,24 +27,6 @@ class BaseRepository implements BaseRepositoryInterface
     public function __construct(Model $model)
     {
         $this->model = $model;
-    }
-
-    /**
-     * @param array $attributes
-     * @return mixed
-     */
-    public function create(array $attributes)
-    {
-        return $this->model->create($attributes);
-    }
-
-    /**
-     * @param array $data
-     * @return bool
-     */
-    public function update(array $data): bool
-    {
-        return $this->model->update($data);
     }
 
     /**
@@ -113,7 +98,7 @@ class BaseRepository implements BaseRepositoryInterface
 
     /**
      * @param $entity
-     * @return |null |null |null
+     * @return |null |null |null |null
      * @throws ReflectionException
      */
     public function markSent($entity)
@@ -133,10 +118,8 @@ class BaseRepository implements BaseRepositoryInterface
         $entity->setStatus($entity::STATUS_SENT);
         $entity->save();
 
-        $service = $entity->service();
-
-        if (method_exists($service, 'send')) {
-            $service->send();
+        if (get_class($entity) === 'App\Models\Order') {
+            (new SendOrder($entity))->execute();
         }
 
         if (get_class($entity) === 'App\Models\Invoice') {
@@ -199,6 +182,17 @@ class BaseRepository implements BaseRepositoryInterface
         return $invitation;
     }
 
+    public function calculateTotals($entity)
+    {
+        if (empty($entity->line_items)) {
+            return $entity;
+        }
+
+        $objInvoice = (new InvoiceCalculator($entity))->build();
+
+        return $objInvoice->rebuildEntity();
+    }
+
     /**
      * @param $entity
      * @param array $data
@@ -216,56 +210,6 @@ class BaseRepository implements BaseRepositoryInterface
         }
 
         return (new Invitations())->generateInvitations($entity, $data);
-    }
-
-    protected function populateDefaults($entity)
-    {
-        $class = strtolower((new ReflectionClass($entity))->getShortName());
-
-        if (empty($entity->terms) && !empty($entity->customer->getSetting($class . '_terms'))) {
-            $entity->terms = $entity->customer->getSetting($class . '_terms');
-        }
-        if (empty($entity->footer) && !empty($entity->customer->getSetting($class . '_footer'))) {
-            $entity->footer = $entity->customer->getSetting($class . '_footer');
-        }
-        if (empty($entity->public_notes) && !empty($entity->customer->public_notes)) {
-            $entity->public_notes = $entity->customer->public_notes;
-        }
-
-        return $entity;
-    }
-
-    protected function parseTemplateVariables(string $content, $entity)
-    {
-        $variables = [];
-
-        $variables['$status'] = $entity->getStatusName();
-
-        if (!empty($entity->description)) {
-            $variables['$description'] = $entity->description;
-        }
-
-        if (!empty($entity->number)) {
-            $variables['$number'] = $entity->number;
-        }
-
-        if (!empty($entity->due_date)) {
-            $variables['$due_date'] = $entity->due_date;
-        }
-
-        if (!empty($entity->priority_id) && method_exists($entity, 'getPriorityName')) {
-            $variables['$priority'] = $entity->getPriorityName();
-        }
-
-        if (!empty($entity->customer_id)) {
-            $variables['$customer'] = $entity->customer->name;
-        }
-
-        if (!empty($entity->assigned_to)) {
-            $variables['$agent'] = $entity->assignee->first_name . ' ' . $entity->assignee->last_name;
-        }
-
-        return str_replace(array_keys($variables), array_values($variables), $content);
     }
 
 }

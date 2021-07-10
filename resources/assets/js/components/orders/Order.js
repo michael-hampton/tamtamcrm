@@ -9,11 +9,17 @@ import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import CustomerRepository from '../repositories/CustomerRepository'
 import { getDefaultTableFields } from '../presenters/OrderPresenter'
+import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class Order extends Component {
     constructor (props) {
         super(props)
         this.state = {
+            currentPage: 1,
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             error: '',
@@ -56,11 +62,36 @@ export default class Order extends Component {
         this.getCustomFields()
     }
 
-    updateOrder (orders) {
+    onPageChanged (data) {
+        let { orders, pageLimit } = this.state
+        const { currentPage, totalPages } = data
+
+        if (data.invoices) {
+            orders = data.invoices
+        }
+
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = orders.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
+
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
+    }
+
+    updateOrder (orders, do_filter = false, filters = null) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? orders : this.state.cachedData
+
+        if (should_filter) {
+            orders = filterStatuses(orders, '', this.state.filters)
+        }
+
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             orders: orders,
             cachedData: cachedData
+        }, () => {
+            const totalPages = Math.ceil(orders.length / this.state.pageLimit)
+            this.onPageChanged({ invoices: orders, currentPage: this.state.currentPage, totalPages: totalPages })
         })
     }
 
@@ -73,12 +104,14 @@ export default class Order extends Component {
     }
 
     userList (props) {
-        const { orders, customers, custom_fields } = this.state
+        const { pageLimit, customers, custom_fields, currentInvoices, cachedData } = this.state
         return <OrderItem showCheckboxes={props.showCheckboxes}
-            show_list={props.show_list}
-            orders={orders} customers={customers}
+            show_list={props.show_list} entities={cachedData}
+            onPageChanged={this.onPageChanged.bind(this)}
+            pageLimit={pageLimit}
+            orders={currentInvoices} customers={customers}
             custom_fields={custom_fields}
-            ignoredColumns={getDefaultTableFields()} updateOrder={this.updateOrder}
+            ignoredColumns={props.default_columns} updateOrder={this.updateOrder}
             viewId={props.viewId}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
@@ -89,7 +122,8 @@ export default class Order extends Component {
         const customerRepository = new CustomerRepository()
         customerRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
             }
 
             this.setState({ customers: response }, () => {
@@ -140,9 +174,9 @@ export default class Order extends Component {
     }
 
     render () {
-        const { orders, customers, custom_fields, view, filters, error, isOpen, error_message, success_message, show_success } = this.state
-        const { status_id, customer_id, searchText, start_date, end_date, user_id } = this.state.filters
-        const fetchUrl = `/api/order?search_term=${searchText}&user_id=${user_id}&status=${status_id}&customer_id=${customer_id}&start_date=${start_date}&end_date=${end_date}`
+        const { cachedData, orders, customers, custom_fields, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, pageLimit } = this.state
+        const { start_date, end_date } = this.state.filters
+        const fetchUrl = `/api/order?start_date=${start_date}&end_date=${end_date}`
         const addButton = this.state.customers.length ? <EditOrder
             entity_id={this.state.entity_id}
             entity_type={this.state.entity_type}
@@ -150,12 +184,13 @@ export default class Order extends Component {
             customers={customers}
             add={true}
             action={this.updateOrder}
-            orders={orders}
+            orders={cachedData}
             modal={true}
         /> : null
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable fixed-margin-datatable-mobile'
+        const total = orders.length
 
         return (
             <Row>
@@ -163,7 +198,11 @@ export default class Order extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <OrderFilters setFilterOpen={this.setFilterOpen.bind(this)} orders={orders}
+                                <OrderFilters
+                                    pageLimit={pageLimit}
+                                    cachedData={cachedData}
+                                    updateList={this.updateOrder}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} orders={orders}
                                     customers={customers}
                                     filters={filters} filter={this.filterOrders}
                                     saveBulk={this.saveBulk}/>
@@ -192,6 +231,12 @@ export default class Order extends Component {
                         <Card>
                             <CardBody>
                                 <DataTable
+
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
+
                                     default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
                                     setError={this.setError.bind(this)}
@@ -200,7 +245,7 @@ export default class Order extends Component {
                                     entity_type="Order"
                                     bulk_save_url="/api/order/bulk"
                                     view={view}
-                                    columnMapping={{ customer_id: 'CUSTOMER' }}
+                                    columnMapping={{ customer_id: 'CUSTOMER', status_id: 'status' }}
                                     // order={['id', 'number', 'date', 'customer_name', 'total', 'balance', 'status_id']}
                                     disableSorting={['id']}
                                     defaultColumn='number'
@@ -208,6 +253,13 @@ export default class Order extends Component {
                                     fetchUrl={fetchUrl}
                                     updateState={this.updateOrder}
                                 />
+
+                                {total > 0 &&
+                                <div className="d-flex flex-row py-4 align-items-center">
+                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>

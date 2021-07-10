@@ -5,6 +5,7 @@ import { translations } from '../../utils/_translations'
 import TokenModel from '../../models/TokenModel'
 import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
+import ConfirmPassword from '../../common/ConfirmPassword'
 
 export default class AddToken extends React.Component {
     constructor (props) {
@@ -45,9 +46,10 @@ export default class AddToken extends React.Component {
         }
     }
 
-    handleClick () {
+    handleClick (password) {
         const data = {
-            name: this.state.name
+            name: this.state.name,
+            password: password
         }
 
         this.tokenModel.save(data).then(response => {
@@ -56,8 +58,8 @@ export default class AddToken extends React.Component {
                 return
             }
 
-            this.props.tokens.push(response)
-            this.props.action(this.props.tokens)
+            this.props.tokens.unshift(response)
+            this.props.action(this.props.tokens, true)
             localStorage.removeItem('tokenForm')
             this.setState(this.initialState)
         })
@@ -79,6 +81,10 @@ export default class AddToken extends React.Component {
 
     render () {
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
+        const save_button = <ConfirmPassword id={null} callback={(id, password) => {
+            this.handleClick(password)
+        }
+        } button_color="btn-success" button_label={translations.save}/>
 
         return (
             <React.Fragment>
@@ -96,7 +102,7 @@ export default class AddToken extends React.Component {
                         </FormGroup>
                     </ModalBody>
 
-                    <DefaultModalFooter show_success={true} toggle={this.toggle}
+                    <DefaultModalFooter save_button={save_button} show_success={true} toggle={this.toggle}
                         saveData={this.handleClick.bind(this)}
                         loading={false}/>
                 </Modal>

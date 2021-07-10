@@ -36,7 +36,7 @@ class InvoiceFactory extends Factory
                 ->setUnitPrice(160)
                 ->calculateSubTotal()
                 ->setUnitDiscount(0)
-                ->setUnitTax(0)
+                ->setTaxRateEntity('unit_tax', 0)
                 ->setProductId($this->faker->word())
                 ->setNotes($this->faker->realText(50))
                 ->toObject();
@@ -44,6 +44,7 @@ class InvoiceFactory extends Factory
 
         return [
             'account_id'     => 1,
+            'currency_id'    => 1,
             'status_id'      => Invoice::STATUS_DRAFT,
             'number'         => $this->faker->ean13(),
             'total'          => $total,
@@ -52,12 +53,13 @@ class InvoiceFactory extends Factory
             'discount_total' => 0,
             'customer_id'    => $customer->id,
             'user_id'        => $user->id,
-            'is_deleted'     => false,
+            'hide'           => false,
             'po_number'      => $this->faker->text(10),
             'date'           => \Carbon\Carbon::now()->format('Y-m-d'),
             'due_date'       => \Carbon\Carbon::now()->addDays(3)->format('Y-m-d'),
             'line_items'     => $line_items,
             'terms'          => $this->faker->text(500),
+            'customer_note'  => $this->faker->paragraph
             //'gateway_fee'    => 12.99
         ];
     }

@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React from 'react'
 import ConfirmPassword from '../common/ConfirmPassword'
+import { translations } from '../utils/_translations'
 
 export default function FileUpload (props) {
     const file = props.file
@@ -17,7 +18,8 @@ export default function FileUpload (props) {
             {file.name}<br/>
             {`${file.user.first_name} ${file.user.last_name}`}
             <br/>
-            <ConfirmPassword id={file.id} callback={props.delete} url={`/api/uploads/${file.id}`}/>
+            <ConfirmPassword id={file.id} callback={props.delete} url={`/api/uploads/${file.id}`}
+                button_color="btn-danger" button_label={translations.delete}/>
         </div>
     )
 }

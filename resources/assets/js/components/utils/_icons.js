@@ -35,7 +35,9 @@ export const icons = {
     down: 'fa-chevron-down',
     up: 'fa-chevron-up',
     angle_down: 'fa-angle-down',
+    angle_down_double: 'fa-angle-double-down',
     angle_up: 'fa-angle-up',
+    angle_up_double: 'fa-angle-double-up',
     right: 'fa-chevron-right',
     left: 'fa-chevron-left',
     restore: 'fa-window-restore',
@@ -90,7 +92,8 @@ export const icons = {
     deal: 'fa-dollar',
     credit: 'fa-undo',
     invoice: 'fa-area-chart',
-    promocode: 'fa-badge-percent'
+    promocode: 'fa-badge-percent',
+    briefcase: 'fa-briefcase'
 }
 
 export function getEntityIcon (entity) {
@@ -164,6 +167,8 @@ export function getFileTypeIcon (type) {
 
 export function getSettingsIcon (section) {
     switch (section) {
+        case 'plans':
+            return icons.briefcase
         case 'designs':
             return icons.pencil
         case 'integration-settings':
@@ -208,6 +213,8 @@ export function getSettingsIcon (section) {
             return icons.payment_terms
         case 'account-settings':
             return icons.building
+        case 'plan-settings':
+            return icons.order
         case 'import-settings':
             return icons.cloud_upload
     }

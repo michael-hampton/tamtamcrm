@@ -2,8 +2,7 @@
 
 namespace App\Models;
 
-use App\Services\Credit\CreditService;
-use App\Services\Transaction\TransactionService;
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use App\Traits\Balancer;
 use App\Traits\Money;
@@ -13,17 +12,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laracasts\Presenter\PresentableTrait;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Credit extends Model
 {
     use SoftDeletes;
-    use PresentableTrait;
     use Money;
     use Balancer;
     use HasFactory;
     use Archiveable;
     use Taxable;
+    use QueryCacheable;
+    use QueryScopes;
 
     const STATUS_DRAFT = 1;
     const STATUS_SENT = 2;
@@ -40,7 +40,8 @@ class Credit extends Model
     const GATEWAY_FEE_TYPE = 7;
     const PAYMENT_TYPE = 12;
 
-    protected $presenter = 'App\Presenters\CreditPresenter';
+    protected static $flushCacheOnUpdate = true;
+
     /**
      * @var array
      */
@@ -66,8 +67,8 @@ class Credit extends Model
         'created_at',
         'line_items',
         'po_number',
-        'public_notes',
-        'private_notes',
+        'customer_note',
+        'internal_note',
         'terms',
         'footer',
         'partial',
@@ -84,7 +85,8 @@ class Credit extends Model
         'gateway_percentage',
         'transaction_fee_tax',
         'shipping_cost_tax',
-        'design_id'
+        'design_id',
+        'plan_subscription_id'
     ];
     protected $casts = [
         'account_id'  => 'integer',
@@ -97,16 +99,25 @@ class Credit extends Model
     ];
 
     /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'credits',
+            'dashboard_credits'
+        ];
+    }
+
+    /**
      * @return BelongsTo
      */
     public function account()
     {
         return $this->belongsTo('App\Models\Account');
-    }
-
-    public function transaction_service()
-    {
-        return new TransactionService($this);
     }
 
     public function transactions()
@@ -125,11 +136,6 @@ class Credit extends Model
     public function project()
     {
         return $this->belongsTo(Project::class);
-    }
-
-    public function service(): CreditService
-    {
-        return new CreditService($this);
     }
 
     public function invitations()
@@ -239,19 +245,22 @@ class Credit extends Model
         return $this->number;
     }
 
-    public function setExchangeRate()
+    public function setExchangeRateAttribute($value)
     {
-        $exchange_rate = $this->customer->getExchangeRate();
-        $this->exchange_rate = !empty($exchange_rate) ? $exchange_rate : null;
-        return true;
+        $this->attributes['exchange_rate'] = $value;
     }
 
-    public function getDesignId()
+    public function setCurrencyAttribute($value)
+    {
+        $this->attributes['currency_id'] = (int) $value;
+    }
+
+    public function getDesignIdAttribute()
     {
         return !empty($this->design_id) ? $this->design_id : $this->customer->getSetting('credit_design_id');
     }
 
-    public function getPdfFilename()
+    public function getPdfFilenameAttribute()
     {
         return 'storage/' . $this->account->id . '/' . $this->customer->id . '/credits/' . $this->number . '.pdf';
     }
@@ -259,6 +268,20 @@ class Credit extends Model
     public function canBeSent()
     {
         return $this->status_id === self::STATUS_DRAFT;
+    }
+
+    public function scopePermissions($query, User $user)
+    {
+        if ($user->isAdmin() || $user->isOwner() || $user->hasPermissionTo('creditcontroller.index')) {
+            return $query;
+        }
+
+        $query->where(
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('assigned_to', auth()->user($user)->id);
+            }
+        );
     }
 
 }

@@ -3,14 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Components\Customer\ContactRegister;
-use App\Events\Customer\CustomerWasCreated;
-use App\Events\Customer\CustomerWasUpdated;
 use App\Factory\CustomerFactory;
 use App\Jobs\Customer\StoreCustomerAddress;
 use App\Models\Account;
 use App\Models\CompanyToken;
 use App\Models\Customer;
+use App\Models\CustomerGateway;
 use App\Models\CustomerType;
+use App\Models\ErrorLog;
+use App\Models\Transaction;
 use App\Repositories\CustomerContactRepository;
 use App\Repositories\CustomerTypeRepository;
 use App\Repositories\Interfaces\CustomerRepositoryInterface;
@@ -20,7 +21,10 @@ use App\Requests\Customer\UpdateCustomerRequest;
 use App\Requests\SearchRequest;
 use App\Search\CustomerSearch;
 use App\Settings\CustomerSettings;
+use App\Transformations\CustomerGatewayTransformable;
 use App\Transformations\CustomerTransformable;
+use App\Transformations\ErrorLogTransformable;
+use App\Transformations\TransactionTransformable;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -69,10 +73,9 @@ class CustomerController extends Controller
      * @return Response
      * @throws Exception
      */
-    public function update(UpdateCustomerRequest $request, $id)
+    public function update(UpdateCustomerRequest $request, Customer $customer)
     {
-        $customer = $this->customer_repo->findCustomerById($id);
-        $customer = $this->customer_repo->save($request->except(['addresses', 'settings']), $customer);
+        $customer = $this->customer_repo->update($request->except(['addresses', 'settings']), $customer);
 
         $obj_merged = (object)array_merge((array)$customer->settings, (array)$request->settings);
         $customer = (new CustomerSettings)->save($customer, $obj_merged);
@@ -83,14 +86,11 @@ class CustomerController extends Controller
             $this->contact_repo->save($request->contacts, $customer);
         }
 
-        event(new CustomerWasUpdated($customer));
-
         return response()->json($this->transformCustomer($customer));
     }
 
-    public function show(int $id)
+    public function show(Customer $customer)
     {
-        $customer = $this->customer_repo->findCustomerById($id);
         return response()->json($this->transformCustomer($customer));
     }
 
@@ -102,7 +102,7 @@ class CustomerController extends Controller
     public function store(CreateCustomerRequest $request)
     {
         $customer = CustomerFactory::create(auth()->user()->account_user()->account, auth()->user());
-        $customer = $this->customer_repo->save($request->except('addresses', 'settings'), $customer);
+        $customer = $this->customer_repo->create($request->except('addresses', 'settings'), $customer);
 
         $obj_merged = (object)array_merge((array)$customer->settings, (array)$request->settings);
         $customer = (new CustomerSettings)->save($customer, $obj_merged);
@@ -111,8 +111,6 @@ class CustomerController extends Controller
         if (!empty($request->contacts)) {
             $this->contact_repo->save($request->contacts, $customer);
         }
-
-        event(new CustomerWasCreated($customer));
 
         return $this->transformCustomer($customer);
     }
@@ -125,9 +123,8 @@ class CustomerController extends Controller
      * @return Response
      * @throws Exception
      */
-    public function archive(int $id)
+    public function archive(Customer $customer)
     {
-        $customer = $this->customer_repo->findCustomerById($id);
         $response = $customer->archive();
 
         if ($response) {
@@ -137,10 +134,8 @@ class CustomerController extends Controller
         return response()->json('Unable to delete customer!');
     }
 
-    public function destroy(int $id)
+    public function destroy(Customer $customer)
     {
-        $customer = Customer::withTrashed()->where('id', '=', $id)->first();
-
         $this->authorize('delete', $customer);
 
         $customer->deleteEntity();
@@ -194,5 +189,42 @@ class CustomerController extends Controller
         $contact = (new ContactRegister($request->all(), $account, $user))->create();
 
         return response()->json(['contact' => $contact]);
+    }
+
+    public function getTransactions(Customer $customer)
+    {
+        $transactions = $customer->transactions;
+
+        $transactions = $transactions->map(
+            function (Transaction $transaction) {
+                return (new TransactionTransformable())->transformTransaction($transaction);
+            }
+        )->all();
+
+        return response()->json($transactions);
+    }
+
+    public function getErrorLogs(Customer $customer)
+    {
+        $error_logs = $customer->error_logs;
+
+        $error_logs = $error_logs->map(
+            function (ErrorLog $error_log) {
+                return (new ErrorLogTransformable())->transformErrorLog($error_log);
+            }
+        )->all();
+
+        return response()->json($error_logs);
+    }
+
+    public function gateways(Customer $customer)
+    {
+        $gateway_tokens = $customer->gateways;
+
+        return $gateway_tokens->map(
+            function (CustomerGateway $gateway) {
+                return (new CustomerGatewayTransformable())->transformGateway($gateway);
+            }
+        )->all();
     }
 }

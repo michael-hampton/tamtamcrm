@@ -82,15 +82,15 @@ export default function Overview (props) {
         </Alert>
         }
 
-        {props.entity.private_notes.length &&
+        {props.entity.internal_note.length &&
         <Alert color="dark col-12 mt-2">
-            {props.entity.private_notes}
+            {props.entity.internal_note}
         </Alert>
         }
 
-        {props.entity.public_notes.length &&
+        {props.entity.customer_note.length &&
         <Alert color="dark col-12 mt-2">
-            {props.entity.public_notes}
+            {props.entity.customer_note}
         </Alert>
         }
 

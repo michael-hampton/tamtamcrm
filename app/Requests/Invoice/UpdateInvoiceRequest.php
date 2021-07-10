@@ -2,8 +2,8 @@
 
 namespace App\Requests\Invoice;
 
-use App\Models\Invoice;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateInvoiceRequest extends FormRequest
 {
@@ -14,8 +14,7 @@ class UpdateInvoiceRequest extends FormRequest
      */
     public function authorize()
     {
-        $invoice = Invoice::find($this->invoice_id);
-        return auth()->user()->can('update', $invoice);
+        return auth()->user()->can('update', $this->invoice);
     }
 
     /**
@@ -34,7 +33,14 @@ class UpdateInvoiceRequest extends FormRequest
             'total'          => 'required',
             'tax_total'      => 'required',
             'line_items'     => 'required|array',
-            'number'         => 'nullable|unique:invoices,number,' . $this->invoice_id . ',id,account_id,' . $this->account_id,
+            'number'         => [
+                'nullable',
+                Rule::unique('invoices')->where(
+                    function ($query) {
+                        return $query->where('account_id', $this->invoice->account_id);
+                    }
+                )->ignore($this->invoice),
+            ],
         ];
     }
 

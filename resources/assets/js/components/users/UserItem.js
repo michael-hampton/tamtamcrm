@@ -2,10 +2,12 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import { Input, ListGroupItem } from 'reactstrap'
 import RestoreModal from '../common/RestoreModal'
-import DeleteModal from '../common/DeleteModal'
 import ActionsMenu from '../common/ActionsMenu'
-import EditUser from './edit/EditUser'
 import UserPresenter from '../presenters/UserPresenter'
+import { translations } from '../utils/_translations'
+import ConfirmPassword from '../common/ConfirmPassword'
+import { icons } from '../utils/_icons'
+import AddUser from './edit/AddUser'
 
 export default class UserItem extends Component {
     constructor (props) {
@@ -31,15 +33,20 @@ export default class UserItem extends Component {
         this.setState({ width: window.innerWidth })
     }
 
-    deleteUser (id, archive = false) {
+    deleteUser (id, password, archive = false) {
+        const data = {
+            password: password
+        }
+
         const url = archive === true ? `/api/users/archive/${id}` : `/api/users/${id}`
         const self = this
-        axios.delete(url)
+        axios.delete(url, { data: data })
             .then(function (response) {
-                const arrUsers = [...self.props.users]
-                const index = arrUsers.findIndex(user => user.id === id)
-                arrUsers.splice(index, 1)
-                self.props.addUserToState(arrUsers)
+                const arrUsers = [...self.props.entities]
+                const index = arrUsers.findIndex(user => user.id === parseInt(id))
+                arrUsers[index].hide = archive !== true
+                arrUsers[index].deleted_at = new Date()
+                self.props.addUserToState(arrUsers, true)
             })
             .catch(function (error) {
                 self.setState(
@@ -51,20 +58,29 @@ export default class UserItem extends Component {
     }
 
     render () {
-        const { users, departments, custom_fields, ignoredColumns } = this.props
+        const { users, departments, custom_fields, ignoredColumns, entities } = this.props
 
         if (users && users.length) {
             return users.map((user, index) => {
                 const restoreButton = user.deleted_at
-                    ? <RestoreModal id={user.id} entities={users} updateState={this.props.addUserToState}
+                    ? <RestoreModal id={user.id} entities={entities} updateState={this.props.addUserToState}
                         url={`/api/users/restore/${user.id}`}/> : null
                 const archiveButton = !user.deleted_at
-                    ? <DeleteModal archive={true} deleteFunction={this.deleteUser} id={user.id}/> : null
+                    ? <ConfirmPassword dropdown={true} icon={icons.archive} id={user.id} callback={(id, password) => {
+                        this.deleteUser(id, password, true)
+                    }
+                    } text={translations.archive_message} button_color="btn-danger"
+                    button_label={translations.archive}/> : null
                 const deleteButton = !user.deleted_at
-                    ? <DeleteModal archive={false} deleteFunction={this.deleteUser} id={user.id}/> : null
+                    ? <ConfirmPassword dropdown={true} icon={icons.delete} id={user.id} callback={(id, password) => {
+                        this.deleteUser(id, password, false)
+                    }
+                    } text={translations.delete_message} button_color="btn-link"
+                    button_label={translations.delete}/> : null
                 const editButton = !user.deleted_at
-                    ? <EditUser accounts={this.props.accounts} departments={departments} user_id={user.id}
-                        custom_fields={custom_fields} users={users}
+                    ? <AddUser add={false} accounts={this.props.accounts} departments={departments} user={user}
+                        user_id={user.id}
+                        custom_fields={custom_fields} users={entities}
                         action={this.props.addUserToState}/> : null
 
                 const columnList = Object.keys(user).filter(key => {

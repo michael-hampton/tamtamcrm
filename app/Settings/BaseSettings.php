@@ -95,6 +95,24 @@ class BaseSettings
             'default_value'    => false,
             'type'             => 'bool'
         ],
+        'show_line_item_tax_rate1'             => [
+            'required'         => false,
+            'translated_value' => '',
+            'default_value'    => true,
+            'type'             => 'bool'
+        ],
+        'show_line_item_tax_rate2'             => [
+            'required'         => false,
+            'translated_value' => '',
+            'default_value'    => false,
+            'type'             => 'bool'
+        ],
+        'show_line_item_tax_rate3'             => [
+            'required'         => false,
+            'translated_value' => '',
+            'default_value'    => false,
+            'type'             => 'bool'
+        ],
         'show_tasks_onload'                    => [
             'required'         => false,
             'translated_value' => '',
@@ -102,6 +120,12 @@ class BaseSettings
             'type'             => 'bool'
         ],
         'include_times_on_invoice'             => [
+            'required'         => false,
+            'translated_value' => '',
+            'default_value'    => false,
+            'type'             => 'bool'
+        ],
+        'include_dates_on_invoice'             => [
             'required'         => false,
             'translated_value' => '',
             'default_value'    => false,
@@ -299,12 +323,6 @@ class BaseSettings
             'default_value'    => '',
             'type'             => 'string'
         ],
-        'percent_to_charge_endless'            => [
-            'required'         => false,
-            'translated_value' => '',
-            'default_value'    => 0,
-            'type'             => 'float'
-        ],
         'allow_backorders'                     => [
             'required'         => false,
             'translated_value' => '',
@@ -328,12 +346,6 @@ class BaseSettings
             'translated_value' => '',
             'default_value'    => false,
             'type'             => 'bool'
-        ],
-        'amount_to_charge_endless'             => [
-            'required'         => false,
-            'translated_value' => '',
-            'default_value'    => 0,
-            'type'             => 'float'
         ],
         'should_email_invoice'                 => [
             'required'         => false,
@@ -369,6 +381,12 @@ class BaseSettings
             'required'         => false,
             'translated_value' => '',
             'default_value'    => 32400,
+            'type'             => 'int'
+        ],
+        'time_to_send'                         => [
+            'required'         => false,
+            'translated_value' => '',
+            'default_value'    => 0,
             'type'             => 'int'
         ],
         'invoice_payment_deleted_status'       => [
@@ -407,96 +425,6 @@ class BaseSettings
             'default_value'    => 'when_saved',
             'type'             => 'string'
         ],
-        'reminder1_enabled'                    => [
-            'required'         => false,
-            'translated_value' => '',
-            'default_value'    => false,
-            'type'             => 'bool'
-        ],
-        'reminder2_enabled'                    => [
-            'required'         => false,
-            'translated_value' => '',
-            'default_value'    => false,
-            'type'             => 'bool'
-        ],
-        'reminder3_enabled'                    => [
-            'required'         => false,
-            'translated_value' => '',
-            'default_value'    => false,
-            'type'             => 'bool'
-        ],
-        'number_of_days_after_1'               => [
-            'required'         => false,
-            'translated_value' => '',
-            'default_value'    => 0,
-            'type'             => 'int'
-        ],
-        'number_of_days_after_2'               => [
-            'required'         => false,
-            'translated_value' => '',
-            'default_value'    => 0,
-            'type'             => 'int'
-        ],
-        'number_of_days_after_3'               => [
-            'required'         => false,
-            'translated_value' => '',
-            'default_value'    => 0,
-            'type'             => 'int'
-        ],
-        'scheduled_to_send_1'                  => [
-            'required'         => false,
-            'translated_value' => '',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'scheduled_to_send_2'                  => [
-            'required'         => false,
-            'translated_value' => '',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'scheduled_to_send_3'                  => [
-            'required'         => false,
-            'translated_value' => '',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'amount_to_charge_1'                   => [
-            'required'         => false,
-            'translated_value' => '',
-            'default_value'    => 0,
-            'type'             => 'float'
-        ],
-        'amount_to_charge_2'                   => [
-            'required'         => false,
-            'translated_value' => '',
-            'default_value'    => 0,
-            'type'             => 'float'
-        ],
-        'amount_to_charge_3'                   => [
-            'required'         => false,
-            'translated_value' => '',
-            'default_value'    => 0,
-            'type'             => 'float'
-        ],
-        'percent_to_charge_1'                  => [
-            'required'         => false,
-            'translated_value' => '',
-            'default_value'    => 0,
-            'type'             => 'float'
-        ],
-        'percent_to_charge_2'                  => [
-            'required'         => false,
-            'translated_value' => '',
-            'default_value'    => 0,
-            'type'             => 'float'
-        ],
-        'percent_to_charge_3'                  => [
-            'required'         => false,
-            'translated_value' => '',
-            'default_value'    => 0,
-            'type'             => 'float'
-        ],
         'endless_reminder_frequency_id'        => [
             'required'         => false,
             'translated_value' => '',
@@ -514,54 +442,6 @@ class BaseSettings
             'translated_value' => '',
             'default_value'    => true,
             'type'             => 'bool'
-        ],
-        'email_template_statement'             => [
-            'required'         => false,
-            'translated_value' => '',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_template_task'                  => [
-            'required'         => false,
-            'translated_value' => 'texts.task_body',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_template_deal'                  => [
-            'required'         => false,
-            'translated_value' => 'texts.deal_body',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_template_case'                  => [
-            'required'         => false,
-            'translated_value' => 'texts.case_body',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_subject_statement'              => [
-            'required'         => false,
-            'translated_value' => '',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_subject_task'                   => [
-            'required'         => false,
-            'translated_value' => 'texts.task_subject',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_subject_deal'                   => [
-            'required'         => false,
-            'translated_value' => 'texts.deal_subject',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_subject_case'                   => [
-            'required'         => false,
-            'translated_value' => 'texts.case_subject',
-            'default_value'    => '',
-            'type'             => 'string'
         ],
         'show_signature_on_pdf'                => [
             'required'         => false,
@@ -756,6 +636,12 @@ class BaseSettings
             'type'             => 'int'
         ],
         'reply_to_email'                       => [
+            'required'         => false,
+            'translated_value' => '',
+            'default_value'    => '',
+            'type'             => 'string'
+        ],
+        'reply_to_name'                        => [
             'required'         => false,
             'translated_value' => '',
             'default_value'    => '',
@@ -1020,6 +906,12 @@ class BaseSettings
             'type'             => 'string'
         ],
         'payment_terms'                        => [
+            'required'         => false,
+            'translated_value' => '',
+            'default_value'    => 30,
+            'type'             => 'integer'
+        ],
+        'quote_payment_terms'                  => [
             'required'         => false,
             'translated_value' => '',
             'default_value'    => 30,
@@ -1337,144 +1229,6 @@ class BaseSettings
             'default_value'    => [],
             'type'             => 'object'
         ],
-        'email_subject_custom1'                => [
-            'required'         => false,
-            'translated_value' => 'texts.custom1_subject',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_subject_custom2'                => [
-            'required'         => false,
-            'translated_value' => 'texts.custom2_subject',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_subject_custom3'                => [
-            'required'         => false,
-            'translated_value' => 'texts.custom3_subject',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_template_custom1'               => [
-            'required'         => false,
-            'translated_value' => 'texts.custom1_body',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_template_custom2'               => [
-            'required'         => false,
-            'translated_value' => 'texts.custom2_body',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_subject_invoice'                => [
-            'required'         => false,
-            'translated_value' => 'texts.invoice_subject',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_subject_quote'                  => [
-            'required'         => false,
-            'translated_value' => 'texts.quote_subject',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_subject_purchase_order'         => [
-            'required'         => false,
-            'translated_value' => 'texts.purchase_order_subject',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_subject_credit'                 => [
-            'required'         => false,
-            'translated_value' => 'texts.credit_subject',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_subject_payment'                => [
-            'required'         => false,
-            'translated_value' => 'texts.payment_subject',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_subject_lead'                   => [
-            'required'         => false,
-            'translated_value' => 'texts.lead_subject',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_subject_order_received'         => [
-            'required'         => false,
-            'translated_value' => 'texts.order_received_subject',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_subject_order_sent'             => [
-            'required'         => false,
-            'translated_value' => 'texts.order_sent_subject',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_subject_payment_partial'        => [
-            'required'         => false,
-            'translated_value' => 'texts.partial_payment_subject',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_template_invoice'               => [
-            'required'         => false,
-            'translated_value' => 'texts.invoice_body',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_template_quote'                 => [
-            'required'         => false,
-            'translated_value' => 'texts.quote_body',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_template_purchase_order'        => [
-            'required'         => false,
-            'translated_value' => 'texts.purchase_order_body',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_template_credit'                => [
-            'required'         => false,
-            'translated_value' => 'texts.credit_body',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_template_payment'               => [
-            'required'         => false,
-            'translated_value' => 'texts.payment_body',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_template_lead'                  => [
-            'required'         => false,
-            'translated_value' => 'texts.lead_body',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_template_order_received'        => [
-            'required'         => false,
-            'translated_value' => 'texts.order_received_body',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_template_order_sent'            => [
-            'required'         => false,
-            'translated_value' => 'texts.order_sent_body',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_template_payment_partial'       => [
-            'required'         => false,
-            'translated_value' => 'texts.partial_payment_body',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
         'reminder1_subject'                    => [
             'required'         => false,
             'translated_value' => 'texts.reminder1_subject',
@@ -1517,18 +1271,6 @@ class BaseSettings
             'default_value'    => '',
             'type'             => 'string'
         ],
-        'email_template_reminder_endless'      => [
-            'required'         => false,
-            'translated_value' => 'texts.endless_body',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
-        'email_template_custom3'               => [
-            'required'         => false,
-            'translated_value' => 'texts.custom3_body',
-            'default_value'    => '',
-            'type'             => 'string'
-        ],
         'under_payments_allowed'               => [
             'required'         => false,
             'translated_value' => '',
@@ -1552,6 +1294,24 @@ class BaseSettings
             'translated_value' => '',
             'default_value'    => true,
             'type'             => 'bool'
+        ],
+        'require_admin_password'               => [
+            'required'         => false,
+            'translated_value' => '',
+            'default_value'    => true,
+            'type'             => 'bool'
+        ],
+        'password_timeout'                     => [
+            'required'         => false,
+            'translated_value' => '',
+            'default_value'    => 480,
+            'type'             => 'string'
+        ],
+        'default_logout_time'                  => [
+            'required'         => false,
+            'translated_value' => '',
+            'default_value'    => null,
+            'type'             => 'string'
         ],
     ];
 

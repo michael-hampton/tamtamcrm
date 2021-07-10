@@ -5,9 +5,37 @@ namespace App\Search;
 use App\Models\Account;
 use App\Models\Invoice;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use ReflectionClass;
 
 class BaseSearch
 {
+    protected array $field_mapping = [
+        'internal_note'      => '$table.internal_note',
+        'customer_note'       => '$table.customer_note',
+        'industry'           => 'industries.name',
+        'custom1'            => '$table.custom_value1',
+        'custom2'            => '$table.custom_value2',
+        'custom3'            => '$table.custom_value3',
+        'custom4'            => '$table.custom_value4',
+        'address_1'          => 'billing.address_1',
+        'address_2'          => 'billing.address_2',
+        'city'               => 'billing.city',
+        'state'              => 'billing.state_code',
+        'zip'                => 'billing.zip',
+        'country'            => 'billing_country.name',
+        'shipping_address_1' => 'shipping.address_1',
+        'shipping_address_2' => 'shipping.address_2',
+        'shipping_city'      => 'shipping.city',
+        'shipping_town'      => 'shipping.state_code',
+        'shipping_zip'       => 'shipping.zip',
+        'shipping_country'   => 'shipping_country.name',
+        'language'           => 'languages.name',
+        'customer'           => 'customers.name',
+        'currency'           => 'currencies.name',
+        'balance'            => '$table.balance',
+        'customer_balance'   => 'customers.balance'
+    ];
     /**
      * @var array
      */
@@ -56,7 +84,7 @@ class BaseSearch
     protected function filterByDate($params, $column = '')
     {
         $params = explode('|', $params);
-        $field = !empty($column) ? $column . '.' . $params[0] : $params['0'];
+        $field = !empty($column) ? $column . '.' . $params[0] : $params[0];
 
         switch ($params[1]) {
             case 'last_month':
@@ -69,6 +97,44 @@ class BaseSearch
 
             default:
                 $this->query->whereDate($field, '>', Carbon::now()->subDays($params[1]));
+                break;
+        }
+    }
+
+    protected function addMonthYearToSelect($table, $field)
+    {
+        $column = $table . '.' . $field;
+        $this->query->addSelect(
+            DB::raw(
+                "CONCAT (MONTHNAME(" . $column . "), ' ', YEAR(" . $column . ")) AS " . $field
+            )
+        );
+    }
+
+    protected function addGroupBy($table, $group_by, $frequency)
+    {
+        $column = $table . '.' . $group_by;
+
+        if (empty($frequency)) {
+            $this->query->groupBy($column);
+            return true;
+        }
+
+        switch ($frequency) {
+            case 'year':
+                $this->query->groupBy(DB::raw("YEAR(" . $column . ")"));
+                break;
+
+            case 'month':
+                $this->query->groupBy(DB::raw("MONTH(" . $column . ")"));
+                break;
+
+            case 'day':
+                $this->query->groupBy($column);
+                break;
+
+            default:
+                $this->query->groupBy($column);
                 break;
         }
     }
@@ -116,10 +182,7 @@ class BaseSearch
         }
 
         if (!empty($filtered_statuses)) {
-            $this->query->whereIn(
-                $column,
-                $filtered_statuses
-            );
+            $this->query->status($filtered_statuses, $column);
         }
 
         return true;
@@ -128,29 +191,23 @@ class BaseSearch
     private function doStatusFilter($status, $table)
     {
         if ($status === 'invoice_overdue') {
-            $this->query->whereIn(
-                'status_id',
-                [
-                    Invoice::STATUS_SENT,
-                    Invoice::STATUS_PARTIAL
-                ]
-            )->where('due_date', '<', Carbon::now())->orWhere('partial_due_date', '<', Carbon::now());
+           $this->query->overdue($table);
         }
 
         if ($status === 'unapplied') {
-            $this->query->whereRaw("{$table}.applied < {$table}.amount");
+            $this->query->unapplied($table);
         }
 
         if ($status === 'active') {
-            $this->query->whereNull($table . '.deleted_at');
+            $this->query->active($table);
         }
 
         if ($status === 'archived') {
-            $this->query->whereNotNull($table . '.deleted_at')->where($table . '.is_deleted', '=', 0)->withTrashed();
+            $this->query->archived($table);
         }
 
         if ($status === 'deleted') {
-            $this->query->where($table . '.is_deleted', '=', 1)->withTrashed();
+            $this->query->deleted($table);
         }
     }
 
@@ -168,7 +225,7 @@ class BaseSearch
 
     protected function getStatus($model, int $status)
     {
-        $refl = new \ReflectionClass($model);
+        $refl = new ReflectionClass($model);
         $consts = $refl->getConstants();
 
         if (empty($this->statuses)) {

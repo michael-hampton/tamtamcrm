@@ -6,6 +6,7 @@ import { translations } from '../../utils/_translations'
 import UserDropdown from '../../common/dropdowns/UserDropdown'
 import CompanyDropdown from '../../common/dropdowns/CompanyDropdown'
 import ProjectDropdown from '../../common/dropdowns/ProjectDropdown'
+import AddCompany from '../../companies/edit/AddCompany'
 
 export default class Detailsm extends Component {
     constructor (props, context) {
@@ -130,7 +131,13 @@ export default class Detailsm extends Component {
 
                     {this.props.hide_customer === true &&
                     <FormGroup>
-                        <Label>{translations.company}</Label>
+                        <Label>{translations.company}
+                            <AddCompany small_button={true} brands={this.props.companies} users={[]}
+                                action={(companies, update = false) => {
+                                    this.props.updateCustomers(companies)
+                                }}
+                                custom_fields={[]}/>
+                        </Label>
                         <CompanyDropdown
                             handleInputChanges={this.props.handleInput}
                             company_id={this.props.purchase_order.company_id}

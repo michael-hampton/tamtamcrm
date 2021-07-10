@@ -77,8 +77,8 @@ class AddStory extends React.Component {
             description: this.state.description,
             customer_id: this.state.customer_id,
             storyId: this.state.count,
-            public_notes: this.state.public_notes,
-            private_notes: this.state.private_notes,
+            customer_note: this.state.customer_note,
+            internal_note: this.state.internal_note,
             due_date: this.state.due_date,
             start_date: this.state.start_date,
             assigned_to: this.state.assigned_to,
@@ -96,8 +96,8 @@ class AddStory extends React.Component {
                 return
             }
 
-            this.props.projects.push(response)
-            this.props.action(this.props.projects)
+            this.props.projects.unshift(response)
+            this.props.action(this.props.projects, true)
             this.setState(this.initialState)
             localStorage.removeItem('projectForm')
         })

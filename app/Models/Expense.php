@@ -3,22 +3,23 @@
 namespace App\Models;
 
 use App\Models;
-use App\Services\Expense\ExpenseService;
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Expense extends Model
 {
-    use SoftDeletes, HasFactory, Archiveable;
+    use SoftDeletes, HasFactory, Archiveable, QueryCacheable, QueryScopes;
 
     const STATUS_LOGGED = 1;
     const STATUS_PENDING = 2;
     const STATUS_INVOICED = 3;
     const STATUS_APPROVED = 4;
-
+    protected static $flushCacheOnUpdate = true;
     protected $fillable = [
         'assigned_to',
         'number',
@@ -33,8 +34,8 @@ class Expense extends Model
         'amount',
         'converted_amount',
         'exchange_rate',
-        'public_notes',
-        'private_notes',
+        'customer_note',
+        'internal_note',
         'bank_id',
         'transaction_id',
         'expense_category_id',
@@ -64,18 +65,25 @@ class Expense extends Model
         'tax_is_amount',
         'amount_includes_tax'
     ];
-
     protected $casts = [
-        'is_deleted' => 'boolean',
+        'hide'       => 'boolean',
         'updated_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];
 
-    public function service(): ExpenseService
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
     {
-        return new ExpenseService($this);
+        return [
+            'expenses',
+            'dashboard_expenses'
+        ];
     }
-
 
     public function files()
     {
@@ -131,5 +139,19 @@ class Expense extends Model
     {
         $this->status_id = $status_id;
         return true;
+    }
+
+    public function scopePermissions($query, User $user)
+    {
+        if ($user->isAdmin() || $user->isOwner() || $user->hasPermissionTo('expensecontroller.index')) {
+            return $query;
+        }
+
+        $query->where(
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('assigned_to', auth()->user($user)->id);
+            }
+        );
     }
 }

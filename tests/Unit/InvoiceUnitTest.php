@@ -8,6 +8,21 @@
 
 namespace Tests\Unit;
 
+use App\Events\Invoice\InvoiceWasEmailed;
+use App\Events\PurchaseOrder\PurchaseOrderWasEmailed;
+use App\Factory\PurchaseOrderFactory;
+use App\Models\EmailTemplate;
+use App\Models\PurchaseOrder;
+use App\Models\Reminders;
+use App\Repositories\EmailTemplateRepository;
+use App\Repositories\PurchaseOrderRepository;
+use App\Services\Email\DispatchEmail;
+use App\Services\Invoice\CancelInvoice;
+use App\Services\Invoice\CreatePayment;
+use App\Services\Invoice\GenerateRecurringInvoice;
+use App\Services\Invoice\ReverseInvoicePayment;
+use App\Services\Invoice\ReverseStatus;
+use App\Services\Transaction\TriggerTransaction;
 use App\Components\InvoiceCalculator\LineItem;
 use App\Components\Payment\ProcessPayment;
 use App\Factory\CreditFactory;
@@ -34,6 +49,8 @@ use App\Settings\AccountSettings;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Validation\Rules\In;
 use Tests\TestCase;
 
 /**
@@ -87,7 +104,8 @@ class InvoiceUnitTest extends TestCase
     /** @test */
     public function it_can_show_all_the_invoices()
     {
-        Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
+
         $list = (new InvoiceSearch(new InvoiceRepository(new Invoice)))->filter(
             new SearchRequest(),
             $this->main_account
@@ -98,11 +116,12 @@ class InvoiceUnitTest extends TestCase
     /** @test */
     public function it_can_update_the_invoice()
     {
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
         $customer_id = $this->customer->id;
-        $data = ['customer_id' => $customer_id];
+        $data = ['customer_id' => $customer_id, 'due_date' => now()->addMonthNoOverflow()->format('Y-m-d')];
         $invoiceRepo = new InvoiceRepository($invoice);
-        $updated = $invoiceRepo->updateInvoice($data, $invoice);
+        $updated = $invoiceRepo->update($data, $invoice);
+
         $found = $invoiceRepo->findInvoiceById($invoice->id);
         $this->assertInstanceOf(Invoice::class, $updated);
         $this->assertEquals($data['customer_id'], $found->customer_id);
@@ -111,7 +130,7 @@ class InvoiceUnitTest extends TestCase
     /** @test */
     public function it_can_show_the_invoice()
     {
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
         $invoiceRepo = new InvoiceRepository(new Invoice);
         $found = $invoiceRepo->findInvoiceById($invoice->id);
         $this->assertInstanceOf(Invoice::class, $found);
@@ -140,7 +159,9 @@ class InvoiceUnitTest extends TestCase
         $invoice_balance = $invoice->balance;
         $client = $invoice->customer;
         $client_balance = $client->balance;
-        $invoice = $invoice->service()->createPayment($invoiceRepo, new PaymentRepository(new Payment));
+        $invoice = (new CreatePayment(
+            $invoice, new InvoiceRepository(new Invoice()), new PaymentRepository(new Payment)
+        ))->execute();
 
         $this->assertEquals(0, $invoice->balance);
         $this->assertEquals(200, $invoice->amount_paid);
@@ -153,28 +174,19 @@ class InvoiceUnitTest extends TestCase
     /** @test */
     public function it_can_create_a_invoice()
     {
-        $user = User::factory()->create();
+        //$user = User::factory()->create();
+        $user = User::find(5);
         $factory = (new InvoiceFactory())->create($this->main_account, $user, $this->customer);
 
         $total = 1200;
 
-        $data = [
-            'date'           => Carbon::now()->format('Y-m-d'),
-            'due_date'       => Carbon::now()->addDays(3)->format('Y-m-d'),
-            'account_id'     => $this->customer->account->id,
-            'user_id'        => $user->id,
-            'customer_id'    => $this->customer->id,
-            'total'          => $total,
-            'balance'        => $total,
-            'tax_total'      => $this->faker->randomFloat(),
-            'discount_total' => $this->faker->randomFloat(),
-            'status_id'      => 1,
-        ];
+        $data = $this->generateInvoice();
 
         $invoiceRepo = new InvoiceRepository(new Invoice);
-        $invoice = $invoiceRepo->createInvoice($data, $factory);
+        $invoice = $invoiceRepo->create($data, $factory);
+
         $this->assertInstanceOf(Invoice::class, $invoice);
-        $this->assertEquals($data['customer_id'], $invoice->customer_id);
+        $this->assertEquals($this->customer->id, $invoice->customer_id);
         $this->assertNotEmpty($invoice->invitations);
 
         $customer_balance = $invoice->customer->balance;
@@ -206,7 +218,7 @@ class InvoiceUnitTest extends TestCase
         ];
 
         $invoiceRepo = new InvoiceRepository(new Invoice);
-        $invoice = $invoiceRepo->createInvoice($data, $factory);
+        $invoice = $invoiceRepo->create($data, $factory);
 
         $arrRecurring = [];
 
@@ -215,7 +227,7 @@ class InvoiceUnitTest extends TestCase
         $arrRecurring['frequency'] = 30;
         $arrRecurring['grace_period'] = 0;
         $arrRecurring['due_date'] = date('Y-m-d', strtotime('+1 month'));
-        $recurring_invoice = $invoice->service()->createRecurringInvoice($arrRecurring);
+        $recurring_invoice = (new GenerateRecurringInvoice($invoice))->execute($arrRecurring);
         $this->assertInstanceOf(RecurringInvoice::class, $recurring_invoice);
     }
 
@@ -226,7 +238,7 @@ class InvoiceUnitTest extends TestCase
     {
         $this->expectException(\Illuminate\Database\QueryException::class);
         $invoice = new InvoiceRepository(new Invoice);
-        $invoice->createInvoice([]);
+        $invoice->create([]);
     }
 
     /** @test */
@@ -240,7 +252,7 @@ class InvoiceUnitTest extends TestCase
     /** @test */
     public function it_can_archive_the_invoice()
     {
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
         $deleted = $invoice->archive();
         $this->assertTrue($deleted);
     }
@@ -301,7 +313,7 @@ class InvoiceUnitTest extends TestCase
     /** @test */
     public function testReverseInvoice()
     {
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
 
         $account = $invoice->account;
         $settings = $account->settings;
@@ -309,10 +321,12 @@ class InvoiceUnitTest extends TestCase
         $account->settings = $settings;
         $account->save();
 
-        $invoice->service()->createPayment(
-            new InvoiceRepository(new Invoice),
-            new PaymentRepository(new Payment)
-        )->save();
+        $invoice = (new CreatePayment(
+            $invoice,
+            new InvoiceRepository(new Invoice()),
+            new PaymentRepository(new Payment())
+        ))->execute();
+        $invoice->save();
 
         $first_payment = $invoice->payments->first();
 
@@ -328,8 +342,8 @@ class InvoiceUnitTest extends TestCase
         /*Adjust payment applied and the paymentables to the correct amount */
 
         $paymentables = Paymentable::wherePaymentableType(Invoice::class)
-                                   ->wherePaymentableId($invoice->id)
-                                   ->get();
+            ->wherePaymentableId($invoice->id)
+            ->get();
 
         $paymentables->each(
             function ($paymentable) use ($total_paid) {
@@ -351,12 +365,12 @@ class InvoiceUnitTest extends TestCase
 
         $credit->save();
 
-        $credit = $credit->service()->calculateInvoiceTotals();
+        $credit = (new CreditRepository($credit))->calculateTotals($credit);
 
         (new CreditRepository(new Credit))->markSent($credit);
 
         /* Set invoice balance to 0 */
-        $invoice->transaction_service()->createTransaction($balance_remaining * -1, $item->getNotes())->save();
+        (new TriggerTransaction($invoice))->execute($balance_remaining * -1, $item->getNotes())->save();
 
         /* Set invoice status to reversed... somehow*/
         $invoice->status_id = Invoice::STATUS_REVERSED;
@@ -375,7 +389,7 @@ class InvoiceUnitTest extends TestCase
     /** @test */
     public function testReversal()
     {
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
         $invoice->customer->balance = 0;
         $invoice->customer->save();
 
@@ -405,10 +419,11 @@ class InvoiceUnitTest extends TestCase
 
         $this->assertEquals(Invoice::STATUS_SENT, $invoice->status_id);
 
-        $invoice->service()->createPayment(
+        (new CreatePayment(
+            $invoice,
             new InvoiceRepository(new Invoice),
             new PaymentRepository(new Payment)
-        );
+        ))->execute();
 
         $invoice = $invoice->fresh();
 
@@ -418,10 +433,9 @@ class InvoiceUnitTest extends TestCase
         $this->assertEquals(0, $invoice->balance);
         $this->assertEquals(Invoice::STATUS_PAID, $invoice->status_id);
 
-        $invoice->service()->reverseInvoicePayment(
-            new CreditRepository(new Credit),
+        (new ReverseInvoicePayment($invoice, new CreditRepository(new Credit),
             new PaymentRepository(new Payment)
-        );
+        ))->execute();
 
         $this->assertEquals(Invoice::STATUS_REVERSED, $invoice->status_id);
         $this->assertEquals(0, $invoice->balance);
@@ -432,7 +446,7 @@ class InvoiceUnitTest extends TestCase
     /** @test */
     public function testReversalNoPayment()
     {
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
 
         (new InvoiceRepository(new Invoice()))->markSent($invoice);
 
@@ -446,10 +460,9 @@ class InvoiceUnitTest extends TestCase
 
         $invoice = $invoice->fresh();
 
-        $invoice->service()->reverseInvoicePayment(
-            new CreditRepository(new Credit),
+        (new ReverseInvoicePayment($invoice, new CreditRepository(new Credit),
             new PaymentRepository(new Payment)
-        )->save();
+        ))->execute(); // need save?
 
         $customer = $invoice->customer->fresh(); //2020 original
 
@@ -463,7 +476,7 @@ class InvoiceUnitTest extends TestCase
     /** @test */
     public function testCancelInvoice()
     {
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
 
         (new InvoiceRepository(new Invoice))->markSent($invoice);
 
@@ -476,7 +489,7 @@ class InvoiceUnitTest extends TestCase
 
         $this->assertEquals(Invoice::STATUS_SENT, $invoice->status_id);
 
-        $invoice = $invoice->service()->cancelInvoice();
+        $invoice = (new CancelInvoice($invoice))->execute();
 
         $invoice = $invoice->fresh();
 
@@ -489,7 +502,7 @@ class InvoiceUnitTest extends TestCase
     /** @test */
     public function testDeleteInvoice()
     {
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
         $invoice->customer->balance = 0;
         $invoice->customer->save();
         $invoice_balance = $invoice->balance;
@@ -499,10 +512,12 @@ class InvoiceUnitTest extends TestCase
         (new InvoiceRepository(new Invoice()))->markSent($invoice);
         $this->assertEquals(Invoice::STATUS_SENT, $invoice->status_id);
 
-        $invoice->service()->createPayment(
-            new InvoiceRepository(new Invoice),
-            new PaymentRepository(new Payment)
-        )->save();
+        $invoice = (new CreatePayment(
+            $invoice,
+            new InvoiceRepository(new Invoice()),
+            new PaymentRepository(new Payment())
+        ))->execute();
+        $invoice->save();
 
         $invoice = $invoice->fresh();
         $amount_paid = $invoice->amount_paid;
@@ -524,7 +539,7 @@ class InvoiceUnitTest extends TestCase
 
     public function testPartialDelete()
     {
-        $first_invoice = Invoice::factory()->create();
+        $first_invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
 
         $first_invoice->customer->balance = 0;
         $first_invoice->customer->save();
@@ -532,7 +547,7 @@ class InvoiceUnitTest extends TestCase
 
         (new InvoiceRepository(new Invoice))->markSent($first_invoice);
 
-        $second_invoice = Invoice::factory()->create();
+        $second_invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
         $second_invoice->customer_id = $first_invoice->customer->id;
         $second_invoice->customer->save();
 
@@ -590,7 +605,7 @@ class InvoiceUnitTest extends TestCase
     /** @test */
     public function testCancellationReversal()
     {
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
         $invoice->customer->balance = 0;
         $invoice->customer->save();
 
@@ -604,14 +619,16 @@ class InvoiceUnitTest extends TestCase
         $this->assertEquals(Invoice::STATUS_SENT, $invoice->status_id);
 
         $invoice = $invoice->fresh();
-        $invoice->service()->cancelInvoice();
+
+        (new CancelInvoice($invoice))->execute();
+
         $customer = $customer->fresh();
 
         $this->assertEquals(0, $invoice->balance);
         $this->assertEquals($customer->balance, ($client_balance - $invoice_balance));
         $this->assertEquals(Invoice::STATUS_CANCELLED, $invoice->status_id);
 
-        $invoice = $invoice->service()->reverseStatus();
+        $invoice = (new ReverseStatus($invoice))->execute();
 
         $this->assertEquals(Invoice::STATUS_SENT, $invoice->status_id);
         $this->assertEquals($invoice_balance, $invoice->balance);
@@ -624,7 +641,7 @@ class InvoiceUnitTest extends TestCase
     public function autoBill()
     {
         // create invoice
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
         $invoice->customer_id = 5;
         $invoice->gateway_fee = 0;
         $invoice->save();
@@ -633,7 +650,7 @@ class InvoiceUnitTest extends TestCase
         $line_item_count = count($invoice->line_items);
 
         $invoiceRepo = new InvoiceRepository(new Invoice);
-        $original_invoice = $invoiceRepo->createInvoice([], $invoice);
+        $original_invoice = $invoiceRepo->create([], $invoice);
 
         // auto bill
         AutobillInvoice::dispatchNow($original_invoice, $invoiceRepo);
@@ -656,7 +673,7 @@ class InvoiceUnitTest extends TestCase
     public function autoBill_with_gateway()
     {
         // create invoice
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
         $invoice->customer_id = 5;
         $invoice->gateway_fee = 0;
 
@@ -664,7 +681,7 @@ class InvoiceUnitTest extends TestCase
         $line_item_count = count($invoice->line_items);
 
         $invoiceRepo = new InvoiceRepository(new Invoice);
-        $original_invoice = $invoiceRepo->createInvoice([], $invoice);
+        $original_invoice = $invoiceRepo->create([], $invoice);
         $this->assertEquals($total, $original_invoice->total);
         $this->assertEquals($line_item_count, count($original_invoice->line_items));
 
@@ -699,20 +716,27 @@ class InvoiceUnitTest extends TestCase
     {
         // create invoice
         $invoice = Invoice::factory()->create();
+        $invoice = (new InvoiceRepository(new Invoice()))->save(['customer_id' => $this->customer->id], $invoice);
+
         $invoice->customer_id = 5;
         $invoice->status_id = Invoice::STATUS_SENT;
         $invoice->account_id = $this->account->id;
         $invoice->date_to_send = Carbon::now();
         $invoice->save();
 
-        $settings = $this->account->settings;
-        $settings->amount_to_charge_1 = 10;
-        $settings->reminder1_enabled = true;
-        $settings->number_of_days_after_1 = 1;
-        $settings->scheduled_to_send_1 = 'after_invoice_date';
-        $settings->inclusive_taxes = false;
-        $this->account->settings = $settings;
-        $this->account->save();
+        $data = [
+            'account_id'           => $this->account->id,
+            'user_id'              => $this->user->id,
+            'amount_to_charge'     => 10,
+            'enabled'              => true,
+            'number_of_days_after' => 1,
+            'scheduled_to_send'    => 'after_invoice_date',
+            'subject'              => 'test subject',
+            'message'              => 'test message'
+
+        ];
+
+        Reminders::create($data);
 
         $invoiceRepo = new InvoiceRepository(new Invoice);
 
@@ -728,7 +752,7 @@ class InvoiceUnitTest extends TestCase
         $this->assertEquals(($invoice->balance + 10), $updated_invoice->balance);
         $this->assertEquals($new_balance, $updated_invoice->customer->balance);
 
-        $date_to_send = Carbon::parse($invoice->date)->addDays($settings->number_of_days_after_1)->format('Y-m-d');
+        $date_to_send = Carbon::parse($invoice->date)->addDays($data['number_of_days_after'])->format('Y-m-d');
 
         $this->assertEquals(count($invoice->line_items) + 1, count($updated_invoice->line_items));
         $this->assertEquals(10, $updated_invoice->late_fee_charge);
@@ -738,23 +762,30 @@ class InvoiceUnitTest extends TestCase
     /** @test */
     public function test_reminder_from_invoice()
     {
+        $data = [
+            'account_id'           => $this->account->id,
+            'user_id'              => $this->user->id,
+            'amount_to_charge'     => 10,
+            'amount_type'          => 'fixed',
+            'enabled'              => true,
+            'number_of_days_after' => 1,
+            'scheduled_to_send'    => 'after_invoice_date',
+            'subject'              => 'test subject',
+            'message'              => 'test message'
+
+        ];
+
+        Reminders::create($data);
+
         // create invoice
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
         $invoice->customer_id = 5;
         $invoice->status_id = Invoice::STATUS_SENT;
         $invoice->account_id = $this->account->id;
         $invoice->date_to_send = Carbon::now();
-        $invoice->late_fee_reminder = 1;
+        $invoice->late_fee_reminder = Reminders::query()->latest()->first()->id;
         $invoice->save();
 
-        $settings = $this->account->settings;
-        $settings->amount_to_charge_1 = 10;
-        $settings->reminder1_enabled = true;
-        $settings->number_of_days_after_1 = 1;
-        $settings->scheduled_to_send_1 = 'after_invoice_date';
-        $settings->inclusive_taxes = false;
-        $this->account->settings = $settings;
-        $this->account->save();
 
         $invoiceRepo = new InvoiceRepository(new Invoice);
 
@@ -770,7 +801,7 @@ class InvoiceUnitTest extends TestCase
         $this->assertEquals(($invoice->balance + 10), $updated_invoice->balance);
         $this->assertEquals($new_balance, $updated_invoice->customer->balance);
 
-        $date_to_send = Carbon::parse($invoice->date)->addDays($settings->number_of_days_after_1)->format('Y-m-d');
+        $date_to_send = Carbon::parse($invoice->date)->addDays($data['number_of_days_after'])->format('Y-m-d');
 
         $this->assertEquals(count($invoice->line_items) + 1, count($updated_invoice->line_items));
         $this->assertEquals(10, $updated_invoice->late_fee_charge);
@@ -781,25 +812,34 @@ class InvoiceUnitTest extends TestCase
     public function test_reminders_percentage()
     {
         // create invoice
-        $invoice = Invoice::factory()->create();
+        $invoice = Invoice::factory()->create(['customer_id' => $this->customer->id]);
         $invoice->customer_id = 5;
         $invoice->account_id = $this->account->id;
         $invoice->date_to_send = Carbon::now();
         $invoice->save();
 
-        $settings = $invoice->customer->account->settings;
-        $settings->amount_to_charge_1 = 0;
-        $settings->percent_to_charge_1 = 5;
-        $settings->reminder1_enabled = true;
-        $settings->number_of_days_after_1 = 1;
-        $settings->scheduled_to_send_1 = 'after_invoice_date';
-        $settings->inclusive_taxes = false;
-        $invoice->customer->account->settings = $settings;
-        $invoice->customer->account->save();
+        $customer = $invoice->customer;
 
-        $original_customer_balance = $invoice->customer->balance;
+        $data = [
+            'account_id'           => $this->account->id,
+            'user_id'              => $this->user->id,
+            'amount_to_charge'     => 5,
+            'amount_type'          => 'percent',
+            'enabled'              => true,
+            'number_of_days_after' => 1,
+            'scheduled_to_send'    => 'after_invoice_date',
+            'subject'              => 'test subject',
+            'message'              => 'test message'
+
+        ];
+
+        Reminders::create($data);
 
         $invoiceRepo = new InvoiceRepository(new Invoice);
+
+        $invoiceRepo->markSent($invoice);
+
+        $original_customer_balance = $customer->fresh()->balance;
 
         ProcessReminders::dispatchNow($invoiceRepo);
 
@@ -807,16 +847,61 @@ class InvoiceUnitTest extends TestCase
 
         $new_balance = $original_customer_balance < 0 ? $original_customer_balance + 40 * -1 : $original_customer_balance + 40;
 
-
         $this->assertEquals(($invoice->total + 40), $updated_invoice->total);
         $this->assertEquals(($invoice->balance + 40), $updated_invoice->balance);
-        $this->assertEquals($new_balance, $updated_invoice->customer->balance);
+        $this->assertEquals($new_balance, $customer->fresh()->balance);
 
-        $date_to_send = Carbon::parse($invoice->date)->addDays($settings->number_of_days_after_1)->format('Y-m-d');
+        $date_to_send = Carbon::parse($invoice->date)->addDays($data['number_of_days_after'])->format('Y-m-d');
 
         $this->assertEquals(count($invoice->line_items) + 1, count($updated_invoice->line_items));
         $this->assertEquals(40, $updated_invoice->late_fee_charge);
         $this->assertEquals($updated_invoice->date_to_send->format('Y-m-d'), $date_to_send);
+    }
+
+    private function generateInvoice()
+    {
+
+        for ($x = 0; $x < 5; $x++) {
+            $line_items[] = (new \App\Components\InvoiceCalculator\LineItem)
+                ->setQuantity($this->faker->numberBetween(1, 10))
+                ->setUnitPrice($this->faker->randomFloat(2, 1, 1000))
+                ->calculateSubTotal()->setUnitDiscount($this->faker->numberBetween(1, 10))
+                ->setTaxRateEntity('unit_tax', 10.00)
+                ->setProductId($this->faker->word())
+                ->setNotes($this->faker->realText(50))
+                ->toObject();
+        }
+
+        return [
+            'account_id'     => 1,
+            'status_id'      => Invoice::STATUS_DRAFT,
+            'number'         => $this->faker->ean8(),
+            'total'          => 800,
+            'balance'        => 800,
+            'tax_total'      => $this->faker->randomFloat(2),
+            'discount_total' => $this->faker->randomFloat(2),
+            'hide'           => false,
+            'po_number'      => $this->faker->text(10),
+            'date'           => $this->faker->date(),
+            'due_date'       => $this->faker->date(),
+            'line_items'     => $line_items,
+            'terms'          => $this->faker->text(500),
+            'gateway_fee'    => 12.99
+        ];
+    }
+
+    public function testEmail()
+    {
+        Event::fake();
+
+        $invoice_data = $this->generateInvoice();
+        $invoice = InvoiceFactory::create($this->account, $this->user, $this->customer);
+        $credit_note = (new InvoiceRepository(new Invoice()))->create($invoice_data, $invoice);
+
+        $template = (new EmailTemplateRepository(new EmailTemplate()))->getTemplateForType('invoice');
+        (new DispatchEmail($credit_note))->execute(null, $template->subject, $template->message);
+
+        Event::assertDispatched(InvoiceWasEmailed::class);
     }
 
     /* public function test_buy_now_link()

@@ -4,6 +4,7 @@ namespace App\Listeners\PurchaseOrder;
 
 use App\Factory\NotificationFactory;
 use App\Repositories\NotificationRepository;
+use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class PurchaseOrderEmailed implements ShouldQueue
@@ -31,16 +32,21 @@ class PurchaseOrderEmailed implements ShouldQueue
      */
     public function handle($event)
     {
-        $fields = [];
-        $fields['data']['id'] = $event->invitation->inviteable->id;
-        $fields['data']['contact_id'] = $event->invitation->contact_id;
-        $fields['data']['company_id'] = $event->invitation->inviteable->company_id;
-        $fields['data']['message'] = 'A purchase order was emailed';
-        $fields['notifiable_id'] = $event->invitation->inviteable->user_id;
-        $fields['account_id'] = $event->invitation->inviteable->account_id;
-        $fields['notifiable_type'] = get_class($event->invitation->inviteable);
-        $fields['type'] = get_class($this);
-        $fields['data'] = json_encode($fields['data']);
+        $data = [
+            'id'            => $event->invitation->inviteable->id,
+            'company_id'    => $event->invitation->inviteable->company_id,
+            'invitation_id' => $event->invitation->id,
+            'message'       => 'A purchase order was emailed'
+        ];
+
+        $fields = [
+            'notifiable_id'   => $event->invitation->inviteable->user_id,
+            'account_id'      => $event->invitation->inviteable->account_id,
+            'notifiable_type' => get_class($event->invitation->inviteable),
+            'type'            => get_class($this),
+            'data'            => json_encode($data),
+            'action'          => 'emailed'
+        ];
 
         $notification = NotificationFactory::create(
             $event->invitation->inviteable->account_id,
@@ -48,5 +54,8 @@ class PurchaseOrderEmailed implements ShouldQueue
         );
         $notification->entity_id = $event->invitation->inviteable->id;
         $this->notification_repo->save($notification, $fields);
+
+        $event->invitation->inviteable->date_notification_last_sent = Carbon::now();
+        $event->invitation->inviteable->save();
     }
 }

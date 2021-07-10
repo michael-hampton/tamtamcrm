@@ -32,32 +32,32 @@ class OrderFactory extends Factory
                 ->setQuantity(2)
                 ->setUnitPrice(40)
                 ->calculateSubTotal()->setUnitDiscount(0)
-                ->setUnitTax(0)
+                ->setTaxRateEntity('unit_tax', 0)
                 ->setProductId($product->id)
                 ->setNotes($this->faker->realText(50))
                 ->toObject();
         }
 
         return [
-            'account_id' => 1,
-            'status_id' => Order::STATUS_DRAFT,
-            'number' => '',
-            'total' => 160,
-            'tax_total' => 20,
-            'shipping_cost' => 20,
+            'account_id'     => 1,
+            'status_id'      => Order::STATUS_DRAFT,
+            'number'         => '',
+            'total'          => 160,
+            'tax_total'      => 20,
+            'shipping_cost'  => 20,
             'discount_total' => 20,
-            'customer_id' => 5,
-            'user_id' => $user->id,
-            'date' => $this->faker->date(),
-            'due_date' => $this->faker->date(),
-            'custom_value1' => $this->faker->numberBetween(1,4),
-            'custom_value2' => $this->faker->numberBetween(1,4),
-            'custom_value3' => $this->faker->numberBetween(1,4),
-            'custom_value4' => $this->faker->numberBetween(1,4),
-            'is_deleted' => false,
-            'po_number' => $this->faker->text(10),
-            'line_items' => $line_items,
-            'gateway_fee' => 0
+            'customer_id'    => 5,
+            'user_id'        => $user->id,
+            'date'           => $this->faker->date(),
+            'due_date'       => $this->faker->date(),
+            'custom_value1'  => $this->faker->numberBetween(1, 4),
+            'custom_value2'  => $this->faker->numberBetween(1, 4),
+            'custom_value3'  => $this->faker->numberBetween(1, 4),
+            'custom_value4'  => $this->faker->numberBetween(1, 4),
+            'hide'           => false,
+            'po_number'      => $this->faker->text(10),
+            'line_items'     => $line_items,
+            'gateway_fee'    => 0
         ];
     }
 }

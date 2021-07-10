@@ -5,6 +5,7 @@ import CustomerDropdown from '../../common/dropdowns/CustomerDropdown'
 import { translations } from '../../utils/_translations'
 import UserDropdown from '../../common/dropdowns/UserDropdown'
 import ProjectDropdown from '../../common/dropdowns/ProjectDropdown'
+import AddCustomer from '../../customers/edit/AddCustomer'
 
 export default class Detailsm extends React.Component {
     constructor (props) {
@@ -90,7 +91,17 @@ export default class Detailsm extends React.Component {
 
                 {this.props.hide_customer === true &&
                     <FormGroup>
-                        <Label>{translations.customer}</Label>
+                        <Label>{translations.customer}
+                            <AddCustomer
+                                small_button={true}
+                                custom_fields={[]}
+                                action={(customers, update = false) => {
+                                    this.props.updateCustomers(customers)
+                                }}
+                                customers={this.props.customers}
+                                companies={[]}
+                            />
+                        </Label>
                         <CustomerDropdown
                             handleInputChanges={this.props.handleInput}
                             customer={this.props.order.customer_id}

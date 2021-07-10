@@ -45,6 +45,7 @@ import { getExchangeRateWithMap } from '../../utils/_money'
 import RecurringQuoteModel from '../../models/RecurringQuoteModel'
 import Recurringm from './Recurringm'
 import Details from './Details'
+import { toast, ToastContainer } from 'react-toastify'
 
 class UpdateRecurringQuote extends Component {
     constructor (props, context) {
@@ -53,6 +54,7 @@ class UpdateRecurringQuote extends Component {
         const data = this.props.invoice ? this.props.invoice : null
         this.quoteModel = new RecurringQuoteModel(data, this.props.customers)
         this.initialState = this.quoteModel.fields
+        this.initialState.customers = this.state.customers || []
         this.state = this.initialState
 
         this.updateData = this.updateData.bind(this)
@@ -83,11 +85,18 @@ class UpdateRecurringQuote extends Component {
         this.settings = user_account[0].account.settings
     }
 
-    componentWillMount () {
-        window.addEventListener('resize', this.handleWindowSizeChange)
+    static getDerivedStateFromProps (props, state) {
+        if (props.invoice && props.invoice.id && props.invoice.id !== state.id) {
+            const invoiceModel = new RecurringQuoteModel(props.invoice, props.customers)
+            return invoiceModel.fields
+        }
+
+        return null
     }
 
     componentDidMount () {
+        window.addEventListener('resize', this.handleWindowSizeChange)
+
         if (this.props.task_id) {
             this.loadInvoice()
         }
@@ -109,6 +118,12 @@ class UpdateRecurringQuote extends Component {
         }
     }
 
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.invoice && this.props.invoice.id && this.props.invoice.id !== prevProps.invoice.id) {
+            this.quoteModel = new RecurringQuoteModel(this.props.invoice, this.state.customers)
+        }
+    }
+
     // make sure to remove the listener
     // when the component is not mounted anymore
     componentWillUnmount () {
@@ -121,7 +136,16 @@ class UpdateRecurringQuote extends Component {
         const reducer = new InvoiceReducer(this.props.entity_id, this.props.entity_type)
         repo.getById(this.props.entity_id).then(response => {
             if (!response) {
-                alert('error')
+                toast.error(translations.unexpected_error, {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+                return
             }
 
             const data = reducer.build(type, response)
@@ -328,8 +352,8 @@ class UpdateRecurringQuote extends Component {
                         customer_id: r.data.customer_id,
                         user_id: r.data.user_id,
                         company_id: r.data.company_id,
-                        public_notes: r.data.public_notes,
-                        private_notes: r.data.private_notes,
+                        customer_note: r.data.customer_note,
+                        internal_note: r.data.internal_note,
                         terms: r.data.terms,
                         footer: r.data.footer,
                         status_id: parseInt(r.data.status_id)
@@ -462,8 +486,8 @@ class UpdateRecurringQuote extends Component {
             sub_total: this.state.sub_total,
             tax_total: this.state.tax_total,
             discount_total: this.state.discount_total,
-            public_notes: this.state.public_notes,
-            private_notes: this.state.private_notes,
+            customer_note: this.state.customer_note,
+            internal_note: this.state.internal_note,
             terms: this.state.terms,
             footer: this.state.footer,
             date: this.state.date,
@@ -494,14 +518,35 @@ class UpdateRecurringQuote extends Component {
                     errors: this.quoteModel.errors,
                     message: this.quoteModel.error_message
                 })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.recurring_quote), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.recurring_quote), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
 
             if (!this.state.id) {
                 const firstInvoice = response
                 const allInvoices = this.props.invoices
-                allInvoices.push(firstInvoice)
-                this.props.action(allInvoices)
+                allInvoices.unshift(firstInvoice)
+                this.props.action(allInvoices, true)
                 localStorage.removeItem('recurringQuoteForm')
                 localStorage.removeItem('recurringrecurringQuoteForm')
                 this.setState(this.initialState)
@@ -510,8 +555,8 @@ class UpdateRecurringQuote extends Component {
 
             const index = this.props.invoices.findIndex(invoice => invoice.id === this.state.id)
             this.props.invoices[index] = response
-            this.props.action(this.props.invoices)
-            this.setState({ loading: false, changesMade: false })
+            this.props.action(this.props.invoices, true)
+            this.setState({ loading: false, changesMade: false, modalOpen: false })
         })
     }
 
@@ -520,7 +565,7 @@ class UpdateRecurringQuote extends Component {
     }
 
     reload (data) {
-        this.quoteModel = new RecurringQuoteModel(data, this.props.customers)
+        this.quoteModel = new RecurringQuoteModel(data, this.state.customers)
         this.initialState = this.quoteModel.fields
         this.initialState.modalOpen = true
         this.setState(this.initialState)
@@ -604,24 +649,28 @@ class UpdateRecurringQuote extends Component {
             custom_fields={this.props.custom_fields}/>
 
         const contacts = this.state.is_mobile
-            ? <Contactsm address={this.state.address} customerName={this.state.customerName}
-                handleInput={this.handleInput} invoice={this.state}
-                errors={this.state.errors}
-                contacts={this.state.contacts}
-                invitations={this.state.invitations}
-                handleContactChange={this.handleContactChange}/>
-            : <Contacts hide_customer={this.state.id === null} address={this.state.address}
-                customerName={this.state.customerName}
-                handleInput={this.handleInput} invoice={this.state} errors={this.state.errors}
-                contacts={this.state.contacts}
-                invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
+            ? <Contactsm updateCustomers={(customers) => {
+                this.setState({ customers: customers })
+            }} address={this.state.address} customerName={this.state.customerName}
+            handleInput={this.handleInput} invoice={this.state}
+            errors={this.state.errors}
+            contacts={this.state.contacts}
+            invitations={this.state.invitations}
+            handleContactChange={this.handleContactChange}/>
+            : <Contacts updateCustomers={(customers) => {
+                this.setState({ customers: customers })
+            }} hide_customer={this.state.id === null} address={this.state.address}
+            customerName={this.state.customerName}
+            handleInput={this.handleInput} invoice={this.state} errors={this.state.errors}
+            contacts={this.state.contacts} customers={this.state.customers}
+            invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
 
         const recurring = this.state.is_mobile
             ? <Recurringm renderErrorFor={this.renderErrorFor} hasErrorFor={this.hasErrorFor}
                 allQuotes={this.props.allQuotes} show_quote={this.quoteModel.isNew}
                 hide_customer={this.state.id === null} address={this.state.address}
                 customerName={this.state.customerName} handleInput={this.handleInput}
-                customers={this.props.customers}
+                customers={this.state.customers}
                 errors={this.state.errors}
                 recurring_quote={this.state}
             />
@@ -636,7 +685,7 @@ class UpdateRecurringQuote extends Component {
             is_amount_discount={this.state.is_amount_discount}
             design_id={this.state.design_id}/>
 
-        const items = <Items line_type={this.state.line_type} model={this.quoteModel} customers={this.props.customers}
+        const items = <Items line_type={this.state.line_type} model={this.quoteModel} customers={this.state.customers}
             quote={this.state}
             errors={this.state.errors}
             handleFieldChange={this.handleFieldChange}
@@ -647,21 +696,21 @@ class UpdateRecurringQuote extends Component {
         const notes = !this.state.is_mobile
             ? <NoteTabs model={this.quoteModel}
                 show_exchange={this.quoteModel.account_currency.exchange_rate !== this.state.exchange_rate}
-                invoice={this.state} private_notes={this.state.private_notes}
-                public_notes={this.state.public_notes}
+                invoice={this.state} internal_note={this.state.internal_note}
+                customer_note={this.state.customer_note}
                 terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}
                 handleInput={this.handleInput}/>
-            : <Notes model={this.quoteModel} private_notes={this.state.private_notes}
-                public_notes={this.state.public_notes}
+            : <Notes model={this.quoteModel} internal_note={this.state.internal_note}
+                customer_note={this.state.customer_note}
                 terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}
                 handleInput={this.handleInput}/>
 
         const documents = this.state.id ? <Documents invoice={this.state}/> : null
 
         const email_editor = this.state.id
-            ? <Emails model={this.quoteModel} emails={this.state.emails} template="email_template_quote"
+            ? <Emails width="500" model={this.quoteModel} emails={this.state.emails} template="quote"
                 show_editor={true}
-                customers={this.props.customers} entity_object={this.state} entity="recurringQuote"
+                customers={this.state.customers} entity_object={this.state} entity="recurringQuote"
                 entity_id={this.state.id}/> : null
 
         const dropdownMenu = this.state.id
@@ -763,7 +812,7 @@ class UpdateRecurringQuote extends Component {
                             </Col>
 
                             <Col md={3} className="m-3">
-                                <TotalsBox invoice={this.state}/>
+                                <TotalsBox settings={this.settings} invoice={this.state}/>
                             </Col>
                         </Row>
                     </TabPane>
@@ -807,6 +856,18 @@ class UpdateRecurringQuote extends Component {
                             title={this.quoteModel.isNew ? translations.add_recurring_quote : translations.edit_recurring_quote}/>
 
                         <ModalBody className={theme}>
+                            <ToastContainer
+                                position="top-center"
+                                autoClose={5000}
+                                hideProgressBar={false}
+                                newestOnTop={false}
+                                closeOnClick
+                                rtl={false}
+                                pauseOnFocusLoss
+                                draggable
+                                pauseOnHover
+                            />
+
                             {form}
                         </ModalBody>
                         <DefaultModalFooter show_success={true} toggle={this.toggle} saveData={this.saveData}

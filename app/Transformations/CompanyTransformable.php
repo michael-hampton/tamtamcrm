@@ -28,8 +28,8 @@ trait CompanyTransformable
             'phone_number'  => $company->phone_number,
             'address_1'     => $company->address_1,
             'address_2'     => $company->address_2,
-            'private_notes' => $company->private_notes ?: '',
-            'public_notes'  => $company->public_notes ?: '',
+            'internal_note' => $company->internal_note ?: '',
+            'customer_note' => $company->customer_note ?: '',
             'town'          => $company->town,
             'city'          => $company->city,
             'postcode'      => $company->postcode,
@@ -44,7 +44,7 @@ trait CompanyTransformable
             'contacts'      => $this->transformContacts($company->contacts),
             'files'         => $this->transformCompanyFiles($company->files),
             'logo'          => $company->logo ?: '',
-            'is_deleted'    => (bool)$company->is_deleted,
+            'hide'          => (bool)$company->hide,
         ];
     }
 

@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Traits\CalculateRecurring;
+use App\Traits\CalculateDates;
 use App\Traits\CreditPayment;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
@@ -15,7 +16,7 @@ use ReflectionException;
 
 class ResetNumbers implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, CreditPayment, CalculateRecurring;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, CreditPayment, CalculateDates;
 
     /**
      * @var array|string[]
@@ -72,7 +73,7 @@ class ResetNumbers implements ShouldQueue
     {
         $date_to_reset = !empty($this->entity->customer) ? $this->entity->customer->getSetting(
             'date_counter_next_reset'
-        ) : $this->entity->account->settings->{'date_counter_next_reset'};
+        ) : $this->entity->account->settings->date_counter_next_reset;
 
         $frequency_type = !empty($this->entity->customer) ? $this->entity->customer->getSetting(
             'counter_frequency_type'

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { FormGroup, Input, Label } from 'reactstrap'
 import FormBuilder from './FormBuilder'
 import { translations } from '../utils/_translations'
-import { consts, frequencyOptions } from '../utils/_consts'
+import { frequencyOptions } from '../utils/_consts'
 
 class EmailFields extends Component {
     constructor (props) {
@@ -18,7 +18,7 @@ class EmailFields extends Component {
     }
 
     getFormFields (key = null) {
-        const settings = this.props.settings
+        const templates = this.props.templates
         const frequencies = []
 
         Object.keys(frequencyOptions).map((frequency) => {
@@ -32,227 +32,227 @@ class EmailFields extends Component {
         })
 
         const formFields = {
-            email_template_invoice: {
+            invoice: {
                 name: translations.invoice,
                 is_remider: false,
                 is_custom: false,
                 fields: [
                     {
                         id: 'subject',
-                        name: 'email_subject_invoice',
+                        name: 'subject',
                         label: translations.subject,
                         type: 'text',
                         placeholder: translations.subject,
-                        value: settings.email_subject_invoice,
+                        value: templates.invoice.subject,
                         group: 1
                     },
                     {
                         id: 'body',
-                        name: 'email_template_invoice',
+                        name: 'message',
                         label: translations.body,
                         type: 'textarea',
                         inputClass: 'textarea-lg',
                         placeholder: translations.body,
-                        value: settings.email_template_invoice,
+                        value: templates.invoice.message,
                         group: 1
                     }
                 ]
             },
 
-            email_template_payment: {
+            payment: {
                 name: translations.payment,
                 is_reminder: false,
                 is_custom: false,
                 fields: [
                     {
                         id: 'subject',
-                        name: 'email_subject_payment',
+                        name: 'subject',
                         label: translations.subject,
                         type: 'text',
                         placeholder: translations.subject,
-                        value: settings.email_subject_payment,
+                        value: templates.payment.subject,
                         group: 1
                     },
                     {
                         id: 'body',
-                        name: 'email_template_payment',
+                        name: 'message',
                         label: translations.body,
                         type: 'textarea',
                         inputClass: 'textarea-lg',
                         placeholder: translations.body,
-                        value: settings.email_template_payment,
+                        value: templates.payment.message,
                         group: 1
                     }
                 ]
             },
-            email_template_statement: {
+            statement: {
                 name: 'Statement',
                 is_reminder: false,
                 is_custom: false,
                 fields: [
                     {
                         id: 'subject',
-                        name: 'email_subject_statement',
+                        name: 'subject',
                         label: translations.subject,
                         type: 'text',
                         placeholder: translations.subject,
-                        value: settings.email_subject_statement,
+                        value: templates.statement.subject,
                         group: 1
                     },
                     {
                         id: 'body',
-                        name: 'email_template_statement',
+                        name: 'message',
                         label: translations.body,
                         type: 'textarea',
                         inputClass: 'textarea-lg',
                         placeholder: translations.body,
-                        value: settings.email_template_statement,
+                        value: templates.statement.message,
                         group: 1
                     }
                 ]
             },
-            email_template_payment_partial: {
-                name: 'Partal Payment',
+            payment_partial: {
+                name: 'Partial Payment',
                 is_reminder: false,
                 is_custom: false,
                 fields: [
                     {
                         id: 'subject',
-                        name: 'email_subject_payment_partial',
+                        name: 'subject',
                         label: translations.subject,
                         type: 'text',
                         placeholder: translations.subject,
-                        value: settings.email_subject_payment_partial,
+                        value: templates.payment_partial.subject,
                         group: 1
                     },
                     {
                         id: 'body',
-                        name: 'email_template_payment_partial',
+                        name: 'message',
                         label: translations.body,
                         type: 'textarea',
                         inputClass: 'textarea-lg',
                         placeholder: translations.body,
-                        value: settings.email_template_payment_partial,
+                        value: templates.payment_partial.message,
                         group: 1
                     }
                 ]
             },
-            email_template_quote: {
+            quote: {
                 name: translations.quote,
                 is_reminder: false,
                 is_custom: false,
                 fields: [
                     {
                         id: 'subject',
-                        name: 'email_subject_quote',
+                        name: 'subject',
                         label: translations.subject,
                         type: 'text',
                         placeholder: translations.subject,
-                        value: settings.email_subject_quote,
+                        value: templates.quote.subject,
                         group: 1
                     },
                     {
                         id: 'body',
-                        name: 'email_template_quote',
+                        name: 'message',
                         label: translations.body,
                         type: 'textarea',
                         inputClass: 'textarea-lg',
                         placeholder: translations.body,
-                        value: settings.email_template_quote,
+                        value: templates.quote.message,
                         group: 1
                     }
                 ]
             },
-            email_template_credit: {
+            credit: {
                 name: translations.credit,
                 is_reminder: false,
                 is_custom: false,
                 fields: [
                     {
                         id: 'subject',
-                        name: 'email_subject_credit',
+                        name: 'subject',
                         label: translations.subject,
                         type: 'text',
                         placeholder: translations.subject,
-                        value: settings.email_subject_credit,
+                        value: templates.credit.subject,
                         group: 1
                     },
                     {
                         id: 'body',
-                        name: 'email_template_credit',
+                        name: 'message',
                         label: translations.body,
                         type: 'textarea',
                         inputClass: 'textarea-lg',
                         placeholder: translations.body,
-                        value: settings.email_template_credit,
+                        value: templates.credit.message,
                         group: 1
                     }
                 ]
             },
-            email_template_lead: {
+            lead: {
                 name: translations.lead,
                 is_reminder: false,
                 is_custom: false,
                 fields: [
                     {
                         id: 'subject',
-                        name: 'email_subject_lead',
+                        name: 'subject',
                         label: translations.subject,
                         type: 'text',
                         placeholder: translations.subject,
-                        value: settings.email_subject_lead,
+                        value: templates.lead.subject,
                         group: 1
                     },
                     {
                         id: 'body',
-                        name: 'email_template_lead',
+                        name: 'message',
                         label: translations.body,
                         type: 'textarea',
                         inputClass: 'textarea-lg',
                         placeholder: translations.body,
-                        value: settings.email_template_lead,
+                        value: templates.lead.message,
                         group: 1
                     }
                 ]
             },
-            email_template_deal: {
+            deal: {
                 name: translations.deal,
                 is_remider: false,
                 is_custom: false,
                 fields: [
                     {
                         id: 'subject',
-                        name: 'email_subject_deal',
+                        name: 'subject',
                         label: translations.subject,
                         type: 'text',
                         placeholder: translations.subject,
-                        value: settings.email_subject_deal,
+                        value: templates.deal.subject,
                         group: 1
                     },
                     {
                         id: 'body',
-                        name: 'email_template_deal',
+                        name: 'message',
                         label: translations.body,
                         type: 'textarea',
                         inputClass: 'textarea-lg',
                         placeholder: translations.body,
-                        value: settings.email_template_deal,
+                        value: templates.deal.message,
                         group: 1
                     }
                 ]
             },
-            email_template_task: {
+            task: {
                 name: translations.task,
                 is_remider: false,
                 is_custom: false,
                 fields: [
                     {
                         id: 'subject',
-                        name: 'email_subject_task',
+                        name: 'subject',
                         label: translations.subject,
                         type: 'text',
                         placeholder: translations.subject,
-                        value: settings.email_subject_task,
+                        value: templates.task.subject,
                         group: 1
                     },
                     {
@@ -262,137 +262,137 @@ class EmailFields extends Component {
                         type: 'textarea',
                         inputClass: 'textarea-lg',
                         placeholder: translations.body,
-                        value: settings.email_template_task,
+                        value: templates.task.message,
                         group: 1
                     }
                 ]
             },
-            email_template_case: {
+            case: {
                 name: translations.cases,
                 is_remider: false,
                 is_custom: false,
                 fields: [
                     {
                         id: 'subject',
-                        name: 'email_subject_case',
+                        name: 'subject',
                         label: translations.subject,
                         type: 'text',
                         placeholder: translations.subject,
-                        value: settings.email_subject_case,
+                        value: templates.case.subject,
                         group: 1
                     },
                     {
                         id: 'body',
-                        name: 'email_template_case',
+                        name: 'message',
                         label: translations.body,
                         type: 'textarea',
                         inputClass: 'textarea-lg',
                         placeholder: translations.body,
-                        value: settings.email_template_case,
+                        value: templates.case.message,
                         group: 1
                     }
                 ]
             },
-            email_template_purchase_order: {
+            purchase_order: {
                 name: translations.purchase_order,
                 is_remider: false,
                 is_custom: false,
                 fields: [
                     {
                         id: 'subject',
-                        name: 'email_subject_purchase_order',
+                        name: 'subject',
                         label: translations.subject,
                         type: 'text',
                         placeholder: translations.subject,
-                        value: settings.email_subject_purchase_order,
+                        value: templates.purchase_order.subject,
                         group: 1
                     },
                     {
                         id: 'body',
-                        name: 'email_template_purchase_order',
+                        name: 'message',
                         label: translations.body,
                         type: 'textarea',
                         inputClass: 'textarea-lg',
                         placeholder: translations.body,
-                        value: settings.email_template_purchase_order,
+                        value: templates.purchase_order.message,
                         group: 1
                     }
                 ]
             },
-            email_template_order_received: {
+            order_received: {
                 name: 'Order Received',
                 is_reminder: false,
                 is_custom: false,
                 fields: [
                     {
                         id: 'subject',
-                        name: 'email_subject_order_received',
+                        name: 'subject',
                         label: translations.subject,
                         type: 'text',
                         placeholder: translations.subject,
-                        value: settings.email_subject_order_received,
+                        value: templates.order_received.subject,
                         group: 1
                     },
                     {
                         id: 'body',
-                        name: 'email_template_order_received',
+                        name: 'message',
                         label: translations.body,
                         type: 'textarea',
                         inputClass: 'textarea-lg',
                         placeholder: translations.body,
-                        value: settings.email_template_order_received,
+                        value: templates.order_received.message,
                         group: 1
                     }
                 ]
             },
-            email_template_order_sent: {
+            order_sent: {
                 name: 'Order Sent',
                 is_reminder: false,
                 is_custom: false,
                 fields: [
                     {
                         id: 'subject',
-                        name: 'email_subject_order_sent',
+                        name: 'subject',
                         label: translations.subject,
                         type: 'text',
                         placeholder: translations.subject,
-                        value: settings.email_subject_order_sent,
+                        value: templates.order_sent.subject,
                         group: 1
                     },
                     {
                         id: 'body',
-                        name: 'email_template_order_sent',
+                        name: 'message',
                         label: translations.body,
                         type: 'textarea',
                         inputClass: 'textarea-lg',
                         placeholder: translations.body,
-                        value: settings.email_template_order_sent,
+                        value: templates.order_sent.message,
                         group: 1
                     }
                 ]
             },
-            email_template_reminder_endless: {
+            endless: {
                 name: 'Endless',
                 is_reminder: false,
                 is_custom: false,
                 fields: [
                     {
                         id: 'subject',
-                        name: 'email_subject_reminder_endless',
+                        name: 'subject',
                         label: translations.subject,
                         type: 'text',
                         placeholder: translations.subject,
-                        value: settings.email_subject_reminder_endless,
+                        value: templates.endless.subject,
                         group: 1
                     },
                     {
                         id: 'body',
-                        name: 'endless_reminder_message',
+                        name: 'message',
                         label: translations.body,
                         type: 'textarea',
                         inputClass: 'textarea-lg',
                         placeholder: translations.body,
-                        value: settings.endless_reminder_message,
+                        value: templates.endless.message,
                         group: 1
                     },
                     {
@@ -401,7 +401,7 @@ class EmailFields extends Component {
                         label: translations.schedule,
                         type: 'select',
                         options: frequencies,
-                        value: settings.endless_reminder_frequency_id
+                        value: templates.endless.frequency_id
                     },
                     {
                         id: 'amount_to_charge_endless',
@@ -409,7 +409,7 @@ class EmailFields extends Component {
                         label: translations.late_fee_amount,
                         type: 'text',
                         placeholder: translations.late_fee_amount,
-                        value: settings.amount_to_charge_endless,
+                        value: templates.endless.amount_to_charge,
                         group: 1
                     },
                     {
@@ -418,334 +418,85 @@ class EmailFields extends Component {
                         label: 'Fee Percent',
                         type: 'text',
                         placeholder: 'Fee Percent',
-                        value: settings.percent_to_charge_endless,
+                        value: templates.endless.percent_to_charge,
                         group: 1
                     }
                 ]
             },
-            email_template_custom1: {
+            custom1: {
                 name: 'Custom 1',
                 is_reminder: false,
                 is_custom: true,
                 fields: [
                     {
                         id: 'subject',
-                        name: 'email_subject_custom1',
+                        name: 'subject',
                         label: translations.subject,
                         type: 'text',
                         placeholder: translations.subject,
-                        value: settings.email_subject_custom1,
+                        value: templates.custom1.subject,
                         group: 1
                     },
                     {
                         id: 'body',
-                        name: 'email_template_custom1',
+                        name: 'message',
                         label: translations.body,
                         type: 'textarea',
                         inputClass: 'textarea-lg',
                         placeholder: translations.body,
-                        value: settings.email_template_custom1,
+                        value: templates.custom1.message,
                         group: 1
                     }
                 ]
             },
-            email_template_custom2: {
+            custom2: {
                 name: 'Custom 2',
                 is_reminder: false,
                 is_custom: true,
                 fields: [
                     {
                         id: 'subject',
-                        name: 'email_subject_custom2',
+                        name: 'subject',
                         label: translations.subject,
                         type: 'text',
                         placeholder: translations.subject,
-                        value: settings.email_subject_custom2,
+                        value: templates.custom2.subject,
                         group: 1
                     },
                     {
                         id: 'body',
-                        name: 'email_template_custom2',
+                        name: 'message',
                         label: translations.body,
                         type: 'textarea',
                         inputClass: 'textarea-lg',
                         placeholder: translations.body,
-                        value: settings.email_template_custom2,
+                        value: templates.custom2.message,
                         group: 1
                     }
                 ]
             },
-            email_template_custom3: {
+            custom3: {
                 name: 'Custom 3',
                 is_reminder: false,
                 is_custom: true,
                 fields: [
                     {
                         id: 'subject',
-                        name: 'email_subject_custom3',
+                        name: 'subject',
                         label: translations.subject,
                         type: 'text',
                         placeholder: translations.subject,
-                        value: settings.email_subject_custom3,
+                        value: templates.custom3.subject,
                         group: 1
                     },
                     {
                         id: 'body',
-                        name: 'email_template_custom3',
+                        name: 'message',
                         label: translations.body,
                         type: 'textarea',
                         inputClass: 'textarea-lg',
                         placeholder: translations.body,
-                        value: settings.email_template_custom3,
-                        group: 1
-                    }
-                ]
-            },
-            email_template_reminder1: {
-                name: translations.reminder_1,
-                is_reminder: true,
-                is_custom: false,
-                fields: [
-                    {
-                        id: 'subject',
-                        name: 'reminder1_subject',
-                        label: translations.subject,
-                        type: 'text',
-                        placeholder: translations.subject,
-                        value: settings.reminder1_subject,
-                        group: 1
-                    },
-                    {
-                        id: 'body',
-                        name: 'reminder1_message',
-                        label: translations.body,
-                        type: 'textarea',
-                        inputClass: 'textarea-lg',
-                        placeholder: translations.body,
-                        value: settings.reminder1_message,
-                        group: 1
-                    },
-                    {
-                        id: 'number_of_days_after_1',
-                        name: 'number_of_days_after_1',
-                        label: translations.days,
-                        type: 'text',
-                        placeholder: translations.days,
-                        value: settings.number_of_days_after_1,
-                        group: 1
-                    },
-                    {
-                        id: 'scheduled_to_send_1',
-                        name: 'schedule_reminder1',
-                        label: translations.schedule,
-                        type: 'select',
-                        options: [
-                            {
-                                value: consts.reminder_schedule_after_invoice_date,
-                                text: translations.after_invoice_date
-                            },
-                            {
-                                value: consts.reminder_schedule_before_due_date,
-                                text: translations.before_due_date
-                            },
-                            {
-                                value: consts.reminder_schedule_after_due_date,
-                                text: translations.after_due_date
-                            }
-                        ],
-                        value: settings.schedule_reminder1
-                    },
-                    {
-                        id: 'amount_to_charge_1',
-                        name: 'amount_to_charge_1',
-                        label: translations.late_fee_amount,
-                        type: 'text',
-                        placeholder: translations.late_fee_amount,
-                        value: settings.amount_to_charge_1,
-                        group: 1
-                    },
-                    {
-                        id: 'percent_to_charge_1',
-                        name: 'percent_to_charge_1',
-                        label: translations.late_fee_percent,
-                        type: 'text',
-                        placeholder: translations.percent_to_charge_1,
-                        value: settings.percent_to_charge_1,
-                        group: 1
-                    },
-                    {
-                        id: 'reminder1_enabled',
-                        name: 'reminder1_enabled',
-                        label: translations.send_email,
-                        type: 'switch',
-                        placeholder: translations.send_email,
-                        value: settings.reminder1_enabled,
-                        group: 1
-                    }
-                ]
-            },
-            email_template_reminder2: {
-                name: translations.reminder_2,
-                is_reminder: true,
-                is_custom: false,
-                fields: [
-                    {
-                        id: 'subject',
-                        name: 'reminder2_subject',
-                        label: translations.subject,
-                        type: 'text',
-                        placeholder: translations.subject,
-                        value: settings.email_subject_reminder2,
-                        group: 1
-                    },
-                    {
-                        id: 'body',
-                        name: 'reminder2_message',
-                        label: translations.body,
-                        type: 'textarea',
-                        inputClass: 'textarea-lg',
-                        placeholder: translations.body,
-                        value: settings.email_template_reminder2,
-                        group: 1
-                    },
-                    {
-                        id: 'number_of_days_after_2',
-                        name: 'number_of_days_after_2',
-                        label: translations.days,
-                        type: 'text',
-                        placeholder: translations.days,
-                        value: settings.number_of_days_after_2,
-                        group: 1
-                    },
-                    {
-                        id: 'scheduled_to_send_2',
-                        name: 'scheduled_to_send_2',
-                        label: translations.schedule,
-                        type: 'select',
-                        options: [
-                            {
-                                value: consts.reminder_schedule_after_invoice_date,
-                                text: translations.after_invoice_date
-                            },
-                            {
-                                value: consts.reminder_schedule_before_due_date,
-                                text: translations.before_due_date
-                            },
-                            {
-                                value: consts.reminder_schedule_after_due_date,
-                                text: translations.after_due_date
-                            }
-                        ],
-                        value: settings.scheduled_to_send_2
-                    },
-                    {
-                        id: 'amount_to_charge_2',
-                        name: 'amount_to_charge_2',
-                        label: translations.late_fee_amount,
-                        type: 'text',
-                        placeholder: translations.late_fee_amount,
-                        value: settings.amount_to_charge_2,
-                        group: 1
-                    },
-                    {
-                        id: 'percent_to_charge_2',
-                        name: 'percent_to_charge_2',
-                        label: translations.late_fee_percent,
-                        type: 'text',
-                        placeholder: translations.late_fee_percent,
-                        value: settings.percent_to_charge_2,
-                        group: 1
-                    },
-                    {
-                        id: 'reminder2_enabled',
-                        name: 'reminder2_enabled',
-                        label: translations.send_email,
-                        type: 'switch',
-                        placeholder: 'Send Email',
-                        value: settings.reminder2_enabled,
-                        group: 1
-                    }
-                ]
-            },
-            email_template_reminder3: {
-                name: translations.reminder_3,
-                is_reminder: true,
-                is_custom: false,
-                fields: [
-                    {
-                        id: 'subject',
-                        name: 'reminder3_subject',
-                        label: translations.subject,
-                        type: 'text',
-                        placeholder: translations.subject,
-                        value: settings.email_subject_reminder3,
-                        group: 1
-                    },
-                    {
-                        id: 'body',
-                        name: 'reminder3_message',
-                        label: translations.body,
-                        type: 'textarea',
-                        inputClass: 'textarea-lg',
-                        placeholder: 'Website',
-                        value: settings.email_template_reminder3,
-                        group: 1
-                    },
-                    {
-                        id: 'number_of_days_after_3',
-                        name: 'number_of_days_after_3',
-                        label: translations.days,
-                        type: 'text',
-                        placeholder: translations.days,
-                        value: settings.number_of_days_after_3,
-                        group: 1
-                    },
-                    {
-                        id: 'scheduled_to_send_3',
-                        name: 'scheduled_to_send_3',
-                        label: translations.schedule,
-                        type: 'select',
-                        options: [
-                            {
-                                value: consts.reminder_schedule_after_invoice_date,
-                                text: translations.after_invoice_date
-                            },
-                            {
-                                value: consts.reminder_schedule_before_due_date,
-                                text: translations.before_due_date
-                            },
-                            {
-                                value: consts.reminder_schedule_after_due_date,
-                                text: translations.after_due_date
-                            }
-                        ],
-                        value: settings.scheduled_to_send_3
-                    },
-                    {
-                        id: 'amount_to_charge_3',
-                        name: 'amount_to_charge_3',
-                        label: translations.late_fee_amount,
-                        type: 'text',
-                        placeholder: translations.late_fee_amount,
-                        value: settings.amount_to_charge_3,
-                        group: 1
-                    },
-                    {
-                        id: 'percent_to_charge_3',
-                        name: 'percent_to_charge_3',
-                        label: translations.late_fee_percent,
-                        type: 'text',
-                        placeholder: translations.late_fee_percent,
-                        value: settings.percent_to_charge_3,
-                        group: 1
-                    },
-                    {
-                        id: 'reminder3_enabled',
-                        name: 'reminder3_enabled',
-                        label: translations.send_email,
-                        type: 'switch',
-                        placeholder: translations.send_email,
-                        value: settings.reminder3_enabled,
+                        value: templates.custom3.message,
                         group: 1
                     }
                 ]
@@ -781,7 +532,7 @@ class EmailFields extends Component {
         const toMap = this.props.custom_only && this.props.custom_only === true ? test2 : Object.keys(fields)
 
         const options = toMap.map(key => {
-            return <option data-name={fields[key].name} key={key} value={key}>{fields[key].name}</option>
+            return <option data-name={key} key={key} value={key}>{fields[key].name}</option>
         })
 
         const test = this._buildTemplate()
@@ -795,9 +546,11 @@ class EmailFields extends Component {
             <FormGroup>
                 <Label>{translations.template}</Label>
                 <Input type="select"
+                    value={this.props.selected_template || this.props.template_type}
                     name="template_type"
                     onChange={this.props.handleChange}
                 >
+                    <option value="">{translations.select_option}</option>
                     {options}
                 </Input>
             </FormGroup>

@@ -6,15 +6,25 @@ namespace App\Components\Import;
 
 use App\Factory\LeadFactory;
 use App\Models\Account;
+use App\Models\Deal;
 use App\Models\Lead;
 use App\Models\User;
+use App\Repositories\DealRepository;
 use App\Repositories\LeadRepository;
+use App\Requests\SearchRequest;
+use App\Search\DealSearch;
+use App\Search\LeadSearch;
 use App\Transformations\LeadTransformable;
 
 class LeadImporter extends BaseCsvImporter
 {
     use ImportMapper;
     use LeadTransformable;
+
+    /**
+     * @var string
+     */
+    protected string $json;
 
     protected $entity;
     private array $export_columns = [
@@ -45,8 +55,8 @@ class LeadImporter extends BaseCsvImporter
         'phone'         => 'phone',
         'website'       => 'website',
         'terms'         => 'terms',
-        'public notes'  => 'public_notes',
-        'private notes' => 'private_notes',
+        'public notes'  => 'customer_note',
+        'private notes' => 'internal_note',
         'job_title'     => 'job_title',
         'address_1'     => 'address_1',
         'address_2'     => 'address_2',
@@ -133,18 +143,24 @@ class LeadImporter extends BaseCsvImporter
         return new LeadRepository(new Lead());
     }
 
-    public function export()
+    public function export($is_json = false)
     {
         $export_columns = $this->getExportColumns();
-        $list = Lead::where('account_id', '=', $this->account->id)->get();
 
-        $leads = $list->map(
-            function (Lead $lead) {
-                return $this->transformObject($lead);
-            }
-        )->all();
+        $search_request = new SearchRequest();
+        $search_request->replace(['column' => 'created_at', 'order' => 'desc']);
+
+        $leads = (new LeadSearch(new LeadRepository(new Lead())))->filter($search_request, $this->account);
+
+        if ($is_json) {
+            $this->export->sendJson('lead', $leads);
+            $this->json = json_encode($leads);
+            return true;
+        }
 
         $this->export->build(collect($leads), $export_columns);
+
+        $this->export->notifyUser('lead');
 
         return true;
     }
@@ -167,5 +183,13 @@ class LeadImporter extends BaseCsvImporter
     public function getTemplate()
     {
         return asset('storage/templates/leads.csv');
+    }
+
+    /**
+     * @return string
+     */
+    public function getJson(): string
+    {
+        return $this->json;
     }
 }

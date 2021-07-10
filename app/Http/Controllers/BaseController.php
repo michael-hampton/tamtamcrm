@@ -4,6 +4,23 @@
 namespace App\Http\Controllers;
 
 
+use App\Models\EmailTemplate;
+use App\Repositories\EmailTemplateRepository;
+use App\Services\Email\DispatchEmail;
+use App\Services\Invoice\CancelInvoice;
+use App\Services\Invoice\CreatePayment;
+use App\Services\Invoice\ReverseInvoicePayment;
+use App\Services\Order\CancelOrder;
+use App\Services\Order\DispatchOrder;
+use App\Services\Order\HoldOrder;
+use App\Services\Order\ReverseStatus;
+use App\Services\Pdf\GenerateDispatchNote;
+use App\Services\Pdf\GeneratePdf;
+use App\Services\PurchaseOrder\Approve;
+use App\Services\PurchaseOrder\Reject;
+use App\Services\PurchaseOrder\RequestChange;
+use App\Services\Quote\ConvertQuoteToInvoice;
+use App\Services\Quote\ConvertQuoteToOrder;
 use App\Events\Misc\InvitationWasViewed;
 use App\Factory\CloneCreditFactory;
 use App\Factory\CloneCreditToQuoteFactory;
@@ -21,12 +38,14 @@ use App\Models\AccountUser;
 use App\Models\Country;
 use App\Models\Credit;
 use App\Models\Currency;
+use App\Models\Industry;
 use App\Models\Invoice;
 use App\Models\Language;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentGateway;
 use App\Models\PaymentMethod;
+use App\Models\Permission;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringQuote;
@@ -98,7 +117,7 @@ class BaseController extends Controller
         InvoiceRepository $invoice_repo,
         QuoteRepository $quote_repo,
         CreditRepository $credit_repo,
-        string $entity_string
+        string $entity_string = ''
     ) {
         $this->invoice_repo = $invoice_repo;
         $this->quote_repo = $quote_repo;
@@ -182,7 +201,7 @@ class BaseController extends Controller
                 break;
 
             case 'hold_order':
-                $order = $entity->service()->holdOrder();
+                $order = (new HoldOrder($entity))->execute();
 
                 if (!$order) {
                     $response = false;
@@ -195,11 +214,11 @@ class BaseController extends Controller
 
             case 'dispatch_note':
                 $disk = config('filesystems.default');
-                $content = Storage::disk($disk)->get($entity->service()->generateDispatchNote(null));
+                $content = Storage::disk($disk)->get((new GenerateDispatchNote($entity))->execute(null));
                 $response = ['data' => base64_encode($content)];
                 break;
             case 'reverse_status':
-                $order = $entity->service()->reverseStatus();
+                $order = (new ReverseStatus($entity))->execute();
 
                 if (!$order) {
                     $response = false;
@@ -222,7 +241,10 @@ class BaseController extends Controller
                     $message = 'Unable to approve this order as it has expired.';
                     $response = false;
                 } else {
-                    $response = $entity->service()->dispatch($this->invoice_repo, (new OrderRepository(new Order)));
+                    $response = (new DispatchOrder($entity))->execute(
+                        $this->invoice_repo,
+                        (new OrderRepository(new Order))
+                    );
                     $response = $this->transformEntity($response);
                 }
 
@@ -230,7 +252,7 @@ class BaseController extends Controller
 
             //quote
             case 'clone_quote_to_invoice': // done
-                $invoice = $entity->service()->convertQuoteToInvoice($this->invoice_repo);
+                $invoice = (new ConvertQuoteToInvoice($entity, $this->invoice_repo))->execute();
 
                 if (!$invoice) {
                     $response = false;
@@ -240,7 +262,7 @@ class BaseController extends Controller
 
                 break;
             case 'clone_to_order':
-                $order = $entity->service()->convertQuoteToOrder((new OrderRepository(new Order())));
+                $order = (new ConvertQuoteToOrder($entity, new OrderRepository(new Order())))->execute();
 
                 if (!$order) {
                     $response = false;
@@ -250,7 +272,7 @@ class BaseController extends Controller
                 break;
             case 'clone_to_quote': // done
                 $quote = CloneQuoteFactory::create($entity, auth()->user());
-                $this->quote_repo->createQuote($request->all(), $quote);
+                $this->quote_repo->create($request->all(), $quote);
                 $response = (new QuoteTransformable())->transformQuote($quote);
                 break;
             case 'mark_sent': //done
@@ -270,14 +292,14 @@ class BaseController extends Controller
                 break;
             case 'clone_credit_to_quote': //done
                 $quote = CloneCreditToQuoteFactory::create($entity, auth()->user());
-                (new QuoteRepository(new Quote))->createQuote($request->all(), $quote);
+                (new QuoteRepository(new Quote))->create($request->all(), $quote);
                 $response = (new QuoteTransformable())->transformQuote($quote);
                 break;
 
             case 'approve': //done
-                $quote = $this->entity_string === 'PurchaseOrder' ? $entity->service()->approve(
+                $quote = $this->entity_string === 'PurchaseOrder' ? (new Approve($entity))->execute(
                     new PurchaseOrderRepository($entity)
-                ) : $entity->service()->approve($this->invoice_repo, $this->quote_repo);
+                ) : (new \App\Services\Quote\Approve($entity))->execute($this->invoice_repo, $this->quote_repo);
 
                 if (!$quote) {
                     $message = 'Unable to approve this quote as it has expired.';
@@ -291,10 +313,16 @@ class BaseController extends Controller
                 break;
 
             case 'reject': //done
-                $quote = $this->entity_string === 'PurchaseOrder' ? $entity->service()->reject(
-                    new PurchaseOrderRepository($entity),
-                    $request->all()
-                ) : $entity->service()->reject($this->invoice_repo, $this->quote_repo, $request->all());
+                $quote = $this->entity_string === 'PurchaseOrder'
+                    ? (new Reject($entity))->execute(
+                        new PurchaseOrderRepository($entity),
+                        $request->all()
+                    )
+                    : (new \App\Services\Quote\Reject($entity))->execute(
+                        $this->invoice_repo,
+                        $this->quote_repo,
+                        $request->all()
+                    );
 
                 if (!$quote) {
                     $message = 'Unable to reject this quote as it has expired.';
@@ -307,10 +335,16 @@ class BaseController extends Controller
 
                 break;
             case 'change_requested': //done
-                $quote = $this->entity_string === 'PurchaseOrder' ? $entity->service()->requestChange(
-                    new PurchaseOrderRepository($entity),
-                    $request->all()
-                ) : $entity->service()->requestChange($this->invoice_repo, $this->quote_repo, $request->all());
+                $quote = $this->entity_string === 'PurchaseOrder'
+                    ? (new RequestChange($entity))->execute(
+                        new PurchaseOrderRepository($entity),
+                        $request->all()
+                    )
+                    : (new \App\Services\Quote\RequestChange($entity))->execute(
+                        $this->invoice_repo,
+                        $this->quote_repo,
+                        $request->all()
+                    );
 
                 if (!$quote) {
                     $message = 'Unable to update the quote as it has expired.';
@@ -325,7 +359,7 @@ class BaseController extends Controller
 
             case 'download': //done
                 $disk = config('filesystems.default');
-                $content = Storage::disk($disk)->get($entity->service()->generatePdf(null));
+                $content = Storage::disk($disk)->get((new GeneratePdf($entity))->execute());
                 $response = ['data' => base64_encode($content)];
                 break;
             case 'archive': //done
@@ -337,10 +371,13 @@ class BaseController extends Controller
                 $response = $this->transformEntity($entity);
                 break;
             case 'email': //done
-                $template = strtolower($this->entity_string);
-                $subject = $entity->customer->getSetting('email_subject_' . $template);
-                $body = $entity->customer->getSetting('email_template_' . $template);
-                $entity->service()->sendEmail(null, $subject, $body);
+                $template_type = $this->entity_string === 'PurchaseOrder' ? 'purchase_order' : strtolower($this->entity_string);
+                $template = (new EmailTemplateRepository(new EmailTemplate()))->getTemplateForType($template_type);
+
+                $subject = $template->subject;
+                $body = $template->message;
+
+                (new DispatchEmail($entity))->execute(null, $subject, $body);
                 $response = $this->transformEntity($entity);
                 break;
             case 'clone_to_invoice': // done
@@ -356,11 +393,13 @@ class BaseController extends Controller
                 break;
             case 'clone_invoice_to_quote': // done
                 $quote = CloneInvoiceToQuoteFactory::create($entity, auth()->user());
-                (new QuoteRepository(new Quote))->createQuote($request->all(), $quote);
+                (new QuoteRepository(new Quote))->create($request->all(), $quote);
                 $response = (new QuoteTransformable())->transformQuote($quote);
                 break;
             case 'create_payment': // done
-                $invoice = $entity->service()->createPayment($this->invoice_repo, new PaymentRepository(new Payment));
+                $invoice = (new CreatePayment(
+                    $entity, $this->invoice_repo, new PaymentRepository(new Payment)
+                ))->execute();
 
                 if (!$invoice) {
                     $response = false;
@@ -372,7 +411,7 @@ class BaseController extends Controller
                 break;
             case 'clone_recurring_to_quote':
                 $quote = RecurringQuoteToQuoteFactory::create($entity, $entity->customer);
-                (new QuoteRepository(new Quote()))->createQuote([], $quote);
+                (new QuoteRepository(new Quote()))->create([], $quote);
                 $response = (new QuoteTransformable())->transformQuote($quote);
                 break;
 
@@ -403,10 +442,11 @@ class BaseController extends Controller
                 $response = (new InvoiceTransformable())->transformInvoice($invoice);
                 break;
             case 'reverse': // done
-                $invoice = $entity->service()->reverseInvoicePayment(
+                $invoice = (new ReverseInvoicePayment(
+                    $entity,
                     new CreditRepository(new Credit),
                     new PaymentRepository(new Payment)
-                );
+                ))->execute();
 
                 if (!$invoice) {
                     $response = false;
@@ -418,8 +458,8 @@ class BaseController extends Controller
                 break;
 
             case 'cancel': //done
-                $method = "cancel{$this->entity_string}";
-                $entity = $entity->service()->{$method}();
+                $entity = strtolower($this->entity_string) === 'invoice' ? (new CancelInvoice($entity))->execute(
+                ) : (new CancelOrder($entity))->execute();
                 $response = $this->transformEntity($entity);
 
                 break;
@@ -512,7 +552,7 @@ class BaseController extends Controller
         $pdfs = [];
 
         foreach ($entities as $entity) {
-            $content = Storage::disk($disk)->get($entity->service()->generatePdf(null));
+            $content = Storage::disk($disk)->get((new GeneratePdf($entity))->execute());
             $pdfs[$entity->number] = base64_encode($content);
         }
 
@@ -532,7 +572,8 @@ class BaseController extends Controller
         $entity = $invitation->inviteable;
 
         $disk = config('filesystems.default');
-        $content = Storage::disk($disk)->get($entity->service()->generatePdf($contact));
+
+        $content = Storage::disk($disk)->get((new GeneratePdf($entity))->execute($contact));
 
         if (request()->has('markRead') && request()->boolean('markRead')) {
             $invitation->markViewed();
@@ -542,10 +583,8 @@ class BaseController extends Controller
         return response()->json(['data' => base64_encode($content)]);
     }
 
-    protected function getIncludes()
+    protected function getIncludes(User $user)
     {
-        $user = auth()->user();
-
         $default_account = $user->accounts->first()->domains->default_company;
         //$user->setAccount($default_account);
 
@@ -554,23 +593,35 @@ class BaseController extends Controller
         $custom_fields = !empty(auth()->user()->account_user()->account) ? auth()->user()->account_user(
         )->account->custom_fields : [];
 
+        $permissions = Permission::getRolePermissions($user);
+
+        $allowed_permissions = [];
+
+        foreach ($permissions as $permission) {
+            $allowed_permissions[$permission->role_id][$permission->name] = $permission->has_permission;
+        }
+
         return [
-            'account_id'         => $default_account->id,
-            'custom_fields'      => $custom_fields,
-            'id'                 => $user->id,
-            'auth_token'         => $user->auth_token,
-            'name'               => $user->name,
-            'email'              => $user->email,
-            'accounts'           => $accounts,
-            'number_of_accounts' => $user->accounts->count(),
-            'currencies'         => Currency::all(),
-            'languages'          => Language::all(),
-            'countries'          => Country::all(),
-            'payment_types'      => PaymentMethod::all(),
-            'gateways'           => PaymentGateway::all(),
-            'tax_rates'          => TaxRate::all(),
-            'users'              => User::where('is_active', '=', 1)->get(
-                ['first_name', 'last_name', 'phone_number', 'id']
+            'account_id'          => $default_account->id,
+            'require_login'       => (bool)$default_account->settings->require_admin_password,
+            'plan'                => !empty($default_account->domains->plan) ? $default_account->domains->plan : null,
+            'custom_fields'       => $custom_fields,
+            'id'                  => $user->id,
+            'auth_token'          => $user->auth_token,
+            'name'                => $user->name,
+            'email'               => $user->email,
+            'accounts'            => $accounts,
+            'allowed_permissions' => $allowed_permissions,
+            'number_of_accounts'  => $user->accounts->count(),
+            'currencies'          => Currency::all(),
+            'languages'           => Language::all(),
+            'industries'          => Industry::all(),
+            'countries'           => Country::all(),
+            'payment_types'       => PaymentMethod::all(),
+            'gateways'            => PaymentGateway::all(),
+            'tax_rates'           => TaxRate::all(),
+            'users'               => User::where('is_active', '=', 1)->get(
+                ['first_name', 'last_name', 'phone_number', 'id', 'email']
             )
         ];
     }

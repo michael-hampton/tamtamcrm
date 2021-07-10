@@ -12,6 +12,7 @@ use App\Traits\SearchableTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 /**
  * Description of Address
@@ -21,8 +22,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Address extends Model
 {
 
-    use SoftDeletes, SearchableTrait, HasFactory;
+    use SoftDeletes, SearchableTrait, HasFactory, QueryCacheable;
 
+    protected static $flushCacheOnUpdate = true;
     /**
      * The attributes that are mass assignable.
      *

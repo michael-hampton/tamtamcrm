@@ -30,7 +30,7 @@ class CommentRepository extends BaseRepository implements CommentRepositoryInter
      */
     public function updateComment(array $data): bool
     {
-        return $this->update($data);
+        return $this->model->update($data);
     }
 
     /**
@@ -42,7 +42,7 @@ class CommentRepository extends BaseRepository implements CommentRepositoryInter
     public function createComment(array $data): Comment
     {
         try {
-            return $this->create($data);
+            return $this->model->create($data);
         } catch (QueryException $e) {
             throw new CreateCommentErrorException($e);
         }

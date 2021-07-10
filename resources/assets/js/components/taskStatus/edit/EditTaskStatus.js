@@ -7,6 +7,7 @@ import DefaultModalFooter from '../../common/ModalFooter'
 import TaskStatusModel from '../../models/TaskStatusModel'
 import ColorPickerNew from '../../common/ColorPickerNew'
 import { taskTypes } from '../../utils/_consts'
+import { toast, ToastContainer } from 'react-toastify'
 
 class EditTaskStatus extends React.Component {
     constructor (props) {
@@ -20,6 +21,21 @@ class EditTaskStatus extends React.Component {
         this.hasErrorFor = this.hasErrorFor.bind(this)
         this.renderErrorFor = this.renderErrorFor.bind(this)
         this.handleFileChange = this.handleFileChange.bind(this)
+    }
+
+    static getDerivedStateFromProps (props, state) {
+        if (props.task_status && props.task_status.id !== state.id) {
+            const invoiceModel = new TaskStatusModel(props.task_status)
+            return invoiceModel.fields
+        }
+
+        return null
+    }
+
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.task_status && this.props.task_status.id !== prevProps.task_status.id) {
+            this.taskStatusModel = new TaskStatusModel(this.props.task_status)
+        }
     }
 
     handleFileChange (e) {
@@ -62,12 +78,33 @@ class EditTaskStatus extends React.Component {
         this.taskStatusModel.update(this.getFormData()).then(response => {
             if (!response) {
                 this.setState({ errors: this.taskStatusModel.errors, message: this.taskStatusModel.error_message })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.task_status), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
 
+            toast.success(translations.updated_successfully.replace('{entity}', translations.task_status), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
+
             const index = this.props.statuses.findIndex(task_status => task_status.id === this.state.id)
             this.props.statuses[index] = response
-            this.props.action(this.props.statuses)
+            this.props.action(this.props.statuses, true)
             this.setState({ changesMade: false, loading: false })
             this.toggle()
         })
@@ -91,6 +128,18 @@ class EditTaskStatus extends React.Component {
                     <DefaultModalHeader toggle={this.toggle} title={translations.edit_task_status}/>
 
                     <ModalBody className={theme}>
+                        <ToastContainer
+                            position="top-center"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
+
                         <FormGroup>
                             <Label for="name">{translations.name} <span className="text-danger">*</span></Label>
                             <Input className={this.hasErrorFor('name') ? 'is-invalid' : ''}

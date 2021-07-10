@@ -3,6 +3,7 @@
 namespace App\Search;
 
 use App\Models\Account;
+use App\Models\File;
 use App\Models\RecurringQuote;
 use App\Repositories\RecurringQuoteRepository;
 use App\Requests\SearchRequest;
@@ -46,25 +47,27 @@ class RecurringQuoteSearch extends BaseSearch
 
         if ($request->has('status')) {
             $this->status('recurring_quotes', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->filled('customer_id')) {
-            $this->query->whereCustomerId($request->customer_id);
+            $this->query->byCustomer($request->customer_id);
         }
 
         if ($request->filled('project_id')) {
-            $this->query->whereProjectId($request->project_id);
+            $this->query->byProject($request->project_id);
         }
 
         if ($request->filled('user_id')) {
-            $this->query->where('assigned_to', '=', $request->user_id);
+            $this->query->byAssignee('assigned_to', '=', $request->user_id);
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
-            $this->filterDates($request);
+            $this->query->byDate($request->input('start_date'), $request->input('end_date'));
         }
 
-        $this->addAccount($account);
+        $this->query->byAccount($account);
 
         $this->checkPermissions('recurringquotecontroller.index');
 
@@ -100,11 +103,12 @@ class RecurringQuoteSearch extends BaseSearch
 
     private function transformList()
     {
-        $list = $this->query->get();
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['recurring_quotes'])->get();
+        $files = File::where('fileable_type', '=', 'App\Models\RecurringQuote')->get()->groupBy('fileable_id');
 
         $quotes = $list->map(
-            function (RecurringQuote $quote) {
-                return $this->transformRecurringQuote($quote);
+            function (RecurringQuote $quote) use ($files) {
+                return $this->transformRecurringQuote($quote, $files);
             }
         )->all();
 

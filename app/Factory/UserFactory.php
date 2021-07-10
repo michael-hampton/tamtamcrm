@@ -11,7 +11,7 @@ class UserFactory
     {
         $user = new User;
         $user->last_login = now();
-        $user->ip = request()->ip();
+        $user->ip_address = request()->ip();
         $user->confirmation_code = Str::random(config('taskmanager.key_length'));
         $user->domain_id = $domain_id;
         $user->is_active = 1;

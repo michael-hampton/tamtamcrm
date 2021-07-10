@@ -12,6 +12,7 @@ use App\Requests\SearchRequest;
 use App\Search\RecurringInvoiceSearch;
 use App\Traits\BuildVariables;
 use App\Traits\CalculateRecurring;
+use App\Traits\CalculateDates;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
@@ -20,7 +21,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 class RecurringInvoiceRepository extends BaseRepository
 {
     use BuildVariables;
-    use CalculateRecurring;
+    use CalculateDates;
 
     /**
      * RecurringInvoiceRepository constructor.
@@ -37,7 +38,7 @@ class RecurringInvoiceRepository extends BaseRepository
      * @param RecurringInvoice $recurring_invoice
      * @return RecurringInvoice|null
      */
-    public function createInvoice(array $data, RecurringInvoice $recurring_invoice): ?RecurringInvoice
+    public function create(array $data, RecurringInvoice $recurring_invoice): ?RecurringInvoice
     {
         $recurring_invoice->date_to_send = $this->calculateDate($data['frequency']);
         $recurring_invoice = $this->save($data, $recurring_invoice);
@@ -60,24 +61,30 @@ class RecurringInvoiceRepository extends BaseRepository
      */
     public function save(array $data, RecurringInvoice $invoice): ?RecurringInvoice
     {
-        $is_add = !empty($invoice->id);
-
         $invoice->fill($data);
+        $invoice = $this->calculateTotals($invoice);
+        $invoice = $invoice->convertCurrencies($invoice, $invoice->total, config('taskmanager.use_live_exchange_rates'));
         $invoice = $this->populateDefaults($invoice);
         $invoice = $this->formatNotes($invoice);
-        $invoice = $invoice->service()->calculateInvoiceTotals();
         $invoice->setNumber();
-        $invoice->setExchangeRate();
 
         $invoice->save();
 
         $this->saveInvitations($invoice, $data);
 
-        if (!$is_add) {
-            event(new RecurringInvoiceWasUpdated($invoice));
-        }
-
         return $invoice->fresh();
+    }
+
+    /**
+     * @param array $data
+     * @param RecurringInvoice $recurring_invoice
+     */
+    public function update(array $data, RecurringInvoice $recurring_invoice)
+    {
+        $recurring_invoice = $this->save($data, $recurring_invoice);
+        event(new RecurringInvoiceWasUpdated($recurring_invoice));
+
+        return $recurring_invoice;
     }
 
     /**

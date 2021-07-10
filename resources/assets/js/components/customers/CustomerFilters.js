@@ -7,6 +7,7 @@ import FilterTile from '../common/FilterTile'
 import DateFilter from '../common/DateFilter'
 import CsvImporter from '../common/CsvImporter'
 import StatusDropdown from '../common/StatusDropdown'
+import { filterStatuses } from '../utils/_search'
 
 export default class CustomerFilters extends Component {
     constructor (props) {
@@ -70,12 +71,26 @@ export default class CustomerFilters extends Component {
         return (
             <Row form>
                 <Col md={2}>
-                    <TableSearch onChange={this.filterCustomers}/>
+                    <TableSearch onChange={(e) => {
+                        const value = typeof e.target.value === 'string' ? e.target.value.toLowerCase() : e.target.value
+                        const search_results = this.props.cachedData.filter(obj => Object.keys(obj).some(key => obj[key] && obj[key].length ? obj[key].toString().toLowerCase().includes(value) : false))
+                        this.props.updateList(search_results && search_results.length ? search_results : [], false, this.state.filters)
+                    }}/>
                 </Col>
 
                 <Col sm={12} md={2} className="mt-3 mt-md-0">
                     <FormGroup>
-                        <StatusDropdown name="status" filterStatus={this.filterCustomers}/>
+                        <StatusDropdown filterStatus={(e) => {
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [e.target.id]: e.target.value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
+                                this.props.updateList(results || [], false, this.state.filters)
+                            })
+                        }}/>
                     </FormGroup>
                 </Col>
 
@@ -83,7 +98,17 @@ export default class CustomerFilters extends Component {
                     <CompanyDropdown
                         companies={this.props.companies}
                         company_id={this.props.filters.company_id}
-                        handleInputChanges={this.filterCustomers}
+                        handleInputChanges={(e) => {
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [e.target.name]: e.target.value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
+                                this.props.updateList(results || [], false, this.state.filters)
+                            })
+                        }}
                     />
                 </Col>
 

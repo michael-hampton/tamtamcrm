@@ -28,7 +28,7 @@ export default class TaskRepository extends BaseRepository {
             parameters.project_id = project_id
         }
 
-        const url = Object.keys(parameters).length ? this._url + `?${this.buildQueryParams(parameters)}` : this._url
+        const url = Object.keys(parameters).length ? this._url + `?${this.buildQueryParams(parameters)}` : this._url + '?status=active'
 
         try {
             const res = await axios.get(url)

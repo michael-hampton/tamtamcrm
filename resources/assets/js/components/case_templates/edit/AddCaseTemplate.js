@@ -55,8 +55,8 @@ class AddCaseTemplate extends React.Component {
             .then((response) => {
                 this.toggle()
                 const newUser = response.data
-                this.props.templates.push(newUser)
-                this.props.action(this.props.templates)
+                this.props.templates.unshift(newUser)
+                this.props.action(this.props.templates, true)
                 this.setState({
                     name: null,
                     description: null,

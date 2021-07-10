@@ -2,13 +2,15 @@ import axios from 'axios'
 import moment from 'moment'
 import BaseModel, { LineItem } from './BaseModel'
 import { consts } from '../utils/_consts'
+import InvoiceCalculations from './InvoiceCalculations'
+import { buildPdf } from '../utils/Pdf'
 
-export const quote_pdf_fields = ['$quote.number', '$quote.po_number', '$quote.quote_date', '$quote.valid_until', '$quote.balance_due', '$quote.quote_datetime', '$quote.quote_agent',
+export const quote_pdf_fields = ['$quote.number', '$quote.po_number', '$quote.quote_date', '$quote.valid_until', '$quote.balance_due', '$quote.quote_datetime', '$quote.quote_status', '$quote.quote_agent',
     '$quote.quote_total', '$quote.partial_due', '$quote.custom1', '$quote.custom2', '$quote.custom3', '$quote.custom4', '$quote.surcharge1',
     '$quote.surcharge2', '$invoice.surcharge3', '$invoice.surcharge4'
 ]
 
-export default class QuoteModel extends BaseModel {
+class QuoteModel extends BaseModel {
     constructor (data = null, customers = []) {
         super()
         this.customers = customers
@@ -35,7 +37,7 @@ export default class QuoteModel extends BaseModel {
             number: '',
             user_id: null,
             contacts: [],
-            due_date: moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
+            due_date: this.settings.quote_payment_terms && this.settings.quote_payment_terms.toString().length ? moment(new Date()).add(this.settings.quote_payment_terms, 'days').format('YYYY-MM-DD') : moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
             quantity: '',
             id: null,
             account_id: JSON.parse(localStorage.getItem('appState')).user.account_id,
@@ -61,8 +63,8 @@ export default class QuoteModel extends BaseModel {
             partial: 0,
             has_partial: false,
             partial_due_date: moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
-            public_notes: '',
-            private_notes: '',
+            customer_note: '',
+            internal_note: '',
             terms: '',
             footer: '',
             visible: 'collapse',
@@ -84,7 +86,7 @@ export default class QuoteModel extends BaseModel {
             recurring_quote_id: '',
             activeTab: '1',
             po_number: '',
-            design_id: '',
+            design_id: this.merged_settings.quote_design_id ? this.merged_settings.quote_design_id : null,
             currency_id: this.settings.currency_id.toString().length ? this.settings.currency_id : consts.default_currency,
             exchange_rate: 1,
             success: false,
@@ -142,7 +144,7 @@ export default class QuoteModel extends BaseModel {
             return ''
         }
 
-        return this.customer.public_notes || ''
+        return this.customer.customer_note || ''
     }
 
     get default_terms () {
@@ -236,7 +238,7 @@ export default class QuoteModel extends BaseModel {
             actions.push('markSent')
         }
 
-        if (!this.fields.is_deleted) {
+        if (!this.fields.hide) {
             actions.push('delete')
         }
 
@@ -338,11 +340,11 @@ export default class QuoteModel extends BaseModel {
         }
     }
 
-    async loadPdf () {
+    async loadPdf (show_html = false) {
         try {
             this.errors = []
             this.error_message = ''
-            const res = await axios.post('api/preview', { entity: this.entity, entity_id: this._fields.id })
+            const res = await axios.post('api/preview', { entity: this.entity, entity_id: this._fields.id, show_html: show_html })
 
             if (res.status === 200) {
                 // test for status you want, etc
@@ -350,7 +352,7 @@ export default class QuoteModel extends BaseModel {
             }
 
             // Don't forget to return something
-            return this.buildPdf(res.data)
+            return buildPdf(res.data)
         } catch (e) {
             alert(e)
             this.handleError(e)
@@ -425,3 +427,7 @@ export default class QuoteModel extends BaseModel {
         }
     }
 }
+
+Object.assign(QuoteModel.prototype, InvoiceCalculations)
+
+export default QuoteModel

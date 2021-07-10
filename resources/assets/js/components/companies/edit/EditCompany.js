@@ -27,6 +27,7 @@ import CompanyModel from '../../models/CompanyModel'
 import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
 import FileUploads from '../../documents/FileUploads'
+import { toast, ToastContainer } from 'react-toastify'
 
 class EditCompany extends React.Component {
     constructor (props) {
@@ -41,6 +42,21 @@ class EditCompany extends React.Component {
         this.handleInput = this.handleInput.bind(this)
         this.handleFileChange = this.handleFileChange.bind(this)
         this.removeLogo = this.removeLogo.bind(this)
+    }
+
+    static getDerivedStateFromProps (props, state) {
+        if (props.brand && props.brand.id !== state.id) {
+            const companyModel = new CompanyModel(props.brand)
+            return companyModel.fields
+        }
+
+        return null
+    }
+
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.brand && this.props.brand.id !== prevProps.brand.id) {
+            this.companyModel = new CompanyModel(this.props.brand)
+        }
     }
 
     handleInput (e) {
@@ -96,8 +112,8 @@ class EditCompany extends React.Component {
         formData.append('custom_value2', this.state.custom_value2)
         formData.append('custom_value3', this.state.custom_value3)
         formData.append('custom_value4', this.state.custom_value4)
-        formData.append('private_notes', this.state.private_notes)
-        formData.append('public_notes', this.state.public_notes)
+        formData.append('internal_note', this.state.internal_note)
+        formData.append('customer_note', this.state.customer_note)
         formData.append('contacts', JSON.stringify(this.state.contacts))
         formData.append('_method', 'PUT')
 
@@ -110,12 +126,33 @@ class EditCompany extends React.Component {
         this.companyModel.save(formData).then(response => {
             if (!response) {
                 this.setState({ errors: this.companyModel.errors, message: this.companyModel.error_message })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.company), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
 
+            toast.success(translations.updated_successfully.replace('{entity}', translations.payment_term), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
+
             const index = this.props.brands.findIndex(company => company.id === this.props.brand.id)
             this.props.brands[index] = response
-            this.props.action(this.props.brands)
+            this.props.action(this.props.brands, true)
             this.setState({
                 editMode: false,
                 changesMade: false
@@ -153,6 +190,18 @@ class EditCompany extends React.Component {
                     <DefaultModalHeader toggle={this.toggle} title={translations.edit_company}/>
 
                     <ModalBody className={theme}>
+
+                        <ToastContainer
+                            position="top-center"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
 
                         <CompanyDropdown formData={this.getFormData()} id={this.state.id}/>
                         {successMessage}
@@ -245,9 +294,9 @@ class EditCompany extends React.Component {
                                 <SettingsForm errors={this.state.errors} company={this.state}
                                     handleInput={this.handleInput}/>
 
-                                <Notes handleInput={this.handleInput} public_notes={this.state.public_notes}
+                                <Notes handleInput={this.handleInput} customer_note={this.state.customer_note}
                                     errors={this.state.errors}
-                                    private_notes={this.state.private_notes}/>
+                                    internal_note={this.state.internal_note}/>
                             </TabPane>
 
                             <TabPane tabId="5">

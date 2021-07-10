@@ -2,13 +2,15 @@ import axios from 'axios'
 import moment from 'moment'
 import BaseModel, { LineItem } from './BaseModel'
 import { consts } from '../utils/_consts'
+import InvoiceCalculations from './InvoiceCalculations'
+import { buildPdf } from '../utils/Pdf'
 
 export const credit_pdf_fields = ['$credit.number', '$credit.po_number', '$credit.credit_date', '$credit.credit_amount', '$credit.credit_datetime', '$credit.credit_agent',
     '$credit.balance', '$credit.partial_due', '$credit.custom1', '$credit.custom2', '$credit.custom3', '$credit.custom4',
     '$credit.surcharge1', '$credit.surcharge2', '$credit.surcharge3', '$credit.surcharge4'
 ]
 
-export default class CreditModel extends BaseModel {
+class CreditModel extends BaseModel {
     constructor (data = null, customers = []) {
         super()
         this.customers = customers
@@ -37,13 +39,13 @@ export default class CreditModel extends BaseModel {
             project_id: '',
             assigned_to: '',
             number: '',
-            design_id: '',
+            design_id: this.merged_settings.credit_design_id ? this.merged_settings.credit_design_id : null,
             file_count: 0,
             date: moment(new Date()).format('YYYY-MM-DD'),
             due_date: moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
             custom_value1: '',
-            public_notes: '',
-            private_notes: '',
+            customer_note: '',
+            internal_note: '',
             footer: '',
             terms: '',
             custom_value2: '',
@@ -134,7 +136,7 @@ export default class CreditModel extends BaseModel {
             return ''
         }
 
-        return this.customer.public_notes || ''
+        return this.customer.customer_note || ''
     }
 
     get default_terms () {
@@ -240,7 +242,7 @@ export default class CreditModel extends BaseModel {
             actions.push('markSent')
         }
 
-        if (!this.fields.is_deleted) {
+        if (!this.fields.hide) {
             actions.push('delete')
         }
 
@@ -326,11 +328,11 @@ export default class CreditModel extends BaseModel {
         }
     }
 
-    async loadPdf () {
+    async loadPdf (show_html = false) {
         try {
             this.errors = []
             this.error_message = ''
-            const res = await axios.post('api/preview', { entity: this.entity, entity_id: this._fields.id })
+            const res = await axios.post('api/preview', { entity: this.entity, entity_id: this._fields.id, show_html: show_html })
 
             if (res.status === 200) {
                 // test for status you want, etc
@@ -338,7 +340,7 @@ export default class CreditModel extends BaseModel {
             }
 
             // Don't forget to return something
-            return this.buildPdf(res.data)
+            return buildPdf(res.data)
         } catch (e) {
             alert(e)
             this.handleError(e)
@@ -389,3 +391,7 @@ export default class CreditModel extends BaseModel {
         }
     }
 }
+
+Object.assign(CreditModel.prototype, InvoiceCalculations)
+
+export default CreditModel

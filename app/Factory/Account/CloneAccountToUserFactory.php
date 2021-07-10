@@ -21,7 +21,7 @@ class CloneAccountToUserFactory
         $user->username = $account->support_email;
         $user->email = $account->support_email;
         $user->last_login = now();
-        $user->ip = request()->ip();
+        $user->ip_address = request()->ip();
         $user->confirmation_code = Str::random(config('taskmanager.key_length'));
         $user->password = Hash::make(Str::random(8));
         $user->domain_id = $account->domain_id;

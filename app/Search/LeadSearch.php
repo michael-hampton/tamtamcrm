@@ -3,6 +3,7 @@
 namespace App\Search;
 
 use App\Models\Account;
+use App\Models\File;
 use App\Models\Lead;
 use App\Repositories\LeadRepository;
 use App\Transformations\LeadTransformable;
@@ -35,13 +36,15 @@ class LeadSearch extends BaseSearch
     public function filter(Request $request, Account $account)
     {
         $recordsPerPage = !$request->per_page ? 0 : $request->per_page;
-        $orderBy = !$request->column ? 'task_sort_order' : $request->column;
+        $orderBy = !$request->column ? 'order_id' : $request->column;
         $orderDir = !$request->order ? 'asc' : $request->order;
 
         $this->query = $this->model->select('*');
 
         if ($request->has('status')) {
             $this->status('leads', $request->status, 'task_status_id');
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->has('search_term') && !empty($request->search_term)) {
@@ -49,18 +52,18 @@ class LeadSearch extends BaseSearch
         }
 
         if ($request->filled('user_id')) {
-            $this->query->where('assigned_to', '=', $request->user_id);
+            $this->query->byAssignee('assigned_to', '=', $request->user_id);
         }
 
         if ($request->filled('id')) {
-            $this->query->whereId($request->id);
+            $this->query->byId($request->id);
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
-            $this->filterDates($request);
+            $this->query->byDate($request->input('start_date'), $request->input('end_date'));
         }
 
-        $this->addAccount($account);
+        $this->query->byAccount($account);
 
         $this->checkPermissions('leadcontroller.index');
 
@@ -95,6 +98,23 @@ class LeadSearch extends BaseSearch
         );
 
         return true;
+    }
+
+    /**
+     * @return mixed
+     */
+    private function transformList()
+    {
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['leads'])->get();
+        $files = File::where('fileable_type', '=', 'App\Models\Lead')->get()->groupBy('fileable_id');
+
+        $leads = $list->map(
+            function (Lead $lead) use ($files) {
+                return $this->transformLead($lead, $files);
+            }
+        )->all();
+
+        return $leads;
     }
 
     public function buildReport(Request $request, Account $account)
@@ -149,20 +169,5 @@ class LeadSearch extends BaseSearch
         return $rows;
         //$this->query->where('status', '<>', 1)
 
-    }
-
-    /**
-     * @return mixed
-     */
-    private function transformList()
-    {
-        $list = $this->query->get();
-        $leads = $list->map(
-            function (Lead $lead) {
-                return $this->transformLead($lead);
-            }
-        )->all();
-
-        return $leads;
     }
 }

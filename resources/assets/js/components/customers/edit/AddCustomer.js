@@ -64,8 +64,8 @@ class AddCustomer extends React.Component {
             .then((response) => {
                 this.toggle()
                 const newCustomer = response.data
-                this.props.customers.push(newCustomer)
-                this.props.action(this.props.customers)
+                this.props.customers.unshift(newCustomer)
+                this.props.action(this.props.customers, true)
                 this.setState(this.initialState)
             })
             .catch((error) => {
@@ -92,7 +92,7 @@ class AddCustomer extends React.Component {
 
         return (
             <React.Fragment>
-                <AddButtons toggle={this.toggle}/>
+                <AddButtons small_button={this.props.small_button} toggle={this.toggle}/>
                 <Modal size="lg" isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
                     <DefaultModalHeader toggle={this.toggle} title={translations.add_customer}/>
 

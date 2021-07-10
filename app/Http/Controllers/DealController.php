@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Pdf\GeneratePdf;
 use App\Factory\CloneDealToLeadFactory;
 use App\Factory\DealFactory;
 use App\Factory\Lead\CloneLeadToTaskFactory;
@@ -21,6 +22,7 @@ use App\Transformations\DealTransformable;
 use App\Transformations\LeadTransformable;
 use App\Transformations\TaskTransformable;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -54,15 +56,13 @@ class DealController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
      * @param CreateDealRequest $request
-     * @return Response
+     * @return JsonResponse
      * @throws Exception
      */
     public function store(CreateDealRequest $request)
     {
-        $deal = $this->deal_repo->createDeal(
+        $deal = $this->deal_repo->create(
             $request->all(),
             (new DealFactory)->create(auth()->user(), auth()->user()->account_user()->account)
         );
@@ -72,14 +72,11 @@ class DealController extends Controller
     }
 
     /**
-     *
-     * @param int $deal_id
-     * @return type
-     * @throws Exception
+     * @param Deal $deal
+     * @return JsonResponse
      */
-    public function markAsCompleted(int $deal_id)
+    public function markAsCompleted(Deal $deal)
     {
-        $objDeal = $this->deal_repo->findDealById(deal_id);
         $deal = $this->deal_repo->save(['is_completed' => true], $deal);
         return response()->json($deal);
     }
@@ -87,23 +84,19 @@ class DealController extends Controller
 
     /**
      * @param UpdateDealRequest $request
-     * @param int $id
-     *
-     * @return Response
+     * @param Deal $deal
+     * @return JsonResponse
      * @throws Exception
      */
-    public function update(UpdateDealRequest $request, int $id)
+    public function update(UpdateDealRequest $request, Deal $deal)
     {
-        $deal = $this->deal_repo->findDealById($id);
-        $deal = $this->deal_repo->updateDeal($request->all(), $deal);
-
+        $deal = $this->deal_repo->update($request->all(), $deal);
 
         return response()->json($deal);
     }
 
-    public function show(int $id)
+    public function show(Deal $deal)
     {
-        $deal = $this->deal_repo->getDealById($id);
         return response()->json($this->transformDeal($deal));
     }
 
@@ -114,16 +107,13 @@ class DealController extends Controller
      * @return void
      * @throws Exception
      */
-    public function archive(int $id)
+    public function archive(Deal $deal)
     {
-        $deal = $this->deal_repo->findDealById($id);
         $deal->archive();
     }
 
-    public function destroy(int $id)
+    public function destroy(Deal $deal)
     {
-        $deal = $this->deal_repo->findDealById($id);
-
         $this->authorize('delete', $deal);
 
         $deal->deleteEntity();
@@ -166,7 +156,7 @@ class DealController extends Controller
                 break;
             case 'download': //done
                 $disk = config('filesystems.default');
-                $content = Storage::disk($disk)->get($deal->service()->generatePdf(null));
+                $content = Storage::disk($disk)->get((new GeneratePdf($deal))->execute(null));
                 $response = ['data' => base64_encode($content)];
                 return response()->json($response);
                 break;
@@ -178,8 +168,10 @@ class DealController extends Controller
         foreach ($request->input('tasks') as $data) {
             $task = $this->deal_repo->findDealById($data['id']);
 
-            $task->task_sort_order = $data['task_sort_order'];
+            $task->order_id = $data['order_id'];
             $task->save();
         }
+
+        return response()->json(['message' => 'success']);
     }
 }

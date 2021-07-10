@@ -31,7 +31,7 @@ class PermissionRepository extends BaseRepository implements PermissionRepositor
     public function createPermission(array $data): Permission
     {
         try {
-            return $this->create($data);
+            return $this->model->create($data);
         } catch (QueryException $e) {
             throw new CreatePermissionErrorException($e);
         }
@@ -61,7 +61,7 @@ class PermissionRepository extends BaseRepository implements PermissionRepositor
     public function updatePermission(array $data): bool
     {
         try {
-            return $this->update($data);
+            return $this->model->update($data);
         } catch (QueryException $e) {
             throw new UpdatePermissionErrorException($e);
         }

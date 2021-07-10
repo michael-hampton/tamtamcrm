@@ -4,6 +4,7 @@ namespace App\Mail\Admin;
 
 use App\Models\Quote;
 use App\Models\User;
+use App\ViewModels\AccountViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 
@@ -41,7 +42,8 @@ class QuoteApproved extends AdminMailer
 
         $this->setSubject($data);
         $this->setMessage($data);
-        $this->execute($this->buildMessage());
+        $this->buildButton();
+        $this->execute();
     }
 
     /**
@@ -58,15 +60,11 @@ class QuoteApproved extends AdminMailer
     /**
      * @return array
      */
-    private function buildMessage(): array
+    private function buildButton(): void
     {
-        return [
-            'title'       => $this->subject,
-            'body'        => $this->message,
+        $this->button = [
             'url'         => $this->getUrl() . 'quotes/' . $this->quote->id,
             'button_text' => trans('texts.view_quote'),
-            'signature'   => !empty($this->settings) ? $this->settings->email_signature : '',
-            'logo'        => $this->quote->account->present()->logo(),
         ];
     }
 }

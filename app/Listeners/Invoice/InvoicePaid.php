@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Invoice;
 
+use App\Services\Email\DispatchEmail;
 use App\Factory\NotificationFactory;
 use App\Repositories\NotificationRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -28,21 +29,27 @@ class InvoicePaid implements ShouldQueue
      */
     public function handle($event)
     {
-        $fields = [];
-        $fields['data']['id'] = $event->invoice->id;
-        $fields['data']['payment_id'] = $event->payment->id;
-        $fields['data']['customer_id'] = $event->invoice->customer_id;
-        $fields['data']['message'] = 'An invoice has been paid';
-        $fields['notifiable_id'] = $event->invoice->user_id;
-        $fields['account_id'] = $event->invoice->account_id;
-        $fields['notifiable_type'] = get_class($event->invoice);
-        $fields['type'] = get_class($this);
-        $fields['data'] = json_encode($fields['data']);
+        $data = [
+            'id'          => $event->invoice->id,
+            'customer_id' => $event->invoice->customer_id,
+            'payment_id'  => $event->payment->id,
+            'message'     => 'A invoice was paid',
+            'status'      => 'paid'
+        ];
+
+        $fields = [
+            'notifiable_id'   => $event->invoice->user_id,
+            'account_id'      => $event->invoice->account_id,
+            'notifiable_type' => get_class($event->invoice),
+            'type'            => get_class($this),
+            'data'            => json_encode($data),
+            'action'          => 'status_updated'
+        ];
 
         $notification = NotificationFactory::create($event->invoice->account_id, $event->invoice->user_id);
         $notification->entity_id = $event->invoice->id;
         $this->notification_repo->save($notification, $fields);
 
-        $event->payment->service()->sendEmail();
+        (new DispatchEmail($event->payment))->execute();
     }
 }

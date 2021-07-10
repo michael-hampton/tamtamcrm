@@ -3,10 +3,10 @@ import React from 'react'
 import FormatMoney from '../common/FormatMoney'
 import FormatDate from '../common/FormatDate'
 import { consts } from '../utils/_consts'
-import InvoiceModel from '../models/InvoiceModel'
 import { translations } from '../utils/_translations'
 import { invoiceStatuses } from '../utils/_statuses'
 import { invoiceStatusColors } from '../utils/_colors'
+import InvoiceModel from '../models/InvoiceModel'
 
 export function getDefaultTableFields () {
     return [
@@ -29,21 +29,19 @@ export default function InvoicePresenter (props) {
 
     const entity_status = (is_viewed === true) ? (consts.invoice_status_viewed) : ((is_late === true) ? (100) : (entity.status_id))
 
-    const status = (entity.deleted_at && !entity.is_deleted) ? (<Badge className="mr-2"
-        color="warning">{translations.archived}</Badge>) : ((entity.deleted_at && entity.is_deleted) ? (
+    const status = (entity.deleted_at && !entity.hide) ? (<Badge className="mr-2"
+        color="warning">{translations.archived}</Badge>) : ((entity.deleted_at && entity.hide) ? (
         <Badge className="mr-2" color="danger">{translations.deleted}</Badge>) : (
         <Badge color={invoiceStatusColors[entity_status]}>{invoiceStatuses[entity_status]}</Badge>))
 
     switch (field) {
         case 'assigned_to': {
             const assigned_user = JSON.parse(localStorage.getItem('users')).filter(user => user.id === parseInt(props.entity.assigned_to))
-            return <td onClick={() => props.toggleViewedEntity(entity, entity.number, props.edit)}
-                data-label={field}>{assigned_user.length ? `${assigned_user[0].first_name} ${assigned_user[0].last_name}` : ''}</td>
+            return assigned_user.length ? `${assigned_user[0].first_name} ${assigned_user[0].last_name}` : ''
         }
         case 'user_id': {
             const user = JSON.parse(localStorage.getItem('users')).filter(user => user.id === parseInt(props.entity.user_id))
-            return <td onClick={() => props.toggleViewedEntity(entity, entity.number, props.edit)}
-                data-label={field}>{`${user[0].first_name} ${user[0].last_name}`}</td>
+            return `${user[0].first_name} ${user[0].last_name}`
         }
         case 'exchange_rate':
         case 'balance':

@@ -59,7 +59,7 @@ class Invitation extends Model
 
     public function inviteable()
     {
-        return $this->morphTo();
+        return $this->morphTo()->withTrashed();
     }
 
     /**

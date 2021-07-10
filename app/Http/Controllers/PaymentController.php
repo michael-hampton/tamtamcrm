@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Components\Payment\DeletePayment;
+use App\Services\Email\DispatchEmail;
+use App\Services\Payment\DeletePayment;
 use App\Components\Payment\ProcessPayment;
 use App\Components\Refund\RefundFactory;
 use App\Events\Payment\PaymentWasCreated;
@@ -13,7 +14,6 @@ use App\Models\Credit;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\PaymentType;
 use App\Repositories\CreditRepository;
 use App\Repositories\Interfaces\PaymentRepositoryInterface;
 use App\Requests\Payment\CreatePaymentRequest;
@@ -72,8 +72,8 @@ class PaymentController extends Controller
 
         $payment = (new ProcessPayment())->process($request->all(), $this->payment_repo, $payment);
 
-        if ($request->input('send_email') === true) {
-            $payment->service()->sendEmail();
+        if ($request->input('send_email') === true && $payment->customer->getSetting('should_send_email_for_manual_payment') === true) {
+            (new DispatchEmail($payment))->execute();
         }
 
         event(new PaymentWasCreated($payment));
@@ -81,9 +81,8 @@ class PaymentController extends Controller
         return response()->json($this->transformPayment($payment));
     }
 
-    public function show(int $id)
+    public function show(Payment $payment)
     {
-        $payment = $this->payment_repo->findPaymentById($id);
         return response()->json($this->transformPayment($payment));
     }
 
@@ -93,9 +92,8 @@ class PaymentController extends Controller
      * @param $id
      * @return mixed
      */
-    public function update(UpdatePaymentRequest $request, $id)
+    public function update(UpdatePaymentRequest $request, Payment $payment)
     {
-        $payment = $this->payment_repo->findPaymentById($id);
         $payment = (new ProcessPayment())->process($request->all(), $this->payment_repo, $payment);
         return response()->json($this->transformPayment($payment));
     }
@@ -107,10 +105,8 @@ class PaymentController extends Controller
      * @return Response
      * @throws AuthorizationException
      */
-    public function destroy(int $id)
+    public function destroy(Payment $payment)
     {
-        $payment = $this->payment_repo->findPaymentById($id);
-
         $this->authorize('delete', $payment);
 
         (new DeletePayment($payment))->execute();
@@ -146,7 +142,7 @@ class PaymentController extends Controller
         }
 
         if ($action === 'email') {
-            $payment->service()->sendEmail();
+            (new DispatchEmail($payment))->execute();
             return response()->json(['email sent']);
         }
 
@@ -155,9 +151,8 @@ class PaymentController extends Controller
         }
     }
 
-    public function archive(int $id)
+    public function archive(Payment $payment)
     {
-        $payment = Payment::withTrashed()->where('id', '=', $id)->first();
         $payment->archive();
         return response()->json([], 200);
     }
@@ -184,7 +179,7 @@ class PaymentController extends Controller
     {
         $payment = Payment::withTrashed()->where('id', '=', $id)->first();
 
-        if ($payment->is_deleted === true) {
+        if ($payment->hide === true) {
             return response()->json('Unable to restore deleted payment', 500);
         }
 

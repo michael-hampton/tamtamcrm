@@ -8,12 +8,18 @@ import TaskStatusItem from './TaskStatusItem'
 import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import { getDefaultTableFields } from '../presenters/TaskStatusPresenter'
+import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class Categories extends Component {
     constructor (props) {
         super(props)
 
         this.state = {
+            currentPage: 1,
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isOpen: window.innerWidth > 670,
             error: '',
             show_success: false,
@@ -47,12 +53,37 @@ export default class Categories extends Component {
         this.getCustomers()
     }
 
-    addUserToState (statuses) {
+    addUserToState (statuses, do_filter = false, filters = null) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? statuses : this.state.cachedData
+
+        if (should_filter) {
+            statuses = filterStatuses(statuses, '', this.state.filters)
+        }
+
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             statuses: statuses,
             cachedData: cachedData
+        }, () => {
+            const totalPages = Math.ceil(statuses.length / this.state.pageLimit)
+            this.onPageChanged({ invoices: statuses, currentPage: this.state.currentPage, totalPages: totalPages })
         })
+    }
+
+    onPageChanged (data) {
+        let { statuses, pageLimit } = this.state
+        const { currentPage, totalPages } = data
+
+        if (data.invoices) {
+            statuses = data.invoices
+        }
+
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = statuses.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
+
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     handleClose () {
@@ -83,11 +114,13 @@ export default class Categories extends Component {
     }
 
     userList (props) {
-        const { statuses, customers } = this.state
-        return <TaskStatusItem showCheckboxes={props.showCheckboxes} customers={customers} statuses={statuses}
-            show_list={props.show_list}
+        const { pageLimit, customers, currentInvoices, cachedData } = this.state
+        return <TaskStatusItem showCheckboxes={props.showCheckboxes} customers={customers} statuses={currentInvoices}
+            show_list={props.show_list} entities={cachedData}
+            onPageChanged={this.onPageChanged.bind(this)}
+            pageLimit={pageLimit}
             viewId={props.viewId}
-            ignoredColumns={getDefaultTableFields()} addUserToState={this.addUserToState}
+            ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -124,12 +157,13 @@ export default class Categories extends Component {
     }
 
     render () {
-        const { searchText, status, start_date, end_date } = this.state.filters
-        const { view, statuses, customers, error, isOpen, error_message, success_message, show_success } = this.state
-        const fetchUrl = `/api/taskStatus?search_term=${searchText}&status=${status}&start_date=${start_date}&end_date=${end_date} `
+        const { start_date, end_date } = this.state.filters
+        const { cachedData, view, statuses, customers, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const fetchUrl = `/api/taskStatus?start_date=${start_date}&end_date=${end_date} `
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable fixed-margin-datatable-mobile'
+        const total = statuses.length
 
         return (
             <Row>
@@ -137,7 +171,11 @@ export default class Categories extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <TaskStatusFilters setFilterOpen={this.setFilterOpen.bind(this)}
+                                <TaskStatusFilters
+                                    pageLimit={pageLimit}
+                                    cachedData={cachedData}
+                                    updateList={this.addUserToState}
+                                    setFilterOpen={this.setFilterOpen.bind(this)}
                                     statuses={statuses}
                                     customers={customers}
                                     filters={this.state.filters} filter={this.filterCategories}
@@ -145,7 +183,7 @@ export default class Categories extends Component {
 
                                 <AddTaskStatus
                                     customers={customers}
-                                    statuses={statuses}
+                                    statuses={cachedData}
                                     action={this.addUserToState}
                                 />
                             </CardBody>
@@ -172,6 +210,12 @@ export default class Categories extends Component {
                         <Card>
                             <CardBody>
                                 <DataTable
+
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
+
                                     default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
                                     setError={this.setError.bind(this)}
@@ -184,6 +228,13 @@ export default class Categories extends Component {
                                     fetchUrl={fetchUrl}
                                     updateState={this.addUserToState}
                                 />
+
+                                {total > 0 &&
+                                <div className="d-flex flex-row py-4 align-items-center">
+                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>

@@ -40,11 +40,19 @@ php artisan migrate:fresh --seed && php artisan db:seed --class=DatabaseSeeder
 Tests can be found in the tests folder 
 To run then php ./vendor/phpunit/phpunit/phpunit
 
+#Issue with login - 
+To resolve issue Jwt Authentication error Argument 3 passed to Lcobucci\JWT\Signer\Hmac::doVerify()
+* php artisan key:generate
+* php artisan jwt:secret
+* php artisan cache:clear
+* php artisan config:clear
+
 ## Built With
 
-* Laravel 6.0 - The backend web framework used
+* Laravel 8.0 - The backend web framework used
 * React - Frontend JavaScript framework
-* reference - https://laravel-taiwan.github.io/php-the-right-way/pages/Design-Patterns.html
+* reference - https://laravel-taiwan.github.io/php-the-right-way/pages/Design-Patterns.html - factory pattern
+* reference - https://freek.dev/1371-refactoring-to-actions - actions
 
 ## Contributing
 

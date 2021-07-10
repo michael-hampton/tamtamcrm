@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Customer;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -23,24 +24,25 @@ class ProjectFactory extends Factory
     public function definition()
     {
         $user = User::factory()->create();
+        $customer = Customer::factory()->create();
 
         return [
             'account_id'     => 1,
             'assigned_to'    => null,
             'user_id'        => $user->id,
-            'customer_id'    => null,
+            'customer_id'    => $customer->id,
             'name'           => $this->faker->text,
             'description'    => $this->faker->text,
             'is_completed'   => 0,
-            'private_notes'  => null,
-            'public_notes'   => null,
+            'internal_note'  => null,
+            'customer_note'   => null,
             'number'         => null,
             'budgeted_hours' => null,
             'task_rate'      => null,
             'due_date'       => null,
             'start_date'     => null,
             'deleted_at'     => null,
-            'is_deleted'     => 0,
+            'hide'           => 0,
             'custom_value1'  => $this->faker->numberBetween(1, 4),
             'custom_value2'  => $this->faker->numberBetween(1, 4),
             'custom_value3'  => $this->faker->numberBetween(1, 4),

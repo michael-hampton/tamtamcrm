@@ -2,6 +2,7 @@
 
 namespace App\Components\Refund;
 
+use App\Services\Transaction\TriggerTransaction;
 use App\Components\InvoiceCalculator\LineItem;
 use App\Events\Payment\PaymentWasRefunded;
 use App\Events\Payment\RefundFailed;
@@ -37,6 +38,10 @@ class BaseRefund
      */
     protected array $data;
     /**
+     * @var CompanyGateway
+     */
+    protected CompanyGateway $company_gateway;
+    /**
      * @var float
      */
     private float $amount = 0;
@@ -44,16 +49,10 @@ class BaseRefund
      * @var bool
      */
     private bool $has_invoices = false;
-
     /**
      * @var CreditRepository
      */
     private CreditRepository $credit_repo;
-
-    /**
-     * @var CompanyGateway
-     */
-    protected CompanyGateway $company_gateway;
 
     /**
      * BaseRefund constructor.
@@ -176,7 +175,7 @@ class BaseRefund
     {
         $credit_note = CreditFactory::create($this->payment->account, $this->payment->user, $this->payment->customer);
 
-        $credit_note = $this->credit_repo->createCreditNote(
+        $credit_note = $this->credit_repo->create(
             [
                 'line_items' => $this->line_items,
                 'total'      => $this->amount,
@@ -185,7 +184,7 @@ class BaseRefund
             $credit_note
         );
 
-        $credit_note->transaction_service()->createTransaction(
+        (new TriggerTransaction($credit_note))->execute(
             $this->amount,
             $credit_note->customer->balance,
             "Credit Note refund for payment {$this->payment->number}"

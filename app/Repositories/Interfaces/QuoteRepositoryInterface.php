@@ -28,14 +28,14 @@ interface QuoteRepositoryInterface extends BaseRepositoryInterface
      * @param Quote $quote
      * @return Quote|null
      */
-    public function createQuote(array $data, Quote $quote): ?Quote;
+    public function create(array $data, Quote $quote): ?Quote;
 
     /**
      * @param array $data
      * @param Quote $quote
      * @return Quote|null
      */
-    public function updateQuote(array $data, Quote $quote): ?Quote;
+    public function update(array $data, Quote $quote): ?Quote;
 
     /**
      * @param array $data

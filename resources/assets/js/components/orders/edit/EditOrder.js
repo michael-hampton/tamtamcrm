@@ -43,6 +43,7 @@ import TaskRepository from '../../repositories/TaskRepository'
 import ExpenseRepository from '../../repositories/ExpenseRepository'
 import ProjectRepository from '../../repositories/ProjectRepository'
 import { getExchangeRateWithMap } from '../../utils/_money'
+import { toast, ToastContainer } from 'react-toastify'
 
 export default class EditOrder extends Component {
     constructor (props) {
@@ -51,6 +52,7 @@ export default class EditOrder extends Component {
         const data = this.props.order ? this.props.order : null
         this.orderModel = new OrderModel(data, this.props.customers)
         this.initialState = this.orderModel.fields
+        this.initialState.customers = this.props.customers || []
         this.orderModel.task_id = this.props.task_id
         this.state = this.initialState
 
@@ -79,11 +81,18 @@ export default class EditOrder extends Component {
         this.settings = user_account[0].account.settings
     }
 
-    componentWillMount () {
-        window.addEventListener('resize', this.handleWindowSizeChange)
+    static getDerivedStateFromProps (props, state) {
+        if (props.order && props.order.id && props.order.id !== state.id) {
+            const orderModel = new OrderModel(props.order, props.customers)
+            return orderModel.fields
+        }
+
+        return null
     }
 
     componentDidMount () {
+        window.addEventListener('resize', this.handleWindowSizeChange)
+
         /* if (!this.state.id) {
             if (Object.prototype.hasOwnProperty.call(localStorage, 'orderForm')) {
                 const storedValues = JSON.parse(localStorage.getItem('orderForm'))
@@ -105,6 +114,12 @@ export default class EditOrder extends Component {
         }
     }
 
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.order && this.props.order.id && this.props.order.id !== prevProps.order.id) {
+            this.orderModel = new OrderModel(this.props.order, this.state.customers)
+        }
+    }
+
     // make sure to remove the listener
     // when the component is not mounted anymore
     componentWillUnmount () {
@@ -117,7 +132,16 @@ export default class EditOrder extends Component {
         const reducer = new InvoiceReducer(this.props.entity_id, this.props.entity_type)
         repo.getById(this.props.entity_id).then(response => {
             if (!response) {
-                alert('error')
+                toast.error(translations.unexpected_error, {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+                return
             }
 
             console.log('task', response)
@@ -334,7 +358,7 @@ export default class EditOrder extends Component {
         axios.get(`/api/products/tasks/${this.props.task_id}/1,2`)
             .then((r) => {
                 this.setState(r.data)
-                this.orderModel = new OrderModel(r.data, this.props.customers)
+                this.orderModel = new OrderModel(r.data, this.state.customers)
                 const contacts = this.orderModel.contacts
                 this.setState({ contacts: contacts })
             })
@@ -367,8 +391,8 @@ export default class EditOrder extends Component {
             sub_total: this.state.sub_total,
             tax_total: this.state.tax_total,
             discount_total: this.state.discount_total,
-            public_notes: this.state.public_notes,
-            private_notes: this.state.private_notes,
+            customer_note: this.state.customer_note,
+            internal_note: this.state.internal_note,
             terms: this.state.terms,
             footer: this.state.footer,
             po_number: this.state.po_number,
@@ -397,14 +421,35 @@ export default class EditOrder extends Component {
                     errors: this.orderModel.errors,
                     message: this.orderModel.error_message
                 })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.order), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.order), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
 
             if (!this.state.id) {
                 const firstInvoice = response
                 const allInvoices = this.props.orders
-                allInvoices.push(firstInvoice)
-                this.props.action(allInvoices)
+                allInvoices.unshift(firstInvoice)
+                this.props.action(allInvoices, true)
                 localStorage.removeItem('orderForm')
                 this.setState(this.initialState)
                 return
@@ -412,13 +457,13 @@ export default class EditOrder extends Component {
 
             const index = this.props.orders.findIndex(order => order.id === this.state.id)
             this.props.orders[index] = response
-            this.props.action(this.props.orders)
-            this.setState({ loading: false, changesMade: false })
+            this.props.action(this.props.orders, true)
+            this.setState({ loading: false, changesMade: false, modalOpen: false })
         })
     }
 
     reload (data) {
-        this.orderModel = new OrderModel(data, this.props.customers)
+        this.orderModel = new OrderModel(data, this.state.customers)
         this.initialState = this.orderModel.fields
         this.initialState.modalOpen = true
         this.setState(this.initialState)
@@ -492,12 +537,14 @@ export default class EditOrder extends Component {
         </Nav>
 
         const details = this.state.is_mobile
-            ? <Detailsm hide_customer={this.state.id === null} address={this.state.address}
-                customerName={this.state.customerName} handleInput={this.handleInput}
-                customers={this.props.customers}
-                errors={this.state.errors} order={this.state}
+            ? <Detailsm updateCustomers={(customers) => {
+                this.setState({ customers: customers })
+            }} hide_customer={this.state.id === null} address={this.state.address}
+            customerName={this.state.customerName} handleInput={this.handleInput}
+            customers={this.state.customers}
+            errors={this.state.errors} order={this.state}
             /> : <Details handleInput={this.handleInput}
-                customers={this.props.customers}
+                customers={this.state.customers}
                 errors={this.state.errors} order={this.state}
             />
 
@@ -514,11 +561,13 @@ export default class EditOrder extends Component {
                 contacts={this.state.contacts}
                 invitations={this.state.invitations}
                 handleContactChange={this.handleContactChange}/>
-            : <Contacts hide_customer={this.state.id === null} address={this.state.address}
-                customerName={this.state.customerName}
-                handleInput={this.handleInput} invoice={this.state} errors={this.state.errors}
-                contacts={this.state.contacts}
-                invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
+            : <Contacts updateCustomers={(customers) => {
+                this.setState({ customers: customers })
+            }} hide_customer={this.state.id === null} address={this.state.address}
+            customerName={this.state.customerName}
+            handleInput={this.handleInput} invoice={this.state} errors={this.state.errors}
+            contacts={this.state.contacts} customers={this.state.customers}
+            invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
 
         const settings = <InvoiceSettings is_mobile={this.state.is_mobile} handleSurcharge={this.handleSurcharge}
             settings={this.state}
@@ -527,7 +576,7 @@ export default class EditOrder extends Component {
             is_amount_discount={this.state.is_amount_discount}
             design_id={this.state.design_id}/>
 
-        const items = <Items line_type={this.state.line_type} model={this.orderModel} customers={this.props.customers}
+        const items = <Items line_type={this.state.line_type} model={this.orderModel} customers={this.state.customers}
             order={this.state} errors={this.state.errors}
             handleFieldChange={this.handleFieldChange}
             handleAddFiled={this.handleAddFiled} setTotal={this.setTotal}
@@ -536,19 +585,19 @@ export default class EditOrder extends Component {
         const notes = !this.state.is_mobile
             ? <NoteTabs model={this.orderModel}
                 show_exchange={this.orderModel.account_currency.exchange_rate !== this.state.exchange_rate}
-                invoice={this.state} private_notes={this.state.private_notes}
-                public_notes={this.state.public_notes}
+                invoice={this.state} internal_note={this.state.internal_note}
+                customer_note={this.state.customer_note}
                 terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}
                 handleInput={this.handleInput}/>
-            : <Notes model={this.orderModel} private_notes={this.state.private_notes}
-                public_notes={this.state.public_notes}
+            : <Notes model={this.orderModel} internal_note={this.state.internal_note}
+                customer_note={this.state.customer_note}
                 terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}
                 handleInput={this.handleInput}/>
 
         const email_editor = this.state.id
-            ? <Emails model={this.orderModel} emails={this.state.emails} template="email_template_order"
+            ? <Emails width="500" model={this.orderModel} emails={this.state.emails} template="order"
                 show_editor={true}
-                customers={this.props.customers} entity_object={this.state} entity="order"
+                customers={this.state.customers} entity_object={this.state} entity="order"
                 entity_id={this.state.id}/> : null
 
         const documents = this.state.id ? <Documents order={this.state}/> : null
@@ -652,7 +701,7 @@ export default class EditOrder extends Component {
                             </Col>
 
                             <Col md={3} className="m-3">
-                                <TotalsBox invoice={this.state}/>
+                                <TotalsBox settings={this.settings} invoice={this.state}/>
                             </Col>
                         </Row>
                     </TabPane>
@@ -692,14 +741,14 @@ export default class EditOrder extends Component {
             if (!this.state.modalOpen && !this.state.id) {
                 this.setState({
                     changesMade: false,
-                    public_notes: '',
+                    customer_note: '',
                     tax: null,
                     tax_rate_name: '',
                     tax_rate_name_2: '',
                     tax_rate_name_3: '',
                     tax_2: null,
                     tax_3: null,
-                    private_notes: '',
+                    internal_note: '',
                     transaction_fee: null,
                     shipping_cost: null,
                     gateway_fee: null,
@@ -719,7 +768,8 @@ export default class EditOrder extends Component {
                     company_id: null,
                     status_id: null,
                     line_items: [],
-                    invitations: []
+                    invitations: [],
+                    contacts: []
                 }, () => localStorage.removeItem('orderForm'))
             }
         })
@@ -743,6 +793,18 @@ export default class EditOrder extends Component {
                             title={this.orderModel.isNew ? translations.add_order : translations.edit_order}/>
 
                         <ModalBody className={theme}>
+                            <ToastContainer
+                                position="top-center"
+                                autoClose={5000}
+                                hideProgressBar={false}
+                                newestOnTop={false}
+                                closeOnClick
+                                rtl={false}
+                                pauseOnFocusLoss
+                                draggable
+                                pauseOnHover
+                            />
+
                             {form}
                         </ModalBody>
 

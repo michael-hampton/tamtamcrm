@@ -9,6 +9,7 @@ use App\Events\User\UserWasUpdated;
 use App\Models\Account;
 use App\Models\AccountUser;
 use App\Models\Department;
+use App\Models\Permission;
 use App\Models\User;
 use App\Repositories\Base\BaseRepository;
 use App\Repositories\Interfaces\UserRepositoryInterface;
@@ -16,6 +17,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection as Support;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class UserRepository extends BaseRepository implements UserRepositoryInterface
@@ -41,15 +43,6 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     public function findUserById(int $id): User
     {
         return $this->findOneOrFail($id);
-    }
-
-    /**
-     * @return bool
-     * @throws Exception
-     */
-    public function deleteUser(): bool
-    {
-        return $this->delete();
     }
 
     /**
@@ -94,7 +87,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     public function getUsersForDepartment(Department $objDepartment): Support
     {
         return $this->model->join('department_user', 'department_user.user_id', '=', 'users.id')->select('users.*')
-                           ->where('department_user.department_id', $objDepartment->id)->groupBy('users.id')->get();
+            ->where('department_user.department_id', $objDepartment->id)->groupBy('users.id')->get();
     }
 
     public function getModel()
@@ -123,16 +116,20 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
         if (!empty($user->email) && $user->email !== $data['email']) {
             $email_changed = true;
+            $original_user = $user;
+            $user->previous_email_address = $user->email;
         }
 
         $is_new = empty($user->id);
 
         /*************** save new user ***************************/
+        $password = isset($data['password']) ? $data['password'] : '';
+        unset($data['password']);
+
         $user->fill($data);
 
-        if (isset($data['password']) && !empty($data['password']) && (empty($user->id) || auth()->user(
-                )->id === $user->id)) {
-            $user->password = Hash::make($data['password']);
+        if (!empty($password) && (empty($user->id) || auth()->user()->id === $user->id)) {
+            $user->password = Hash::make($password);
         }
 
         $user->save();
@@ -146,20 +143,23 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         }
 
         if (isset($data['company_user'])) {
-            $account_id = !empty(auth()->user()) ? auth()->user()->account_user(
-            )->account_id : $user->domain->default_account_id;
+            $account_id = !empty(auth()->user()) ? auth()->user()->account_user()->account_id : $user->domain->default_account_id;
+
             $account = Account::find($account_id);
 
-            $cu = AccountUser::whereUserId($user->id)->whereAccountId($account->id)->withTrashed()->first();
+            $cu = $user->account_users()->whereAccountId($account->id)->withTrashed()->first();
 
             /*No company user exists - attach the user*/
             if (!$cu) {
                 $user->attachUserToAccount(
                     $account,
                     $data['company_user']['is_admin'],
+                    $data['company_user']['is_owner'] ?? false,
                     !empty($data['company_user']['notifications']) ? $data['company_user']['notifications'] : []
                 );
             } else {
+                unset($data['company_user']['account_id'], $data['company_user']['permissions'], $data['company_user']['settings']);
+
                 $data['company_user']['notifications'] = !empty($data['company_user']['notifications']) ? $data['company_user']['notifications']
                     : $user->notificationDefaults();
                 $cu->fill($data['company_user']);
@@ -169,7 +169,9 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         }
 
         if ($email_changed === true) {
-            event(new UserEmailChanged($user));
+            $user->email_verified_at = null;
+            $user->save();
+            $user->sendEmailVerificationNotification();
         }
 
         $user = $user->fresh();
@@ -214,8 +216,12 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
      * @return User|null
      * @throws Exception
      */
-    public function destroy(User $user, $delete_account = false)
+    public function deleteUser(User $user, $delete_account = false): ?User
     {
+        if (!empty($user->account_user()) && $user->isOwner()) {
+            return null;
+        }
+
         if ($delete_account === true) {
             $this->deleteUserAccount($user);
         }
@@ -231,6 +237,33 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     {
         $company = $user->account_user()->account;
         $company->forceDelete();
+
+        return true;
+    }
+
+    /**
+     * @param User $user
+     * @param AccountUser $account_user
+     * @param array $permissions
+     * @return bool|mixed
+     */
+    public function savePermissions(User $user, AccountUser $account_user, array $permissions)
+    {
+        $account = $account_user->account;
+
+        $all_permissions = Permission::all()->keyBy('name');
+
+        DB::table('permission_user')->where('user_id', $user->id)->where(
+            'account_id',
+            $account_user->account->id
+        )->delete();
+
+        foreach ($permissions as $permission => $allowed) {
+            if (!empty($all_permissions[$permission])) {
+                $set_permission = $all_permissions[$permission];
+                $user->permissions($account)->attach($set_permission->id, ['account_id' => $account->id]);
+            }
+        }
 
         return true;
     }

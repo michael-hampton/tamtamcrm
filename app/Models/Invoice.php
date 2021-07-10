@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
-use App\Services\Invoice\InvoiceService;
-use App\Services\Transaction\TransactionService;
+use App\Services\Invoice\CancelInvoice;
+use App\Services\Transaction\TriggerTransaction;
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use App\Traits\Balancer;
+use App\Traits\CalculateDates;
 use App\Traits\Money;
 use App\Traits\Taxable;
 use Exception;
@@ -13,12 +15,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Laracasts\Presenter\PresentableTrait;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Invoice extends Model
 {
 
-    use PresentableTrait, SoftDeletes, Money, Balancer, HasFactory, Archiveable, Taxable;
+    use SoftDeletes, Money, Balancer, HasFactory, Archiveable, Taxable, QueryCacheable, QueryScopes, CalculateDates;
 
     const STATUS_DRAFT = 1;
     const STATUS_SENT = 2;
@@ -36,8 +38,10 @@ class Invoice extends Model
     const EXPENSE_TYPE = 6;
     const PROJECT_TYPE = 9;
     const GATEWAY_FEE_TYPE = 7;
+    const PROMOCODE_TYPE = 8;
 
-    protected $presenter = 'App\Presenters\InvoicePresenter';
+    protected static $flushCacheOnUpdate = true;
+
     protected $casts = [
         'customer_id' => 'integer',
         'account_id'  => 'integer',
@@ -45,7 +49,7 @@ class Invoice extends Model
         'line_items'  => 'object',
         'updated_at'  => 'timestamp',
         'deleted_at'  => 'timestamp',
-        'is_deleted'  => 'boolean',
+        'hide'        => 'boolean',
         'viewed'      => 'boolean'
     ];
     /**
@@ -81,8 +85,8 @@ class Invoice extends Model
         'expiry_date',
         'frequency',
         'recurring_due_date',
-        'public_notes',
-        'private_notes',
+        'customer_note',
+        'internal_note',
         'terms',
         'footer',
         'partial',
@@ -108,11 +112,29 @@ class Invoice extends Model
         'gateway_fee',
         'gateway_percentage',
         'recurring_invoice_id',
-        'late_fee_reminder'
+        'late_fee_reminder',
+        'project_id',
+        'plan_subscription_id',
+        'exchange_rate',
+        'auto_billing_enabled'
     ];
     protected $dates = [
         'date_to_send',
     ];
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'invoices',
+            'dashboard_invoices'
+        ];
+    }
 
     /**
      * @return bool
@@ -120,15 +142,10 @@ class Invoice extends Model
      */
     public function deleteInvoice(): bool
     {
-        $this->service()->deleteInvoice();
+        (new CancelInvoice($this, true))->execute();
         $this->deleteEntity();
 
         return true;
-    }
-
-    public function service(): InvoiceService
-    {
-        return new InvoiceService($this);
     }
 
     public function account()
@@ -332,44 +349,6 @@ class Invoice extends Model
         return true;
     }
 
-
-    public function setNumber()
-    {
-        if (empty($this->number)) {
-            $this->number = (new NumberGenerator)->getNextNumberForEntity($this, $this->customer);
-            return true;
-        }
-
-        return true;
-    }
-
-    public function setExchangeRate()
-    {
-        $exchange_rate = $this->customer->getExchangeRate();
-        $this->exchange_rate = !empty($exchange_rate) ? $exchange_rate : null;
-        return true;
-    }
-
-    public function getNumber()
-    {
-        return $this->number;
-    }
-
-    public function getDesignId()
-    {
-        return !empty($this->design_id) ? $this->design_id : $this->customer->getSetting('invoice_design_id');
-    }
-
-    public function getPdfFilename()
-    {
-        return 'storage/' . $this->account->id . '/' . $this->customer->id . '/invoices/' . $this->number . '.pdf';
-    }
-
-    public function canBeSent()
-    {
-        return $this->status_id === self::STATUS_DRAFT;
-    }
-
     /**
      * @param $amount
      * @return Customer
@@ -381,7 +360,7 @@ class Invoice extends Model
         $customer->save();
 
         if ($this->id) {
-            $this->transaction_service()->createTransaction(
+            (new TriggerTransaction($this))->execute(
                 $amount,
                 $customer->balance,
                 "Customer Balance update for invoice {$this->getNumber()}"
@@ -391,8 +370,73 @@ class Invoice extends Model
         return $customer;
     }
 
-    public function transaction_service()
+    public function getNumber()
     {
-        return new TransactionService($this);
+        return $this->number;
+    }
+
+    public function setNumber()
+    {
+        if (empty($this->number)) {
+            $this->number = (new NumberGenerator)->getNextNumberForEntity($this, $this->customer);
+            return true;
+        }
+
+        return true;
+    }
+
+    public function setExchangeRateAttribute($value)
+    {
+        $this->attributes['exchange_rate'] = $value;
+    }
+
+    public function setCurrencyAttribute($value)
+    {
+        $this->attributes['currency_id'] = (int) $value;
+    }
+
+    public function getDesignIdAttribute()
+    {
+        return !empty($this->design_id) ? $this->design_id : $this->customer->getSetting('invoice_design_id');
+    }
+
+    public function getPdfFilenameAttribute()
+    {
+        return 'storage/' . $this->account->id . '/' . $this->customer->id . '/invoices/' . $this->number . '.pdf';
+    }
+
+    public function canBeSent()
+    {
+        return $this->status_id === self::STATUS_DRAFT;
+    }
+
+
+    public function scopeSubscriptions($query, PlanSubscription $plan_subscription)
+    {
+        $query->where('plan_subscription_id', '=', $plan_subscription->id);
+    }
+
+    public function scopeHasBalance($query)
+    {
+        $query->where('balance', '>', 0);
+    }
+
+    public function scopePaid($query)
+    {
+        $query->where('balance', '=', 0);
+    }
+
+    public function scopePermissions($query, User $user)
+    {
+        if ($user->isAdmin() || $user->isOwner() || $user->hasPermissionTo('invoicecontroller.index')) {
+            return $query;
+        }
+
+        $query->where(
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('assigned_to', auth()->user($user)->id);
+            }
+        );
     }
 }

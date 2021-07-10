@@ -4,8 +4,9 @@ import { Card, CardBody } from 'reactstrap'
 import axios from 'axios'
 import { translations } from '../utils/_translations'
 import SnackbarMessage from '../common/SnackbarMessage'
-import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
+import CompanyModel from '../models/CompanyModel'
+import EditScaffold from '../common/EditScaffold'
 
 class ProductSettings extends Component {
     constructor (props) {
@@ -17,7 +18,9 @@ class ProductSettings extends Component {
             settings: {},
             success: false,
             error: false,
-            changesMade: false
+            changesMade: false,
+            isSaving: false,
+            loaded: false
         }
 
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
@@ -25,6 +28,8 @@ class ProductSettings extends Component {
         this.handleSubmit = this.handleSubmit.bind(this)
         this.handleCheckboxChange = this.handleCheckboxChange.bind(this)
         this.getAccount = this.getAccount.bind(this)
+
+        this.model = new CompanyModel({ id: this.state.id })
     }
 
     componentDidMount () {
@@ -68,7 +73,8 @@ class ProductSettings extends Component {
 
     handleSettingsChange (event) {
         const name = event.target.name
-        const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
+        let value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
+        value = (value === 'true') ? true : ((value === 'false') ? false : (value))
 
         this.setState(prevState => ({
             changesMade: true,
@@ -80,6 +86,7 @@ class ProductSettings extends Component {
     }
 
     handleSubmit (e) {
+        this.setState({ isSaving: true })
         const formData = new FormData()
         formData.append('settings', JSON.stringify(this.state.settings))
         formData.append('_method', 'PUT')
@@ -90,7 +97,12 @@ class ProductSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false })
+                this.setState({
+                    success: true,
+                    cached_settings: this.state.settings,
+                    changesMade: false,
+                    isSaving: false
+                }, () => this.model.updateSettings(this.state.settings))
             })
             .catch((error) => {
                 console.error(error)
@@ -229,6 +241,32 @@ class ProductSettings extends Component {
     }
 
     render () {
+        const tabs = {
+            children: []
+        }
+
+        tabs.children[0] = <>
+            <Card>
+                <CardBody>
+                    <FormBuilder
+                        handleCheckboxChange={this.handleCheckboxChange}
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getProductFields()}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardBody>
+                    <FormBuilder
+                        handleCheckboxChange={this.handleCheckboxChange}
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getInventoryFields()}
+                    />
+                </CardBody>
+            </Card>
+        </>
+
         return this.state.loaded === true ? (
             <React.Fragment>
                 <SnackbarMessage open={this.state.success} onClose={this.handleClose.bind(this)} severity="success"
@@ -237,31 +275,13 @@ class ProductSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={translations.settings_not_saved}/>
 
-                <Header title={translations.product_settings} cancelButtonDisabled={!this.state.changesMade}
+                <EditScaffold isLoading={!this.state.loaded} isSaving={this.state.isSaving}
+                    isEditing={this.state.changesMade}
+                    title={translations.product_settings}
+                    cancelButtonDisabled={!this.state.changesMade}
                     handleCancel={this.handleCancel.bind(this)}
-                    handleSubmit={this.handleSubmit}/>
-
-                <div className="settings-container settings-container-narrow fixed-margin-extra">
-                    <Card>
-                        <CardBody>
-                            <FormBuilder
-                                handleCheckboxChange={this.handleCheckboxChange}
-                                handleChange={this.handleSettingsChange}
-                                formFieldsRows={this.getProductFields()}
-                            />
-                        </CardBody>
-                    </Card>
-
-                    <Card>
-                        <CardBody>
-                            <FormBuilder
-                                handleCheckboxChange={this.handleCheckboxChange}
-                                handleChange={this.handleSettingsChange}
-                                formFieldsRows={this.getInventoryFields()}
-                            />
-                        </CardBody>
-                    </Card>
-                </div>
+                    handleSubmit={this.handleSubmit.bind(this)}
+                    tabs={tabs}/>
 
             </React.Fragment>
         ) : null

@@ -3,18 +3,26 @@
 namespace App\Http\Controllers;
 
 use App\Factory\AccountFactory;
+use App\Http\Responses\ZipDownloadResponse;
+use App\Jobs\CreateAccountDataExportJob;
 use App\Models\Account;
 use App\Models\CompanyToken;
+use App\Models\Licence;
+use App\Models\Plan;
+use App\Models\Reminders;
 use App\Notifications\NewAccountCreated;
 use App\Repositories\AccountRepository;
 use App\Requests\Account\StoreAccountRequest;
+use App\Requests\Account\StoreReminders;
 use App\Requests\Account\UpdateAccountRequest;
 use App\Settings\AccountSettings;
 use App\Traits\UploadableTrait;
 use App\Transformations\AccountTransformable;
+use App\Transformations\RemindersTransformable;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Class AccountController
@@ -65,7 +73,7 @@ class AccountController extends BaseController
             return response()->json('Unable to update settings', 500);
         }
 
-        auth()->user()->attachUserToAccount($account, true);
+        auth()->user()->attachUserToAccount($account, true, true);
 
         event(new NewAccountCreated(auth()->user(), $account));
 
@@ -196,9 +204,86 @@ class AccountController extends BaseController
     {
         $response = [
             'success' => true,
-            'data'    => $this->getIncludes()
+            'data'    => $this->getIncludes(auth()->user())
         ];
 
         return response()->json($response, 201);
     }
+
+    public function upgrade(Request $request)
+    {
+        $domain = auth()->user()->account_user()->account->domains;
+        $plan = $request->input(
+            'package'
+        ) === 'standard' ? 'STD' : 'PRO';
+        $period = $request->input(
+            'period'
+        ) === 'monthly' ? 'M' : 'Y';
+
+        $code = $plan . $period;
+
+        $customer = $domain->customer;
+        $subscription = $customer->subscriptions->first();
+
+        // Change subscription plan
+        $plan = Plan::where('code', '=', $code)->first();
+
+        $subscription->changePlan($plan);
+
+        $domain->plan_id = $plan->id;
+        $domain->save();
+    }
+
+    public function apply(Request $request)
+    {
+        $licence = Licence::where('licence_number', $request->input('licence_number'))->first();
+
+        if (empty($licence)) {
+            return response()->json('Licence could not be found');
+        }
+
+        $licence_details = json_decode($licence->details, true);
+
+        $package = $licence_details['package'];
+        $period = $licence_details['period'];
+        $number_of_licences = $licence_details['number_of_licences'];
+
+        if (empty($number_of_licences)) {
+            $package === 'standard' ? env('STANDARD_NUMBER_OF_LICENCES') : env('ADVANCED_NUMBER_OF_LICENCES');
+        }
+
+        $plan = $package === 'standard' ? 'STD' : 'PRO';
+        $period = $period === 'monthly' ? 'M' : 'Y';
+        $code = $plan . $period;
+        $plan = Plan::where('code', '=', $code)->first();
+
+        $domain = auth()->user()->account_user()->account->domains;
+
+        $domain->plan_id = $plan->id;
+        $domain->save();
+
+        $customer = $domain->customer;
+
+        $customer->newSubscription('main', $plan, auth()->user()->account_user()->account, $number_of_licences);
+    }
+
+    public function checkDomain(string $domain)
+    {
+        $domain = Account::where('subdomain', '=', $domain)->first();
+
+        return response()->json($domain);
+    }
+
+    public function export(string $zipFilename): StreamedResponse
+    {
+        return new ZipDownloadResponse(base64_decode($zipFilename));
+    }
+
+    public function backupData()
+    {
+        dispatch(new CreateAccountDataExportJob(auth()->user()->account_user()->account, auth()->user()));
+        return response()->json('Email has been sent');
+    }
+
+
 }

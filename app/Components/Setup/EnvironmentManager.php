@@ -107,7 +107,9 @@ class EnvironmentManager
             'DB_DATABASE=' . $request->database_name . "\n" .
             'DB_USERNAME=' . $request->database_username . "\n" .
             'DB_PASSWORD=' . $request->database_password . "\n\n" .
-            'BROADCAST_DRIVER=' . $request->broadcast_driver . "\n" .
+            'DB_CHARSET=utf8'. "\n" .
+             'DB_COLLATION=utf8_unicode_ci' . "\n" .
+             'BROADCAST_DRIVER=' . $request->broadcast_driver . "\n" .
             'CACHE_DRIVER=' . $request->cache_driver . "\n" .
             'SESSION_DRIVER=' . $request->session_driver . "\n" .
             'QUEUE_DRIVER=' . $request->queue_driver . "\n\n" .

@@ -4,6 +4,7 @@
 namespace App\Components\Payment\Gateways;
 
 
+use App\Components\Payment\Gateways\Stripe\Stripe;
 use App\Models\CompanyGateway;
 use App\Models\Customer;
 use App\Models\CustomerGateway;
@@ -34,7 +35,7 @@ class GatewayFactory
 
     /**
      * @param Customer $customer
-     * @return Authorize|Stripe|bool
+     * @return Authorize|Braintree|Stripe
      */
     public function create(Customer $customer)
     {
@@ -43,6 +44,8 @@ class GatewayFactory
                 return new Stripe($customer, $this->customer_gateway, $this->company_gateway);
             case '8ab2dce2':
                 return new Authorize($customer, $this->customer_gateway, $this->company_gateway);
+            case 'dlmqa4gvpy':
+                return new Braintree($customer, $this->customer_gateway, $this->company_gateway);
         }
     }
 }

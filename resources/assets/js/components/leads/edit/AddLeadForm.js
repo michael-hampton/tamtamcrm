@@ -1,5 +1,5 @@
 import React from 'react'
-import { Modal, ModalBody, Nav, NavItem, NavLink, TabContent, TabPane } from 'reactstrap'
+import { Button, Modal, ModalBody, Nav, NavItem, NavLink, TabContent, TabPane } from 'reactstrap'
 import axios from 'axios'
 import AddButtons from '../../common/AddButtons'
 import LeadModel from '../../models/LeadModel'
@@ -18,6 +18,11 @@ class AddLeadForm extends React.Component {
 
         this.leadModel = new LeadModel(null)
         this.initialState = this.leadModel.fields
+
+        if (this.props.task_status) {
+            this.initialState.task_status_id = this.props.task_status
+        }
+
         this.state = this.initialState
 
         this.toggle = this.toggle.bind(this)
@@ -45,8 +50,8 @@ class AddLeadForm extends React.Component {
     handleClick (event) {
         this.setState({ loading: true })
         const data = {
-            public_notes: this.state.public_notes,
-            private_notes: this.state.private_notes,
+            customer_note: this.state.customer_note,
+            internal_note: this.state.internal_note,
             custom_value1: this.state.custom_value1,
             custom_value2: this.state.custom_value2,
             custom_value3: this.state.custom_value3,
@@ -83,8 +88,8 @@ class AddLeadForm extends React.Component {
                 })
                 return
             }
-            this.props.leads.push(response)
-            this.props.action(this.props.leads)
+            this.props.leads.unshift(response)
+            this.props.action(this.props.leads, true)
             this.setState(this.initialState)
             localStorage.removeItem('leadForm')
         })
@@ -135,13 +140,17 @@ class AddLeadForm extends React.Component {
             custom_value4={this.state.custom_value4}
             custom_fields={this.props.custom_fields}/>
 
-        const notes = <Notes handleInput={this.handleInputChanges} private_notes={this.state.private_notes}
-            public_notes={this.state.public_notes}/>
+        const notes = <Notes handleInput={this.handleInputChanges} internal_note={this.state.internal_note}
+            customer_note={this.state.customer_note}/>
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
+
+        const button = this.props.large_button
+            ? <Button onClick={this.toggle} size="lg" color="primary" block>{translations.add_lead}</Button>
+            : <AddButtons toggle={this.toggle}/>
 
         return (
             <React.Fragment>
-                <AddButtons toggle={this.toggle}/>
+                {button}
                 <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
                     <DefaultModalHeader toggle={this.toggle} title={translations.add_lead}/>
 

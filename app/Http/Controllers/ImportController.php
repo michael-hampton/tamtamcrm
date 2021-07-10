@@ -43,6 +43,11 @@ class ImportController extends Controller
                 auth()->user()
             );
 
+            if ($request->input('import_type') === 'customer' && auth()->user()->account_user()->account->customers->count() >= auth()->user()->account_user()->account->getNumberOfAllowedCustomers()) {
+
+                return response()->json(['errors' => ['Maximum number of customers (' . auth()->user()->account_user()->account->getNumberOfAllowedCustomers() . ') exceeded']]);
+            }
+
             $file_path = public_path('uploads/' . $request->input('hash'));
 
             $is_json = !empty($request->input('file_type')) && $request->input('file_type') === 'json';
@@ -140,8 +145,9 @@ class ImportController extends Controller
             auth()->user()
         );
 
-        $objImporter->export();
+        $objImporter->export($request->input('is_json'));
+        $content = $request->input('is_json') === true ? $objImporter->getJson() : $objImporter->getContent();
 
-        return response()->json(['data' => $objImporter->getContent()]);
+        return response()->json(['data' => $content]);
     }
 }

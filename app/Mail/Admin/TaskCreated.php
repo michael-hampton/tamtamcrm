@@ -5,6 +5,8 @@ namespace App\Mail\Admin;
 use App\Models\Task;
 use App\Models\User;
 use App\Traits\Money;
+use App\ViewModels\AccountViewModel;
+use App\ViewModels\CustomerViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 
@@ -39,7 +41,8 @@ class TaskCreated extends AdminMailer
 
         $this->setSubject($data);
         $this->setMessage($data);
-        $this->execute($this->buildMessage());
+        $this->buildButton();
+        $this->execute();
     }
 
     /**
@@ -49,22 +52,18 @@ class TaskCreated extends AdminMailer
     {
         return [
             'total'    => $this->formatCurrency($this->task->valued_at, $this->task->customer),
-            'customer' => $this->task->customer->present()->name()
+            'customer' => (new CustomerViewModel($this->task->customer))->name()
         ];
     }
 
     /**
      * @return array
      */
-    private function buildMessage(): array
+    private function buildButton(): void
     {
-        return [
-            'title'       => $this->subject,
-            'body'        => $this->message,
+        $this->button = [
             'url'         => $this->getUrl() . 'tasks/' . $this->task->id,
-            'button_text' => trans('texts.view_task'),
-            'signature'   => !empty($this->settings) ? $this->settings->email_signature : '',
-            'logo'        => $this->task->account->present()->logo(),
+            'button_text' => trans('texts.view_task')
         ];
     }
 }

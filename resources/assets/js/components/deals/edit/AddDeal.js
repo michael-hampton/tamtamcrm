@@ -18,6 +18,10 @@ export default class AddDeal extends React.Component {
         this.dealModel = new DealModel(null, this.props.customers)
         this.initialState = this.dealModel.fields
 
+        if (this.props.task_status) {
+            this.initialState.task_status_id = this.props.task_status
+        }
+
         this.state = this.initialState
         this.toggle = this.toggle.bind(this)
         this.handleInput = this.handleInput.bind(this)
@@ -88,8 +92,8 @@ export default class AddDeal extends React.Component {
             custom_value2: this.state.custom_value2,
             custom_value3: this.state.custom_value3,
             custom_value4: this.state.custom_value4,
-            public_notes: this.state.public_notes,
-            private_notes: this.state.private_notes,
+            customer_note: this.state.customer_note,
+            internal_note: this.state.internal_note,
             column_color: this.state.column_color
         }
 
@@ -98,8 +102,8 @@ export default class AddDeal extends React.Component {
                 this.setState({ errors: this.dealModel.errors, message: this.taskModel.error_message })
                 return
             }
-            this.props.deals.push(response)
-            this.props.action(this.props.deals)
+            this.props.deals.unshift(response)
+            this.props.action(this.props.deals, true)
             this.setState(this.initialState)
             localStorage.removeItem('dealForm')
         })
@@ -118,7 +122,7 @@ export default class AddDeal extends React.Component {
                     custom_value4={this.state.custom_value4}
                     custom_fields={this.props.custom_fields}/>
 
-                <Notes private_notes={this.state.private_notes} public_notes={this.state.public_notes}
+                <Notes internal_note={this.state.internal_note} customer_note={this.state.customer_note}
                     handleInput={this.handleInput}/>
 
             </Form>
@@ -129,11 +133,14 @@ export default class AddDeal extends React.Component {
         const form = this.buildForm()
         const saveButton = <Button color="primary" onClick={this.handleClick.bind(this)}> Add</Button>
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
+        const button = this.props.large_button
+            ? <Button onClick={this.toggle} size="lg" color="primary" block>{translations.add_deal}</Button>
+            : <AddButtons toggle={this.toggle}/>
 
         if (this.props.modal) {
             return (
                 <div>
-                    <AddButtons toggle={this.toggle}/>
+                    {button}
                     <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
                         <DefaultModalHeader toggle={this.toggle} title={translations.add_deal}/>
 
@@ -153,7 +160,7 @@ export default class AddDeal extends React.Component {
             <div>
                 {this.state.submitSuccess && (
                     <div className="mt-3 alert alert-info" role="alert">
-                        The event has been created successfully </div>
+                                The event has been created successfully </div>
                 )}
                 {form}
                 {saveButton}

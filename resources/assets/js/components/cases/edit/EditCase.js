@@ -26,6 +26,7 @@ import Emails from '../../emails/Emails'
 import Contacts from './Contacts'
 import { consts } from '../../utils/_consts'
 import Links from './Links'
+import { toast, ToastContainer } from 'react-toastify'
 
 export default class EditCase extends React.Component {
     constructor (props) {
@@ -45,10 +46,25 @@ export default class EditCase extends React.Component {
         this.closeCase = this.closeCase.bind(this)
     }
 
+    static getDerivedStateFromProps (props, state) {
+        if (props.case && props.case.id !== state.id) {
+            const caseModel = new CaseModel(props.case, props.customers)
+            return caseModel.fields
+        }
+
+        return null
+    }
+
     componentDidMount () {
         if (this.props.case && this.props.case.customer_id) {
             const contacts = this.caseModel.contacts
             this.setState({ contacts: contacts })
+        }
+    }
+
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.case && this.props.case.id !== prevProps.case.id) {
+            this.caseModel = new CaseModel(this.props.case, this.props.customers)
         }
     }
 
@@ -99,7 +115,7 @@ export default class EditCase extends React.Component {
             customer_id: this.state.customer_id,
             due_date: this.state.due_date,
             priority_id: this.state.priority_id,
-            private_notes: this.state.private_notes,
+            internal_note: this.state.internal_note,
             category_id: this.state.category_id,
             assigned_to: this.state.assigned_to,
             status_id: this.state.status_id,
@@ -122,19 +138,38 @@ export default class EditCase extends React.Component {
         this.caseModel.update(formData).then(response => {
             if (!response) {
                 this.setState({ errors: this.caseModel.errors, message: this.caseModel.error_message })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.case), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
 
+            toast.success(translations.updated_successfully.replace('{entity}', translations.task), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
+
             const index = this.props.cases.findIndex(cases => cases.id === this.props.case.id)
             this.props.cases[index] = response
-            this.props.action(this.props.cases)
+            this.props.action(this.props.cases, true)
             this.setState({
                 editMode: false,
-                changesMade: false
+                changesMade: false,
+                modal: action !== 'save'
             })
-            if (action === 'save') {
-                this.toggle()
-            }
         })
     }
 
@@ -208,6 +243,18 @@ export default class EditCase extends React.Component {
                     <DefaultModalHeader toggle={this.toggle} title={translations.edit_case}/>
 
                     <ModalBody className={theme}>
+                        <ToastContainer
+                            position="top-center"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
+
                         <Nav tabs>
                             <NavItem>
                                 <NavLink
@@ -261,11 +308,13 @@ export default class EditCase extends React.Component {
                                         <Details cases={this.props.cases} customers={this.props.customers}
                                             errors={this.state.errors}
                                             hasErrorFor={this.hasErrorFor} case={this.state}
-                                            handleInput={this.handleInput} renderErrorFor={this.renderErrorFor}/>
+                                            handleInput={this.handleInput}
+                                            renderErrorFor={this.renderErrorFor}/>
                                     </CardBody>
                                 </Card>
 
-                                <Contacts handleInput={this.handleInput} case={this.state} errors={this.state.errors}
+                                <Contacts handleInput={this.handleInput} case={this.state}
+                                    errors={this.state.errors}
                                     contacts={this.state.contacts}
                                     invitations={this.state.invitations}
                                     handleContactChange={this.handleContactChange}/>

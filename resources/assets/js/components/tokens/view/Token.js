@@ -7,6 +7,7 @@ import UserModel from '../../models/UserModel'
 import PlainEntityHeader from '../../common/entityContainers/PlanEntityHeader'
 import FormatDate from '../../common/FormatDate'
 import TokenModel from '../../models/TokenModel'
+import AlertPopup from '../../common/AlertPopup'
 
 export default class Token extends Component {
     constructor (props) {
@@ -15,6 +16,7 @@ export default class Token extends Component {
         this.state = {
             users: [],
             show_success: false,
+            show_alert: false,
             success_message: ''
         }
 
@@ -31,7 +33,8 @@ export default class Token extends Component {
         const userModel = new UserModel()
         userModel.getUsers().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ show_alert: true })
+                return
             }
 
             this.setState({ users: response }, () => {
@@ -75,6 +78,10 @@ export default class Token extends Component {
                     {this.state.success_message}
                 </Alert>
                 }
+
+                <AlertPopup is_open={this.state.show_alert} message={this.state.error_message} onClose={(e) => {
+                    this.setState({ show_alert: false })
+                }}/>
             </React.Fragment>
 
         )

@@ -43,14 +43,16 @@ class ProductSearch extends BaseSearch
 
         if ($request->has('status')) {
             $this->status('products', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->filled('company_id')) {
-            $this->query->where('company_id', '=', $request->company_id);
+            $this->query->byCompany($request->company_id);
         }
 
         if ($request->filled('category_id')) {
-            $this->query->where('category_id', '=', $request->category_id);
+            $this->query->byCategory($request->category_id);
         }
 
         if ($request->filled('search_term')) {
@@ -58,10 +60,10 @@ class ProductSearch extends BaseSearch
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
-            $this->filterDates($request);
+            $this->query->byDate($request->input('start_date'), $request->input('end_date'));
         }
 
-        $this->addAccount($account);
+        $this->query->byAccount($account);
 
         $this->checkPermissions('productcontroller.index');
 
@@ -112,7 +114,7 @@ class ProductSearch extends BaseSearch
      */
     private function transformList()
     {
-        $list = $this->query->get();
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['products'])->get();
         $products = $list->map(
             function (Product $product) {
                 return $this->transformProduct($product);

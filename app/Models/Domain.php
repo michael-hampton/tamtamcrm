@@ -11,20 +11,16 @@ class Domain extends Model
 {
     use SoftDeletes;
 
-    const SUBSCRIPTION_STANDARD = 1;
-    const SUBSCRIPTION_ADVANCED = 2;
-    const SUBSCRIPTION_FREE = 3;
-
-    const SUBSCRIPTION_PERIOD_YEAR = 2;
-    const SUBSCRIPTION_PERIOD_MONTH = 1;
-
     /**
      * @var array
      */
     protected $fillable = [
         'user_id',
         'customer_id',
-        'default_account_id'
+        'default_account_id',
+        'user_id',
+        'customer_id',
+        'plan_id'
     ];
 
     /**
@@ -66,5 +62,15 @@ class Domain extends Model
     public function user()
     {
         return $this->belongsTo(User::class)->withTrashed();
+    }
+
+    public function plan()
+    {
+        return $this->belongsTo(Plan::class);
+    }
+
+    public function plans()
+    {
+        return $this->hasMany(PlanSubscription::class);
     }
 }

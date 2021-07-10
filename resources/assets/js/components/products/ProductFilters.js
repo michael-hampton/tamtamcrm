@@ -7,6 +7,7 @@ import DateFilter from '../common/DateFilter'
 import CsvImporter from '../common/CsvImporter'
 import FilterTile from '../common/FilterTile'
 import StatusDropdown from '../common/StatusDropdown'
+import { filterStatuses } from '../utils/_search'
 
 export default class ProductFilters extends Component {
     constructor (props) {
@@ -69,19 +70,43 @@ export default class ProductFilters extends Component {
         return (
             <Row form>
                 <Col md={2}>
-                    <TableSearch onChange={this.filterProducts}/>
+                    <TableSearch onChange={(e) => {
+                        const value = typeof e.target.value === 'string' ? e.target.value.toLowerCase() : e.target.value
+                        const search_results = this.props.cachedData.filter(obj => Object.keys(obj).some(key => obj[key] && obj[key].length ? obj[key].toString().toLowerCase().includes(value) : false))
+                        this.props.updateList(search_results || [], false, this.state.filters)
+                    }}/>
                 </Col>
 
                 <Col sm={12} md={2} className="mt-3 mt-md-0">
                     <FormGroup>
-                        <StatusDropdown name="status" filterStatus={this.filterProducts} statuses={this.statuses}/>
+                        <StatusDropdown filterStatus={(e) => {
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [e.target.id]: e.target.value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
+                                this.props.updateList(results || [], false, this.state.filters)
+                            })
+                        }} statuses={this.statuses}/>
                     </FormGroup>
                 </Col>
 
                 <Col sm={12} md={3} className="mt-3 mt-md-0">
                     <CompanyDropdown
                         company_id={this.props.filters.company_id}
-                        handleInputChanges={this.filterProducts}
+                        handleInputChanges={(e) => {
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [e.target.name]: e.target.value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
+                                this.props.updateList(results || [], false, this.state.filters)
+                            })
+                        }}
                         companies={this.props.companies}
                         name="company_id"
                     />
@@ -90,7 +115,19 @@ export default class ProductFilters extends Component {
                 <Col sm={12} md={3} className="mt-3 mt-md-0">
                     <CategoryDropdown
                         name="category_id"
-                        handleInputChanges={this.filterProducts}
+                        handleInputChanges={(e) => {
+                            const name = e.target.name
+                            const value = e.target.value
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [name]: value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, value, this.state.filters)
+                                this.props.updateList(results || [], false, this.state.filters)
+                            })
+                        }}
                         categories={this.props.categories}
                     />
                 </Col>

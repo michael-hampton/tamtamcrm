@@ -2,7 +2,6 @@
 
 namespace App\Requests\TaxRate;
 
-use App\Models\TaxRate;
 use App\Repositories\Base\BaseFormRequest;
 
 class UpdateTaxRateRequest extends BaseFormRequest
@@ -14,8 +13,7 @@ class UpdateTaxRateRequest extends BaseFormRequest
      */
     public function authorize()
     {
-        $tax_rate = TaxRate::find($this->taxRate_id);
-        return auth()->user()->can('update', $tax_rate);
+        return auth()->user()->can('update', $this->tax_rate);
     }
 
     /**
@@ -26,7 +24,7 @@ class UpdateTaxRateRequest extends BaseFormRequest
     public function rules()
     {
         return [
-            'name' => 'unique:tax_rates,name,' . $this->taxRate_id . ',id,account_id,' . $this->account_id,
+            'name' => 'unique:tax_rates,name,' . $this->tax_rate->id . ',id,account_id,' . $this->account_id,
             'rate' => ['required']
         ];
     }

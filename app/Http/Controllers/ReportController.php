@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Components\Reports\IncomeReport;
 use App\Components\Reports\LineItemReport;
+use App\Components\Reports\QuoteLineItemReport;
 use App\Components\Reports\TaxReport;
 use App\Models\Credit;
 use App\Models\Customer;
 use App\Models\Deal;
 use App\Models\Expense;
+use App\Models\File;
 use App\Models\Invoice;
 use App\Models\Lead;
 use App\Models\Order;
@@ -20,6 +23,7 @@ use App\Repositories\CreditRepository;
 use App\Repositories\CustomerRepository;
 use App\Repositories\DealRepository;
 use App\Repositories\ExpenseRepository;
+use App\Repositories\FileRepository;
 use App\Repositories\Interfaces\CustomerRepositoryInterface;
 use App\Repositories\Interfaces\TaskRepositoryInterface;
 use App\Repositories\InvoiceRepository;
@@ -33,6 +37,7 @@ use App\Repositories\TaskRepository;
 use App\Search\CreditSearch;
 use App\Search\CustomerSearch;
 use App\Search\DealSearch;
+use App\Search\DocumentSearch;
 use App\Search\ExpenseSearch;
 use App\Search\InvoiceSearch;
 use App\Search\LeadSearch;
@@ -155,6 +160,13 @@ class ReportController extends Controller
                 );
                 break;
 
+            case 'document':
+                $report = (new DocumentSearch(new FileRepository(new File())))->buildReport(
+                    $request,
+                    auth()->user()->account_user()->account
+                );
+                break;
+
             case 'task':
                 $report = (new TaskSearch(
                     new TaskRepository(new Task(), new ProjectRepository(new Project()))
@@ -200,12 +212,22 @@ class ReportController extends Controller
                 );
                 break;
             case 'line_item':
-                $line_item_report = (new LineItemReport())->build($request);
+                $line_item_report = (new LineItemReport())->build($request, auth()->user()->account_user()->account);
+                $report = $line_item_report['report'];
+                $currency_report = $line_item_report['currency_report'];
+                break;
+            case 'quote_line_item':
+                $line_item_report = (new QuoteLineItemReport())->build($request, auth()->user()->account_user()->account);
                 $report = $line_item_report['report'];
                 $currency_report = $line_item_report['currency_report'];
                 break;
             case 'tax_rate':
-                $line_item_report = (new TaxReport())->build($request);
+                $line_item_report = (new TaxReport())->build($request, auth()->user()->account_user()->account);
+                $report = $line_item_report['report'];
+                $currency_report = $line_item_report['currency_report'];
+                break;
+            case 'income':
+                $line_item_report = (new IncomeReport())->build($request, auth()->user()->account_user()->account);
                 $report = $line_item_report['report'];
                 $currency_report = $line_item_report['currency_report'];
                 break;

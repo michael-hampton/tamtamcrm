@@ -28,7 +28,7 @@ export default class Brands extends Component {
                 title: null
             },
             errors: [],
-            ignoredColumns: ['id', 'brand_id', 'parent_id', 'account_id', 'user_id', 'is_deleted', 'updated_at', 'status', 'deleted_at', 'created_at'],
+            ignoredColumns: ['id', 'brand_id', 'parent_id', 'account_id', 'user_id', 'hide', 'updated_at', 'status', 'deleted_at', 'created_at'],
             filters: {
                 searchText: '',
                 status: 'active',

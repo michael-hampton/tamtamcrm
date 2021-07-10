@@ -1,6 +1,7 @@
 import axios from 'axios'
 import moment from 'moment'
 import BaseModel from './BaseModel'
+import { buildPdf } from '../utils/Pdf'
 
 export default class DealModel extends BaseModel {
     constructor (data = null, customers) {
@@ -26,8 +27,8 @@ export default class DealModel extends BaseModel {
             custom_value3: '',
             activeTab: '1',
             custom_value4: '',
-            public_notes: '',
-            private_notes: '',
+            customer_note: '',
+            internal_note: '',
             timers: [],
             due_date: moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
             start_date: moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
@@ -76,7 +77,7 @@ export default class DealModel extends BaseModel {
     buildDropdownMenu () {
         const actions = []
 
-        if (!this.fields.is_deleted) {
+        if (!this.fields.hide) {
             actions.push('delete')
         }
 
@@ -144,11 +145,11 @@ export default class DealModel extends BaseModel {
         }
     }
 
-    async loadPdf () {
+    async loadPdf (show_html = false) {
         try {
             this.errors = []
             this.error_message = ''
-            const res = await axios.post('api/preview', { entity: this.entity, entity_id: this._fields.id })
+            const res = await axios.post('api/preview', { entity: this.entity, entity_id: this._fields.id, show_html: show_html })
 
             if (res.status === 200) {
                 // test for status you want, etc
@@ -156,7 +157,7 @@ export default class DealModel extends BaseModel {
             }
 
             // Don't forget to return something
-            return this.buildPdf(res.data)
+            return buildPdf(res.data)
         } catch (e) {
             alert(e)
             this.handleError(e)

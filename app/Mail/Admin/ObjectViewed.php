@@ -4,6 +4,8 @@ namespace App\Mail\Admin;
 
 use App\Models\Invitation;
 use App\Models\User;
+use App\ViewModels\AccountViewModel;
+use App\ViewModels\CustomerContactViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 
@@ -11,7 +13,6 @@ class ObjectViewed extends AdminMailer
 {
     use Queueable, SerializesModels;
 
-    private $invitation;
     private string $entity_name;
     private $contact;
 
@@ -29,7 +30,7 @@ class ObjectViewed extends AdminMailer
         $this->invitation = $invitation;
         $this->user = $user;
 
-        parent::__construct("{$this->entity_name}_viewed", $this->entity);
+        parent::__construct("{$this->entity_name}_viewed", $this->entity, $invitation);
     }
 
     /**
@@ -43,7 +44,8 @@ class ObjectViewed extends AdminMailer
 
         $this->setSubject($data);
         $this->setMessage($data);
-        $this->execute($this->buildMessage());
+        $this->buildButton();
+        $this->execute();
     }
 
     /**
@@ -53,7 +55,7 @@ class ObjectViewed extends AdminMailer
     {
         return [
             'total'            => $this->entity->getFormattedTotal(),
-            'customer'         => $this->contact->present()->name(),
+            'customer'         => (new CustomerContactViewModel($this->contact))->name(),
             $this->entity_name => $this->entity->getNumber()
         ];
     }
@@ -61,16 +63,12 @@ class ObjectViewed extends AdminMailer
     /**
      * @return array
      */
-    public function buildMessage(): array
+    public function buildButton(): void
     {
-        return [
-            'title'       => $this->subject,
-            'body'        => $this->message,
+        $this->button = [
             'url'         => $this->getUrl() . "view/{$this->entity_name}/" . $this->invitation->key .
                 "?silent=true",
             'button_text' => trans("texts.view_{$this->entity_name}"),
-            'signature'   => isset($this->entity->account->settings->email_signature) ? $this->entity->account->settings->email_signature : '',
-            'logo'        => $this->entity->account->present()->logo(),
         ];
     }
 }

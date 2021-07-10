@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import 'react-dates/initialize' // necessary for latest version
 import 'react-dates/lib/css/_datepicker.css'
 import {
+    Button,
     Card,
     CardBody,
     CardHeader,
@@ -28,6 +29,7 @@ import FileUploads from '../../documents/FileUploads'
 import Emails from '../../emails/Emails'
 import Comments from '../../comments/Comments'
 import DropdownMenuBuilder from '../../common/DropdownMenuBuilder'
+import { toast, ToastContainer } from 'react-toastify'
 
 export default class EditDeal extends Component {
     constructor (props) {
@@ -46,8 +48,23 @@ export default class EditDeal extends Component {
         this.toggleMenu = this.toggleMenu.bind(this)
     }
 
+    static getDerivedStateFromProps (props, state) {
+        if (props.deal && props.deal.id !== state.id) {
+            const dealModel = new DealModel(props.deal, props.customers)
+            return dealModel.fields
+        }
+
+        return null
+    }
+
     componentDidMount () {
         this.getSourceTypes()
+    }
+
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.deal && this.props.deal.id !== prevProps.deal.id) {
+            this.dealModel = new DealModel(this.props.deal, this.props.customers)
+        }
     }
 
     getSourceTypes () {
@@ -110,8 +127,8 @@ export default class EditDeal extends Component {
             custom_value2: this.state.custom_value2,
             custom_value3: this.state.custom_value3,
             custom_value4: this.state.custom_value4,
-            public_notes: this.state.public_notes,
-            private_notes: this.state.private_notes,
+            customer_note: this.state.customer_note,
+            internal_note: this.state.internal_note,
             task_status_id: this.state.task_status_id,
             project_id: this.state.project_id,
             column_color: this.state.column_color
@@ -122,12 +139,33 @@ export default class EditDeal extends Component {
         this.dealModel.update(this.getFormData()).then(response => {
             if (!response) {
                 this.setState({ errors: this.dealModel.errors, message: this.dealModel.error_message })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.deal), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
 
+            toast.success(translations.updated_successfully.replace('{entity}', translations.deal), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
+
             const index = this.props.deals.findIndex(deal => deal.id === this.props.deal.id)
             this.props.deals[index] = response
-            this.props.action(this.props.deals)
+            this.props.action(this.props.deals, true)
             this.setState({
                 editMode: false,
                 changesMade: false
@@ -160,9 +198,15 @@ export default class EditDeal extends Component {
                 customers={this.props.customers} entity_object={this.state} entity="deal"
                 entity_id={this.state.id}/> : null
 
-        const button = this.props.listView && this.props.listView === true
-            ? <DropdownItem onClick={this.toggle}><i className={`fa ${icons.edit}`}/>Edit</DropdownItem>
+        let button = this.props.listView && this.props.listView === true
+            ? <DropdownItem onClick={this.toggle}><i className={`fa ${icons.edit}`}/>{translations.edit_deal}
+            </DropdownItem>
             : null
+
+        if (this.props.show_as_link === true) {
+            button = <Button className="text-white" color="link" onClick={this.toggle}>{translations.edit_task}</Button>
+        }
+
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
 
         return <React.Fragment>
@@ -171,6 +215,18 @@ export default class EditDeal extends Component {
                 <DefaultModalHeader toggle={this.toggle} title={translations.edit_deal}/>
 
                 <ModalBody className={theme}>
+                    <ToastContainer
+                        position="top-center"
+                        autoClose={5000}
+                        hideProgressBar={false}
+                        newestOnTop={false}
+                        closeOnClick
+                        rtl={false}
+                        pauseOnFocusLoss
+                        draggable
+                        pauseOnHover
+                    />
+
                     <Nav tabs>
                         <NavItem>
                             <NavLink
@@ -229,7 +285,7 @@ export default class EditDeal extends Component {
                                 custom_value4={this.state.custom_value4}
                                 custom_fields={this.props.custom_fields}/>
 
-                            <Notes private_notes={this.state.private_notes} public_notes={this.state.public_notes}
+                            <Notes internal_note={this.state.internal_note} customer_note={this.state.customer_note}
                                 handleInput={this.handleChange}/>
                         </TabPane>
 

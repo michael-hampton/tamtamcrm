@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\ViewModels\UserViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -29,7 +30,7 @@ class ImportCompleted extends Mailable
      */
     public function build()
     {
-        return $this->from(config('taskmanager.from_email'), config('taskmanager.from_name'))
-                    ->view('email.admin.import_completed')->with($this->data);
+        return $this->from(config('mail.from.address'), config('mail.from.name'))
+            ->view('email.admin.import_completed')->with($this->data);
     }
 }

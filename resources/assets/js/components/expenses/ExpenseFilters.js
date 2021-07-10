@@ -9,6 +9,9 @@ import FilterTile from '../common/FilterTile'
 import ExpenseCategoryDropdown from '../common/dropdowns/ExpenseCategoryDropdown'
 import StatusDropdown from '../common/StatusDropdown'
 import { expenseStatuses } from '../utils/_statuses'
+import filterSearchResults, { filterStatuses } from '../utils/_search'
+import { consts } from '../utils/_consts'
+import { translations } from '../utils/_translations'
 
 export default class ExpenseFilters extends Component {
     constructor (props) {
@@ -27,6 +30,21 @@ export default class ExpenseFilters extends Component {
                 user_id: ''
             }
         }
+
+        this.statuses = [
+            {
+                value: consts.expense_status_logged,
+                label: translations.logged
+            },
+            {
+                value: consts.expense_status_pending,
+                label: translations.pending
+            },
+            {
+                value: consts.expense_status_invoiced,
+                label: translations.invoiced
+            }
+        ]
 
         this.filterExpenses = this.filterExpenses.bind(this)
         this.getFilters = this.getFilters.bind(this)
@@ -72,14 +90,27 @@ export default class ExpenseFilters extends Component {
         return (
             <Row form>
                 <Col md={2}>
-                    <TableSearch onChange={this.filterExpenses}/>
+                    <TableSearch onChange={(e) => {
+                        const myArrayFiltered = filterSearchResults(e.target.value, this.props.cachedData, this.props.customers)
+                        this.props.updateList(myArrayFiltered || [], false, this.state.filters)
+                    }}/>
                 </Col>
 
                 <Col md={3}>
                     <CustomerDropdown
                         customers={this.props.customers}
                         customer={this.props.filters.customer_id}
-                        handleInputChanges={this.filterExpenses}
+                        handleInputChanges={(e) => {
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [e.target.id]: e.target.value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
+                                this.props.updateList(results || [], false, this.state.filters)
+                            })
+                        }}
                         name="customer_id"
                     />
                 </Col>
@@ -87,15 +118,35 @@ export default class ExpenseFilters extends Component {
                 <Col md={3}>
                     <CompanyDropdown
                         companies={this.props.companies}
-                        company={this.props.filters.company_id}
-                        handleInputChanges={this.filterExpenses}
+                        company_id={this.state.filters.company_id}
+                        handleInputChanges={(e) => {
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [e.target.name]: e.target.value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
+                                this.props.updateList(results || [], false, this.state.filters)
+                            })
+                        }}
                         name="company_id"
                     />
                 </Col>
 
                 <Col sm={12} md={2} className="mt-3 mt-md-0">
                     <FormGroup>
-                        <StatusDropdown filterStatus={this.filterExpenses}/>
+                        <StatusDropdown filterStatus={(e) => {
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [e.target.id]: e.target.value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
+                                this.props.updateList(results || [], false, this.state.filters)
+                            })
+                        }} statuses={this.statuses}/>
                     </FormGroup>
                 </Col>
 
@@ -117,7 +168,19 @@ export default class ExpenseFilters extends Component {
                             name="expense_category_id"
                             category={this.props.filters.expense_category_id}
                             renderErrorFor={this.renderErrorFor}
-                            handleInputChanges={this.filterExpenses}
+                            handleInputChanges={(e) => {
+                                const name = e.target.name
+                                const value = e.target.value
+                                this.setState(prevState => ({
+                                    filters: {
+                                        ...prevState.filters,
+                                        [name]: value
+                                    }
+                                }), () => {
+                                    const results = filterStatuses(this.props.cachedData, value, this.state.filters)
+                                    this.props.updateList(results || [], false, this.state.filters)
+                                })
+                            }}
                         />
                     </FormGroup>
                 </Col>

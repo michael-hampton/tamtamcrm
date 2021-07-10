@@ -73,7 +73,6 @@ export default class Gateways extends Component {
     loadCustomer () {
         axios.get(`/api/customers/${this.state.customer_id}`)
             .then((r) => {
-                console.log('data', r.data)
                 this.model = new CustomerModel(r.data)
                 this.setState({ gateway_ids: this.model.gateways })
             })
@@ -88,7 +87,6 @@ export default class Gateways extends Component {
     loadGroup () {
         axios.get(`/api/group/${this.state.group_id}`)
             .then((r) => {
-                console.log('data', r.data)
                 this.model = new GroupModel(r.data)
                 this.setState({ gateway_ids: this.model.gateways })
             })
@@ -123,6 +121,7 @@ export default class Gateways extends Component {
     }
 
     save () {
+        this.model.gateway_ids = this.state.gateway_ids
         this.model.saveSettings().then(response => {
             if (!response) {
                 this.setState({
@@ -211,14 +210,11 @@ export default class Gateways extends Component {
 
         const has_changed = this.arraysEqual(ids, this.state.gateway_ids)
 
+        if (has_changed) {
+            return false
+        }
+
         this.setState({ gateway_ids: ids }, () => {
-            if (has_changed) {
-                return
-            }
-
-            this.model.gateway_ids = ids
-            console.log('ids', ids)
-
             setTimeout(() => {
                 this.save()
             }, 2000)
@@ -281,6 +277,7 @@ export default class Gateways extends Component {
                             <CardBody>
                                 <DataTable
                                     hide_table={true}
+                                    hide_pagination={true}
                                     setSuccess={this.setSuccess.bind(this)}
                                     setError={this.setError.bind(this)}
                                     columnMapping={{ customer_id: 'CUSTOMER' }}

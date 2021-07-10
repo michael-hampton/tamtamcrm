@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\ViewModels\AccountViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -50,7 +51,7 @@ class NewAccountCreated extends Notification implements ShouldQueue
     {
         $user_name = $this->user->first_name . " " . $this->user->last_name;
         $email = $this->user->email;
-        $ip = $this->user->ip;
+        $ip = $this->user->ip_address;
 
         $data = [
             'title'       => trans('texts.new_account_created'),
@@ -58,7 +59,7 @@ class NewAccountCreated extends Notification implements ShouldQueue
             'url'         => config('taskmanager.web_url'),
             'button_text' => trans('texts.login'),
             'signature'   => $this->account->settings->email_signature,
-            'logo'        => $this->account->present()->logo(),
+            'logo'        => (new AccountViewModel($this->account))->logo(),
         ];
 
 
@@ -83,7 +84,7 @@ class NewAccountCreated extends Notification implements ShouldQueue
 
         $user_name = $this->user->first_name . " " . $this->user->last_name;
         $email = $this->user->email;
-        $ip = $this->user->ip;
+        $ip = $this->user->ip_address;
 
         return (new SlackMessage)->success()->from(trans('texts.from_slack'))
                                  ->content(

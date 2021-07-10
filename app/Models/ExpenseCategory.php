@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,6 +13,7 @@ class ExpenseCategory extends Model
 
     use SoftDeletes;
     use Archiveable;
+    use QueryScopes;
 
     protected $fillable = [
         'name',

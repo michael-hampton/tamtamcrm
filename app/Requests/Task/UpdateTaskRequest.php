@@ -2,8 +2,8 @@
 
 namespace App\Requests\Task;
 
-use App\Models\Task;
 use App\Repositories\Base\BaseFormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateTaskRequest extends BaseFormRequest
 {
@@ -14,8 +14,7 @@ class UpdateTaskRequest extends BaseFormRequest
      */
     public function authorize()
     {
-        $task = Task::find($this->task_id);
-        return auth()->user()->can('update', $task);
+        return auth()->user()->can('update', $this->task);
     }
 
     /**
@@ -33,7 +32,14 @@ class UpdateTaskRequest extends BaseFormRequest
             //'content'   => 'required',
             //'contributors' => 'required|array',
             'due_date'    => 'required',
-            'number'      => 'nullable|unique:tasks,number,' . $this->task_id . ',id,account_id,' . $this->account_id,
+            'number'      => [
+                'nullable',
+                Rule::unique('tasks')->where(
+                    function ($query) {
+                        return $query->where('account_id', $this->task->account_id);
+                    }
+                )->ignore($this->task),
+            ],
         ];
     }
 

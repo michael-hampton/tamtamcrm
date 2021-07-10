@@ -14,12 +14,12 @@ trait ProjectTransformable
      * @param Project $project
      * @return array
      */
-    protected function transformProject(Project $project)
+    protected function transformProject(Project $project, $files = null)
     {
         return [
             'number'         => $project->number ?: '',
             'id'             => (int)$project->id,
-            'customer_name'  => $project->customer->present()->name,
+            'customer_name'  => $project->customer->name ?: '',
             'name'           => $project->name,
             'description'    => $project->description,
             'is_completed'   => $project->is_completed,
@@ -28,21 +28,23 @@ trait ProjectTransformable
             'updated_at'     => (int)$project->updated_at,
             'deleted_at'     => $project->deleted_at,
             'created_at'     => $project->created_at,
-            'is_deleted'     => (bool)$project->is_deleted,
+            'hide'           => (bool)$project->hide,
             'task_rate'      => (float)$project->task_rate,
             'budgeted_hours' => (float)$project->budgeted_hours,
             'account_id'     => $project->account_id,
             'user_id'        => (int)$project->user_id,
             'customer_id'    => (int)$project->customer_id,
             'assigned_to'    => (int)$project->assigned_to,
-            'private_notes'  => $project->private_notes ?: '',
-            'public_notes'   => $project->public_notes ?: '',
+            'internal_note'  => $project->internal_note ?: '',
+            'customer_note'  => $project->customer_note ?: '',
             'custom_value1'  => $project->custom_value1 ?: '',
             'custom_value2'  => $project->custom_value2 ?: '',
             'custom_value3'  => $project->custom_value3 ?: '',
             'custom_value4'  => $project->custom_value4 ?: '',
             'tasks'          => $this->transformProjectTasks($project->tasks),
-            'files'          => $this->transformTaskFiles($project->files),
+            'files'          => !empty($files) && !empty($files[$project->id]) ? $this->transformProjectFiles(
+                $files[$project->id]
+            ) : [],
             'column_color'   => $project->column_color ?: '',
         ];
     }

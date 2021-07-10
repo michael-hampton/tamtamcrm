@@ -16,8 +16,8 @@ export default class ProjectModel extends BaseModel {
             name: '',
             description: '',
             customer_id: '',
-            private_notes: '',
-            public_notes: '',
+            internal_note: '',
+            customer_note: '',
             custom_value1: '',
             custom_value2: '',
             custom_value3: '',
@@ -68,7 +68,7 @@ export default class ProjectModel extends BaseModel {
     buildDropdownMenu () {
         const actions = []
 
-        if (!this.fields.is_deleted) {
+        if (!this.fields.hide) {
             actions.push('delete')
         }
 

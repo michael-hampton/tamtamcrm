@@ -25,11 +25,16 @@ export default function PaymentPresenter (props) {
 
     const paymentModel = new PaymentModel(entity.invoices, entity, entity.credits)
 
-    const status = (entity.deleted_at && !entity.is_deleted) ? (<Badge className="mr-2"
-        color="warning">{translations.archived}</Badge>) : ((entity.deleted_at && entity.is_deleted) ? (
+    let status = (entity.deleted_at && !entity.hide) ? (<Badge className="mr-2"
+        color="warning">{translations.archived}</Badge>) : ((entity.deleted_at && entity.hide) ? (
         <Badge className="mr-2" color="danger">{translations.deleted}</Badge>) : (
         <Badge color={paymentStatusColors[entity.status_id]}>{paymentStatuses[entity.status_id]}</Badge>))
 
+    if (entity.applied < entity.amount) {
+        status = entity.applied === 0
+            ? <Badge className="mr-2" color={paymentStatusColors['-2']}>{translations.unapplied}</Badge>
+            : <Badge className="mr-2" color={paymentStatusColors['-3']}>{translations.partially_unapplied}</Badge>
+    }
     switch (field) {
         case 'assigned_to': {
             const assigned_user = JSON.parse(localStorage.getItem('users')).filter(user => user.id === parseInt(props.entity.assigned_to))
@@ -75,6 +80,6 @@ export default function PaymentPresenter (props) {
         }
 
         default:
-            return entity[field]
+            return typeof entity[field] === 'object' ? JSON.stringify(entity[field]) : entity[field]
     }
 }

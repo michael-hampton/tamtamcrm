@@ -5,14 +5,40 @@ import FormBuilder from '../FormBuilder'
 export default function Step1 (props) {
     const settings = props.settings
 
+    let icon = null
+
+    if (props.checking === true) {
+        icon = 'fa-ban'
+    } else {
+        icon = props.domain_valid === true ? 'fa-check-circle' : 'fa-exclamation-circle'
+    }
+
     const formFields = [
         [
             {
-                name: 'name',
-                label: translations.name,
+                name: 'first_name',
+                label: translations.first_name,
                 type: 'text',
-                placeholder: translations.name,
-                value: settings.name,
+                placeholder: translations.first_name,
+                // value: settings.name,
+                group: 1
+            },
+            {
+                name: 'last_name',
+                label: translations.last_name,
+                type: 'text',
+                placeholder: translations.last_name,
+                // value: settings.name,
+                group: 1
+            },
+            {
+                name: 'subdomain',
+                label: translations.subdomain,
+                type: 'input_group',
+                placeholder: translations.subdomain,
+                icon: icon,
+                onClick: props.checkDomain,
+                // value: settings.name,
                 group: 1
             },
             {
@@ -21,6 +47,22 @@ export default function Step1 (props) {
                 type: 'text',
                 placeholder: translations.email,
                 value: settings.email,
+                group: 1
+            },
+            {
+                name: 'password',
+                label: translations.password,
+                type: 'password',
+                placeholder: translations.password,
+                // value: settings.email,
+                group: 1
+            },
+            {
+                name: 'confirm_password',
+                label: translations.confirm_password,
+                type: 'password',
+                placeholder: translations.confirm_password,
+                // value: settings.email,
                 group: 1
             },
             {
@@ -46,7 +88,7 @@ export default function Step1 (props) {
         return null
     }
     return <FormBuilder
-        handleChange={props.handleSettingsChange}
+        handleChange={props.handleChange}
         formFieldsRows={formFields}
     />
 }

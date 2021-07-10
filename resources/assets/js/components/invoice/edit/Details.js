@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import { Card, CardBody, CardHeader, FormGroup, Input, Label } from 'reactstrap'
 import Datepicker from '../../common/Datepicker'
 import { translations } from '../../utils/_translations'
+import { icons } from '../../utils/_icons'
+import SwitchWithIcon from '../../common/SwitchWithIcon'
 
 export default class Details extends Component {
     constructor (props, context) {
@@ -85,6 +87,15 @@ export default class Details extends Component {
                         />
                         {this.renderErrorFor('number')}
                     </FormGroup>
+
+                    <SwitchWithIcon
+                        label={translations.auto_billing_enabled}
+                        icon={icons.credit_card}
+                        checked={this.props.invoice.auto_billing_enabled}
+                        name="auto_billing_enabled"
+                        handleInput={this.props.handleInput}
+                        help_text={translations.auto_billing_enabled_help_text}
+                    />
                 </CardBody>
             </Card>
 

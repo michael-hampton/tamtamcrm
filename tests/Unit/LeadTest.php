@@ -2,11 +2,14 @@
 
 namespace Tests\Unit;
 
+use App\Services\Lead\ConvertLead;
 use App\Events\Lead\LeadWasCreated;
 use App\Factory\LeadFactory;
 use App\Mail\TestMail;
 use App\Models\Account;
+use App\Models\Deal;
 use App\Models\Lead;
+use App\Models\TaskStatus;
 use App\Models\User;
 use App\Repositories\LeadRepository;
 use App\Requests\SearchRequest;
@@ -67,7 +70,7 @@ class LeadTest extends TestCase
         $lead = Lead::factory()->create();
         $data = ['first_name' => $this->faker->firstName];
         $leadRepo = new LeadRepository($lead);
-        $lead = $leadRepo->save($data, $lead);
+        $lead = $leadRepo->update($data, $lead);
         $lead = $leadRepo->findLeadById($lead->id);
         $this->assertInstanceOf(Lead::class, $lead);
 
@@ -91,7 +94,7 @@ class LeadTest extends TestCase
         $data = [
             'account_id'     => $this->account->id,
             'user_id'        => $this->user->id,
-            'task_status_id' => 1,
+            //'task_status_id' => 1,
             'name'           => $this->faker->word,
             'description'    => $this->faker->sentence,
             'first_name'     => $this->faker->firstName,
@@ -100,13 +103,16 @@ class LeadTest extends TestCase
             'email'          => $this->faker->safeEmail
         ];
 
+        $order_id = Lead::max('order_id') + 1;
+        $task_status = TaskStatus::ByTaskType(3)->orderBy('order_id', 'asc')->first();
+
         $leadRepo = new LeadRepository(new Lead);
         $factory = (new LeadFactory)->create($this->account, $this->user);
-        $lead = $leadRepo->createLead($factory, $data);
-
-        event(new LeadWasCreated($lead));
+        $lead = $leadRepo->create($data, $factory);
 
         $this->assertInstanceOf(Lead::class, $lead);
+        $this->assertEquals($lead->task_status_id, $task_status->id);
+        $this->assertEquals($lead->order_id, $order_id);
         $this->assertEquals($data['first_name'], $lead->first_name);
     }
 
@@ -114,7 +120,7 @@ class LeadTest extends TestCase
     public function it_can_convert_a_lead()
     {
         $lead = Lead::factory()->create();
-        $lead = $lead->service()->convertLead();
+        $lead = (new ConvertLead($lead))->execute();
         $this->assertInstanceOf(Lead::class, $lead);
     }
 
@@ -123,7 +129,7 @@ class LeadTest extends TestCase
         // Given: we have an e-mail﻿
         $email = new TestMail(
             $sender = 'sender@example.com',
-            $subject = 'Test E-mail',
+            $subject = 'TemplateTest E-mail',
             $body = 'Some example text in the body'
         );
 

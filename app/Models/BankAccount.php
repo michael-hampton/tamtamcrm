@@ -8,20 +8,25 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Hash;
 
 class BankAccount extends Model
 {
     use SoftDeletes;
     use Archiveable;
+    use HasFactory;
+    use QueryScopes;
 
     protected $fillable = [
         'name',
         'assigned_to',
-        'public_notes',
-        'private_notes',
+        'customer_note',
+        'internal_note',
         'account_id',
         'username',
         'password',
@@ -43,5 +48,14 @@ class BankAccount extends Model
     public function bank()
     {
         return $this->belongsTo(Bank::class);
+    }
+
+    public function setPasswordAttribute(string $value)
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        $this->attributes['password'] = Hash::make($value);
     }
 }

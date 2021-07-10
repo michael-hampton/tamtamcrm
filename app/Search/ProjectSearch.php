@@ -3,6 +3,7 @@
 namespace App\Search;
 
 use App\Models\Account;
+use App\Models\File;
 use App\Models\Project;
 use App\Repositories\ProjectRepository;
 use App\Transformations\ProjectTransformable;
@@ -41,14 +42,16 @@ class ProjectSearch extends BaseSearch
 
         if ($request->has('status')) {
             $this->status('projects', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->filled('customer_id')) {
-            $this->query->whereCustomerId($request->customer_id);
+            $this->query->byCustomer($request->customer_id);
         }
 
         if ($request->filled('id')) {
-            $this->query->whereId($request->id);
+            $this->query->byId($request->id);
         }
 
         if ($request->has('search_term') && !empty($request->search_term)) {
@@ -56,14 +59,14 @@ class ProjectSearch extends BaseSearch
         }
 
         if ($request->filled('user_id')) {
-            $this->query->where('assigned_to', '=', $request->user_id);
+            $this->query->byAssignee('assigned_to', '=', $request->user_id);
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
-            $this->filterDates($request);
+            $this->query->byDate($request->input('start_date'), $request->input('end_date'));
         }
 
-        $this->addAccount($account);
+        $this->query->byAccount($account);
 
         $this->checkPermissions('projectcontroller.index');
 
@@ -97,7 +100,7 @@ class ProjectSearch extends BaseSearch
                       ->orWhere('projects.custom_value2', 'like', '%' . $filter . '%')
                       ->orWhere('projects.custom_value3', 'like', '%' . $filter . '%')
                       ->orWhere('projects.custom_value4', 'like', '%' . $filter . '%')
-                      ->orWhere('projects.private_notes', 'like', '%' . $filter . '%');
+                      ->orWhere('projects.internal_note', 'like', '%' . $filter . '%');
             }
         );
 
@@ -109,10 +112,12 @@ class ProjectSearch extends BaseSearch
      */
     private function transformList()
     {
-        $list = $this->query->get();
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['projects'])->get();
+        $files = File::where('fileable_type', '=', 'App\Models\Project')->get()->groupBy('fileable_id');
+
         $projects = $list->map(
-            function (Project $project) {
-                return $this->transformProject($project);
+            function (Project $project) use ($files) {
+                return $this->transformProject($project, $files);
             }
         )->all();
 

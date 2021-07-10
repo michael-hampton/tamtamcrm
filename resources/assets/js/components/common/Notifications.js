@@ -24,6 +24,12 @@ export default class Notifications extends Component {
                 },
                 {
                     id: 1,
+                    value: consts.notification_refund_failure,
+                    label: translations.refund_failure,
+                    isChecked: false
+                },
+                {
+                    id: 1,
                     value: consts.notification_lead_success,
                     label: translations.new_lead_created,
                     isChecked: false
@@ -47,9 +53,21 @@ export default class Notifications extends Component {
                     isChecked: false
                 },
                 {
+                    id: 33,
+                    value: consts.notification_invoice_created,
+                    label: translations.invoice_created,
+                    isChecked: false
+                },
+                {
                     id: 4,
                     value: consts.notification_credit_sent,
                     label: translations.credit_sent,
+                    isChecked: false
+                },
+                {
+                    id: 4,
+                    value: consts.notification_credit_created,
+                    label: translations.credit_created,
                     isChecked: false
                 },
                 {
@@ -62,6 +80,12 @@ export default class Notifications extends Component {
                     id: 4,
                     value: consts.notification_purchase_order_sent,
                     label: translations.purchase_order_sent,
+                    isChecked: false
+                },
+                {
+                    id: 4,
+                    value: consts.notification_purchase_order_created,
+                    label: translations.purchase_order_created,
                     isChecked: false
                 },
                 {
@@ -110,6 +134,12 @@ export default class Notifications extends Component {
                     id: 4,
                     value: consts.notification_quote_approved,
                     label: translations.quote_approved,
+                    isChecked: false
+                },
+                {
+                    id: 4,
+                    value: consts.notification_quote_created,
+                    label: translations.quote_created,
                     isChecked: false
                 },
                 {

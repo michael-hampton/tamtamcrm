@@ -34,14 +34,16 @@ interface CustomerRepositoryInterface extends BaseRepositoryInterface
     public function findCustomerById(int $id): Customer;
 
     /**
-     *
+     * @param array $data
+     * @param Customer $customer
+     * @return Customer
      */
-    public function deleteCustomer(): bool;
+    public function create(array $data, Customer $customer): Customer;
 
     /**
      * @param array $data
      * @param Customer $customer
-     * @return Customer|null
+     * @return Customer
      */
-    public function save(array $data, Customer $customer): ?Customer;
+    public function update(array $data, Customer $customer): Customer;
 }

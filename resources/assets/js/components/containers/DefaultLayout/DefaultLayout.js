@@ -34,17 +34,23 @@ class DefaultLayout extends Component {
         this.shown_notifications = []
     }
 
-    signOut (e) {
-        e.preventDefault()
-        this.props.history.push('/login')
-    }
-
     componentDidMount () {
         this.getNotifications()
 
         setInterval(() => {
             this.getNotifications()
         }, 60000)
+    }
+
+    signOut (e) {
+        e.preventDefault()
+        axios.post('/api/logout')
+            .then((r) => {
+                location.href = '/#/login'
+            })
+            .catch((e) => {
+                alert(e)
+            })
     }
 
     getNotifications () {
@@ -90,8 +96,9 @@ class DefaultLayout extends Component {
 
     render () {
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
+        const button_theme = Object.prototype.hasOwnProperty.call(localStorage, 'button_theme') ? localStorage.getItem('button_theme') : ''
         return (
-            <div className={`app ${theme}`}>
+            <div className={`app ${theme} ${button_theme}`}>
                 <ToastContainer
                     limit={1}
                     position="top-center"

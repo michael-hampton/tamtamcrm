@@ -4,7 +4,7 @@
 namespace App\Listeners\PurchaseOrder;
 
 
-use App\Notifications\Admin\PurchaseOrderRejectedNotification;
+use App\Notifications\PurchaseOrder\PurchaseOrderRejectedNotification;
 use App\Traits\Notifications\UserNotifies;
 use Illuminate\Support\Facades\Notification;
 

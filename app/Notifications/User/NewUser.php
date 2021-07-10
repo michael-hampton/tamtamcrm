@@ -38,7 +38,11 @@ class NewUser extends Notification implements ShouldQueue
                         'title'       => trans('texts.new_user_created_subject'),
                         'message'     => trans('texts.new_user_created_body'),
                         'button_text' => trans('texts.new_user_created_button'),
-                        'url'         => url("/user/confirm/{$this->user->confirmation_code}")
+                        'url'         => url("/user/confirm/{$this->user->confirmation_code}"),
+                        'show_footer' => empty($this->user->domain->plan) || !in_array(
+                                $this->user->domain->plan->code,
+                                ['PROM', 'PROY']
+                            )
                     ]
                 ]
             );

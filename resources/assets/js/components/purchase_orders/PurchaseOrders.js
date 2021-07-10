@@ -9,11 +9,17 @@ import { translations } from '../utils/_translations'
 import CompanyRepository from '../repositories/CompanyRepository'
 import queryString from 'query-string'
 import { getDefaultTableFields } from '../presenters/PurchaseOrderPresenter'
+import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class PurchaseOrders extends Component {
     constructor (props) {
         super(props)
         this.state = {
+            currentPage: 1,
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             error: '',
@@ -57,12 +63,41 @@ export default class PurchaseOrders extends Component {
         this.getCustomFields()
     }
 
-    updateInvoice (purchase_orders) {
+    updateInvoice (purchase_orders, do_filter = false, filters = null) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? purchase_orders : this.state.cachedData
+
+        if (should_filter) {
+            purchase_orders = filterStatuses(purchase_orders, '', this.state.filters)
+        }
+
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             purchase_orders: purchase_orders,
             cachedData: cachedData
+        }, () => {
+            const totalPages = Math.ceil(purchase_orders.length / this.state.pageLimit)
+            this.onPageChanged({
+                invoices: purchase_orders,
+                currentPage: this.state.currentPage,
+                totalPages: totalPages
+            })
         })
+    }
+
+    onPageChanged (data) {
+        let { purchase_orders, pageLimit } = this.state
+        const { currentPage, totalPages } = data
+
+        if (data.invoices) {
+            purchase_orders = data.invoices
+        }
+
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = purchase_orders.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
+
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     filterInvoices (filters) {
@@ -74,13 +109,16 @@ export default class PurchaseOrders extends Component {
     }
 
     userList (props) {
-        const { purchase_orders, custom_fields, companies } = this.state
-        return <PurchaseOrderItem showCheckboxes={props.showCheckboxes} purchase_orders={purchase_orders}
+        const { pageLimit, custom_fields, companies, currentInvoices, cachedData } = this.state
+        return <PurchaseOrderItem showCheckboxes={props.showCheckboxes} purchase_orders={currentInvoices}
             show_list={props.show_list}
+            onPageChanged={this.onPageChanged.bind(this)}
+            pageLimit={pageLimit}
             companies={companies}
+            entities={cachedData}
             custom_fields={custom_fields}
             viewId={props.viewId}
-            ignoredColumns={getDefaultTableFields()} updateInvoice={this.updateInvoice}
+            ignoredColumns={props.default_columns} updateInvoice={this.updateInvoice}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -90,7 +128,8 @@ export default class PurchaseOrders extends Component {
         const companyRepository = new CompanyRepository()
         companyRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
             }
 
             this.setState({ companies: response }, () => {
@@ -141,9 +180,9 @@ export default class PurchaseOrders extends Component {
     }
 
     render () {
-        const { purchase_orders, custom_fields, companies, view, filters, error, isOpen, error_message, success_message, show_success } = this.state
-        const { status_id, company_id, searchText, start_date, end_date, project_id, user_id } = this.state.filters
-        const fetchUrl = `/api/purchase_order?search_term=${searchText}&user_id=${user_id}&status=${status_id}&company_id=${company_id}&project_id=${project_id}&start_date=${start_date}&end_date=${end_date}`
+        const { cachedData, purchase_orders, custom_fields, companies, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, pageLimit } = this.state
+        const { start_date, end_date } = this.state.filters
+        const fetchUrl = `/api/purchase_order?start_date=${start_date}&end_date=${end_date}`
         const addButton = companies.length ? <EditPurchaseOrder
             entity_id={this.state.entity_id}
             entity_type={this.state.entity_type}
@@ -152,12 +191,13 @@ export default class PurchaseOrders extends Component {
             invoice={{}}
             add={true}
             action={this.updateInvoice}
-            invoices={purchase_orders}
+            invoices={cachedData}
             modal={true}
         /> : null
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable fixed-margin-datatable-mobile'
+        const total = purchase_orders.length
 
         return (
             <Row>
@@ -165,7 +205,11 @@ export default class PurchaseOrders extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <PurchaseOrderFilters setFilterOpen={this.setFilterOpen.bind(this)}
+                                <PurchaseOrderFilters
+                                    pageLimit={pageLimit}
+                                    cachedData={cachedData}
+                                    updateList={this.updateInvoice}
+                                    setFilterOpen={this.setFilterOpen.bind(this)}
                                     purchase_orders={purchase_orders}
                                     companies={companies}
                                     filters={filters} filter={this.filterInvoices}
@@ -195,6 +239,10 @@ export default class PurchaseOrders extends Component {
                         <Card>
                             <CardBody>
                                 <DataTable
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
                                     default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
                                     setError={this.setError.bind(this)}
@@ -210,6 +258,13 @@ export default class PurchaseOrders extends Component {
                                     fetchUrl={fetchUrl}
                                     updateState={this.updateInvoice}
                                 />
+
+                                {total > 0 &&
+                                <div className="d-flex flex-row py-4 align-items-center">
+                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>

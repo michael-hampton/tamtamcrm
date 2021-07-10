@@ -27,8 +27,8 @@ export default class CompanyModel extends BaseModel {
             custom_value2: '',
             custom_value3: '',
             custom_value4: '',
-            private_notes: '',
-            public_notes: '',
+            internal_note: '',
+            customer_note: '',
             address_2: '',
             town: '',
             city: '',
@@ -80,10 +80,26 @@ export default class CompanyModel extends BaseModel {
         return parseInt(this.fields.currency_id)
     }
 
+    updateSettings (settings) {
+        const app_settings = JSON.parse(localStorage.getItem('appState'))
+        const accounts = app_settings.accounts
+        let index = accounts.findIndex((obj) => obj.account_id === parseInt(this.fields.id))
+
+        if (!app_settings.accounts[index]) {
+            index = this.fields.id
+            app_settings.accounts[index] = {}
+            app_settings.accounts[index].account = {}
+            app_settings.accounts[index].account.settings = {}
+        }
+
+        app_settings.accounts[index].account.settings = settings
+        localStorage.setItem('appState', JSON.stringify(app_settings))
+    }
+
     buildDropdownMenu () {
         const actions = []
 
-        if (!this.fields.is_deleted) {
+        if (!this.fields.hide) {
             actions.push('delete')
         }
 

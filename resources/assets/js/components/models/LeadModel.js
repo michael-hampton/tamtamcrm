@@ -1,5 +1,6 @@
 import axios from 'axios'
 import BaseModel from './BaseModel'
+import { buildPdf } from '../utils/Pdf'
 
 export default class LeadModel extends BaseModel {
     constructor (data = null) {
@@ -18,8 +19,8 @@ export default class LeadModel extends BaseModel {
             modal: false,
             first_name: '',
             last_name: '',
-            private_notes: '',
-            public_notes: '',
+            internal_note: '',
+            customer_note: '',
             email: '',
             phone: '',
             address_1: '',
@@ -77,7 +78,7 @@ export default class LeadModel extends BaseModel {
     buildDropdownMenu () {
         const actions = []
 
-        if (!this.fields.is_deleted) {
+        if (!this.fields.hide) {
             actions.push('delete')
         }
 
@@ -143,11 +144,11 @@ export default class LeadModel extends BaseModel {
         }
     }
 
-    async loadPdf () {
+    async loadPdf (show_html = false) {
         try {
             this.errors = []
             this.error_message = ''
-            const res = await axios.post('api/preview', { entity: this.entity, entity_id: this._fields.id })
+            const res = await axios.post('api/preview', { entity: this.entity, entity_id: this._fields.id, show_html: show_html })
 
             if (res.status === 200) {
                 // test for status you want, etc
@@ -155,7 +156,7 @@ export default class LeadModel extends BaseModel {
             }
 
             // Don't forget to return something
-            return this.buildPdf(res.data)
+            return buildPdf(res.data)
         } catch (e) {
             alert(e)
             this.handleError(e)

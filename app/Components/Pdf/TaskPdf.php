@@ -15,15 +15,27 @@ class TaskPdf extends PdfBuilder
     protected $entity;
 
     /**
+     * @var string
+     */
+    private string $entity_string = '';
+
+    /**
      * TaskPdf constructor.
      * @param $entity
+     * @param string $entity_string
      * @throws ReflectionException
      */
-    public function __construct($entity)
+    public function __construct($entity, $entity_string = '')
     {
         parent::__construct($entity);
         $this->entity = $entity;
+        $this->entity_string = $entity_string;
         $this->class = strtolower((new ReflectionClass($this->entity))->getShortName());
+    }
+
+    public function getEntityString()
+    {
+        return $this->entity_string;
     }
 
     public function build($contact = null)
@@ -38,7 +50,7 @@ class TaskPdf extends PdfBuilder
              ->buildAccount($this->entity->account)
              ->setTerms($this->entity->terms)
              ->setFooter($this->entity->footer)
-             ->setNotes($this->entity->public_notes)
+             ->setNotes($this->entity->customer_note)
              ->buildTask();
 
         foreach ($this->data as $key => $value) {
@@ -114,8 +126,7 @@ class TaskPdf extends PdfBuilder
         switch ($this->class) {
             case 'task':
                 $budgeted_hours = $this->calculateBudgetedHours();
-
-                $task_rate = $this->entity->getTaskRate();
+                $task_rate = $this->entity->calculated_task_rate;
 
                 $cost = !empty($task_rate) && !empty($budgeted_hours) ? $task_rate * $budgeted_hours : 0;
 

@@ -2,7 +2,7 @@
 
 namespace App\Listeners\Payment;
 
-use App\Notifications\Admin\PaymentRefundNotification;
+use App\Notifications\Payment\PaymentRefundNotification;
 use App\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Notification;

@@ -1,18 +1,24 @@
 import React, { Component } from 'react'
-import axios from 'axios'
-import AddCategory from './edit/AddCategory'
 import { Alert, Card, CardBody, Row } from 'reactstrap'
 import DataTable from '../common/DataTable'
-import CategoryFilters from './CategoryFilters'
-import CategoryItem from './CategoryItem'
 import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
+import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
+import CategoryFilters from './CategoryFilters'
+import { getDefaultTableFields } from '../presenters/CategoryPresenter'
+import AddCategory from './edit/AddCategory'
+import CategoryItem from './CategoryItem'
 
 export default class Categories extends Component {
     constructor (props) {
         super(props)
 
         this.state = {
+            currentPage: 1,
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isOpen: window.innerWidth > 670,
             error: '',
             show_success: false,
@@ -20,6 +26,7 @@ export default class Categories extends Component {
             success_message: translations.success_message,
             dropdownButtonActions: ['download'],
             categories: [],
+            users: [],
             cachedData: [],
             view: {
                 ignore: [],
@@ -28,7 +35,6 @@ export default class Categories extends Component {
                 title: null
             },
             errors: [],
-            ignoredColumns: ['id', 'category_id', 'parent_id', 'account_id', 'user_id', 'is_deleted', 'updated_at', 'status', 'deleted_at', 'created_at'],
             filters: {
                 searchText: '',
                 status: 'active',
@@ -40,38 +46,39 @@ export default class Categories extends Component {
         this.addUserToState = this.addUserToState.bind(this)
         this.userList = this.userList.bind(this)
         this.filterCategories = this.filterCategories.bind(this)
-        this.getCustomers = this.getCustomers.bind(this)
     }
 
-    componentDidMount () {
-        this.getCustomers()
-    }
-
-    addUserToState (categories) {
+    addUserToState (categories, do_filter = false, filters = null) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? categories : this.state.cachedData
+
+        if (should_filter) {
+            categories = filterStatuses(categories, '', this.state.filters)
+        }
+
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             categories: categories,
             cachedData: cachedData
+        }, () => {
+            const totalPages = Math.ceil(categories.length / this.state.pageLimit)
+            this.onPageChanged({ invoices: categories, currentPage: this.state.currentPage, totalPages: totalPages })
         })
     }
 
-    handleClose () {
-        this.setState({ error: '', show_success: false })
-    }
+    onPageChanged (data) {
+        let { categories, pageLimit } = this.state
+        const { currentPage, totalPages } = data
 
-    getCustomers () {
-        axios.get('/api/customers')
-            .then((r) => {
-                this.setState({
-                    customers: r.data
-                })
-            })
-            .catch((e) => {
-                this.setState({
-                    loading: false,
-                    error: e
-                })
-            })
+        if (data.invoices) {
+            categories = data.invoices
+        }
+
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = categories.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
+
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     filterCategories (filters) {
@@ -83,28 +90,20 @@ export default class Categories extends Component {
     }
 
     userList (props) {
-        const { categories, customers } = this.state
-        return <CategoryItem showCheckboxes={props.showCheckboxes} customers={customers} categories={categories}
-            viewId={props.viewId}
-            ignoredColumns={props.ignoredColumns} addUserToState={this.addUserToState}
+        const { pageLimit, users, currentInvoices, cachedData } = this.state
+        return <CategoryItem showCheckboxes={props.showCheckboxes} categories={currentInvoices} users={users}
+            viewId={props.viewId} entities={cachedData}
+            pageLimit={pageLimit}
+            show_list={props.show_list}
+            onPageChanged={this.onPageChanged.bind(this)}
+            ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
     }
 
-    getUsers () {
-        axios.get('api/users')
-            .then((r) => {
-                this.setState({
-                    users: r.data
-                })
-            })
-            .catch((e) => {
-                this.setState({
-                    loading: false,
-                    error: e
-                })
-            })
+    handleClose () {
+        this.setState({ error: '', show_success: false })
     }
 
     setFilterOpen (isOpen) {
@@ -123,12 +122,13 @@ export default class Categories extends Component {
     }
 
     render () {
-        const { searchText, status, start_date, end_date } = this.state.filters
-        const { view, categories, customers, error, isOpen, error_message, success_message, show_success } = this.state
-        const fetchUrl = `/api/categories?search_term=${searchText}&status=${status}&start_date=${start_date}&end_date=${end_date} `
+        const { start_date, end_date } = this.state.filters
+        const { cachedData, view, categories, error, isOpen, error_message, success_message, show_success, currentInvoices, currentPage, totalPages, pageLimit } = this.state
+        const fetchUrl = `/api/categories?start_date=${start_date}&end_date=${end_date} `
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable fixed-margin-datatable-mobile'
+        const total = categories.length
 
         return (
             <Row>
@@ -136,16 +136,17 @@ export default class Categories extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <CategoryFilters setFilterOpen={this.setFilterOpen.bind(this)}
-                                    categories={categories}
-                                    customers={customers}
+                                <CategoryFilters
+                                    pageLimit={pageLimit}
+                                    cachedData={cachedData}
+                                    updateList={this.addUserToState}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} categories={categories}
                                     updateIgnoredColumns={this.updateIgnoredColumns}
-                                    filters={this.state.filters} filter={this.filterCategories}
+                                    filters={this.state.filters} filter={this.filterTokens}
                                     saveBulk={this.saveBulk} ignoredColumns={this.state.ignoredColumns}/>
 
                                 <AddCategory
-                                    customers={customers}
-                                    categories={categories}
+                                    categories={cachedData}
                                     action={this.addUserToState}
                                 />
                             </CardBody>
@@ -172,18 +173,30 @@ export default class Categories extends Component {
                         <Card>
                             <CardBody>
                                 <DataTable
+
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
+
+                                    default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
                                     setError={this.setError.bind(this)}
-                                    columnMapping={{ customer_id: 'CUSTOMER' }}
                                     dropdownButtonActions={this.state.dropdownButtonActions}
                                     entity_type="Category"
                                     bulk_save_url="/api/categories/bulk"
                                     view={view}
-                                    ignore={this.state.ignoredColumns}
                                     userList={this.userList}
                                     fetchUrl={fetchUrl}
                                     updateState={this.addUserToState}
                                 />
+
+                                {total > 0 &&
+                                <div className="d-flex flex-row py-4 align-items-center">
+                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>

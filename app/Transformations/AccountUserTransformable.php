@@ -27,9 +27,7 @@ class AccountUserTransformable
             'updated_at'    => (int)$company_user->updated_at,
             'archived_at'   => (int)$company_user->deleted_at,
             'created_at'    => (int)$company_user->created_at,
-            'permissions'   => (object)$company_user->permissions,
-            'notifications' => $company_user->notifications,
-            'settings'      => (object)$company_user->settings,
+            'notifications' => $company_user->notifications
         ];
     }
 

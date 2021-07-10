@@ -5,6 +5,7 @@ import DefaultLayout from './containers/DefaultLayout'
 import Login from './Login'
 import PasswordReset from './PasswordReset/PasswordReset'
 import ConfirmPasswordReset from './PasswordReset/ConfirmPasswordReset'
+import moment from 'moment'
 
 const loading = () => <div className="animated fadeIn pt-3 text-center">Loading...</div>
 
@@ -28,7 +29,8 @@ class App extends Component {
                             render={props => <PasswordReset {...props}/>}/>
                         <Route exact path="/reset-password" name="Reset Password"
                             render={props => <ConfirmPasswordReset {...props}/>}/>
-                        <Route exact path="/register" name="Register Page" render={props => <Register {...props}/>}/>
+                        <Route exact path="/register" name="Register Page"
+                            render={props => <Register {...props}/>}/>
                         <Route exact path="/404" name="Page 404" render={props => <Page404 {...props}/>}/>
                         <Route exact path="/500" name="Page 500" render={props => <Page500 {...props}/>}/>
                         <Route path="/" name="Home" render={props => <DefaultLayout {...props}/>}/>
@@ -44,7 +46,22 @@ const axios = require('axios')
 
 const expires = localStorage.getItem('expires')
 
-if (new Date(expires) <= new Date()) {
+let default_logout_time = null
+
+if (Object.prototype.hasOwnProperty.call(localStorage, 'appState')) {
+    const account_id = JSON.parse(localStorage.getItem('appState')).user.account_id
+    const user_account = JSON.parse(localStorage.getItem('appState')).accounts.filter(account => account.account_id === parseInt(account_id))
+    const settings = user_account[0].account.settings
+
+    if (settings.default_logout_time) {
+        default_logout_time = settings.default_logout_time
+    }
+}
+
+const startDate = localStorage.getItem('last_login')
+const elapsedDuration = moment.duration(moment().diff(startDate))
+
+if (default_logout_time !== null && elapsedDuration.asMinutes() >= default_logout_time) {
     localStorage.removeItem('access_token')
     location.href = '/#/login'
 }
@@ -55,9 +72,11 @@ if (localStorage.getItem('access_token')) {
     axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
 }
 
-axios.defaults.baseURL = `http://${window.location.hostname}`
+var full = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '')
 
-localStorage.setItem('domain', `http://${window.location.hostname}`)
+axios.defaults.baseURL = full
+
+localStorage.setItem('domain', full)
 
 const UNAUTHORIZED = 401
 axios.interceptors.response.use(

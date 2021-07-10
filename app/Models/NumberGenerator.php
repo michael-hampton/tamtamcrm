@@ -3,15 +3,12 @@
 namespace App\Models;
 
 use App\Jobs\ResetNumbers;
-use App\Traits\CalculateRecurring;
 use Exception;
 use ReflectionClass;
 use ReflectionException;
 
 class NumberGenerator
 {
-    use CalculateRecurring;
-
     private $entity_obj;
 
     /**
@@ -60,6 +57,30 @@ class NumberGenerator
         return $number;
     }
 
+    private function setPrefix(Customer $customer = null)
+    {
+        $this->recurring_prefix = $customer !== null ? $customer->getSetting(
+            'recurring_number_prefix'
+        ) : $this->entity_obj->account->settings->recurring_number_prefix;
+
+        return $this;
+    }
+
+    private function setPattern($entity_object, Customer $customer = null)
+    {
+        $entity_id = strtolower((new ReflectionClass($entity_object))->getShortName());
+
+        $pattern_entity = "{$entity_id}_number_prefix";
+
+        $this->pattern = $customer !== null
+            ? trim($customer->getSetting($pattern_entity))
+            : trim(
+                $this->entity_obj->account->settings->{$pattern_entity}
+            );
+
+        return $this;
+    }
+
     private function setCounter(Customer $customer = null)
     {
         if ($this->counter_type === 'group' && $customer !== null) {
@@ -94,21 +115,6 @@ class NumberGenerator
         return $this;
     }
 
-    private function setPattern($entity_object, Customer $customer = null)
-    {
-        $entity_id = strtolower((new ReflectionClass($entity_object))->getShortName());
-
-        $pattern_entity = "{$entity_id}_number_prefix";
-
-        $this->pattern = $customer !== null
-            ? trim($customer->getSetting($pattern_entity))
-            : trim(
-                $this->entity_obj->account->settings->{$pattern_entity}
-            );
-
-        return $this;
-    }
-
     /**
      * @param $entity_object
      * @param Customer|null $customer
@@ -128,15 +134,6 @@ class NumberGenerator
         return $this;
     }
 
-    private function setPrefix(Customer $customer = null)
-    {
-        $this->recurring_prefix = $customer !== null ? $customer->getSetting(
-            'recurring_number_prefix'
-        ) : $this->entity_obj->account->settings->recurring_number_prefix;
-
-        return $this;
-    }
-
     private function checkEntityNumber($class, $customer, $counter, $padding)
     {
         $check = false;
@@ -149,9 +146,9 @@ class NumberGenerator
             }
 
             $check = $class::whereAccountId($this->entity_obj->account->id)
-                           ->whereNumber($number)
-                           ->withTrashed()
-                           ->first();
+                ->whereNumber($number)
+                ->withTrashed()
+                ->first();
 
             $counter++;
         } while ($check);
@@ -162,12 +159,14 @@ class NumberGenerator
     {
         $prefix = '';
 
-        switch ($this->pattern) {
+        $pattern = explode(':', $this->pattern);
+
+        switch ($pattern[0]) {
             case 'YEAR':
                 $prefix = date('Y');
                 break;
             case 'DATE':
-                $prefix = date('d-m-Y');
+                $prefix = !empty($pattern[1]) ? date($pattern[1]) : date('d-m-Y');
                 break;
             case 'MONTH':
                 $prefix = date('M');
@@ -184,6 +183,14 @@ class NumberGenerator
                 }
 
                 break;
+
+            case 'USER':
+                if (!empty($this->entity_obj->user_id)) {
+                    $prefix = $this->entity_obj->user_id;
+                }
+                break;
+            default:
+                $prefix = $pattern[0];
         }
 
         return !empty($prefix) ? "{$prefix}-{$number}" : $number;

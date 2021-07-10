@@ -63,8 +63,8 @@ class EditBankAccount extends React.Component {
             name: this.state.name,
             description: this.state.description,
             bank_id: this.state.bank_id,
-            private_notes: this.state.private_notes,
-            public_notes: this.state.public_notes,
+            internal_note: this.state.internal_note,
+            customer_note: this.state.customer_note,
             assigned_to: this.state.assigned_to,
             username: this.state.username,
             password: this.state.password,
@@ -86,7 +86,7 @@ class EditBankAccount extends React.Component {
 
             const index = this.props.bank_accounts.findIndex(bank_account => bank_account.id === this.props.bank_account.id)
             this.props.bank_accounts[index] = response
-            this.props.action(this.props.bank_accounts)
+            this.props.action(this.props.bank_accounts, true)
             this.setState({
                 editMode: false,
                 changesMade: false

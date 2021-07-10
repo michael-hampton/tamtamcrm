@@ -3,6 +3,7 @@
 namespace App\Search;
 
 use App\Models\Account;
+use App\Models\File;
 use App\Models\PurchaseOrder;
 use App\Repositories\PurchaseOrderRepository;
 use App\Requests\SearchRequest;
@@ -20,7 +21,7 @@ class PurchaseOrderSearch extends BaseSearch
     private PurchaseOrder $model;
 
     /**
-     * QuoteSearch constructor.
+     * purchase_ordersearch constructor.
      * @param PurchaseOrderRepository $poRepository
      */
     public function __construct(PurchaseOrderRepository $poRepository)
@@ -44,22 +45,24 @@ class PurchaseOrderSearch extends BaseSearch
 
         if ($request->has('status')) {
             $this->status('purchase_orders', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->filled('company_id')) {
-            $this->query->whereCompanyId($request->company_id);
+            $this->query->byCompany($request->company_id);
         }
 
         if ($request->filled('project_id')) {
-            $this->query->whereProjectId($request->project_id);
+            $this->query->byProject($request->project_id);
         }
 
         if ($request->filled('user_id')) {
-            $this->query->where('assigned_to', '=', $request->user_id);
+            $this->query->byAssignee('assigned_to', '=', $request->user_id);
         }
 
         if ($request->filled('id')) {
-            $this->query->whereId($request->id);
+            $this->query->byId($request->id);
         }
 
         if ($request->filled('search_term')) {
@@ -67,10 +70,10 @@ class PurchaseOrderSearch extends BaseSearch
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
-            $this->filterDates($request);
+            $this->query->byDate($request->input('start_date'), $request->input('end_date'));
         }
 
-        $this->addAccount($account);
+        $this->query->byAccount($account);
 
         $this->checkPermissions('purchaseordercontroller.index');
 
@@ -109,6 +112,23 @@ class PurchaseOrderSearch extends BaseSearch
         return true;
     }
 
+    /**
+     * @return mixed
+     */
+    private function transformList()
+    {
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['purchase_orders'])->get();
+        $files = File::where('fileable_type', '=', 'App\Models\PurchaseOrder')->get()->groupBy('fileable_id');
+
+        $pos = $list->map(
+            function (PurchaseOrder $po) use ($files) {
+                return $this->transformPurchaseOrder($po, $files);
+            }
+        )->all();
+
+        return $pos;
+    }
+
     public function buildCurrencyReport(Request $request, Account $account)
     {
         return DB::table('purchase_orders')
@@ -127,12 +147,48 @@ class PurchaseOrderSearch extends BaseSearch
         $this->query = DB::table('purchase_orders');
 
         if (!empty($request->input('group_by'))) {
-            $this->query->select(
-                DB::raw('count(*) as count, companies.name AS company, SUM(total) as total, SUM(purchase_orders.balance) AS balance, purchase_orders.status_id AS status')
-            )
-                        ->groupBy($request->input('group_by'));
+            if (in_array($request->input('group_by'), ['date', 'due_date']) && !empty(
+                $request->input(
+                    'group_by_frequency'
+                )
+                )) {
+                $this->addMonthYearToSelect('purchase_orders', $request->input('group_by'));
+            }
+
+            $this->query->addSelect(
+                DB::raw(
+                    'count(*) as count, companies.name AS company, SUM(total) as total, SUM(purchase_orders.balance) AS balance, purchase_orders.status_id AS status'
+                )
+            );
+
+            $this->addGroupBy('purchase_orders', $request->input('group_by'), $request->input('group_by_frequency'));
         } else {
-            $this->query->select('companies.name AS company', 'total', 'purchase_orders.number', 'purchase_orders.balance', 'date', 'due_date', 'purchase_orders.status_id AS status');
+            $this->query->select(
+                'total',
+                'purchase_orders.balance',
+                DB::raw('(purchase_orders.total * 1 / purchase_orders.exchange_rate) AS converted_amount'),
+                DB::raw('(purchase_orders.balance * 1 / purchase_orders.balance) AS converted_balance'),
+                'companies.name AS company',
+                'companies.address_1',
+                'companies.address_2',
+                'companies.city',
+                'companies.town',
+                'companies.postcode',
+                'purchase_orders.number',
+                'discount_total',
+                'po_number',
+                'date',
+                'due_date AS expiry_date',
+                'partial',
+                'partial_due_date',
+                'purchase_orders.custom_value1 AS custom1',
+                'purchase_orders.custom_value2 AS custom2',
+                'purchase_orders.custom_value3 AS custom3',
+                'purchase_orders.custom_value4 AS custom4',
+                'shipping_cost',
+                'tax_total',
+                'purchase_orders.status_id AS status'
+            );
         }
 
         $this->query->join('companies', 'companies.id', '=', 'purchase_orders.company_id')
@@ -142,6 +198,9 @@ class PurchaseOrderSearch extends BaseSearch
 
         if ($order_by === 'company') {
             $this->query->orderBy('companies.name', $request->input('orderByDirection'));
+        } elseif (!empty($this->field_mapping[$order_by])) {
+            $order = str_replace('$table', 'purchase_orders', $this->field_mapping[$order_by]);
+            $this->query->orderBy($order, $request->input('orderByDirection'));
         } elseif ($order_by !== 'status') {
             $this->query->orderBy('purchase_orders.' . $order_by, $request->input('orderByDirection'));
         }
@@ -161,9 +220,10 @@ class PurchaseOrderSearch extends BaseSearch
             $rows[$key]->status = $this->getStatus($this->model, $row->status);
         }
 
-        if($order_by === 'status') {
+        if ($order_by === 'status') {
             $collection = collect($rows);
-            $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby('status')->toArray() : $collection->sortByDesc('status')->toArray();
+            $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby('status')->toArray(
+            ) : $collection->sortByDesc('status')->toArray();
         }
 
         if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {
@@ -171,20 +231,5 @@ class PurchaseOrderSearch extends BaseSearch
         }
 
         return $rows;
-    }
-
-    /**
-     * @return mixed
-     */
-    private function transformList()
-    {
-        $list = $this->query->get();
-        $pos = $list->map(
-            function (PurchaseOrder $po) {
-                return $this->transformPurchaseOrder($po);
-            }
-        )->all();
-
-        return $pos;
     }
 }

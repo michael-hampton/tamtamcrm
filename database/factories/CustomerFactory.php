@@ -31,7 +31,7 @@ class CustomerFactory extends Factory
             'number'        => $this->faker->ean8(),
             'website'       => $this->faker->url,
             'currency_id'   => 2,
-            'private_notes' => $this->faker->text(200),
+            'internal_note' => $this->faker->text(200),
             'balance'       => 2020.22,
             'amount_paid'  => 0,
             'custom_value1' => $this->faker->text(20),

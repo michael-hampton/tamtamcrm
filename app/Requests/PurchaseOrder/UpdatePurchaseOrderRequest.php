@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Requests\Quote;
+namespace App\Requests\PurchaseOrder;
 
-use App\Models\PurchaseOrder;
 use App\Repositories\Base\BaseFormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdatePurchaseOrderRequest extends BaseFormRequest
 {
@@ -14,8 +14,7 @@ class UpdatePurchaseOrderRequest extends BaseFormRequest
      */
     public function authorize()
     {
-        $purchase_order = PurchaseOrder::find($this->purchase_order_id);
-        return auth()->user()->can('update', $purchase_order);
+        return auth()->user()->can('update', $this->purchase_order);
     }
 
     /**
@@ -34,7 +33,14 @@ class UpdatePurchaseOrderRequest extends BaseFormRequest
             'total'          => 'required',
             'tax_total'      => 'required',
             'line_items'     => 'required|array',
-            'number'         => 'nullable|unique:purchase_orders,number,' . $this->purchase_order_id . ',id,account_id,' . $this->account_id,
+            'number'         => [
+                'nullable',
+                Rule::unique('purchase_orders')->where(
+                    function ($query) {
+                        return $query->where('account_id', $this->purchase_order->account_id);
+                    }
+                )->ignore($this->purchase_order),
+            ],
         ];
     }
 

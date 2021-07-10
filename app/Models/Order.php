@@ -8,8 +8,7 @@
 
 namespace App\Models;
 
-
-use App\Services\Order\OrderService;
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use App\Traits\Balancer;
 use App\Traits\Money;
@@ -17,7 +16,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Laracasts\Presenter\PresentableTrait;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 /**
  * Class Order
@@ -25,12 +24,13 @@ use Laracasts\Presenter\PresentableTrait;
  */
 class Order extends Model
 {
-    use PresentableTrait;
     use SoftDeletes;
     use Money;
     use Balancer;
     use HasFactory;
     use Archiveable;
+    use QueryCacheable;
+    use QueryScopes;
 
     const STATUS_DRAFT = 1;
     const STATUS_SENT = 2;
@@ -46,7 +46,8 @@ class Order extends Model
 
     const STATUS_EXPIRED = -1;
 
-    protected $presenter = 'App\Presenters\OrderPresenter';
+    protected static $flushCacheOnUpdate = true;
+
     protected $casts = [
         'account_id'    => 'integer',
         'user_id'       => 'integer',
@@ -54,11 +55,10 @@ class Order extends Model
         'line_items'    => 'object',
         'updated_at'    => 'timestamp',
         'deleted_at'    => 'timestamp',
-        'is_deleted'    => 'boolean',
+        'hide'          => 'boolean',
         'payment_taken' => 'boolean',
         'viewed'        => 'boolean'
     ];
-
     protected $fillable = [
         'number',
         'customer_id',
@@ -80,8 +80,8 @@ class Order extends Model
         'status_id',
         'created_at',
         'line_items',
-        'public_notes',
-        'private_notes',
+        'customer_note',
+        'internal_note',
         'terms',
         'footer',
         'partial',
@@ -106,11 +106,18 @@ class Order extends Model
         'assigned_to'
     ];
 
-    protected $table = 'product_task';
-
-    public function service(): OrderService
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
     {
-        return new OrderService($this);
+        return [
+            'orders',
+            'dashboard_orders'
+        ];
     }
 
     public function task()
@@ -261,19 +268,22 @@ class Order extends Model
         return $this->number;
     }
 
-    public function setExchangeRate()
+    public function setExchangeRateAttribute($value)
     {
-        $exchange_rate = $this->customer->getExchangeRate();
-        $this->exchange_rate = !empty($exchange_rate) ? $exchange_rate : null;
-        return true;
+        $this->attributes['exchange_rate'] = $value;
     }
 
-    public function getDesignId()
+    public function setCurrencyAttribute($value)
+    {
+        $this->attributes['currency_id'] = (int) $value;
+    }
+
+    public function getDesignIdAttribute()
     {
         return !empty($this->design_id) ? $this->design_id : $this->customer->getSetting('order_design_id');
     }
 
-    public function getPdfFilename()
+    public function getPdfFilenameAttribute()
     {
         return 'storage/' . $this->account->id . '/' . $this->customer->id . '/orders/' . $this->number . '.pdf';
     }
@@ -281,5 +291,19 @@ class Order extends Model
     public function canBeSent()
     {
         return in_array($this->status_id, [self::STATUS_DRAFT, self::STATUS_PARTIAL, self::STATUS_COMPLETE]);
+    }
+
+    public function scopePermissions($query, User $user)
+    {
+        if ($user->isAdmin() || $user->isOwner() || $user->hasPermissionTo('ordercontroller.index')) {
+            return $query;
+        }
+
+        $query->where(
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('assigned_to', auth()->user($user)->id);
+            }
+        );
     }
 }

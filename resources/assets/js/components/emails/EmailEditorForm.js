@@ -39,6 +39,19 @@ export default class EmailEditorForm extends Component {
         this.loadTemplate()
     }
 
+    static getDerivedStateFromProps (props, state) {
+        if (props.subject && props.subject.length && props.subject !== state.subject) {
+            return {
+                subject: props.subject,
+                body: props.body,
+                template_type: props.template_type,
+                calculated_template: props.calculated_template
+            }
+        }
+
+        return null
+    }
+
     hasErrorFor (field) {
         return !!this.state.errors[field]
     }
@@ -164,16 +177,18 @@ export default class EmailEditorForm extends Component {
                     {this.renderErrorFor('body')}
                 </FormGroup>
 
-                {typeof this.props.model.isSent !== 'undefined' && this.props.model.isSent === false &&
-                <FormGroup check>
-                    <Label check>
-                        <Input value={this.state.mark_sent} onChange={this.props.handleCheck} type="checkbox"/>
-                        {translations.mark_sent}
-                    </Label>
-                </FormGroup>
-                }
+                <div className="d-flex justify-content-between">
+                    {typeof this.props.model.isSent !== 'undefined' && this.props.model.isSent === false &&
+                    <FormGroup check>
+                        <Label check>
+                            <Input value={this.state.mark_sent} onChange={this.props.handleCheck} type="checkbox"/>
+                            {translations.mark_sent}
+                        </Label>
+                    </FormGroup>
+                    }
 
-                <Button onClick={this.sendMessage} color="primary">{translations.send}</Button>
+                    <Button onClick={this.sendMessage} color="primary">{translations.send}</Button>
+                </div>
             </Form>
         )
     }

@@ -10,6 +10,13 @@
   }
 }
 
+@media (min-width: 992px) {
+  .modal-lg, .modal-xl {
+    max-width: 1200px !important;
+  }
+}
+
+
 // If you want to override variables do it here
 @import "variables";
 
@@ -45,6 +52,8 @@
 @import "monthpicker";
 
 @import "html_editor";
+
+@import "pdf";
 
 .form-control-inline {
   width: auto !important;

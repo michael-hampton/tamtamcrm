@@ -40,8 +40,8 @@ class CloneTaskToInvoiceFactory
         $invoice->is_amount_discount = false;
         $invoice->footer = '';
         $invoice->tax_rate = 0;
-        $invoice->public_notes = $task->public_notes;
-        $invoice->private_notes = $task->private_notes;
+        $invoice->customer_note = $task->customer_note;
+        $invoice->internal_note = $task->internal_note;
         //$invoice->terms = $order->terms;
         $invoice->sub_total = 0;
         $invoice->partial = 0;

@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Deal;
 
+use App\Services\Pdf\GeneratePdf;
 use App\Factory\NotificationFactory;
 use App\Repositories\NotificationRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -31,21 +32,26 @@ class DealUpdated implements ShouldQueue
      */
     public function handle($event)
     {
-        $fields = [];
-        $fields['data']['id'] = $event->deal->id;
-        $fields['data']['customer_id'] = $event->deal->customer_id;
-        $fields['data']['message'] = 'A deal was updated';
-        $fields['notifiable_id'] = $event->deal->user_id;
-        $fields['account_id'] = $event->deal->account_id;
-        $fields['notifiable_type'] = get_class($event->deal);
-        $fields['type'] = get_class($this);
-        $fields['data'] = json_encode($fields['data']);
+        $data = [
+            'id'          => $event->deal->id,
+            'customer_id' => $event->deal->customer_id,
+            'message'     => 'A deal was updated'
+        ];
+
+        $fields = [
+            'notifiable_id'   => $event->deal->user_id,
+            'account_id'      => $event->deal->account_id,
+            'notifiable_type' => get_class($event->deal),
+            'type'            => get_class($this),
+            'data'            => json_encode($data),
+            'action'          => 'updated'
+        ];
 
         $notification = NotificationFactory::create($event->deal->account_id, $event->deal->user_id);
         $notification->entity_id = $event->deal->id;
         $this->notification_repo->save($notification, $fields);
 
         // regenerate pdf
-        $event->deal->service()->generatePdf(null, true);
+        (new GeneratePdf($event->deal))->execute(null, true);
     }
 }

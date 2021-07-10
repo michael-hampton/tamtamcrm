@@ -37,10 +37,11 @@ export default class LeadItem extends Component {
 
         axios.delete(url)
             .then(function (response) {
-                const arrLeads = [...self.props.leads]
+                const arrLeads = [...self.props.entities]
                 const index = arrLeads.findIndex(lead => lead.id === id)
-                arrLeads.splice(index, 1)
-                self.props.addUserToState(arrLeads)
+                arrLeads[index].hide = archive !== true
+                arrLeads[index].deleted_at = new Date()
+                self.props.addUserToState(arrLeads, true)
             })
             .catch(function (error) {
                 console.log(error)
@@ -53,11 +54,11 @@ export default class LeadItem extends Component {
     }
 
     render () {
-        const { leads, custom_fields, users, ignoredColumns } = this.props
+        const { leads, custom_fields, users, ignoredColumns, entities } = this.props
         if (leads && leads.length) {
             return leads.map((lead, index) => {
                 const restoreButton = lead.deleted_at
-                    ? <RestoreModal id={lead.id} entities={leads} updateState={this.props.addUserToState}
+                    ? <RestoreModal id={lead.id} entities={entities} updateState={this.props.addUserToState}
                         url={`/api/leads/restore/${lead.id}`}/> : null
                 const archiveButton = !lead.deleted_at
                     ? <DeleteModal archive={true} deleteFunction={this.deleteLead} id={lead.id}/> : null
@@ -68,7 +69,7 @@ export default class LeadItem extends Component {
                     custom_fields={custom_fields}
                     users={users}
                     lead={lead}
-                    leads={leads}
+                    leads={entities}
                     action={this.props.addUserToState}
                 /> : null
 
@@ -134,7 +135,8 @@ export default class LeadItem extends Component {
                             </span>
                             <span className="col-2">
                                 <LeadPresenter
-                                    field="valued_at" entity={lead} toggleViewedEntity={this.props.toggleViewedEntity}
+                                    field="valued_at" entity={lead}
+                                    toggleViewedEntity={this.props.toggleViewedEntity}
                                     edit={editButton}/>
                             </span>
 

@@ -260,7 +260,7 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
      */
     public function deleteFile(array $file, $disk = null): bool
     {
-        return $this->update(['cover' => null], $file['product']);
+        return $this->model->update(['cover' => null]);
     }
 
     /**
@@ -281,12 +281,7 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         return $product->images()->get();
     }
 
-    /**
-     * @param $data
-     * @param Product $product
-     * @return Product|null
-     */
-    public function save(array $data, Product $product): ?Product
+    public function create(array $data, Product $product)
     {
         if (!empty($product->id)) {
             $this->addListingHistory($data, $product);
@@ -320,6 +315,23 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
                 ]
             );
         }
+    }
+
+    /**
+     * @param $data
+     * @param Product $product
+     * @return Product|null
+     */
+    public function save(array $data, Product $product): ?Product
+    {
+        if (!empty($product->id)) {
+            $this->addListingHistory($data, $product);
+        }
+
+        $product->fill($data);
+        $product->save();
+
+        return $product;
     }
 
 

@@ -2,16 +2,15 @@
 
 namespace App\Repositories;
 
-use App\Factory\CustomerFactory;
+use App\Events\Customer\CustomerWasCreated;
+use App\Events\Customer\CustomerWasUpdated;
 use App\Models\Account;
 use App\Models\Customer;
-use App\Models\NumberGenerator;
 use App\Repositories\Base\BaseRepository;
 use App\Repositories\Interfaces\CustomerRepositoryInterface;
 use App\Requests\SearchRequest;
 use App\Search\CustomerSearch;
 use Carbon\Carbon;
-use Exception;
 use Illuminate\Support\Collection as Support;
 use Illuminate\Support\Facades\DB;
 
@@ -52,49 +51,35 @@ class CustomerRepository extends BaseRepository implements CustomerRepositoryInt
         return $this->findOneOrFail($id);
     }
 
-    /**
-     * Store clients in bulk.
-     * @param array $customer
-     * @return Customer|null
-     * @throws Exception
-     */
-    public function create($customer): ?Customer
-    {
-        return $this->save(
-            $customer,
-            CustomerFactory::create(auth()->user()->account_user()->account_id, auth()->user()->id)
-        );
-    }
 
     /**
      * @param array $data
      * @param Customer $customer
-     * @return Customer|null
-     * @throws Exception
+     * @return Customer
      */
-    public function save(array $data, Customer $customer): ?Customer
+    public function create(array $data, Customer $customer): Customer
     {
         $customer->fill($data);
+        $customer->setNumber();
         $customer->save();
 
-        if ($customer->number == "" || !$customer->number) {
-            $customer->number = (new NumberGenerator)->getNextNumberForEntity($customer, $customer);
-        }
-
-        $customer->save();
+        event(new CustomerWasCreated($customer));
 
         return $customer->fresh();
     }
 
     /**
-     * Delete a customer
-     *
-     * @return bool
-     * @throws Exception
+     * @param array $data
+     * @param Customer $customer
+     * @return Customer
      */
-    public function deleteCustomer(): bool
+    public function update(array $data, Customer $customer): Customer
     {
-        return $this->delete();
+        $customer->update($data);
+
+        event(new CustomerWasUpdated($customer));
+
+        return $customer;
     }
 
     public function getModel()
@@ -103,16 +88,15 @@ class CustomerRepository extends BaseRepository implements CustomerRepositoryInt
     }
 
     /**
-     *
      * @param int $number_of_days
      * @param int $account_id
-     * @return type
+     * @return int
      */
     public function getRecentCustomers(int $number_of_days, int $account_id)
     {
         $date = Carbon::today()->subDays($number_of_days);
         $result = $this->model->select(DB::raw('count(*) as total'))->where('created_at', '>=', $date)
-                              ->where('account_id', '=', $account_id)->get();
+                              ->byAccount($account_id)->get();
 
         return !empty($result[0]) ? $result[0]['total'] : 0;
     }

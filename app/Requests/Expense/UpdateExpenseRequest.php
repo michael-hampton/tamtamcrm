@@ -2,8 +2,8 @@
 
 namespace App\Requests\Expense;
 
-use App\Models\Expense;
 use App\Repositories\Base\BaseFormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateExpenseRequest extends BaseFormRequest
 {
@@ -14,8 +14,7 @@ class UpdateExpenseRequest extends BaseFormRequest
      */
     public function authorize()
     {
-        $expense = Expense::find($this->expense_id);
-        return auth()->user()->can('update', $expense);
+        return auth()->user()->can('update', $this->expense);
     }
 
     /**
@@ -26,7 +25,15 @@ class UpdateExpenseRequest extends BaseFormRequest
     public function rules()
     {
         $rules = [
-            'amount' => 'required'
+            'amount' => 'required',
+            'number' => [
+                'nullable',
+                Rule::unique('expenses')->where(
+                    function ($query) {
+                        return $query->where('account_id', $this->expense->account_id);
+                    }
+                )->ignore($this->expense),
+            ],
         ];
 
         return $rules;

@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Services\Invoice\GenerateRecurringInvoice;
 use App\Events\Invoice\InvoiceWasCreated;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Jobs\Order\InvoiceOrders;
@@ -77,9 +78,9 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
     /**
      * @param array $data
      * @param Invoice $invoice
-     * @return Quote|null
+     * @return Invoice|null
      */
-    public function updateInvoice(array $data, Invoice $invoice): ?Invoice
+    public function update(array $data, Invoice $invoice): ?Invoice
     {
         $invoice = $this->save($data, $invoice);
         InvoiceOrders::dispatchNow($invoice);
@@ -95,89 +96,27 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
      */
     public function save(array $data, Invoice $invoice): ?Invoice
     {
-        $original_amount = $invoice->total;
+        $original_amount = $invoice->total * 1;
         $invoice->fill($data);
-        $invoice = $invoice->service()->calculateInvoiceTotals();
+        $invoice = $this->calculateTotals($invoice);
+        $invoice = $invoice->convertCurrencies($invoice, $invoice->total,
+            config('taskmanager.use_live_exchange_rates'));
         $invoice = $this->populateDefaults($invoice);
         $invoice = $this->formatNotes($invoice);
         $invoice->setNumber();
-        $invoice->setExchangeRate();
 
         $invoice->save();
 
         $this->saveInvitations($invoice, $data);
 
-        $entities_added = $this->updateEntities($invoice);
+        $invoice_total = $invoice->total * 1;
 
-        if (!empty($entities_added['expenses'])) {
-            $this->saveDocuments($invoice, $entities_added['expenses']);
-        }
-
-        if ($invoice->status_id !== Invoice::STATUS_DRAFT && $original_amount !== $invoice->total) {
+        if ($invoice->status_id !== Invoice::STATUS_DRAFT && $original_amount !== $invoice_total) {
             $updated_amount = $invoice->total - $original_amount;
             $invoice->updateCustomerBalance($updated_amount);
         }
 
         return $invoice->fresh();
-    }
-
-    private function updateEntities(Invoice $invoice)
-    {
-        if (empty($invoice->line_items)) {
-            return true;
-        }
-
-        $entities_added = [];
-
-        foreach ($invoice->line_items as $line_item) {
-            if ($line_item->type_id === Invoice::EXPENSE_TYPE) {
-                $expense = Expense::where('id', '=', $line_item->product_id)->first();
-
-                if (!$expense || $expense->status_id === Expense::STATUS_INVOICED) {
-                    continue;
-                }
-
-                $expense->setStatus(Expense::STATUS_INVOICED);
-                $expense->invoice_id = $invoice->id;
-                $expense->save();
-
-                $entities_added['expenses'][] = $expense;
-            }
-
-            if ($line_item->type_id === Invoice::TASK_TYPE) {
-                $task = Task::where('id', '=', $line_item->product_id)->first();
-
-                if (!$task || $task->task_status_id === Task::STATUS_INVOICED) {
-                    continue;
-                }
-
-                //$task->setStatus(Task::STATUS_INVOICED);
-                $task->invoice_id = $invoice->id;
-                $task->save();
-
-                $entities_added['tasks'][] = $task;
-            }
-        }
-
-        return $entities_added;
-    }
-
-    /**
-     * @param Invoice $invoice
-     * @param $expenses
-     * @return bool
-     */
-    private function saveDocuments(Invoice $invoice, $expenses): bool
-    {
-        foreach ($expenses as $expense) {
-            foreach ($expense->files as $file) {
-                $clone = $file->replicate();
-
-                $invoice->files()->save($clone);
-            }
-        }
-
-        return true;
     }
 
     /**
@@ -186,7 +125,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
      * @return Invoice|null
      * @return Invoice|null
      */
-    public function createInvoice(array $data, Invoice $invoice): ?Invoice
+    public function create(array $data, Invoice $invoice): ?Invoice
     {
         $invoice = $this->save($data, $invoice);
 
@@ -194,7 +133,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
 
         if (!empty($data['recurring'])) {
             $recurring = json_decode($data['recurring'], true);
-            $invoice->service()->createRecurringInvoice($recurring);
+            (new GenerateRecurringInvoice($invoice))->execute($recurring);
         }
 
         event(new InvoiceWasCreated($invoice));
@@ -204,13 +143,13 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
 
     public function getInvoicesForAutoBilling()
     {
-        return Invoice::where('is_deleted', 0)
-                      ->whereNull('deleted_at')
-                      ->whereNull('is_recurring')
-                      ->whereNotNull('recurring_invoice_id')
-                      ->where('balance', '>', 0)
-                      ->where('due_date', Carbon::today())
-                      ->get();
+        return Invoice::where('hide', 0)
+            ->whereNull('deleted_at')
+            ->whereNull('is_recurring')
+            ->whereNotNull('recurring_invoice_id')
+            ->where('balance', '>', 0)
+            ->where('due_date', Carbon::today())
+            ->get();
     }
 
     /**
@@ -219,22 +158,30 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
     public function getInvoiceReminders()
     {
         return Invoice::whereDate('date_to_send', '=', Carbon::today()->toDateString())
-                      ->where('is_deleted', '=', false)
-                      ->where('balance', '>', 0)
-                      ->whereIn(
-                          'status_id',
-                          [Invoice::STATUS_DRAFT, Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL]
-                      )->get();
+            ->where('hide', '=', false)
+            ->where('balance', '>', 0)
+            ->whereIn(
+                'status_id',
+                [Invoice::STATUS_DRAFT, Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL]
+            )->get();
     }
 
     public function getExpiredInvoices()
     {
         return Invoice::whereDate('due_date', '<', Carbon::today()->subDay()->toDateString())
-                      ->where('is_deleted', '=', false)
-                      ->where('balance', '>', 0)
-                      ->whereIn(
-                          'status_id',
-                          [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL]
-                      )->get();
+            ->where('hide', '=', false)
+            ->where('balance', '>', 0)
+            ->whereIn(
+                'status_id',
+                [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL]
+            )->get();
+    }
+
+    public function scopeOutstandingInvoices()
+    {
+        return Invoice::where('hide', false)
+            ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+            ->where('balance', '>', 0);
+
     }
 }

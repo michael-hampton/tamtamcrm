@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
-use App\Services\RecurringQuote\RecurringQuoteService;
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use App\Traits\Balancer;
-use App\Traits\CalculateRecurringDateRanges;
+use App\Traits\CalculateDates;
 use App\Traits\Money;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Laracasts\Presenter\PresentableTrait;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 /**
  * Class for Recurring Invoices.
@@ -23,8 +24,10 @@ class RecurringQuote extends Model
     use Balancer;
     use Money;
     use HasFactory;
-    use CalculateRecurringDateRanges;
+    use CalculateDates;
     use Archiveable;
+    use QueryCacheable;
+    use QueryScopes;
 
     const STATUS_DRAFT = 1;
     const STATUS_PENDING = 2;
@@ -32,7 +35,7 @@ class RecurringQuote extends Model
     const STATUS_STOPPED = 4;
     const STATUS_COMPLETED = 5;
     const STATUS_VIEWED = 6;
-
+    protected static $flushCacheOnUpdate = true;
     protected $presenter = 'App\Presenters\QuotePresenter';
     protected $fillable = [
         'is_never_ending',
@@ -63,8 +66,8 @@ class RecurringQuote extends Model
         'line_items',
         'settings',
         'footer',
-        'public_notes',
-        'private_notes',
+        'customer_note',
+        'internal_note',
         'terms',
         'frequency',
         'start_date',
@@ -78,7 +81,6 @@ class RecurringQuote extends Model
         'tax_rate',
         'date_to_send'
     ];
-
     protected $casts = [
         'date_to_send' => 'datetime',
         'settings'     => 'object',
@@ -86,15 +88,27 @@ class RecurringQuote extends Model
         'updated_at'   => 'timestamp',
         'deleted_at'   => 'timestamp',
         'viewed'       => 'boolean',
-        'is_deleted'   => 'boolean',
+        'hide'         => 'boolean',
     ];
-
     protected $dates = [
         'date_to_send',
         'last_sent_date',
         'start_date',
         'expiry_date'
     ];
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'recurring_quotes',
+        ];
+    }
 
     public function customer()
     {
@@ -126,11 +140,6 @@ class RecurringQuote extends Model
         return $this->morphMany(Invitation::class, 'inviteable')->orderBy('contact_id');
     }
 
-    public function service(): RecurringQuoteService
-    {
-        return new RecurringQuoteService($this);
-    }
-
     public function files()
     {
         return $this->morphMany(File::class, 'fileable');
@@ -160,11 +169,14 @@ class RecurringQuote extends Model
         return true;
     }
 
-    public function setExchangeRate()
+    public function setExchangeRateAttribute($value)
     {
-        $exchange_rate = $this->customer->getExchangeRate();
-        $this->exchange_rate = !empty($exchange_rate) ? $exchange_rate : null;
-        return true;
+        $this->attributes['exchange_rate'] = $value;
+    }
+
+    public function setCurrencyAttribute($value)
+    {
+        $this->attributes['currency_id'] = (int) $value;
     }
 
     public function setDueDate()
@@ -181,13 +193,27 @@ class RecurringQuote extends Model
         return true;
     }
 
-    public function getPdfFilename()
+    public function getPdfFilenameAttribute()
     {
         return 'storage/' . $this->account->id . '/' . $this->customer->id . '/recurring_quotes/' . $this->number . '.pdf';
     }
 
-    public function getDesignId()
+    public function getDesignIdAttribute()
     {
         return !empty($this->design_id) ? $this->design_id : $this->customer->getSetting('quote_design_id');
+    }
+
+    public function scopePermissions($query, User $user)
+    {
+        if ($user->isAdmin() || $user->isOwner() || $user->hasPermissionTo('recurringquotecontroller.index')) {
+            return $query;
+        }
+
+        $query->where(
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('assigned_to', auth()->user($user)->id);
+            }
+        );
     }
 }

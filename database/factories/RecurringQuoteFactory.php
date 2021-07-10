@@ -31,7 +31,7 @@ class RecurringQuoteFactory extends Factory
                 ->setQuantity($this->faker->numberBetween(1, 10))
                 ->setUnitPrice($this->faker->randomFloat(2, 1, 1000))
                 ->calculateSubTotal()->setUnitDiscount($this->faker->numberBetween(1, 10))
-                ->setUnitTax(10.00)
+                ->setTaxRateEntity('unit_tax', 10.00)
                 ->setProductId($this->faker->word())
                 ->setNotes($this->faker->realText(50))
                 ->toObject();
@@ -52,7 +52,7 @@ class RecurringQuoteFactory extends Factory
             'custom_value2'  => $this->faker->numberBetween(1, 4),
             'custom_value3'  => $this->faker->numberBetween(1, 4),
             'custom_value4'  => $this->faker->numberBetween(1, 4),
-            'is_deleted'     => false,
+            'hide'           => false,
             'po_number'      => $this->faker->text(10),
             'line_items'     => $line_items,
             'frequency'      => 'MONTHLY',

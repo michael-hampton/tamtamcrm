@@ -4,15 +4,26 @@ namespace App\Repositories\Interfaces;
 
 use App\Models\TaxRate;
 use App\Repositories\Base\BaseRepositoryInterface;
-use Illuminate\Support\Collection;
 
 interface TaxRateRepositoryInterface extends BaseRepositoryInterface
 {
-    public function save($data, TaxRate $taxRate): ?TaxRate;
-
+    /**
+     * @param int $id
+     * @return TaxRate
+     */
     public function findTaxRateById(int $id): TaxRate;
 
-    public function listTaxRates($columns = ['*'], string $order = 'id', string $sort = 'desc'): Collection;
+    /**
+     * @param array $data
+     * @param TaxRate $tax_rate
+     * @return TaxRate
+     */
+    public function create(array $data, TaxRate $tax_rate): TaxRate;
 
-    public function deleteTaxRate();
+    /**
+     * @param array $data
+     * @param TaxRate $tax_rate
+     * @return TaxRate
+     */
+    public function update(array $data, TaxRate $tax_rate): TaxRate;
 }

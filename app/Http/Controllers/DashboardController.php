@@ -2,33 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Credit;
-use App\Models\Customer;
 use App\Models\Deal;
-use App\Models\Expense;
-use App\Models\Invoice;
-use App\Models\Lead;
-use App\Models\Order;
-use App\Models\Payment;
-use App\Models\Project;
-use App\Models\Quote;
-use App\Models\Task;
-use App\Repositories\CreditRepository;
-use App\Repositories\CustomerRepository;
 use App\Repositories\DealRepository;
-use App\Repositories\ExpenseRepository;
 use App\Repositories\Interfaces\CustomerRepositoryInterface;
 use App\Repositories\Interfaces\TaskRepositoryInterface;
-use App\Repositories\InvoiceRepository;
-use App\Repositories\LeadRepository;
-use App\Repositories\OrderRepository;
-use App\Repositories\PaymentRepository;
-use App\Repositories\ProjectRepository;
-use App\Repositories\QuoteRepository;
-use App\Repositories\TaskRepository;
 use App\Requests\SearchRequest;
-use App\Search\LeadSearch;
+use App\Transformations\DashboardTransformer;
 use App\Transformations\TaskTransformable;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -63,24 +44,114 @@ class DashboardController extends Controller
     public function index()
     {
         $search_request = new SearchRequest();
-        $search_request->replace(['column' => 'created_at', 'order' => 'desc', 'per_page' => 25]);
+        $search_request->replace(['column' => 'created_at', 'order' => 'desc']);
+
+        $account = auth()->user()->account_user()->account;
+
+        $test = $account->with(
+            [
+                'customers' => function ($query) {
+                    $query->orderBy('created_at', 'desc')->permissions(auth()->user())->cacheFor(
+                        now()->addMonthNoOverflow()
+                    )->cacheTags(['dashboard_customers']);
+                }
+            ]
+        )->with(
+            [
+                'invoices' => function ($query) {
+                    $query->orderBy('created_at', 'desc')->permissions(auth()->user())->cacheFor(
+                        now()->addMonthNoOverflow()
+                    )->cacheTags(['dashboard_invoices']);
+                }
+            ]
+        )->with(
+            [
+                'credits' => function ($query) {
+                    $query->orderBy('created_at', 'desc')->permissions(auth()->user())->cacheFor(
+                        now()->addMonthNoOverflow()
+                    )->cacheTags(['dashboard_credits']);
+                }
+            ]
+        )->with(
+            [
+                'payments' => function ($query) {
+                    $query->orderBy('created_at', 'desc')->permissions(auth()->user())->cacheFor(
+                        now()->addMonthNoOverflow()
+                    )->cacheTags(['dashboard_payments']);
+                }
+            ]
+        )->with(
+            [
+                'quotes' => function ($query) {
+                    $query->orderBy('created_at', 'desc')->permissions(auth()->user())->cacheFor(
+                        now()->addMonthNoOverflow()
+                    )->cacheTags(['dashboard_quotes']);
+                }
+            ]
+        )->with(
+            [
+                'orders' => function ($query) {
+                    $query->orderBy('created_at', 'desc')->permissions(auth()->user())->cacheFor(
+                        now()->addMonthNoOverflow()
+                    )->cacheTags(['dashboard_orders']);
+                }
+            ]
+        )->with(
+            [
+                'expenses' => function ($query) {
+                    $query->orderBy('created_at', 'desc')->permissions(auth()->user())->cacheFor(
+                        now()->addMonthNoOverflow()
+                    )->cacheTags(['dashboard_expenses']);
+                }
+            ]
+        )->with(
+            [
+                'tasks' => function ($query) {
+                    $query->orderBy('created_at', 'desc')->permissions(auth()->user())->cacheFor(
+                        now()->addMonthNoOverflow()
+                    )->cacheTags(['dashboard_tasks']);
+                }
+            ]
+        )->with(
+            [
+                'leads' => function ($query) {
+                    $query->orderBy('created_at', 'desc')->permissions(auth()->user())->cacheFor(
+                        now()->addMonthNoOverflow()
+                    )->cacheTags(['dashboard_leads']);
+                }
+            ]
+        )->with(
+            [
+                'deals' => function ($query) {
+                    $query->orderBy('created_at', 'desc')->permissions(auth()->user());
+                }
+            ]
+        )->first();
+
+        $data = (new DashboardTransformer())->transformDashboardData($test);
+
+        $date = Carbon::today()->subDays(3);
 
         $deal_repo = new DealRepository(new Deal);
-        $arrSources = $this->taskRepository->getSourceTypeCounts(3, auth()->user()->account_user()->account_id);
-        $arrStatuses = $this->taskRepository->getStatusCounts(auth()->user()->account_user()->account_id);
-        $leadsToday = $this->taskRepository->getRecentTasks(3, auth()->user()->account_user()->account_id);
-        $customersToday = $this->customerRepository->getRecentCustomers(3, auth()->user()->account_user()->account_id);
-        $newDeals = $deal_repo->getNewDeals(3, auth()->user()->account_user()->account_id);
-        $leads = (new LeadSearch(new LeadRepository(new Lead())))->filter(
-            $search_request,
-            auth()->user()->account_user()->account
-        );
-        $totalEarnt = $deal_repo->getTotalEarnt(auth()->user()->account_user()->account_id);
+        $arrSources = $this->taskRepository->getSourceTypeCounts(3, $account->id);
+        $arrStatuses = $this->taskRepository->getStatusCounts($account->id);
+        $leadsToday = $test->tasks->where('created_at', '>=', $date)->count();
+        $customersToday = $test->customers->where('created_at', '>=', $date)->count();
+        $newDeals = $test->deals->where('created_at', '>=', $date)->count();
+        $totalEarnt = $test->deals->sum('valued_at');
 
-        $arrOutput = [
+        $data['sources'] = $arrSources->toArray();
+        $data['leadCounts'] = $arrStatuses->toArray();
+        $data['totalBudget'] = number_format($totalEarnt, 2);
+        $data['totalEarnt'] = number_format($totalEarnt, 2);
+        $data['leadsToday'] = number_format($leadsToday, 2);
+        $data['newDeals'] = number_format($newDeals, 2);
+        $data['newCustomers'] = number_format($customersToday, 2);
+
+        /*$arrOutput = [
             'customers'    => (new CustomerRepository(new Customer()))->getAll(
                 $search_request,
-                auth()->user()->account_user()->account
+                $account
             ),
             'sources'      => $arrSources->toArray(),
             'leadCounts'   => $arrStatuses->toArray(),
@@ -92,35 +163,35 @@ class DashboardController extends Controller
             'deals'        => $leads,
             'invoices'     => (new InvoiceRepository(new Invoice()))->getAll(
                 $search_request,
-                auth()->user()->account_user()->account
+                $account
             ),
             'quotes'       => (new QuoteRepository(new Quote()))->getAll(
                 $search_request,
-                auth()->user()->account_user()->account
+                $account
             ),
             'credits'      => (new CreditRepository(new Credit()))->getAll(
                 $search_request,
-                auth()->user()->account_user()->account
+                $account
             ),
             'payments'     => (new PaymentRepository(new Payment()))->getAll(
                 $search_request,
-                auth()->user()->account_user()->account
+                $account
             ),
             'orders'       => (new OrderRepository(new Order()))->getAll(
                 $search_request,
-                auth()->user()->account_user()->account
+                $account
             ),
             'expenses'     => (new ExpenseRepository(new Expense()))->getAll(
                 $search_request,
-                auth()->user()->account_user()->account
+                $account
             ),
             'tasks'        => (new TaskRepository(new Task(), new ProjectRepository(new Project())))->getAll(
                 $search_request,
-                auth()->user()->account_user()->account
+                $account
             )
-        ];
+        ]; */
 
-        return response()->json($arrOutput);
+        return response()->json($data);
     }
 
 }

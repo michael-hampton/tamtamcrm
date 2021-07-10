@@ -11,7 +11,7 @@ trait ExpenseTransformable
      * @param Expense $expense
      * @return array
      */
-    protected function transformExpense(Expense $expense)
+    protected function transformExpense(Expense $expense, $files = null)
     {
         return [
             'id'                   => $expense->id,
@@ -28,7 +28,7 @@ trait ExpenseTransformable
             'expense_category_id'  => (int)$expense->expense_category_id ?: '',
             'payment_method_id'    => (int)$expense->payment_method_id ?: '',
             'recurring_expense_id' => (int)$expense->recurring_expense_id ?: '',
-            'is_deleted'           => (bool)$expense->is_deleted,
+            'hide'                 => (bool)$expense->hide,
             'create_invoice'       => (bool)$expense->create_invoice,
             'include_documents'    => (bool)$expense->include_documents,
             'amount'               => (float)$expense->amount ?: 0,
@@ -36,8 +36,8 @@ trait ExpenseTransformable
             'exchange_rate'        => (float)$expense->exchange_rate ?: 0,
             'tax_rate_name'        => $expense->tax_rate_name ? $expense->tax_rate_name : '',
             'tax_rate'             => (float)$expense->tax_rate,
-            'private_notes'        => (string)$expense->private_notes ?: '',
-            'public_notes'         => (string)$expense->public_notes ?: '',
+            'internal_note'        => (string)$expense->internal_note ?: '',
+            'customer_note'        => (string)$expense->customer_note ?: '',
             'reference_number'     => (string)$expense->reference_number ?: '',
             'transaction_id'       => (string)$expense->transaction_id ?: '',
             'date'                 => $expense->date ?: '',
@@ -50,7 +50,9 @@ trait ExpenseTransformable
             'updated_at'           => $expense->updated_at,
             'archived_at'          => $expense->deleted_at,
             'created_at'           => $expense->created_at,
-            'files'                => $this->transformExpenseFiles($expense->files),
+            'files'                => !empty($files) && !empty($files[$expense->id]) ? $this->transformExpenseFiles(
+                $files[$expense->id]
+            ) : [],
             'is_recurring'         => (bool)$expense->is_recurring ?: false,
             'status_id'            => (int)$expense->status_id,
             'recurring_start_date' => $expense->recurring_start_date ?: '',

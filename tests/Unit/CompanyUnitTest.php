@@ -71,7 +71,7 @@ class CompanyUnitTest extends TestCase
         $brand = Company::factory()->create();
         $data = ['name' => $this->faker->company];
         $brandRepo = new CompanyRepository($brand, new CompanyContactRepository(new CompanyContact));
-        $updated = $brandRepo->save($data, $brand);
+        $updated = $brandRepo->update($data, $brand);
         $found = $brandRepo->findCompanyById($brand->id);
         $this->assertInstanceOf(Company::class, $updated);
         $this->assertEquals($data['name'], $found->name);
@@ -113,7 +113,7 @@ class CompanyUnitTest extends TestCase
         $data['contacts'][0]['email'] = $this->faker->safeEmail;
 
         $brandRepo = new CompanyRepository(new Company, new CompanyContactRepository(new CompanyContact));
-        $brand = $brandRepo->save($data, $factory);
+        $brand = $brandRepo->create($data, $factory);
         $this->assertInstanceOf(Company::class, $brand);
         $this->assertEquals($data['name'], $brand->name);
     }

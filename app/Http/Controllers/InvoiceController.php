@@ -2,9 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Plan\ApplyCode;
+use App\Components\InvoiceCalculator\LineItem;
+use App\Events\Plan\PlanWasInvoiced;
 use App\Factory\InvoiceFactory;
+use App\Models\Audit;
 use App\Models\Customer;
+use App\Models\CustomerPlan;
 use App\Models\Invoice;
+use App\Models\Plan;
 use App\Models\Task;
 use App\Repositories\CreditRepository;
 use App\Repositories\Interfaces\InvoiceRepositoryInterface;
@@ -12,13 +18,16 @@ use App\Repositories\InvoiceRepository;
 use App\Repositories\QuoteRepository;
 use App\Repositories\TaskRepository;
 use App\Requests\Invoice\CreateInvoiceRequest;
+use App\Requests\Invoice\CreateSubscriptionInvoiceRequest;
 use App\Requests\Invoice\UpdateInvoiceRequest;
 use App\Requests\SearchRequest;
 use App\Search\InvoiceSearch;
+use App\Transformations\AuditTransformable;
 use App\Transformations\InvoiceTransformable;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use ReflectionException;
 
 /**
  * Class InvoiceController
@@ -71,7 +80,7 @@ class InvoiceController extends BaseController
     public function store(CreateInvoiceRequest $request)
     {
         $customer = Customer::find($request->input('customer_id'));
-        $invoice = $this->invoice_repo->createInvoice(
+        $invoice = $this->invoice_repo->create(
             $request->all(),
             InvoiceFactory::create(auth()->user()->account_user()->account, auth()->user(), $customer)
         );
@@ -84,9 +93,8 @@ class InvoiceController extends BaseController
      * @return mixed
      * @throws Exception
      */
-    public function show(int $invoice_id)
+    public function show(Invoice $invoice)
     {
-        $invoice = $this->invoice_repo->findInvoiceById($invoice_id);
         return response()->json((new InvoiceTransformable())->transformInvoice($invoice));
     }
 
@@ -118,15 +126,13 @@ class InvoiceController extends BaseController
      * @return mixed
      * @throws Exception
      */
-    public function update(UpdateInvoiceRequest $request, int $id)
+    public function update(UpdateInvoiceRequest $request, Invoice $invoice)
     {
-        $invoice = $this->invoice_repo->findInvoiceById($id);
-
         if ($invoice->isLocked()) {
             return response()->json(['message' => trans('texts.invoice_is_locked')], 422);
         }
 
-        $invoice = $this->invoice_repo->updateInvoice($request->all(), $invoice);
+        $invoice = $this->invoice_repo->update($request->all(), $invoice);
         return response()->json((new InvoiceTransformable())->transformInvoice($invoice));
     }
 
@@ -140,9 +146,8 @@ class InvoiceController extends BaseController
      * @return mixed
      * @throws Exception
      */
-    public function archive(int $id)
+    public function archive(Invoice $invoice)
     {
-        $invoice = $this->invoice_repo->findInvoiceById($id);
         $invoice->archive();
         return response()->json([], 200);
     }
@@ -152,13 +157,9 @@ class InvoiceController extends BaseController
      * @return JsonResponse
      * @throws Exception
      */
-    public function destroy(int $id)
+    public function destroy(Invoice $invoice)
     {
-        $invoice = $this->invoice_repo->findInvoiceById($id);
-
         $this->authorize('delete', $invoice);
-
-        //$invoice->service()->cancelInvoice();
         $invoice->deleteInvoice();
         return response()->json([], 200);
     }
@@ -172,5 +173,90 @@ class InvoiceController extends BaseController
         $invoice = Invoice::withTrashed()->where('id', '=', $id)->first();
         $invoice->restoreEntity();
         return response()->json([], 200);
+    }
+
+    /**
+     * @param CreateSubscriptionInvoiceRequest $request
+     * @return JsonResponse
+     * @throws ReflectionException
+     */
+    public function createSubscriptionInvoice(CreateSubscriptionInvoiceRequest $request)
+    {
+        $account = auth()->user()->account_user()->account;
+        $customer = Customer::find($request->input('customer_id'));
+
+        // get plan and create subscription
+        $plan = Plan::find($request->input('plan_id'));
+        $customer->newSubscription('main', $plan, $account, $request->input('quantity'));
+        $subscription = $customer->activeSubscriptions()->first();
+
+        if (!empty($plan->trial_period)) {
+            return response()->json($subscription);
+        }
+
+        $due_date = $subscription->due_date->format('Y-m-d');
+
+        $unit_cost = $plan->price;
+
+        $data = $request->input('invoice');
+        $data['date'] = now();
+        $data['due_date'] = $due_date;
+        $data['plan_subscription_id'] = $subscription->id;
+
+        if (!empty($request->input('promocode')) && empty($plan->promocode_applied)) {
+            $promocode = (new ApplyCode())->execute($plan, $account, $unit_cost);
+            $data['discount_total'] = $promocode['amount'];
+            $data['voucher_code'] = $promocode['promocode'];
+            $data['is_amount_discount'] = $promocode['is_amount_discount'];
+        }
+
+        $line_items[] = (new LineItem())
+            ->setProductId($subscription->id)
+            ->setQuantity($request->input('quantity'))
+            ->setUnitPrice($unit_cost)
+            ->setTypeId(Invoice::SUBSCRIPTION_TYPE)
+            ->setNotes("Plan charge for " . auth()->user()->account_user()->account->subdomain)
+            ->toObject();
+
+        $data['line_items'] = $line_items;
+
+        $invoice_repo = new InvoiceRepository(new Invoice);
+        $invoice = $invoice_repo->create(
+            $data,
+            InvoiceFactory::create(
+                $account,
+                auth()->user(),
+                $customer
+            )
+        );
+        $invoice_repo->markSent($invoice);
+
+        $event_data = [
+            'plan_id'         => $plan->id,
+            'subscription_id' => $subscription->id,
+            'invoice_id'      => $invoice->id,
+            'voucher_code'    => !empty($data['voucher_code']) ? $data['voucher_code'] : ''
+        ];
+
+        event(new PlanWasInvoiced($subscription, $event_data));
+
+        return response()->json($invoice);
+    }
+
+    public function audits($model, int $id)
+    {
+        $class = "App\\Models\\{$model}";
+
+        $invoice = $class::where('id', '=', $id)->first();
+
+        $audits = $invoice->audits;
+
+        $audits = $audits->map(
+            function (Audit $audit) {
+                return (new AuditTransformable())->transformAudit($audit);
+            }
+        )->all();
+
+        return response()->json($audits);
     }
 }

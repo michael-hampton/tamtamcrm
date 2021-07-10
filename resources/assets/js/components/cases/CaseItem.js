@@ -36,10 +36,11 @@ export default class CaseItem extends Component {
         const self = this
         axios.delete(url)
             .then(function (response) {
-                const arrCases = [...self.props.cases]
+                const arrCases = [...self.props.entities]
                 const index = arrCases.findIndex(case_file => case_file.id === id)
-                arrCases.splice(index, 1)
-                self.props.addUserToState(arrCases)
+                arrCases[index].hide = archive !== true
+                arrCases[index].deleted_at = new Date()
+                self.props.addUserToState(arrCases, true)
             })
             .catch(function (error) {
                 console.log(error)
@@ -47,11 +48,11 @@ export default class CaseItem extends Component {
     }
 
     render () {
-        const { cases, ignoredColumns, customers } = this.props
+        const { cases, ignoredColumns, customers, entities } = this.props
         if (cases && cases.length) {
             return cases.map((case_file, index) => {
                 const restoreButton = case_file.deleted_at
-                    ? <RestoreModal id={case_file.id} entities={cases} updateState={this.props.addUserToState}
+                    ? <RestoreModal id={case_file.id} entities={entities} updateState={this.props.addUserToState}
                         url={`/api/cases/restore/${case_file.id}`}/> : null
                 const deleteButton = !case_file.deleted_at
                     ? <DeleteModal archive={false} deleteFunction={this.deleteCase} id={case_file.id}/> : null
@@ -59,7 +60,7 @@ export default class CaseItem extends Component {
                     ? <DeleteModal archive={true} deleteFunction={this.deleteCase} id={case_file.id}/> : null
 
                 const editButton = !case_file.deleted_at ? <EditCase
-                    cases={cases}
+                    cases={entities}
                     customers={customers}
                     case={case_file}
                     action={this.props.addUserToState}

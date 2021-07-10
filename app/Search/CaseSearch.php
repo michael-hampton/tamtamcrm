@@ -48,6 +48,8 @@ class CaseSearch extends BaseSearch
 
         if ($request->has('status')) {
             $this->status('cases', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->has('search_term') && !empty($request->search_term)) {
@@ -55,11 +57,11 @@ class CaseSearch extends BaseSearch
         }
 
         if ($request->filled('customer_id')) {
-            $this->query->whereCustomerId($request->customer_id);
+            $this->query->byCustomer($request->customer_id);
         }
 
         if ($request->filled('category_id')) {
-            $this->query->whereCategoryId($request->category_id);
+            $this->query->byCategory($request->category_id);
         }
 
         if ($request->filled('priority_id')) {
@@ -67,14 +69,14 @@ class CaseSearch extends BaseSearch
         }
 
         if ($request->filled('id')) {
-            $this->query->whereId($request->id);
+            $this->query->byId($request->id);
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
-            $this->filterDates($request);
+            $this->query->byDate($request->input('start_date'), $request->input('end_date'));
         }
 
-        $this->addAccount($account);
+        $this->query->byAccount($account);
 
         $this->checkPermissions('casecontroller.index');
 
@@ -106,7 +108,7 @@ class CaseSearch extends BaseSearch
      */
     private function transformList()
     {
-        $list = $this->query->get();
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['cases'])->get();
         $cases = $list->map(
             function (Cases $case) {
                 return $this->transform($case);

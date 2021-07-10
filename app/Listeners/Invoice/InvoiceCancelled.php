@@ -29,15 +29,21 @@ class InvoiceCancelled implements ShouldQueue
      */
     public function handle($event)
     {
-        $fields = [];
-        $fields['data']['id'] = $event->invoice->id;
-        $fields['data']['customer_id'] = $event->invoice->customer_id;
-        $fields['data']['message'] = 'An invoice was cancelled';
-        $fields['notifiable_id'] = $event->invoice->user_id;
-        $fields['account_id'] = $event->invoice->account_id;
-        $fields['notifiable_type'] = get_class($event->invoice);
-        $fields['type'] = get_class($this);
-        $fields['data'] = json_encode($fields['data']);
+        $data = [
+            'id'          => $event->invoice->id,
+            'customer_id' => $event->invoice->customer_id,
+            'message'     => 'A invoice was cancelled',
+            'status'      => 'cancelled'
+        ];
+
+        $fields = [
+            'notifiable_id'   => $event->invoice->user_id,
+            'account_id'      => $event->invoice->account_id,
+            'notifiable_type' => get_class($event->invoice),
+            'type'            => get_class($this),
+            'data'            => json_encode($data),
+            'action'          => 'status_updated'
+        ];
 
         $notification = NotificationFactory::create($event->invoice->account_id, $event->invoice->user_id);
         $notification->entity_id = $event->invoice->id;

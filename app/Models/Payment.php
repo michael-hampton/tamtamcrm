@@ -2,24 +2,25 @@
 
 namespace App\Models;
 
+use App\Services\Transaction\TriggerTransaction;
 use App\Events\Payment\PaymentWasDeleted;
-use App\Services\Payment\PaymentService;
-use App\Services\Transaction\TransactionService;
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use App\Traits\Money;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laracasts\Presenter\PresentableTrait;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Payment extends Model
 {
-    use PresentableTrait;
     use SoftDeletes;
     use Money;
     use HasFactory;
     use Archiveable;
+    use QueryCacheable;
+    use QueryScopes;
 
     const STATUS_PENDING = 1;
     const STATUS_VOIDED = 2;
@@ -29,8 +30,8 @@ class Payment extends Model
     const STATUS_REFUNDED = 6;
 
     const TYPE_CUSTOMER_CREDIT = 2;
+    protected static $flushCacheOnUpdate = true;
 
-    protected $presenter = 'App\Presenters\OrderPresenter';
     /**
      * The attributes that are mass assignable.
      *
@@ -48,7 +49,7 @@ class Payment extends Model
         'refunded',
         'reference_number',
         'is_manual',
-        'private_notes',
+        'internal_note',
         'custom_value1',
         'custom_value2',
         'custom_value3',
@@ -58,7 +59,7 @@ class Payment extends Model
         'exchange_rate' => 'float',
         'updated_at'    => 'timestamp',
         'deleted_at'    => 'timestamp',
-        'is_deleted'    => 'boolean',
+        'hide'          => 'boolean',
     ];
     protected $with = [
         'paymentables',
@@ -69,6 +70,20 @@ class Payment extends Model
      * @var array
      */
     protected $hidden = [];
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'payments',
+            'dashboard_payments'
+        ];
+    }
 
     /**
      * @return BelongsTo
@@ -99,16 +114,6 @@ class Payment extends Model
     public function gateway()
     {
         return $this->belongsTo(CompanyGateway::class, 'company_gateway_id');
-    }
-
-    public function service(): PaymentService
-    {
-        return new PaymentService($this);
-    }
-
-    public function transaction_service()
-    {
-        return new TransactionService($this);
     }
 
     public function transactions()
@@ -142,7 +147,7 @@ class Payment extends Model
         );
 
         if ($send_transaction && $amount !== null) {
-            $invoice->transaction_service()->createTransaction($amount * -1, $invoice->customer->balance);
+            (new TriggerTransaction($invoice))->execute($amount * -1, $invoice->customer->balance);
         }
 
         return $this;
@@ -177,7 +182,7 @@ class Payment extends Model
 
     public function deletePayment(): bool
     {
-        $this->is_deleted = true;
+        $this->hide = true;
         $this->save();
 
         $this->delete();
@@ -211,15 +216,25 @@ class Payment extends Model
         return $this->formatCurrency($this->amount, $this->customer);
     }
 
+    public function setExchangeRateAttribute($value)
+    {
+        $this->attributes['exchange_rate'] = $value;
+    }
+
+    public function setCurrencyAttribute($value)
+    {
+        $this->attributes['currency_id'] = (int) $value;
+    }
+
     public function getFormattedInvoices()
     {
         $invoice_texts = trans('texts.invoice_number_abbreviated');
 
         foreach ($this->invoices as $invoice) {
-            $invoice_texts .= $invoice->number . ',';
+            $invoice_texts .= $invoice->number . '<br>';
         }
 
-        return substr($invoice_texts, 0, -1);
+        return $invoice_texts;
     }
 
     public function reduceAmount($amount)
@@ -240,5 +255,19 @@ class Payment extends Model
         $url = rtrim($url, '/') . '/portal/payments/' . $this->id;
 
         return $url;
+    }
+
+    public function scopePermissions($query, User $user)
+    {
+        if ($user->isAdmin() || $user->isOwner() || $user->hasPermissionTo('paymentcontroller.index')) {
+            return $query;
+        }
+
+        $query->where(
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('assigned_to', auth()->user($user)->id);
+            }
+        );
     }
 }

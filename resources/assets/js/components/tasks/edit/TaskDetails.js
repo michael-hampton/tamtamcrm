@@ -20,16 +20,16 @@ export default function TaskDetails (props) {
     }
 
     const userOptions =
-        <FormGroup>
-            <Label for="contributors">{translations.assigned_user}:</Label>
-            <Input className={props.hasErrorFor('contributors') ? 'is-invalid' : ''} multiple
-                type="select"
-                value={props.task.selectedUsers}
-                name="contributors" id="contributors" onChange={props.handleMultiSelect}>
-                {userContent}
-            </Input>
-            {props.renderErrorFor('contributors')}
-        </FormGroup>
+            <FormGroup>
+                <Label for="contributors">{translations.assigned_user}:</Label>
+                <Input className={props.hasErrorFor('contributors') ? 'is-invalid' : ''} multiple
+                    type="select"
+                    value={props.task.selectedUsers}
+                    name="contributors" id="contributors" onChange={props.handleMultiSelect}>
+                    {userContent}
+                </Input>
+                {props.renderErrorFor('contributors')}
+            </FormGroup>
 
     return (
         <React.Fragment>
@@ -42,16 +42,16 @@ export default function TaskDetails (props) {
             </FormGroup>
 
             {!props.task.invoice_id &&
-            <FormGroup className="mb-3">
-                <Label>{translations.customer}</Label>
-                <CustomerDropdown
-                    customer={props.task.customer_id}
-                    renderErrorFor={props.renderErrorFor}
-                    handleInputChanges={props.handleInput}
-                    customers={props.customers}
-                />
-                {props.renderErrorFor('customer_id')}
-            </FormGroup>
+                <FormGroup className="mb-3">
+                    <Label>{translations.customer}</Label>
+                    <CustomerDropdown
+                        customer={props.task.customer_id}
+                        renderErrorFor={props.renderErrorFor}
+                        handleInputChanges={props.handleInput}
+                        customers={props.customers}
+                    />
+                    {props.renderErrorFor('customer_id')}
+                </FormGroup>
             }
 
             {/* <FormGroup> */}
@@ -62,12 +62,12 @@ export default function TaskDetails (props) {
             {/* </FormGroup> */}
 
             {!props.task.invoice_id &&
-            <FormGroup>
-                <Label>{translations.project}</Label>
-                <ProjectDropdown handleInputChanges={props.handleInput} customer-id={props.task.customer_id}
-                    project={props.task.project_id} name="project_id"
-                />
-            </FormGroup>
+                <FormGroup>
+                    <Label>{translations.project}</Label>
+                    <ProjectDropdown handleInputChanges={props.handleInput} customer-id={props.task.customer_id}
+                        project={props.task.project_id} name="project_id"
+                    />
+                </FormGroup>
             }
 
             <FormGroup>

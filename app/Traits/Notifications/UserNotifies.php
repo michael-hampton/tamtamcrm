@@ -5,6 +5,19 @@ namespace App\Traits\Notifications;
 
 trait UserNotifies
 {
+    public function findUserNotificationTypesByEntity(
+        $entity,
+        $account_user,
+        $required_permissions
+    ) {
+        if ($entity->user_id == $account_user->_user_id ||
+            $entity->assigned_to == $account_user->user_id) {
+            array_push($required_permissions, "all_user_notifications");
+        }
+
+        return $this->getNotificationTypesForAccountUser($account_user, $required_permissions);
+    }
+
     public function findUserNotificationTypesByInvitation(
         $invitation,
         $account_user,
@@ -16,9 +29,7 @@ trait UserNotifies
             array_push($required_permissions, "all_user_notifications");
         }
 
-        $notifiable_methods = $this->getNotificationTypesForAccountUser($account_user, $required_permissions);
-
-        return $notifiable_methods;
+        return $this->getNotificationTypesForAccountUser($account_user, $required_permissions);
     }
 
     public function getNotificationTypesForAccountUser($account_user, $required_permissions): array

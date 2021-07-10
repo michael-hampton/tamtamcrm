@@ -55,13 +55,13 @@ class CreateInvoice implements ShouldQueue
             ->setUnitPrice($this->product->price)
             ->calculateSubTotal()
             ->setUnitDiscount(0)
-            ->setUnitTax(0)
+            ->setTaxRateEntity('unit_tax', 0)
             ->setProductId($this->product->id)
             ->setNotes($this->product->description)
             ->toObject();
 
 
-        $invoice = (new InvoiceRepository(new Invoice()))->createInvoice($data, $invoice);
+        $invoice = (new InvoiceRepository(new Invoice()))->create($data, $invoice);
 
         return $invoice;
     }

@@ -2,8 +2,9 @@
 
 namespace App\Repositories;
 
-use App\Components\Currency\CurrencyConverter;
+use App\Services\Transaction\TriggerTransaction;
 use App\Events\Payment\PaymentWasCreated;
+use App\Events\Payment\PaymentWasUpdated;
 use App\Models\Account;
 use App\Models\Payment;
 use App\Repositories\Base\BaseRepository;
@@ -59,7 +60,6 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
         return $this->model;
     }
 
-
     /**
      * @param array $data
      * @param Payment $payment
@@ -68,55 +68,49 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
      */
     public function save(array $data, Payment $payment, $create_transaction = false): ?Payment
     {
-        $send_event = false;
+        if (!empty($payment->id)) {
+            return $this->updatePayment($payment, $data);
+        }
 
+        return $this->createPayment($payment, $data, $create_transaction);
+    }
+
+    public function updatePayment(Payment $payment, array $data)
+    {
         if (!empty($data)) {
             $payment->fill($data);
         }
 
-        if (!$payment->id) {
-            $payment = $this->convertCurrencies($payment);
-            $send_event = true;
+        $payment->setStatus(empty($data['status_id']) ? Payment::STATUS_COMPLETED : $data['status_id']);
+        $payment->save();
+
+        event(new PaymentWasUpdated($payment));
+
+        return $payment->fresh();
+    }
+
+    public function createPayment(Payment $payment, array $data, $create_transaction = false): Payment
+    {
+        if (!empty($data)) {
+            $payment->fill($data);
         }
+
+        $payment = $payment->convertCurrencies($payment, $payment->amount);
 
         $payment->setNumber();
         $payment->setStatus(empty($data['status_id']) ? Payment::STATUS_COMPLETED : $data['status_id']);
         $payment->save();
 
         if ($create_transaction) {
-            $payment->transaction_service()->createTransaction(
+            (new TriggerTransaction($payment))->execute(
                 $payment->amount * -1,
                 $payment->customer->balance,
                 "New Payment {$payment->number}"
             );
         }
 
-        if ($send_event) {
-            event(new PaymentWasCreated($payment));
-        }
+        event(new PaymentWasCreated($payment));
 
         return $payment->fresh();
-    }
-
-    /**
-     * @param Payment $payment
-     * @return Payment
-     */
-    private function convertCurrencies(Payment $payment)
-    {
-        $converted_amount = $objCurrencyConverter = (new CurrencyConverter())
-            ->setAmount($payment->amount)
-            ->setBaseCurrency($payment->account->getCurrency())
-            ->setExchangeCurrency($payment->customer->currency)
-            ->setDate($payment->date)
-            ->calculate();
-
-        if ($converted_amount) {
-            $payment->exchange_rate = $converted_amount;
-            $payment->currency_id = $payment->account->getCurrency()->id;
-            $payment->exchange_currency_id = $payment->customer->currency;
-        }
-
-        return $payment;
     }
 }

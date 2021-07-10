@@ -9,12 +9,18 @@ import queryString from 'query-string'
 import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import { getDefaultTableFields } from '../presenters/CasePresenter'
+import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class Cases extends Component {
     constructor (props) {
         super(props)
 
         this.state = {
+            currentPage: 1,
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             error: '',
@@ -53,11 +59,36 @@ export default class Cases extends Component {
         this.getCustomers()
     }
 
-    addUserToState (cases) {
+    onPageChanged (data) {
+        let { cases, pageLimit } = this.state
+        const { currentPage, totalPages } = data
+
+        if (data.invoices) {
+            cases = data.invoices
+        }
+
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = cases.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
+
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
+    }
+
+    addUserToState (cases, do_filter = false, filters = null) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? cases : this.state.cachedData
+
+        if (should_filter) {
+            cases = filterStatuses(cases, '', this.state.filters)
+        }
+
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             cases: cases,
             cachedData: cachedData
+        }, () => {
+            const totalPages = Math.ceil(cases.length / this.state.pageLimit)
+            this.onPageChanged({ invoices: cases, currentPage: this.state.currentPage, totalPages: totalPages })
         })
     }
 
@@ -89,11 +120,13 @@ export default class Cases extends Component {
     }
 
     userList (props) {
-        const { cases, customers } = this.state
-        return <CaseItem showCheckboxes={props.showCheckboxes} customers={customers} cases={cases}
+        const { pageLimit, customers, currentInvoices, cachedData } = this.state
+        return <CaseItem showCheckboxes={props.showCheckboxes} customers={customers} cases={currentInvoices}
             show_list={props.show_list}
+            onPageChanged={this.onPageChanged.bind(this)}
+            pageLimit={pageLimit} entities={cachedData}
             viewId={props.viewId}
-            ignoredColumns={getDefaultTableFields()} addUserToState={this.addUserToState}
+            ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -130,12 +163,25 @@ export default class Cases extends Component {
     }
 
     render () {
-        const { searchText, status, start_date, end_date, customer_id, category_id, priority_id } = this.state.filters
-        const { view, cases, customers, error, isOpen, error_message, success_message, show_success } = this.state
-        const fetchUrl = `/api/cases?search_term=${searchText}&status=${status}&start_date=${start_date}&end_date=${end_date}&customer_id=${customer_id}&category_id=${category_id}&priority_id=${priority_id}`
+        const { start_date, end_date } = this.state.filters
+        const {
+            cachedData,
+            view,
+            cases,
+            customers,
+            error,
+            isOpen,
+            error_message,
+            success_message,
+            show_success,
+            currentInvoices,
+            pageLimit
+        } = this.state
+        const fetchUrl = `/api/cases?start_date=${start_date}&end_date=${end_date}`
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable-large fixed-margin-datatable-large-mobile'
+        const total = cases.length
 
         return customers.length ? (
             <Row>
@@ -143,14 +189,18 @@ export default class Cases extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <CaseFilters setFilterOpen={this.setFilterOpen.bind(this)} cases={cases}
+                                <CaseFilters
+                                    pageLimit={pageLimit}
+                                    cachedData={cachedData}
+                                    updateList={this.addUserToState}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} cases={cases}
                                     customers={customers}
                                     filters={this.state.filters} filter={this.filterCases}
                                     saveBulk={this.saveBulk}/>
 
                                 <AddCase
                                     customers={customers}
-                                    cases={cases}
+                                    cases={cachedData}
                                     action={this.addUserToState}
                                 />
                             </CardBody>
@@ -158,25 +208,31 @@ export default class Cases extends Component {
                     </div>
 
                     {error &&
-                    <Snackbar open={error} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
-                        <Alert severity="danger">
-                            {error_message}
-                        </Alert>
-                    </Snackbar>
+                        <Snackbar open={error} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
+                            <Alert severity="danger">
+                                {error_message}
+                            </Alert>
+                        </Snackbar>
                     }
 
                     {show_success &&
-                    <Snackbar open={show_success} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
-                        <Alert severity="success">
-                            {success_message}
-                        </Alert>
-                    </Snackbar>
+                        <Snackbar open={show_success} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
+                            <Alert severity="success">
+                                {success_message}
+                            </Alert>
+                        </Snackbar>
                     }
 
                     <div className={margin_class}>
                         <Card>
                             <CardBody>
                                 <DataTable
+
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
+
                                     default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
                                     setError={this.setError.bind(this)}
@@ -194,6 +250,14 @@ export default class Cases extends Component {
                                     fetchUrl={fetchUrl}
                                     updateState={this.addUserToState}
                                 />
+
+                                {total > 0 &&
+                                    <div className="d-flex flex-row py-4 align-items-center">
+                                        <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                            pageNeighbours={1}
+                                            onPageChanged={this.onPageChanged.bind(this)}/>
+                                    </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>

@@ -11,6 +11,7 @@ import DefaultModalFooter from '../../common/ModalFooter'
 import Details from './Details'
 import DropdownMenuBuilder from '../../common/DropdownMenuBuilder'
 import CustomFieldsForm from '../../common/CustomFieldsForm'
+import { toast, ToastContainer } from 'react-toastify'
 
 class EditProject extends React.Component {
     constructor (props) {
@@ -30,8 +31,23 @@ class EditProject extends React.Component {
         this.changeStatus = this.changeStatus.bind(this)
     }
 
+    static getDerivedStateFromProps (props, state) {
+        if (props.project && props.project.id !== state.id) {
+            const projectModel = new ProjectModel(props.project)
+            return projectModel.fields
+        }
+
+        return null
+    }
+
     componentDidMount () {
-        this.getProject()
+        // this.getProject()
+    }
+
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.project && this.props.project.id !== prevProps.project.id) {
+            this.projectModel = new ProjectModel(this.props.project)
+        }
     }
 
     toggleMenu (event) {
@@ -71,8 +87,8 @@ class EditProject extends React.Component {
             name: this.state.name,
             description: this.state.description,
             customer_id: this.state.customer_id,
-            private_notes: this.state.private_notes,
-            public_notes: this.state.public_notes,
+            internal_note: this.state.internal_note,
+            customer_note: this.state.customer_note,
             due_date: this.state.due_date,
             start_date: this.state.start_date,
             assigned_to: this.state.assigned_to,
@@ -111,12 +127,33 @@ class EditProject extends React.Component {
         this.projectModel.save(data).then(response => {
             if (!response) {
                 this.setState({ errors: this.projectModel.errors, message: this.projectModel.error_message })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.project), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
 
+            toast.success(translations.updated_successfully.replace('{entity}', translations.project), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
+
             const index = this.props.projects.findIndex(project => project.id === this.props.project.id)
             this.props.projects[index] = response
-            this.props.action(this.props.projects)
+            this.props.action(this.props.projects, true)
             this.setState({
                 editMode: false,
                 changesMade: false
@@ -171,6 +208,18 @@ class EditProject extends React.Component {
                     <DefaultModalHeader toggle={this.toggle} title={translations.edit_project}/>
 
                     <ModalBody className={theme}>
+                        <ToastContainer
+                            position="top-center"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
+
                         <DropdownMenuBuilder invoices={this.state} formData={this.getFormData()}
                             model={this.projectModel}
                             action={this.props.action}/>

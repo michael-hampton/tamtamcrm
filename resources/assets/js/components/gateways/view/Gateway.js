@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { ListGroup, Row } from 'reactstrap'
+import { ListGroup, Row, Spinner } from 'reactstrap'
 import { icons } from '../../utils/_icons'
 import { translations } from '../../utils/_translations'
 import SectionItem from '../../common/entityContainers/SectionItem'
@@ -8,27 +8,48 @@ import FormatMoney from '../../common/FormatMoney'
 import FieldGrid from '../../common/entityContainers/FieldGrid'
 import PaymentRepository from '../../repositories/PaymentRepository'
 import ErrorLog from '../../customers/view/ErrorLog'
+import AlertPopup from '../../common/AlertPopup'
+import CompanyGatewayRepository from '../../repositories/CompanyGatewayRepository'
 
 export default class Gateway extends Component {
     constructor (props) {
         super(props)
 
         this.state = {
-            payments: []
+            payments: [],
+            error_logs: [],
+            show_alert: false
         }
 
         this.getPayments = this.getPayments.bind(this)
+        this.getErrorLogs = this.getErrorLogs.bind(this)
     }
 
     componentDidMount () {
         this.getPayments()
+        this.getErrorLogs()
+    }
+
+    getErrorLogs () {
+        const companyGatewayRepository = new CompanyGatewayRepository()
+        companyGatewayRepository.error_logs(this.props.entity.id).then(response => {
+            if (!response) {
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
+            }
+
+            this.setState({ error_logs: response }, () => {
+                console.log('error_logs', this.state.error_logs)
+            })
+        })
     }
 
     getPayments () {
         const paymentRepository = new PaymentRepository()
         paymentRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ show_alert: true })
+                return
             }
 
             this.setState({ payments: response }, () => {
@@ -87,7 +108,14 @@ export default class Gateway extends Component {
                     <FieldGrid fields={field}/>
                 )}
 
-                <ErrorLog error_logs={this.props.entity.error_logs}/>
+                {this.state.error_logs ? <ErrorLog error_logs={this.state.error_logs}/> : <Spinner style={{
+                    width: '3rem',
+                    height: '3rem'
+                }}/>}
+
+                <AlertPopup is_open={this.state.show_alert} message={this.state.error_message} onClose={(e) => {
+                    this.setState({ show_alert: false })
+                }}/>
             </React.Fragment>
 
         )

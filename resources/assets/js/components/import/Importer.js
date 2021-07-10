@@ -8,11 +8,13 @@ import queryString from 'query-string'
 import FormatMoney from '../common/FormatMoney'
 import moment from 'moment'
 import { icons } from '../utils/_icons'
+import AlertPopup from '../common/AlertPopup'
 
 export default class Importer extends React.Component {
     constructor (props) {
         super(props)
         this.state = {
+            show_alert: false,
             export_data: '',
             import_type: '',
             file_type: '',
@@ -61,7 +63,7 @@ export default class Importer extends React.Component {
 
     export () {
         if (!this.state.import_type.length) {
-            alert('Please select an import type')
+            this.setState({ show_alert: true, error_message: 'Please select an import type' })
             return false
         }
 
@@ -93,7 +95,7 @@ export default class Importer extends React.Component {
 
     preview () {
         if (!this.state.import_type.length) {
-            alert('Please select an import type')
+            this.setState({ show_alert: true, error_message: 'Please select an import type' })
             return false
         }
 
@@ -134,7 +136,7 @@ export default class Importer extends React.Component {
 
     upload () {
         if (!this.state.import_type.length) {
-            alert('Please select an import type')
+            this.setState({ show_alert: true, error_message: 'Please select an import type' })
             return false
         }
 
@@ -304,9 +306,10 @@ export default class Importer extends React.Component {
         const preview = headers.length && columns.length
             ? headers.map((header, index) => {
                 const select_list = this.buildSelectList(header)
+                const formatted_header = translations[header] && translations[header].length ? translations[header] : header
                 return <Form className="p-2" key={index} inline>
                     <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                        <Label for="exampleEmail" className="mr-sm-2">{header}</Label>
+                        <Label for="exampleEmail" className="mr-sm-2">{formatted_header}</Label>
                         {select_list}
                     </FormGroup>
                 </Form>
@@ -511,6 +514,10 @@ export default class Importer extends React.Component {
                     </Alert>
                 </Snackbar>
                 }
+
+                <AlertPopup is_open={this.state.show_alert} message={this.state.error_message} onClose={(e) => {
+                    this.setState({ show_alert: false })
+                }}/>
             </React.Fragment>
 
         )

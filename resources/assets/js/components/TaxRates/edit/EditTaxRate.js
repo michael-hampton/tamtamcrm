@@ -6,6 +6,7 @@ import Details from './Details'
 import TaxRateModel from '../../models/TaxRateModel'
 import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
+import { toast, ToastContainer } from 'react-toastify'
 
 class EditTaxRate extends React.Component {
     constructor (props) {
@@ -18,6 +19,21 @@ class EditTaxRate extends React.Component {
         this.toggle = this.toggle.bind(this)
         this.hasErrorFor = this.hasErrorFor.bind(this)
         this.renderErrorFor = this.renderErrorFor.bind(this)
+    }
+
+    static getDerivedStateFromProps (props, state) {
+        if (props.taxRate && props.taxRate.id !== state.id) {
+            const invoiceModel = new TaxRateModel(props.taxRate)
+            return invoiceModel.fields
+        }
+
+        return null
+    }
+
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.taxRate && this.props.taxRate.id !== prevProps.taxRate.id) {
+            this.taxRateModel = new TaxRateModel(this.props.taxRate)
+        }
     }
 
     handleInput (e) {
@@ -51,12 +67,33 @@ class EditTaxRate extends React.Component {
         this.taxRateModel.save(formData).then(response => {
             if (!response) {
                 this.setState({ errors: this.taxRateModel.errors, message: this.taxRateModel.error_message })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.tax_rate), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
 
+            toast.success(translations.updated_successfully.replace('{entity}', translations.tax_rate), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
+
             const index = this.props.taxRates.findIndex(taxRate => taxRate.id === this.props.taxRate.id)
             this.props.taxRates[index] = response
-            this.props.action(this.props.taxRates)
+            this.props.action(this.props.taxRates, true)
             this.setState({
                 editMode: false,
                 changesMade: false
@@ -92,6 +129,18 @@ class EditTaxRate extends React.Component {
                     <DefaultModalHeader toggle={this.toggle} title={translations.edit_tax_rate}/>
 
                     <ModalBody className={theme}>
+
+                        <ToastContainer
+                            position="top-center"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
 
                         {message && <div className="alert alert-danger" role="alert">
                             {message}

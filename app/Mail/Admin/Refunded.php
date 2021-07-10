@@ -4,6 +4,8 @@ namespace App\Mail\Admin;
 
 use App\Models\Payment;
 use App\Models\User;
+use App\ViewModels\AccountViewModel;
+use App\ViewModels\CustomerViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 
@@ -41,7 +43,8 @@ class Refunded extends AdminMailer
 
         $this->setSubject($data);
         $this->setMessage($data);
-        $this->execute($this->buildMessage());
+        $this->buildButton();
+        $this->execute();
     }
 
     /**
@@ -51,7 +54,7 @@ class Refunded extends AdminMailer
     {
         return [
             'total'    => $this->payment->getFormattedTotal(),
-            'customer' => $this->payment->customer->present()->name(),
+            'customer' => (new CustomerViewModel($this->payment->customer))->name(),
             'invoice'  => $this->payment->getFormattedInvoices(),
             'payment'  => $this->payment->number,
         ];
@@ -60,15 +63,11 @@ class Refunded extends AdminMailer
     /**
      * @return array
      */
-    private function buildMessage(): array
+    private function buildButton(): void
     {
-        return [
-            'title'       => $this->subject,
-            'body'        => $this->message,
-            'signature'   => isset($this->payment->account->settings->email_signature) ? $this->payment->account->settings->email_signature : '',
+        $this->button = [
             'url'         => config('taskmanager.site_url') . 'portal/payments/' . $this->payment->id,
             'button_text' => trans('texts.view_payment'),
-            'logo'        => $this->payment->account->present()->logo(),
         ];
     }
 }

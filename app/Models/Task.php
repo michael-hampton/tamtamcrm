@@ -3,28 +3,28 @@
 namespace App\Models;
 
 use App\Models;
-use App\Services\Task\TaskService;
 use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laracasts\Presenter\PresentableTrait;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Task extends Model
 {
 
     use SoftDeletes;
-    use PresentableTrait;
     use HasFactory;
     use Archiveable;
+    use QueryCacheable;
+    use Models\Concerns\QueryScopes;
 
     const TASK_TYPE_DEAL = 3;
     const STATUS_IN_PROGRESS = 7;
     const STATUS_INVOICED = 2000;
-
+    protected static $flushCacheOnUpdate = true;
     protected $fillable = [
-        'task_sort_order',
+        'order_id',
         'design_id',
         'name',
         'description',
@@ -47,8 +47,8 @@ class Task extends Model
         'custom_value2',
         'custom_value3',
         'custom_value4',
-        'public_notes',
-        'private_notes',
+        'customer_note',
+        'internal_note',
         'is_recurring',
         'recurring_start_date',
         'recurring_end_date',
@@ -61,8 +61,19 @@ class Task extends Model
         'column_color'
     ];
 
-
-    protected $presenter = 'App\Presenters\TaskPresenter';
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'tasks',
+            'dashboard_tasks'
+        ];
+    }
 
     public function project()
     {
@@ -134,17 +145,12 @@ class Task extends Model
         return $this->morphMany(File::class, 'fileable');
     }
 
-    public function service(): TaskService
-    {
-        return new TaskService($this);
-    }
-
-    public function getDesignId()
+    public function getDesignIdAttribute()
     {
         return !empty($this->design_id) ? $this->design_id : $this->customer->getSetting('task_design_id');
     }
 
-    public function getPdfFilename()
+    public function getPdfFilenameAttribute()
     {
         return 'storage/' . $this->account->id . '/' . $this->customer->id . '/tasks/' . $this->number . '.pdf';
     }
@@ -170,7 +176,7 @@ class Task extends Model
         return $this->number;
     }
 
-    public function getTaskRate()
+    public function getCalculatedTaskRateAttribute()
     {
         if (!empty($this->task_rate)) {
             return (float)$this->task_rate;
@@ -181,5 +187,19 @@ class Task extends Model
         }
 
         return 0;
+    }
+
+    public function scopePermissions($query, User $user)
+    {
+        if ($user->isAdmin() || $user->isOwner() || $user->hasPermissionTo('taskcontroller.index')) {
+            return $query;
+        }
+
+        $query->where(
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('assigned_to', auth()->user($user)->id);
+            }
+        );
     }
 }

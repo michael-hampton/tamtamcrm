@@ -48,6 +48,8 @@ class CaseCategorySearch extends BaseSearch
 
         if ($request->has('status')) {
             $this->status('case_categories', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->has('search_term') && !empty($request->search_term)) {
@@ -55,10 +57,10 @@ class CaseCategorySearch extends BaseSearch
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
-            $this->filterDates($request);
+            $this->query->byDate($request->input('start_date'), $request->input('end_date'));
         }
 
-        $this->addAccount($account);
+        $this->query->byAccount($account);
 
         $this->addPermissions();
 
@@ -74,21 +76,6 @@ class CaseCategorySearch extends BaseSearch
         return $categories;
     }
 
-    private function addPermissions()
-    {
-        if (empty(auth()->user())) {
-            return true;
-        }
-
-        $user = auth()->user();
-
-        if ($user->account_user()->is_admin || $user->account_user()->is_owner || $user->hasPermissionTo('casecategorycontroller.index')) {
-            return true;
-        }
-
-        $this->query->where('user_id', '=', $user->id);
-    }
-
     public function searchFilter(string $filter = ''): bool
     {
         if (strlen($filter) == 0) {
@@ -98,6 +85,23 @@ class CaseCategorySearch extends BaseSearch
         $this->query->where('case_categories.name', 'like', '%' . $filter . '%');
 
         return true;
+    }
+
+    private function addPermissions()
+    {
+        if (empty(auth()->user())) {
+            return true;
+        }
+
+        $user = auth()->user();
+
+        if ($user->account_user()->is_admin || $user->account_user()->is_owner || $user->hasPermissionTo(
+                'casecategorycontroller.index'
+            )) {
+            return true;
+        }
+
+        $this->query->where('user_id', '=', $user->id);
     }
 
     /**

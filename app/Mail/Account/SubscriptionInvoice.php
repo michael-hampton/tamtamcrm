@@ -4,7 +4,9 @@ namespace App\Mail\Account;
 
 use App\Models\Account;
 use App\Models\Invoice;
+use App\Models\PlanSubscription;
 use App\Traits\Money;
+use App\ViewModels\AccountViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -23,6 +25,8 @@ class SubscriptionInvoice extends Mailable
      */
     private Invoice $invoice;
 
+    private PlanSubscription $plan;
+
     private $message;
 
     /**
@@ -36,10 +40,11 @@ class SubscriptionInvoice extends Mailable
      * @param Account $account
      * @param Invoice $invoice
      */
-    public function __construct(Account $account, Invoice $invoice)
+    public function __construct(PlanSubscription $plan, Account $account, Invoice $invoice)
     {
         $this->account = $account;
         $this->invoice = $invoice;
+        $this->plan = $plan;
     }
 
     public function build()
@@ -71,14 +76,12 @@ class SubscriptionInvoice extends Mailable
 
     private function getDataArray()
     {
-        $cost = $this->account->subscription_period === Account::SUBSCRIPTION_PERIOD_YEAR ? env(
-            'YEARLY_ACCOUNT_PRICE'
-        ) : env('MONTHLY_ACCOUNT_PRICE');
+        $cost = $this->plan->plan->price * $this->plan->number_of_licences;
 
         return [
-            'term'     => $this->account->subscription_period === Account::SUBSCRIPTION_PERIOD_YEAR ? 'Yearly' : 'Monthly',
+            'term'     => $this->plan->plan->invoice_interval === 'year' ? 'Yearly' : 'Monthly',
             'number'   => $this->invoice->getNumber(),
-            'due_date' => date('d-m-Y', strtotime($this->account->subscription_expiry_date)),
+            'due_date' => date('d-m-Y', strtotime($this->plan->due_date)),
             'amount'   => self::formatCurrency($cost, $this->invoice->customer)
         ];
     }
@@ -91,7 +94,11 @@ class SubscriptionInvoice extends Mailable
             'url'         => config('taskmanager.site_url') . '/invoices/' . $this->invoice->id,
             'button_text' => trans('texts.view_invoice'),
             //'signature'   => isset($this->invoice->account->settings->email_signature) ? $this->order->account->settings->email_signature : '',
-            'logo'        => $this->invoice->account->present()->logo(),
+            'logo'        => (new AccountViewModel($this->invoice->account))->logo(),
+            'show_footer' => empty($this->account->domains->plan) || !in_array(
+                    $this->account->domains->plan->code,
+                    ['PROM', 'PROY']
+                )
         ];
     }
 }

@@ -9,12 +9,18 @@ import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import UserRepository from '../repositories/UserRepository'
 import { getDefaultTableFields } from '../presenters/LeadPresenter'
+import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class Leads extends Component {
     constructor (props) {
         super(props)
 
         this.state = {
+            currentPage: 1,
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             leads: [],
@@ -54,12 +60,37 @@ export default class Leads extends Component {
         this.getCustomFields()
     }
 
-    addUserToState (leads) {
+    addUserToState (leads, do_filter = false, filters = null) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? leads : this.state.cachedData
+
+        if (should_filter) {
+            leads = filterStatuses(leads, '', this.state.filters)
+        }
+
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             leads: leads,
             cachedData: cachedData
+        }, () => {
+            const totalPages = Math.ceil(leads.length / this.state.pageLimit)
+            this.onPageChanged({ invoices: leads, currentPage: this.state.currentPage, totalPages: totalPages })
         })
+    }
+
+    onPageChanged (data) {
+        let { leads, pageLimit } = this.state
+        const { currentPage, totalPages } = data
+
+        if (data.invoices) {
+            leads = data.invoices
+        }
+
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = leads.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
+
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     filterLeads (filters) {
@@ -71,11 +102,14 @@ export default class Leads extends Component {
     }
 
     userList (props) {
-        const { leads, custom_fields, users } = this.state
-        return <LeadItem showCheckboxes={props.showCheckboxes} leads={leads} users={users} custom_fields={custom_fields}
-            show_list={props.show_list}
+        const { pageLimit, custom_fields, users, currentInvoices, cachedData } = this.state
+        return <LeadItem showCheckboxes={props.showCheckboxes} leads={currentInvoices} users={users}
+            custom_fields={custom_fields}
+            show_list={props.show_list} entities={cachedData}
+            onPageChanged={this.onPageChanged.bind(this)}
+            pageLimit={pageLimit}
             viewId={props.viewId}
-            ignoredColumns={getDefaultTableFields()} addUserToState={this.addUserToState}
+            ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -111,7 +145,8 @@ export default class Leads extends Component {
         const userRepository = new UserRepository()
         userRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
             }
 
             this.setState({ users: response }, () => {
@@ -136,13 +171,26 @@ export default class Leads extends Component {
     }
 
     render () {
-        const { leads, users, custom_fields, view, isOpen, error_message, success_message, show_success } = this.state
-        const { status_id, searchText, start_date, end_date, user_id } = this.state.filters
-        const fetchUrl = `/api/leads?search_term=${searchText}&user_id=${user_id}&status=${status_id}&start_date=${start_date}&end_date=${end_date}`
+        const {
+            cachedData,
+            leads,
+            users,
+            custom_fields,
+            view,
+            isOpen,
+            error_message,
+            success_message,
+            show_success,
+            currentInvoices,
+            pageLimit
+        } = this.state
+        const { start_date, end_date } = this.state.filters
+        const fetchUrl = `/api/leads?start_date=${start_date}&end_date=${end_date}`
         const { error } = this.state
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable fixed-margin-datatable-mobile'
+        const total = leads.length
 
         return (
             <Row>
@@ -150,35 +198,45 @@ export default class Leads extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <LeadFilters setFilterOpen={this.setFilterOpen.bind(this)} leads={leads}
+                                <LeadFilters
+                                    pageLimit={pageLimit}
+                                    cachedData={cachedData}
+                                    updateList={this.addUserToState}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} leads={leads}
                                     filters={this.state.filters} filter={this.filterLeads}
                                     saveBulk={this.saveBulk}/>
-                                <AddLead users={users} leads={leads} action={this.addUserToState}
+                                <AddLead users={users} leads={cachedData} action={this.addUserToState}
                                     custom_fields={custom_fields}/>
                             </CardBody>
                         </Card>
                     </div>
 
                     {error &&
-                    <Snackbar open={error} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
-                        <Alert severity="danger">
-                            {error_message}
-                        </Alert>
-                    </Snackbar>
+                        <Snackbar open={error} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
+                            <Alert severity="danger">
+                                {error_message}
+                            </Alert>
+                        </Snackbar>
                     }
 
                     {show_success &&
-                    <Snackbar open={show_success} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
-                        <Alert severity="success">
-                            {success_message}
-                        </Alert>
-                    </Snackbar>
+                        <Snackbar open={show_success} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
+                            <Alert severity="success">
+                                {success_message}
+                            </Alert>
+                        </Snackbar>
                     }
 
                     <div className={margin_class}>
                         <Card>
                             <CardBody>
                                 <DataTable
+
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
+
                                     default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
                                     setError={this.setError.bind(this)}
@@ -186,12 +244,21 @@ export default class Leads extends Component {
                                     entity_type="Lead"
                                     bulk_save_url="/api/lead/bulk"
                                     view={view}
+                                    columnMapping={{ status_name: 'Status' }}
                                     disableSorting={['id']}
                                     defaultColumn='name'
                                     userList={this.userList}
                                     fetchUrl={fetchUrl}
                                     updateState={this.addUserToState}
                                 />
+
+                                {total > 0 &&
+                                    <div className="d-flex flex-row py-4 align-items-center">
+                                        <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                            pageNeighbours={1}
+                                            onPageChanged={this.onPageChanged.bind(this)}/>
+                                    </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>

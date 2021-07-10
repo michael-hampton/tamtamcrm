@@ -25,7 +25,7 @@ class CloneDealToProjectFactory
         $project->assigned_to = $deal->assigned_to;
         $project->account_id = $deal->account_id;
         $project->user_id = $user->id;
-        $project->private_notes = $deal->private_notes;
+        $project->internal_note = $deal->internal_note;
 
         return $project;
     }

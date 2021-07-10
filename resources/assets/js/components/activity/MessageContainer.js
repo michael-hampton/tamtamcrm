@@ -7,6 +7,7 @@ import Event from './Event'
 import { getEntityIcon } from '../utils/_icons'
 import InfoItem from '../common/entityContainers/InfoItem'
 import FormatDate from '../common/FormatDate'
+import { translations } from '../utils/_translations'
 
 class MessageContainer extends React.Component {
     constructor (props) {
@@ -193,6 +194,7 @@ class MessageContainer extends React.Component {
             users,
             activeMessage
         } = this.state
+
         if (this.state.users && this.state.users.length) {
             return (
                 <React.Fragment>
@@ -232,7 +234,7 @@ class MessageContainer extends React.Component {
                             })}
                         </div> : null}
 
-                    {notifications.length ? (
+                    {notifications && notifications.length ? (
                         <Card>
                             <CardHeader><h2 className="text-center">Notifications</h2>
                             </CardHeader>
@@ -241,7 +243,29 @@ class MessageContainer extends React.Component {
                                     {notifications.map((notification, index) => {
                                         const user = this.state.users.filter(user => user.id === notification.user_id)
                                         const username = user && user.length ? `${user[0].first_name} ${user[0].last_name}` : ''
-                                        const message = `${username} - ${notification.data.message}`
+                                        // const message = `${username} - ${notification.data.message}`
+                                        const action = notification.action
+                                        let message = ''
+                                        let title = ''
+
+                                        if (action === 'created') {
+                                            title = translations.created
+                                            const key = `${notification.entity.toLowerCase()}_created`
+                                            message = `${username} - ${translations[key]}`
+                                        } else if (action === 'status_updated') {
+                                            title = translations.status_updated
+                                            message = `${username} - ${translations.status_updated_to}`
+                                            message = message.replace('{status}', translations[notification.data.status])
+                                            message = message.replace('{entity}', translations[notification.entity.toLowerCase()])
+                                        } else if (notification.data.message.includes('email failed')) {
+                                            message = `${username} - ${translations.failed_to_send_email}`
+                                        } else {
+                                            title = ''
+                                            message = `${username} - ${translations.status_updated_to}`
+                                            message = message.replace('{status}', translations[notification.action])
+                                            message = message.replace('{entity}', translations[notification.entity.toLowerCase()])
+                                        }
+
                                         return (<React.Fragment key={index}>
                                             <InfoItem icon={getEntityIcon(notification.entity)}
                                                 value={message}

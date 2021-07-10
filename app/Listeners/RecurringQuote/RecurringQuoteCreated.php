@@ -31,15 +31,20 @@ class RecurringQuoteCreated implements ShouldQueue
      */
     public function handle($event)
     {
-        $fields = [];
-        $fields['data']['id'] = $event->recurring_quote->id;
-        $fields['data']['customer_id'] = $event->recurring_quote->customer_id;
-        $fields['data']['message'] = 'A recurring_quote was created';
-        $fields['notifiable_id'] = $event->recurring_quote->user_id;
-        $fields['account_id'] = $event->recurring_quote->account_id;
-        $fields['notifiable_type'] = get_class($event->recurring_quote);
-        $fields['type'] = get_class($this);
-        $fields['data'] = json_encode($fields['data']);
+        $data = [
+            'id'          => $event->recurring_quote->id,
+            'customer_id' => $event->recurring_quote->customer_id,
+            'message'     => 'A recurring quote was created'
+        ];
+
+        $fields = [
+            'notifiable_id'   => $event->recurring_quote->user_id,
+            'account_id'      => $event->recurring_quote->account_id,
+            'notifiable_type' => get_class($event->recurring_quote),
+            'type'            => get_class($this),
+            'data'            => json_encode($data),
+            'action'          => 'created'
+        ];
 
         $notification = NotificationFactory::create(
             $event->recurring_quote->account_id,

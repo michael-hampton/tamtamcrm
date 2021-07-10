@@ -50,9 +50,9 @@ class Picture
 $table_here
 
 <div class="px-4 pb-4" style="margin-top: 80px">
-<div class="inline-block mt-4" style="width: 70%">
+<div class="inline-block mt-4" style="width: 60%">
     <div>
-        <p>$entity.public_notes</p>
+        <p>$entity.customer_note</p>
     </div>
 </div>
 $costs
@@ -63,31 +63,30 @@ $costs
     public function totals()
     {
         return '
-<div class="inline-block" style="width: 30%">
-    <div class="px-3 mt-2">
-        <div class="col-6 text-right">
-            <span style="margin-right: 20px">$discount_label</span> $discount<br>
-            <span style="margin-right: 20px">$tax_label</span> $tax<br>
-            <span style="margin-right: 20px">$shipping_cost_label</span> $shipping_cost<br>
-            <span style="margin-right: 20px">$voucher_label</span> $voucher<br>
-        </div>
-    </div>
-</div>
-</div>
-<div class="mt-4 pb-4 px-4">
-<div class="inline-block" style="width: 70%">
-    <div>
-        <p class="font-weight-bold">$terms_label</p>
-        <p>$terms</p>
-    </div>
-</div>
-<div class="inline-block" style="width: 20%">
-    <section class="bg-warning py-2 pt-4 pr-4 text-white px-2 mt-1">
-        <p class="text-right">$balance_due_label</p>
-        <p class="text-right">$balance_due</p>
-    </section>
-</div>
-</div>';
+                <div class="inline-block" style="width: 38%">
+                    <div class="px-3 mt-2">
+                        <div class="text-right">
+                            <span style="margin-right: 20px">$discount_label</span> $discount<br>
+                            <span style="margin-right: 20px">$tax_label</span> $tax<br>
+                            <span style="margin-right: 20px">$shipping_cost_label</span> $shipping_cost<br>
+                            <span style="margin-right: 20px">$voucher_label</span> $voucher<br>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 pb-4 px-4">
+                    <div class="inline-block" style="width: 60%">
+                        <div>
+                            <p class="font-weight-bold">$terms_label</p>
+                            <p>$terms</p>
+                        </div>
+                    </div>
+                    <div class="inline-block text-center" style="width: 30%; margin-left: 30px; font-size: 20px">
+                        <section class="bg-warning py-2 pt-4 pr-4 text-white px-2 mt-1">
+                            <p>$balance_due_label</p>
+                            <p>$balance_due</p>
+                        </section>
+                    </div>
+                </div>';
     }
 
     public function table()
@@ -133,7 +132,7 @@ $costs
          <div style="width: 100%; margin-left: 20px">
              <div style="width: 45%" class="inline-block mb-2">
                $signature_here
-           </div>
+            </div>
            
             <div style="width: 45%" class="inline-block mb-2">
                $client_signature_here

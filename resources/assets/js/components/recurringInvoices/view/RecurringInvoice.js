@@ -1,6 +1,19 @@
 import React, { Component } from 'react'
 import FileUploads from '../../documents/FileUploads'
-import { Alert, Card, CardBody, CardHeader, Col, Nav, NavItem, NavLink, Row, TabContent, TabPane } from 'reactstrap'
+import {
+    Alert,
+    Card,
+    CardBody,
+    CardHeader,
+    Col,
+    Nav,
+    NavItem,
+    NavLink,
+    Row,
+    Spinner,
+    TabContent,
+    TabPane
+} from 'reactstrap'
 import { translations } from '../../utils/_translations'
 import RecurringInvoiceModel from '../../models/RecurringInvoiceModel'
 import BottomNavigationButtons from '../../common/BottomNavigationButtons'
@@ -9,6 +22,7 @@ import ViewContacts from '../../common/entityContainers/ViewContacts'
 import ViewSchedule from '../../common/entityContainers/ViewSchedule'
 import Overview from './Overview'
 import InvoiceRepository from '../../repositories/InvoiceRepository'
+import AlertPopup from '../../common/AlertPopup'
 
 export default class RecurringInvoice extends Component {
     constructor (props) {
@@ -19,7 +33,9 @@ export default class RecurringInvoice extends Component {
             activeTab: '1',
             obj_url: null,
             show_success: false,
-            file_count: this.props.entity.files.length || 0
+            show_alert: false,
+            file_count: this.props.entity.files.length || 0,
+            audits: []
         }
 
         this.invoiceModel = new RecurringInvoiceModel(this.state.entity)
@@ -39,11 +55,26 @@ export default class RecurringInvoice extends Component {
         this.setState({ entity: entity })
     }
 
+    getAudits () {
+        const invoiceRepository = new InvoiceRepository()
+        invoiceRepository.audits('RecurringInvoice', this.props.entity.id).then(response => {
+            if (!response) {
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
+            }
+
+            this.setState({ audits: response }, () => {
+                console.log('audits', this.state.audits)
+            })
+        })
+    }
+
     getInvoices () {
         const invoiceRepository = new InvoiceRepository()
         invoiceRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ show_alert: true })
+                return
             }
 
             this.setState({ invoices: response }, () => {
@@ -78,7 +109,11 @@ export default class RecurringInvoice extends Component {
     toggleTab (tab) {
         if (this.state.activeTab !== tab) {
             this.setState({ activeTab: tab }, () => {
-                if (this.state.activeTab === '5') {
+                if (tab === '5' && !this.state.audits.length) {
+                    this.getAudits()
+                }
+
+                if (this.state.activeTab === '6') {
                     this.loadPdf()
                 }
             })
@@ -177,7 +212,7 @@ export default class RecurringInvoice extends Component {
                                     <CardBody>
                                         <FileUploads updateCount={(count) => {
                                             this.setState({ file_count: count })
-                                        }} entity_type="Invoice" entity={this.state.entity}
+                                        }} entity_type="RecurringInvoice" entity={this.state.entity}
                                         user_id={this.state.entity.user_id}/>
                                     </CardBody>
                                 </Card>
@@ -188,7 +223,11 @@ export default class RecurringInvoice extends Component {
                     <TabPane tabId="5">
                         <Row>
                             <Col>
-                                <Audit entity="Quote" audits={this.state.entity.audits}/>
+                                {this.state.audits.length ? <Audit entity="Invoice" audits={this.state.audits}/>
+                                    : <Spinner style={{
+                                        width: '3rem',
+                                        height: '3rem'
+                                    }}/>}
                             </Col>
                         </Row>
                     </TabPane>
@@ -218,6 +257,10 @@ export default class RecurringInvoice extends Component {
                     button1={{ label: translations.view_pdf }}
                     button2_click={(e) => this.triggerAction(this.invoiceModel.isActive ? 'stop_recurring' : 'start_recurring')}
                     button2={{ label: this.invoiceModel.isActive ? translations.stop : translations.start }}/>
+
+                <AlertPopup is_open={this.state.show_alert} message={this.state.error_message} onClose={(e) => {
+                    this.setState({ show_alert: false })
+                }}/>
             </React.Fragment>
 
         )

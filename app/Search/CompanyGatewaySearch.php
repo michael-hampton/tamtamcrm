@@ -53,7 +53,7 @@ class CompanyGatewaySearch extends BaseSearch
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
-            $this->filterDates($request);
+            $this->query->byDate($request->input('start_date'), $request->input('end_date'));
         }
 
         $this->addAccount($account);
@@ -62,15 +62,13 @@ class CompanyGatewaySearch extends BaseSearch
 
         $this->orderBy($orderBy, $orderDir);
 
-        $invoices = $this->transformList();
+        //        if ($recordsPerPage > 0) {
+//            $paginatedResults = $this->company_gateway_repo->paginateArrayResults($invoices, $recordsPerPage);
+//
+//            return $paginatedResults;
+//        }
 
-        if ($recordsPerPage > 0) {
-            $paginatedResults = $this->company_gateway_repo->paginateArrayResults($invoices, $recordsPerPage);
-
-            return $paginatedResults;
-        }
-
-        return $invoices;
+        return $this->transformList();
     }
 
     /**

@@ -18,11 +18,24 @@ use App\Models\Invitation;
 
 trait CreditTransformable
 {
+    public function transformAuditsForCredit($audits)
+    {
+        if (empty($audits)) {
+            return [];
+        }
+
+        return $audits->map(
+            function (Audit $audit) {
+                return (new AuditTransformable)->transformAudit($audit);
+            }
+        )->all();
+    }
+
     /**
      * @param Credit $credit
      * @return array
      */
-    protected function transformCredit(Credit $credit)
+    protected function transformCredit(Credit $credit, $files = null)
     {
         return [
             'id'                  => (int)$credit->id,
@@ -35,8 +48,8 @@ trait CreditTransformable
             'company_id'          => (int)$credit->company_id ?: null,
             'currency_id'         => (int)$credit->currency_id ?: null,
             'exchange_rate'       => (float)$credit->exchange_rate,
-            'public_notes'        => $credit->public_notes ?: '',
-            'private_notes'       => $credit->private_notes ?: '',
+            'customer_note'        => $credit->customer_note ?: '',
+            'internal_note'       => $credit->internal_note ?: '',
             'customer_id'         => (int)$credit->customer_id,
             'date'                => $credit->date ?: '',
             'due_date'            => $credit->due_date ?: '',
@@ -64,8 +77,10 @@ trait CreditTransformable
             'transaction_fee_tax' => (bool)$credit->transaction_fee_tax,
             'shipping_cost_tax'   => (bool)$credit->shipping_cost_tax,
             'emails'              => $this->transformCreditEmails($credit->emails()),
-            'audits'              => $this->transformAuditsForCredit($credit->audits),
-            'files'               => $this->transformCreditFiles($credit->files),
+            //'audits'              => $this->transformAuditsForCredit($credit->audits),
+            'files'               => !empty($files) && !empty($files[$credit->id]) ? $this->transformCreditFiles(
+                $files[$credit->id]
+            ) : [],
             'tax_rate'            => (float)$credit->tax_rate,
             'tax_2'               => (float)$credit->tax_2,
             'tax_3'               => (float)$credit->tax_3,
@@ -73,7 +88,7 @@ trait CreditTransformable
             'tax_rate_name_2'     => $credit->tax_rate_name_2,
             'tax_rate_name_3'     => $credit->tax_rate_name_3,
             'viewed'              => (bool)$credit->viewed,
-            'is_deleted'          => (bool)$credit->is_deleted,
+            'hide'                => (bool)$credit->hide,
         ];
     }
 
@@ -107,19 +122,6 @@ trait CreditTransformable
         return $emails->map(
             function (Email $email) {
                 return (new EmailTransformable())->transformEmail($email);
-            }
-        )->all();
-    }
-
-    public function transformAuditsForCredit($audits)
-    {
-        if (empty($audits)) {
-            return [];
-        }
-
-        return $audits->map(
-            function (Audit $audit) {
-                return (new AuditTransformable)->transformAudit($audit);
             }
         )->all();
     }

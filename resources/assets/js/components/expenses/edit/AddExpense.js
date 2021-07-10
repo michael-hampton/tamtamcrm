@@ -133,8 +133,8 @@ class AddExpense extends React.Component {
             currency_id: this.state.currency_id,
             exchange_rate: this.state.exchange_rate,
             company_id: this.state.company_id,
-            public_notes: this.state.public_notes,
-            private_notes: this.state.private_notes,
+            customer_note: this.state.customer_note,
+            internal_note: this.state.internal_note,
             reference_number: this.state.reference_number,
             expense_category_id: this.state.expense_category_id,
             date: this.state.date,
@@ -162,8 +162,8 @@ class AddExpense extends React.Component {
                 this.setState({ errors: this.expenseModel.errors, message: this.expenseModel.error_message })
                 return
             }
-            this.props.expenses.push(response)
-            this.props.action(this.props.expenses)
+            this.props.expenses.unshift(response)
+            this.props.action(this.props.expenses, true)
             localStorage.removeItem('expenseForm')
             this.setState(this.initialState)
         })
@@ -250,8 +250,8 @@ class AddExpense extends React.Component {
                             </TabPane>
 
                             <TabPane tabId="3">
-                                <Notes errors={this.state.errors} public_notes={this.state.public_notes}
-                                    private_notes={this.state.private_notes} handleInput={this.handleInput}/>
+                                <Notes errors={this.state.errors} customer_note={this.state.customer_note}
+                                    internal_note={this.state.internal_note} handleInput={this.handleInput}/>
                             </TabPane>
                         </TabContent>
 

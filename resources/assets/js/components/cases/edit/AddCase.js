@@ -83,7 +83,7 @@ export default class AddCase extends React.Component {
             customer_id: this.state.customer_id,
             due_date: this.state.due_date,
             priority_id: this.state.priority_id,
-            private_notes: this.state.private_notes,
+            internal_note: this.state.internal_note,
             category_id: this.state.category_id,
             assigned_to: this.state.assigned_to,
             link_type: this.state.link_type,
@@ -96,8 +96,8 @@ export default class AddCase extends React.Component {
                 this.setState({ errors: this.caseModel.errors, message: this.caseModel.error_message })
                 return
             }
-            this.props.cases.push(response)
-            this.props.action(this.props.cases)
+            this.props.cases.unshift(response)
+            this.props.action(this.props.cases, true)
             this.setState(this.initialState)
             localStorage.removeItem('caseForm')
         })
@@ -120,7 +120,7 @@ export default class AddCase extends React.Component {
                     message: '',
                     customer_id: '',
                     due_date: '',
-                    private_notes: '',
+                    internal_note: '',
                     priority_id: '',
                     category_id: ''
                 }, () => localStorage.removeItem('caseForm'))
@@ -166,7 +166,8 @@ export default class AddCase extends React.Component {
                                         <Details cases={this.props.cases} customers={this.props.customers}
                                             errors={this.state.errors}
                                             hasErrorFor={this.hasErrorFor} case={this.state}
-                                            handleInput={this.handleInput} renderErrorFor={this.renderErrorFor}/>
+                                            handleInput={this.handleInput}
+                                            renderErrorFor={this.renderErrorFor}/>
                                     </CardBody>
                                 </Card>
 

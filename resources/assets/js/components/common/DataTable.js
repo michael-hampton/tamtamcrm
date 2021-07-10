@@ -23,6 +23,7 @@ export default class DataTable extends Component {
             allSelected: false,
             width: window.innerWidth,
             view: this.props.view,
+            default_columns: this.props.default_columns || [],
             ignoredColumns: this.props.ignore || [],
             query: '',
             message: '',
@@ -79,8 +80,9 @@ export default class DataTable extends Component {
     }
 
     updateIgnoredColumns (columns) {
-        this.setState({ ignoredColumns: columns.concat('invitations', 'recurring', 'files', 'transactions', 'reviews', 'audits', 'paymentables', 'line_items', 'emails', 'timers', 'attributes', 'features') }, function () {
-            console.log('ignored columns', this.state.ignoredColumns)
+        console.log('selected columns 2b', columns)
+        this.setState({ default_columns: columns }, () => {
+            console.log('ignored columns', this.state.default_columns)
         })
     }
 
@@ -250,6 +252,36 @@ export default class DataTable extends Component {
         }, {})
     }
 
+    compareValues (key, order = 'asc') {
+        return function innerSort (a, b) {
+            if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
+                // property doesn't exist on either object
+                return 0
+            }
+
+            let varA = (typeof a[key] === 'string')
+                ? a[key].toUpperCase() : a[key]
+            let varB = (typeof b[key] === 'string')
+                ? b[key].toUpperCase() : b[key]
+
+            if (key.includes(['balance', 'amount_paid'])) {
+                varA = abs(varA)
+                varB = abs(varB)
+            }
+
+            let comparison = 0
+            if (varA > varB) {
+                comparison = 1
+            } else if (varA < varB) {
+                comparison = -1
+            }
+
+            return (
+                (order === 'desc') ? (comparison * -1) : comparison
+            )
+        }
+    }
+
     sortBy (column, order) {
         let sorted = []
 
@@ -257,36 +289,47 @@ export default class DataTable extends Component {
             const currencies = JSON.parse(localStorage.getItem('currencies'))
             sorted = this.sortArray(currencies, 'name', this.state.data, 'currency_id', order)
         } else if (column === 'language_id') {
-            const languages = JSON.parse( localStorage.getItem('languages'))
+            const languages = JSON.parse(localStorage.getItem('languages'))
             sorted = this.sortArray(languages, 'name', this.state.data, 'language_id', order)
         } else if (column === 'country_id') {
             const countries = JSON.parse(localStorage.getItem('countries'))
             sorted = this.sortArray(countries, 'name', this.state.data, 'country_id', order)
         } else if (column === 'payment_method_id') {
-            const payment_types = JSON.parse( localStorage.getItem('payment_types'))
+            const payment_types = JSON.parse(localStorage.getItem('payment_types'))
             sorted = this.sortArray(payment_types, 'name', this.state.data, 'payment_method_id', order)
         } else if (column === 'gateway_id') {
-            const gateways = JSON.parse( localStorage.getItem('gateways'))
+            const gateways = JSON.parse(localStorage.getItem('gateways'))
             sorted = this.sortArray(gateways, 'name', this.state.data, 'gateway_id', order)
         } else if (column === 'assigned_to') {
-           const users = JSON.parse( localStorage.getItem('users')) 
-           sorted = this.sortArray(users, 'first_name', this.state.data, 'assigned_to', order)
-       } else if (column === 'user_id') {
-           const users = JSON.parse( localStorage.getItem('users'))
-           sorted = this.sortArray(users, 'first_name', this.state.data, 'user_id', order)
-       } else if (column === 'tax_rate_id') {
-           const tax_rates = JSON.parse( localStorage.getItem('tax_rates'))
-           sorted = this.sortArray(tax_rates, 'name', this.state.data, 'tax_rate_id', order)
-       } else if (column === 'company_id' && this.props.companies) {
+            const users = JSON.parse(localStorage.getItem('users'))
+            sorted = this.sortArray(users, 'first_name', this.state.data, 'assigned_to', order)
+        } else if (column === 'user_id') {
+            const users = JSON.parse(localStorage.getItem('users'))
+            sorted = this.sortArray(users, 'first_name', this.state.data, 'user_id', order)
+        } else if (column === 'tax_rate_id') {
+            const tax_rates = JSON.parse(localStorage.getItem('tax_rates'))
+            sorted = this.sortArray(tax_rates, 'name', this.state.data, 'tax_rate_id', order)
+        } else if (column === 'company_id' && this.props.companies) {
             sorted = this.sortArray(this.props.companies, 'name', this.state.data, 'company_id', order)
         } else if (column === 'customer_id' && this.props.customers) {
             sorted = this.sortArray(this.props.customers, 'name', this.state.data, 'customer_id', order)
         } else {
-            sorted = order === 'asc' ? this.state.data.sort((a, b) => a[column] - b[column]) : this.state.data.sort((a, b) => b[column] - a[column])
+            // sorted = order === 'asc' ? this.state.data.sort((a, b) => a[column] - b[column]) : this.state.data.sort((a, b) => b[column] - a[column])
+
+            sorted = this.state.data.sort(this.compareValues(column, order))
+            // sorted = this.state.data.sort(sort_by(column, order === 'desc', (a) => a && a.length ? a.toLowerCase() : ''))
         }
 
+        console.log('sorted', sorted)
+
         this.setState({ order: order, data: sorted, entities: sorted, sorted_column: column }, () => {
-            this.props.updateState(sorted)
+            if (this.props.onPageChanged) {
+                const totalPages = Math.ceil(sorted / this.props.pageLimit)
+                this.props.onPageChanged({ invoices: sorted, currentPage: 1, totalPages: totalPages })
+            } else {
+                this.props.updateState(sorted)
+            }
+
             this.buildColumnList()
         })
     }
@@ -298,15 +341,19 @@ export default class DataTable extends Component {
             sorted_array.sort((a, b) => b[key_to_sort].localeCompare(a[key_to_sort]))
         }
 
+        console.log('sorted array', sorted_array)
+
         const mapped = sorted_array.map(item => {
             return item.id
         })
 
         return array_to_sort.sort(function (a, b) {
-            var A = a[filter_key]
-            var B = b[filter_key]
+            var A = parseInt(a[filter_key])
+            var B = parseInt(b[filter_key])
 
-            if (mapped.indexOf(A) > mapped.indexOf(B)) {
+            console.log('a', A, B)
+
+            if (A && B && mapped.indexOf(A) > mapped.indexOf(B)) {
                 return 1
             } else {
                 return -1
@@ -326,11 +373,19 @@ export default class DataTable extends Component {
         sorted_column = !sorted_column ? this.state.sorted_column : sorted_column
         const noPerPage = !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows')
         this.cancel = axios.CancelToken.source()
-        const fetchUrl = `${this.props.fetchUrl}${this.props.fetchUrl.includes('?') ? '&' : '?'}page=${pageNumber}&column=${sorted_column}&order=${order}&per_page=${noPerPage}`
+        let fetchUrl = `${this.props.fetchUrl}${this.props.fetchUrl.includes('?') ? '&' : '?'}&column=${sorted_column}&order=${order}`
 
+        if (!this.props.hide_pagination) {
+            fetchUrl += `&page=${pageNumber}&per_page=${noPerPage}`
+        }
         axios.get(fetchUrl, {})
             .then(response => {
                 let data = response.data.data && Object.keys(response.data.data).length ? response.data.data : []
+
+                if (this.props.hide_pagination && response.data && Object.keys(response.data).length) {
+                    data = response.data
+                }
+
                 const columns = (this.props.columns && this.props.columns.length) ? (this.props.columns) : ((Object.keys(data).length) ? (Object.keys(data[0])) : null)
 
                 if (this.props.order) {
@@ -421,17 +476,17 @@ export default class DataTable extends Component {
             height: '3rem'
         }}/> : null
 
-        const columnFilter = this.state.entities.data && this.state.entities.data.length
+        const columnFilter = this.state.data && this.state.data.length
             ? <DisplayColumns onChange2={this.updateIgnoredColumns}
-                columns={Object.keys(this.state.entities.data[0]).concat(this.state.ignoredColumns)}
+                columns={Object.keys(this.state.data[0]).concat(this.state.ignoredColumns)}
                 ignored_columns={this.state.ignoredColumns}
-                default_columns={this.props.default_columns}/> : null
+                default_columns={this.state.default_columns}/> : null
 
         const table_class = 'mt-2 data-table'
         const tableSort = !isMobile ? <TableSort sortBy={this.sortBy.bind(this)} fetchEntities={this.fetchEntities}
             columnMapping={this.props.columnMapping}
             columns={this.props.order ? this.props.order : this.state.columns}
-            default_columns={this.props.default_columns}
+            default_columns={this.state.default_columns}
             ignore={this.state.ignoredColumns}
             disableSorting={this.props.disableSorting}
             sorted_column={this.state.sorted_column}
@@ -442,7 +497,8 @@ export default class DataTable extends Component {
         const list = this.props.userList({
             show_list: this.state.display_list,
             bulk: this.state.bulk,
-            ignoredColumns: this.state.ignoredColumns,
+            default_columns: this.state.default_columns,
+            ignoredColumns: [],
             toggleViewedEntity: this.toggleViewedEntity,
             viewId: this.state.view.viewedId ? this.state.view.viewedId.id : null,
             showCheckboxes: this.state.showCheckboxes,
@@ -497,12 +553,14 @@ export default class DataTable extends Component {
                     entity_type={this.props.entity_type}
                 />}
 
+                {!this.props.hide_pagination &&
                 <PaginationBuilder last_page={this.state.entities.last_page} page={this.state.entities.page}
                     current_page={this.state.entities.current_page}
                     from={this.state.entities.from}
                     offset={this.state.offset}
                     to={this.state.entities.to} fetchEntities={this.fetchEntities}
                     recordCount={this.state.entities.total} perPage={this.state.perPage}/>
+                }
             </React.Fragment>
         )
     }

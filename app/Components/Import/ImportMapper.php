@@ -7,9 +7,11 @@ namespace App\Components\Import;
 use App\Factory\CompanyFactory;
 use App\Models\Company;
 use App\Models\CompanyContact;
+use App\Models\Country;
 use App\Models\Currency;
 use App\Models\Customer;
 use App\Models\CustomerContact;
+use App\Models\Industry;
 use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\Project;
@@ -29,6 +31,16 @@ trait ImportMapper
      * @var array
      */
     private array $customers = [];
+
+    /**
+     * @var array
+     */
+    private array $countries = [];
+
+    /**
+     * @var array
+     */
+    private array $industries = [];
 
     private Collection $customer_objects;
 
@@ -63,6 +75,10 @@ trait ImportMapper
     private array $converters = [
         'product'               => 'getProduct',
         'customer name'         => 'getCustomer',
+        'industry'              => 'getIndustry',
+        'country'               => 'getCountry',
+        'billing country'       => 'getCountry',
+        'shipping country'      => 'getCountry',
         'contact email'         => 'getContact',
         'brand name'            => 'getBrand',
         'expense category name' => 'getExpenseCategory',
@@ -166,7 +182,7 @@ trait ImportMapper
 
         $repo = $this->repository();
 
-        return $repo->save($this->object, $factory);
+        return $repo->create($this->object, $factory);
     }
 
     /**
@@ -222,7 +238,7 @@ trait ImportMapper
     private function getProduct(string $value): ?int
     {
         if (empty($this->products)) {
-            $this->products = Product::where('account_id', $this->account->id)->where('is_deleted', false)->get(
+            $this->products = Product::byAccount($this->account)->active()->get(
             )->keyBy('name')->toArray();
             $this->products = array_change_key_case($this->products, CASE_LOWER);
         }
@@ -264,10 +280,7 @@ trait ImportMapper
     private function getCustomer(string $value): ?int
     {
         if (empty($this->customers)) {
-            $this->customer_objects = Customer::where('account_id', $this->account->id)->where(
-                'is_deleted',
-                false
-            )->get()->keyBy(
+            $this->customer_objects = Customer::byAccount($this->account)->active()->get()->keyBy(
                 'name'
             );
 
@@ -287,7 +300,7 @@ trait ImportMapper
     private function getCompany(string $value)
     {
         if (empty($this->companies)) {
-            $this->companies = Company::where('account_id', $this->account->id)->where('is_deleted', false)->get(
+            $this->companies = Company::byAccount($this->account)->active()->get(
             )->keyBy('name')->toArray();
             $this->companies = array_change_key_case($this->companies, CASE_LOWER);
         }
@@ -326,6 +339,38 @@ trait ImportMapper
         return $payment_type['id'];
     }
 
+    private function getCountry(string $value)
+    {
+        if (empty($this->countries)) {
+            $this->countries = Country::all()->keyBy('name')->toArray();
+            $this->countries = array_change_key_case($this->countries, CASE_LOWER);
+        }
+
+        if (empty($this->countries) || empty($this->countries[strtolower($value)])) {
+            return null;
+        }
+
+        $country = $this->countries[strtolower($value)];
+
+        return $country['id'];
+    }
+
+    private function getIndustry(string $value)
+    {
+        if (empty($this->industries)) {
+            $this->industries = Industry::all()->keyBy('name')->toArray();
+            $this->industries = array_change_key_case($this->industries, CASE_LOWER);
+        }
+
+        if (empty($this->industries) || empty($this->industries[strtolower($value)])) {
+            return null;
+        }
+
+        $industry = $this->industries[strtolower($value)];
+
+        return $industry['id'];
+    }
+
     private function getTaskStatus(string $value)
     {
         if (empty($this->task_statuses)) {
@@ -345,7 +390,7 @@ trait ImportMapper
     private function getProject(string $value)
     {
         if (empty($this->projects)) {
-            $this->projects = Project::where('account_id', $this->account->id)->where('is_deleted', false)->get(
+            $this->projects = Project::byAccount($this->account)->active()->get(
             )->keyBy('name')->toArray();
             $this->projects = array_change_key_case($this->projects, CASE_LOWER);
         }

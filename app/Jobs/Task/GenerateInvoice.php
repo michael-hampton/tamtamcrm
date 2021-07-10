@@ -85,6 +85,6 @@ class GenerateInvoice implements ShouldQueue
 
         $first_task = $this->tasks->first();
         $invoice = CloneTaskToInvoiceFactory::create($first_task, $first_task->user, $first_task->account);
-        $this->invoice_repo->createInvoice(['line_items' => $line_items], $invoice);
+        $this->invoice_repo->create(['line_items' => $line_items], $invoice);
     }
 }

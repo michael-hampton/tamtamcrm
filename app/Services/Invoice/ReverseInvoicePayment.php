@@ -2,6 +2,7 @@
 
 namespace App\Services\Invoice;
 
+use App\Services\Transaction\TriggerTransaction;
 use App\Components\InvoiceCalculator\LineItem;
 use App\Events\Invoice\InvoiceWasReversed;
 use App\Factory\CreditFactory;
@@ -142,7 +143,7 @@ class ReverseInvoicePayment
 
     private function createTransaction()
     {
-        $this->invoice->transaction_service()->createTransaction(
+        (new TriggerTransaction($this->invoice))->execute(
             $this->balance * -1,
             $this->invoice->customer->balance,
             $this->note

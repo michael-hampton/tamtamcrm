@@ -36,10 +36,11 @@ export default class RecurringInvoiceItem extends Component {
         const url = archive === true ? `/api/recurring-invoice/archive/${id}` : `/api/recurring-invoice/${id}`
         axios.delete(url)
             .then(function (response) {
-                const arrInvoices = [...self.props.invoices]
+                const arrInvoices = [...self.props.entities]
                 const index = arrInvoices.findIndex(payment => payment.id === id)
-                arrInvoices.splice(index, 1)
-                self.props.updateInvoice(arrInvoices)
+                arrInvoices[index].hide = archive !== true
+                arrInvoices[index].deleted_at = new Date()
+                self.props.updateInvoice(arrInvoices, true)
             })
             .catch(function (error) {
                 self.setState(
@@ -51,11 +52,12 @@ export default class RecurringInvoiceItem extends Component {
     }
 
     render () {
-        const { invoices, custom_fields, customers, allInvoices } = this.props
+        const { invoices, custom_fields, customers, allInvoices, entities } = this.props
+
         if (invoices && invoices.length && customers.length) {
             return invoices.map((invoice, index) => {
                 const restoreButton = invoice.deleted_at
-                    ? <RestoreModal id={invoice.id} entities={invoices} updateState={this.props.updateInvoice}
+                    ? <RestoreModal id={invoice.id} entities={entities} updateState={this.props.updateInvoice}
                         url={`/api/recurringInvoice/restore/${invoice.id}`}/> : null
 
                 const archiveButton = !invoice.deleted_at
@@ -73,7 +75,7 @@ export default class RecurringInvoiceItem extends Component {
                     invoice={invoice}
                     invoice_id={invoice.id}
                     action={this.props.updateInvoice}
-                    invoices={invoices}
+                    invoices={entities}
                 /> : null
 
                 const columnList = Object.keys(invoice).filter(key => {

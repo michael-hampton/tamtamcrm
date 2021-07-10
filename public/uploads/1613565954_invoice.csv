@@ -1,0 +1,3 @@
+number,customer name,contact email,description2,product2,unit_price2,unit_discount2,quantity2,terms,public notes,private notes,po number,date,due date,exchange_rate
+00024,Michael Hampton,michaelhamptondesign@yahoo.com,test mike,test mikes product,12,2,2,test import,public,private,123,25/11/2020,30/11/2020,1
+00025,Lexie Hampton,jackie.hampton@yahoo.com,test mike,test mikes product,14,3,3,test import,public,private,456,25/11/2020,30/11/2020,1

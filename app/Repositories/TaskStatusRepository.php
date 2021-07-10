@@ -5,7 +5,6 @@ namespace App\Repositories;
 use App\Models\TaskStatus;
 use App\Repositories\Base\BaseRepository;
 use App\Repositories\Interfaces\TaskStatusRepositoryInterface;
-use Exception;
 use Illuminate\Support\Collection;
 
 class TaskStatusRepository extends BaseRepository implements TaskStatusRepositoryInterface
@@ -43,22 +42,11 @@ class TaskStatusRepository extends BaseRepository implements TaskStatusRepositor
     }
 
     /**
-     * Create the order status
-     *
-     * @param array $params
-     * @return TaskStatus
-     */
-    public function createTaskStatus(array $params): TaskStatus
-    {
-        return $this->create($params);
-    }
-
-    /**
      * @param array $data
      * @param TaskStatus $task_status
-     * @return TaskStatus|null
+     * @return TaskStatus
      */
-    public function save(array $data, TaskStatus $task_status): ?TaskStatus
+    public function create(array $data, TaskStatus $task_status): TaskStatus
     {
         $task_status->fill($data);
         $task_status->save();
@@ -66,16 +54,14 @@ class TaskStatusRepository extends BaseRepository implements TaskStatusRepositor
     }
 
     /**
-     * Update the order status
-     *
      * @param array $data
-     *
-     * @return bool
-     * @throws OrderStatusInvalidArgumentException
+     * @param TaskStatus $task_status
+     * @return TaskStatus
      */
-    public function updateTaskStatus(array $data): bool
+    public function update(array $data, TaskStatus $task_status): TaskStatus
     {
-        return $this->update($data);
+        $task_status->update($data);
+        return $task_status;
     }
 
     /**
@@ -85,26 +71,6 @@ class TaskStatusRepository extends BaseRepository implements TaskStatusRepositor
     public function findTaskStatusById(int $id): TaskStatus
     {
         return $this->findOneOrFail($id);
-    }
-
-    /**
-     * @param string $order
-     * @param string $sort
-     * @param array $columns
-     * @return mixed
-     */
-    public function listTaskStatuses(string $order = 'id', string $sort = 'desc', array $columns = ['*']): Collection
-    {
-        return $this->all($columns, $order, $sort);
-    }
-
-    /**
-     * @return bool
-     * @throws Exception
-     */
-    public function deleteTaskStatus(): bool
-    {
-        return $this->delete();
     }
 
     /**
@@ -123,13 +89,5 @@ class TaskStatusRepository extends BaseRepository implements TaskStatusRepositor
     public function findByName(string $name)
     {
         return $this->model->where('name', $name)->first();
-    }
-
-    public function searchTaskStatus(string $text = null)
-    {
-        if (is_null($text)) {
-            return $this->all();
-        }
-        return $this->model->searchTaskStatus($text)->get();
     }
 }

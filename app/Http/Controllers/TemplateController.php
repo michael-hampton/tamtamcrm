@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Components\Pdf\InvoicePdf;
-use App\Components\Pdf\LeadPdf;
-use App\Components\Pdf\PurchaseOrderPdf;
-use App\Components\Pdf\TaskPdf;
+use App\Components\Pdf\PdfFactory;
+use App\Models\EmailTemplate;
+use App\Repositories\EmailTemplateRepository;
 use App\Traits\BuildVariables;
+use App\ViewModels\AccountViewModel;
 use Illuminate\Http\Response;
 use League\CommonMark\CommonMarkConverter;
 use ReflectionException;
@@ -28,31 +28,20 @@ class TemplateController extends Controller
      */
     public function show()
     {
+        $template = (new EmailTemplateRepository(new EmailTemplate()))->getTemplateForType(request()->input('template'));
+
         // if no entity provided default to invoice
         $entity = request()->has('entity') ? request()->input('entity') : 'Invoice';
         $entity_id = request()->has('entity_id') ? request()->input('entity_id') : '';
         $subject = request()->has('subject') ? request()->input('subject') : '';
         $body = request()->has('body') ? request()->input('body') : '';
-        $template = request()->has('template') ? request()->input('template') : '';
         $class = 'App\Models\\' . ucfirst($entity);
 
         $entity_object = !$entity_id ? $class::first() : $class::whereId($entity_id)->first();
 
-        switch ($class) {
-            case in_array($class, ['App\Models\Cases', 'App\Models\Task', 'App\Models\Deal']):
-                $objPdfBuilder = new TaskPdf($entity_object);
-                break;
-            case 'App\Models\Lead':
-                $objPdfBuilder = new LeadPdf($entity_object);
-                break;
-            case 'App\Models\PurchaseOrder':
-                $objPdfBuilder = new PurchaseOrderPdf($entity_object);
-                break;
-            default:
-                $objPdfBuilder = new InvoicePdf($entity_object);
-        }
+        $objPdfBuilder = (new PdfFactory())->create($entity_object);
 
-        $data = $this->build($objPdfBuilder, $template, $subject, $body);
+        $data = $this->build($template, $objPdfBuilder, $subject, $body);
 
 //        $data = (new TemplateEngine(
 //            $objPdfBuilder, $body, $subject, $entity, $entity_id, $template
@@ -61,13 +50,12 @@ class TemplateController extends Controller
         return response()->json($data, 200);
     }
 
-    private function build($objPdf, $template, $subject, $body)
+    private function build(EmailTemplate $email_template, $objPdf, $subject, $body)
     {
         $entity_obj = $objPdf->getEntity();
 
-        $subject_template = str_replace("template", "subject", $template);
-        $subject = strlen($subject) > 0 ? $subject : $entity_obj->account->settings->{$subject_template};
-        $body = strlen($body) > 0 ? $body : $entity_obj->account->settings->{$template};
+        $subject = strlen($subject) > 0 ? $subject : $email_template->subject;
+        $body = strlen($body) > 0 ? $body : $email_template->message;
 
         $subject = $this->parseVariables($subject, $entity_obj);
         $body = $this->parseVariables($body, $entity_obj);
@@ -85,8 +73,23 @@ class TemplateController extends Controller
 
     private function render($subject, $body, $entity_obj)
     {
+        $viewModel = new AccountViewModel($entity_obj->account);
         $email_style = $entity_obj->account->settings->email_style;
-        $wrapper = view('email.template.' . $email_style, ['body' => $body])->render();
+        $wrapper = view('email.template.' . $email_style,
+            [
+                'data' => [
+                    'title' => $subject,
+                    'body' => $body,
+                    'url' => config('taskmanager.web_url') . '/#/expenses?id=' . $entity_obj->id,
+                    'button_text' => trans('texts.view_expense'),
+                    'signature' => $entity_obj->account->settings->email_signature ?: '',
+                    'logo' => $viewModel->logo(),
+                    'show_footer' => empty($entity_obj->account->domains->plan) || !in_array($entity_obj->account->domains->plan->code, [
+                            'PROM',
+                            'PROY'
+                        ])
+                ]
+            ])->render();
 
         return [
             'subject' => $subject,

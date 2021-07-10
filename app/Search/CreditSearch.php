@@ -4,6 +4,7 @@ namespace App\Search;
 
 use App\Models\Account;
 use App\Models\Credit;
+use App\Models\File;
 use App\Repositories\CreditRepository;
 use App\Requests\SearchRequest;
 use App\Transformations\CreditTransformable;
@@ -48,29 +49,31 @@ class CreditSearch extends BaseSearch
 
         if ($request->has('status')) {
             $this->status('credits', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->filled('customer_id')) {
-            $this->query->whereCustomerId($request->customer_id);
+            $this->query->byCustomer($request->customer_id);
         }
 
         if ($request->filled('project_id')) {
-            $this->query->whereProjectId($request->project_id);
+            $this->query->byProject($request->project_id);
         }
 
         if ($request->filled('user_id')) {
-            $this->query->where('assigned_to', '=', $request->user_id);
+            $this->query->byAssignee($request->user_id);
         }
 
         if ($request->filled('id')) {
-            $this->query->whereId($request->id);
+            $this->query->byId($request->id);
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
-            $this->filterDates($request);
+            $this->query->byDate($request->input('start_date'), $request->input('end_date'));
         }
 
-        $this->addAccount($account);
+        $this->query->byAccount($account);
 
         $this->checkPermissions('creditcontroller.index');
 
@@ -109,17 +112,37 @@ class CreditSearch extends BaseSearch
         return true;
     }
 
+    /**
+     * @return mixed
+     */
+    private function transformList()
+    {
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['credits'])->get();
+        $files = File::where('fileable_type', '=', 'App\Models\Credit')->get()->groupBy('fileable_id');
+
+        $credits = $list->map(
+            function (Credit $credit) use ($files) {
+                return $this->transformCredit($credit, $files);
+            }
+        )->all();
+
+        return $credits;
+    }
+
     public function buildCurrencyReport(Request $request, Account $account)
     {
         return DB::table('credits')
-                         ->select(
-                             DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance')
-                         )
-                         ->join('currencies', 'currencies.id', '=', 'credits.currency_id')
-                         ->where('currency_id', '<>', 0)
-                         ->where('account_id', '=', $account->id)
-                         ->groupBy('currency_id')
-                         ->get();
+                 ->select(
+                     DB::raw(
+                         'count(*) as count, currencies.name, SUM(credits.total) as total, SUM(credits.balance) AS balance'
+                     )
+                 )
+                 ->join('customers', 'customers.id', '=', 'credits.customer_id')
+                 ->join('currencies', 'currencies.id', '=', 'customers.currency_id')
+                 ->where('customers.currency_id', '<>', 0)
+                 ->where('credits.account_id', '=', $account->id)
+                 ->groupBy('customers.currency_id')
+                 ->get();
     }
 
     public function buildReport(Request $request, Account $account)
@@ -127,33 +150,74 @@ class CreditSearch extends BaseSearch
         $this->query = DB::table('credits');
 
         if (!empty($request->input('group_by'))) {
-            $this->query->select(
+            if (in_array($request->input('group_by'), ['date', 'due_date']) && !empty(
+                $request->input(
+                    'group_by_frequency'
+                )
+                )) {
+                $this->addMonthYearToSelect('credits', $request->input('group_by'));
+            }
+
+            $this->query->addSelect(
                 DB::raw(
                     'count(*) as count, customers.name AS customer, SUM(total) as total, SUM(credits.balance) AS balance, credits.status_id AS status'
                 )
-            )
-                        ->groupBy($request->input('group_by'));
+            );
+
+            $this->addGroupBy('credits', $request->input('group_by'), $request->input('group_by_frequency'));
         } else {
             $this->query->select(
-                'customers.name AS customer',
                 'total',
-                'credits.number',
                 'credits.balance',
+                DB::raw('(credits.total * 1 / credits.exchange_rate) AS converted_amount'),
+                DB::raw('(credits.balance * 1 / credits.balance) AS converted_balance'),
+                'customers.name AS customer',
+                'customers.balance AS customer_balance',
+                'billing.address_1',
+                'billing.address_2',
+                'billing.city',
+                'billing.state_code AS state',
+                'billing.zip',
+                'billing_country.name AS country',
+                'shipping.address_1 AS shipping_address_1',
+                'shipping.address_2 AS shipping_address_2',
+                'shipping.city AS shipping_city',
+                'shipping.state_code AS shipping_town',
+                'shipping.zip AS shipping_zip',
+                'shipping_country.name AS shipping_country',
+                'credits.number',
+                'discount_total',
+                'po_number',
                 'date',
                 'due_date',
+                'partial',
+                'partial_due_date',
+                'credits.custom_value1',
+                'credits.custom_value2',
+                'credits.custom_value3',
+                'credits.custom_value4',
+                'shipping_cost',
+                'tax_total',
                 'credits.status_id AS status'
             );
         }
 
         $this->query->join('customers', 'customers.id', '=', 'credits.customer_id')
+                    ->leftJoin('addresses AS billing', 'billing.customer_id', '=', 'customers.id')
+                    ->leftJoin('addresses AS shipping', 'shipping.customer_id', '=', 'customers.id')
+                    ->leftJoin('countries AS billing_country', 'billing_country.id', '=', 'billing.country_id')
+                    ->leftJoin('countries AS shipping_country', 'shipping_country.id', '=', 'shipping.country_id')
                     ->where('credits.account_id', '=', $account->id);
 
         $order_by = $request->input('orderByField');
 
-        if ($order_by === 'customer') {
-            $this->query->orderBy('customers.name', $request->input('orderByDirection'));
-        } elseif ($order_by !== 'status') {
-            $this->query->orderBy('credits.' . $order_by, $request->input('orderByDirection'));
+        if (!empty($order_by)) {
+            if (!empty($this->field_mapping[$order_by])) {
+                $order = str_replace('$table', 'credits', $this->field_mapping[$order_by]);
+                $this->query->orderBy($order, $request->input('orderByDirection'));
+            } elseif ($order_by !== 'status') {
+                $this->query->orderBy('credits.' . $order_by, $request->input('orderByDirection'));
+            }
         }
 
         if (!empty($request->input('date_format'))) {
@@ -171,7 +235,7 @@ class CreditSearch extends BaseSearch
             $rows[$key]->status = $this->getStatus($this->model, $row->status);
         }
 
-        if($order_by === 'status') {
+        if ($order_by === 'status') {
             $collection = collect($rows);
             $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby('status')->toArray() : $collection->sortByDesc('status')->toArray();
         }
@@ -183,20 +247,5 @@ class CreditSearch extends BaseSearch
         return $rows;
         //$this->query->where('status', '<>', 1)
 
-    }
-
-    /**
-     * @return mixed
-     */
-    private function transformList()
-    {
-        $list = $this->query->get();
-        $credits = $list->map(
-            function (Credit $credit) {
-                return $this->transformCredit($credit);
-            }
-        )->all();
-
-        return $credits;
     }
 }

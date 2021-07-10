@@ -8,9 +8,14 @@ use App\Factory\CompanyFactory;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\CompanyContact;
+use App\Models\Customer;
 use App\Models\User;
 use App\Repositories\CompanyContactRepository;
 use App\Repositories\CompanyRepository;
+use App\Repositories\CustomerRepository;
+use App\Requests\SearchRequest;
+use App\Search\CompanySearch;
+use App\Search\CustomerSearch;
 use App\Transformations\CompanyContactTransformable;
 use App\Transformations\CompanyTransformable;
 
@@ -18,6 +23,11 @@ class CompanyImporter extends BaseCsvImporter
 {
     use ImportMapper;
     use CompanyTransformable;
+
+    /**
+     * @var string
+     */
+    protected string $json;
 
     protected $entity;
     private array $export_columns = [
@@ -47,16 +57,23 @@ class CompanyImporter extends BaseCsvImporter
         'email'                => 'email',
         'company phone number' => 'phone_number',
         'website'              => 'website',
+        'industry'             => 'industry_id',
         'terms'                => 'terms',
-        'public notes'         => 'public_notes',
-        'private notes'        => 'private_notes',
+        'public notes'         => 'customer_note',
+        'private notes'        => 'internal_note',
+        'custom value1'        => 'custom_value1',
+        'custom value2'        => 'custom_value2',
+        'custom value3'        => 'custom_value3',
+        'custom value4'        => 'custom_value4',
         'address 1'            => 'address_1',
         'address 2'            => 'address_2',
         'postcode'             => 'postcode',
         'town'                 => 'town',
         'city'                 => 'city',
+        'country'              => 'country_id',
         'name'                 => 'name',
         'vat number'           => 'vat_number',
+        'currency code'        => 'currency_id',
         'contacts'             => [
             'first_name'    => 'first_name',
             'last_name'     => 'last_name',
@@ -103,10 +120,17 @@ class CompanyImporter extends BaseCsvImporter
     {
         return [
             'mappings' => [
+                'public notes'         => ['cast' => 'string'],
+                'private notes'        => ['cast' => 'string'],
+                'custom value1'        => ['cast' => 'string'],
+                'custom value2'        => ['cast' => 'string'],
+                'custom value3'        => ['cast' => 'string'],
+                'custom value4'        => ['cast' => 'string'],
+                'terms'                => ['cast' => 'string'],
                 'website'              => ['cast' => 'string'],
                 'company phone number' => ['cast' => 'string'],
                 'contact phone'        => ['cast' => 'string'],
-                'email'                => ['validation' => 'required', 'cast' => 'string'],
+                'email'                => ['validation' => 'required|email:rfc,dns', 'cast' => 'string'],
                 'address 1'            => ['cast' => 'string'],
                 'address 2'            => ['cast' => 'string'],
                 'town'                 => ['cast' => 'string'],
@@ -152,24 +176,34 @@ class CompanyImporter extends BaseCsvImporter
         return $company->fresh();
     }
 
-    public function export()
+    public function export($is_json = false)
     {
         $export_columns = $this->getExportColumns();
-        $list = Company::where('account_id', '=', $this->account->id)->get();
 
-        $companies = [];
+        $search_request = new SearchRequest();
+        $search_request->replace(['column' => 'created_at', 'order' => 'desc']);
 
-        foreach ($list as $company) {
-            $formatted_company = $this->transformObject($company);
+        $companies = (new CompanySearch(new CompanyRepository(new Company(), new CompanyContactRepository(new CompanyContact()))))->filter($search_request, $this->account);
 
-            foreach ($company->contacts as $contact) {
-                $formatted_contact = (new CompanyContactTransformable())->transformCompanyContact($contact);
+        foreach ($companies as $key => $company) {
 
-                $companies[] = array_merge($formatted_company, $formatted_contact);
+            if (count($company['contacts']) > 0) {
+                foreach ($company['contacts'] as $contact) {
+
+                    $companies[$key] = array_merge($companies[$key], $contact);
+                }
             }
         }
 
+        if ($is_json) {
+            $this->export->sendJson('company', $companies);
+            $this->json = json_encode($companies);
+            return true;
+        }
+
         $this->export->build(collect($companies), $export_columns);
+
+        $this->export->notifyUser('company');
 
         return true;
     }
@@ -192,5 +226,13 @@ class CompanyImporter extends BaseCsvImporter
     public function getTemplate()
     {
         return asset('storage/templates/companies.csv');
+    }
+
+    /**
+     * @return string
+     */
+    public function getJson(): string
+    {
+        return $this->json;
     }
 }

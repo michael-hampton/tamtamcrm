@@ -7,6 +7,7 @@ import DateFilter from '../common/DateFilter'
 import CsvImporter from '../common/CsvImporter'
 import StatusDropdown from '../common/StatusDropdown'
 import { recurringQuoteStatuses } from '../utils/_statuses'
+import filterSearchResults, { filterStatuses } from '../utils/_search'
 
 export default class RecurringQuoteFilters extends Component {
     constructor (props) {
@@ -70,13 +71,26 @@ export default class RecurringQuoteFilters extends Component {
         return (
             <Row form>
                 <Col md={3}>
-                    <TableSearch onChange={this.filterInvoices}/>
+                    <TableSearch onChange={(e) => {
+                        const myArrayFiltered = filterSearchResults(e.target.value, this.props.cachedData, this.props.customers)
+                        this.props.updateList(myArrayFiltered || [], false, this.state.filters)
+                    }}/>
                 </Col>
 
                 <Col sm={12} md={3} className="mt-3 mt-md-0">
                     <CustomerDropdown
                         customer={this.state.filters.customer_id}
-                        handleInputChanges={this.filterInvoices}
+                        handleInputChanges={(e) => {
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [e.target.id]: e.target.value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
+                                this.props.updateList(results || [], false, this.state.filters)
+                            })
+                        }}
                         customers={this.props.customers}
                         name="customer_id"
                     />
@@ -84,7 +98,17 @@ export default class RecurringQuoteFilters extends Component {
 
                 <Col sm={12} md={2} className="mt-3 mt-md-0">
                     <FormGroup>
-                        <StatusDropdown filterStatus={this.filterInvoices} statuses={this.statuses}/>
+                        <StatusDropdown filterStatus={(e) => {
+                            this.setState(prevState => ({
+                                filters: {
+                                    ...prevState.filters,
+                                    [e.target.id]: e.target.value
+                                }
+                            }), () => {
+                                const results = filterStatuses(this.props.cachedData, e.target.value, this.state.filters)
+                                this.props.updateList(results || [], false, this.state.filters)
+                            })
+                        }} statuses={this.statuses}/>
                     </FormGroup>
                 </Col>
 

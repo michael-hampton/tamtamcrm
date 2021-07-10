@@ -91,7 +91,6 @@ export default class FeesAndLimits extends React.Component {
 
                     {this.settings.show_tax_rate1 &&
                     <FormGroup>
-                        <Label>{translations.tax}</Label>
                         <TaxRateDropdown
                             name="tax"
                             handleInputChanges={this.props.updateFeesAndLimits}
@@ -101,7 +100,6 @@ export default class FeesAndLimits extends React.Component {
 
                     {this.settings.show_tax_rate2 &&
                     <FormGroup>
-                        <Label>{translations.tax}</Label>
                         <TaxRateDropdown
                             name="tax_2"
                             handleInputChanges={this.props.updateFeesAndLimits}
@@ -111,7 +109,6 @@ export default class FeesAndLimits extends React.Component {
 
                     {this.settings.show_tax_rate3 &&
                     <FormGroup>
-                        <Label>{translations.tax}</Label>
                         <TaxRateDropdown
                             name="tax_3"
                             handleInputChanges={this.props.updateFeesAndLimits}

@@ -33,6 +33,7 @@ class CreateRecurringQuoteRequest extends BaseFormRequest
             'customer_id'              => 'required|exists:customers,id,account_id,' . auth()->user()->account_user(
                 )->account_id,
             'number'                   => [
+                'nullable',
                 Rule::unique('recurring_quotes', 'number')->where(
                     function ($query) {
                         return $query->where('customer_id', $this->customer_id)->where('account_id', $this->account_id);

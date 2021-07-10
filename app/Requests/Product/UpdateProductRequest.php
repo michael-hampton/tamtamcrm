@@ -2,7 +2,6 @@
 
 namespace App\Requests\Product;
 
-use App\Models\Product;
 use App\Repositories\Base\BaseFormRequest;
 use Illuminate\Validation\Rule;
 
@@ -15,8 +14,7 @@ class UpdateProductRequest extends BaseFormRequest
      */
     public function authorize()
     {
-        $product = Product::find($this->product_id);
-        return auth()->user()->can('update', $product);
+        return auth()->user()->can('update', $this->product);
     }
 
     /**

@@ -4,6 +4,8 @@ namespace App\Mail\Admin;
 
 use App\Models\Lead;
 use App\Models\User;
+use App\ViewModels\AccountViewModel;
+use App\ViewModels\LeadViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Laracasts\Presenter\Exceptions\PresenterException;
@@ -43,7 +45,8 @@ class LeadCreated extends AdminMailer
         $data = $this->getData();
         $this->setSubject($data);
         $this->setMessage($data);
-        $this->execute($this->buildMessage());
+        $this->buildButton();
+        $this->execute();
     }
 
     /**
@@ -53,22 +56,18 @@ class LeadCreated extends AdminMailer
     private function getData(): array
     {
         return [
-            'customer' => $this->lead->present()->name()
+            'customer' => (new LeadViewModel($this->lead))->name()
         ];
     }
 
     /**
      * @return array
      */
-    private function buildMessage(): array
+    private function buildButton(): void
     {
-        return [
-            'title'       => $this->subject,
-            'body'        => $this->message,
+        $this->button = [
             'url'         => config('taskmanager.web_url') . '/#/leads?id=' . $this->lead->id,
             'button_text' => trans('texts.view_deal'),
-            'signature'   => isset($this->lead->account->settings->email_signature) ? $this->lead->account->settings->email_signature : '',
-            'logo'        => $this->lead->account->present()->logo(),
         ];
     }
 }

@@ -2,8 +2,8 @@
 
 namespace App\Requests\Customer;
 
-use App\Models\Customer;
 use App\Repositories\Base\BaseFormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateCustomerRequest extends BaseFormRequest
 {
@@ -14,8 +14,7 @@ class UpdateCustomerRequest extends BaseFormRequest
      */
     public function authorize()
     {
-        $customer = Customer::find($this->customer_id);
-        return auth()->user()->can('update', $customer);
+        return auth()->user()->can('update', $this->customer);
     }
 
     /**
@@ -26,17 +25,26 @@ class UpdateCustomerRequest extends BaseFormRequest
     public function rules()
     {
         return [
-            'name'             => ['required'],
-            'contacts.*.email' => ['nullable', 'distinct'],
-            //            'contacts.*.password' => [
-            //                'sometimes',
-            //                'string',
-            //                'min:10',             // must be at least 10 characters in length
-            //                'regex:/[a-z]/',      // must contain at least one lowercase letter
-            //                'regex:/[A-Z]/',      // must contain at least one uppercase letter
-            //                'regex:/[0-9]/',      // must contain at least one digit
-            //                'regex:/[@$!%*#?&]/', // must contain a special character
-            //            ]
+            'name'                => ['required'],
+            'contacts.*.email'    => ['nullable', 'distinct'],
+            'number'              => [
+                'nullable',
+                Rule::unique('customers')->where(
+                    function ($query) {
+                        return $query->where('account_id', $this->customer->account_id);
+                    }
+                )->ignore($this->customer),
+            ],
+            'contacts.*.password' => [
+                'sometimes',
+                'string',
+                'min:10',             // must be at least 10 characters in length
+                'regex:/[a-z]/',      // must contain at least one lowercase letter
+                'regex:/[A-Z]/',      // must contain at least one uppercase letter
+                'regex:/[0-9]/',      // must contain at least one digit
+                'regex:/[@$!%*#?&]/', // must contain a special character
+                //            ]
+            ]
         ];
     }
 

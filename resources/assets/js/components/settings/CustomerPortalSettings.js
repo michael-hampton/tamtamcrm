@@ -1,15 +1,15 @@
 import React, { Component } from 'react'
 import FormBuilder from './FormBuilder'
-import { Alert, Card, CardBody, Nav, NavItem, NavLink, TabContent, TabPane } from 'reactstrap'
+import { Alert, Card, CardBody } from 'reactstrap'
 import axios from 'axios'
 import { translations } from '../utils/_translations'
 import { icons } from '../utils/_icons'
 import Snackbar from '@material-ui/core/Snackbar'
-import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
 import SectionItem from '../common/entityContainers/SectionItem'
-import BaseModel from '../models/BaseModel'
 import { toast, ToastContainer } from 'react-toastify'
+import CompanyModel from '../models/CompanyModel'
+import EditScaffold from '../common/EditScaffold'
 
 export default class CustomerPortalSettings extends Component {
     constructor (props) {
@@ -17,12 +17,14 @@ export default class CustomerPortalSettings extends Component {
 
         this.state = {
             id: localStorage.getItem('account_id'),
-            activeTab: '1',
+            activeTab: 0,
             cached_settings: {},
             settings: {},
             success: false,
             error: false,
-            changesMade: false
+            changesMade: false,
+            isSaving: false,
+            loaded: false
         }
 
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
@@ -31,7 +33,7 @@ export default class CustomerPortalSettings extends Component {
         this.getAccount = this.getAccount.bind(this)
         this.toggle = this.toggle.bind(this)
 
-        this.model = new BaseModel()
+        this.model = new CompanyModel({ id: this.state.id })
     }
 
     componentDidMount () {
@@ -52,7 +54,7 @@ export default class CustomerPortalSettings extends Component {
         }
     }
 
-    toggle (tab) {
+    toggle (event, tab) {
         if (this.state.activeTab !== tab) {
             this.setState({ activeTab: tab })
         }
@@ -93,6 +95,7 @@ export default class CustomerPortalSettings extends Component {
     }
 
     handleSubmit (e) {
+        this.setState({ isSaving: true })
         const formData = new FormData()
         formData.append('settings', JSON.stringify(this.state.settings))
         formData.append('_method', 'PUT')
@@ -103,7 +106,12 @@ export default class CustomerPortalSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false })
+                this.setState({
+                    success: true,
+                    cached_settings: this.state.settings,
+                    changesMade: false,
+                    isSaving: false
+                }, () => this.model.updateSettings(this.state.settings))
             })
             .catch((error) => {
                 this.setState({ error: true })
@@ -282,37 +290,68 @@ export default class CustomerPortalSettings extends Component {
     }
 
     render () {
-        const tabs = <Nav tabs className="nav-justified setting-tabs disable-scrollbars">
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '1' ? 'active' : ''}
-                    onClick={() => {
-                        this.toggle('1')
-                    }}>
-                    {translations.settings}
-                </NavLink>
-            </NavItem>
+        const tabs = {
+            settings: {
+                activeTab: this.state.activeTab,
+                toggle: this.toggle
+            },
+            tabs: [
+                {
+                    label: translations.settings
+                },
+                {
+                    label: translations.security
+                }
+            ],
+            children: []
+        }
 
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '2' ? 'active' : ''}
-                    onClick={() => {
-                        this.toggle('2')
-                    }}>
-                    {translations.security}
-                </NavLink>
-            </NavItem>
+        tabs.children[0] = <>
+            <Card className="mb-2">
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getEnabledModuleFields()}
+                    />
 
-            {/* <NavItem> */}
-            {/*    <NavLink */}
-            {/*        className={this.state.activeTab === '3' ? 'active' : ''} */}
-            {/*        onClick={() => { */}
-            {/*            this.toggle('3') */}
-            {/*        }}> */}
-            {/*        {translations.billing} */}
-            {/*    </NavLink> */}
-            {/* </NavItem> */}
-        </Nav>
+                    <SectionItem className="mt-4 col-md-8" link={this.model.portal_registration_url}
+                        subtitle={this.model.portal_registration_url} onClick={(e) => {
+                            this.model.copyToClipboard(this.model.portal_registration_url)
+                            toast.success('upload success')
+                            return false
+                        }} title={translations.portal_registration_url} icon={icons.clone}/>
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getSettingFields()}
+                    />
+                </CardBody>
+            </Card>
+        </>
+
+        tabs.children[1] = <Card>
+            <CardBody>
+                <FormBuilder
+                    handleChange={this.handleSettingsChange}
+                    formFieldsRows={this.getSecurityFields()}
+                />
+            </CardBody>
+        </Card>
+
+        tabs.children[2] = <Card>
+            <Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getBillingFields()}
+                    />
+                </CardBody>
+            </Card>
+        </Card>
 
         return this.state.loaded === true ? (
             <React.Fragment>
@@ -329,61 +368,13 @@ export default class CustomerPortalSettings extends Component {
                     </Alert>
                 </Snackbar>
 
-                <Header tabs={tabs} title={translations.customer_portal}
-                    handleSubmit={this.handleSubmit.bind(this)} cancelButtonDisabled={!this.state.changesMade}
-                    handleCancel={this.handleCancel.bind(this)}/>
-
-                <div className="settings-container settings-container-narrow fixed-margin-mobile">
-                    <TabContent activeTab={this.state.activeTab}>
-                        <TabPane tabId="1">
-                            <Card className="mb-2">
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getEnabledModuleFields()}
-                                    />
-
-                                    <SectionItem className="mt-4 col-md-8" link={this.model.portal_registration_url} subtitle={this.model.portal_registration_url} onClick={(e) => {
-                                        this.model.copyToClipboard(this.model.portal_registration_url)
-                                        toast.success('upload success')
-                                        return false
-                                    }} title={translations.portal_registration_url} icon={icons.clone} />
-                                </CardBody>
-                            </Card>
-
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getSettingFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-
-                        <TabPane tabId="2">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getSecurityFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-
-                        <TabPane tabId="3">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getBillingFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-                    </TabContent>
-                </div>
+                <EditScaffold isAdvancedSettings={true} isLoading={!this.state.loaded} isSaving={this.state.isSaving}
+                    isEditing={this.state.changesMade} fullWidth={true}
+                    title={translations.customer_portal}
+                    cancelButtonDisabled={!this.state.changesMade}
+                    handleCancel={this.handleCancel.bind(this)}
+                    handleSubmit={this.handleSubmit.bind(this)}
+                    tabs={tabs}/>
             </React.Fragment>
         ) : null
     }

@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Services\Transaction\TriggerTransaction;
 use App\Events\Credit\CreditWasCreated;
 use App\Events\Credit\CreditWasUpdated;
 use App\Jobs\Inventory\ReverseInventory;
@@ -39,7 +40,7 @@ class CreditRepository extends BaseRepository implements CreditRepositoryInterfa
      * @param Credit $credit
      * @return Credit|null
      */
-    public function createCreditNote(array $data, Credit $credit): ?Credit
+    public function create(array $data, Credit $credit): ?Credit
     {
         if (!empty($data['return_to_stock']) && $credit->customer->getSetting('should_update_inventory') === true) {
             ReverseInventory::dispatchNow($credit);
@@ -58,23 +59,16 @@ class CreditRepository extends BaseRepository implements CreditRepositoryInterfa
      */
     public function save(array $data, Credit $credit): ?Credit
     {
-        $original_amount = $credit->total;
         $credit->fill($data);
+        $credit = $this->calculateTotals($credit);
+        $credit = $credit->convertCurrencies($credit, $credit->total, config('taskmanager.use_live_exchange_rates'));
         $credit = $this->populateDefaults($credit);
         $credit = $this->formatNotes($credit);
-        $credit = $credit->service()->calculateInvoiceTotals();
         $credit->setNumber();
-        $credit->setExchangeRate();
 
         $credit->save();
 
         $this->saveInvitations($credit, $data);
-
-        $updated_amount = $credit->total - $original_amount;
-
-        if ($credit->status_id !== Credit::STATUS_DRAFT && $original_amount !== $credit->total) {
-            $credit->transaction_service()->createTransaction($updated_amount, $credit->customer->balance);
-        }
 
         return $credit->fresh();
     }
@@ -84,7 +78,7 @@ class CreditRepository extends BaseRepository implements CreditRepositoryInterfa
      * @param Credit $credit
      * @return Credit|null
      */
-    public function updateCreditNote(array $data, Credit $credit): ?Credit
+    public function update(array $data, Credit $credit): ?Credit
     {
         $credit = $this->save($data, $credit);
 

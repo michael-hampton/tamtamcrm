@@ -13,6 +13,7 @@ import { translations } from '../../utils/_translations'
 import Documents from './Documents'
 import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
+import { toast, ToastContainer } from 'react-toastify'
 
 class EditPayment extends React.Component {
     constructor (props) {
@@ -33,6 +34,21 @@ class EditPayment extends React.Component {
         this.handleInvoiceChange = this.handleInvoiceChange.bind(this)
         this.handleCreditChange = this.handleCreditChange.bind(this)
         this.handleCheck = this.handleCheck.bind(this)
+    }
+
+    static getDerivedStateFromProps (props, state) {
+        if (props.payment && props.payment.id !== state.id) {
+            const paymentModel = new PaymentModel(props.invoices, props.payment)
+            return paymentModel.fields
+        }
+
+        return null
+    }
+
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.payment && this.props.payment.id !== prevProps.payment.id) {
+            this.paymentModel = new PaymentModel(this.props.invoices, this.props.payment)
+        }
     }
 
     handleCheck () {
@@ -120,7 +136,7 @@ class EditPayment extends React.Component {
             custom_value2: this.state.custom_value2,
             custom_value3: this.state.custom_value3,
             custom_value4: this.state.custom_value4,
-            private_notes: this.state.private_notes
+            internal_note: this.state.internal_note
         }
     }
 
@@ -129,12 +145,33 @@ class EditPayment extends React.Component {
         this.paymentModel.update(this.getFormData()).then(response => {
             if (!response) {
                 this.setState({ errors: this.paymentModel.errors, message: this.paymentModel.error_message })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.payment), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
 
+            toast.success(translations.updated_successfully.replace('{entity}', translations.expense), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
+
             const index = this.props.payments.findIndex(payment => payment.id === this.state.id)
             this.props.payments[index] = response
-            this.props.action(this.props.payments)
+            this.props.action(this.props.payments, true)
             this.setState({ changesMade: false, loading: false })
             this.toggle()
         })
@@ -194,6 +231,18 @@ class EditPayment extends React.Component {
 
                     <ModalBody className={theme}>
 
+                        <ToastContainer
+                            position="top-center"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
+
                         {message && <div className="alert alert-danger" role="alert">
                             {message}
                         </div>}
@@ -213,7 +262,8 @@ class EditPayment extends React.Component {
 
                         {!this.paymentModel.isCompleted &&
                         <InvoiceLine payment={this.state} credit_lines={this.state.payable_credits}
-                            lines={this.state.payable_invoices} handleAmountChange={this.setAmount}
+                            payments={this.props.payments} lines={this.state.payable_invoices}
+                            handleAmountChange={this.setAmount}
                             errors={this.state.errors}
                             hideEmpty={false}
                             invoices={this.props.invoices}
@@ -223,7 +273,7 @@ class EditPayment extends React.Component {
                             onChange={this.setInvoices}/>
                         }
 
-                        <Notes private_notes={this.state.private_notes} handleInput={this.handleInput}/>
+                        <Notes internal_note={this.state.internal_note} handleInput={this.handleInput}/>
 
                         <Documents payment={this.state}/>
 

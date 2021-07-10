@@ -46,13 +46,15 @@ class TaxRateSearch extends BaseSearch
 
         if ($request->has('status')) {
             $this->status('tax_rates', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
-            $this->filterDates($request);
+            $this->query->byDate($request->input('start_date'), $request->input('end_date'));
         }
 
-        $this->addAccount($account);
+        $this->query->byAccount($account);
 
         $this->orderBy($orderBy, $orderDir);
 
@@ -86,7 +88,7 @@ class TaxRateSearch extends BaseSearch
      */
     private function transformList()
     {
-        $list = $this->query->get();
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['tax_rates'])->get();
         $companies = $list->map(
             function (TaxRate $tax_rate) {
                 return $this->transformTaxRate($tax_rate);

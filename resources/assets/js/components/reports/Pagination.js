@@ -23,7 +23,7 @@ class Pagination extends Component {
                                 this.changePage(page)
                             }
                         }}
-                    >{ page || '...' }</button>
+                    >{page || '...'}</button>
                 </li>
             )
         })
@@ -32,9 +32,10 @@ class Pagination extends Component {
             <nav aria-label="Page navigation ml-auto">
                 <ul className="pagination mb-0">
                     <li className={`page-item ${currentPage <= 1 ? 'disabled' : ''}`}>
-                        <button type="button" className="page-link" onClick={() => this.previousPage()}>Previous</button>
+                        <button type="button" className="page-link" onClick={() => this.previousPage()}>Previous
+                        </button>
                     </li>
-                    { pageLinks }
+                    {pageLinks}
                     <li className={`page-item ${currentPage >= totalPages ? 'disabled' : ''}`}>
                         <button type="button" className="page-link" onClick={() => this.nextPage()}>Next</button>
                     </li>

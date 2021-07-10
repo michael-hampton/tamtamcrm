@@ -57,8 +57,8 @@ class AddCategory extends React.Component {
                 return
             }
 
-            this.props.categories.push(response)
-            this.props.action(this.props.categories)
+            this.props.categories.unshift(response)
+            this.props.action(this.props.categories, true)
             this.setState(this.initialState)
         })
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Task\SaveTimers;
 use App\Models\Timer;
 use App\Repositories\TaskRepository;
 use App\Repositories\TimerRepository;
@@ -25,7 +26,7 @@ class TimerController extends Controller
     {
         $task = $this->task_repo->findTaskById($request->task_id);
 
-        $timer = $task->service()->saveTimers($request->input('time_log'), $task, $this->timer_repo);
+        $timer = (new SaveTimers($task))->execute($request->input('time_log'), $task, $this->timer_repo);
 
         return response()->json($timer);
     }

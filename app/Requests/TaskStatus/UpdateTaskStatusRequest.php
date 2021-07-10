@@ -2,7 +2,6 @@
 
 namespace App\Requests\TaskStatus;
 
-use App\Models\TaskStatus;
 use App\Repositories\Base\BaseFormRequest;
 
 class UpdateTaskStatusRequest extends BaseFormRequest
@@ -14,8 +13,7 @@ class UpdateTaskStatusRequest extends BaseFormRequest
      */
     public function authorize()
     {
-        $task_status = TaskStatus::find($this->id);
-        return auth()->user()->can('update', $task_status);
+        return auth()->user()->can('update', $this->task_status);
     }
 
     /**

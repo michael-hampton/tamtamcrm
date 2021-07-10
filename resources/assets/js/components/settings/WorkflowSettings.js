@@ -1,13 +1,14 @@
 import React, { Component } from 'react'
 import FormBuilder from './FormBuilder'
-import { Card, CardBody, Nav, NavItem, NavLink, TabContent, TabPane } from 'reactstrap'
+import { Card, CardBody } from 'reactstrap'
 import axios from 'axios'
 import { icons } from '../utils/_icons'
 import { translations } from '../utils/_translations'
 import { consts } from '../utils/_consts'
 import SnackbarMessage from '../common/SnackbarMessage'
-import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
+import CompanyModel from '../models/CompanyModel'
+import EditScaffold from '../common/EditScaffold'
 
 export default class WorkflowSettings extends Component {
     constructor (props) {
@@ -17,10 +18,12 @@ export default class WorkflowSettings extends Component {
             id: localStorage.getItem('account_id'),
             cached_settings: {},
             settings: {},
-            activeTab: '1',
+            activeTab: 0,
             success: false,
             error: false,
-            changesMade: false
+            changesMade: false,
+            isSaving: false,
+            loaded: false
         }
 
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
@@ -28,6 +31,8 @@ export default class WorkflowSettings extends Component {
         this.handleSubmit = this.handleSubmit.bind(this)
         this.getAccount = this.getAccount.bind(this)
         this.toggle = this.toggle.bind(this)
+
+        this.model = new CompanyModel({ id: this.state.id })
     }
 
     componentDidMount () {
@@ -48,26 +53,9 @@ export default class WorkflowSettings extends Component {
         }
     }
 
-    toggle (tab, e) {
+    toggle (event, tab) {
         if (this.state.activeTab !== tab) {
             this.setState({ activeTab: tab })
-        }
-
-        const parent = e.currentTarget.parentNode
-        const rect = parent.getBoundingClientRect()
-        const rect2 = parent.nextSibling.getBoundingClientRect()
-        const rect3 = parent.previousSibling.getBoundingClientRect()
-        const winWidth = window.innerWidth || document.documentElement.clientWidth
-        const widthScroll = winWidth * 33 / 100
-
-        if (rect.left <= 10 || rect3.left <= 10) {
-            const container = document.getElementsByClassName('setting-tabs')[0]
-            container.scrollLeft -= widthScroll
-        }
-
-        if (rect.right >= winWidth - 10 || rect2.right >= winWidth - 10) {
-            const container = document.getElementsByClassName('setting-tabs')[0]
-            container.scrollLeft += widthScroll
         }
     }
 
@@ -94,7 +82,8 @@ export default class WorkflowSettings extends Component {
 
     handleSettingsChange (event) {
         const name = event.target.name
-        const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
+        let value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
+        value = (value === 'true') ? true : ((value === 'false') ? false : (value))
 
         this.setState(prevState => ({
             changesMade: true,
@@ -110,6 +99,7 @@ export default class WorkflowSettings extends Component {
     }
 
     handleSubmit (e) {
+        this.setState({ isSaving: true })
         const formData = new FormData()
         formData.append('settings', JSON.stringify(this.state.settings))
         formData.append('_method', 'PUT')
@@ -120,7 +110,12 @@ export default class WorkflowSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false })
+                this.setState({
+                    success: true,
+                    cached_settings: this.state.settings,
+                    changesMade: false,
+                    isSaving: false
+                }, () => this.model.updateSettings(this.state.settings))
             })
             .catch((error) => {
                 console.error(error)
@@ -405,91 +400,98 @@ export default class WorkflowSettings extends Component {
 
     render () {
         const modules = JSON.parse(localStorage.getItem('modules'))
-        const tabs = <Nav tabs className="nav-justified setting-tabs disable-scrollbars">
-            {modules && modules.invoices &&
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '1' ? 'active' : ''}
-                    onClick={(e) => {
-                        this.toggle('1', e)
-                    }}>
-                    {translations.invoices}
-                </NavLink>
-            </NavItem>
-            }
+        const tabs = {
+            settings: {
+                activeTab: this.state.activeTab,
+                toggle: this.toggle
+            },
+            tabs: [],
+            children: []
+        }
 
-            {modules && modules.quotes &&
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '2' ? 'active' : ''}
-                    onClick={(e) => {
-                        this.toggle('2', e)
-                    }}>
-                    {translations.quotes}
-                </NavLink>
-            </NavItem>
-            }
+        if (modules && modules.invoices) {
+            tabs.children.push(<Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getInvoiceFields()}
+                    />
+                </CardBody>
+            </Card>)
+            tabs.tabs.push({ label: translations.invoices })
+        }
 
-            {modules && modules.leads &&
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '3' ? 'active' : ''}
-                    onClick={(e) => {
-                        this.toggle('3', e)
-                    }}>
-                    {translations.leads}
-                </NavLink>
-            </NavItem>
-            }
+        if (modules && modules.quotes) {
+            tabs.children.push(<Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getQuoteFields()}
+                    />
+                </CardBody>
+            </Card>)
+            tabs.tabs.push({ label: translations.quotes })
+        }
 
-            {modules && modules.orders &&
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '4' ? 'active' : ''}
-                    onClick={(e) => {
-                        this.toggle('4', e)
-                    }}>
-                    {translations.orders}
-                </NavLink>
-            </NavItem>
-            }
+        if (modules && modules.leads) {
+            tabs.children.push(<Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getLeadFields()}
+                    />
+                </CardBody>
+            </Card>)
+            tabs.tabs.push({ label: translations.leads })
+        }
 
-            {modules && modules.deals &&
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '5' ? 'active' : ''}
-                    onClick={(e) => {
-                        this.toggle('5', e)
-                    }}>
-                    {translations.deals}
-                </NavLink>
-            </NavItem>
-            }
+        if (modules && modules.orders) {
+            tabs.children.push(<Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getOrderFields()}
+                    />
+                </CardBody>
+            </Card>)
+            tabs.tabs.push({ label: translations.orders })
+        }
 
-            {modules && modules.purchase_orders &&
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '6' ? 'active' : ''}
-                    onClick={(e) => {
-                        this.toggle('6', e)
-                    }}>
-                    {translations.POS}
-                </NavLink>
-            </NavItem>
-            }
+        if (modules && modules.deals) {
+            tabs.children.push(<Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getOrderFields()}
+                    />
+                </CardBody>
+            </Card>)
+            tabs.tabs.push({ label: translations.deals })
+        }
 
-            {modules && modules.payments &&
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '7' ? 'active' : ''}
-                    onClick={(e) => {
-                        this.toggle('8', e)
-                    }}>
-                    {translations.payments}
-                </NavLink>
-            </NavItem>
-            }
-        </Nav>
+        if (modules && modules.purchase_orders) {
+            tabs.children.push(<Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getPurchaseOrderFields()}
+                    />
+                </CardBody>
+            </Card>)
+            tabs.tabs.push({ label: translations.POS })
+        }
+
+        if (modules && modules.payments) {
+            tabs.children.push(<Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getPaymentFields()}
+                    />
+                </CardBody>
+            </Card>)
+            tabs.tabs.push({ label: translations.payments })
+        }
 
         return this.state.loaded === true ? (
             <React.Fragment>
@@ -499,91 +501,13 @@ export default class WorkflowSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={translations.settings_not_saved}/>
 
-                <Header title={translations.workflow_settings} cancelButtonDisabled={!this.state.changesMade}
+                <EditScaffold isAdvancedSettings={true} isLoading={!this.state.loaded} isSaving={this.state.isSaving}
+                    isEditing={this.state.changesMade} fullWidth={true}
+                    title={translations.workflow_settings}
+                    cancelButtonDisabled={!this.state.changesMade}
                     handleCancel={this.handleCancel.bind(this)}
-                    handleSubmit={this.handleSubmit}
+                    handleSubmit={this.handleSubmit.bind(this)}
                     tabs={tabs}/>
-
-                <div className="settings-container settings-container-narrow fixed-margin-mobile">
-                    <TabContent className="fixed-margin-mobile bg-transparent" activeTab={this.state.activeTab}>
-                        <TabPane tabId="1">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getInvoiceFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-
-                        <TabPane tabId="2">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getQuoteFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-
-                        <TabPane tabId="3">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getLeadFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-
-                        <TabPane tabId="4">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getOrderFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-
-                        <TabPane tabId="5">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getOrderFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-
-                        <TabPane tabId="6">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getPurchaseOrderFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-
-                        <TabPane tabId="7">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getPaymentFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-                    </TabContent>
-                </div>
 
             </React.Fragment>
         ) : null

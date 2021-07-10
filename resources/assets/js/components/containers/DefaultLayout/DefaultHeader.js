@@ -4,6 +4,7 @@ import PropTypes from 'prop-types'
 import { AppSidebarToggler } from '@coreui/react'
 import SupportModal from '../../common/SupportModal'
 import AboutModal from '../../common/AboutModal'
+import { Button } from 'reactstrap'
 
 const propTypes = {
     children: PropTypes.node
@@ -22,6 +23,7 @@ class DefaultHeader extends Component {
                 <AppSidebarToggler className="d-md-down-none" display="lg"/>
                 <SupportModal/>
                 <AboutModal/>
+                <Button color="link" onClick={e => this.props.onLogout(e)}><i className="fa fa-lock" /> Logout</Button>
 
                 {/* <AppNavbarBrand */}
                 {/*    full={{ */}

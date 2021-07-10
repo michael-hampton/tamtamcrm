@@ -74,11 +74,11 @@ export default class Roles extends Component {
             <div className="data-table m-md-3 m-0">
 
                 {error &&
-                <Snackbar open={this.state.error} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
-                    <Alert severity="danger">
-                        {translations.unexpected_error}
-                    </Alert>
-                </Snackbar>
+                    <Snackbar open={this.state.error} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
+                        <Alert severity="danger">
+                            {translations.unexpected_error}
+                        </Alert>
+                    </Snackbar>
                 }
 
                 <AddRole roles={this.state.roles} action={this.addUserToState}/>

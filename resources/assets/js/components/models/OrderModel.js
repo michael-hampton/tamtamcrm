@@ -2,13 +2,15 @@ import axios from 'axios'
 import moment from 'moment'
 import BaseModel, { LineItem } from './BaseModel'
 import { consts } from '../utils/_consts'
+import InvoiceCalculations from './InvoiceCalculations'
+import { buildPdf } from '../utils/Pdf'
 
-export const order_pdf_fields = ['$order.number', '$order.po_number', '$order.order_date', '$order.order_total', '$order.order_datetime', '$order.order_agent',
+export const order_pdf_fields = ['$order.number', '$order.po_number', '$order.order_date', '$order.order_total', '$order.order_datetime', '$order.order_status', '$order.order_agent',
     '$order.balance', '$order.partial_due', '$order.custom1', '$order.custom2', '$order.custom3', '$order.custom4',
     '$order.surcharge1', '$order.surcharge2', '$order.surcharge3', '$order.surcharge4'
 ]
 
-export default class OrderModel extends BaseModel {
+class OrderModel extends BaseModel {
     constructor (data = null, customers = []) {
         super()
         this._url = '/api/order'
@@ -39,12 +41,12 @@ export default class OrderModel extends BaseModel {
             invoice_id: null,
             project_id: '',
             total: 0,
-            design_id: '',
+            design_id: this.merged_settings.order_design_id ? this.merged_settings.order_design_id : null,
             date: moment(new Date()).format('YYYY-MM-DD'),
             due_date: moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
             custom_value1: '',
-            public_notes: '',
-            private_notes: '',
+            customer_note: '',
+            internal_note: '',
             footer: '',
             terms: '',
             custom_value2: '',
@@ -138,7 +140,7 @@ export default class OrderModel extends BaseModel {
             return ''
         }
 
-        return this.customer.public_notes || ''
+        return this.customer.customer_note || ''
     }
 
     get default_terms () {
@@ -294,7 +296,7 @@ export default class OrderModel extends BaseModel {
             actions.push('fulfill')
         }
 
-        if (!this.fields.is_deleted) {
+        if (!this.fields.hide) {
             actions.push('delete')
         }
 
@@ -352,11 +354,11 @@ export default class OrderModel extends BaseModel {
         }
     }
 
-    async loadPdf () {
+    async loadPdf (show_html = false) {
         try {
             this.errors = []
             this.error_message = ''
-            const res = await axios.post('api/preview', { entity: this.entity, entity_id: this._fields.id })
+            const res = await axios.post('api/preview', { entity: this.entity, entity_id: this._fields.id, show_html: show_html })
 
             if (res.status === 200) {
                 // test for status you want, etc
@@ -364,7 +366,7 @@ export default class OrderModel extends BaseModel {
             }
 
             // Don't forget to return something
-            return this.buildPdf(res.data)
+            return buildPdf(res.data)
         } catch (e) {
             alert(e)
             this.handleError(e)
@@ -454,3 +456,7 @@ export default class OrderModel extends BaseModel {
         }
     }
 }
+
+Object.assign(OrderModel.prototype, InvoiceCalculations)
+
+export default OrderModel

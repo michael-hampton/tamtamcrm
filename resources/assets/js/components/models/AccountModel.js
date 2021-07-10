@@ -39,12 +39,11 @@ export default class AccountModel extends BaseModel {
     }
 
     get gateway_ids () {
-        return this.settings.company_gateway_ids || ''
+        return this.fields.settings.company_gateway_ids || ''
     }
 
     set gateway_ids (ids) {
-        this.settings.company_gateway_ids = ids
-        this.fields.settings.company_gateways_ids = ids
+        this.fields.settings.company_gateway_ids = ids
     }
 
     get gateways () {
@@ -62,7 +61,7 @@ export default class AccountModel extends BaseModel {
     buildDropdownMenu () {
         const actions = []
 
-        if (!this.fields.is_deleted) {
+        if (!this.fields.hide) {
             actions.push('delete')
         }
 
@@ -84,8 +83,6 @@ export default class AccountModel extends BaseModel {
 
         this.errors = []
         this.error_message = ''
-
-        alert('here')
 
         try {
             const res = await axios.put(`${this.url}/${this.fields.id}`, data)
@@ -142,8 +139,8 @@ export default class AccountModel extends BaseModel {
     }
 
     async saveSettings () {
-        if (this.settings.company_gateway_ids && this.settings.company_gateway_ids.length) {
-            this.fields.settings.company_gateway_ids = this.settings.company_gateway_ids.join(',')
+        if (this.fields.settings.company_gateway_ids && this.fields.settings.company_gateway_ids.length && Array.isArray(this.fields.settings.company_gateway_ids)) {
+            this.fields.settings.company_gateway_ids = this.fields.settings.company_gateway_ids.join(',')
         }
 
         this.save({ settings: JSON.stringify(this.fields.settings) }).then(response => {

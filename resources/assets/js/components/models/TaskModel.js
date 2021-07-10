@@ -1,6 +1,7 @@
 import axios from 'axios'
 import moment from 'moment'
 import BaseModel from './BaseModel'
+import { buildPdf } from '../utils/Pdf'
 
 export default class TaskModel extends BaseModel {
     constructor (data = null, customers) {
@@ -30,8 +31,8 @@ export default class TaskModel extends BaseModel {
             custom_value3: '',
             activeTab: '1',
             custom_value4: '',
-            public_notes: '',
-            private_notes: '',
+            customer_note: '',
+            internal_note: '',
             timers: [],
             due_date: moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
             start_date: moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
@@ -110,6 +111,10 @@ export default class TaskModel extends BaseModel {
         this.fields.customer_id = customer_id
     }
 
+    get autoStartTask () {
+        return this.settings.task_automation_enabled || false
+    }
+
     calculateAmount (taskRate) {
         const total_duration = this.duration
 
@@ -125,46 +130,41 @@ export default class TaskModel extends BaseModel {
         let seconds = 0
         this.fields.timers.map(timer => {
             if (this.isRunning || task_automation_enabled) {
-                seconds += this.calculateDuration(timer.start_time, timer.end_time, true)
+                seconds += this.calculateDuration(timer.date + ' ' + timer.start_time, timer.end_time, true)
             }
         })
 
         return seconds
     }
 
-    get autoStartTask () {
-        return this.settings.task_automation_enabled || false
-    }
-
     calculateDuration (currentStartTime, currentEndTime, returnAsSeconds = false) {
-        const startTime = moment(currentStartTime, 'YYYY-MM-DD hh:mm:ss a')
+        const startTime = moment(currentStartTime, 'YYYY-MM-DD hh:mm:ss')
         let endTime = ''
+        const end = currentEndTime || new Date()
+        endTime = moment(end, 'YYYY-MM-DD hh:mm:ss')
 
-        if (currentEndTime.length) {
-            endTime = moment(currentEndTime, 'YYYY-MM-DD hh:mm:ss a')
-            let hours = (endTime.diff(startTime, 'hours'))
-            const totalMinutes = endTime.diff(startTime, 'minutes')
-            const totalSeconds = endTime.diff(startTime, 'seconds')
-            const minutes = totalMinutes % 60
-            const clearMinutes = ('0' + minutes).slice(-2)
+        let totalSeconds = endTime.diff(startTime, 'seconds')
 
-            if (returnAsSeconds === true) {
-                const duration = parseFloat(hours + '.' + minutes)
-                return duration * 3600
-            }
-
-            hours = (hours < 10 ? '0' : '') + hours
-
-            return `${hours}:${clearMinutes}:${totalSeconds}`
+        if (returnAsSeconds === true) {
+            return totalSeconds
         }
 
-        return ''
+        let hours = Math.floor(totalSeconds / 3600)
+        totalSeconds %= 3600
+        let minutes = Math.floor(totalSeconds / 60)
+        let seconds = totalSeconds % 60
+
+        minutes = String(minutes).padStart(2, '0')
+        hours = String(hours).padStart(2, '0')
+        seconds = String(seconds).padStart(2, '0')
+
+        return `${hours}:${minutes}:${seconds}`
     }
 
     buildDropdownMenu () {
         const actions = []
 
-        if (!this.fields.is_deleted) {
+        if (!this.fields.hide) {
             actions.push('delete')
         }
 
@@ -173,7 +173,7 @@ export default class TaskModel extends BaseModel {
             actions.push('cloneTaskToDeal')
         }
 
-        if (!this.fields.is_deleted) {
+        if (!this.fields.hide) {
             actions.push('newInvoice')
         }
 
@@ -234,11 +234,11 @@ export default class TaskModel extends BaseModel {
         }
     }
 
-    async loadPdf () {
+    async loadPdf (show_html = false) {
         try {
             this.errors = []
             this.error_message = ''
-            const res = await axios.post('api/preview', { entity: this.entity, entity_id: this._fields.id })
+            const res = await axios.post('api/preview', { entity: this.entity, entity_id: this._fields.id, show_html: show_html })
 
             if (res.status === 200) {
                 // test for status you want, etc
@@ -246,7 +246,7 @@ export default class TaskModel extends BaseModel {
             }
 
             // Don't forget to return something
-            return this.buildPdf(res.data)
+            return buildPdf(res.data)
         } catch (e) {
             alert(e)
             this.handleError(e)

@@ -58,13 +58,22 @@ class LineItem extends BaseCalculator
     /**
      * @var bool
      */
-    private $inclusive_taxes = false;
+    private bool $inclusive_taxes = false;
 
-    private $tax_rate_name = '';
+    /**
+     * @var string
+     */
+    protected string $tax_rate_name = '';
 
-    private $tax_rate_id = 0;
+    /**
+     * @var int|null
+     */
+    protected ?int $tax_rate_id = 0;
 
-    private $description = '';
+    /**
+     * @var string
+     */
+    private string $description = '';
 
     /**
      * @var float
@@ -74,7 +83,7 @@ class LineItem extends BaseCalculator
     /**
      * @var float
      */
-    private $unit_tax = 0.00;
+    protected $unit_tax = 0.00;
 
     /**
      * @var float
@@ -129,25 +138,35 @@ class LineItem extends BaseCalculator
     }
 
     /**
-     * @return LineItem
+     * @return $this
      */
-    public function calculateDiscount(): self
+    public function calculateTax(): self
     {
-        $this->total -= $this->applyDiscount($this->sub_total, $this->unit_discount, $this->is_amount_discount);
+        if($this->unit_tax && $this->unit_tax > 0) {
+            $this->tax_total += $this->applyTax($this->total, $this->unit_tax, $this->is_amount_discount);
+        }
+
+        if ($this->tax_2 && $this->tax_2 > 0) {
+            $this->tax_total += $this->applyTax($this->total, $this->tax_2, $this->is_amount_discount);
+        }
+
+        if ($this->tax_3 && $this->tax_3 > 0) {
+            $this->tax_total += $this->applyTax($this->total, $this->tax_3, $this->is_amount_discount);
+        }
+
+        if ($this->inclusive_taxes) {
+            $this->total += $this->tax_total;
+        }
 
         return $this;
     }
 
     /**
-     * @return $this
+     * @return LineItem
      */
-    public function calculateTax(): self
+    public function calculateDiscount(): self
     {
-        $this->tax_total += $this->applyTax($this->total, $this->unit_tax, $this->is_amount_discount);
-
-        if ($this->inclusive_taxes) {
-            $this->total += $this->tax_total;
-        }
+        $this->total -= $this->applyDiscount($this->sub_total, $this->unit_discount, $this->is_amount_discount);
 
         return $this;
     }
@@ -175,66 +194,39 @@ class LineItem extends BaseCalculator
 
     public function toObject()
     {
+        if (empty($this->tax_total)) {
+            $this->calculateTax();
+        }
+
         return (object)[
             'custom_value1'      => '',
             'custom_value2'      => '',
             'custom_value3'      => '',
             'custom_value4'      => '',
-            'tax_rate_name'      => $this->getTaxRateName(),
-            'tax_rate_id'        => $this->getTaxRateId(),
+            'tax_rate_name'      => $this->getTaxRateEntity('tax_rate_name'),
+            'tax_rate_name_2'    => $this->getTaxRateEntity('tax_rate_name_2'),
+            'tax_rate_name_3'    => $this->getTaxRateEntity('tax_rate_name_3'),
+            'tax_rate_id'        => $this->getTaxRateEntity('tax_rate_id'),
+            'tax_rate_id_2'      => $this->getTaxRateEntity('tax_rate_id_2'),
+            'tax_rate_id_3'      => $this->getTaxRateEntity('tax_rate_id_3'),
             'type_id'            => $this->getTypeId() ?: 1,
             'quantity'           => $this->getQuantity(),
             'notes'              => $this->getNotes(),
             'unit_price'         => $this->getUnitPrice(),
             'unit_discount'      => $this->getUnitDiscount(),
-            'unit_tax'           => $this->getUnitTax(),
+            'unit_tax'           => $this->getTaxRateEntity('unit_tax'),
+            'tax_2'              => $this->getTaxRateEntity('tax_2'),
+            'tax_3'              => $this->getTaxRateEntity('tax_3'),
             'sub_total'          => $this->getTotal(),
             'line_total'         => $this->getSubTotal(),
             'discount_total'     => $this->getLineDiscountTotal(),
-            'tax_total'          => $this->getLineTaxTotal(),
+            'tax_total'          => $this->tax_total,
             'is_amount_discount' => $this->isAmountDiscount(),
             'product_id'         => $this->getProductId(),
             'attribute_id'       => $this->getAttributeId(),
             'transaction_fee'    => $this->getTransactionFee(),
             'description'        => $this->getDescription()
         ];
-    }
-
-    /**
-     * @return string
-     */
-    public function getTaxRateName(): string
-    {
-        return $this->tax_rate_name;
-    }
-
-    /**
-     * @param string $tax_rate_name
-     * @return LineItem
-     * @return LineItem
-     */
-    public function setTaxRateName(string $tax_rate_name): self
-    {
-        $this->tax_rate_name = $tax_rate_name;
-        return $this;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getTaxRateId(): ?int
-    {
-        return $this->tax_rate_id;
-    }
-
-    /**
-     * @param $tax_rate_id
-     * @return LineItem
-     */
-    public function setTaxRateId($tax_rate_id): self
-    {
-        $this->tax_rate_id = $tax_rate_id;
-        return $this;
     }
 
     /**
@@ -337,17 +329,6 @@ class LineItem extends BaseCalculator
     public function getUnitTax(): float
     {
         return $this->unit_tax;
-    }
-
-    /**
-     * @param float $unit_tax
-     * @return LineItem
-     * @return LineItem
-     */
-    public function setUnitTax(float $unit_tax): self
-    {
-        $this->unit_tax = $unit_tax;
-        return $this;
     }
 
     /**

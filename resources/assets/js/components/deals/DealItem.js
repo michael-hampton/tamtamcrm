@@ -37,10 +37,11 @@ export default class DealItem extends Component {
 
         axios.delete(url)
             .then(function (response) {
-                const arrDeals = [...self.props.deals]
+                const arrDeals = [...self.props.entities]
                 const index = arrDeals.findIndex(deal => deal.id === id)
-                arrDeals.splice(index, 1)
-                self.props.addUserToState(arrDeals)
+                arrDeals[index].hide = archive !== true
+                arrDeals[index].deleted_at = new Date()
+                self.props.addUserToState(arrDeals, true)
             })
             .catch(function (error) {
                 console.log(error)
@@ -48,11 +49,11 @@ export default class DealItem extends Component {
     }
 
     render () {
-        const { deals, custom_fields, users, ignoredColumns, customers } = this.props
+        const { deals, custom_fields, users, ignoredColumns, customers, entities } = this.props
         if (deals && deals.length && users.length) {
             return deals.map((deal, index) => {
                 const restoreButton = deal.deleted_at
-                    ? <RestoreModal id={deal.id} entities={deals} updateState={this.props.addUserToState}
+                    ? <RestoreModal id={deal.id} entities={entities} updateState={this.props.addUserToState}
                         url={`/api/deals/restore/${deal.id}`}/> : null
                 const archiveButton = !deal.deleted_at
                     ? <DeleteModal archive={true} deleteFunction={this.deleteDeal} id={deal.id}/> : null
@@ -64,7 +65,7 @@ export default class DealItem extends Component {
                     custom_fields={custom_fields}
                     users={users}
                     deal={deal}
-                    deals={deals}
+                    deals={entities}
                     action={this.props.addUserToState}
                 /> : null
 

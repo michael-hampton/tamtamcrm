@@ -1160,38 +1160,23 @@ abstract class BaseCsvImporter
      */
     private function tryStart(bool $save_data = false)
     {
-        if (!$this->isLocked()) {
-            if (!$this->exists()) {
-                return false;
-            }
+        $this->mutex->releaseLock();
 
-            $this->lock();
-
-            $this->initialize();
-            $this->process($save_data);
-            $this->finalStage();
-
-            $this->setAsFinished();
-            $this->mutex->releaseLock();
+        //if (!$this->isLocked()) {
+        if (!$this->exists()) {
+            return false;
         }
 
+        //$this->lock();
+        $this->initialize();
+        $this->process($save_data);
+        $this->finalStage();
+
+        $this->setAsFinished();
+        $this->mutex->releaseLock();
+        //}
+
         return $this->progressBar();
-    }
-
-    /**
-     * @return bool
-     */
-    public function isLocked()
-    {
-        return $this->mutex->isLocked();
-    }
-
-    /**
-     * @return bool
-     */
-    public function lock()
-    {
-        return $this->mutex->acquireLock($this->mutexLockTime);
     }
 
     /**
@@ -1739,12 +1724,6 @@ abstract class BaseCsvImporter
         $this->hasErrors();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Mutex functionality
-    |--------------------------------------------------------------------------
-    */
-
     /**
      * Will be executed after importing
      *
@@ -1761,6 +1740,12 @@ abstract class BaseCsvImporter
     {
         $this->cache->forever($this->progressFinishedKey, true);
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Mutex functionality
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * @return array
@@ -1829,6 +1814,14 @@ abstract class BaseCsvImporter
     }
 
     /**
+     * @return bool
+     */
+    public function isLocked()
+    {
+        return $this->mutex->isLocked();
+    }
+
+    /**
      *  Adjust additional information to progress bar during import process
      *
      * @return null|string|array
@@ -1836,6 +1829,14 @@ abstract class BaseCsvImporter
     public function progressBarDetails()
     {
         return true;
+    }
+
+    /**
+     * @return bool
+     */
+    public function lock()
+    {
+        return $this->mutex->acquireLock($this->mutexLockTime);
     }
 
     /*

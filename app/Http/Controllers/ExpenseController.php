@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Expense\Approve;
 use App\Factory\ExpenseFactory;
 use App\Jobs\Expense\GenerateInvoice;
 use App\Models\Expense;
@@ -56,9 +57,8 @@ class ExpenseController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public function show(int $id)
+    public function show(Expense $expense)
     {
-        $expense = $this->expense_repo->findExpenseById($id);
         return response()->json($this->transformExpense($expense));
     }
 
@@ -67,11 +67,9 @@ class ExpenseController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public function update(UpdateExpenseRequest $request, int $id)
+    public function update(UpdateExpenseRequest $request, Expense $expense)
     {
-        $expense = $this->expense_repo->findExpenseById($id);
-
-        $expense = $this->expense_repo->updateExpense($request->all(), $expense);
+        $expense = $this->expense_repo->update($request->all(), $expense);
 
         return response()->json($this->transformExpense($expense->fresh()));
     }
@@ -82,7 +80,7 @@ class ExpenseController extends Controller
      */
     public function store(CreateExpenseRequest $request)
     {
-        $expense = $this->expense_repo->createExpense(
+        $expense = $this->expense_repo->create(
             $request->all(),
             ExpenseFactory::create(auth()->user(), auth()->user()->account_user()->account)
         );
@@ -95,9 +93,8 @@ class ExpenseController extends Controller
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function destroy(int $id)
+    public function destroy(Expense $expense)
     {
-        $expense = Expense::withTrashed()->where('id', '=', $id)->first();
         $this->authorize('delete', $expense);
         $expense->deleteEntity();
         return response()->json([], 200);
@@ -120,9 +117,8 @@ class ExpenseController extends Controller
      * @return RedirectResponse
      * @throws Exception
      */
-    public function archive(int $id)
+    public function archive(Expense $expense)
     {
-        $expense = $this->expense_repo->findExpenseById($id);
         $expense->archive();
         return response()->json([], 200);
     }
@@ -136,7 +132,7 @@ class ExpenseController extends Controller
     public function action(Request $request, Expense $expense, $action)
     {
         if ($action === 'approve') {
-            $expense->service()->approve(new ExpenseRepository(new Expense()));
+            (new Approve($expense))->execute(new ExpenseRepository(new Expense()));
 
             return response()->json(['message' => 'The expenses have been approved successfully!'], 200);
         }
@@ -156,7 +152,7 @@ class ExpenseController extends Controller
 
         if ($action === 'approve') {
             foreach ($expenses as $expense) {
-                $expense->service()->approve(new ExpenseRepository(new Expense()));
+                (new Approve($expense))->execute(new ExpenseRepository(new Expense()));
             }
 
             return response()->json(['message' => 'The expenses have been approved successfully!'], 200);

@@ -19,19 +19,46 @@ class ProcessPayment
      */
     public function process(array $data, PaymentRepository $payment_repo, Payment $payment): ?Payment
     {
+        if (empty($data['invoices']) && empty($data['credits'])) {
+            $data['status_id'] = Payment::STATUS_PENDING;
+        }
+
+        $applying_existing_payment = $this->applyToExistingPayment($payment, $data);
+
+        if (!empty($payment->id)) {
+            $data['amount'] = $payment->amount;
+        }
+
         $payment = $payment_repo->save($data, $payment);
 
         $objCreditPayment = null;
 
         if (!empty($data['credits'])) {
-            $objCreditPayment = new CreditPayment($data, $payment, $payment_repo);
+            $objCreditPayment = new CreditPayment($data, $payment, $payment_repo, $applying_existing_payment);
             $payment = $objCreditPayment->process();
         }
 
         if (!empty($data['invoices'])) {
-            $payment = (new InvoicePayment($data, $payment, $payment_repo))->process($objCreditPayment);
+            $payment = (new InvoicePayment($data, $payment, $payment_repo, $applying_existing_payment))->process(
+                $objCreditPayment
+            );
         }
 
         return $payment->fresh();
+    }
+
+    private function applyToExistingPayment(Payment $payment, array $data)
+    {
+        if (!empty($payment->amount) && $payment->paymentables->count(
+            ) === 0 && (!empty($data['credits']) || !empty($data['invoices']))) {
+            //applying payment - keep original amount
+            return true;
+        }
+
+        if ($payment->applied > 0 && $payment->applied < $payment->amount) {
+            return true;
+        }
+
+        return false;
     }
 }

@@ -12,10 +12,10 @@
 
 @section('container')
 
-	@if(!empty(session('message')) && session('message')['dbOutputLog'])
-		<p><strong><small>{{ trans('texts.final.migration') }}</small></strong></p>
-		<pre><code>{{ session('message')['dbOutputLog'] }}</code></pre>
-	@endif
+{{--	@if(!empty(session('message')) && !empty(session('message')['dbOutputLog']))--}}
+{{--		<p><strong><small>{{ trans('texts.final.migration') }}</small></strong></p>--}}
+{{--		<pre><code>{{ session('message')['dbOutputLog'] }}</code></pre>--}}
+{{--	@endif--}}
 
 	<p><strong><small>{{ trans('texts.final.console') }}</small></strong></p>
 	<pre><code>{{ $finalMessages }}</code></pre>

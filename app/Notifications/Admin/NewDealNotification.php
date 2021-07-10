@@ -4,6 +4,8 @@ namespace App\Notifications\Admin;
 
 use App\Mail\Admin\DealCreated;
 use App\Traits\Money;
+use App\ViewModels\AccountViewModel;
+use App\ViewModels\CustomerViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\SlackMessage;
@@ -73,10 +75,8 @@ class NewDealNotification extends Notification implements ShouldQueue
 
     public function toSlack($notifiable)
     {
-        $logo = $this->deal->account->present()->logo();
-
         return (new SlackMessage)->success()
-                                 ->from("System")->image($logo)->content(
+                                 ->from("System")->image((new AccountViewModel($this->deal->account))->logo())->content(
                 $this->getMessage()
             );
     }
@@ -87,7 +87,7 @@ class NewDealNotification extends Notification implements ShouldQueue
             'texts.notification_deal_subject',
             [
                 'total'    => $this->formatCurrency($this->deal->valued_at, $this->deal->customer),
-                'customer' => $this->deal->customer->present()->name()
+                'customer' => (new CustomerViewModel($this->deal->customer))->name()
             ]
         );
     }

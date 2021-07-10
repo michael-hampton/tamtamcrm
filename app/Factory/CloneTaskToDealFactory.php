@@ -25,8 +25,8 @@ class CloneTaskToDealFactory
         $deal->assigned_to = $task->assigned_to;
         $deal->account_id = $task->account_id;
         $deal->user_id = $user->id;
-        $deal->private_notes = $task->private_notes;
-        $deal->public_notes = $task->public_notes;
+        $deal->internal_note = $task->internal_note;
+        $deal->customer_note = $task->customer_note;
 
         return $deal;
     }

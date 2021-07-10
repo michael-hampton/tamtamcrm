@@ -18,7 +18,7 @@ class InvoiceTransformable
      * @param Invoice $invoice
      * @return array
      */
-    public function transformInvoice(Invoice $invoice)
+    public function transformInvoice(Invoice $invoice, $files = null)
     {
         return [
             'id'                   => (int)$invoice->id,
@@ -30,8 +30,8 @@ class InvoiceTransformable
             'company_id'           => (int)$invoice->company_id ?: null,
             'currency_id'          => (int)$invoice->currency_id ?: null,
             'exchange_rate'        => (float)$invoice->exchange_rate ?: 1,
-            'public_notes'         => $invoice->public_notes ?: '',
-            'private_notes'        => $invoice->private_notes ?: '',
+            'customer_note'        => $invoice->customer_note ?: '',
+            'internal_note'        => $invoice->internal_note ?: '',
             'customer_id'          => (int)$invoice->customer_id,
             'date'                 => $invoice->date ?: '',
             'due_date'             => $invoice->due_date ?: '',
@@ -62,8 +62,10 @@ class InvoiceTransformable
             'last_sent_date'       => $invoice->last_sent_date ?: '',
             'emails'               => $this->transformEmails($invoice->emails()),
             'paymentables'         => $this->transformInvoicePayments($invoice->payments),
-            'audits'               => $this->transformAuditsForInvoice($invoice->audits),
-            'files'                => $this->transformInvoiceFiles($invoice->files),
+            //'audits'               => $this->transformAuditsForInvoice($invoice->audits),
+            'files'                => !empty($files) && !empty($files[$invoice->id]) ? $this->transformInvoiceFiles(
+                $files[$invoice->id]
+            ) : [],
             'recurring_invoice_id' => $invoice->recurring_invoice_id,
             'recurring'            => $invoice->recurring_invoice,
             'tax_rate'             => (float)$invoice->tax_rate,
@@ -73,8 +75,9 @@ class InvoiceTransformable
             'tax_rate_name_2'      => $invoice->tax_rate_name_2,
             'tax_rate_name_3'      => $invoice->tax_rate_name_3,
             'viewed'               => (bool)$invoice->viewed,
-            'is_deleted'           => (bool)$invoice->is_deleted,
-            'late_fee_reminder'    => (int)$invoice->late_fee_reminder
+            'hide'                 => (bool)$invoice->hide,
+            'late_fee_reminder'    => (int)$invoice->late_fee_reminder,
+            'plan_subscription_id' => (int)$invoice->plan_subscription_id
         ];
     }
 
@@ -125,19 +128,6 @@ class InvoiceTransformable
         )->all();
     }
 
-    public function transformAuditsForInvoice($audits)
-    {
-        if (empty($audits)) {
-            return [];
-        }
-
-        return $audits->map(
-            function (Audit $audit) {
-                return (new AuditTransformable)->transformAudit($audit);
-            }
-        )->all();
-    }
-
     /**
      * @param $files
      * @return array
@@ -151,6 +141,19 @@ class InvoiceTransformable
         return $files->map(
             function (File $file) {
                 return (new FileTransformable())->transformFile($file);
+            }
+        )->all();
+    }
+
+    public function transformAuditsForInvoice($audits)
+    {
+        if (empty($audits)) {
+            return [];
+        }
+
+        return $audits->map(
+            function (Audit $audit) {
+                return (new AuditTransformable)->transformAudit($audit);
             }
         )->all();
     }

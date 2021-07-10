@@ -95,8 +95,8 @@ export default function CustomerTabs (props) {
         custom_value2: props.customer ? props.customer.custom_value2 : '',
         custom_value3: props.customer ? props.customer.custom_value3 : '',
         custom_value4: props.customer ? props.customer.custom_value4 : '',
-        public_notes: props.customer ? props.customer.public_notes : '',
-        private_notes: props.customer ? props.customer.private_notes : '',
+        customer_note: props.customer ? props.customer.customer_note : '',
+        internal_note: props.customer ? props.customer.internal_note : '',
         website: props.customer ? props.customer.website : '',
         vat_number: props.customer ? props.customer.vat_number : '',
         size_id: props.customer ? props.customer.size_id : null,
@@ -163,8 +163,8 @@ export default function CustomerTabs (props) {
             phone: customer.phone,
             company_id: customer.company_id,
             description: customer.description,
-            public_notes: customer.public_notes,
-            private_notes: customer.private_notes,
+            customer_note: customer.customer_note,
+            internal_note: customer.internal_note,
             website: customer.website,
             vat_number: customer.vat_number,
             currency_id: customer.currency_id,
@@ -205,7 +205,7 @@ export default function CustomerTabs (props) {
 
             const index = props.customers.findIndex(customer => parseInt(customer.id) === props.customer.id)
             props.customers[index] = response
-            props.action(props.customers)
+            props.action(props.customers, true)
             this.setState({
                 editMode: false,
                 changesMade: false
@@ -229,8 +229,8 @@ export default function CustomerTabs (props) {
             phone: customer.phone,
             company_id: customer.company_id,
             description: customer.description,
-            public_notes: customer.public_notes,
-            private_notes: customer.private_notes,
+            customer_note: customer.customer_note,
+            internal_note: customer.internal_note,
             website: customer.website,
             vat_number: customer.vat_number,
             currency_id: customer.currency_id,
@@ -269,9 +269,8 @@ export default function CustomerTabs (props) {
                 this.setState({ errors: customerModel.errors, message: customerModel.error_message })
                 return
             }
-
             props.customers.push(response)
-            props.action(props.customers)
+            props.action(props.customers, true)
             toast.success('user mappings updated successfully')
             props.toggle()
         })
@@ -360,8 +359,8 @@ export default function CustomerTabs (props) {
 
                 <TabPane tabId="3">
                     <Notes handleInput={setCustomer} custom_fields={props.custom_fields}
-                        public_notes={customer.public_notes}
-                        private_notes={customer.private_notes}/>
+                        customer_note={customer.customer_note}
+                        internal_note={customer.internal_note}/>
 
                     <Card>
                         <CardHeader>{translations.notes}</CardHeader>

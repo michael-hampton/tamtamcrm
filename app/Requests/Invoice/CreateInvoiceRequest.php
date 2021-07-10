@@ -37,6 +37,7 @@ class CreateInvoiceRequest extends FormRequest
             'line_items'     => 'required|array',
             //'number'         => 'nullable|unique:invoices,number,customer,' . $this->customer_id,
             'number'         => [
+                'nullable',
                 Rule::unique('invoices', 'number')->where(
                     function ($query) {
                         return $query->where('customer_id', $this->customer_id)->where('account_id', $this->account_id);

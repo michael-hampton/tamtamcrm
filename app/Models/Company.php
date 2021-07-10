@@ -2,22 +2,25 @@
 
 namespace App\Models;
 
-use App\CompanyUser;
+use App\Models\Concerns\QueryScopes;
 use App\Models;
 use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laracasts\Presenter\PresentableTrait;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Company extends Model
 {
 
-    use PresentableTrait;
     use SoftDeletes;
     use HasFactory;
     use Archiveable;
+    use QueryCacheable;
+    use QueryScopes;
+
+    protected static $flushCacheOnUpdate = true;
 
     protected $fillable = [
         'logo',
@@ -36,8 +39,8 @@ class Company extends Model
         'currency_id',
         'settings',
         'industry_id',
-        'private_notes',
-        'public_notes',
+        'internal_note',
+        'customer_note',
         'assigned_to',
         'user_id',
         'account_id',
@@ -47,19 +50,28 @@ class Company extends Model
         'custom_value4',
         'vat_number'
     ];
-
     protected $casts = [
         'settings'   => 'object',
-        'is_deleted' => 'boolean',
+        'hide'       => 'boolean',
         'updated_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];
-
     protected $with = [
         'contacts',
     ];
 
-    protected $presenter = 'App\Presenters\CompanyPresenter';
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'companies',
+        ];
+    }
 
     /**
      * @return HasMany

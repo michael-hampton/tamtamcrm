@@ -20,7 +20,7 @@ trait GroupTransformable
             'deleted_at' => $group->deleted_at,
             'name'       => (string)$group->name ?: '',
             'settings'   => $group->settings ?: new stdClass,
-            'is_deleted' => (bool)$group->is_deleted,
+            'hide'       => (bool)$group->hide,
         ];
     }
 }

@@ -14,6 +14,10 @@ export default class Details extends React.Component {
                 name: translations.stripe
             },
             {
+                key: consts.stripe_connect_gateway,
+                name: translations.stripe_connect
+            },
+            {
                 key: consts.authorize_gateway,
                 name: translations.authorize
             },
@@ -61,7 +65,8 @@ export default class Details extends React.Component {
                         {this.props.renderErrorFor('description')}
                     </FormGroup>
 
-                    <Config gateway={this.props.gateway} handleConfig={this.props.handleConfig}/>
+                    <Config is_add={this.props.is_add} refresh={this.props.refresh} gateway={this.props.gateway}
+                        handleConfig={this.props.handleConfig}/>
                 </CardBody>
             </Card>
         )

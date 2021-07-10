@@ -2,10 +2,22 @@
 
 namespace App\Requests\Token;
 
+use App\Models\CompanyToken;
 use App\Repositories\Base\BaseFormRequest;
 
 class CreateTokenRequest extends BaseFormRequest
 {
+
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
+    {
+        return auth()->user()->can('create', CompanyToken::class);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -13,8 +25,10 @@ class CreateTokenRequest extends BaseFormRequest
      */
     public function rules()
     {
+        $user = auth()->user();
+
         return [
-            'name' => 'required',
+            'name' => 'required'
         ];
     }
 }

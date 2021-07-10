@@ -2,6 +2,7 @@
 
 namespace App\Listeners\PurchaseOrder;
 
+use App\Services\Pdf\GeneratePdf;
 use App\Factory\NotificationFactory;
 use App\Repositories\NotificationRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -31,15 +32,20 @@ class PurchaseOrderUpdated implements ShouldQueue
      */
     public function handle($event)
     {
-        $fields = [];
-        $fields['data']['id'] = $event->purchase_order->id;
-        $fields['data']['company_id'] = $event->purchase_order->company_id;
-        $fields['data']['message'] = 'A purchase_order was updated';
-        $fields['notifiable_id'] = $event->purchase_order->user_id;
-        $fields['account_id'] = $event->purchase_order->account_id;
-        $fields['notifiable_type'] = get_class($event->purchase_order);
-        $fields['type'] = get_class($this);
-        $fields['data'] = json_encode($fields['data']);
+        $data = [
+            'id'         => $event->purchase_order->id,
+            'company_id' => $event->purchase_order->company_id,
+            'message'    => 'A purchase order was updated'
+        ];
+
+        $fields = [
+            'notifiable_id'   => $event->purchase_order->user_id,
+            'account_id'      => $event->purchase_order->account_id,
+            'notifiable_type' => get_class($event->purchase_order),
+            'type'            => get_class($this),
+            'data'            => json_encode($data),
+            'action'          => 'updated'
+        ];
 
         $notification = NotificationFactory::create(
             $event->purchase_order->account_id,
@@ -49,6 +55,6 @@ class PurchaseOrderUpdated implements ShouldQueue
         $this->notification_repo->save($notification, $fields);
 
         // regenerate pdf
-        $event->purchase_order->service()->generatePdf(null, true);
+        (new GeneratePdf($event->purchase_order))->execute(null, true);
     }
 }

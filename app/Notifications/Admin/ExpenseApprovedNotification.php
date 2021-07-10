@@ -4,6 +4,7 @@ namespace App\Notifications\Admin;
 
 use App\Mail\Admin\ExpenseApproved;
 use App\Models\Expense;
+use App\ViewModels\AccountViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\SlackMessage;
@@ -75,7 +76,7 @@ class ExpenseApprovedNotification extends Notification implements ShouldQueue
     public function toSlack($notifiable)
     {
         return (new SlackMessage)->success()
-                                 ->from("System")->image($this->expense->account->present()->logo())->content(
+                                 ->from("System")->image((new AccountViewModel($this->expense->account))->logo())->content(
                 $this->getMessage()
             );
     }

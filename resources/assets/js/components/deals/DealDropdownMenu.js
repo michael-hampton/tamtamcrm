@@ -56,7 +56,8 @@ export default class DealDropdownMenu extends React.Component {
                 onClick={() => this.changeStatus('archive')}>Archive</DropdownItem> : null
 
         const cloneButton =
-            <DropdownItem className="primary" onClick={() => this.changeStatus('clone_to_task')}>Clone</DropdownItem>
+                <DropdownItem className="primary"
+                    onClick={() => this.changeStatus('clone_to_task')}>Clone</DropdownItem>
 
         const dropdownMenu = <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggleMenu}>
             <DropdownToggle caret>

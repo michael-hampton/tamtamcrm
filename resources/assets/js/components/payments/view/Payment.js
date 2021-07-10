@@ -6,6 +6,8 @@ import Refund from '../edit/Refund'
 import BottomNavigationButtons from '../../common/BottomNavigationButtons'
 import GatewayModel from '../../models/GatewayModel'
 import Overview from './Overview'
+import AlertPopup from '../../common/AlertPopup'
+import CompanyGatewayRepository from '../../repositories/CompanyGatewayRepository'
 
 export default class Payment extends Component {
     constructor (props) {
@@ -13,6 +15,7 @@ export default class Payment extends Component {
 
         this.state = {
             entity: this.props.entity,
+            show_alert: false,
             activeTab: '1',
             show_success: false,
             gateways: []
@@ -35,9 +38,10 @@ export default class Payment extends Component {
     }
 
     getGateways () {
-        this.gatewayModel.getGateways().then(response => {
+        const gatewayRepository = new CompanyGatewayRepository()
+        gatewayRepository.getGateways().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ show_alert: true })
             }
 
             this.setState({ gateways: response }, () => {
@@ -112,6 +116,10 @@ export default class Payment extends Component {
                     button1={{ label: translations.refund }}
                     button2_click={(e) => this.triggerAction('archive')}
                     button2={{ label: translations.archive }}/>
+
+                <AlertPopup is_open={this.state.show_alert} message={this.state.error_message} onClose={(e) => {
+                    this.setState({ show_alert: false })
+                }}/>
             </React.Fragment>
         )
     }

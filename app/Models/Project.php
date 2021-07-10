@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use App\Traits\SearchableTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Project extends Model
 {
@@ -17,7 +19,10 @@ class Project extends Model
     use SoftDeletes;
     use HasFactory;
     use Archiveable;
+    use QueryCacheable;
+    use QueryScopes;
 
+    protected static $flushCacheOnUpdate = true;
     protected $fillable = [
         'name',
         'description',
@@ -27,19 +32,17 @@ class Project extends Model
         'assigned_to',
         'user_id',
         'account_id',
-        'private_notes',
-        'public_notes',
+        'internal_note',
+        'customer_note',
         'due_date',
         'start_date',
         'budgeted_hours',
         'task_rate',
         'column_color'
     ];
-
     protected $casts = [
         'updated_at' => 'timestamp',
     ];
-
     /**
      * Searchable rules.
      *
@@ -57,6 +60,19 @@ class Project extends Model
             'projects.title' => 10,
         ]
     ];
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'projects',
+        ];
+    }
 
     /**
      * @return HasMany

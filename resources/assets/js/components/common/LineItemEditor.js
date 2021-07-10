@@ -14,6 +14,7 @@ import TaskRepository from '../repositories/TaskRepository'
 import ProjectRepository from '../repositories/ProjectRepository'
 import InvoiceReducer from '../invoice/InvoiceReducer'
 import { getEntityIcon } from '../utils/_icons'
+import AddProduct from '../products/edit/AddProduct'
 
 class LineItemEditor extends Component {
     constructor (props) {
@@ -46,6 +47,7 @@ class LineItemEditor extends Component {
         this.handleLineTypeChange = this.handleLineTypeChange.bind(this)
         this.loadEntities = this.loadEntities.bind(this)
         this.toggleTab = this.toggleTab.bind(this)
+        this.onMovedInvoiceItem = this.onMovedInvoiceItem.bind(this)
     }
 
     componentDidMount () {
@@ -57,6 +59,28 @@ class LineItemEditor extends Component {
 
     toggleTab (e, show) {
         this.setState({ [e.target.name]: !show })
+    }
+
+    onMovedInvoiceItem (oldIndex, newIndex) {
+        // Create a local shallow copy of the state
+        const items = this.props.invoice.line_items.slice()
+
+        // Extract that item
+        const selectedItem = items[oldIndex]
+
+        // Delete the item from the items array
+        items.splice(oldIndex, 1)
+
+        // Sort the items that are left over
+        items.sort(function (a, b) {
+            return a.id < b.id ? -1 : 1
+        })
+
+        // Insert the selected item back into the array
+        items.splice(newIndex, 0, selectedItem)
+
+        // Set the state to the new array
+        this.props.update(items, newIndex)
     }
 
     loadProducts () {
@@ -173,6 +197,28 @@ class LineItemEditor extends Component {
             rows[row].tax_rate_id = taxRate.id
             rows[row].tax_rate_name = taxRate.name
             rows[row].unit_tax = taxRate.rate
+            this.props.update(rows, row)
+
+            return
+        }
+
+        if (e.target.name === 'tax_2') {
+            const index = this.state.tax_rates.findIndex(taxRate => taxRate.id === parseInt(e.target.value))
+            const taxRate = this.state.tax_rates[index]
+            rows[row].tax_rate_id_2 = taxRate.id
+            rows[row].tax_rate_name_2 = taxRate.name
+            rows[row].tax_2 = taxRate.rate
+            this.props.update(rows, row)
+
+            return
+        }
+
+        if (e.target.name === 'tax_3') {
+            const index = this.state.tax_rates.findIndex(taxRate => taxRate.id === parseInt(e.target.value))
+            const taxRate = this.state.tax_rates[index]
+            rows[row].tax_rate_id_3 = taxRate.id
+            rows[row].tax_rate_name_3 = taxRate.name
+            rows[row].tax_3 = taxRate.rate
             this.props.update(rows, row)
 
             return
@@ -358,7 +404,18 @@ class LineItemEditor extends Component {
                             onClick={() => {
                                 this.handleLineTypeChange(consts.line_item_product)
                             }}>
-                            <i className={`fa ${getEntityIcon('Product')} mr-2`}/> {translations.products} {products.length > 0 ? products.length : null}
+                            <AddProduct
+                                small_button={true}
+                                custom_fields={[]}
+                                companies={[]}
+                                categories={[]}
+                                products={this.state.products}
+                                action={(products, update = false) => {
+                                    this.setState({ products: products })
+                                }}
+                            />
+                            <i className={`fa ${getEntityIcon('Product')} mr-2 ml-2`}/>
+                            {translations.products} {products.length > 0 ? products.length : null}
                         </NavLink>
                     </NavItem>
 
@@ -392,6 +449,8 @@ class LineItemEditor extends Component {
                     <TabPane tabId={consts.line_item_product}>
                         {this.state.products.length &&
                         <LineItem
+                            onMovedInvoiceItem={this.onMovedInvoiceItem}
+                            model={this.props.model}
                             invoice={this.props.invoice}
                             line_type={parseInt(this.state.line_type)}
                             rows={this.props.invoice.line_items}
@@ -413,6 +472,8 @@ class LineItemEditor extends Component {
                     <TabPane tabId={consts.line_item_task}>
                         {this.state.tasks.length &&
                         <LineItem
+                            onMovedInvoiceItem={this.onMovedInvoiceItem}
+                            model={this.props.model}
                             invoice={this.props.invoice}
                             line_type={parseInt(this.state.line_type)}
                             rows={this.props.invoice.line_items}
@@ -434,6 +495,8 @@ class LineItemEditor extends Component {
                     <TabPane tabId={consts.line_item_expense}>
                         {this.state.expenses.length &&
                         <LineItem
+                            onMovedInvoiceItem={this.onMovedInvoiceItem}
+                            model={this.props.model}
                             invoice={this.props.invoice}
                             line_type={parseInt(this.state.line_type)}
                             rows={this.props.invoice.line_items}

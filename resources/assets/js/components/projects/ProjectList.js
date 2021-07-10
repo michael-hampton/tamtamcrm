@@ -9,12 +9,18 @@ import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import CustomerRepository from '../repositories/CustomerRepository'
 import { getDefaultTableFields } from '../presenters/ProjectPresenter'
+import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class ProjectList extends Component {
     constructor (props) {
         super(props)
 
         this.state = {
+            currentPage: 1,
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             customers: [],
@@ -55,12 +61,37 @@ export default class ProjectList extends Component {
         this.getCustomFields()
     }
 
-    addUserToState (projects) {
+    addUserToState (projects, do_filter = false, filters = null) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? projects : this.state.cachedData
+
+        if (should_filter) {
+            projects = filterStatuses(projects, '', this.state.filters)
+        }
+
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             projects: projects,
             cachedData: cachedData
+        }, () => {
+            const totalPages = Math.ceil(projects / this.props.pageLimit)
+            this.onPageChanged({ invoices: projects, currentPage: this.state.currentPage, totalPages: totalPages })
         })
+    }
+
+    onPageChanged (data) {
+        let { projects, pageLimit } = this.state
+        const { currentPage, totalPages } = data
+
+        if (data.invoices) {
+            projects = data.invoices
+        }
+
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = projects.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
+
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     handleClose () {
@@ -72,12 +103,12 @@ export default class ProjectList extends Component {
     }
 
     userList (props) {
-        const { projects, custom_fields, customers } = this.state
-        return <ProjectItem showCheckboxes={props.showCheckboxes} projects={projects} customers={customers}
-            show_list={props.show_list}
+        const { cachedData, custom_fields, customers, currentInvoices } = this.state
+        return <ProjectItem showCheckboxes={props.showCheckboxes} projects={currentInvoices} customers={customers}
+            show_list={props.show_list} entities={cachedData}
             custom_fields={custom_fields}
             viewId={props.viewId}
-            ignoredColumns={getDefaultTableFields()} addUserToState={this.addUserToState}
+            ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -113,7 +144,8 @@ export default class ProjectList extends Component {
         const customerRepository = new CustomerRepository()
         customerRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
             }
 
             this.setState({ customers: response }, () => {
@@ -138,14 +170,13 @@ export default class ProjectList extends Component {
     }
 
     render () {
-        const { projects, customers, custom_fields, view, error, isOpen, error_message, success_message, show_success } = this.state
-        const { status_id, customer_id, searchText, start_date, end_date, user_id } = this.state.filters
-        const fetchUrl = `/api/projects?search_term=${searchText}&user_id=${user_id}&status=${status_id}&customer_id=${customer_id}&start_date=${start_date}&end_date=${end_date}`
+        const { cachedData, projects, customers, custom_fields, view, error, isOpen, error_message, success_message, show_success, currentInvoices, pageLimit } = this.state
+        const { start_date, end_date } = this.state.filters
+        const fetchUrl = `/api/projects?start_date=${start_date}&end_date=${end_date}`
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable fixed-margin-datatable-mobile'
-
-        console.log('columns', getDefaultTableFields())
+        const total = projects.length
 
         return this.state.customers.length ? (
             <Row>
@@ -153,11 +184,15 @@ export default class ProjectList extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <ProjectFilters customers={customers} setFilterOpen={this.setFilterOpen.bind(this)}
+                                <ProjectFilters
+                                    pageLimit={pageLimit}
+                                    cachedData={cachedData}
+                                    updateList={this.addUserToState}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} customers={customers}
                                     projects={projects}
                                     filters={this.state.filters} filter={this.filterProjects}
                                     saveBulk={this.saveBulk}/>
-                                <AddProject customers={customers} projects={projects} action={this.addUserToState}
+                                <AddProject customers={customers} projects={cachedData} action={this.addUserToState}
                                     custom_fields={custom_fields}/>
                             </CardBody>
                         </Card>
@@ -183,6 +218,12 @@ export default class ProjectList extends Component {
                         <Card>
                             <CardBody>
                                 <DataTable
+
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
+
                                     default_columns={getDefaultTableFields()}
                                     customers={customers}
                                     setSuccess={this.setSuccess.bind(this)}
@@ -198,6 +239,13 @@ export default class ProjectList extends Component {
                                     fetchUrl={fetchUrl}
                                     updateState={this.addUserToState}
                                 />
+
+                                {total > 0 &&
+                                <div className="d-flex flex-row py-4 align-items-center">
+                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>

@@ -1,8 +1,8 @@
 import React from 'react'
-import { CustomInput, FormGroup, Input, Label } from 'reactstrap'
+import { CustomInput, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, Label } from 'reactstrap'
 import CountryDropdown from '../common/dropdowns/CountryDropdown'
 import CurrencyDropdown from '../common/dropdowns/CurrencyDropdown'
-import Switch from '../common/Switch'
+import AppSwitch from '../common/AppSwitch'
 import PaymentTypeDropdown from '../common/dropdowns/PaymentTypeDropdown'
 import PaymentTermsDropdown from '../common/dropdowns/PaymentTermsDropdown'
 import { translations } from '../utils/_translations'
@@ -10,6 +10,7 @@ import LanguageDropdown from '../common/dropdowns/LanguageDropdown'
 import { LearnMoreUrl } from '../common/LearnMore'
 import Datepicker from '../common/Datepicker'
 import UserDropdown from '../common/dropdowns/UserDropdown'
+import PasswordField from '../common/PasswordField'
 
 /**
  * A component which renders a form based on a given list of fields.
@@ -51,7 +52,7 @@ class FormBuilder extends React.Component {
         const class_name = field.class_name ? field.class_name : 'col-md-8'
 
         return (
-            <a href="#"
+            <span
                 className={`${class_name} list-group-item-dark list-group-item list-group-item-action flex-column align-items-start`}>
                 <div className="d-flex w-100 justify-content-between">
                     <h5 className="mb-1">
@@ -73,7 +74,7 @@ class FormBuilder extends React.Component {
                     {field.help_text}
                 </h6>
                 }
-            </a>
+            </span>
         )
     }
 
@@ -97,6 +98,30 @@ class FormBuilder extends React.Component {
                 </Input>
             </FormGroup>
         )
+    }
+
+    buildPassword (field) {
+        return <FormGroup>
+            <PasswordField password={field.value}
+                handleChange={this.props.handleInput}
+            />
+        </FormGroup>
+    }
+
+    buildInputGroup (field) {
+        const icon = field.onClick
+            ? <span onClick={field.onClick}><i style={{ fontSize: '20px' }} className={`fa ${field.icon}`}/></span>
+            : <i style={{ fontSize: '20px' }} className={`fa ${field.icon}`}/>
+        return <FormGroup>
+            <Label>{field.label}</Label>
+            <InputGroup>
+                <Input style={{ width: '90%' }} value={field.value} type="text" name={field.name}
+                    onChange={this.props.handleChange}/>
+                <InputGroupAddon addonType="append">
+                    <InputGroupText>{icon}</InputGroupText>
+                </InputGroupAddon>
+            </InputGroup>
+        </FormGroup>
     }
 
     renderTextInput (field) {
@@ -180,7 +205,7 @@ class FormBuilder extends React.Component {
                 </React.Fragment>
                 break
             case 'checkbox':
-                returnedField = <Switch
+                returnedField = <AppSwitch
                     key={field.id}
                     label={field.label}
                     name={field.name}
@@ -191,6 +216,9 @@ class FormBuilder extends React.Component {
 
             case 'select':
                 returnedField = this.buildSelectList(field)
+                break
+            case 'input_group':
+                returnedField = this.buildInputGroup(field)
                 break
             case 'switch':
                 returnedField = this.buildSwitch(field)

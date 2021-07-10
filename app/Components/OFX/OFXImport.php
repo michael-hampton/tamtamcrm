@@ -74,7 +74,7 @@ class OFXImport
                 'amount'         => $transaction['amount'],
                 'transaction_id' => $transaction['uniqueId'],
                 'company_id'     => $company->id,
-                'public_notes'   => $transaction['memo'],
+                'customer_note'   => $transaction['memo'],
                 'date'           => $transaction['date'],
                 'bank_id'        => $bank_id
             ];

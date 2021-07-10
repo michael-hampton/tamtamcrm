@@ -2,8 +2,8 @@
 
 namespace App\Requests\RecurringQuote;
 
-use App\Models\RecurringQuote;
 use App\Repositories\Base\BaseFormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateRecurringQuoteRequest extends BaseFormRequest
 {
@@ -14,8 +14,7 @@ class UpdateRecurringQuoteRequest extends BaseFormRequest
      */
     public function authorize()
     {
-        $recurring_quote = RecurringQuote::find($this->id);
-        return auth()->user()->can('update', $recurring_quote);
+        return auth()->user()->can('update', $this->recurring_quote);
     }
 
     /**
@@ -32,7 +31,14 @@ class UpdateRecurringQuoteRequest extends BaseFormRequest
             'expiry_date'              => 'required',
             'customer_id'              => 'required|exists:customers,id,account_id,' . auth()->user()->account_user(
                 )->account_id,
-            'number'                   => 'nullable|unique:recurring_quotes,number,' . $this->id . ',id,account_id,' . $this->account_id,
+            'number'                   => [
+                'nullable',
+                Rule::unique('recurring_quotes')->where(
+                    function ($query) {
+                        return $query->where('account_id', $this->recurring_quote->account_id);
+                    }
+                )->ignore($this->recurring_quote),
+            ],
         ];
     }
 

@@ -2,8 +2,8 @@
 
 namespace App\Requests\Order;
 
-use App\Models\Order;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateOrderRequest extends FormRequest
 {
@@ -14,8 +14,7 @@ class UpdateOrderRequest extends FormRequest
      */
     public function authorize()
     {
-        $order = Order::find($this->order_id);
-        return auth()->user()->can('update', $order);
+        return auth()->user()->can('update', $this->order);
     }
 
     /**
@@ -33,7 +32,14 @@ class UpdateOrderRequest extends FormRequest
             'total'          => 'required',
             'tax_total'      => 'required',
             'line_items'     => 'required|array',
-            'number'         => 'nullable|unique:product_task,number,' . $this->order_id . ',id,account_id,' . $this->account_id,
+            'number'         => [
+                'nullable',
+                Rule::unique('orders')->where(
+                    function ($query) {
+                        return $query->where('account_id', $this->order->account_id);
+                    }
+                )->ignore($this->order),
+            ],
         ];
     }
 

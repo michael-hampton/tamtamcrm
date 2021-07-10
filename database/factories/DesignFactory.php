@@ -26,10 +26,10 @@ class DesignFactory extends Factory
 
         return [
             'account_id' => 1,
-            'user_id' => $user->id,
-            'is_deleted' => false,
-            'name' => $this->faker->firstName,
-            'design' => '<HTML>test</HTML>'
+            'user_id'    => $user->id,
+            'hide'       => false,
+            'name'       => $this->faker->firstName,
+            'design'     => '<HTML>test</HTML>'
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Quote;
 
+use App\Services\Pdf\GeneratePdf;
 use App\Factory\NotificationFactory;
 use App\Repositories\NotificationRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -31,21 +32,26 @@ class QuoteUpdated implements ShouldQueue
      */
     public function handle($event)
     {
-        $fields = [];
-        $fields['data']['id'] = $event->quote->id;
-        $fields['data']['customer_id'] = $event->quote->customer_id;
-        $fields['data']['message'] = 'A quote was updated';
-        $fields['notifiable_id'] = $event->quote->user_id;
-        $fields['account_id'] = $event->quote->account_id;
-        $fields['notifiable_type'] = get_class($event->quote);
-        $fields['type'] = get_class($this);
-        $fields['data'] = json_encode($fields['data']);
+        $data = [
+            'id'          => $event->quote->id,
+            'customer_id' => $event->quote->customer_id,
+            'message'     => 'A quote was updated'
+        ];
+
+        $fields = [
+            'notifiable_id'   => $event->quote->user_id,
+            'account_id'      => $event->quote->account_id,
+            'notifiable_type' => get_class($event->quote),
+            'type'            => get_class($this),
+            'data'            => json_encode($data),
+            'action'          => 'updated'
+        ];
 
         $notification = NotificationFactory::create($event->quote->account_id, $event->quote->user_id);
         $notification->entity_id = $event->quote->id;
         $this->notification_repo->save($notification, $fields);
 
         // regenerate pdf
-        $event->quote->service()->generatePdf(null, true);
+        (new GeneratePdf($event->quote))->execute(null, true);
     }
 }

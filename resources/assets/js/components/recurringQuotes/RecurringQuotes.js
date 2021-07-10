@@ -10,11 +10,17 @@ import QuoteRepository from '../repositories/QuoteRepository'
 import queryString from 'query-string'
 import UpdateRecurringQuote from './edit/UpdateRecurringQuote'
 import { getDefaultTableFields } from '../presenters/RecurringQuotePresenter'
+import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class RecurringQuotes extends Component {
     constructor (props) {
         super(props)
         this.state = {
+            currentPage: 1,
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             error: '',
@@ -37,7 +43,7 @@ export default class RecurringQuotes extends Component {
             dropdownButtonActions: ['download', 'start_recurring', 'stop_recurring'],
             filters: {
                 user_id: queryString.parse(this.props.location.search).user_id || '',
-                status_id: 'Draft',
+                status_id: 'active',
                 customer_id: queryString.parse(this.props.location.search).customer_id || '',
                 project_id: queryString.parse(this.props.location.search).project_id || '',
                 searchText: '',
@@ -63,19 +69,45 @@ export default class RecurringQuotes extends Component {
         this.getQuotes()
     }
 
-    updateInvoice (invoices) {
+    updateInvoice (invoices, do_filter = false, filters = null) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? invoices : this.state.cachedData
+
+        if (should_filter) {
+            invoices = filterStatuses(invoices, '', this.state.filters)
+        }
+
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             invoices: invoices,
             cachedData: cachedData
+        }, () => {
+            const totalPages = Math.ceil(invoices.length / this.state.pageLimit)
+            this.onPageChanged({ invoices: invoices, currentPage: this.state.currentPage, totalPages: totalPages })
         })
+    }
+
+    onPageChanged (data) {
+        let { invoices, pageLimit } = this.state
+        const { currentPage, totalPages } = data
+
+        if (data.invoices) {
+            invoices = data.invoices
+        }
+
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = invoices.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
+
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     getQuotes () {
         const quoteRepository = new QuoteRepository()
         quoteRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
             }
 
             this.setState({ allQuotes: response }, () => {
@@ -93,12 +125,15 @@ export default class RecurringQuotes extends Component {
     }
 
     userList (props) {
-        const { invoices, custom_fields, customers, allQuotes } = this.state
-        return <RecurringQuoteItem showCheckboxes={props.showCheckboxes} allQuotes={allQuotes} invoices={invoices}
-            show_list={props.show_list}
+        const { pageLimit, custom_fields, customers, allQuotes, currentInvoices, cachedData } = this.state
+        return <RecurringQuoteItem showCheckboxes={props.showCheckboxes} allQuotes={allQuotes}
+            invoices={currentInvoices}
+            show_list={props.show_list} entities={cachedData}
+            onPageChanged={this.onPageChanged.bind(this)}
+            pageLimit={pageLimit}
             viewId={props.viewId}
             customers={customers} custom_fields={custom_fields}
-            ignoredColumns={getDefaultTableFields()} updateInvoice={this.updateInvoice}
+            ignoredColumns={props.default_columns} updateInvoice={this.updateInvoice}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -138,7 +173,8 @@ export default class RecurringQuotes extends Component {
         const customerRepository = new CustomerRepository()
         customerRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
             }
 
             this.setState({ customers: response }, () => {
@@ -163,9 +199,9 @@ export default class RecurringQuotes extends Component {
     }
 
     render () {
-        const { invoices, custom_fields, customers, allQuotes, view, filters, error, isOpen, error_message, success_message, show_success } = this.state
-        const { status_id, customer_id, searchText, start_date, end_date, project_id, user_id } = this.state.filters
-        const fetchUrl = `/api/recurring-quote?search_term=${searchText}&user_id=${user_id}&status=${status_id}&customer_id=${customer_id}&project_id=${project_id}&start_date=${start_date}&end_date=${end_date}`
+        const { cachedData, invoices, custom_fields, customers, allQuotes, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, pageLimit } = this.state
+        const { start_date, end_date } = this.state.filters
+        const fetchUrl = `/api/recurring-quote?start_date=${start_date}&end_date=${end_date}`
         const addButton = customers.length ? <UpdateRecurringQuote
             allQuotes={allQuotes}
             entity_id={this.state.entity_id}
@@ -175,12 +211,13 @@ export default class RecurringQuotes extends Component {
             invoice={{}}
             add={true}
             action={this.updateInvoice}
-            invoices={invoices}
+            invoices={cachedData}
             modal={true}
         /> : null
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable fixed-margin-datatable-mobile'
+        const total = invoices.length
 
         return (
             <Row>
@@ -188,7 +225,11 @@ export default class RecurringQuotes extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <RecurringQuoteFilters customers={customers}
+                                <RecurringQuoteFilters
+                                    pageLimit={pageLimit}
+                                    cachedData={cachedData}
+                                    updateList={this.updateInvoice}
+                                    customers={customers}
                                     setFilterOpen={this.setFilterOpen.bind(this)}
                                     invoices={invoices}
                                     filters={filters} filter={this.filterInvoices}
@@ -218,6 +259,12 @@ export default class RecurringQuotes extends Component {
                         <Card>
                             <CardBody>
                                 <DataTable
+
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
+
                                     default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
                                     setError={this.setError.bind(this)}
@@ -227,6 +274,7 @@ export default class RecurringQuotes extends Component {
                                     bulk_save_url="/api/recurring-quote/bulk"
                                     view={view}
                                     columnMapping={{
+                                        status_id: 'status',
                                         customer_id: 'CUSTOMER',
                                         number_of_occurrrances: translations.cycles_remaining
                                     }}
@@ -236,6 +284,13 @@ export default class RecurringQuotes extends Component {
                                     fetchUrl={fetchUrl}
                                     updateState={this.updateInvoice}
                                 />
+
+                                {total > 0 &&
+                                <div className="d-flex flex-row py-4 align-items-center">
+                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>

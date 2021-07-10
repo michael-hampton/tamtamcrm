@@ -39,6 +39,16 @@ class ValidAmount implements Rule
         $credit_total = 0;
         $total = 0;
 
+        $has_paymentable = !empty($this->request['invoices']) || !empty($this->request['credits']);
+
+        if (!$has_paymentable) {
+            if (empty($this->request['amount'])) {
+                return false;
+            }
+
+            return true;
+        }
+
         if (!empty($this->request['invoices'])) {
             $invoice_total += array_sum(array_column($this->request['invoices'], 'amount'));
             $total += $invoice_total;

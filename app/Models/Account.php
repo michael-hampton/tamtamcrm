@@ -10,19 +10,17 @@ namespace App\Models;
 
 
 use App\Events\Account\AccountWasDeleted;
-use App\Services\Account\AccountService;
+use App\Models\Concerns\QueryScopes;
+use App\ViewModels\AccountViewModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laracasts\Presenter\PresentableTrait;
 
 class Account extends Model
 {
-    use PresentableTrait, SoftDeletes, HasFactory;
-
-    protected $presenter = 'App\Presenters\AccountPresenter';
+    use SoftDeletes, HasFactory, QueryScopes;
 
     protected $dispatchesEvents = [
         'deleted' => AccountWasDeleted::class,
@@ -87,7 +85,7 @@ class Account extends Model
 
     public function users()
     {
-        return $this->hasManyThrough(User::class, AccountUser::class, 'company_id', 'id', 'id', 'user_id');
+        return $this->hasManyThrough(User::class, AccountUser::class, 'account_id', 'id', 'id', 'user_id');
     }
 
     public function designs()
@@ -128,6 +126,11 @@ class Account extends Model
         return $this->hasMany(Customer::class)->withTrashed();
     }
 
+    public function customer_contacts()
+    {
+        return $this->hasMany(CustomerContact::class)->withTrashed();
+    }
+
     public function domains()
     {
         return $this->belongsTo(Domain::class, 'domain_id');
@@ -157,6 +160,46 @@ class Account extends Model
     public function products()
     {
         return $this->hasMany(Product::class);
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function purchase_orders()
+    {
+        return $this->hasMany(PurchaseOrder::class);
+    }
+
+    public function expenses()
+    {
+        return $this->hasMany(Expense::class);
+    }
+
+    public function expense_categories()
+    {
+        return $this->hasMany(ExpenseCategory::class);
+    }
+
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
+
+    public function task_statuses()
+    {
+        return $this->hasMany(TaskStatus::class);
+    }
+
+    public function leads()
+    {
+        return $this->hasMany(Lead::class);
+    }
+
+    public function deals()
+    {
+        return $this->hasMany(Deal::class);
     }
 
     /**
@@ -203,6 +246,21 @@ class Account extends Model
         return $this->hasMany(Company::class)->withTrashed();
     }
 
+    public function company_contacts()
+    {
+        return $this->hasMany(CompanyContact::class)->withTrashed();
+    }
+
+    public function customer_gateways()
+    {
+        return $this->hasMany(CustomerGateway::class)->withTrashed();
+    }
+
+    public function company_gateways()
+    {
+        return $this->hasMany(CompanyGateway::class)->withTrashed();
+    }
+
     public function routeNotificationForSlack($notification)
     {
         return $this->slack_webhook_url;
@@ -220,18 +278,167 @@ class Account extends Model
         return User::find($c->user_id);
     }
 
-    public function service(): AccountService
-    {
-        return new AccountService($this);
-    }
-
     public function getNumberOfAllowedUsers()
     {
-        return $this->domains->allowed_number_of_users;
+        $plan = $this->getActiveSubscription();
+
+        if (empty($plan)) {
+            return 99999;
+        }
+
+        return $plan->number_of_licences;
+    }
+
+    public function getActiveSubscription()
+    {
+        return $this->plans()->where('ends_at', '>', now())->where('plan_id', $this->domains->plan_id)->first();
+    }
+
+    public function plans()
+    {
+        return $this->hasMany(PlanSubscription::class);
+    }
+
+    public function groups()
+    {
+        return $this->hasMany(Group::class);
+    }
+
+    public function tokens()
+    {
+        return $this->hasMany(CompanyToken::class);
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    public function payment_terms()
+    {
+        return $this->hasMany(PaymentTerms::class);
+    }
+
+    public function recurring_invoices()
+    {
+        return $this->hasMany(RecurringInvoice::class);
+    }
+
+    public function recurring_quotes()
+    {
+        return $this->hasMany(RecurringQuote::class);
+    }
+
+    public function projects()
+    {
+        return $this->hasMany(Project::class);
+    }
+
+    public function invitations()
+    {
+        return $this->hasMany(Invitation::class);
+    }
+
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function templates()
+    {
+        return $this->hasMany(EmailTemplate::class);
+    }
+
+    public function reminders()
+    {
+        return $this->hasMany(Reminders::class);
+    }
+
+    public function plan_subscriptions()
+    {
+        return $this->hasMany(PlanSubscription::class);
+    }
+
+    public function getNumberOfAllowedDocuments()
+    {
+        if (empty($this->domains->plan)) {
+            return 99999;
+        }
+
+        $plan_feature = $this->domains->plan->features->where('slug', '=', 'DOCUMENT')->first();
+
+        return $plan_feature->value;
     }
 
     public function getNumberOfAllowedCustomers()
     {
-        return $this->domains->subscription_plan === Domain::SUBSCRIPTION_FREE ? 100 : 99999;
+        if (empty($this->domains->plan)) {
+            return 99999;
+        }
+
+        $plan_feature = $this->domains->plan->features->where('slug', '=', 'CUSTOMER')->first();
+
+        return $plan_feature->value;
+    }
+
+    public function getNumberOfAllowedEmails()
+    {
+        if (empty($this->domains->plan)) {
+            return 99999;
+        }
+
+        $plan_feature = $this->domains->plan->features->where('slug', '=', 'EMAIL')->first();
+
+        return $plan_feature->value;
+    }
+
+    public function selectPersonalData($personal_data = null, $return_array = false)
+    {
+
+        $export['customers'] = $this->customers->makeHidden('settings')->toArray();
+        $export['customer_contacts'] = $this->customer_contacts->toArray();
+        $export['customer_gateways'] = $this->customer_gateways->toArray();
+        $export['company_gateways'] = $this->company_gateways->toArray();
+        $export['transactions'] = $this->transactions->toArray();
+        $export['credits'] = $this->credits->toArray();
+        $export['designs'] = $this->designs->toArray();
+        $export['expenses'] = $this->expenses->toArray();
+        $export['expense_categories'] = $this->expense_categories->toArray();
+        $export['groups'] = $this->groups->toArray();
+        $export['invoices'] = $this->invoices->makeHidden('account')->makeHidden('customer')->toArray();
+        $export['payment_terms'] = $this->payment_terms->toArray();
+        $export['payments'] = $this->payments->toArray();
+        $export['projects'] = $this->projects->toArray();
+        $export['quotes'] = $this->quotes->makeHidden('account')->makeHidden('customer')->toArray();
+        $export['recurring_invoices'] = $this->recurring_invoices->makeHidden('account')->makeHidden('customer')->toArray();
+        $export['recurring_quotes'] = $this->recurring_quotes->makeHidden('account')->makeHidden('customer')->toArray();
+        $export['webhooks'] = $this->subscriptions->toArray();
+        $export['plans'] = Plan::all()->toArray();
+        $export['subscriptions'] = $this->plan_subscriptions->makeHidden('plan')->toArray();
+        $export['tasks'] = $this->tasks->makeHidden('account')->makeHidden('customer')->toArray();
+        $export['task_statuses'] = $this->task_statuses->toArray();
+        $export['tax_rates'] = $this->tax_rates->toArray();
+        $export['companies'] = $this->companies->makeHidden('contacts')->toArray();
+        $export['company_contacts'] = $this->company_contacts->toArray();
+        $export['deals'] = $this->deals->toArray();
+        $export['leads'] = $this->leads->toArray();
+        $export['products'] = $this->products->toArray();
+        $export['orders'] = $this->orders->makeHidden('account')->makeHidden('customer')->toArray();
+        $export['purchase_orders'] = $this->purchase_orders->makeHidden('account')->makeHidden('company')->toArray();
+        $export['users'] = $this->users->makeHidden('auth_token')->makeHidden('password')->makeHidden('accounts')->toArray();
+        $export['company_tokens'] = $this->tokens()->where('is_web', false)->get()->toArray();
+        $export['account_users'] = $this->account_users->toArray();
+        $export['documents'] = File::where('account_id', $this->id)->get()->toArray();
+        $export['invitations'] = $this->invitations->toArray();
+        $export['reminders'] = $this->reminders->toArray();
+        $export['templates'] = $this->templates->toArray();
+
+        if ($return_array) {
+            return $export;
+        }
+
+        $personal_data->add('attributes.json', $export);
+
+        return true;
     }
 }

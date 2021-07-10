@@ -6,6 +6,7 @@ import TokenModel from '../../models/TokenModel'
 import DropdownMenuBuilder from '../../common/DropdownMenuBuilder'
 import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
+import { toast, ToastContainer } from 'react-toastify'
 
 export default class EditToken extends React.Component {
     constructor (props) {
@@ -18,6 +19,21 @@ export default class EditToken extends React.Component {
         this.toggle = this.toggle.bind(this)
         this.hasErrorFor = this.hasErrorFor.bind(this)
         this.renderErrorFor = this.renderErrorFor.bind(this)
+    }
+
+    static getDerivedStateFromProps (props, state) {
+        if (props.token && props.token.id !== state.id) {
+            const invoiceModel = new TokenModel(props.token)
+            return invoiceModel.fields
+        }
+
+        return null
+    }
+
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.token && this.props.token.id !== prevProps.token.id) {
+            this.tokenModel = new TokenModel(this.props.token)
+        }
     }
 
     handleInput (e) {
@@ -54,12 +70,33 @@ export default class EditToken extends React.Component {
         this.tokenModel.save(data).then(response => {
             if (!response) {
                 this.setState({ errors: this.tokenModel.errors, message: this.tokenModel.error_message })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.token), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
 
+            toast.success(translations.updated_successfully.replace('{entity}', translations.token), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
+
             const index = this.props.tokens.findIndex(token => token.id === this.props.token.id)
             this.props.tokens[index] = response
-            this.props.action(this.props.tokens)
+            this.props.action(this.props.tokens, true)
             this.setState({
                 editMode: false,
                 changesMade: false
@@ -94,6 +131,18 @@ export default class EditToken extends React.Component {
                     <DefaultModalHeader toggle={this.toggle} title={translations.edit_token}/>
 
                     <ModalBody className={theme}>
+                        <ToastContainer
+                            position="top-center"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
+
                         <DropdownMenuBuilder invoices={this.props.tokens} formData={this.getFormData()}
                             model={this.tokenModel}
                             action={this.props.action}/>

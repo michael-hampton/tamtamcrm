@@ -4,6 +4,8 @@ namespace App\Mail\Admin;
 
 use App\Models\Payment;
 use App\Models\User;
+use App\ViewModels\AccountViewModel;
+use App\ViewModels\CustomerViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 
@@ -41,7 +43,8 @@ class PaymentFailed extends AdminMailer
 
         $this->setSubject($data);
         $this->setMessage($data);
-        $this->execute($this->buildMessage());
+        $this->buildButton();
+        $this->execute();
     }
 
     /**
@@ -51,7 +54,7 @@ class PaymentFailed extends AdminMailer
     {
         return [
             'total'    => $this->payment->getFormattedTotal(),
-            'customer' => $this->payment->customer->present()->name(),
+            'customer' => (new CustomerViewModel($this->payment->customer))->name(),
             'invoice'  => $this->payment->getFormattedInvoices(),
         ];
     }
@@ -59,15 +62,11 @@ class PaymentFailed extends AdminMailer
     /**
      * @return array
      */
-    private function buildMessage(): array
+    private function buildButton(): void
     {
-        return [
-            'title'       => $this->subject,
-            'body'        => $this->message,
-            'signature'   => isset($this->payment->account->settings->email_signature) ? $this->payment->account->settings->email_signature : '',
-            'url'         => $this->getUrl() . 'payments/' . $this->payment->id,
-            'button_text' => trans('texts.view_payment'),
-            'logo'        => $this->payment->account->present()->logo(),
+        $this->button = [
+            'signature' => isset($this->payment->account->settings->email_signature) ? $this->payment->account->settings->email_signature : '',
+            'url'       => $this->getUrl() . 'payments/' . $this->payment->id,
         ];
     }
 }

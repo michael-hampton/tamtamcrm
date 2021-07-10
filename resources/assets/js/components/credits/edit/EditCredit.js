@@ -43,6 +43,7 @@ import TaskRepository from '../../repositories/TaskRepository'
 import ExpenseRepository from '../../repositories/ExpenseRepository'
 import ProjectRepository from '../../repositories/ProjectRepository'
 import { getExchangeRateWithMap } from '../../utils/_money'
+import { toast, ToastContainer } from 'react-toastify'
 
 export default class EditCredit extends Component {
     constructor (props, context) {
@@ -51,6 +52,7 @@ export default class EditCredit extends Component {
         const data = this.props.credit ? this.props.credit : null
         this.creditModel = new CreditModel(data, this.props.customers)
         this.initialState = this.creditModel.fields
+        this.initialState.customers = this.props.customers || []
         this.state = this.initialState
 
         this.updateData = this.updateData.bind(this)
@@ -79,11 +81,18 @@ export default class EditCredit extends Component {
         this.settings = user_account[0].account.settings
     }
 
-    componentWillMount () {
-        window.addEventListener('resize', this.handleWindowSizeChange)
+    static getDerivedStateFromProps (props, state) {
+        if (props.credit && props.credit.id && props.credit.id !== state.id) {
+            const creditModel = new CreditModel(props.credit, props.customers)
+            return creditModel.fields
+        }
+
+        return null
     }
 
     componentDidMount () {
+        window.addEventListener('resize', this.handleWindowSizeChange)
+
         if (!this.state.id) {
             if (Object.prototype.hasOwnProperty.call(localStorage, 'creditForm')) {
                 const storedValues = JSON.parse(localStorage.getItem('creditForm'))
@@ -101,6 +110,12 @@ export default class EditCredit extends Component {
         }
     }
 
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.credit && this.props.credit.id && this.props.credit.id !== prevProps.credit.id) {
+            this.creditModel = new CreditModel(this.props.credit, this.state.customers)
+        }
+    }
+
     // make sure to remove the listener
     // when the component is not mounted anymore
     componentWillUnmount () {
@@ -113,7 +128,16 @@ export default class EditCredit extends Component {
         const reducer = new InvoiceReducer(this.props.entity_id, this.props.entity_type)
         repo.getById(this.props.entity_id).then(response => {
             if (!response) {
-                alert('error')
+                toast.error(translations.unexpected_error, {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+                return
             }
 
             console.log('task', response)
@@ -286,14 +310,14 @@ export default class EditCredit extends Component {
             if (!this.state.modalOpen && !this.state.id) {
                 this.setState({
                     changesMade: false,
-                    public_notes: '',
+                    customer_note: '',
                     tax: null,
                     tax_rate_name: '',
                     tax_rate_name_2: '',
                     tax_rate_name_3: '',
                     tax_2: null,
                     tax_3: null,
-                    private_notes: '',
+                    internal_note: '',
                     transaction_fee: null,
                     shipping_cost: null,
                     gateway_fee: null,
@@ -314,6 +338,7 @@ export default class EditCredit extends Component {
                     status_id: null,
                     line_items: [],
                     invitations: [],
+                    contacts: [],
                     return_to_stock: false
                 }, () => localStorage.removeItem('creditForm'))
             }
@@ -413,8 +438,8 @@ export default class EditCredit extends Component {
             sub_total: this.state.sub_total,
             tax_total: this.state.tax_total,
             discount_total: this.state.discount_total,
-            public_notes: this.state.public_notes,
-            private_notes: this.state.private_notes,
+            customer_note: this.state.customer_note,
+            internal_note: this.state.internal_note,
             po_number: this.state.po_number,
             terms: this.state.terms,
             footer: this.state.footer,
@@ -447,14 +472,35 @@ export default class EditCredit extends Component {
                     showErrorMessage: true,
                     loading: false
                 })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.credit), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.credit), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
 
             if (!this.state.id) {
                 const firstInvoice = response
                 const allInvoices = this.props.credits
-                allInvoices.push(firstInvoice)
-                this.props.action(allInvoices)
+                allInvoices.unshift(firstInvoice)
+                this.props.action(allInvoices, true)
                 localStorage.removeItem('creditForm')
                 this.setState(this.initialState)
                 return
@@ -462,8 +508,8 @@ export default class EditCredit extends Component {
 
             const index = this.props.credits.findIndex(credit => credit.id === this.state.id)
             this.props.credits[index] = response
-            this.props.action(this.props.credits)
-            this.setState({ loading: false, changesMade: false })
+            this.props.action(this.props.credits, true)
+            this.setState({ loading: false, changesMade: false, modalOpen: false })
         })
     }
 
@@ -474,7 +520,7 @@ export default class EditCredit extends Component {
     }
 
     reload (data) {
-        this.creditModel = new CreditModel(data, this.props.customers)
+        this.creditModel = new CreditModel(data, this.state.customers)
         this.initialState = this.creditModel.fields
         this.initialState.modalOpen = true
         this.setState(this.initialState)
@@ -549,12 +595,14 @@ export default class EditCredit extends Component {
         </Nav>
 
         const details = this.state.is_mobile
-            ? <Detailsm hide_customer={this.state.id === null} address={this.state.address}
-                customerName={this.state.customerName} handleInput={this.handleInput}
-                customers={this.props.customers}
-                errors={this.state.errors} credit={this.state}/>
+            ? <Detailsm updateCustomers={(customers) => {
+                this.setState({ customers: customers })
+            }} hide_customer={this.state.id === null} address={this.state.address}
+            customerName={this.state.customerName} handleInput={this.handleInput}
+            customers={this.state.customers}
+            errors={this.state.errors} credit={this.state}/>
             : <Details address={this.state.address} customerName={this.state.customerName} handleInput={this.handleInput}
-                customers={this.props.customers}
+                customers={this.state.customers}
                 errors={this.state.errors} credit={this.state}/>
 
         const custom = <CustomFieldsForm handleInput={this.handleInput} custom_value1={this.state.custom_value1}
@@ -570,11 +618,13 @@ export default class EditCredit extends Component {
                 contacts={this.state.contacts}
                 invitations={this.state.invitations}
                 handleContactChange={this.handleContactChange}/>
-            : <Contacts address={this.state.address} hide_customer={this.state.id === null}
-                customerName={this.state.customerName}
-                handleInput={this.handleInput} invoice={this.state} errors={this.state.errors}
-                contacts={this.state.contacts}
-                invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
+            : <Contacts updateCustomers={(customers) => {
+                this.setState({ customers: customers })
+            }} address={this.state.address} hide_customer={this.state.id === null}
+            customerName={this.state.customerName}
+            handleInput={this.handleInput} invoice={this.state} errors={this.state.errors}
+            contacts={this.state.contacts} customers={this.state.customers}
+            invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
 
         const settings = <InvoiceSettings is_mobile={this.state.is_mobile} handleSurcharge={this.handleSurcharge}
             settings={this.state}
@@ -583,7 +633,7 @@ export default class EditCredit extends Component {
             is_amount_discount={this.state.is_amount_discount}
             design_id={this.state.design_id}/>
 
-        const items = <Items line_type={this.state.line_type} model={this.creditModel} customers={this.props.customers}
+        const items = <Items line_type={this.state.line_type} model={this.creditModel} customers={this.state.customers}
             credit={this.state} errors={this.state.errors}
             handleFieldChange={this.handleFieldChange}
             handleAddFiled={this.handleAddFiled} setTotal={this.setTotal}
@@ -592,19 +642,19 @@ export default class EditCredit extends Component {
         const notes = !this.state.is_mobile
             ? <NoteTabs model={this.creditModel}
                 show_exchange={this.creditModel.account_currency.exchange_rate !== this.state.exchange_rate}
-                invoice={this.state} private_notes={this.state.private_notes}
-                public_notes={this.state.public_notes}
+                invoice={this.state} internal_note={this.state.internal_note}
+                customer_note={this.state.customer_note}
                 terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}
                 handleInput={this.handleInput}/>
-            : <Notes model={this.creditModel} private_notes={this.state.private_notes}
-                public_notes={this.state.public_notes}
+            : <Notes model={this.creditModel} internal_note={this.state.internal_note}
+                customer_note={this.state.customer_note}
                 terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}
                 handleInput={this.handleInput}/>
 
         const email_editor = this.state.id
-            ? <Emails model={this.creditModel} emails={this.state.emails} template="email_template_credit"
+            ? <Emails width="500" model={this.creditModel} emails={this.state.emails} template="credit"
                 show_editor={true}
-                customers={this.props.customers} entity_object={this.state} entity="credit"
+                customers={this.state.customers} entity_object={this.state} entity="credit"
                 entity_id={this.state.id}/> : null
 
         const documents = this.state.id ? <Documents credit={this.state}/> : null
@@ -708,7 +758,7 @@ export default class EditCredit extends Component {
                             </Col>
 
                             <Col md={3} className="m-3">
-                                <TotalsBox invoice={this.state}/>
+                                <TotalsBox settings={this.settings} invoice={this.state}/>
                             </Col>
                         </Row>
                     </TabPane>
@@ -752,6 +802,18 @@ export default class EditCredit extends Component {
                             title={this.creditModel.isNew ? translations.add_credit : translations.edit_credit}/>
 
                         <ModalBody className={theme}>
+                            <ToastContainer
+                                position="top-center"
+                                autoClose={5000}
+                                hideProgressBar={false}
+                                newestOnTop={false}
+                                closeOnClick
+                                rtl={false}
+                                pauseOnFocusLoss
+                                draggable
+                                pauseOnHover
+                            />
+
                             {form}
                         </ModalBody>
                         <DefaultModalFooter show_success={true} toggle={this.toggle} saveData={this.saveData}

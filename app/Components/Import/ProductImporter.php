@@ -11,17 +11,27 @@ use App\Factory\ProductFactory;
 use App\Models\Account;
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Deal;
 use App\Models\Product;
 use App\Models\User;
 use App\Repositories\BrandRepository;
 use App\Repositories\CategoryRepository;
+use App\Repositories\DealRepository;
 use App\Repositories\ProductRepository;
+use App\Requests\SearchRequest;
+use App\Search\DealSearch;
+use App\Search\ProductSearch;
 use App\Transformations\ProductTransformable;
 
 class ProductImporter extends BaseCsvImporter
 {
     use ImportMapper;
     use ProductTransformable;
+
+    /**
+     * @var string
+     */
+    protected string $json;
 
     protected $entity;
     private array $export_columns = [
@@ -37,8 +47,8 @@ class ProductImporter extends BaseCsvImporter
         'sku'           => 'sku',
         'category_id'   => 'category name',
         'brand_id'      => 'brand name',
-        'public_notes'  => 'public notes',
-        'private_notes' => 'private notes'
+        'customer_note'  => 'public notes',
+        'internal_note' => 'private notes'
     ];
     /**
      * @var array|string[]
@@ -56,8 +66,8 @@ class ProductImporter extends BaseCsvImporter
         'sku'           => 'sku',
         'category name' => 'category_name',
         'brand name'    => 'brand_id',
-        'public notes'  => 'public_notes',
-        'private notes' => 'private_notes'
+        'public notes'  => 'customer_note',
+        'private notes' => 'internal_note'
     ];
     /**
      * @var Account
@@ -153,7 +163,7 @@ class ProductImporter extends BaseCsvImporter
     {
         if (empty($this->categories)) {
             $this->categories = Category::where('account_id', $this->account->id)->where(
-                'is_deleted',
+                'hide',
                 false
             )->get()->keyBy('name')->toArray();
 
@@ -194,7 +204,7 @@ class ProductImporter extends BaseCsvImporter
     {
         if (empty($this->categories)) {
             $this->categories = Category::where('account_id', $this->account->id)->where(
-                'is_deleted',
+                'hide',
                 false
             )->get()->keyBy('id');
         }
@@ -206,24 +216,28 @@ class ProductImporter extends BaseCsvImporter
         return $this->categories[$id];
     }
 
-    public function export()
+    public function export($is_json = false)
     {
         $export_columns = $this->getExportColumns();
-        $list = Product::where('account_id', '=', $this->account->id)->get();
 
-        $products = $list->map(
-            function (Product $product) {
-                $object = $this->transformObject($product);
+        $search_request = new SearchRequest();
+        $search_request->replace(['column' => 'created_at', 'order' => 'desc']);
 
-                if ($product->categories->count() > 0) {
-                    $object['category_id'] = implode(' | ', $product->categories()->pluck('name')->toArray());
-                }
+        $products = (new ProductSearch(new ProductRepository(new Product())))->filter($search_request, $this->account);
 
-                return $object;
-            }
-        )->all();
+        foreach ($products as $key => $product) {
+            $products[$key]['category_id'] = implode(' | ', $product['category_ids']);
+        }
+
+        if ($is_json) {
+            $this->export->sendJson('product', $products);
+            $this->json = json_encode($products);
+            return true;
+        }
 
         $this->export->build(collect($products), $export_columns);
+
+        $this->export->notifyUser('product');
 
         return true;
     }
@@ -243,6 +257,14 @@ class ProductImporter extends BaseCsvImporter
         return $this->export->getContent();
     }
 
+    /**
+     * @return string
+     */
+    public function getJson(): string
+    {
+        return $this->json;
+    }
+
     public function getTemplate()
     {
         return asset('storage/templates/products.csv');
@@ -256,7 +278,7 @@ class ProductImporter extends BaseCsvImporter
     {
         if (empty($this->brands)) {
             $this->brands = Brand::where('account_id', $this->account->id)->where(
-                'is_deleted',
+                'hide',
                 false
             )->get()->keyBy('name')->toArray();
 

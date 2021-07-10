@@ -2,14 +2,18 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CompanyGateway extends Model
 {
     use HasFactory;
     use Archiveable;
+    use QueryScopes;
+    use SoftDeletes;
 
     protected $casts = [
         //'fields'          => 'object',
@@ -20,6 +24,8 @@ class CompanyGateway extends Model
         'deleted_at' => 'timestamp',
     ];
     protected $fillable = [
+        'account_id',
+        'user_id',
         'name',
         'description',
         'gateway_key',
@@ -52,5 +58,10 @@ class CompanyGateway extends Model
     public function error_logs()
     {
         return ErrorLog::where('entity', '=', $this->gateway_key)->get();
+    }
+
+    public function scopeByGatewayKey($query, string $gateway_key, Account $account)
+    {
+        return $query->where('gateway_key', '=', $gateway_key)->where('account_id', '=', $account->id);
     }
 }

@@ -10,7 +10,6 @@ use App\Repositories\Base\BaseRepository;
 use App\Repositories\Interfaces\CompanyRepositoryInterface;
 use App\Requests\SearchRequest;
 use App\Search\CompanySearch;
-use Exception;
 use Illuminate\Support\Collection as Support;
 
 class CompanyRepository extends BaseRepository implements CompanyRepositoryInterface
@@ -41,15 +40,6 @@ class CompanyRepository extends BaseRepository implements CompanyRepositoryInter
     }
 
     /**
-     * @return bool
-     * @throws Exception
-     */
-    public function deleteCompany(): bool
-    {
-        return $this->delete();
-    }
-
-    /**
      * @param SearchRequest $search_request
      * @param Account $account
      * @return Support
@@ -64,25 +54,23 @@ class CompanyRepository extends BaseRepository implements CompanyRepositoryInter
         return $this->model;
     }
 
-    /**
-     * @param array $data
-     * @param Company $company
-     * @return Company|null
-     */
-    public function save(array $data, Company $company): ?Company
+    public function create(array $data, Company $company): Company
     {
-        $is_add = empty($company->id);
-
         $company->fill($data);
         $company->setNumber();
         $company->save();
 
-        if ($is_add) {
-            event(new CompanyWasCreated($company));
-        } else {
-            event(new CompanyWasUpdated($company));
-        }
+        event(new CompanyWasCreated($company));
 
-        return $company->fresh();
+        return $company;
+    }
+
+    public function update(array $data, Company $company): Company
+    {
+        $company->update($data);
+
+        event(new CompanyWasUpdated($company));
+
+        return $company;
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Search;
 
 use App\Models\Account;
+use App\Models\File;
 use App\Models\Task;
 use App\Repositories\TaskRepository;
 use App\Requests\SearchRequest;
@@ -37,7 +38,7 @@ class TaskSearch extends BaseSearch
     public function filter(SearchRequest $request, Account $account)
     {
         $recordsPerPage = !$request->per_page ? 0 : $request->per_page;
-        $orderBy = !$request->column ? 'task_sort_order' : $request->column;
+        $orderBy = !$request->column ? 'order_id' : 'tasks.' . $request->column;
         $orderDir = !$request->order ? 'asc' : $request->order;
 
         $this->query =
@@ -48,23 +49,25 @@ class TaskSearch extends BaseSearch
         }
 
         if ($request->filled('customer_id')) {
-            $this->query->whereCustomerId($request->customer_id);
+            $this->query->byCustomer($request->customer_id);
         }
 
         if ($request->filled('project_id')) {
-            $this->query->whereProjectId($request->project_id);
+            $this->query->byProject($request->project_id);
         }
 
         if ($request->filled('id')) {
-            $this->query->whereId($request->id);
+            $this->query->byId($request->id);
         }
 
         if ($request->filled('user_id')) {
-            $this->query->where('assigned_to', '=', $request->user_id);
+            $this->query->byAssignee($request->user_id);
         }
 
         if ($request->filled('task_status')) {
             $this->status('tasks', $request->task_status, 'task_status_id');
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->filled('task_type')) {
@@ -76,10 +79,10 @@ class TaskSearch extends BaseSearch
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
-            $this->filterDates($request);
+            $this->query->byDate($request->input('start_date'), $request->input('end_date'));
         }
 
-        $this->addAccount($account);
+        $this->query->byAccount($account);
 
         $this->checkPermissions('taskcontroller.index', 'tasks');
 
@@ -126,10 +129,12 @@ class TaskSearch extends BaseSearch
      */
     private function transformList()
     {
-        $list = $this->query->get();
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['tasks'])->get();
+        $files = File::where('fileable_type', '=', 'App\Models\Task')->get()->groupBy('fileable_id');
+
         $tasks = $list->map(
-            function (Task $task) {
-                return $this->transformTask($task);
+            function (Task $task) use ($files) {
+                return $this->transformTask($task, $files);
             }
         )->all();
 
@@ -140,12 +145,15 @@ class TaskSearch extends BaseSearch
     {
         $this->query = DB::table('tasks')
                          ->select(
-                             DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance')
+                             DB::raw(
+                                 'count(*) as count, currencies.name, SUM(tasks.total) as total, SUM(tasks.balance) AS balance'
+                             )
                          )
-                         ->join('currencies', 'currencies.id', '=', 'invoices.currency_id')
-                         ->where('currency_id', '<>', 0)
-                         ->where('account_id', '=', $account->id)
-                         ->groupBy('currency_id')
+                         ->join('customers', 'customers.id', '=', 'tasks.customer_id')
+                         ->join('currencies', 'currencies.id', '=', 'customers.currency_id')
+                         ->where('customers.currency_id', '<>', 0)
+                         ->where('tasks.account_id', '=', $account->id)
+                         ->groupBy('customers.currency_id')
                          ->get();
     }
 
@@ -159,16 +167,144 @@ class TaskSearch extends BaseSearch
                 DB::raw(
                     'count(*) as count, customers.name AS customer, task_statuses.name AS status, projects.name AS project, CONCAT(users.first_name," ",users.last_name) as assigned_to'
                 )
-            )
-                        ->groupBy($request->input('group_by'));
+            );
+
+            $this->query->addSelect(
+                DB::raw(
+                    "    CONCAT(
+        LPAD(
+            HOUR(
+                SEC_TO_TIME(
+                    SUM(
+                        TIMESTAMPDIFF(
+                            SECOND,
+                            timers.started_at,
+                            timers.stopped_at
+                        )
+                    )
+                )
+            ),
+            2,
+            0
+        ),
+        ':',
+        LPAD(
+            MINUTE(
+                SEC_TO_TIME(
+                    SUM(
+                        TIMESTAMPDIFF(
+                            SECOND,
+                            timers.started_at,
+                            timers.stopped_at
+                        )
+                    )
+                )
+            ),
+            2,
+            0
+        ),
+        ':',
+        LPAD(
+            SECOND(
+                SEC_TO_TIME(
+                    SUM(
+                        TIMESTAMPDIFF(
+                            SECOND,
+                            timers.started_at,
+                            timers.stopped_at
+                        )
+                    )
+                )
+            ),
+            2,
+            0
+        )
+    ) AS duration"
+                )
+            );
+
+            $this->query->groupBy($request->input('group_by'));
         } else {
             $this->query->select(
-                'customers.name AS customer', 'task_statuses.name AS status', 'projects.name AS project', 'timers.started_at', 'timers.stopped_at', 'tasks.name', 'tasks.description', 'tasks.due_date',
-                DB::raw('CONCAT(first_name," ",last_name) as assigned_to')
+                'customers.name AS customer',
+                'customers.balance AS customer_balance',
+                'billing.address_1',
+                'billing.address_2',
+                'billing.city',
+                'billing.state_code AS state',
+                'billing.zip',
+                'billing_country.name AS country',
+                'shipping.address_1 AS shipping_address_1',
+                'shipping.address_2 AS shipping_address_2',
+                'shipping.city AS shipping_city',
+                'shipping.state_code AS shipping_town',
+                'shipping.zip AS shipping_zip',
+                'shipping_country.name AS shipping_country',
+                'task_statuses.name AS status',
+                'projects.name AS project',
+                'timers.started_at',
+                'timers.stopped_at',
+                'tasks.name',
+                'tasks.description',
+                'tasks.due_date',
+                DB::raw('CONCAT(first_name," ",last_name) as assigned_to'),
+                DB::raw(
+                    "CONCAT(
+                                LPAD(
+                                    HOUR(
+                                        SEC_TO_TIME(
+                                            TIMESTAMPDIFF(
+                                                SECOND,
+                                                timers.started_at,
+                                                timers.stopped_at
+                                            )
+                                        )
+                                    ),
+                                    2,
+                                    0
+                                ),
+                                ':',
+                                LPAD(
+                                    MINUTE(
+                                        SEC_TO_TIME(
+                                            TIMESTAMPDIFF(
+                                                SECOND,
+                                                timers.started_at,
+                                                timers.stopped_at
+                                            )
+                                        )
+                                    ),
+                                    2,
+                                    0
+                                ),
+                                ':',
+                                LPAD(
+                                    SECOND(
+                                        SEC_TO_TIME(
+                                            TIMESTAMPDIFF(
+                                                SECOND,
+                                                timers.started_at,
+                                                timers.stopped_at
+                                            )
+                                        )
+                                    ),
+                                    2,
+                                    0
+                                )
+                            ) AS duration"
+                ),
+                'tasks.custom_value1 AS custom1',
+                'tasks.custom_value2 AS custom2',
+                'tasks.custom_value3 AS custom3',
+                'tasks.custom_value4 AS custom4',
             );
         }
 
         $this->query->join('customers', 'customers.id', '=', 'tasks.customer_id')
+                    ->leftJoin('addresses AS billing', 'billing.customer_id', '=', 'customers.id')
+                    ->leftJoin('addresses AS shipping', 'shipping.customer_id', '=', 'customers.id')
+                    ->leftJoin('countries AS billing_country', 'billing_country.id', '=', 'billing.country_id')
+                    ->leftJoin('countries AS shipping_country', 'shipping_country.id', '=', 'shipping.country_id')
                     ->leftJoin('timers', 'timers.task_id', '=', 'tasks.id')
                     ->join('task_statuses', 'task_statuses.id', '=', 'tasks.task_status_id')
                     ->leftJoin('users', 'users.id', '=', 'tasks.assigned_to')
@@ -177,22 +313,35 @@ class TaskSearch extends BaseSearch
 
         $order = $request->input('orderByField');
 
-        if ($order === 'status') {
-            $this->query->orderBy('task_statuses.name', $request->input('orderByDirection'));
-        } elseif ($order === 'project') {
-            $this->query->orderBy('projects.name', $request->input('orderByDirection'));
-        } elseif ($order === 'customer') {
-            $this->query->orderBy('customers.name', $request->input('orderByDirection'));
-        } elseif($order === 'started_at') {
-            $this->query->orderBy('timers.started_at', $request->input('orderByDirection'));
-        } elseif($order === 'stopped_at') {
-            $this->query->orderBy('timers.stopped_at', $request->input('orderByDirection'));
-        } else {
-            $this->query->orderBy('tasks.' . $order, $request->input('orderByDirection'));
+        if (!empty($order)) {
+            if ($order === 'status') {
+                $this->query->orderBy('task_statuses.name', $request->input('orderByDirection'));
+            } elseif ($order === 'project') {
+                $this->query->orderBy('projects.name', $request->input('orderByDirection'));
+            } elseif (!empty($this->field_mapping[$order])) {
+                $order = str_replace('$table', 'tasks', $this->field_mapping[$order]);
+                $this->query->orderBy($order, $request->input('orderByDirection'));
+            } elseif ($order === 'started_at') {
+                $this->query->orderBy('timers.started_at', $request->input('orderByDirection'));
+            } elseif ($order === 'stopped_at') {
+                $this->query->orderBy('timers.stopped_at', $request->input('orderByDirection'));
+            } elseif ($order === 'duration') {
+                $this->query->orderByRaw(
+                    'FLOOR(TIMESTAMPDIFF(MINUTE, timers.started_at, timers.stopped_at)/60) ' . $request->input(
+                        'orderByDirection'
+                    )
+                );
+            } else {
+                $this->query->orderBy('tasks.' . $order, $request->input('orderByDirection'));
+            }
         }
 
-        if(!empty($request->input('date_format'))) {
-           $this->filterByDate($request->input('date_format'), 'tasks');
+
+        if (!empty($request->input('date_format'))) {
+            $params = explode('|', $request->input('date_format'));
+            $table = in_array($params[0], ['started_at', 'stopped_at']) ? 'timers' : 'tasks';
+
+            $this->filterByDate($request->input('date_format'), $table);
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {

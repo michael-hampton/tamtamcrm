@@ -3,16 +3,22 @@
 namespace Tests\Unit;
 
 use App\Factory\TaskFactory;
+use App\Factory\TimerFactory;
+use App\Jobs\Task\TaskOverlap;
 use App\Models\Account;
 use App\Models\Customer;
 use App\Models\Project;
 use App\Models\Task;
+use App\Models\TaskStatus;
+use App\Models\Timer;
 use App\Models\User;
 use App\Repositories\ProjectRepository;
 use App\Repositories\TaskRepository;
+use App\Repositories\TimerRepository;
 use App\Requests\SearchRequest;
 use App\Search\TaskSearch;
 use App\Transformations\TaskTransformable;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -107,18 +113,24 @@ class TaskTest extends TestCase
         $data = [
             'account_id'   => $this->account->id,
             'task_type'    => 1,
-            'task_status_id'  => 1,
+            //'task_status_id'  => 1,
             'customer_id'  => $this->customer->id,
             'name'         => $this->faker->word,
-            'description'      => $this->faker->sentence,
+            'description'  => $this->faker->sentence,
             'is_completed' => 0,
             'due_date'     => $this->faker->dateTime,
         ];
 
+        $order_id = Task::max('order_id') + 1;
+        $task_status = TaskStatus::ByTaskType(1)->orderBy('order_id', 'asc')->first();
+
         $taskRepo = new TaskRepository(new Task, new ProjectRepository(new Project));
         $factory = (new TaskFactory())->create($this->user, $this->account);
         $task = $taskRepo->createTask($data, $factory);
+
         $this->assertInstanceOf(Task::class, $task);
+        $this->assertEquals($task->task_status_id, $task_status->id);
+        $this->assertEquals($task->order_id, $order_id);
         $this->assertEquals($data['name'], $task->name);
     }
 
@@ -128,15 +140,15 @@ class TaskTest extends TestCase
         $project = Project::factory()->create();
 
         $data = [
-            'project_id'   => $project->id,
-            'account_id'   => $this->account->id,
-            'task_type'    => 1,
-            'task_status_id'  => 1,
-            'customer_id'  => $this->customer->id,
-            'name'         => $this->faker->word,
-            'description'      => $this->faker->sentence,
-            'is_completed' => 0,
-            'due_date'     => $this->faker->dateTime,
+            'project_id'     => $project->id,
+            'account_id'     => $this->account->id,
+            'task_type'      => 1,
+            'task_status_id' => 1,
+            'customer_id'    => $this->customer->id,
+            'name'           => $this->faker->word,
+            'description'    => $this->faker->sentence,
+            'is_completed'   => 0,
+            'due_date'       => $this->faker->dateTime,
         ];
 
         $taskRepo = new TaskRepository(new Task, new ProjectRepository(new Project));
@@ -175,16 +187,45 @@ class TaskTest extends TestCase
 
         $address = Task::factory()->create(
             [
-                'account_id' => $this->account->id,
-                'name'       => $name,
-                'description'    => $description,
-                'due_date'   => $due_date
+                'account_id'  => $this->account->id,
+                'name'        => $name,
+                'description' => $description,
+                'due_date'    => $due_date
             ]
         );
 
         $transformed = $this->transformTask($address);
         $this->assertNotEmpty($transformed);
     }
+
+    /*public function test_task_overlap() {
+        $task = Task::factory()->create();
+
+        $data = [
+            'date'       => Carbon::now()->format('Y-m-d'),
+            'start_time' => Carbon::now()->format('Y-m-d H:i:s'),
+            'end_time'   => Carbon::now()->addDay()->addMinutes(10)->format('Y-m-d H:i:s'),
+        ];
+
+        $timerRepo = new TimerRepository(new Timer());
+        $factory = (new TimerFactory())->create($this->user, $this->account, $task);
+        $timer = $timerRepo->save($task, $factory, $data);
+
+        $data = [
+            'date'       => Carbon::now()->format('Y-m-d'),
+            'start_time' => Carbon::now()->addMinutes(4)->format('Y-m-d H:i:s'),
+            'end_time'   => Carbon::now()->addDay()->addMinutes(30)->format('Y-m-d H:i:s'),
+        ];
+
+        $timerRepo = new TimerRepository(new Timer());
+        $factory = (new TimerFactory())->create($this->user, $this->account, $task);
+        $timer2 = $timerRepo->save($task, $factory, $data);
+
+        echo 'timers - ' . $timer->started_at . ':' . $timer->stopped_at . ' ts - ' . $timer2->started_at . ':' . $timer2->stopped_at;
+
+        TaskOverlap::dispatchNow(new TaskRepository(new Task(), new ProjectRepository(new Project())), $this->user);
+        die;
+    } */
 
     public function tearDown(): void
     {

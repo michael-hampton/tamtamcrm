@@ -3,6 +3,7 @@
 namespace App\Notifications\Account;
 
 use App\Models\Account;
+use App\ViewModels\AccountViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -40,7 +41,11 @@ class NewAccount extends Notification implements ShouldQueue
                         'button_text' => trans('texts.new_account_created_button'),
                         'url'         => url(config('taskmanager.site_url')),
                         'signature'   => isset($this->account->settings->email_signature) ? $this->account->settings->email_signature : '',
-                        'logo'        => $this->account->present()->logo(),
+                        'logo'        => (new AccountViewModel($this->account))->logo(),
+                        'show_footer' => empty($this->account->domains->plan) || !in_array(
+                                $this->account->domains->plan->code,
+                                ['PROM', 'PROY']
+                            )
                     ]
                 ]
             );

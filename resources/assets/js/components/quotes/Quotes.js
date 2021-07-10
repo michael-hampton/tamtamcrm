@@ -9,11 +9,17 @@ import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import queryString from 'query-string'
 import { getDefaultTableFields } from '../presenters/QuotePresenter'
+import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class Quotes extends Component {
     constructor (props) {
         super(props)
         this.state = {
+            currentPage: 1,
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             error: '',
@@ -57,12 +63,37 @@ export default class Quotes extends Component {
         this.getCustomFields()
     }
 
-    updateInvoice (quotes) {
+    updateInvoice (quotes, do_filter = false, filters = null) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? quotes : this.state.cachedData
+
+        if (should_filter) {
+            quotes = filterStatuses(quotes, '', this.state.filters)
+        }
+
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             quotes: quotes,
             cachedData: cachedData
+        }, () => {
+            const totalPages = Math.ceil(quotes.length / this.state.pageLimit)
+            this.onPageChanged({ invoices: quotes, currentPage: this.state.currentPage, totalPages: totalPages })
         })
+    }
+
+    onPageChanged (data) {
+        let { quotes, pageLimit } = this.state
+        const { currentPage, totalPages } = data
+
+        if (data.invoices) {
+            quotes = data.invoices
+        }
+
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = quotes.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
+
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     filterInvoices (filters) {
@@ -74,12 +105,15 @@ export default class Quotes extends Component {
     }
 
     userList (props) {
-        const { quotes, custom_fields, customers } = this.state
-        return <QuoteItem showCheckboxes={props.showCheckboxes} quotes={quotes} customers={customers}
+        const { pageLimit, custom_fields, customers, currentInvoices, cachedData } = this.state
+        return <QuoteItem showCheckboxes={props.showCheckboxes} quotes={currentInvoices} customers={customers}
             show_list={props.show_list}
+            entities={cachedData}
+            onPageChanged={this.onPageChanged.bind(this)}
+            pageLimit={pageLimit}
             custom_fields={custom_fields}
             viewId={props.viewId}
-            ignoredColumns={getDefaultTableFields()} updateInvoice={this.updateInvoice}
+            ignoredColumns={props.default_columns} updateInvoice={this.updateInvoice}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -142,9 +176,9 @@ export default class Quotes extends Component {
     }
 
     render () {
-        const { quotes, custom_fields, customers, view, filters, error, isOpen, error_message, success_message, show_success } = this.state
-        const { status_id, customer_id, searchText, start_date, end_date, project_id, user_id } = this.state.filters
-        const fetchUrl = `/api/quote?search_term=${searchText}&status=${status_id}&user_id=${user_id}&customer_id=${customer_id}&project_id=${project_id}&start_date=${start_date}&end_date=${end_date}`
+        const { cachedData, quotes, custom_fields, customers, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, pageLimit } = this.state
+        const { start_date, end_date } = this.state.filters
+        const fetchUrl = `/api/quote?start_date=${start_date}&end_date=${end_date}`
         const addButton = customers.length ? <EditQuote
             entity_id={this.state.entity_id}
             entity_type={this.state.entity_type}
@@ -153,12 +187,13 @@ export default class Quotes extends Component {
             invoice={{}}
             add={true}
             action={this.updateInvoice}
-            invoices={quotes}
+            invoices={cachedData}
             modal={true}
         /> : null
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable fixed-margin-datatable-mobile'
+        const total = quotes.length
 
         return (
             <Row>
@@ -166,7 +201,11 @@ export default class Quotes extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <QuoteFilters setFilterOpen={this.setFilterOpen.bind(this)} quotes={quotes}
+                                <QuoteFilters
+                                    pageLimit={pageLimit}
+                                    cachedData={cachedData}
+                                    updateList={this.updateInvoice}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} quotes={quotes}
                                     customers={customers}
                                     filters={filters} filter={this.filterInvoices}
                                     saveBulk={this.saveBulk}/>
@@ -195,6 +234,12 @@ export default class Quotes extends Component {
                         <Card>
                             <CardBody>
                                 <DataTable
+
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
+
                                     default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
                                     setError={this.setError.bind(this)}
@@ -210,6 +255,13 @@ export default class Quotes extends Component {
                                     fetchUrl={fetchUrl}
                                     updateState={this.updateInvoice}
                                 />
+
+                                {total > 0 &&
+                                <div className="d-flex flex-row py-4 align-items-center">
+                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>

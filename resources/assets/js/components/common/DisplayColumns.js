@@ -44,47 +44,57 @@ export default class DisplayColumns extends Component {
         }
 
         this.setState({ values: arrTest, initialState: arrTest, selected: arrSelected }, function () {
-            console.log('columns', this.state.values)
+            // console.log('columns', this.state.values)
             console.log('selected', this.state.selected)
         })
     }
 
     handleChange (selected) {
+        console.log('selected', selected)
+
+        let ignored = this.props.default_columns || []
+
         if (selected && selected.length) {
-            selected.forEach((user) => {
-                if (this.props.ignored_columns.includes(user.value)) {
-                    const values = this.state.values.filter(item => item.value !== user.value)
-                    this.setState({ values: values })
-                    const ignored = this.props.ignored_columns.filter(item => item !== user.value)
-                    this.props.onChange2(ignored)
-                } else {
-                    // alert('not in ignored ' + user.value)
-                }
+            const values = selected.map((value, index) => {
+                return value.value
             })
 
-            this.state.selected.forEach((user) => {
-                let found = false
-                selected.forEach((user2) => {
-                    if (user2.value === user.value) {
-                        found = true
-                    }
-                })
+            if (ignored && values) {
+                ignored = ignored.filter(item => values.includes(item))
+            }
 
-                if (!found) {
-                    const { values } = this.state
-                    values.push({ label: user.value, value: user.value })
-                    this.setState({ values: values })
-                    this.props.ignored_columns.push(user.value)
-                    this.props.onChange2(this.props.ignored_columns)
-                }
-            })
+            const ignored2 = values.filter(item => !ignored.includes(item))
 
-            this.setState({ selected: selected })
-        } else {
-            alert('You must have at least one column')
-            // this.props.onChange2([])
-            // this.setState({ selected: this.state.initialState, values: this.state.initialState })
+            if (ignored2 && ignored2.length) {
+                ignored = ignored.concat(ignored2)
+            }
+
+            // console.log('ignored', ignored)
+            // console.log('ignored2', ignored2)
         }
+
+        this.props.onChange2(ignored)
+        const arrSelected = []
+        const arrTest = []
+
+        this.setState({ selected: selected })
+
+        /* if (ignored && ignored.length) {
+            this.props.columns.forEach(column => {
+                if (ignored.includes(column)) {
+                    arrSelected.push({ label: column, value: column })
+                } else {
+                    arrTest.push({ label: column, value: column })
+                }
+            })
+        }
+
+        console.log('selected', arrSelected)
+
+        this.setState({ values: arrTest, initialState: arrTest, selected: arrSelected }, function () {
+            // console.log('columns', this.state.values)
+            // console.log('selected', this.state.selected)
+        }) */
     }
 
     render () {

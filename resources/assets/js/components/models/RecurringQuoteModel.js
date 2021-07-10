@@ -2,13 +2,15 @@ import axios from 'axios'
 import moment from 'moment'
 import BaseModel, { EntityStats, LineItem } from './BaseModel'
 import { consts } from '../utils/_consts'
+import InvoiceCalculations from './InvoiceCalculations'
+import { buildPdf } from '../utils/Pdf'
 
 export const quote_pdf_fields = ['$quote.quote_number', '$quote.po_number', '$quote.quote_date', '$quote.valid_until', '$quote.balance_due',
     '$quote.quote_total', '$quote.partial_due', '$quote.quote1', '$quote.quote2', '$quote.quote3', '$quote.quote4', '$quote.surcharge1',
     '$quote.surcharge2', '$invoice.surcharge3', '$invoice.surcharge4'
 ]
 
-export default class RecurringQuoteModel extends BaseModel {
+class RecurringQuoteModel extends BaseModel {
     constructor (data = null, customers = []) {
         super()
         this.customers = customers
@@ -64,8 +66,8 @@ export default class RecurringQuoteModel extends BaseModel {
             partial: 0,
             has_partial: false,
             partial_due_date: moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
-            public_notes: '',
-            private_notes: '',
+            customer_note: '',
+            internal_note: '',
             terms: '',
             footer: '',
             visible: 'collapse',
@@ -155,7 +157,7 @@ export default class RecurringQuoteModel extends BaseModel {
             return ''
         }
 
-        return this.customer.public_notes || ''
+        return this.customer.customer_note || ''
     }
 
     get default_terms () {
@@ -273,7 +275,7 @@ export default class RecurringQuoteModel extends BaseModel {
             actions.push('stop_recurring')
         }
 
-        if (!this.fields.is_deleted) {
+        if (!this.fields.hide) {
             actions.push('delete')
         }
 
@@ -346,11 +348,11 @@ export default class RecurringQuoteModel extends BaseModel {
         }
     }
 
-    async loadPdf () {
+    async loadPdf (show_html = false) {
         try {
             this.errors = []
             this.error_message = ''
-            const res = await axios.post('api/preview', { entity: this.entity, entity_id: this._fields.id })
+            const res = await axios.post('api/preview', { entity: this.entity, entity_id: this._fields.id, show_html: show_html })
 
             if (res.status === 200) {
                 // test for status you want, etc
@@ -358,7 +360,7 @@ export default class RecurringQuoteModel extends BaseModel {
             }
 
             // Don't forget to return something
-            return this.buildPdf(res.data)
+            return buildPdf(res.data)
         } catch (e) {
             alert(e)
             this.handleError(e)
@@ -451,3 +453,7 @@ export default class RecurringQuoteModel extends BaseModel {
         return entityStats.present()
     }
 }
+
+Object.assign(RecurringQuoteModel.prototype, InvoiceCalculations)
+
+export default RecurringQuoteModel

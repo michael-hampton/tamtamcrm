@@ -78,10 +78,7 @@ trait ExportMapper
     public function getExpenseCategory(int $id)
     {
         if (empty($this->expense_categories)) {
-            $this->expense_categories = ExpenseCategory::where('account_id', $this->account->id)->where(
-                'is_deleted',
-                false
-            )->get()->keyBy('id');
+            $this->expense_categories = ExpenseCategory::byAccount($this->account)->active()->get()->keyBy('id');
         }
 
         if (empty($this->expense_categories) || empty($this->expense_categories[$id])) {
@@ -98,7 +95,7 @@ trait ExportMapper
     private function getProduct(int $id): ?string
     {
         if (empty($this->products)) {
-            $this->products = Product::where('account_id', $this->account->id)->where('is_deleted', false)->get(
+            $this->products = Product::byAccount($this->account)->active()->get(
             )->keyBy('id');
         }
 
@@ -116,7 +113,7 @@ trait ExportMapper
     private function getCustomer(int $id): ?string
     {
         if (empty($this->customers)) {
-            $this->customers = Customer::where('account_id', $this->account->id)->where('is_deleted', false)->get(
+            $this->customers = Customer::byAccount($this->account)->active()->get(
             )->keyBy(
                 'id'
             );
@@ -132,7 +129,7 @@ trait ExportMapper
     private function getCompany(int $id): ?string
     {
         if (empty($this->companies)) {
-            $this->companies = Company::where('account_id', $this->account->id)->where('is_deleted', false)->get(
+            $this->companies = Company::byAccount($this->account)->active()->get(
             )->keyBy('id');
         }
 
@@ -159,7 +156,7 @@ trait ExportMapper
     private function getProject(int $id): ?string
     {
         if (empty($this->projects)) {
-            $this->projects = Project::where('account_id', $this->account->id)->where('is_deleted', false)->get(
+            $this->projects = Project::byAccount($this->account)->active()->get(
             )->keyBy('id');
         }
 
@@ -191,7 +188,7 @@ trait ExportMapper
     {
         if (empty($this->brands)) {
             $this->brands = Brand::where('account_id', $this->account->id)->where(
-                'is_deleted',
+                'hide',
                 false
             )->get()->keyBy('id');
         }

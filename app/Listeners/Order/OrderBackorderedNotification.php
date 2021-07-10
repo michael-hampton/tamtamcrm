@@ -2,10 +2,10 @@
 
 namespace App\Listeners\Order;
 
-use App\Notifications\Admin\OrderBackordered;
 use App\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Notification;
+use App\Notifications\Order\OrderBackordered;
 
 class OrderBackorderedNotification implements ShouldQueue
 {

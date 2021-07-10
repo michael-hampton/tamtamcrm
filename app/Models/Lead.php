@@ -8,30 +8,32 @@
 
 namespace App\Models;
 
-
-use App\Services\Lead\LeadService;
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
-use Laracasts\Presenter\PresentableTrait;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
-class Lead extends Model
+class Lead extends Model implements ContactInterface
 {
     use SoftDeletes;
-    use PresentableTrait;
     use Notifiable;
     use HasFactory;
     use Archiveable;
+    use QueryCacheable;
+    use QueryScopes;
 
     const NEW_LEAD = 98;
     const IN_PROGRESS = 99;
     const STATUS_COMPLETED = 100;
     const UNQUALIFIED = 100;
-    protected $presenter = 'App\Presenters\LeadPresenter';
+
+    protected static $flushCacheOnUpdate = true;
+
     protected $fillable = [
-        'task_sort_order',
+        'order_id',
         'design_id',
         'number',
         'account_id',
@@ -54,11 +56,25 @@ class Lead extends Model
         'project_id',
         'website',
         'industry_id',
-        'private_notes',
-        'public_notes',
+        'internal_note',
+        'customer_note',
         'task_status_id',
         'column_color'
     ];
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'leads',
+            'dashboard_leads'
+        ];
+    }
 
     public function setNumber()
     {
@@ -68,11 +84,6 @@ class Lead extends Model
         }
 
         return true;
-    }
-
-    public function service(): LeadService
-    {
-        return new LeadService($this);
     }
 
     public function account()
@@ -105,7 +116,7 @@ class Lead extends Model
         return 'en';
     }
 
-    public function getDesignId()
+    public function getDesignIdAttribute()
     {
         return !empty($this->design_id) ? $this->design_id : $this->account->settings->lead_design_id;
     }
@@ -115,8 +126,35 @@ class Lead extends Model
         return $this->belongsTo(Project::class);
     }
 
-    public function getPdfFilename()
+    public function getPdfFilenameAttribute()
     {
         return 'storage/' . $this->account->id . '/' . $this->id . '/leads/' . $this->number . '.pdf';
+    }
+
+    public function getCalculatedTaskRateAttribute()
+    {
+        if (!empty($this->task_rate)) {
+            return (float)$this->task_rate;
+        }
+
+        if (!empty($this->project) && !empty($this->project->task_rate)) {
+            return (float)$this->project->task_rate;
+        }
+
+        return 0;
+    }
+
+    public function scopePermissions($query, User $user)
+    {
+        if ($user->isAdmin() || $user->isOwner() || $user->hasPermissionTo('leadcontroller.index')) {
+            return $query;
+        }
+
+        $query->where(
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('assigned_to', auth()->user($user)->id);
+            }
+        );
     }
 }

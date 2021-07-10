@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Pdf\GeneratePdf;
+use App\Services\Task\SaveTimers;
 use App\Factory\CloneTaskToDealFactory;
 use App\Factory\TaskFactory;
 use App\Factory\TimerFactory;
@@ -92,7 +94,7 @@ class TaskController extends Controller
         );
 
         if (!empty($request->input('timers'))) {
-            $task->service()->saveTimers($request->input('timers'), $task, new TimerRepository(new Timer()));
+            (new SaveTimers($task))->execute($request->input('timers'), $task, new TimerRepository(new Timer()));
         }
 
         if ($task->customer->getSetting('task_automation_enabled') === true && empty($request->input('timers'))) {
@@ -123,9 +125,8 @@ class TaskController extends Controller
      * @param int $task_id
      * @return type
      */
-    public function markAsCompleted(int $task_id)
+    public function markAsCompleted(Task $task)
     {
-        $task = $this->task_repo->findTaskById($task_id);
         $task = $this->task_repo->save(['is_completed' => true], $task);
         return response()->json($task);
     }
@@ -154,17 +155,16 @@ class TaskController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public function update(UpdateTaskRequest $request, int $id)
+    public function update(UpdateTaskRequest $request, Task $task)
     {
-        $task = $this->task_repo->findTaskById($id);
         $task = $this->task_repo->updateTask($request->all(), $task);
 
         if (!empty($request->input('timers'))) {
-            $task->service()->saveTimers($request->input('timers'), $task, (new TimerRepository(new Timer())));
+            (new SaveTimers($task))->execute($request->input('timers'), $task, (new TimerRepository(new Timer())));
         }
 
         //$task = SaveTaskTimes::dispatchNow($request->all(), $task);
-        return response()->json($task);
+        return response()->json($this->transformTask($task));
     }
 
     public function getDeals()
@@ -185,9 +185,8 @@ class TaskController extends Controller
      * @param int $id
      * @return mixed
      */
-    public function updateStatus(Request $request, int $id)
+    public function updateStatus(Request $request, Task $task)
     {
-        $task = $this->task_repo->findTaskById($id);
         $task = $this->task_repo->save(['task_status_id' => $request->task_status], $task);
         return response()->json($task);
     }
@@ -225,11 +224,11 @@ class TaskController extends Controller
             auth()->user()->account_user()->account
         );
         $task = $this->task_repo->findTaskById($task_id);
-        $product_tasks = (new OrderRepository(new Order))->getOrdersForTask($task);
+        $orderss = (new OrderRepository(new Order))->getOrdersForTask($task);
 
         $arrData = [
             'products'    => $products,
-            'selectedIds' => $product_tasks->pluck('product_id')->all(),
+            'selectedIds' => $orderss->pluck('product_id')->all(),
         ];
 
         return response()->json($arrData);
@@ -295,9 +294,8 @@ class TaskController extends Controller
         return response()->json('Unable to convert');
     }
 
-    public function show(int $id)
+    public function show(Task $task)
     {
-        $task = $this->task_repo->findTaskById($id);
         return response()->json($this->transformTask($task));
     }
 
@@ -306,15 +304,13 @@ class TaskController extends Controller
      *
      * @return void
      */
-    public function archive(int $id)
+    public function archive(Task $task)
     {
-        $task = $this->task_repo->findTaskById($id);
         $task->archive();
     }
 
-    public function destroy(int $id)
+    public function destroy(Task $task)
     {
-        $task = $this->task_repo->findTaskById($id);
         $this->authorize('delete', $task);
         $task->deleteEntity();
         return response()->json([], 200);
@@ -351,7 +347,7 @@ class TaskController extends Controller
 
             case 'download': //done
                 $disk = config('filesystems.default');
-                $content = Storage::disk($disk)->get($task->service()->generatePdf(null));
+                $content = Storage::disk($disk)->get((new GeneratePdf($task))->execute(null));
                 $response = ['data' => base64_encode($content)];
                 return response()->json($response);
                 break;
@@ -418,8 +414,10 @@ class TaskController extends Controller
         foreach ($request->input('tasks') as $data) {
             $task = $this->task_repo->findTaskById($data['id']);
 
-            $task->task_sort_order = $data['task_sort_order'];
+            $task->order_id = $data['order_id'];
             $task->save();
         }
+
+        return response()->json(['message' => 'success']);
     }
 }

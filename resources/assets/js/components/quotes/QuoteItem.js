@@ -35,10 +35,11 @@ export default class QuoteItem extends Component {
         const url = archive === true ? `/api/quote/archive/${id}` : `/api/quote/${id}`
         const self = this
         axios.delete(url).then(function (response) {
-            const arrQuotes = [...self.props.quotes]
+            const arrQuotes = [...self.props.entities]
             const index = arrQuotes.findIndex(payment => payment.id === id)
-            arrQuotes.splice(index, 1)
-            self.props.updateInvoice(arrQuotes)
+            arrQuotes[index].hide = archive !== true
+            arrQuotes[index].deleted_at = new Date()
+            self.props.updateInvoice(arrQuotes, true)
         })
             .catch(function (error) {
                 self.setState(
@@ -50,11 +51,11 @@ export default class QuoteItem extends Component {
     }
 
     render () {
-        const { quotes, custom_fields, customers } = this.props
+        const { quotes, custom_fields, customers, entities } = this.props
         if (this.props.quotes && this.props.quotes.length && customers.length) {
             return quotes.map((quote, index) => {
-                const restoreButton = quote.deleted_at && !quote.is_deleted
-                    ? <RestoreModal id={quote.id} entities={quotes} updateState={this.props.updateInvoice}
+                const restoreButton = quote.deleted_at && !quote.hide
+                    ? <RestoreModal id={quote.id} entities={entities} updateState={this.props.updateInvoice}
                         url={`/api/quotes/restore/${quote.id}`}/> : null
 
                 const deleteButton = !quote.deleted_at
@@ -71,7 +72,7 @@ export default class QuoteItem extends Component {
                     invoice={quote}
                     invoice_id={quote.id}
                     action={this.props.updateInvoice}
-                    invoices={quotes}
+                    invoices={entities}
                 /> : null
 
                 const columnList = Object.keys(quote).filter(key => {

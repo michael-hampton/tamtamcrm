@@ -35,10 +35,27 @@ class PaymentTermsRepository extends BaseRepository
         return $this->findOneOrFail($id);
     }
 
-    public function save($data, PaymentTerms $payment_terms): ?PaymentTerms
+    /**
+     * @param array $data
+     * @param PaymentTerms $payment_terms
+     * @return PaymentTerms
+     */
+    public function create(array $data, PaymentTerms $payment_terms): PaymentTerms
     {
         $payment_terms->fill($data);
         $payment_terms->save();
+
+        return $payment_terms;
+    }
+
+    /**
+     * @param array $data
+     * @param PaymentTerms $payment_terms
+     * @return PaymentTerms
+     */
+    public function update(array $data, PaymentTerms $payment_terms): PaymentTerms
+    {
+        $payment_terms->update($data);
 
         return $payment_terms;
     }

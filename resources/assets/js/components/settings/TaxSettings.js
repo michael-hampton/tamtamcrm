@@ -1,13 +1,14 @@
 import React, { Component } from 'react'
 import FormBuilder from './FormBuilder'
-import { Alert, Card, CardBody } from 'reactstrap'
+import { Alert, Card, CardBody, CardHeader } from 'reactstrap'
 import axios from 'axios'
 import { translations } from '../utils/_translations'
 import { icons } from '../utils/_icons'
 import Snackbar from '@material-ui/core/Snackbar'
-import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
 import BlockButton from '../common/BlockButton'
+import CompanyModel from '../models/CompanyModel'
+import EditScaffold from '../common/EditScaffold'
 
 export default class TaxSettings extends Component {
     constructor (props) {
@@ -20,7 +21,9 @@ export default class TaxSettings extends Component {
             settings: {},
             success: false,
             error: false,
-            changesMade: false
+            changesMade: false,
+            isSaving: false,
+            loaded: false
         }
 
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
@@ -28,6 +31,8 @@ export default class TaxSettings extends Component {
         this.handleSubmit = this.handleSubmit.bind(this)
         this.getAccount = this.getAccount.bind(this)
         this.toggle = this.toggle.bind(this)
+
+        this.model = new CompanyModel({ id: this.state.id })
     }
 
     componentDidMount () {
@@ -77,7 +82,8 @@ export default class TaxSettings extends Component {
 
     handleSettingsChange (event) {
         const name = event.target.name
-        const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
+        let value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
+        value = (value === 'true') ? true : ((value === 'false') ? false : (value))
 
         this.setState(prevState => ({
             changesMade: true,
@@ -89,6 +95,7 @@ export default class TaxSettings extends Component {
     }
 
     handleSubmit (e) {
+        this.setState({ isSaving: true })
         const formData = new FormData()
         formData.append('settings', JSON.stringify(this.state.settings))
         formData.append('_method', 'PUT')
@@ -99,7 +106,12 @@ export default class TaxSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false })
+                this.setState({
+                    success: true,
+                    cached_settings: this.state.settings,
+                    changesMade: false,
+                    isSaving: false
+                }, () => this.model.updateSettings(this.state.settings))
             })
             .catch((error) => {
                 this.setState({ error: true })
@@ -157,6 +169,36 @@ export default class TaxSettings extends Component {
         ]
     }
 
+    getLineItemTaxFields () {
+        const settings = this.state.settings
+
+        return [
+            [
+                {
+                    name: 'show_line_item_tax_rate1',
+                    label: translations.show_tax_rate1,
+                    type: 'switch',
+                    placeholder: translations.credit_payments_enabled,
+                    value: settings.show_line_item_tax_rate1
+                },
+                {
+                    name: 'show_line_item_tax_rate2',
+                    label: translations.show_tax_rate2,
+                    type: 'switch',
+                    placeholder: translations.credit_payments_enabled,
+                    value: settings.show_line_item_tax_rate2
+                },
+                {
+                    name: 'show_line_item_tax_rate3',
+                    label: translations.show_tax_rate3,
+                    type: 'switch',
+                    placeholder: translations.credit_payments_enabled,
+                    value: settings.show_line_item_tax_rate3
+                }
+            ]
+        ]
+    }
+
     handleCancel () {
         this.setState({ settings: this.state.cached_settings, changesMade: false })
     }
@@ -166,6 +208,33 @@ export default class TaxSettings extends Component {
     }
 
     render () {
+        const tabs = {
+            children: []
+        }
+
+        tabs.children[0] = <>
+            <Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getTaxFields()}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>{translations.line_items}</CardHeader>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getLineItemTaxFields()}
+                    />
+                </CardBody>
+            </Card>
+
+            <BlockButton icon={icons.percent} button_text={translations.configure_rates}
+                button_link="/#/tax-rates"/>
+        </>
         return this.state.loaded === true ? (
             <React.Fragment>
                 <Snackbar open={this.state.success} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
@@ -180,23 +249,13 @@ export default class TaxSettings extends Component {
                     </Alert>
                 </Snackbar>
 
-                <Header title={translations.tax_settings} cancelButtonDisabled={!this.state.changesMade}
+                <EditScaffold isAdvancedSettings={true} isLoading={!this.state.loaded} isSaving={this.state.isSaving}
+                    isEditing={this.state.changesMade}
+                    title={translations.tax_settings}
+                    cancelButtonDisabled={!this.state.changesMade}
                     handleCancel={this.handleCancel.bind(this)}
-                    handleSubmit={this.handleSubmit.bind(this)}/>
-
-                <div className="settings-container settings-container-narrow fixed-margin-extra">
-                    <Card>
-                        <CardBody>
-                            <FormBuilder
-                                handleChange={this.handleSettingsChange}
-                                formFieldsRows={this.getTaxFields()}
-                            />
-                        </CardBody>
-                    </Card>
-
-                    <BlockButton icon={icons.percent} button_text={translations.configure_rates}
-                        button_link="/#/tax-rates"/>
-                </div>
+                    handleSubmit={this.handleSubmit.bind(this)}
+                    tabs={tabs}/>
             </React.Fragment>
         ) : null
     }

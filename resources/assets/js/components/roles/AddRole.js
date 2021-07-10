@@ -134,7 +134,8 @@ class AddRole extends React.Component {
 
         return (
             <React.Fragment>
-                <Button className="pull-right" color="success" onClick={this.toggle}>{translations.add_role}</Button>
+                <Button className="pull-right" color="success"
+                    onClick={this.toggle}>{translations.add_role}</Button>
                 <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
                     <ModalHeader toggle={this.toggle}>
                         {translations.add_role}

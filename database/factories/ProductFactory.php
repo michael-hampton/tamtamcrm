@@ -31,7 +31,7 @@ class ProductFactory extends Factory
             'company_id'    => $company->id,
             'account_id'    => 1,
             'user_id'       => $user->id,
-            'quantity'      => 0,
+            'quantity'      => 100,
             'sku'           => $this->faker->numberBetween(1111111, 999999),
             'name'          => $product,
             'slug'          => \Illuminate\Support\Str::slug($product),

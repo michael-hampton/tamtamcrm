@@ -2,6 +2,8 @@
 
 namespace App\Mail;
 
+use App\Events\EmailFailedToSend;
+use App\ViewModels\UserViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -47,9 +49,7 @@ class SendMail extends Mailable
     }
 
     /**
-     * Build the message.
-     *
-     * @return $this
+     * @return SendMail|false
      */
     public function build()
     {
@@ -57,17 +57,23 @@ class SendMail extends Mailable
 
         return $this->from(
             $this->entity->user->email,
-            $this->entity->user->present()->name()
+            (new UserViewModel($this->entity->user))->name()
         )
-                    ->text(
-                        $design,
-                        [
-                            'body'      => $this->body,
-                            'view_link' => $this->view_link,
-                            'view_text' => $this->view_text
-                        ]
-                    )
-                    ->view($design, $this->data);
+            ->subject($this->subject)
+            ->markdown(
+                $design,
+                [
+                    'data' => $this->data,
+                ]
+            )
+            ->text(
+                $design,
+                $this->data
+            )->withSwiftMessage( //https://stackoverflow.com/questions/42207987/get-message-id-with-laravel-mailable
+                function ($swiftmessage) {
+                    $swiftmessage->entity = !empty($this->invitation) ? $this->invitation : $this->entity;
+                }
+            );
     }
 
     /**
@@ -165,11 +171,12 @@ class SendMail extends Mailable
 
     /**
      * @param $reply_to_address
-     * @return SendMail
+     * @param $reply_to_name
+     * @return $this
      */
-    public function setReplyTo($reply_to_address): self
+    public function setReplyTo($reply_to_address, $reply_to_name): self
     {
-        $this->replyTo($reply_to_address);
+        $this->replyTo($reply_to_address, $reply_to_name);
         return $this;
     }
 

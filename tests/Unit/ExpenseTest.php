@@ -56,7 +56,7 @@ class ExpenseTest extends TestCase
         $customer_id = $this->customer->id;
         $data = ['customer_id' => $customer_id];
         $expenseRepo = new ExpenseRepository($expense);
-        $updated = $expenseRepo->save($data, $expense);
+        $updated = $expenseRepo->update($data, $expense);
         $found = $expenseRepo->findExpenseById($expense->id);
         $this->assertInstanceOf(Expense::class, $updated);
         $this->assertEquals($data['customer_id'], $found->customer_id);
@@ -86,7 +86,7 @@ class ExpenseTest extends TestCase
         ];
 
         $expenseRepo = new ExpenseRepository(new Expense);
-        $expense = $expenseRepo->createExpense($data, $factory);
+        $expense = $expenseRepo->create($data, $factory);
         $this->assertInstanceOf(Expense::class, $expense);
         $this->assertEquals($data['customer_id'], $expense->customer_id);
     }
@@ -115,7 +115,7 @@ class ExpenseTest extends TestCase
         ];
 
         $expenseRepo = new ExpenseRepository(new Expense);
-        $expense = $expenseRepo->createExpense($data, $factory);
+        $expense = $expenseRepo->create($data, $factory);
         $this->assertInstanceOf(Expense::class, $expense);
         $this->assertEquals($data['customer_id'], $expense->customer_id);
 

@@ -31,15 +31,19 @@ class LeadRestored implements ShouldQueue
      */
     public function handle($event)
     {
-        $fields = [];
-        $fields['data']['id'] = $event->lead->id;
-        $fields['data']['customer_id'] = $event->lead->customer_id;
-        $fields['data']['message'] = 'A lead was restored';
-        $fields['notifiable_id'] = $event->lead->user_id;
-        $fields['account_id'] = $event->lead->account_id;
-        $fields['notifiable_type'] = get_class($event->lead);
-        $fields['type'] = get_class($this);
-        $fields['data'] = json_encode($fields['data']);
+        $data = [
+            'id'      => $event->lead->id,
+            'message' => 'A lead was restored'
+        ];
+
+        $fields = [
+            'notifiable_id'   => $event->lead->user_id,
+            'account_id'      => $event->lead->account_id,
+            'notifiable_type' => get_class($event->lead),
+            'type'            => get_class($this),
+            'data'            => json_encode($data),
+            'action'          => 'restored'
+        ];
 
         $notification = NotificationFactory::create($event->lead->account_id, $event->lead->user_id);
         $notification->entity_id = $event->lead->id;

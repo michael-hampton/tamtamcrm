@@ -145,13 +145,9 @@ export const consts = {
     payment_status_completed: 4,
     payment_status_partial_refund: 5,
     payment_status_refunded: 6,
-    payment_status_unapplied: 'unapplied',
-    payment_status_pending_text: 'Pending',
-    payment_status_voided_text: 'Voided',
-    payment_status_failed_text: 'Failed',
-    payment_status_completed_text: 'Completed',
-    payment_status_partial_refund_text: 'Partially Refunded',
-    payment_status_refunded_text: 'Refunded',
+    // payment_status_unapplied: 'unapplied',
+    payment_status_unapplied: '-2',
+    payment_status_partially_unapplied: '-3',
     task_status_logged: 1,
     task_status_running: 3000,
     task_status_invoiced: 2000,
@@ -163,21 +159,28 @@ export const consts = {
     expense_status_invoiced_text: 'Invoiced',
     notification_payment_success: 'payment_success',
     notification_payment_refunded: 'payment_refunded',
+    notification_refund_failure: 'refund_failure',
     notification_lead_success: 'lead_success',
     notification_deal_success: 'deal_success',
     notification_payment_failure: 'payment_failure',
     notification_invoice_sent: 'invoice_sent',
+    notification_recurring_invoice_created: 'recurring_invoice_created',
+    notification_recurring_quote_created: 'recurring_quote_created',
+    notification_invoice_created: 'invoice_created',
     notification_credit_sent: 'credit_sent',
     notification_quote_sent: 'quote_sent',
     notification_order_sent: 'order_sent',
     notification_purchase_order_sent: 'purchase_order_sent',
+    notification_purchase_order_created: 'purchase_order_created',
     notification_purchase_order_approved: 'purchase_order_approved',
     notification_purchase_order_rejected: 'purchase_order_rejected',
     notification_purchase_order_change_requested: 'purchase_order_change_requested',
     notification_invoice_viewed: 'invoice_viewed',
     notification_quote_viewed: 'quote_viewed',
     notification_credit_viewed: 'credit_viewed',
+    notification_credit_created: 'credit_created',
     notification_quote_approved: 'quote_approved',
+    notification_quote_created: 'quote_created',
     notification_quote_rejected: 'quote_rejected',
     notification_quote_change_requested: 'quote_change_requested',
     notification_order_created: 'order_created',
@@ -195,10 +198,15 @@ export const consts = {
     reminder_schedule_after_invoice_date: 'after_invoice_date',
     reminder_schedule_before_due_date: 'before_due_date',
     reminder_schedule_after_due_date: 'after_due_date',
+    checkout_gateway: '7iaq7lbecv',
     stripe_gateway: '13bb8d58',
+    stripe_connect_gateway: 'ocglwiyeow',
     authorize_gateway: '8ab2dce2',
     paypal_gateway: '64bcbdce',
     custom_gateway: '4ntgik8629',
+    braintree_gateway: 'dlmqa4gvpy',
+    ach_gateway: 'abcdkfgj',
+    sofort_gateway: 'fgfggf',
     switch: 'switch',
     text: 'text',
     textarea: 'textarea',
@@ -209,7 +217,22 @@ export const consts = {
     line_item_expense: 6,
     line_item_task: 3,
     line_item_product: 1,
-    line_item_project: 9
+    line_item_project: 9,
+    standard_yearly_account_price: 200,
+    standard_monthly_account_price: 20,
+    advanced_yearly_account_price: 350,
+    advanced_monthly_account_price: 25,
+    web_url: 'https://michael-hampton.github.io/tamtam',
+    github_url: 'https://github.com/michael-hampton/tamtamcrm',
+    gateway_credit_card: 1,
+    gateway_paypal: 2,
+    gateway_bank_transfer: 3,
+    gateway_sofort: 4,
+    gateway_alipay: 5,
+    gateway_apple_pay: 6,
+    gateway_sepa: 7,
+    gateway_credit: 8,
+    gateway_custom: 9
 }
 
 export const caseLinkTypes = {
@@ -239,6 +262,23 @@ export const taskTypes = {
     task: 1,
     deal: 2,
     lead: 3
+}
+
+export const gateway_types = {
+    1: 'credit_card',
+    3: 'bank_transfer',
+    2: 'paypal',
+    9: 'custom',
+    5: 'alipay',
+    4: 'sofort',
+    6: 'apple_pay'
+}
+
+export const enabled_gateway_types = {
+    '13bb8d58': [1, 3, 4, 5],
+    dlmqa4gvpy: [1, 2],
+    '8ab2dce2': [1],
+    '7iaq7lbecv': [1]
 }
 
 export const subscriptions = {

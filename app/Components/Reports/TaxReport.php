@@ -3,6 +3,7 @@
 namespace App\Components\Reports;
 
 
+use App\Models\Account;
 use App\Models\Credit;
 use App\Models\Currency;
 use App\Models\Invoice;
@@ -12,10 +13,10 @@ use Illuminate\Http\Request;
 class TaxReport
 {
 
-    public function build(Request $request)
+    public function build(Request $request, Account $account)
     {
-        $invoices = Invoice::where('account_id', auth()->user()->account_user()->account_id)->get();
-        $credits = Credit::where('account_id', auth()->user()->account_user()->account_id)->get();
+        $invoices = Invoice::where('account_id', $account->id)->get();
+        $credits = Credit::where('account_id', $account->id)->get();
         $currencies = Currency::get()->keyBy('id');
 
         if (!empty($request->input('start_date')) && !empty($request->input('end_date'))) {

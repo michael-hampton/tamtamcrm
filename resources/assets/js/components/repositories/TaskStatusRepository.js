@@ -12,7 +12,7 @@ export default class TaskRepository extends BaseRepository {
     async get (task_type) {
         this.errors = []
         this.error_message = ''
-        const url = `${this._url}?task_type=${task_type}`
+        const url = `${this._url}?status=active&task_type=${task_type}`
 
         try {
             const res = await axios.get(url)
@@ -22,6 +22,24 @@ export default class TaskRepository extends BaseRepository {
                 console.log(res.status)
             }
 
+            // Don't forget to return something
+            return res.data
+        } catch (e) {
+            this.handleError(e)
+            return false
+        }
+    }
+
+    async updateSortOrder (statuses) {
+        try {
+            this.errors = []
+            this.error_message = ''
+            const res = await axios.post(`${this._url}/sort`, { statuses: statuses })
+
+            if (res.status === 200) {
+                // test for status you want, etc
+                console.log(res.status)
+            }
             // Don't forget to return something
             return res.data
         } catch (e) {

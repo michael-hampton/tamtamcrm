@@ -25,14 +25,26 @@ class CaseTemplateRepository extends BaseRepository implements CaseTemplateRepos
 
     /**
      * @param array $data
-     * @param CaseTemplate $template
+     * @param CaseTemplate $case_template
      * @return CaseTemplate
      */
-    public function save(array $data, CaseTemplate $template): CaseTemplate
+    public function create(array $data, CaseTemplate $case_template): CaseTemplate
     {
-        $template->fill($data);
-        $template->save();
-        return $template;
+        $case_template->fill($data);
+        $case_template->save();
+        return $case_template;
+    }
+
+    /**
+     * @param array $data
+     * @param CaseTemplate $case_template
+     * @return CaseTemplate
+     */
+    public function update(array $data, CaseTemplate $case_template): CaseTemplate
+    {
+        $case_template->update($data);
+
+        return $case_template;
     }
 
     /**

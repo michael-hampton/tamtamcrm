@@ -2,13 +2,15 @@ import axios from 'axios'
 import moment from 'moment'
 import BaseModel, { EntityStats, LineItem } from './BaseModel'
 import { consts } from '../utils/_consts'
+import InvoiceCalculations from './InvoiceCalculations'
+import { buildPdf } from '../utils/Pdf'
 
 export const invoice_pdf_fields = ['$invoice.invoice_number', '$invoice.po_number', '$invoice.invoice_date', '$invoice.due_date',
     '$invoice.balance_due', '$invoice.invoice_total', '$invoice.partial_due', '$invoice.invoice1', '$invoice.invoice2', '$invoice.invoice3',
     '$invoice.invoice4', '$invoice.surcharge1', '$invoice.surcharge2', '$invoice.surcharge3', '$invoice.surcharge4'
 ]
 
-export default class RecurringInvoiceModel extends BaseModel {
+class RecurringInvoiceModel extends BaseModel {
     constructor (data = null, customers = []) {
         super()
         this.customers = customers
@@ -70,8 +72,8 @@ export default class RecurringInvoiceModel extends BaseModel {
             has_partial: false,
             auto_billing_enabled: this.settings.autobilling_enabled,
             number_of_occurrances: 1,
-            public_notes: '',
-            private_notes: '',
+            customer_note: '',
+            internal_note: '',
             terms: '',
             footer: '',
             visible: 'collapse',
@@ -155,7 +157,7 @@ export default class RecurringInvoiceModel extends BaseModel {
             return ''
         }
 
-        return this.customer.public_notes || ''
+        return this.customer.customer_note || ''
     }
 
     get default_terms () {
@@ -293,7 +295,7 @@ export default class RecurringInvoiceModel extends BaseModel {
             actions.push('stop_recurring')
         }
 
-        if (!this.fields.is_deleted) {
+        if (!this.fields.hide) {
             actions.push('delete')
         }
 
@@ -342,11 +344,11 @@ export default class RecurringInvoiceModel extends BaseModel {
         }
     }
 
-    async loadPdf () {
+    async loadPdf (show_html = false) {
         try {
             this.errors = []
             this.error_message = ''
-            const res = await axios.post('api/preview', { entity: this.entity, entity_id: this._fields.id })
+            const res = await axios.post('api/preview', { entity: this.entity, entity_id: this._fields.id, show_html: show_html })
 
             if (res.status === 200) {
                 // test for status you want, etc
@@ -354,7 +356,7 @@ export default class RecurringInvoiceModel extends BaseModel {
             }
 
             // Don't forget to return something
-            return this.buildPdf(res.data)
+            return buildPdf(res.data)
         } catch (e) {
             alert(e)
             this.handleError(e)
@@ -453,3 +455,7 @@ export default class RecurringInvoiceModel extends BaseModel {
         return entityStats.present()
     }
 }
+
+Object.assign(RecurringInvoiceModel.prototype, InvoiceCalculations)
+
+export default RecurringInvoiceModel

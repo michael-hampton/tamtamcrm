@@ -59,7 +59,7 @@ class EditCategory extends React.Component {
                 this.toggle()
                 const index = this.props.categories.findIndex(category => category.id === this.state.id)
                 this.props.categories[index].name = this.state.name
-                this.props.action(this.props.categories)
+                this.props.action(this.props.categories, true)
             })
             .catch((error) => {
                 this.setState({

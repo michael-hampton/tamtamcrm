@@ -38,10 +38,11 @@ export default class ProjectItem extends Component {
 
         axios.delete(url)
             .then(function (response) {
-                const arrProjects = [...self.props.projects]
+                const arrProjects = [...self.props.entities]
                 const index = arrProjects.findIndex(project => project.id === id)
-                arrProjects.splice(index, 1)
-                self.props.addUserToState(arrProjects)
+                arrProjects[index].hide = archive !== true
+                arrProjects[index].deleted_at = new Date()
+                self.props.addUserToState(arrProjects, true)
             })
             .catch(function (error) {
                 console.log(error)
@@ -54,11 +55,11 @@ export default class ProjectItem extends Component {
     }
 
     render () {
-        const { projects, custom_fields, customers, ignoredColumns } = this.props
+        const { projects, custom_fields, customers, ignoredColumns, entities } = this.props
         if (projects && projects.length) {
             return projects.map((project, index) => {
                 const restoreButton = project.deleted_at
-                    ? <RestoreModal id={project.id} entities={projects} updateState={this.props.addUserToState}
+                    ? <RestoreModal id={project.id} entities={entities} updateState={this.props.addUserToState}
                         url={`/api/projects/restore/${project.id}`}/> : null
                 const archiveButton = !project.deleted_at
                     ? <DeleteModal archive={true} deleteFunction={this.deleteProject} id={project.id}/> : null
@@ -69,7 +70,7 @@ export default class ProjectItem extends Component {
                     custom_fields={custom_fields}
                     customers={customers}
                     project={project}
-                    projects={projects}
+                    projects={entities}
                     action={this.props.addUserToState}
                 /> : null
 
@@ -90,8 +91,8 @@ export default class ProjectItem extends Component {
                         archive={archiveButton}
                         restore={restoreButton}/> : null
 
-                const status = (project.deleted_at && !project.is_deleted) ? (<Badge className="mr-2"
-                    color="warning">{translations.archived}</Badge>) : ((project.deleted_at && project.is_deleted) ? (
+                const status = (project.deleted_at && !project.hide) ? (<Badge className="mr-2"
+                    color="warning">{translations.archived}</Badge>) : ((project.deleted_at && project.hide) ? (
                     <Badge className="mr-2" color="danger">{translations.deleted}</Badge>) : (''))
 
                 const is_mobile = this.state.width <= 768

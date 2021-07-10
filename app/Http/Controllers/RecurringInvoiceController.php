@@ -73,7 +73,7 @@ class RecurringInvoiceController extends BaseController
      */
     public function store(CreateRecurringInvoiceRequest $request)
     {
-        $recurring_invoice = (new RecurringInvoiceRepository(new RecurringInvoice))->createInvoice(
+        $recurring_invoice = (new RecurringInvoiceRepository(new RecurringInvoice))->create(
             $request->all(),
             RecurringInvoiceFactory::create(
                 Customer::where('id', $request->customer_id)->first(),
@@ -90,11 +90,9 @@ class RecurringInvoiceController extends BaseController
      * @param CreateRecurringInvoiceRequest $request
      * @return mixed
      */
-    public function update(int $id, CreateRecurringInvoiceRequest $request)
+    public function update(CreateRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice)
     {
-        $recurring_invoice = $this->recurring_invoice_repo->findInvoiceById($id);
-
-        $recurring_invoice = $this->recurring_invoice_repo->save($request->all(), $recurring_invoice);
+        $recurring_invoice = $this->recurring_invoice_repo->update($request->all(), $recurring_invoice);
         return response()->json($this->transformRecurringInvoice($recurring_invoice));
     }
 
@@ -115,16 +113,14 @@ class RecurringInvoiceController extends BaseController
      * @param int $id
      * @return mixed
      */
-    public function archive(int $id)
+    public function archive(RecurringInvoice $recurring_invoice)
     {
-        $recurring_invoice = $this->recurring_invoice_repo->findInvoiceById($id);
         $recurring_invoice->archive();
         return response()->json([], 200);
     }
 
-    public function destroy(int $id)
+    public function destroy(RecurringInvoice $recurring_invoice)
     {
-        $recurring_invoice = RecurringInvoice::withTrashed()->where('id', '=', $id)->first();
         $this->authorize('delete', $recurring_invoice);
         $recurring_invoice->deleteEntity();
         return response()->json([], 200);

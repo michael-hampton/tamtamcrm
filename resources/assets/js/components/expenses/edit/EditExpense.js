@@ -15,6 +15,7 @@ import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
 import { getExchangeRateWithMap } from '../../utils/_money'
 import FormatMoney from '../../common/FormatMoney'
+import { toast, ToastContainer } from 'react-toastify'
 
 class EditExpense extends React.Component {
     constructor (props) {
@@ -33,6 +34,21 @@ class EditExpense extends React.Component {
         const account_id = JSON.parse(localStorage.getItem('appState')).user.account_id
         const user_account = JSON.parse(localStorage.getItem('appState')).accounts.filter(account => account.account_id === parseInt(account_id))
         this.settings = user_account[0].account.settings
+    }
+
+    static getDerivedStateFromProps (props, state) {
+        if (props.expense && props.expense.id !== state.id) {
+            const expenseModel = new ExpenseModel(props.expense, props.customers)
+            return expenseModel.fields
+        }
+
+        return null
+    }
+
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.expense && this.props.expense.id !== prevProps.expense.id) {
+            this.expenseModel = new ExpenseModel(this.props.expense, this.props.customers)
+        }
     }
 
     toggleMenu (event) {
@@ -126,8 +142,8 @@ class EditExpense extends React.Component {
             company_id: this.state.company_id,
             payment_method_id: this.state.payment_method_id,
             expense_category_id: this.state.expense_category_id,
-            public_notes: this.state.public_notes,
-            private_notes: this.state.private_notes,
+            customer_note: this.state.customer_note,
+            internal_note: this.state.internal_note,
             currency_id: this.state.currency_id,
             exchange_rate: this.state.exchange_rate,
             expense_date: this.state.expense_date,
@@ -156,12 +172,33 @@ class EditExpense extends React.Component {
         this.expenseModel.update(this.getFormData()).then(response => {
             if (!response) {
                 this.setState({ errors: this.expenseModel.errors, message: this.expenseModel.error_message })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.expense), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
 
+            toast.success(translations.updated_successfully.replace('{entity}', translations.expense), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
+
             const index = this.props.expenses.findIndex(expense => expense.id === this.state.id)
             this.props.expenses[index] = response
-            this.props.action(this.props.expenses)
+            this.props.action(this.props.expenses, true)
             this.setState({ changesMade: false, loading: false })
             this.toggle()
         })
@@ -206,6 +243,18 @@ class EditExpense extends React.Component {
                     <DefaultModalHeader toggle={this.toggle} title={translations.edit_expense}/>
 
                     <ModalBody className={theme}>
+
+                        <ToastContainer
+                            position="top-center"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
 
                         {message && <div className="alert alert-danger" role="alert">
                             {message}
@@ -282,8 +331,8 @@ class EditExpense extends React.Component {
                             </TabPane>
 
                             <TabPane tabId="3">
-                                <Notes errors={this.state.errors} public_notes={this.state.public_notes}
-                                    private_notes={this.state.private_notes} handleInput={this.handleInput}/>
+                                <Notes errors={this.state.errors} customer_note={this.state.customer_note}
+                                    internal_note={this.state.internal_note} handleInput={this.handleInput}/>
                             </TabPane>
 
                             <TabPane tabId="4">

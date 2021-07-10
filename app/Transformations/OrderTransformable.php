@@ -11,11 +11,24 @@ use App\Models\OrderInvitation;
 
 trait OrderTransformable
 {
+    public function transformAuditsForOrder($audits)
+    {
+        if (empty($audits)) {
+            return [];
+        }
+
+        return $audits->map(
+            function (Audit $audit) {
+                return (new AuditTransformable)->transformAudit($audit);
+            }
+        )->all();
+    }
+
     /**
      * @param Order $order
      * @return array
      */
-    protected function transformOrder(Order $order)
+    protected function transformOrder(Order $order, $files = null)
     {
         return [
             'id'                  => (int)$order->id,
@@ -28,8 +41,8 @@ trait OrderTransformable
             'company_id'          => (int)$order->company_id ?: null,
             'currency_id'         => (int)$order->currency_id ?: null,
             'exchange_rate'       => (float)$order->exchange_rate,
-            'public_notes'        => $order->public_notes ?: '',
-            'private_notes'       => $order->private_notes ?: '',
+            'customer_note'       => $order->customer_note ?: '',
+            'internal_note'       => $order->internal_note ?: '',
             'customer_id'         => (int)$order->customer_id,
             'date'                => $order->date ?: '',
             'due_date'            => $order->due_date ?: '',
@@ -58,8 +71,10 @@ trait OrderTransformable
             'transaction_fee_tax' => (bool)$order->transaction_fee_tax,
             'shipping_cost_tax'   => (bool)$order->shipping_cost_tax,
             'emails'              => $this->transformOrderEmails($order->emails()),
-            'audits'              => $this->transformAuditsForOrder($order->audits),
-            'files'               => $this->transformOrderFiles($order->files),
+            //'audits'              => $this->transformAuditsForOrder($order->audits),
+            'files'               => !empty($files) && !empty($files[$order->id]) ? $this->transformOrderFiles(
+                $files[$order->id]
+            ) : [],
             'tax_rate'            => (float)$order->tax_rate,
             'tax_2'               => (float)$order->tax_2,
             'tax_3'               => (float)$order->tax_3,
@@ -67,7 +82,7 @@ trait OrderTransformable
             'tax_rate_name_2'     => $order->tax_rate_name_2,
             'tax_rate_name_3'     => $order->tax_rate_name_3,
             'viewed'              => (bool)$order->viewed,
-            'is_deleted'          => (bool)$order->is_deleted,
+            'hide'                => (bool)$order->hide,
         ];
     }
 
@@ -101,19 +116,6 @@ trait OrderTransformable
         return $emails->map(
             function (Email $email) {
                 return (new EmailTransformable())->transformEmail($email);
-            }
-        )->all();
-    }
-
-    public function transformAuditsForOrder($audits)
-    {
-        if (empty($audits)) {
-            return [];
-        }
-
-        return $audits->map(
-            function (Audit $audit) {
-                return (new AuditTransformable)->transformAudit($audit);
             }
         )->all();
     }

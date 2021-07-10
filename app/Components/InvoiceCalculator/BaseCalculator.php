@@ -6,8 +6,23 @@ namespace App\Components\InvoiceCalculator;
 class BaseCalculator
 {
     protected $entity;
+
     private $customer;
-    private $decimals = 2;
+
+    /**
+     * @var float
+     */
+    protected $tax_2;
+
+    /**
+     * @var float
+     */
+    protected $tax_3;
+
+    /**
+     * @var int
+     */
+    protected int $decimals = 2;
     /**
      * @var float
      */
@@ -65,27 +80,6 @@ class BaseCalculator
     }
 
     /**
-     * @param float $total
-     * @param float $tax
-     * @param bool $rate
-     * @return false|float
-     */
-    protected function applyTax(float $total, $tax, bool $rate = false)
-    {
-        if (empty($tax) || $tax <= 0) {
-            return 0;
-        }
-
-        if (!$rate) {
-            $this->line_tax_total = round($total * ($tax / 100), $this->decimals);
-            return $this->line_tax_total;
-        }
-
-        $this->line_tax_total = round($tax, $this->decimals);
-        return $this->line_tax_total;
-    }
-
-    /**
      * @param $total
      * @param $balance
      * @return false|float
@@ -103,6 +97,25 @@ class BaseCalculator
 
     protected function calculateTaxTotal(float $total, float $tax, $inclusive = false)
     {
+    }
+
+    /**
+     * @param float $total
+     * @param float $tax
+     * @param bool $rate
+     * @return false|float
+     */
+    protected function applyTax(float $total, $tax, bool $rate = false)
+    {
+        if (empty($tax) || $tax <= 0) {
+            return 0;
+        }
+
+        if (!$rate) {
+            return round($total * ($tax / 100), $this->decimals);
+        }
+
+        return round($tax, $this->decimals);
     }
 
     /**
@@ -151,5 +164,24 @@ class BaseCalculator
         return round($price * $quantity, $this->decimals);
     }
 
+    public function getTaxRateEntity($name)
+    {
+        if (isset($this->{$name})) {
+            return $this->{$name};
+        }
+
+        return 0;
+    }
+
+    /**
+     * @param float $unit_tax
+     * @return LineItem
+     * @return LineItem
+     */
+    public function setTaxRateEntity($name, $tax_rate): self
+    {
+        $this->{$name} = $tax_rate;
+        return $this;
+    }
 
 }

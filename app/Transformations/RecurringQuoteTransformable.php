@@ -12,11 +12,24 @@ use App\Models\RecurringQuoteInvitation;
 
 trait RecurringQuoteTransformable
 {
+    public function transformAuditsForRecurringQuote($audits)
+    {
+        if (empty($audits)) {
+            return [];
+        }
+
+        return $audits->map(
+            function (Audit $audit) {
+                return (new AuditTransformable)->transformAudit($audit);
+            }
+        )->all();
+    }
+
     /**
      * @param RecurringQuote $quote
      * @return array
      */
-    protected function transformRecurringQuote(RecurringQuote $quote)
+    protected function transformRecurringQuote(RecurringQuote $quote, $files = null)
     {
         return [
             'id'                    => (int)$quote->id,
@@ -45,8 +58,8 @@ trait RecurringQuoteTransformable
             'deleted_at'            => $quote->deleted_at,
             'created_at'            => $quote->created_at,
             'status_id'             => $quote->status_id,
-            'public_notes'          => $quote->public_notes ?: '',
-            'private_notes'         => $quote->private_notes ?: '',
+            'customer_note'         => $quote->customer_note ?: '',
+            'internal_note'         => $quote->internal_note ?: '',
             'terms'                 => $quote->terms,
             'footer'                => $quote->footer,
             'line_items'            => $quote->line_items,
@@ -60,11 +73,13 @@ trait RecurringQuoteTransformable
             'gateway_percentage'    => (bool)$quote->gateway_percentage,
             'transaction_fee_tax'   => (bool)$quote->transaction_fee_tax,
             'shipping_cost_tax'     => (bool)$quote->shipping_cost_tax,
-            'audits'                => $this->transformAuditsForRecurringQuote($quote->audits),
-            'files'                 => $this->transformRecurringQuoteFiles($quote->files),
+            //'audits'                => $this->transformAuditsForRecurringQuote($quote->audits),
+            'files'                 => !empty($files) && !empty($files[$quote->id]) ? $this->transformRecurringQuoteFiles(
+                $files[$quote->id]
+            ) : [],
             'invitations'           => $this->transformRecurringQuoteInvitations($quote->invitations),
             'quotes'                => $this->transformQuotesCreated($quote->quotes),
-            'schedule'              => $quote->calculateDateRanges(),
+            'schedule'              => !empty($quote->frequency) ? $quote->calculateDateRanges() : [],
             'tax_rate'              => (float)$quote->tax_rate,
             'tax_2'                 => (float)$quote->tax_2,
             'tax_3'                 => (float)$quote->tax_3,
@@ -72,22 +87,9 @@ trait RecurringQuoteTransformable
             'tax_rate_name_2'       => $quote->tax_rate_name_2,
             'tax_rate_name_3'       => $quote->tax_rate_name_3,
             'viewed'                => (bool)$quote->viewed,
-            'is_deleted'            => (bool)$quote->is_deleted,
+            'hide'                  => (bool)$quote->hide,
 
         ];
-    }
-
-    public function transformAuditsForRecurringQuote($audits)
-    {
-        if (empty($audits)) {
-            return [];
-        }
-
-        return $audits->map(
-            function (Audit $audit) {
-                return (new AuditTransformable)->transformAudit($audit);
-            }
-        )->all();
     }
 
     /**

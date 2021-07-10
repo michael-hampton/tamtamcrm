@@ -2,7 +2,6 @@
 
 namespace App\Requests\CompanyGateway;
 
-use App\Models\CompanyGateway;
 use App\Repositories\Base\BaseFormRequest;
 
 class UpdateCompanyGatewayRequest extends BaseFormRequest
@@ -15,8 +14,7 @@ class UpdateCompanyGatewayRequest extends BaseFormRequest
      */
     public function authorize()
     {
-        $company_gateway = CompanyGateway::find($this->id);
-        return auth()->user()->can('update', $company_gateway);
+        return auth()->user()->can('update', $this->company_gateway);
     }
 
     public function rules()

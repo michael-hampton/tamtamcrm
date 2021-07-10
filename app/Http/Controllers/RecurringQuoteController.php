@@ -76,7 +76,7 @@ class RecurringQuoteController extends BaseController
      */
     public function store(CreateRecurringQuoteRequest $request)
     {
-        $recurring_quote = (new RecurringQuoteRepository(new RecurringQuote))->createQuote(
+        $recurring_quote = (new RecurringQuoteRepository(new RecurringQuote))->create(
             $request->all(),
             RecurringQuoteFactory::create(
                 Customer::where('id', $request->customer_id)->first(),
@@ -92,11 +92,9 @@ class RecurringQuoteController extends BaseController
      * @param UpdateRecurringQuoteRequest $request
      * @return JsonResponse
      */
-    public function update(int $id, UpdateRecurringQuoteRequest $request)
+    public function update(UpdateRecurringQuoteRequest $request, RecurringQuote $recurring_quote)
     {
-        $recurring_quote = $this->recurring_quote_repo->findQuoteById($id);
-
-        $recurring_quote = $this->recurring_quote_repo->save($request->all(), $recurring_quote);
+        $recurring_quote = $this->recurring_quote_repo->update($request->all(), $recurring_quote);
         return response()->json($this->transformRecurringQuote($recurring_quote));
     }
 
@@ -117,9 +115,8 @@ class RecurringQuoteController extends BaseController
      * @param int $id
      * @return mixed
      */
-    public function archive(int $id)
+    public function archive(RecurringQuote $recurring_quote)
     {
-        $recurring_quote = $this->recurring_quote_repo->findQuoteById($id);
         $recurring_quote->archive();
         return response()->json([], 200);
     }
@@ -129,9 +126,8 @@ class RecurringQuoteController extends BaseController
      * @return mixed
      * @throws AuthorizationException
      */
-    public function destroy(int $id)
+    public function destroy(RecurringQuote $recurring_quote)
     {
-        $recurring_quote = RecurringQuote::withTrashed()->where('id', '=', $id)->first();
         $this->authorize('delete', $recurring_quote);
         $recurring_quote->deleteEntity();
         return response()->json([], 200);

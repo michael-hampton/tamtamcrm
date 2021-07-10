@@ -163,15 +163,15 @@ export default function Overview (props) {
 
         <ExpensePresenter entity={props.entity} field="status_field"/>
 
-        {!!props.entity.private_notes.length &&
+        {!!props.entity.internal_note.length &&
         <Row>
-            <InfoMessage icon={icons.lock} message={props.entity.private_notes}/>
+            <InfoMessage icon={icons.lock} message={props.entity.internal_note}/>
         </Row>
         }
 
-        {!!props.entity.public_notes.length &&
+        {!!props.entity.customer_note.length &&
         <Row>
-            <InfoMessage message={props.entity.public_notes}/>
+            <InfoMessage message={props.entity.customer_note}/>
         </Row>
         }
 

@@ -44,7 +44,7 @@ export default class ExpenseRepository extends BaseRepository {
             parameters.status = status
         }
 
-        const url = Object.keys(parameters).length ? this._url + `?${this.buildQueryParams(parameters)}` : this._url
+        const url = Object.keys(parameters).length ? this._url + `?${this.buildQueryParams(parameters)}` : this._url + '?status=active'
 
         try {
             const res = await axios.get(url)

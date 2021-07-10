@@ -34,7 +34,7 @@ export default class TokenModel extends BaseModel {
 
         actions.push('copy')
 
-        if (!this.fields.is_deleted) {
+        if (!this.fields.hide) {
             actions.push('delete')
         }
 

@@ -33,14 +33,14 @@ interface OrderRepositoryInterface
      * @param Order $order
      * @return Order|null
      */
-    public function createOrder(array $data, Order $order): ?Order;
+    public function create(array $data, Order $order): ?Order;
 
     /**
      * @param array $data
      * @param Order $credit
      * @return Order|null
      */
-    public function updateOrder(array $data, Order $credit): ?Order;
+    public function update(array $data, Order $credit): ?Order;
 
     /**
      * @param array $data

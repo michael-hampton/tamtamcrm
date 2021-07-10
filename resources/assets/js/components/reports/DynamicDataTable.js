@@ -9,6 +9,17 @@ import { translations } from '../utils/_translations'
 import Typeahead from 'react-bootstrap-typeahead/lib/components/AsyncTypeahead'
 
 class DynamicDataTable extends Component {
+    constructor (props) {
+        super(props)
+
+        this.state = {
+            checkedRows: []
+        }
+
+        this.className = this.className.bind(this)
+        this.changePerPage = this.changePerPage.bind(this)
+    }
+
     static noop () {
         return null
     }
@@ -34,17 +45,6 @@ class DynamicDataTable extends Component {
                 index={index}
             />
         )
-    }
-
-    constructor (props) {
-        super(props)
-
-        this.state = {
-            checkedRows: []
-        }
-
-        this.className = this.className.bind(this)
-        this.changePerPage = this.changePerPage.bind(this)
     }
 
     componentWillUpdate (nextProps) {
@@ -346,9 +346,9 @@ class DynamicDataTable extends Component {
                             </tr>
 
                             {filterable &&
-                            <tr>
-                                {fields.map(field => this.renderColumnFilter(field.name))}
-                            </tr>
+                        <tr>
+                            {fields.map(field => this.renderColumnFilter(field.name))}
+                        </tr>
                             }
                         </thead>
                         <tbody>
@@ -468,7 +468,7 @@ class DynamicDataTable extends Component {
                 style={{ cursor }}
             >
                 {canOrderBy && prependOrderByIcon ? orderByIcon : ''}
-                { field.label }
+                {field.label}
                 &nbsp;
                 {canOrderBy && !prependOrderByIcon ? orderByIcon : ''}
             </th>
@@ -498,7 +498,7 @@ class DynamicDataTable extends Component {
     renderColumnFilter (column) {
         const column_values = [...new Set(this.props.rows.map(row => row[column]))]
 
-        const date_fields = ['date', 'due_date']
+        const date_fields = ['date', 'due_date', 'started_at', 'stopped_at']
 
         if (date_fields.includes(column)) {
             return <th>{this.buildDateOptions(column)}</th>
@@ -506,12 +506,16 @@ class DynamicDataTable extends Component {
 
         return <th>
             <Typeahead
+                minLength={0}
+                clearButton={true}
+                delay={1000}
                 onChange={(selected) => {
                     const value = selected.join()
+                    alert('mike')
                     this.props.handleColumnFilter(value || '', column)
                 }}
-                onSearch={(test) => {
-                    console.log('test', test)
+                onSearch={(value) => {
+                    this.props.handleColumnFilter(value || '', column)
                 }}
                 options={Array.from(column_values)}
             />
@@ -525,7 +529,7 @@ class DynamicDataTable extends Component {
         if (!buttons.length && !actions.length) {
             return null
         } else if (!actions.length) {
-            return <th />
+            return <th/>
         }
 
         return (
@@ -669,6 +673,10 @@ class DynamicDataTable extends Component {
 
     renderPagination () {
         const props = this.props
+
+        if (props.hide_pagination && props.hide_pagination === true) {
+            return null
+        }
 
         return (
             <Pagination

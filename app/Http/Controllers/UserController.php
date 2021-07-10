@@ -13,6 +13,7 @@ use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Repositories\UserRepository;
 use App\Requests\SearchRequest;
 use App\Requests\User\CreateUserRequest;
+use App\Requests\User\DeleteUserRequest;
 use App\Requests\User\UpdateUserRequest;
 use App\Search\UserSearch;
 use App\Transformations\UserTransformable;
@@ -22,6 +23,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class UserController
@@ -75,22 +77,31 @@ class UserController extends Controller
     public function store(CreateUserRequest $request)
     {
         $user = $this->user_repo->save(
-            $request->all(),
+            $request->except('customized_permissions'),
             UserFactory::create(auth()->user()->account_user()->account->domains->id)
         );
-        //$user = $this->user_repo->save($request->all(), (new UserFactory())->create());
-        return $this->transformUser($user);
 
-        event(new UserWasCreated($user, auth()->user()->account_user()->account));
+        $account_user = $user->account_users->where('account_id', $request->input('account_id'))->first();
+
+        if (!empty($request->input('customized_permissions'))) {
+            $this->user_repo->savePermissions(
+                $user,
+                $account_user,
+                $request->input('customized_permissions')
+            );
+        }
+
+        event(new UserWasCreated($user));
+
+        return $this->transformUser($user);
     }
 
     /**
      * @param int $id
      * @return JsonResponse
      */
-    public function edit(int $id)
+    public function edit(User $user)
     {
-        $user = $this->user_repo->findUserById($id);
         $roles = $this->role_repo->listRoles('created_at', 'desc')->where(
             'account_id',
             auth()->user()->account_user()->account_id
@@ -111,10 +122,9 @@ class UserController extends Controller
      * @return Response
      * @throws Exception
      */
-    public function archive(int $id)
+    public function archive(User $user)
     {
-        $objUser = $this->user_repo->findUserById($id);
-        $response = $objUser->delete();
+        $response = $user->delete();
 
         if ($response) {
             return response()->json('User deleted!');
@@ -124,15 +134,15 @@ class UserController extends Controller
     }
 
     /**
+     * @param DeleteUserRequest $request
      * @param int $id
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function destroy(int $id)
+    public function destroy(DeleteUserRequest $request, User $user)
     {
-        $user = $this->user_repo->findUserById($id);
         $this->authorize('delete', $user);
-        $this->user_repo->destroy($user);
+        $this->user_repo->deleteUser($user);
         return response()->json([], 200);
     }
 
@@ -141,10 +151,24 @@ class UserController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public function update(UpdateUserRequest $request, int $id)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        $user = $this->user_repo->findUserById($id);
-        $user = $this->user_repo->save($request->all(), $user);
+        $user = $this->user_repo->save($request->except('customized_permissions'), $user);
+        $account_user = $user->account_users->where('account_id', $request->input('account_id'))->first();
+
+        if (!empty($request->input('customized_permissions'))) {
+            $this->user_repo->savePermissions(
+                $user,
+                $account_user,
+                $request->input('customized_permissions')
+            );
+        } else {
+            DB::table('permission_user')->where('user_id', $user->id)->where(
+                'account_id',
+                $account_user->account->id
+            )->delete();
+        }
+
         return response()->json($user);
     }
 
@@ -196,9 +220,8 @@ class UserController extends Controller
      * @param int $id
      * @return mixed
      */
-    public function show(int $id)
+    public function show(User $user)
     {
-        $user = $this->user_repo->findUserById($id);
         return response()->json($this->transformUser($user));
     }
 

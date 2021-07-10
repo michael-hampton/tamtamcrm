@@ -2,13 +2,16 @@ import axios from 'axios'
 import moment from 'moment'
 import BaseModel, { LineItem } from './BaseModel'
 import { consts } from '../utils/_consts'
+import { roundNumber } from '../utils/_formatting'
+import InvoiceCalculations from './InvoiceCalculations'
+import { buildPdf } from '../utils/Pdf'
 
-export const invoice_pdf_fields = ['$invoice.number', '$invoice.po_number', '$invoice.invoice_date', '$invoice.invoice_datetime', '$invoice.invoice_agent', '$invoice.due_date',
+export const invoice_pdf_fields = ['$invoice.number', '$invoice.po_number', '$invoice.invoice_date', '$invoice.invoice_datetime', '$invoice.invoice_status', '$invoice.invoice_agent', '$invoice.due_date',
     '$invoice.balance', '$invoice.invoice_total', '$invoice.partial_due', '$invoice.custom1', '$invoice.custom2', '$invoice.custom3',
     '$invoice.custom4', '$invoice.surcharge1', '$invoice.surcharge2', '$invoice.surcharge3', '$invoice.surcharge4'
 ]
 
-export default class InvoiceModel extends BaseModel {
+class InvoiceModel extends BaseModel {
     constructor (data = null, customers = []) {
         super()
         this.customers = customers
@@ -61,8 +64,9 @@ export default class InvoiceModel extends BaseModel {
             partial: 0,
             partial_due_date: moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
             has_partial: false,
-            public_notes: '',
-            private_notes: '',
+            auto_billing_enabled: this.settings.autobilling_enabled,
+            customer_note: '',
+            internal_note: '',
             terms: '',
             footer: '',
             visible: 'collapse',
@@ -83,7 +87,7 @@ export default class InvoiceModel extends BaseModel {
             recurring: '',
             activeTab: '1',
             po_number: '',
-            design_id: '',
+            design_id: this.merged_settings.invoice_design_id ? this.merged_settings.invoice_design_id : null,
             recurring_invoice_id: null,
             currency_id: this.settings.currency_id.toString().length ? this.settings.currency_id : consts.default_currency,
             exchange_rate: 1,
@@ -105,7 +109,6 @@ export default class InvoiceModel extends BaseModel {
 
         if (data !== null) {
             this._fields = { ...this.fields, ...data }
-
             this.updateCustomer()
         }
 
@@ -155,7 +158,7 @@ export default class InvoiceModel extends BaseModel {
             return ''
         }
 
-        return this.customer.public_notes || ''
+        return this.customer.customer_note || ''
     }
 
     get default_terms () {
@@ -182,6 +185,22 @@ export default class InvoiceModel extends BaseModel {
 
     get isCancelled () {
         return parseInt(this.fields.status_id) === this.cancelled
+    }
+
+    get balanceOrAmount () {
+        return this.fields.status_id > consts.invoice_status_draft ? this.fields.balance : this.fields.total
+    }
+
+    get netAmount () {
+        return this.fields.total - this.taxAmount
+    }
+
+    get netBalance () {
+        return this.fields.balance - (this.taxAmount * this.fields.balance / this.fields.total)
+    }
+
+    get taxAmount () {
+        return this.fields.tax_total
     }
 
     get isPaid () {
@@ -303,7 +322,7 @@ export default class InvoiceModel extends BaseModel {
             actions.push('markPaid')
         }
 
-        if (!this.fields.is_deleted) {
+        if (!this.fields.hide) {
             actions.push('delete')
         }
 
@@ -434,19 +453,23 @@ export default class InvoiceModel extends BaseModel {
         }
     }
 
-    async loadPdf () {
+    async loadPdf (show_html = false) {
         try {
             this.errors = []
             this.error_message = ''
-            const res = await axios.post('api/preview', { entity: this.entity, entity_id: this._fields.id })
+            const res = await axios.post('api/preview', { entity: this.entity, entity_id: this._fields.id, show_html: show_html })
 
             if (res.status === 200) {
                 // test for status you want, etc
                 console.log(res.status)
             }
 
+            if (show_html === true) {
+                return res.data
+            }
+
             // Don't forget to return something
-            return this.buildPdf(res.data)
+            return buildPdf(res.data)
         } catch (e) {
             alert(e)
             this.handleError(e)
@@ -474,64 +497,8 @@ export default class InvoiceModel extends BaseModel {
 
         }
     }
-
-    calculateTaxes (usesInclusiveTaxes) {
-        let tax_total = 0
-
-        if (this.fields.tax_rate > 0) {
-            const a_total = parseFloat(this.fields.total)
-            const tax_percentage = parseFloat(a_total) * parseFloat(this.fields.tax_rate) / 100
-            tax_total += tax_percentage
-        }
-
-        if (this.fields.tax_2 && this.fields.tax_2 > 0) {
-            const a_total = parseFloat(this.fields.total)
-            const tax_percentage = parseFloat(a_total) * parseFloat(this.fields.tax_2) / 100
-            tax_total += tax_percentage
-        }
-
-        if (this.fields.tax_3 && this.fields.tax_3 > 0) {
-            const a_total = parseFloat(this.fields.total)
-            const tax_percentage = parseFloat(a_total) * parseFloat(this.fields.tax_3) / 100
-            tax_total += tax_percentage
-        }
-
-        this.fields.line_items.map((product) => {
-            const quantity = product.quantity === 0 ? 1 : product.quantity
-            let line_total = product.unit_price * quantity
-            let discount_total = 0
-
-            if (product.unit_discount > 0 && this.fields.discount === 0) {
-                const n = parseFloat(this.fields.total)
-
-                if (this.fields.is_amount_discount === true) {
-                    discount_total += parseFloat(product.unit_discount)
-                } else {
-                    const percentage = n * product.unit_discount / 100
-                    discount_total += percentage
-                    // lexieTotal -= discount_total
-                }
-
-                line_total -= discount_total
-            }
-
-            if (product.unit_tax > 0) {
-                const tax_percentage = line_total * product.unit_tax / 100
-                tax_total += tax_percentage
-            }
-        })
-
-        const precision = this.currency.precision || 2
-
-        return Math.round(tax_total, precision)
-    }
-
-    calculateTax (tax_amount) {
-        const a_total = parseFloat(this.fields.total)
-        const tax_percentage = parseFloat(a_total) * parseFloat(tax_amount) / 100
-
-        const precision = this.currency.precision || 2
-
-        return Math.round(tax_percentage, precision)
-    }
 }
+
+Object.assign(InvoiceModel.prototype, InvoiceCalculations)
+
+export default InvoiceModel

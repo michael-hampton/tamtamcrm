@@ -6,21 +6,18 @@ import {
     CardHeader,
     CustomInput,
     FormGroup,
-    Label,
-    Nav,
-    NavItem,
-    NavLink,
-    TabContent,
-    TabPane
+    Label
 } from 'reactstrap'
 import axios from 'axios'
 import { translations } from '../utils/_translations'
 import { icons } from '../utils/_icons'
 import BlockButton from '../common/BlockButton'
 import SnackbarMessage from '../common/SnackbarMessage'
-import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
 import FileUploads from '../documents/FileUploads'
+import CompanyModel from '../models/CompanyModel'
+import DesignFields from './DesignFields'
+import EditScaffold from '../common/EditScaffold'
 
 class Settings extends Component {
     constructor (props) {
@@ -33,9 +30,10 @@ class Settings extends Component {
             cached_settings: {},
             settings: {},
             company_logo: null,
-            activeTab: '1',
+            activeTab: 0,
             success: false,
-            changesMade: false
+            changesMade: false,
+            isSaving: false
         }
 
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
@@ -43,6 +41,8 @@ class Settings extends Component {
         this.handleSubmit = this.handleSubmit.bind(this)
         this.getAccount = this.getAccount.bind(this)
         this.toggle = this.toggle.bind(this)
+
+        this.model = new CompanyModel({ id: this.state.id })
     }
 
     componentDidMount () {
@@ -55,7 +55,6 @@ class Settings extends Component {
     }
 
     beforeunload (e) {
-        alert('here')
         if (this.state.changesMade) {
             if (!confirm(translations.changes_made_warning)) {
                 e.preventDefault()
@@ -64,7 +63,7 @@ class Settings extends Component {
         }
     }
 
-    toggle (tab) {
+    toggle (event, tab) {
         if (this.state.activeTab !== tab) {
             this.setState({ activeTab: tab })
         }
@@ -103,8 +102,10 @@ class Settings extends Component {
         value = value === 'true' ? true : value
         value = value === 'false' ? false : value
 
+        const value_changed = this.state.cached_settings[name] !== value
+
         this.setState(prevState => ({
-            changesMade: true,
+            changesMade: value_changed,
             settings: {
                 ...prevState.settings,
                 [name]: value
@@ -119,6 +120,7 @@ class Settings extends Component {
     }
 
     handleSubmit (e) {
+        this.setState({ isSaving: true })
         const url = this.state.id === null ? '/api/accounts' : `/api/accounts/${this.state.id}`
 
         const formData = new FormData()
@@ -135,7 +137,18 @@ class Settings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false })
+                console.log('response', response.data)
+                if (this.state.id === null) {
+                    this.model = new CompanyModel({ id: response.data })
+                    this.model.updateSettings(response.data.settings)
+                    return false
+                }
+                this.setState({
+                    success: true,
+                    cached_settings: this.state.settings,
+                    changesMade: false,
+                    isSaving: false
+                }, () => this.model.updateSettings(this.state.settings))
             })
             .catch((error) => {
                 console.error(error)
@@ -345,9 +358,24 @@ class Settings extends Component {
                     placeholder: translations.payment_terms,
                     value: settings.payment_terms,
                     group: 1
+                },
+                {
+                    name: 'quote_payment_terms',
+                    label: translations.quote_payment_terms,
+                    type: 'payment_terms',
+                    placeholder: translations.quote_payment_terms,
+                    value: settings.quote_payment_terms,
+                    group: 1
                 }
             ]
         ]
+    }
+
+    getDesignFields () {
+        const settings = this.state.settings
+        const design_fields = DesignFields(settings)
+
+        return [design_fields]
     }
 
     getPaymentEmailFields () {
@@ -479,55 +507,113 @@ class Settings extends Component {
     }
 
     render () {
-        const tabs = <Nav tabs className="nav-justified setting-tabs disable-scrollbars">
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '1' ? 'active' : ''}
-                    onClick={() => {
-                        this.toggle('1')
-                    }}>
-                    {translations.details}
-                </NavLink>
-            </NavItem>
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '2' ? 'active' : ''}
-                    onClick={() => {
-                        this.toggle('2')
-                    }}>
-                    {translations.address}
-                </NavLink>
-            </NavItem>
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '3' ? 'active' : ''}
-                    onClick={() => {
-                        this.toggle('3')
-                    }}>
-                    {translations.logo}
-                </NavLink>
-            </NavItem>
+        const tabs = {
+            settings: {
+                activeTab: this.state.activeTab,
+                toggle: this.toggle
+            },
+            tabs: [
+                {
+                    label: translations.details
+                },
+                {
+                    label: translations.address
+                },
+                {
+                    label: translations.logo
+                },
+                {
+                    label: translations.defaults
+                },
+                {
+                    label: translations.documents
+                }
+            ],
+            children: []
+        }
 
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '4' ? 'active' : ''}
-                    onClick={() => {
-                        this.toggle('4')
-                    }}>
-                    {translations.defaults}
-                </NavLink>
-            </NavItem>
+        tabs.children[0] = <Card>
+            <CardBody>
+                <FormBuilder
+                    handleChange={this.handleSettingsChange}
+                    formFieldsRows={this.getFormFields()}
+                />
+            </CardBody>
+        </Card>
 
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '5' ? 'active' : ''}
-                    onClick={() => {
-                        this.toggle('5')
-                    }}>
-                    {translations.documents} {this.state.file_count > 0 ? this.state.file_count : ''}
-                </NavLink>
-            </NavItem>
-        </Nav>
+        tabs.children[1] = <Card>
+            <CardBody>
+                <FormBuilder
+                    handleChange={this.handleSettingsChange}
+                    formFieldsRows={this.getAddressFields()}
+                />
+            </CardBody>
+        </Card>
+
+        tabs.children[2] = <Card>
+            <CardBody>
+                <FormGroup>
+
+                    <Label>{translations.logo}</Label>
+                    <CustomInput className="mt-4 mb-4"
+                        onChange={this.handleFileChange.bind(this)}
+                        type="file"
+                        id="company_logo" name="company_logo"
+                        label="Logo"/>
+                </FormGroup>
+            </CardBody>
+        </Card>
+
+        tabs.children[3] = <>
+            <Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getPaymentTermFields()}
+                    />
+
+                    <BlockButton icon={icons.cog} button_text={translations.configure_payment_terms}
+                        button_link="/#/payment_terms"/>
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getPaymentEmailFields()}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getDefaultFields()}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getDesignFields()}
+                    />
+                </CardBody>
+            </Card>
+        </>
+
+        tabs.children[4] = <Card>
+            <CardHeader>{translations.default_documents}</CardHeader>
+            <CardBody>
+                <FileUploads updateCount={(count) => {
+                    this.setState({ file_count: count })
+                }} entity_type="Account" entity={this.state}
+                user_id={this.state.user_id}/>
+            </CardBody>
+        </Card>
 
         return this.state.loaded === true ? (
             <React.Fragment>
@@ -537,94 +623,13 @@ class Settings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={translations.settings_not_saved}/>
 
-                <Header title={translations.account_details} cancelButtonDisabled={!this.state.changesMade}
+                <EditScaffold isLoading={!this.state.loaded} isSaving={this.state.isSaving}
+                    title={translations.account_details}
+                    isEditing={this.state.changesMade}
+                    cancelButtonDisabled={!this.state.changesMade}
                     handleCancel={this.handleCancel.bind(this)}
                     handleSubmit={this.handleSubmit}
                     tabs={tabs}/>
-
-                <div className="settings-container settings-container-narrow fixed-margin-mobile">
-                    <TabContent activeTab={this.state.activeTab}>
-                        <TabPane tabId="1">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getFormFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-                        <TabPane tabId="2">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getAddressFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-                        <TabPane tabId="3">
-                            <Card>
-                                <CardBody>
-                                    <FormGroup>
-
-                                        <Label>{translations.logo}</Label>
-                                        <CustomInput className="mt-4 mb-4"
-                                            onChange={this.handleFileChange.bind(this)}
-                                            type="file"
-                                            id="company_logo" name="company_logo"
-                                            label="Logo"/>
-                                    </FormGroup>
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-
-                        <TabPane tabId="4">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getPaymentTermFields()}
-                                    />
-
-                                    <BlockButton icon={icons.cog} button_text={translations.configure_payment_terms}
-                                        button_link="/#/payment_terms"/>
-                                </CardBody>
-                            </Card>
-
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getPaymentEmailFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getDefaultFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-
-                        <TabPane tabId="5">
-                            <Card>
-                                <CardHeader>{translations.default_documents}</CardHeader>
-                                <CardBody>
-                                    <FileUploads updateCount={(count) => {
-                                        this.setState({ file_count: count })
-                                    }} entity_type="Account" entity={this.state}
-                                    user_id={this.state.user_id}/>
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-                    </TabContent>
-                </div>
             </React.Fragment>
         ) : null
     }

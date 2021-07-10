@@ -2,7 +2,7 @@
 
 namespace App\Listeners\Invoice;
 
-use App\Notifications\Admin\EntitySentNotification;
+use App\Notifications\Entity\EntitySentNotification;
 use App\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -36,6 +36,10 @@ class InvoiceEmailedNotification implements ShouldQueue
                 'invoice',
                 ['all_notifications', 'invoice_sent']
             );
+
+            if (empty($notification->method)) {
+                continue;
+            }
 
             $user->notify($notification);
         }

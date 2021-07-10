@@ -10,7 +10,7 @@ import Duration from '../../common/Duration'
 const TaskTimeInputs = (props) => {
     return (
         props.timers.map((val, idx) => {
-            const end = props.timers[idx].end_date !== null ? moment(props.timers[idx].end_date + ' ' + props.timers[idx].end_time).format('YYYY-MM-DD hh:mm:ss a') : moment().format('YYYY-MM-DD HH:mm:ss a')
+            const end = props.timers[idx].end_date ? moment(props.timers[idx].end_date + ' ' + props.timers[idx].end_time).format('YYYY-MM-DD hh:mm:ss a') : moment().format('YYYY-MM-DD HH:mm:ss a')
             const start = props.timers[idx].start_time !== null ? moment(props.timers[idx].date + ' ' + props.timers[idx].start_time).format('YYYY-MM-DD hh:mm:ss a') : 0
 
             return (
@@ -35,32 +35,34 @@ const TaskTimeInputs = (props) => {
                                 </MuiPickersUtilsProvider>
                             </FormGroup>
                         </Col>
-                        <Col md={3}>
+                        <Col md={2}>
                             <FormGroup>
                                 <Label>{translations.start_time}</Label>
-                                <TimePickerInput name="start_time" index={idx} value={props.timers[idx].start_time}
+                                <TimePickerInput name="start_time" index={idx}
+                                    value={props.timers[idx].start_time && props.timers[idx].start_time.toString().length ? props.timers[idx].start_time : moment().format('HH:mm:ss')}
                                     setValue={props.handleTimeChange}/>
                             </FormGroup>
                         </Col>
 
-                        <Col md={3}>
+                        <Col md={2}>
                             <FormGroup>
                                 <Label>{translations.end_time}</Label>
-                                <TimePickerInput name="end_time" index={idx} value={props.timers[idx].end_time}
+                                <TimePickerInput name="end_time" index={idx}
+                                    value={props.timers[idx].end_time && props.timers[idx].end_time.toString().length ? props.timers[idx].end_time : moment().format('HH:mm:ss')}
                                     setValue={props.handleTimeChange}/>
                             </FormGroup>
                         </Col>
 
                         <Col md={3}>
                             <FormGroup>
-                                <Label>{translations.duration} {props.model.calculateDuration(start, end)}</Label>
+                                <Label>{translations.duration} {props.timers[idx].start_time && props.timers[idx].start_time.toString().length ? props.model.calculateDuration(start, end) : ''}</Label>
                                 <Duration onChange={props.handleChange}/>
                             </FormGroup>
                         </Col>
                     </Row>
 
                     {idx !== 0 &&
-                    <Button color="danger" onClick={() => props.removeLine(idx)}>{translations.remove}</Button>
+                            <Button color="danger" onClick={() => props.removeLine(idx)}>{translations.remove}</Button>
                     }
 
                 </div>

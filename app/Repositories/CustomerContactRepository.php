@@ -15,12 +15,26 @@ class CustomerContactRepository extends BaseRepository
 {
     /**
      * CustomerContactRepository constructor.
-     * @param CustomerContact $client_contact
+     * @param CustomerContact $customer_contact
      */
-    public function __construct(CustomerContact $client_contact)
+    public function __construct(CustomerContact $customer_contact)
     {
-        parent::__construct($client_contact);
-        $this->model = $client_contact;
+        parent::__construct($customer_contact);
+        $this->model = $customer_contact;
+    }
+
+    /**
+     * @param array $data
+     * @param CustomerContact $customer_contact
+     * @return CustomerContact
+     */
+    public function createContact(array $data, CustomerContact $customer_contact)
+    {
+        $customer_contact->fill($data);
+
+        $customer_contact->save();
+
+        return $customer_contact;
     }
 
     /**

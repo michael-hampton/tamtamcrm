@@ -34,15 +34,16 @@ export default class CustomerItem extends Component {
     deleteCustomer (id, archive = false) {
         const url = archive === true ? `/api/customers/archive/${id}` : `/api/customers/${id}`
         axios.delete(url).then(data => {
-            const arrCustomers = [...this.props.customers]
+            const arrCustomers = [...this.props.entities]
             const index = arrCustomers.findIndex(customer => customer.id === id)
-            arrCustomers.splice(index, 1)
-            this.props.updateCustomers(arrCustomers)
+            arrCustomers[index].hide = archive !== true
+            arrCustomers[index].deleted_at = new Date()
+            this.props.updateCustomers(arrCustomers, true)
         })
     }
 
     render () {
-        const { customers, custom_fields, ignoredColumns } = this.props
+        const { customers, custom_fields, ignoredColumns, entities } = this.props
         if (customers && customers.length) {
             return customers.map((customer, index) => {
                 const restoreButton = customer.deleted_at
@@ -56,7 +57,7 @@ export default class CustomerItem extends Component {
                     custom_fields={custom_fields}
                     customer={customer}
                     action={this.props.updateCustomers}
-                    customers={customers}
+                    customers={entities}
                     modal={true}
                 /> : null
 

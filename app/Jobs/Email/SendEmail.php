@@ -2,10 +2,8 @@
 
 namespace App\Jobs\Email;
 
-use App\Components\Pdf\InvoicePdf;
-use App\Components\Pdf\LeadPdf;
-use App\Components\Pdf\PurchaseOrderPdf;
-use App\Components\Pdf\TaskPdf;
+use App\Services\Pdf\GeneratePdf;
+use App\Components\Pdf\PdfFactory;
 use App\Events\EmailFailedToSend;
 use App\Factory\EmailFactory;
 use App\Factory\ErrorLogFactory;
@@ -15,6 +13,9 @@ use App\Models\Email;
 use App\Models\ErrorLog;
 use App\Models\Invoice;
 use App\Repositories\EmailRepository;
+use App\ViewModels\AccountViewModel;
+use App\ViewModels\CustomerContactViewModel;
+use App\ViewModels\LeadViewModel;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -23,6 +24,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
+use ReflectionClass;
 
 class SendEmail implements ShouldQueue
 {
@@ -66,19 +68,7 @@ class SendEmail implements ShouldQueue
     {
         $settings = $this->entity->account->settings;
 
-        switch (get_class($this->entity)) {
-            case in_array(get_class($this->entity), ['App\Models\Cases', 'App\Models\Task', 'App\Models\Deal']):
-                $objPdf = new TaskPdf($this->entity);
-                break;
-            case 'App\Models\Lead':
-                $objPdf = new LeadPdf($this->entity);
-                break;
-            case 'App\Models\PurchaseOrder':
-                $objPdf = new PurchaseOrderPdf($this->entity);
-                break;
-            default:
-                $objPdf = new InvoicePdf($this->entity);
-        }
+        $objPdf = (new PdfFactory())->create($this->entity);
 
         $objPdf->build();
         $labels = $objPdf->getLabels();
@@ -103,15 +93,18 @@ class SendEmail implements ShouldQueue
 
 
         if (strlen($settings->reply_to_email) > 0) {
-            $message->setReplyTo($settings->reply_to_email);
+            $reply_to_name = !empty($settings->reply_to_name) ? $settings->reply_to_name
+                : (new AccountViewModel($this->entity->account))->name();
+            $message->setReplyTo($settings->reply_to_email, $reply_to_name);
         }
 
         if (strlen($settings->bcc_email) > 0) {
-            $message->setBcc($settings->bcc_email);
+            $bcc = explode(',', $settings->bcc_email);
+            $message->setBcc($bcc);
         }
 
-        if ($settings->pdf_email_attachment) {
-            $message->setAttachments(public_path($this->entity->service()->generatePdf($this->contact)));
+        if ($settings->pdf_email_attachment && (new ReflectionClass($this->entity))->getShortName() !== 'Payment') {
+            $message->setAttachments(public_path((new GeneratePdf($this->entity))->execute($this->contact)));
         }
 
         foreach ($this->entity->files as $file) {
@@ -125,9 +118,11 @@ class SendEmail implements ShouldQueue
         }
 
         try {
-            Mail::to($this->contact->email, $this->contact->present()->name())
+            Mail::to($this->contact->email, (new CustomerContactViewModel($this->contact))->name())
                 ->send($message);
         } catch (Exception $e) {
+            echo $e->getMessage();
+            die('here99');
             event(new EmailFailedToSend($this->entity, $e->getMessage()));
         }
 
@@ -144,21 +139,22 @@ class SendEmail implements ShouldQueue
 
     private function buildMailMessageData($settings, $body, $design): array
     {
-        $data = [
-            'view_link' => !empty($this->footer) ? $this->footer['link'] : '',
-            'view_text' => !empty($this->footer) ? $this->footer['text'] : '',
-            'body'      => $body,
-            'design'    => $design,
-            'footer'    => $this->footer,
-            'title'     => $this->subject,
-            'settings'  => $settings,
-            'company'   => $this->entity->account,
-            'logo'      => $this->entity->account->present()->logo(),
+        $viewModel = new AccountViewModel($this->entity->account);
+
+        return [
+            'design' => $design,
+            'footer' => $this->footer,
+            'url' => !empty($this->footer) ? $this->footer['link'] : '',
+            'button_text' => !empty($this->footer) ? $this->footer['text'] : '',
+            'title' => $this->subject,
+            'body' => $body,
             'signature' => !empty($this->entity->account->settings->email_signature) ? $this->entity->account->settings->email_signature : '',
-
+            'logo' => (new AccountViewModel($this->entity->account))->logo(),
+            'show_footer' => empty($this->entity->account->domains->plan) || !in_array(
+                    $this->entity->account->domains->plan->code,
+                    ['STDM', 'STDY']
+                )
         ];
-
-        return $data;
     }
 
     private function createLogEntry($errors)
@@ -189,13 +185,21 @@ class SendEmail implements ShouldQueue
 
         $entity = get_class($this->entity);
 
+        if ($entity === 'App\Models\Lead') {
+            $contact = $this->entity;
+            $contactViewModel = new LeadViewModel($this->entity);
+        } else {
+            $contact = $this->contact;
+            $contactViewModel = new CustomerContactViewModel($contact);
+        }
+
         // check if already sent
         $email = Email::whereSubject($subject)
-                      ->whereEntity($entity)
-                      ->whereEntityId($this->entity->id)
-                      ->whereRecipientEmail($this->contact->present()->email)
-                      ->whereFailedToSend(1)
-                      ->first();
+            ->whereEntity($entity)
+            ->whereEntityId($this->entity->id)
+            ->whereRecipientEmail($contact->email)
+            ->whereFailedToSend(1)
+            ->first();
 
 
         if (!empty($email) && !$sent_successfully) {
@@ -207,15 +211,15 @@ class SendEmail implements ShouldQueue
 
         (new EmailRepository(new Email))->save(
             [
-                'subject'         => $subject,
-                'body'            => $body,
-                'entity'          => $entity,
-                'entity_id'       => $this->entity->id,
-                'recipient'       => $this->contact->present()->name,
-                'recipient_email' => $this->contact->present()->email,
-                'template'        => $this->template,
-                'sent_at'         => Carbon::now(),
-                'failed_to_send'  => $sent_successfully === false,
+                'subject' => $subject,
+                'body' => $body,
+                'entity' => $entity,
+                'entity_id' => $this->entity->id,
+                'recipient' => $contactViewModel->name(),
+                'recipient_email' => $contact->email,
+                'template' => $this->template,
+                'sent_at' => Carbon::now(),
+                'failed_to_send' => $sent_successfully === false,
             ],
             $email
         );

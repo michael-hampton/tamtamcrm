@@ -11,15 +11,23 @@ import CustomerRepository from '../repositories/CustomerRepository'
 import UserRepository from '../repositories/UserRepository'
 import EditTaskDesktop from './edit/EditTaskDesktop'
 import { getDefaultTableFields } from '../presenters/TaskPresenter'
+import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class TaskList extends Component {
     constructor (props) {
         super(props)
 
         this.state = {
+            currentPage: 1,
+            totalPages: null,
+            pageLimit: 2,
+            // pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             dropdownButtonActions: ['download', 'mark_in_progress', 'create_invoice'],
+            cachedData: [],
             tasks: [],
             users: [],
             customers: [],
@@ -63,8 +71,22 @@ export default class TaskList extends Component {
         this.getCustomFields()
     }
 
-    addUserToState (tasks) {
-        this.setState({ tasks: tasks })
+    addUserToState (tasks, do_filter = false, filters = null) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
+        const cachedData = !this.state.cachedData.length ? tasks : this.state.cachedData
+
+        if (should_filter) {
+            tasks = filterStatuses(tasks, '', this.state.filters)
+        }
+
+        this.setState({
+            filters: filters !== null ? filters : this.state.filters,
+            tasks: tasks,
+            cachedData: cachedData
+        }, () => {
+            const totalPages = Math.ceil(tasks.length / this.state.pageLimit)
+            this.onPageChanged({ invoices: tasks, currentPage: this.state.currentPage, totalPages: totalPages })
+        })
     }
 
     handleClose () {
@@ -78,14 +100,32 @@ export default class TaskList extends Component {
         return true
     }
 
-    userList (props) {
-        const { tasks, custom_fields, users, customers } = this.state
+    onPageChanged (data) {
+        let { tasks, pageLimit } = this.state
+        const { currentPage, totalPages } = data
 
-        return <TaskItem showCheckboxes={props.showCheckboxes} action={this.addUserToState} tasks={tasks} users={users}
-            show_list={props.show_list}
+        if (data.invoices) {
+            tasks = data.invoices
+        }
+
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = tasks.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
+
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
+    }
+
+    userList (props) {
+        const { pageLimit, custom_fields, users, customers, currentInvoices, cachedData } = this.state
+
+        return <TaskItem showCheckboxes={props.showCheckboxes} action={this.addUserToState} tasks={currentInvoices}
+            users={users}
+            show_list={props.show_list} entities={cachedData}
+            onPageChanged={this.onPageChanged.bind(this)}
+            pageLimit={pageLimit}
             custom_fields={custom_fields} customers={customers}
             viewId={props.viewId}
-            ignoredColumns={getDefaultTableFields()} addUserToState={this.addUserToState}
+            ignoredColumns={props.default_columns} addUserToState={this.addUserToState}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -121,7 +161,8 @@ export default class TaskList extends Component {
         const userRepository = new UserRepository()
         userRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
             }
 
             this.setState({ users: response }, () => {
@@ -134,7 +175,8 @@ export default class TaskList extends Component {
         const customerRepository = new CustomerRepository()
         customerRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
             }
 
             this.setState({ customers: response }, () => {
@@ -159,13 +201,26 @@ export default class TaskList extends Component {
     }
 
     render () {
-        const { tasks, users, customers, custom_fields, isOpen, error_message, success_message, show_success } = this.state
-        const { project_id, task_status_id, task_type, customer_id, user_id, searchText, start_date, end_date } = this.state.filters
-        const fetchUrl = `/api/tasks?search_term=${searchText}&project_id=${project_id}&task_status=${task_status_id}&task_type=${task_type}&customer_id=${customer_id}&user_id=${user_id}&start_date=${start_date}&end_date=${end_date}`
+        const {
+            cachedData,
+            tasks,
+            users,
+            customers,
+            custom_fields,
+            isOpen,
+            error_message,
+            success_message,
+            show_success,
+            currentInvoices,
+            pageLimit
+        } = this.state
+        const { start_date, end_date } = this.state.filters
+        const fetchUrl = `/api/tasks?start_date=${start_date}&end_date=${end_date}`
         const { error, view } = this.state
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable-large fixed-margin-datatable-large-mobile'
+        const total = tasks.length
 
         const is_mobile = window.innerWidth <= 768
 
@@ -177,7 +232,7 @@ export default class TaskList extends Component {
             customers={customers}
             users={users}
             action={this.addUserToState}
-            tasks={tasks}
+            tasks={cachedData}
         /> : <EditTaskDesktop
             modal={true}
             listView={true}
@@ -185,7 +240,7 @@ export default class TaskList extends Component {
             users={users}
             task={{}}
             add={true}
-            tasks={tasks}
+            tasks={cachedData}
             action={this.addUserToState}
         />
 
@@ -195,7 +250,11 @@ export default class TaskList extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <TaskFilters customers={customers} setFilterOpen={this.setFilterOpen.bind(this)}
+                                <TaskFilters
+                                    pageLimit={pageLimit}
+                                    cachedData={cachedData}
+                                    updateList={this.addUserToState}
+                                    customers={customers} setFilterOpen={this.setFilterOpen.bind(this)}
                                     users={users}
                                     tasks={tasks}
                                     filters={this.state.filters} filter={this.filterTasks}
@@ -207,25 +266,31 @@ export default class TaskList extends Component {
                     </div>
 
                     {error &&
-                    <Snackbar open={error} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
-                        <Alert severity="danger">
-                            {error_message}
-                        </Alert>
-                    </Snackbar>
+                        <Snackbar open={error} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
+                            <Alert severity="danger">
+                                {error_message}
+                            </Alert>
+                        </Snackbar>
                     }
 
                     {show_success &&
-                    <Snackbar open={show_success} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
-                        <Alert severity="success">
-                            {success_message}
-                        </Alert>
-                    </Snackbar>
+                        <Snackbar open={show_success} autoHideDuration={3000} onClose={this.handleClose.bind(this)}>
+                            <Alert severity="success">
+                                {success_message}
+                            </Alert>
+                        </Snackbar>
                     }
 
                     <div className={margin_class}>
                         <Card>
                             <CardBody>
                                 <DataTable
+
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
+
                                     default_columns={getDefaultTableFields()}
                                     customers={customers}
                                     setSuccess={this.setSuccess.bind(this)}
@@ -239,8 +304,20 @@ export default class TaskList extends Component {
                                     userList={this.userList}
                                     fetchUrl={fetchUrl}
                                     updateState={this.addUserToState}
-                                    columnMapping={{ calculated_task_rate: translations.task_rate.toUpperCase() }}
+                                    columnMapping={{
+                                        calculated_task_rate: translations.task_rate.toUpperCase(),
+                                        customer_id: 'CUSTOMER',
+                                        status_name: 'Status'
+                                    }}
                                 />
+
+                                {total > 0 &&
+                                    <div className="d-flex flex-row py-4 align-items-center">
+                                        <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                            pageNeighbours={1}
+                                            onPageChanged={this.onPageChanged.bind(this)}/>
+                                    </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>

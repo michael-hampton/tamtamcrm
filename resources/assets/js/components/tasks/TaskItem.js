@@ -38,10 +38,11 @@ export default class TaskItem extends Component {
 
         axios.delete(url)
             .then(function (response) {
-                const arrTasks = [...self.props.tasks]
+                const arrTasks = [...self.props.entities]
                 const index = arrTasks.findIndex(task => task.id === id)
-                arrTasks.splice(index, 1)
-                self.props.addUserToState(arrTasks)
+                arrTasks[index].hide = archive !== true
+                arrTasks[index].deleted_at = new Date()
+                self.props.addUserToState(arrTasks, true)
             })
             .catch(function (error) {
                 console.log(error)
@@ -49,15 +50,15 @@ export default class TaskItem extends Component {
     }
 
     render () {
-        const { tasks, custom_fields, users, ignoredColumns, customers } = this.props
+        const { tasks, custom_fields, users, ignoredColumns, customers, entities } = this.props
         const is_mobile = this.state.width <= 768
         const list_class = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true')
             ? 'list-group-item-dark' : ''
 
         if (tasks && tasks.length && users.length) {
             return tasks.map((task, index) => {
-                const restoreButton = task.deleted_at && !task.is_deleted
-                    ? <RestoreModal id={task.id} entities={tasks} updateState={this.props.addUserToState}
+                const restoreButton = task.deleted_at && !task.hide
+                    ? <RestoreModal id={task.id} entities={entities} updateState={this.props.addUserToState}
                         url={`/api/tasks/restore/${task.id}`}/> : null
                 const archiveButton = !task.deleted_at
                     ? <DeleteModal archive={true} deleteFunction={this.deleteTask} id={task.id}/> : null
@@ -69,16 +70,17 @@ export default class TaskItem extends Component {
                     custom_fields={custom_fields}
                     users={users}
                     task={task}
-                    allTasks={tasks}
+                    allTasks={entities}
                     action={this.props.addUserToState}
                 /> : <EditTaskDesktop
+                    customers={this.props.customers}
                     add={false}
                     modal={true}
                     listView={true}
                     custom_fields={custom_fields}
                     users={users}
                     task={task}
-                    tasks={tasks}
+                    tasks={entities}
                     action={this.props.addUserToState}
                 />
 

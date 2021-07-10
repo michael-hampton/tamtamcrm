@@ -49,17 +49,7 @@ class Invoice extends BaseCalculator
     /**
      * @var float
      */
-    private $tax_rate;
-
-    /**
-     * @var float
-     */
-    private $tax_2;
-
-    /**
-     * @var float
-     */
-    private $tax_3;
+    protected $tax_rate;
 
     /**
      * @var float
@@ -101,6 +91,30 @@ class Invoice extends BaseCalculator
         $this->calculateTax();
 
         $this->getCalculatedBalance();
+    }
+
+    /**
+     * @return $this
+     */
+    public function calculateTax(): self
+    {
+        $sub_total = $this->custom_tax > 0 ? $this->total + $this->custom_tax : $this->total;
+        $this->tax_total += $this->applyTax($sub_total, $this->tax_rate, $this->is_amount_discount);
+
+        if ($this->tax_2 && $this->tax_2 > 0) {
+            $this->tax_total += $this->applyTax($sub_total, $this->tax_2, $this->is_amount_discount);
+        }
+        if ($this->tax_3 && $this->tax_3 > 0) {
+            $this->tax_total += $this->applyTax($sub_total, $this->tax_3, $this->is_amount_discount);
+        }
+
+        if ($this->custom_tax > 0) {
+            $this->total = $sub_total;
+        }
+
+        $this->total += $this->tax_total;
+
+        return $this;
     }
 
     private function calculateCustomValues()
@@ -235,16 +249,6 @@ class Invoice extends BaseCalculator
     }
 
     /**
-     * @param float $balance
-     * @return $this
-     */
-    private function increaseAmountPaid(float $amount_paid): self
-    {
-        $this->amount_paid += $amount_paid;
-        return $this;
-    }
-
-    /**
      * @param float $total
      * @return $this
      */
@@ -260,30 +264,6 @@ class Invoice extends BaseCalculator
     public function calculateDiscount(): self
     {
         $this->total -= $this->discount_total;
-
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
-    public function calculateTax(): self
-    {
-        $sub_total = $this->custom_tax > 0 ? $this->total + $this->custom_tax : $this->total;
-        $this->tax_total += $this->applyTax($sub_total, $this->tax_rate, $this->is_amount_discount);
-
-        if ($this->tax_2 && $this->tax_2 > 0) {
-            $this->tax_total += $this->applyTax($sub_total, $this->tax_2, $this->is_amount_discount);
-        }
-        if ($this->tax_3 && $this->tax_3 > 0) {
-            $this->tax_total += $this->applyTax($sub_total, $this->tax_3, $this->is_amount_discount);
-        }
-
-        if ($this->custom_tax > 0) {
-            $this->total = $sub_total;
-        }
-
-        $this->total += $this->tax_total;
 
         return $this;
     }
@@ -469,17 +449,6 @@ class Invoice extends BaseCalculator
     }
 
     /**
-     * @param $name
-     * @param float $tax_rate
-     * @return Invoice
-     */
-    public function setTaxRate($name, $tax_rate): self
-    {
-        $this->{$name} = $tax_rate;
-        return $this;
-    }
-
-    /**
      * @return bool
      */
     public function isInclusiveTaxes(): bool
@@ -495,6 +464,16 @@ class Invoice extends BaseCalculator
     public function setInclusiveTaxes(bool $inclusive_taxes): self
     {
         $this->inclusive_taxes = $inclusive_taxes;
+        return $this;
+    }
+
+    /**
+     * @param float $balance
+     * @return $this
+     */
+    private function increaseAmountPaid(float $amount_paid): self
+    {
+        $this->amount_paid += $amount_paid;
         return $this;
     }
 }

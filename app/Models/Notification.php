@@ -4,10 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Notification extends Model
 {
 
+    use QueryCacheable;
+
+    protected static $flushCacheOnUpdate = true;
     /**
      * The attributes that are mass assignable.
      *
@@ -19,8 +23,22 @@ class Notification extends Model
         'notifiable_id',
         'data',
         'read_at',
-        'account_id'
+        'account_id',
+        'action'
     ];
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'activity',
+        ];
+    }
 
     /**
      * @return BelongsTo

@@ -1,13 +1,27 @@
 import React, { Component } from 'react'
 import FileUploads from '../../documents/FileUploads'
-import { Alert, Card, CardBody, CardHeader, Col, Nav, NavItem, NavLink, Row, TabContent, TabPane } from 'reactstrap'
+import {
+    Alert,
+    Card,
+    CardBody,
+    CardHeader,
+    Col,
+    Nav,
+    NavItem,
+    NavLink,
+    Row,
+    Spinner,
+    TabContent,
+    TabPane
+} from 'reactstrap'
 import { translations } from '../../utils/_translations'
-import InvoiceModel from '../../models/InvoiceModel'
 import BottomNavigationButtons from '../../common/BottomNavigationButtons'
 import Audit from '../../common/Audit'
 import ViewContacts from '../../common/entityContainers/ViewContacts'
 import AddPayment from '../../payments/edit/AddPayment'
 import Overview from './Overview'
+import InvoiceRepository from '../../repositories/InvoiceRepository'
+import InvoiceModel from '../../models/InvoiceModel'
 
 export default class Invoice extends Component {
     constructor (props) {
@@ -17,7 +31,8 @@ export default class Invoice extends Component {
             activeTab: '1',
             obj_url: null,
             show_success: false,
-            file_count: this.props.entity.files.length || 0
+            file_count: this.props.entity.files.length || 0,
+            audits: []
         }
 
         this.invoiceModel = new InvoiceModel(this.state.entity)
@@ -55,9 +70,26 @@ export default class Invoice extends Component {
         })
     }
 
+    getAudits () {
+        const invoiceRepository = new InvoiceRepository()
+        invoiceRepository.audits('Invoice', this.props.entity.id).then(response => {
+            if (!response) {
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
+            }
+
+            this.setState({ audits: response }, () => {
+                console.log('audits', this.state.audits)
+            })
+        })
+    }
+
     toggleTab (tab) {
         if (this.state.activeTab !== tab) {
             this.setState({ activeTab: tab }, () => {
+                if (tab === '4' && !this.state.audits.length) {
+                    this.getAudits()
+                }
                 if (this.state.activeTab === '5') {
                     this.loadPdf()
                 }
@@ -151,7 +183,11 @@ export default class Invoice extends Component {
                     <TabPane tabId="4">
                         <Row>
                             <Col>
-                                <Audit entity="Invoice" audits={this.state.entity.audits}/>
+                                {this.state.audits.length ? <Audit entity="Invoice" audits={this.state.audits}/>
+                                    : <Spinner style={{
+                                        width: '3rem',
+                                        height: '3rem'
+                                    }}/>}
                             </Col>
                         </Row>
                     </TabPane>

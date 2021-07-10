@@ -12,7 +12,11 @@ use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\User;
+use App\Repositories\InvoiceRepository;
 use App\Repositories\PaymentRepository;
+use App\Requests\SearchRequest;
+use App\Search\InvoiceSearch;
+use App\Search\PaymentSearch;
 use App\Transformations\PaymentTransformable;
 
 class PaymentImporter extends BaseCsvImporter
@@ -20,15 +24,21 @@ class PaymentImporter extends BaseCsvImporter
     use ImportMapper;
     use PaymentTransformable;
 
+    /**
+     * @var string
+     */
+    protected string $json;
+
     protected $entity;
     private array $export_columns = [
-        'number'           => 'Number',
-        'customer_id'      => 'Customer name',
-        'date'             => 'Date',
-        'reference_number' => 'Reference Number',
-        'amount'           => 'Amount',
-        'payment_type'     => 'Payment Type',
-        'invoices'         => 'Invoices'
+        'number'               => 'Number',
+        'customer_id'          => 'Customer name',
+        'date'                 => 'Date',
+        'reference_number'     => 'Reference Number',
+        'amount'               => 'Amount',
+        'payment_type'         => 'Payment Type',
+        'paymentable_invoices' => 'Invoices',
+        'paymentable_credits'  => 'Credits'
     ];
     /**
      * @var array|string[]
@@ -40,8 +50,8 @@ class PaymentImporter extends BaseCsvImporter
         'amount'           => 'amount',
         'reference number' => 'reference_number',
         'payment type'     => 'payment_method_id',
-        'public notes'     => 'public_notes',
-        'private notes'    => 'private_notes',
+        'public notes'     => 'customer_note',
+        'private notes'    => 'internal_note',
         'invoices'         => 'invoices'
     ];
     /**
@@ -105,19 +115,32 @@ class PaymentImporter extends BaseCsvImporter
     public function export($is_json = false)
     {
         $export_columns = $this->getExportColumns();
-        $list = Payment::where('account_id', '=', $this->account->id)->get();
 
-        $payments = [];
+        $search_request = new SearchRequest();
+        $search_request->replace(['column' => 'created_at', 'order' => 'desc']);
 
-        foreach ($list as $payment) {
-            $payments[] = $this->transformObject($payment);
+        $payments = (new PaymentSearch(new PaymentRepository(new Payment())))->filter($search_request, $this->account);
+
+        foreach ($payments as $key => $payment) {
+
+            if ($payment['invoices']->count() > 0) {
+                $payments[$key]['paymentable_invoices'] = $payment['invoices']->implode('number', ' ,');
+            }
+
+            if ($payment['credits']->count() > 0) {
+                $payments[$key]['paymentable_credits'] = $payment['credits']->implode('number', ' ,');
+            }
         }
 
         if ($is_json) {
-            return json_encode($payments);
+            $this->export->sendJson('payment', $payments);
+            $this->json = json_encode($payments);
+            return true;
         }
 
         $this->export->build(collect($payments), $export_columns);
+
+        $this->export->notifyUser('payment');
 
         return true;
     }
@@ -176,5 +199,13 @@ class PaymentImporter extends BaseCsvImporter
         }
 
         return PaymentFactory::create($this->customer, $this->user, $this->account);
+    }
+
+    /**
+     * @return string
+     */
+    public function getJson(): string
+    {
+        return $this->json;
     }
 }

@@ -4,9 +4,12 @@ namespace App\Components\Import;
 
 use App\Models\Account;
 use App\Models\User;
+use App\Notifications\Account\AccountDataExportedNotification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use League\Csv\CannotInsertRecord;
 use League\Csv\Reader;
 use League\Csv\Writer;
@@ -204,6 +207,46 @@ class Export
         );
 
         return $this;
+    }
+
+    /**
+     * @param string $type
+     * @return string
+     */
+    public function notifyUser(string $type): string
+    {
+
+        $filename = date('YmdHi') . '-' . $type . '.csv';
+        $path = public_path(config('taskmanager.exports_dir'));
+        $full_path = $path . '/' . $filename;
+
+        if (File::exists($full_path)) {
+            File::delete($full_path);
+        }
+
+        Storage::put('exports/' . $filename, $this->getContent());
+
+        $this->user->notify(new AccountDataExportedNotification($full_path));
+
+        return $full_path;
+    }
+
+    public function sendJson(string $type, array $content): string
+    {
+
+        $filename = date('YmdHi') . '-' . $type . '.json';
+        $path = public_path(config('taskmanager.exports_dir'));
+        $full_path = $path . '/' . $filename;
+
+        if (File::exists($full_path)) {
+            File::delete($full_path);
+        }
+
+        Storage::put('exports/' . $filename, json_encode($content));
+
+        $this->user->notify(new AccountDataExportedNotification($full_path));
+
+        return $full_path;
     }
 
     /**

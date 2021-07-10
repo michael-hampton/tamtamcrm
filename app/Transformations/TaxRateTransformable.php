@@ -27,7 +27,7 @@ trait TaxRateTransformable
             'updated_at' => $tax_rate->updated_at,
             'deleted_at' => $tax_rate->deleted_at,
             'created_at' => $tax_rate->created_at,
-            'is_deleted' => (bool)$tax_rate->is_deleted,
+            'hide'       => (bool)$tax_rate->hide,
         ];
     }
 }

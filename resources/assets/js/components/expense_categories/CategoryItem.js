@@ -3,9 +3,9 @@ import axios from 'axios'
 import RestoreModal from '../common/RestoreModal'
 import DeleteModal from '../common/DeleteModal'
 import ActionsMenu from '../common/ActionsMenu'
-import EditCategory from './edit/EditCategory'
 import { Input, ListGroupItem } from 'reactstrap'
 import CategoryPresenter from '../presenters/CategoryPresenter'
+import EditCategory from './edit/EditCategory'
 
 export default class CategoryItem extends Component {
     constructor (props) {
@@ -32,14 +32,15 @@ export default class CategoryItem extends Component {
     }
 
     deleteCategory (id, archive = false) {
-        const url = archive === true ? `/api/expense-categories/archive/${id}` : `/api/categories/${id}`
+        const url = archive === true ? `/api/expense-categories/archive/${id}` : `/api/expense-categories/${id}`
         const self = this
         axios.delete(url)
             .then(function (response) {
-                const arrCategorys = [...self.props.categories]
-                const index = arrCategorys.findIndex(category => category.id === id)
-                arrCategorys.splice(index, 1)
-                self.props.addUserToState(arrCategorys)
+                const arrCategories = [...self.props.entities]
+                const index = arrCategories.findIndex(category => category.id === id)
+                arrCategories[index].hide = archive !== true
+                arrCategories[index].deleted_at = new Date()
+                self.props.addUserToState(arrCategories, true)
             })
             .catch(function (error) {
                 console.log(error)
@@ -47,30 +48,31 @@ export default class CategoryItem extends Component {
     }
 
     render () {
-        const { categories, ignoredColumns, customers } = this.props
+        const { categories, ignoredColumns, entities } = this.props
         if (categories && categories.length) {
             return categories.map((category, index) => {
                 const restoreButton = category.deleted_at
-                    ? <RestoreModal id={category.id} entities={categories} updateState={this.props.addUserToState}
-                        url={`/api/categories/restore/${category.id}`}/> : null
+                    ? <RestoreModal id={category.id} entities={entities} updateState={this.props.addUserToState}
+                        url={`/api/expense-categories/restore/${category.id}`}/> : null
                 const deleteButton = !category.deleted_at
                     ? <DeleteModal archive={false} deleteFunction={this.deleteCategory} id={category.id}/> : null
                 const archiveButton = !category.deleted_at
                     ? <DeleteModal archive={true} deleteFunction={this.deleteCategory} id={category.id}/> : null
 
                 const editButton = !category.deleted_at ? <EditCategory
-                    categories={categories}
-                    customers={customers}
+                    categories={entities}
                     category={category}
                     action={this.props.addUserToState}
                 /> : null
 
                 const columnList = Object.keys(category).filter(key => {
-                    return ignoredColumns && !ignoredColumns.includes(key)
+                    return ignoredColumns.includes(key)
                 }).map(key => {
-                    return <CategoryPresenter key={key} customers={customers}
-                        toggleViewedEntity={this.props.toggleViewedEntity}
-                        field={key} entity={category} edit={editButton}/>
+                    return <td key={key}
+                        onClick={() => this.props.toggleViewedEntity(category, category.name, editButton)}
+                        data-label={key}><CategoryPresenter edit={editButton}
+                            toggleViewedEntity={this.props.toggleViewedEntity}
+                            field={key} entity={category}/></td>
                 })
 
                 const checkboxClass = this.props.showCheckboxes === true ? '' : 'd-none'
@@ -96,7 +98,7 @@ export default class CategoryItem extends Component {
                     </tr>
                 }
 
-                return is_mobile || this.props.force_mobile ? <div className={`d-flex d-inline ${list_class}`}>
+                return !is_mobile && !this.props.force_mobile ? <div className={`d-flex d-inline ${list_class}`}>
                     <div className="list-action">
                         {!!this.props.onChangeBulk &&
                         <Input checked={isChecked} className={checkboxClass} value={category.id} type="checkbox"
@@ -104,13 +106,15 @@ export default class CategoryItem extends Component {
                         }
                         {actionMenu}
                     </div>
-
                     <ListGroupItem
                         onClick={() => this.props.toggleViewedEntity(category, category.name, editButton)}
                         key={index}
                         className={`border-top-0 list-group-item-action flex-column align-items-start ${list_class}`}>
                         <div className="d-flex w-100 justify-content-between">
-                            <h5 className="mb-1">{category.name}</h5>
+                            <h5 className="mb-1">{<CategoryPresenter field="name"
+                                entity={category}
+                                toggleViewedEntity={this.props.toggleViewedEntity}
+                                edit={editButton}/>}</h5>
                         </div>
                     </ListGroupItem>
                 </div> : <div className={`d-flex d-inline ${list_class}`}>
@@ -121,13 +125,15 @@ export default class CategoryItem extends Component {
                         }
                         {actionMenu}
                     </div>
-
                     <ListGroupItem
                         onClick={() => this.props.toggleViewedEntity(category, category.name, editButton)}
                         key={index}
                         className={`border-top-0 list-group-item-action flex-column align-items-start ${list_class}`}>
                         <div className="d-flex w-100 justify-content-between">
-                            <h5 className="mb-1">{category.name}</h5>
+                            <h5 className="mb-1">{<CategoryPresenter field="name"
+                                entity={category}
+                                toggleViewedEntity={this.props.toggleViewedEntity}
+                                edit={editButton}/>}</h5>
                         </div>
                     </ListGroupItem>
                 </div>

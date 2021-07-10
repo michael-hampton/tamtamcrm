@@ -5,9 +5,11 @@ import BaseModel from './BaseModel'
 const TaskTimeItem = {
     id: Date.now(),
     date: moment(new Date()).format('YYYY-MM-DD'),
-    start_time: moment().format('HH:MM:ss'),
-    end_date: moment(new Date()).format('YYYY-MM-DD'),
-    end_time: moment().add('1', 'hour').format('HH:MM:ss')
+    start_time: '',
+    end_time: '',
+    // start_time: moment().format('HH:MM:ss'),
+    end_date: moment(new Date()).format('YYYY-MM-DD')
+    // end_time: moment().add('1', 'hour').format('HH:MM:ss')
 }
 
 export default class TimerModel extends BaseModel {
@@ -46,10 +48,30 @@ export default class TimerModel extends BaseModel {
     addDuration (index, value) {
         const data = [...this.time_log]
 
-        var time = moment(data[index].start_time, 'HH:mm:ss')
-        time.add(value, 'm')
+        if (!data[index]) {
+            data[index] = {}
+        }
+
+        const [hh = '0', mm = '0', ss = '0'] = (value || '0:0:0').split(':')
+        const hour = parseInt(hh, 10) || 0
+        const minute = parseInt(mm, 10) || 0
+        const second = parseInt(ss, 10) || 0
+        const seconds = (hour * 3600) + (minute * 60) + (second)
+
+        const time = data[index].start_time && data[index].start_time.toString().length ? moment(data[index].start_time, 'HH:mm:ss') : moment(new Date()).subtract(seconds, 'seconds')
+        time.add(seconds, 'seconds')
         data[index].end_time = time.format('HH:mm:ss')
+
+        if (!data[index].start_time || !data[index].start_time.toString().length) {
+            data[index].start_time = moment(new Date()).subtract(seconds, 'seconds').format('HH:mm:ss')
+            data[index].date = moment(new Date()).format('YYYY-MM-DD')
+            data[index].end_date = moment(new Date()).format('YYYY-MM-DD')
+        }
+
         this.time_log = data
+
+        console.log('time log', this.time_log)
+
         return data
     }
 

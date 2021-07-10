@@ -45,6 +45,7 @@ import TaskRepository from '../../repositories/TaskRepository'
 import ExpenseRepository from '../../repositories/ExpenseRepository'
 import ProjectRepository from '../../repositories/ProjectRepository'
 import { getExchangeRateWithMap } from '../../utils/_money'
+import { toast, ToastContainer } from 'react-toastify'
 
 class EditPurchaseOrder extends Component {
     constructor (props, context) {
@@ -53,6 +54,7 @@ class EditPurchaseOrder extends Component {
         const data = this.props.invoice ? this.props.invoice : null
         this.purchaseOrderModel = new PurchaseOrderModel(data, this.props.companies)
         this.initialState = this.purchaseOrderModel.fields
+        this.initialState.companies = this.props.companies || []
         this.state = this.initialState
 
         this.updateData = this.updateData.bind(this)
@@ -81,11 +83,18 @@ class EditPurchaseOrder extends Component {
         this.settings = user_account[0].account.settings
     }
 
-    componentWillMount () {
-        window.addEventListener('resize', this.handleWindowSizeChange)
+    static getDerivedStateFromProps (props, state) {
+        if (props.invoice && props.invoice_id && props.invoice.id !== state.id) {
+            const invoiceModel = new PurchaseOrderModel(props.invoice, props.companies)
+            return invoiceModel.fields
+        }
+
+        return null
     }
 
     componentDidMount () {
+        window.addEventListener('resize', this.handleWindowSizeChange)
+
         if (this.props.task_id) {
             this.loadInvoice()
         } else if (!this.props.invoice.id) {
@@ -105,6 +114,12 @@ class EditPurchaseOrder extends Component {
         }
     }
 
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.invoice && this.props.invoice_id && this.props.invoice.id !== prevProps.invoice.id) {
+            this.purchaseOrderModel = new PurchaseOrderModel(this.props.invoice, this.state.companies)
+        }
+    }
+
     // make sure to remove the listener
     // when the component is not mounted anymore
     componentWillUnmount () {
@@ -117,10 +132,17 @@ class EditPurchaseOrder extends Component {
         const reducer = new InvoiceReducer(this.props.entity_id, this.props.entity_type)
         repo.getById(this.props.entity_id).then(response => {
             if (!response) {
-                alert('error')
+                toast.error(translations.unexpected_error, {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+                return
             }
-
-            console.log('task', response)
 
             const data = reducer.build(type, response)
 
@@ -294,8 +316,8 @@ class EditPurchaseOrder extends Component {
                         company_id: r.data.company_id,
                         user_id: r.data.user_id,
                         // company_id: r.data.company_id,
-                        public_notes: r.data.public_notes,
-                        private_notes: r.data.private_notes,
+                        customer_note: r.data.customer_note,
+                        internal_note: r.data.internal_note,
                         terms: r.data.terms,
                         footer: r.data.footer,
                         status_id: parseInt(r.data.status_id)
@@ -419,8 +441,8 @@ class EditPurchaseOrder extends Component {
             sub_total: this.state.sub_total,
             tax_total: this.state.tax_total,
             discount_total: this.state.discount_total,
-            public_notes: this.state.public_notes,
-            private_notes: this.state.private_notes,
+            customer_note: this.state.customer_note,
+            internal_note: this.state.internal_note,
             terms: this.state.terms,
             footer: this.state.footer,
             date: this.state.date,
@@ -451,14 +473,35 @@ class EditPurchaseOrder extends Component {
                     errors: this.purchaseOrderModel.errors,
                     message: this.purchaseOrderModel.error_message
                 })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.purchase_order), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.purchase_order), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
 
             if (!this.state.id) {
                 const firstInvoice = response
                 const allInvoices = this.props.invoices
-                allInvoices.push(firstInvoice)
-                this.props.action(allInvoices)
+                allInvoices.unshift(firstInvoice)
+                this.props.action(allInvoices, true)
                 localStorage.removeItem('purchaseOrderForm')
                 this.setState(this.initialState)
                 return
@@ -466,8 +509,8 @@ class EditPurchaseOrder extends Component {
 
             const index = this.props.invoices.findIndex(invoice => invoice.id === this.state.id)
             this.props.invoices[index] = response
-            this.props.action(this.props.invoices)
-            this.setState({ loading: false, changesMade: false })
+            this.props.action(this.props.invoices, true)
+            this.setState({ loading: false, changesMade: false, modalOpen: false })
         })
     }
 
@@ -476,7 +519,7 @@ class EditPurchaseOrder extends Component {
     }
 
     reload (data) {
-        this.purchaseOrderModel = new PurchaseOrderModel(data, this.props.companies)
+        this.purchaseOrderModel = new PurchaseOrderModel(data, this.state.companies)
         this.initialState = this.purchaseOrderModel.fields
         this.initialState.modalOpen = true
         this.setState(this.initialState)
@@ -549,13 +592,15 @@ class EditPurchaseOrder extends Component {
         </Nav>
 
         const details = this.state.is_mobile
-            ? <Detailsm hide_customer={this.state.id === null}
-                handleInput={this.handleInput}
-                companies={this.props.companies}
-                errors={this.state.errors}
-                purchase_order={this.state}
+            ? <Detailsm updateCustomers={(companies) => {
+                this.setState({ companies: companies })
+            }} hide_customer={this.state.id === null}
+            handleInput={this.handleInput}
+            companies={this.state.companies}
+            errors={this.state.errors}
+            purchase_order={this.state}
             /> : <Details handleInput={this.handleInput}
-                companies={this.props.companies}
+                companies={this.state.companies}
                 errors={this.state.errors}
                 purchase_order={this.state}
             />
@@ -573,11 +618,13 @@ class EditPurchaseOrder extends Component {
                 contacts={this.state.contacts}
                 invitations={this.state.invitations}
                 handleContactChange={this.handleContactChange}/>
-            : <Contacts hide_customer={this.state.id === null} address={this.state.address}
-                customerName={this.state.customerName}
-                handleInput={this.handleInput} invoice={this.state} errors={this.state.errors}
-                contacts={this.state.contacts}
-                invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
+            : <Contacts updateCustomers={(companies) => {
+                this.setState({ companies: companies })
+            }} hide_customer={this.state.id === null} address={this.state.address}
+            customerName={this.state.customerName}
+            handleInput={this.handleInput} invoice={this.state} errors={this.state.errors}
+            contacts={this.state.contacts} companies={this.state.companies}
+            invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
 
         const recurring = <Recurring setRecurring={this.setRecurring} handleInput={this.handleInput}
             errors={this.state.errors} invoice={this.state}/>
@@ -590,7 +637,7 @@ class EditPurchaseOrder extends Component {
             design_id={this.state.design_id}/>
 
         const items = <Items line_type={this.state.line_type} model={this.purchaseOrderModel}
-            companies={this.props.companies}
+            companies={this.state.companies}
             purchase_order={this.state} errors={this.state.errors}
             handleFieldChange={this.handleFieldChange}
             handleAddFiled={this.handleAddFiled} setTotal={this.setTotal}
@@ -600,18 +647,18 @@ class EditPurchaseOrder extends Component {
         const notes = !this.state.is_mobile
             ? <NoteTabs model={this.purchaseOrderModel}
                 show_exchange={this.purchaseOrderModel.account_currency.exchange_rate !== this.state.exchange_rate}
-                invoice={this.state} private_notes={this.state.private_notes}
-                public_notes={this.state.public_notes}
+                invoice={this.state} internal_note={this.state.internal_note}
+                customer_note={this.state.customer_note}
                 terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}
                 handleInput={this.handleInput}/>
-            : <Notes private_notes={this.state.private_notes} public_notes={this.state.public_notes}
+            : <Notes internal_note={this.state.internal_note} customer_note={this.state.customer_note}
                 terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}
                 handleInput={this.handleInput}/>
 
         const documents = this.state.id ? <Documents invoice={this.state}/> : null
 
         const email_editor = this.state.id
-            ? <Emails model={this.purchaseOrderModel} emails={this.state.emails} template="email_template_purchase_order"
+            ? <Emails width="500" model={this.purchaseOrderModel} emails={this.state.emails} template="purchase_order"
                 show_editor={true}
                 customers={this.props.customers} entity_object={this.state} entity="purchaseOrder"
                 entity_id={this.state.id}/> : null
@@ -716,7 +763,7 @@ class EditPurchaseOrder extends Component {
                             </Col>
 
                             <Col md={3} className="m-3">
-                                <TotalsBox invoice={this.state}/>
+                                <TotalsBox settings={this.settings} invoice={this.state}/>
                             </Col>
                         </Row>
                     </TabPane>
@@ -760,6 +807,18 @@ class EditPurchaseOrder extends Component {
                             title={this.purchaseOrderModel.isNew ? translations.add_purchase_order : translations.edit_purchase_order}/>
 
                         <ModalBody className={theme}>
+                            <ToastContainer
+                                position="top-center"
+                                autoClose={5000}
+                                hideProgressBar={false}
+                                newestOnTop={false}
+                                closeOnClick
+                                rtl={false}
+                                pauseOnFocusLoss
+                                draggable
+                                pauseOnHover
+                            />
+
                             {form}
                         </ModalBody>
                         <DefaultModalFooter show_success={true} toggle={this.toggle} saveData={this.saveData}

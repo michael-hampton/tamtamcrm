@@ -26,6 +26,13 @@ class AddGateway extends React.Component {
         this.updateFields = this.updateFields.bind(this)
         this.handleInput = this.handleInput.bind(this)
         this.updateFeesAndLimits = this.updateFeesAndLimits.bind(this)
+        this.refresh = this.refresh.bind(this)
+    }
+
+    refresh (gateway) {
+        this.gatewayModel = new GatewayModel(gateway)
+        this.initialState = this.gatewayModel.fields
+        this.state = this.initialState
     }
 
     handleConfig (e) {
@@ -76,7 +83,8 @@ class AddGateway extends React.Component {
     }
 
     handleInput (e) {
-        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value
+        const value = e.target.type && e.target.type === 'checkbox' ? e.target.checked : e.target.value
+
         this.setState({
             [e.target.name]: value
         })
@@ -188,7 +196,7 @@ class AddGateway extends React.Component {
 
                         <TabContent activeTab={this.state.activeTab}>
                             <TabPane tabId="1">
-                                <Details is_edit={false} renderErrorFor={this.renderErrorFor}
+                                <Details is_add={true} refresh={this.refresh} is_edit={false} renderErrorFor={this.renderErrorFor}
                                     errors={this.state.errors}
                                     handleInput={this.handleInput}
                                     gateway={this.state}
@@ -200,6 +208,7 @@ class AddGateway extends React.Component {
                                     handleInput={this.handleInput}
                                     gateway={this.state}
                                     updateFields={this.updateFields}
+                                    handleConfig={this.handleConfig}
                                     updateCards={this.updateCards}/>
                             </TabPane>
 

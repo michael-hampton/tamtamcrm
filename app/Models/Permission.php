@@ -6,6 +6,7 @@ use App\Models;
 use App\Traits\SearchableTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Permission extends Model
 {
@@ -30,6 +31,18 @@ class Permission extends Model
             'permissions.name' => 10
         ]
     ];
+
+    public static function getRolePermissions(User $user)
+    {
+        return DB::table('permission_role AS pr')->select(
+            'pr.role_id',
+            'p.*',
+            DB::raw('IF(ru.user_id, 1, 0) AS has_permission')
+        )->join('permissions AS p', 'p.id', '=', 'pr.permission_id')
+                 ->leftJoin('role_user AS ru', 'ru.role_id', '=', 'pr.role_id')
+                 ->where('ru.user_id', '=', $user->id)
+                 ->get();
+    }
 
     /**
      * @param $term

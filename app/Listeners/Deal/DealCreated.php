@@ -31,15 +31,20 @@ class DealCreated implements ShouldQueue
      */
     public function handle($event)
     {
-        $fields = [];
-        $fields['data']['id'] = $event->deal->id;
-        $fields['data']['customer_id'] = $event->deal->customer_id;
-        $fields['data']['message'] = 'A deal was created';
-        $fields['notifiable_id'] = $event->deal->user_id;
-        $fields['account_id'] = $event->deal->account_id;
-        $fields['notifiable_type'] = get_class($event->deal);
-        $fields['type'] = get_class($this);
-        $fields['data'] = json_encode($fields['data']);
+        $data = [
+            'id'          => $event->deal->id,
+            'customer_id' => $event->deal->customer_id,
+            'message'     => 'A deal was created'
+        ];
+
+        $fields = [
+            'notifiable_id'   => $event->deal->user_id,
+            'account_id'      => $event->deal->account_id,
+            'notifiable_type' => get_class($event->deal),
+            'type'            => get_class($this),
+            'data'            => json_encode($data),
+            'action'          => 'created'
+        ];
 
         $notification = NotificationFactory::create($event->deal->account_id, $event->deal->user_id);
         $notification->entity_id = $event->deal->id;

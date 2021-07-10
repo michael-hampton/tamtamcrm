@@ -4,6 +4,8 @@ namespace App\Mail\Admin;
 
 use App\Models\Invitation;
 use App\Models\User;
+use App\ViewModels\AccountViewModel;
+use App\ViewModels\CustomerContactViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use ReflectionClass;
@@ -13,7 +15,6 @@ class ObjectSent extends AdminMailer
 {
     use Queueable, SerializesModels;
 
-    private $invitation;
     private string $entity_name;
     private $contact;
 
@@ -33,7 +34,7 @@ class ObjectSent extends AdminMailer
         $this->entity = $invitation->inviteable;
         $this->user = $user;
 
-        parent::__construct("{$this->entity_name}_sent", $invitation->inviteable);
+        parent::__construct("{$this->entity_name}_sent", $invitation->inviteable, $invitation);
     }
 
     /**
@@ -46,7 +47,8 @@ class ObjectSent extends AdminMailer
         $data = $this->getData();
         $this->setSubject($data);
         $this->setMessage($data);
-        $this->execute($this->buildMessage());
+        $this->buildButton();
+        $this->execute();
     }
 
     /**
@@ -56,7 +58,7 @@ class ObjectSent extends AdminMailer
     {
         return [
             'total'    => $this->invitation->inviteable->getFormattedTotal(),
-            'customer' => $this->contact->present()->name(),
+            'customer' => (new CustomerContactViewModel($this->contact))->name(),
             'invoice'  => $this->invitation->inviteable->getNumber(),
         ];
     }
@@ -64,16 +66,12 @@ class ObjectSent extends AdminMailer
     /**
      * @return array
      */
-    private function buildMessage(): array
+    private function buildButton(): void
     {
-        return [
-            'title'       => $this->subject,
-            'body'        => $this->message,
+        $this->button = [
             'url'         => $this->getUrl() . "view/{$this->entity_name}/" . $this->invitation->key .
                 "?silent=true",
             'button_text' => trans("texts.view_{$this->entity_name}"),
-            'signature'   => $this->invitation->account->settings->email_signature,
-            'logo'        => $this->invitation->account->present()->logo(),
         ];
     }
 }

@@ -2,6 +2,9 @@
 
 namespace App\Jobs\Order;
 
+use App\Models\EmailTemplate;
+use App\Repositories\EmailTemplateRepository;
+use App\Services\Email\DispatchEmail;
 use App\Factory\CustomerFactory;
 use App\Factory\OrderFactory;
 use App\Factory\TaskFactory;
@@ -101,7 +104,8 @@ class CreateOrder implements ShouldQueue
         OrderRepository $order_repo,
         TaskRepository $task_repo,
         $is_deal
-    ) {
+    )
+    {
         $this->request = $request;
         $this->user = $user;
         $this->account = $account;
@@ -181,7 +185,7 @@ class CreateOrder implements ShouldQueue
                 $this->customer = $contact->customer;
             }
 
-            $this->customer = $this->customer_repo->save(
+            $this->customer = $this->customer_repo->create(
                 [
                     'name'                   => $this->request->first_name . ' ' . $this->request->last_name,
                     'phone'                  => $this->request->phone,
@@ -314,7 +318,7 @@ class CreateOrder implements ShouldQueue
 
             $this->order = OrderFactory::create($this->account, $this->user, $customer);
 
-            $this->order = $this->order_repo->createOrder(
+            $this->order = $this->order_repo->create(
                 [
                     'is_amount_discount' => !empty($this->request->is_amount_discount) ? $this->request->is_amount_discount : false,
                     'voucher_code'       => !empty($this->request->voucher_code) ? $this->request->voucher_code : null,
@@ -340,10 +344,9 @@ class CreateOrder implements ShouldQueue
                 $this->order
             );
 
-            $subject = $this->order->customer->getSetting('email_subject_order_received');
-            $body = $this->order->customer->getSetting('email_template_order_received');
+            $template = (new EmailTemplateRepository(new EmailTemplate()))->getTemplateForType('order_received');
 
-            $this->order->service()->sendEmail(null, $subject, $body);
+            (new DispatchEmail($this->order))->execute(null, $template->subject, $template->message);
 
             return $this->order;
         } catch (Exception $e) {

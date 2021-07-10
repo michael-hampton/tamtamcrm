@@ -26,8 +26,8 @@ export default function QuotePresenter (props) {
     const is_late = objQuoteModel.isLate()
     const entity_status = is_late === true ? 100 : entity.status_id
 
-    const status = (entity.deleted_at && !entity.is_deleted) ? (<Badge className="mr-2"
-        color="warning">{translations.archived}</Badge>) : ((entity.deleted_at && entity.is_deleted) ? (
+    const status = (entity.deleted_at && !entity.hide) ? (<Badge className="mr-2"
+        color="warning">{translations.archived}</Badge>) : ((entity.deleted_at && entity.hide) ? (
         <Badge className="mr-2" color="danger">{translations.deleted}</Badge>) : (
         <Badge color={quoteStatusColors[entity_status]}>{quoteStatuses[entity_status]}</Badge>))
 
@@ -70,6 +70,6 @@ export default function QuotePresenter (props) {
         }
 
         default:
-            return entity[field]
+            return typeof entity[field] === 'object' ? JSON.stringify(entity[field]) : entity[field]
     }
 }

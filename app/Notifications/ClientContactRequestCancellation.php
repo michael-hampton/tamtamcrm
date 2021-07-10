@@ -4,6 +4,8 @@ namespace App\Notifications;
 
 use App\Models\CustomerContact;
 use App\Models\RecurringInvoice;
+use App\ViewModels\CustomerContactViewModel;
+use App\ViewModels\CustomerViewModel;
 use Closure;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -88,8 +90,9 @@ class ClientContactRequestCancellation extends Notification implements ShouldQue
         }
 
 
-        $customer_contact_name = $this->customer_contact->present()->name();
-        $customer_name = $this->customer_contact->customer->present()->name();
+        $contactViewModel = new CustomerContactViewModel($this->customer_contact);
+        $customer_contact_name = $contactViewModel->name();
+        $customer_name = (new CustomerViewModel($this->customer_contact->customer))->name();
         $recurring_invoice_number = $this->recurring_invoice->number;
 
 
@@ -118,8 +121,8 @@ class ClientContactRequestCancellation extends Notification implements ShouldQue
 
     public function toSlack($notifiable)
     {
-        $name = $this->customer_contact->present()->name();
-        $customer_name = $this->customer_contact->client->present()->name();
+        $name = (new CustomerContactViewModel($this->customer_contact))->name();
+        $customer_name = (new CustomerViewModel($this->customer_contact->customer))->name();
         $recurring_invoice_number = $this->recurring_invoice->number;
 
         return (new SlackMessage)

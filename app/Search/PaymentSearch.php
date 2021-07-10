@@ -3,6 +3,7 @@
 namespace App\Search;
 
 use App\Models\Account;
+use App\Models\File;
 use App\Models\Payment;
 use App\Repositories\PaymentRepository;
 use App\Requests\SearchRequest;
@@ -44,10 +45,12 @@ class PaymentSearch extends BaseSearch
 
         if ($request->has('status')) {
             $this->status('payments', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->filled('customer_id')) {
-            $this->query->whereCustomerId($request->customer_id);
+            $this->query->byCustomer($request->customer_id);
         }
 
         if ($request->filled('gateway_id')) {
@@ -59,10 +62,10 @@ class PaymentSearch extends BaseSearch
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
-            $this->filterDates($request);
+            $this->query->byDate($request->input('start_date'), $request->input('end_date'));
         }
 
-        $this->addAccount($account);
+        $this->query->byAccount($account);
 
         $this->checkPermissions('paymentcontroller.index');
 
@@ -103,14 +106,29 @@ class PaymentSearch extends BaseSearch
         return true;
     }
 
+    private function transformList()
+    {
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['payments'])->get();
+        $files = File::where('fileable_type', '=', 'App\Models\Payment')->get()->groupBy('fileable_id');
+
+        $payments = $list->map(
+            function (Payment $payment) use ($files) {
+                return $this->transformPayment($payment, $files);
+            }
+        )->all();
+
+        return $payments;
+    }
+
     public function buildCurrencyReport(Request $request, Account $account)
     {
         return DB::table('payments')
-                 ->select(DB::raw('count(*) as count, currencies.name, SUM(amount) as amount'))
-                 ->join('currencies', 'currencies.id', '=', 'payments.currency_id')
-                 ->where('currency_id', '<>', 0)
-                 ->where('account_id', '=', $account->id)
-                 ->groupBy('currency_id')
+                 ->select(DB::raw('count(*) as count, currencies.name, SUM(payments.amount) as amount'))
+                 ->join('customers', 'customers.id', '=', 'payments.customer_id')
+                 ->join('currencies', 'currencies.id', '=', 'customers.currency_id')
+                 ->where('customers.currency_id', '<>', 0)
+                 ->where('payments.account_id', '=', $account->id)
+                 ->groupBy('customers.currency_id')
                  ->get();
     }
 
@@ -119,21 +137,64 @@ class PaymentSearch extends BaseSearch
         $this->query = DB::table('payments');
 
         if (!empty($request->input('group_by'))) {
-            $this->query->select(DB::raw('count(*) as count, customers.name AS customer, SUM(amount) as amount, status_id AS status'))
-                        ->groupBy($request->input('group_by'));
+            if (in_array($request->input('group_by'), ['date', 'due_date']) && !empty(
+                $request->input(
+                    'group_by_frequency'
+                )
+                )) {
+                $this->addMonthYearToSelect('payments', $request->input('group_by'));
+            }
+
+            $this->query->addSelect(
+                DB::raw('count(*) as count, customers.name AS customer, SUM(amount) as amount, status_id AS status')
+            );
+
+            $this->addGroupBy('payments', $request->input('group_by'), $request->input('group_by_frequency'));
         } else {
-            $this->query->select('customers.name AS customer', 'amount', 'payments.number', 'date', 'reference_number', 'status_id AS status');
+            $this->query->select(
+                'payments.number',
+                'payments.amount',
+                'customers.name AS customer',
+                'customers.balance AS customer_balance',
+                'billing.address_1',
+                'billing.address_2',
+                'billing.city',
+                'billing.state_code AS state',
+                'billing.zip',
+                'billing_country.name AS country',
+                'shipping.address_1 AS shipping_address_1',
+                'shipping.address_2 AS shipping_address_2',
+                'shipping.city AS shipping_city',
+                'shipping.state_code AS shipping_town',
+                'shipping.zip AS shipping_zip',
+                'shipping_country.name AS shipping_country',
+                'payments.date',
+                'reference_number',
+                'payments.custom_value1 AS custom1',
+                'payments.custom_value2 AS custom2',
+                'payments.custom_value3 AS custom3',
+                'payments.custom_value4 AS custom4',
+                'status_id AS status'
+            );
         }
         $this->query->join('customers', 'customers.id', '=', 'payments.customer_id')
+                    ->leftJoin('addresses AS billing', 'billing.customer_id', '=', 'customers.id')
+                    ->leftJoin('addresses AS shipping', 'shipping.customer_id', '=', 'customers.id')
+                    ->leftJoin('countries AS billing_country', 'billing_country.id', '=', 'billing.country_id')
+                    ->leftJoin('countries AS shipping_country', 'shipping_country.id', '=', 'shipping.country_id')
                     ->where('payments.account_id', '=', $account->id);
 
         $order_by = $request->input('orderByField');
 
-        if ($order_by === 'customer') {
-            $this->query->orderBy('customers.name', $request->input('orderByDirection'));
-        } elseif ($order_by !== 'status') {
-            $this->query->orderBy('payments.' . $order_by, $request->input('orderByDirection'));
+        if (!empty($order_by)) {
+            if (!empty($this->field_mapping[$order_by])) {
+                $order = str_replace('$table', 'payments', $this->field_mapping[$order_by]);
+                $this->query->orderBy($order, $request->input('orderByDirection'));
+            } elseif ($order_by !== 'status') {
+                $this->query->orderBy('payments.' . $order_by, $request->input('orderByDirection'));
+            }
         }
+
 
         if (!empty($request->input('date_format'))) {
             $this->filterByDate($request->input('date_format'));
@@ -150,9 +211,10 @@ class PaymentSearch extends BaseSearch
             $rows[$key]->status = $this->getStatus($this->model, $row->status);
         }
 
-        if($order_by === 'status') {
+        if ($order_by === 'status') {
             $collection = collect($rows);
-            $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby('status')->toArray() : $collection->sortByDesc('status')->toArray();
+            $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby('status')->toArray(
+            ) : $collection->sortByDesc('status')->toArray();
         }
 
         if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {
@@ -162,18 +224,6 @@ class PaymentSearch extends BaseSearch
         return $rows;
         //$this->query->where('status', '<>', 1)
 
-    }
-
-    private function transformList()
-    {
-        $list = $this->query->get();
-        $payments = $list->map(
-            function (Payment $payment) {
-                return $this->transformPayment($payment);
-            }
-        )->all();
-
-        return $payments;
     }
 
 }

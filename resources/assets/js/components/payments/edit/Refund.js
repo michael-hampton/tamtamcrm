@@ -19,6 +19,8 @@ import { translations } from '../../utils/_translations'
 import DefaultModalHeader from '../../common/ModalHeader'
 import DefaultModalFooter from '../../common/ModalFooter'
 import PaymentModel from '../../models/PaymentModel'
+import { toast, ToastContainer } from 'react-toastify'
+import AlertPopup from '../../common/AlertPopup'
 
 class Refund extends React.Component {
     constructor (props) {
@@ -31,6 +33,8 @@ class Refund extends React.Component {
         this.model = new PaymentModel(null, this.props.payment)
 
         this.state = {
+            show_alert: false,
+            error_message: '',
             modal: false,
             loading: false,
             send_email: this.settings.should_send_email_for_manual_payment || false,
@@ -108,7 +112,7 @@ class Refund extends React.Component {
         })
 
         if (invoices.length === 0 && parseFloat(this.state.amount) <= 0) {
-            alert('You must enter a valid refund amount')
+            this.setState({ show_alert: true, error_message: 'You must enter a valid refund amount' })
             return false
         }
 
@@ -123,6 +127,16 @@ class Refund extends React.Component {
         })
             .then((response) => {
                 this.initialState = this.state
+
+                toast.success(translations.refund_successful.replace('{entity}', translations.expense), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
 
                 if (this.props.payments && this.props.action) {
                     const index = this.props.payments.findIndex(payment => payment.id === this.props.payment.id)
@@ -143,6 +157,16 @@ class Refund extends React.Component {
                 } else {
                     this.setState({ message: error.response.data })
                 }
+
+                toast.error(translations.refund_unsuccessful.replace('{entity}', translations.refund), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
             })
     }
 
@@ -264,6 +288,19 @@ class Refund extends React.Component {
             <React.Fragment>
                 <DropdownItem onClick={this.toggle}><i className={`fa ${icons.refund}`}/>{translations.refund}
                 </DropdownItem>
+
+                <ToastContainer
+                    position="top-center"
+                    autoClose={5000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                />
+
                 <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
                     <DefaultModalHeader toggle={this.toggle} title={translations.refund}/>
 
@@ -280,6 +317,10 @@ class Refund extends React.Component {
                         saveData={this.handleClick.bind(this)}
                         loading={false}/>
                 </Modal>
+
+                <AlertPopup is_open={this.state.show_alert} message={this.state.error_message} onClose={(e) => {
+                    this.setState({ show_alert: false })
+                }}/>
             </React.Fragment>
         ) : this.getForm()
     }

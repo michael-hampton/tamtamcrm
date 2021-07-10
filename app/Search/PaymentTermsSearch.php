@@ -42,6 +42,8 @@ class PaymentTermsSearch extends BaseSearch
 
         if ($request->has('status')) {
             $this->status('payment_terms', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->has('search_term') && !empty($request->search_term)) {
@@ -49,10 +51,10 @@ class PaymentTermsSearch extends BaseSearch
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
-            $this->filterDates($request);
+            $this->query->byDate($request->input('start_date'), $request->input('end_date'));
         }
 
-        $this->addAccount($account);
+        $this->query->byAccount($account);
 
         $this->orderBy($orderBy, $orderDir);
 

@@ -1,37 +1,39 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import {
-    Button,
     Card,
     CardBody,
     CustomInput,
     Form,
     FormGroup,
-    Label,
-    Modal,
-    ModalBody,
-    ModalFooter,
-    ModalHeader,
-    Nav,
-    NavItem,
-    NavLink,
-    TabContent,
-    TabPane
+    Label
 } from 'reactstrap'
 import { translations } from '../utils/_translations'
 import BlockButton from '../common/BlockButton'
 import { icons } from '../utils/_icons'
 import SnackbarMessage from '../common/SnackbarMessage'
-import Header from './Header'
+import CompanyModel from '../models/CompanyModel'
+import AccountRepository from '../repositories/AccountRepository'
+import FormBuilder from './FormBuilder'
+import ConfirmPassword from '../common/ConfirmPassword'
+import UpgradeAccount from './UpgradeAccount'
+import ApplyLicence from './ApplyLicence'
+import EditScaffold from '../common/EditScaffold'
 
 class ModuleSettings extends Component {
     constructor (props) {
         super(props)
         this.state = {
+            loaded: false,
+            id: localStorage.getItem('account_id'),
+            success_message: translations.settings_saved,
+            activeTab: 0,
+            cached_settings: {},
+            settings: {},
             success: false,
             error: false,
-            id: localStorage.getItem('account_id'),
-            activeTab: '1',
+            changesMade: false,
+            isSaving: false,
             showConfirm: false,
             modules: Object.prototype.hasOwnProperty.call(localStorage, 'modules') ? JSON.parse(localStorage.getItem('modules')) : {
                 recurringInvoices: false,
@@ -185,17 +187,153 @@ class ModuleSettings extends Component {
         this.customInputSwitched = this.customInputSwitched.bind(this)
         this.handleAllChecked = this.handleAllChecked.bind(this)
         this.toggleTab = this.toggleTab.bind(this)
+        this.handleSettingsChange = this.handleSettingsChange.bind(this)
+        this.getAccount = this.getAccount.bind(this)
+        this.handleSubmit = this.handleSubmit.bind(this)
+        this.backupData = this.backupData.bind(this)
+
+        this.model = new CompanyModel({ id: this.state.id })
     }
 
-    toggleTab (tab) {
+    componentDidMount () {
+        window.addEventListener('beforeunload', this.beforeunload.bind(this))
+        this.getAccount()
+    }
+
+    componentWillUnmount () {
+        window.removeEventListener('beforeunload', this.beforeunload.bind(this))
+    }
+
+    beforeunload (e) {
+        if (this.state.changesMade) {
+            if (!confirm(translations.changes_made_warning)) {
+                e.preventDefault()
+                return false
+            }
+        }
+    }
+
+    backupData () {
+        const accountRepository = new AccountRepository()
+
+        accountRepository.backupData().then(response => {
+            if (!response) {
+                this.setState({ error: true })
+                return
+            }
+
+            this.setState({ success: true, success_message: translations.account_export_completed })
+        })
+    }
+
+    handleSubmit (e) {
+        this.setState({ isSaving: true })
+        const formData = new FormData()
+        formData.append('settings', JSON.stringify(this.state.settings))
+        formData.append('_method', 'PUT')
+
+        axios.post(`/api/accounts/${this.state.id}`, formData, {
+            headers: {
+                'content-type': 'multipart/form-data'
+            }
+        })
+            .then((response) => {
+                this.setState({
+                    success: true,
+                    cached_settings: this.state.settings,
+                    changesMade: false,
+                    isSaving: false
+                }, () => this.model.updateSettings(this.state.settings))
+            })
+            .catch((error) => {
+                this.setState({ error: true })
+            })
+    }
+
+    getAccount () {
+        const accountRepository = new AccountRepository()
+        accountRepository.getById(this.state.id).then(response => {
+            if (!response) {
+                alert('error')
+            }
+
+            this.setState({
+                loaded: true,
+                settings: response.settings,
+                cached_settings: response.settings
+            }, () => {
+                console.log(response)
+            })
+        })
+    }
+
+    handleSettingsChange (event) {
+        const name = event.target.name
+        const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
+
+        this.setState(prevState => ({
+            changesMade: true,
+            settings: {
+                ...prevState.settings,
+                [name]: value
+            }
+        }))
+    }
+
+    getSettingFields () {
+        const settings = this.state.settings
+
+        return [
+            [
+                {
+                    name: 'require_admin_password',
+                    label: translations.require_admin_password,
+                    type: 'switch',
+                    value: settings.require_admin_password
+                },
+                {
+                    name: 'default_logout_time',
+                    label: translations.default_logout_time,
+                    type: 'select',
+                    options: [
+                        {
+                            value: '480',
+                            text: `8 ${translations.hours}`
+                        },
+                        {
+                            value: '1440',
+                            text: `1 ${translations.day}`
+                        },
+                        {
+                            value: '10080',
+                            text: `7 ${translations.days}`
+                        },
+                        {
+                            value: '43200',
+                            text: `30 ${translations.days}`
+                        }
+                    ],
+                    value: settings.default_logout_time,
+                    group: 1
+                }
+            ]
+        ]
+    }
+
+    toggleTab (event, tab) {
         if (this.state.activeTab !== tab) {
             this.setState({ activeTab: tab })
         }
     }
 
-    deleteAccount () {
+    deleteAccount (id, password) {
+        if (!password.trim().length) {
+            this.setState({ error: true })
+            return false
+        }
+
         const url = `/api/account/${this.state.id}`
-        axios.delete(url)
+        axios.delete(url, { password: password })
             .then((r) => {
                 this.setState({
                     showConfirm: false
@@ -227,107 +365,119 @@ class ModuleSettings extends Component {
     }
 
     handleClose () {
-        this.setState({ success: false, error: false })
+        this.setState({ success: false, error: false, success_message: translations.settings_saved })
+    }
+
+    handleCancel () {
+        this.setState({ settings: this.state.cached_settings, changesMade: false })
     }
 
     render () {
-        const tabs = <Nav tabs className="nav-justified setting-tabs disable-scrollbars">
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '1' ? 'active' : ''}
-                    onClick={() => {
-                        this.toggleTab('1')
-                    }}>
-                    {translations.overview}
-                </NavLink>
-            </NavItem>
+        const tabs = {
+            settings: {
+                activeTab: this.state.activeTab,
+                toggle: this.toggleTab
+            },
+            tabs: [
+                {
+                    label: translations.overview
+                },
+                {
+                    label: translations.enable_modules
+                },
+                {
+                    label: translations.security
+                }
+            ],
+            children: []
+        }
 
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '2' ? 'active' : ''}
-                    onClick={() => {
-                        this.toggleTab('2')
-                    }}>
-                    {translations.enable_modules}
-                </NavLink>
-            </NavItem>
-        </Nav>
+        tabs.children[0] = <Card>
+            <CardBody>
+                <div className="d-flex justify-content-between">
+                    <UpgradeAccount callback={(e) => {
+                        console.log('upgrade', e)
+                    }}/>
+                    <ApplyLicence callback={(e) => {
+                        console.log('apply', e)
+                    }}/>
+                </div>
+
+                <BlockButton icon={icons.link} button_text={translations.webhooks}
+                    button_link="/#/subscriptions"/>
+                <BlockButton icon={icons.token} button_text={translations.tokens}
+                    button_link="/#/tokens"/>
+
+                <ConfirmPassword id={this.state.id} callback={(id, password) => {
+                    this.deleteAccount(id, password)
+                }
+                } text={translations.delete_account_message} icon={icons.delete}
+                button_color="btn-danger btn-lg btn-block"
+                button_label={translations.delete_account} icon_style={{
+                    transform: 'rotate(20deg)',
+                    marginRight: '14px',
+                    fontSize: '24px'
+                }}/>
+
+                <BlockButton icon={icons.download} button_text={translations.export}
+                    onClick={this.backupData}/>
+            </CardBody>
+        </Card>
+
+        tabs.children[1] = <Card>
+            <CardBody>
+                <Form>
+                    <FormGroup>
+                        <Label for="exampleCheckbox">Switches <input type="checkbox"
+                            onClick={this.handleAllChecked}/>Check
+                            all </Label>
+                        {this.state.moduleTypes.map((module, index) => {
+                            const isChecked = this.state.modules[module.id]
+
+                            return (
+                                <div key={index}>
+                                    <CustomInput
+                                        checked={isChecked}
+                                        type="switch"
+                                        id={module.id}
+                                        name="customSwitch"
+                                        label={module.label}
+                                        onChange={this.customInputSwitched.bind(this, module.value)}
+                                    />
+                                </div>
+                            )
+                        }
+                        )}
+                    </FormGroup>
+                </Form>
+            </CardBody>
+        </Card>
+
+        tabs.children[2] = <Card>
+            <CardBody>
+                <FormBuilder
+                    handleChange={this.handleSettingsChange}
+                    formFieldsRows={this.getSettingFields()}
+                />
+            </CardBody>
+        </Card>
 
         return (
             <React.Fragment>
                 <SnackbarMessage open={this.state.success} onClose={this.handleClose.bind(this)} severity="success"
-                    message={translations.settings_saved}/>
+                    message={this.state.success_message}/>
 
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={translations.settings_not_saved}/>
 
-                <Header title={translations.account_management}
+                <EditScaffold isLoading={!this.state.loaded} isSaving={this.state.isSaving}
+                    isEditing={this.state.changesMade} fullWidth={true}
+                    title={translations.account_management}
+                    cancelButtonDisabled={!this.state.changesMade}
+                    handleCancel={this.handleCancel.bind(this)}
+                    handleSubmit={this.handleSubmit.bind(this)}
                     tabs={tabs}/>
 
-                <div className="settings-container settings-container-narrow fixed-margin-mobile">
-                    <TabContent activeTab={this.state.activeTab}>
-                        <TabPane tabId="1">
-                            <Card>
-                                <CardBody>
-                                    <BlockButton icon={icons.link} button_text={translations.subscriptions}
-                                        button_link="/#/subscriptions"/>
-                                    <BlockButton icon={icons.token} button_text={translations.tokens}
-                                        button_link="/#/tokens"/>
-
-                                    <Button onClick={() => this.setState({ showConfirm: true })} color="danger"
-                                        size="lg"
-                                        block>
-                                        <i style={{ marginRight: '14px', fontSize: '24px' }}
-                                            className={`fa ${icons.delete}`}/>{translations.delete_account}</Button>
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-
-                        <TabPane tabId="2">
-                            <Card>
-                                <CardBody>
-                                    <Form>
-                                        <FormGroup>
-                                            <Label for="exampleCheckbox">Switches <input type="checkbox"
-                                                onClick={this.handleAllChecked}/>Check
-                                                all </Label>
-                                            {this.state.moduleTypes.map((module, index) => {
-                                                const isChecked = this.state.modules[module.id]
-
-                                                return (
-                                                    <div key={index}>
-                                                        <CustomInput
-                                                            checked={isChecked}
-                                                            type="switch"
-                                                            id={module.id}
-                                                            name="customSwitch"
-                                                            label={module.label}
-                                                            onChange={this.customInputSwitched.bind(this, module.value)}
-                                                        />
-                                                    </div>
-                                                )
-                                            }
-                                            )}
-                                        </FormGroup>
-                                    </Form>
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-                    </TabContent>
-                </div>
-
-                <Modal isOpen={this.state.showConfirm} fade="false"
-                    toggle={() => this.setState({ showConfirm: false })}>
-                    <ModalHeader toggle={() => this.setState({ showConfirm: false })}>Are you sure?</ModalHeader>
-                    <ModalBody>
-                        {translations.delete_company_message}
-                    </ModalBody>
-                    <ModalFooter>
-
-                        <Button onClick={() => this.setState({ showConfirm: false })}>Cancel</Button>
-                        <Button onClick={this.deleteAccount} color="danger">Delete</Button>
-                    </ModalFooter>
-                </Modal>
             </React.Fragment>
 
         )

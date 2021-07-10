@@ -4,6 +4,8 @@ import FormBuilder from '../../settings/FormBuilder'
 import DropdownDate from '../../common/DropdownDate'
 import { translations } from '../../utils/_translations'
 import PasswordField from '../../common/PasswordField'
+import TwoFactorAuthentication from './TwoFactorAuthentication'
+import Google from './Google'
 
 export default class DetailsForm extends React.Component {
     constructor (props) {
@@ -69,9 +71,9 @@ export default class DetailsForm extends React.Component {
                                 value={this.props.user.username}
                                 onChange={this.props.handleInput.bind(this)}/>
                             <small className="form-text text-muted">Your username must be
-                                    "firstname"."lastname"
-                                    eg
-                                    joe.bloggs.
+                                        "firstname"."lastname"
+                                        eg
+                                        joe.bloggs.
                             </small>
                             {this.props.renderErrorFor('username')}
                         </FormGroup>
@@ -178,6 +180,14 @@ export default class DetailsForm extends React.Component {
                             {/* {this.props.renderErrorFor('password')} */}
                         </FormGroup>
                     </Col>
+
+                    <TwoFactorAuthentication user={this.props.user} callback={(e) => {
+                        console.log('e', e)
+                    }}/>
+
+                    <Google user={this.props.user} callback={(e) => {
+                        console.log('e', e)
+                    }}/>
                 </Row>
                 {customForm}
             </CardBody>

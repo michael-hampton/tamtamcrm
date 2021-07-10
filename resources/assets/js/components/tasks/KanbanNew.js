@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
+import { DragDropContext, Droppable } from 'react-beautiful-dnd'
 import DealModel from '../models/DealModel'
 import LeadModel from '../models/LeadModel'
 import TaskModel from '../models/TaskModel'
@@ -15,6 +15,11 @@ import CustomerRepository from '../repositories/CustomerRepository'
 import ProjectDropdown from '../common/dropdowns/ProjectDropdown'
 import AddTaskStatus from '../taskStatus/edit/AddTaskStatus'
 import TaskStatusRepository from '../repositories/TaskStatusRepository'
+import Columns from './kanban/Columns'
+import Header from './kanban/Header'
+import { toast, ToastContainer } from 'react-toastify'
+import { translations } from '../utils/_translations'
+import ProjectRepository from '../repositories/ProjectRepository'
 
 export default class KanbanNew extends Component {
     constructor (props) {
@@ -23,6 +28,7 @@ export default class KanbanNew extends Component {
         this.state = {
             type: queryString.parse(this.props.location.search).type || 'task',
             project_id: queryString.parse(this.props.location.search).project_id || '',
+            projects: [],
             columns: {},
             entities: {},
             statuses: {},
@@ -49,14 +55,18 @@ export default class KanbanNew extends Component {
         this.save = this.save.bind(this)
         this.load = this.load.bind(this)
         this.getCustomers = this.getCustomers.bind(this)
+        this.getProjects = this.getProjects.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
         this.addUserToState = this.addUserToState.bind(this)
         this.handleInput = this.handleInput.bind(this)
+        this.updateStatuses = this.updateStatuses.bind(this)
+        this.updateTasks = this.updateTasks.bind(this)
     }
 
     componentDidMount () {
         this.load()
         this.getCustomers()
+        this.getProjects()
     }
 
     handleInput (e) {
@@ -67,6 +77,10 @@ export default class KanbanNew extends Component {
         }, () => {
             this.load()
         })
+    }
+
+    updateTasks (tasks) {
+        this.setState({ entities: tasks })
     }
 
     addUserToState (statuses) {
@@ -130,6 +144,19 @@ export default class KanbanNew extends Component {
         })
     }
 
+    getProjects () {
+        const projectRepository = new ProjectRepository()
+        projectRepository.get().then(response => {
+            if (!response) {
+                alert('error')
+            }
+
+            this.setState({ projects: response }, () => {
+                console.log('projects', this.state.projects)
+            })
+        })
+    }
+
     getLeads () {
         const leadRepository = new LeadRepository()
         leadRepository.get().then(response => {
@@ -161,7 +188,7 @@ export default class KanbanNew extends Component {
     save (element, status) {
         console.log('element', element)
 
-        element.task_status_id = status
+        element.task_status_id = parseInt(status)
         element.id = parseInt(element.id)
 
         let model
@@ -188,7 +215,29 @@ export default class KanbanNew extends Component {
                     errors: this.model.errors,
                     message: this.model.error_message
                 })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.task), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
+                return
             }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.task), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
         })
     }
 
@@ -217,10 +266,32 @@ export default class KanbanNew extends Component {
                 this.setState({
                     showErrorMessage: true,
                     loading: false,
-                    errors: this.model.errors,
-                    message: this.model.error_message
+                    errors: repo.errors,
+                    message: repo.error_message
                 })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.task), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
+                return
             }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.task), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
         })
     }
 
@@ -257,26 +328,82 @@ export default class KanbanNew extends Component {
 
     formatColumns () {
         const columns = []
+        const statuses = this.state.statuses
+        statuses.sort((a, b) => (a.order_id - b.order_id))
 
-        this.state.statuses.map((entity, index) => {
-            if (!columns[entity.id]) {
-                columns[entity.id] = {
-                    name: entity.name,
-                    items: []
-                }
+        statuses.map((entity, index) => {
+            columns.push({
+                name: entity.name,
+                id: entity.id.toString(),
+                color: entity.column_color.length ? entity.column_color : '',
+                items: []
+            })
+        })
+
+        const entities = this.state.entities
+        entities.sort((a, b) => (a.order_id - b.order_id))
+
+        entities.map((entity, index) => {
+            entity.id = entity.id.toString()
+
+            const statusIndex = columns.findIndex(column => parseInt(column.id) === parseInt(entity.task_status_id))
+
+            if (columns[statusIndex]) {
+                columns[statusIndex].items.push(entity)
+            } else {
+                console.log('invalid status', statusIndex)
             }
         })
 
-        this.state.entities.map((entity, index) => {
-            console.log('entity', entity)
-            console.log('items', columns)
+        this.setState({ columns: columns })
+    }
 
-            entity.id = entity.id.toString()
+    updateStatuses (result) {
+        const items = [...this.state.columns]
+        const [reorderedItem] = items.splice(result.source.index, 1)
+        items.splice(result.destination.index, 0, reorderedItem)
 
-            columns[entity.task_status_id].items.push(entity)
+        const statusIds = []
+
+        items.map((entity, index) => {
+            items[index].order_id = (index + 1)
+            statusIds.push(entity.id)
         })
 
-        this.setState({ columns: columns })
+        const repo = new TaskStatusRepository()
+        repo.updateSortOrder(items).then(response => {
+            if (!response) {
+                this.setState({
+                    showErrorMessage: true,
+                    loading: false,
+                    errors: repo.errors,
+                    message: repo.error_message
+                })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.task_status), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+                return
+            }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.task_status), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
+
+            this.setState({ columns: items })
+        })
     }
 
     onDragEnd (result, columns, setColumns) {
@@ -284,8 +411,11 @@ export default class KanbanNew extends Component {
         const { source, destination } = result
 
         if (source.droppableId !== destination.droppableId) {
-            const sourceColumn = columns[source.droppableId]
-            const destColumn = columns[destination.droppableId]
+            const sourceIndex = columns.findIndex(column => parseInt(column.id) === parseInt(source.droppableId))
+            const destIndex = columns.findIndex(column => parseInt(column.id) === parseInt(destination.droppableId))
+
+            const sourceColumn = columns[sourceIndex]
+            const destColumn = columns[destIndex]
             const sourceItems = [...sourceColumn.items]
             const destItems = [...destColumn.items]
 
@@ -294,12 +424,12 @@ export default class KanbanNew extends Component {
             const [removed] = sourceItems.splice(source.index, 1)
             destItems.splice(destination.index, 0, removed)
 
-            columns[source.droppableId] = {
+            columns[sourceIndex] = {
                 ...sourceColumn,
                 items: sourceItems
             }
 
-            columns[destination.droppableId] = {
+            columns[destIndex] = {
                 ...destColumn,
                 items: destItems
             }
@@ -308,12 +438,13 @@ export default class KanbanNew extends Component {
                 this.save(entity, destination.droppableId)
             })
         } else {
-            const column = columns[source.droppableId]
+            const sourceIndex = columns.findIndex(column => parseInt(column.id) === parseInt(source.droppableId))
+            const column = columns[sourceIndex]
             const copiedItems = [...column.items]
             const [removed] = copiedItems.splice(source.index, 1)
             copiedItems.splice(destination.index, 0, removed)
 
-            columns[source.droppableId] = {
+            columns[sourceIndex] = {
                 ...column,
                 items: copiedItems
             }
@@ -322,13 +453,13 @@ export default class KanbanNew extends Component {
 
             this.setState({ columns: columns }, () => {
                 const columns = this.state.columns
-                const column = columns[source.droppableId]
+                const column = columns[sourceIndex]
                 column.items.map((entity, index) => {
-                    column.items[index].task_sort_order = (index + 1)
+                    column.items[index].order_id = (index + 1)
                     taskIds.push(entity.id)
                 })
 
-                columns[source.droppableId] = column
+                columns[sourceIndex] = column
 
                 this.setState({ columns: columns }, () => {
                     console.log('sort', this.state.columns)
@@ -348,13 +479,25 @@ export default class KanbanNew extends Component {
 
         return customers.length && columns.length && entities.length ? (
             <React.Fragment>
+                <ToastContainer
+                    position="top-center"
+                    autoClose={5000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                />
+
                 <Row>
                     <Col sm={12} className="mt-2 mb-3">
                         <div className="d-flex justify-content-between align-items-center">
                             {type === 'task' &&
-                            <ProjectDropdown handleInputChanges={this.handleInput}
-                                project={project_id} name="project_id"
-                            />
+                                <ProjectDropdown projects={this.state.projects} handleInputChanges={this.handleInput}
+                                    project={project_id} name="project_id"
+                                />
                             }
 
                             <AddTaskStatus
@@ -368,90 +511,34 @@ export default class KanbanNew extends Component {
 
                 <Row>
                     <Col className="w-100 overflow-auto pr-2" sm={12}>
-                        <div style={{ display: 'flex', height: '100%' }}>
-                            <DragDropContext
-                                onDragEnd={result => this.onDragEnd(result, columns)}
-                            >
-                                {Object.entries(columns).map(([columnId, column], index) => {
-                                    return (
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                alignItems: 'center'
-                                            }}
-                                            key={columnId}
-                                        >
-                                            <div style={{ backgroundColor: this.colorArray[index] }}
-                                                className="col-12">
-                                                <h4>{column.name}</h4>
-                                            </div>
 
-                                            <div style={{
-                                                margin: 8,
-                                                borderLeft: '4px solid ' + this.colorArray[index]
-                                            }}>
-                                                <Droppable droppableId={columnId} key={columnId}>
-                                                    {(provided, snapshot) => {
-                                                        return (
-                                                            <div
-                                                                {...provided.droppableProps}
-                                                                ref={provided.innerRef}
-                                                                style={{
-                                                                    background: snapshot.isDraggingOver
-                                                                        ? 'lightblue'
-                                                                        : 'lightgrey',
-                                                                    padding: 4,
-                                                                    width: 250,
-                                                                    minHeight: 500
-                                                                }}
-                                                            >
-                                                                {column.items.map((item, index) => {
-                                                                    return (
-                                                                        <Draggable
-                                                                            key={item.id}
-                                                                            draggableId={item.id}
-                                                                            index={index}
-                                                                        >
-                                                                            {(provided, snapshot) => {
-                                                                                return (
-                                                                                    <div
-                                                                                        ref={provided.innerRef}
-                                                                                        {...provided.draggableProps}
-                                                                                        {...provided.dragHandleProps}
-                                                                                        style={{
-                                                                                            userSelect: 'none',
-                                                                                            padding: 16,
-                                                                                            margin: '0 0 8px 0',
-                                                                                            minHeight: '50px',
-                                                                                            backgroundColor: snapshot.isDragging
-                                                                                                ? '#263B4A'
-                                                                                                : '#456C86',
-                                                                                            color: 'white',
-                                                                                            ...provided.draggableProps.style
-                                                                                        }}
-                                                                                    >
-                                                                                        <a style={{ padding: '12px' }}
-                                                                                            onClick={(e) => {
-                                                                                                this.toggleViewedEntity(null, null, false, item)
-                                                                                            }}>{item.name}</a>
-                                                                                    </div>
-                                                                                )
-                                                                            }}
-                                                                        </Draggable>
-                                                                    )
-                                                                })}
-                                                                {provided.placeholder}
-                                                            </div>
-                                                        )
-                                                    }}
-                                                </Droppable>
-                                            </div>
-                                        </div>
-                                    )
-                                })}
-                            </DragDropContext>
-                        </div>
+                        <Header type={this.state.type} updateStatuses={this.updateStatuses} statuses={columns}/>
+
+                        <DragDropContext
+                            onDragEnd={result => this.onDragEnd(result, columns)}
+                        >
+                            <Droppable
+                                droppableId="all-columns"
+                                direction="horizontal"
+                                type="column"
+                            >
+                                {provided => {
+                                    return <div {...provided.droppableProps}
+                                        ref={provided.innerRef}
+                                        className="row flex-row flex-sm-nowrap py-3">
+                                        {columns.map((column, index) => {
+                                            return <Columns key={column.id} updateTasks={this.updateTasks}
+                                                projects={this.state.projects}
+                                                customers={this.state.customers} columnId={column.id}
+                                                column={column} index={index}
+                                                colorArray={this.colorArray} type={this.state.type}
+                                                toggleViewedEntity={this.toggleViewedEntity}/>
+                                        })}
+                                        {provided.placeholder}
+                                    </div>
+                                }}
+                            </Droppable>
+                        </DragDropContext>
                     </Col>
                 </Row>
 

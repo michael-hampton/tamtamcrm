@@ -14,6 +14,11 @@ use App\Models\Task;
 use App\Models\User;
 use App\Traits\DateFormatter;
 use App\Traits\Money;
+use App\ViewModels\AccountViewModel;
+use App\ViewModels\CompanyViewModel;
+use App\ViewModels\CustomerContactViewModel;
+use App\ViewModels\CustomerViewModel;
+use App\ViewModels\UserViewModel;
 use Laracasts\Presenter\Exceptions\PresenterException;
 use ReflectionClass;
 use ReflectionException;
@@ -57,11 +62,13 @@ class PdfBuilder
             return $this;
         }
 
-        $this->data['$contact.full_name'] = ['value' => $contact->present()->name(), 'label' => trans('texts.name')];
+        $viewModel = new CustomerContactViewModel($contact);
+
+        $this->data['$contact.full_name'] = ['value' => $viewModel->name(), 'label' => trans('texts.name')];
         $this->data['$contact.email'] = ['value' => $contact->email, 'label' => trans('texts.email_address')];
         $this->data['$contact.phone'] = ['value' => $contact->phone, 'label' => trans('texts.phone_number')];
 
-        $this->data['$contact_name'] = ['value' => $contact->present()->name(), 'label' => trans('texts.contact_name')];
+        $this->data['$contact_name'] = ['value' => $viewModel->name(), 'label' => trans('texts.contact_name')];
         $this->data['$contact.custom1'] = [
             'value' => isset($contact) ? $contact->custom_value1 : '&nbsp;',
             'label' => $this->makeCustomField('Contact', 'custom_value1')
@@ -114,6 +121,8 @@ class PdfBuilder
 
     public function buildCustomer(Customer $customer): self
     {
+        $viewModel = new CustomerViewModel($customer);
+
         $this->data['$customer.number'] = [
             'value' => $customer->number ?: '&nbsp;',
             'label' => trans('texts.customer_id_number')
@@ -123,11 +132,11 @@ class PdfBuilder
             'label' => trans('texts.vat_number')
         ];
         $this->data['$customer.website'] = [
-            'value' => $customer->present()->website() ?: '&nbsp;',
+            'value' => $viewModel->website() ?: '&nbsp;',
             'label' => trans('texts.website')
         ];
         $this->data['$customer.phone'] = [
-            'value' => $customer->present()->phone() ?: '&nbsp;',
+            'value' => $viewModel->phone() ?: '&nbsp;',
             'label' => trans('texts.phone_number')
         ];
         $this->data['$customer.email'] = [
@@ -138,7 +147,7 @@ class PdfBuilder
         ];
 
         $this->data['$customer.name'] = [
-            'value' => $this->entity->present()->clientName() ?: '&nbsp;',
+            'value' => $viewModel->name() ?: '&nbsp;',
             'label' => trans('texts.customer_name')
         ];
         $this->data['$customer1'] = [
@@ -262,8 +271,10 @@ class PdfBuilder
 
     public function buildCustomerAddress(Customer $customer): self
     {
+        $viewModel = new CustomerViewModel($customer);
+
         $this->data['$customer.address1'] = [
-            'value' => $customer->present()->address() ?: '&nbsp;',
+            'value' => $viewModel->address() ?: '&nbsp;',
             'label' => trans('texts.address')
         ];
 
@@ -281,14 +292,16 @@ class PdfBuilder
             }
         }
 
+        $viewModel = new CustomerViewModel($customer);
+
         if (!empty($billing)) {
-            $this->buildAddress($customer, $billing);
+            $this->buildAddress($customer, $billing, $viewModel);
         }
 
         return $this;
     }
 
-    public function buildAddress($entity, $address)
+    public function buildAddress($entity, $address, $viewModel)
     {
         $this->data['$customer.address1'] = [
             'value' => $address->address_1 ?: '&nbsp;',
@@ -299,7 +312,7 @@ class PdfBuilder
             'label' => trans('texts.address')
         ];
         $this->data['$customer.city_state_postal'] = [
-            'value' => isset($address->city) ? $entity->present()->cityStateZip(
+            'value' => isset($address->city) ? $viewModel->cityStateZip(
                 $address->city,
                 $address->state_code,
                 $address->zip,
@@ -308,7 +321,7 @@ class PdfBuilder
             'label' => trans('texts.city_with_zip')
         ];
         $this->data['$postal_city_state'] = [
-            'value' => $entity->present()->cityStateZip(
+            'value' => $viewModel->cityStateZip(
                 $address->city,
                 $address->state,
                 $entity->postal_code,
@@ -331,15 +344,19 @@ class PdfBuilder
             'label' => trans('texts.address')
         ];
 
-        $this->buildAddress($company, $company);
+        $viewModel = new CompanyViewModel($company);
+
+        $this->buildAddress($company, $company, $viewModel);
 
         return $this;
     }
 
     public function buildAccount(Account $account): self
     {
+        $viewModel = new AccountViewModel($account);
+
         $this->data['$account.city_state_postal'] = [
-            'value' => $account->present()->cityStateZip(
+            'value' => $viewModel->cityStateZip(
                 $account->settings->city,
                 $account->settings->state,
                 $account->settings->postal_code,
@@ -348,7 +365,7 @@ class PdfBuilder
             'label' => trans('texts.city_with_zip')
         ];
         $this->data['$account.postal_city_state'] = [
-            'value' => $account->present()->cityStateZip(
+            'value' => $viewModel->cityStateZip(
                 $account->settings->city,
                 $account->settings->state,
                 $account->settings->postal_code,
@@ -357,7 +374,7 @@ class PdfBuilder
             'label' => trans('texts.zip_with_city')
         ];
         $this->data['$account.name'] = [
-            'value' => $account->present()->name() ?: '&nbsp;',
+            'value' => $viewModel->name() ?: '&nbsp;',
             'label' => trans('texts.company_name')
         ];
         $this->data['$account.address1'] = [
@@ -381,7 +398,7 @@ class PdfBuilder
             'label' => trans('texts.zip')
         ];
         $this->data['$account.country'] = [
-            'value' => Country::find($account->settings->country_id)->name ?: '&nbsp;',
+            'value' => $account->country()->name ?: '&nbsp;',
             'label' => trans('texts.country')
         ];
         $this->data['$account.phone'] = [
@@ -405,11 +422,11 @@ class PdfBuilder
             'label' => trans('texts.website')
         ];
         $this->data['$account.address'] = [
-            'value' => $account->present()->address($account->settings) ?: '&nbsp;',
+            'value' => $viewModel->address($account->settings) ?: '&nbsp;',
             'label' => trans('texts.address')
         ];
 
-        $logo = $account->present()->logo($account->settings);
+        $logo = $viewModel->logo($account->settings);
 
         $this->data['$account_logo'] = [
             'value' => "<img src='{$logo}' style='width: 100px; height: 100px;' alt='logo'>" ?: '&nbsp;',
@@ -453,11 +470,42 @@ class PdfBuilder
      */
     public function setUser(User $user)
     {
+        $viewModel = new UserViewModel($user);
+
         $this->data['$' . $this->class . '.agent'] = [
-            'value' => $user->present()->name() ?: '&nbsp;',
+            'value' => $viewModel->name() ?: '&nbsp;',
             'label' => trans('texts.agent')
         ];
         return $this;
+    }
+
+    public function setStatus()
+    {
+        $this->data['$' . $this->class . '.status'] = [
+            'value' => $this->getStatus($this->entity, $this->entity->status_id) ?: '&nbsp;',
+            'label' => trans('texts.status')
+        ];
+        return $this;
+    }
+
+    private function getStatus($model, int $status)
+    {
+        $refl = new ReflectionClass($model);
+        $consts = $refl->getConstants();
+
+        if (empty($this->statuses)) {
+            $this->statuses = [];
+
+            foreach ($consts as $key => $const) {
+                if (strpos($key, 'STATUS') !== false) {
+                    $this->statuses[$const] = !empty(trans('texts.' . strtolower($key))) ? trans(
+                        'texts.' . strtolower($key)
+                    ) : $key;
+                }
+            }
+        }
+
+        return !empty($this->statuses[$status]) ? $this->statuses[$status] : null;
     }
 
     public function setTotal($customer, $total): self
@@ -648,9 +696,9 @@ class PdfBuilder
 
     public function setNotes($notes): self
     {
-        $this->data['$entity.public_notes'] = [
+        $this->data['$entity.customer_note'] = [
             'value' => !empty($notes) ? nl2br($notes) : '&nbsp;',
-            'label' => trans('texts.public_notes')
+            'label' => trans('texts.customer_note')
         ];
         return $this;
     }
@@ -902,11 +950,15 @@ class PdfBuilder
                 }
             }
 
-            $this->line_items[$item->type_id][$key][$table_type . '.quantity'] = $item->quantity;
-            $this->line_items[$item->type_id][$key][$table_type . '.notes'] = !empty($item->notes) ? $item->notes : '';
+            $description = (new DateParser())->evaluate($item->description);
+            $notes = (new DateParser())->evaluate($item->notes);
 
-            if (empty($this->line_items[$item->type_id][$key][$table_type . '.notes']) && !empty($item->description)) {
-                $this->line_items[$item->type_id][$key][$table_type . '.notes'] = $item->description;
+            $this->line_items[$item->type_id][$key][$table_type . '.quantity'] = $item->quantity;
+            $this->line_items[$item->type_id][$key][$table_type . '.notes'] = !empty($notes) ? $item->notes : '';
+
+
+            if (empty($this->line_items[$item->type_id][$key][$table_type . '.notes']) && !empty($description)) {
+                $this->line_items[$item->type_id][$key][$table_type . '.notes'] = $description;
             }
 
             $this->line_items[$item->type_id][$key][$table_type . '.cost'] = $this->formatCurrency(

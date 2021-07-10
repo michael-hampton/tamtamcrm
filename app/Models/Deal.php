@@ -2,23 +2,22 @@
 
 namespace App\Models;
 
-use App\Services\Deal\DealService;
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laracasts\Presenter\PresentableTrait;
 
 class Deal extends Model
 {
 
     use SoftDeletes;
-    use PresentableTrait;
     use HasFactory;
     use Archiveable;
+    use QueryScopes;
 
     protected $fillable = [
-        'task_sort_order',
+        'order_id',
         'design_id',
         'name',
         'description',
@@ -41,12 +40,10 @@ class Deal extends Model
         'custom_value2',
         'custom_value3',
         'custom_value4',
-        'public_notes',
-        'private_notes',
+        'customer_note',
+        'internal_note',
         'column_color'
     ];
-
-    protected $presenter = 'App\Presenters\DealPresenter';
 
     public function comments()
     {
@@ -61,11 +58,6 @@ class Deal extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class, 'customer_id');
-    }
-
-    public function service(): DealService
-    {
-        return new DealService($this);
     }
 
     public function files()
@@ -83,12 +75,12 @@ class Deal extends Model
         return $this->belongsTo(TaskStatus::class);
     }
 
-    public function getDesignId()
+    public function getDesignIdAttribute()
     {
         return !empty($this->design_id) ? $this->design_id : $this->customer->getSetting('deal_design_id');
     }
 
-    public function getPdfFilename()
+    public function getPdfFilenameAttribute()
     {
         return 'storage/' . $this->account->id . '/' . $this->customer->id . '/deals/' . $this->number . '.pdf';
     }
@@ -116,5 +108,19 @@ class Deal extends Model
     public function getNumber()
     {
         return $this->number;
+    }
+
+    public function scopePermissions($query, User $user)
+    {
+        if ($user->isAdmin() || $user->isOwner() || $user->hasPermissionTo('dealcontroller.index')) {
+            return $query;
+        }
+
+        $query->where(
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('assigned_to', auth()->user($user)->id);
+            }
+        );
     }
 }

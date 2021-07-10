@@ -68,7 +68,7 @@ class EditCategory extends React.Component {
 
             const index = this.props.categories.findIndex(expense => expense.id === this.state.id)
             this.props.categories[index] = response
-            this.props.action(this.props.categories)
+            this.props.action(this.props.categories, true)
             this.setState({ changesMade: false, loading: false })
             this.toggle()
         })

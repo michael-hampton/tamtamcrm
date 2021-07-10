@@ -28,15 +28,20 @@ class OrderRestored implements ShouldQueue
      */
     public function handle($event)
     {
-        $fields = [];
-        $fields['data']['id'] = $event->order->id;
-        $fields['data']['customer_id'] = $event->order->customer_id;
-        $fields['data']['message'] = 'A order was restored';
-        $fields['notifiable_id'] = $event->order->user_id;
-        $fields['account_id'] = $event->order->account_id;
-        $fields['notifiable_type'] = get_class($event->order);
-        $fields['type'] = get_class($this);
-        $fields['data'] = json_encode($fields['data']);
+        $data = [
+            'id'          => $event->order->id,
+            'customer_id' => $event->order->customer_id,
+            'message'     => 'A order was restored'
+        ];
+
+        $fields = [
+            'notifiable_id'   => $event->order->user_id,
+            'account_id'      => $event->order->account_id,
+            'notifiable_type' => get_class($event->order),
+            'type'            => get_class($this),
+            'data'            => json_encode($data),
+            'action'          => 'restored'
+        ];
 
         $notification = NotificationFactory::create($event->order->account_id, $event->order->user_id);
         $notification->entity_id = $event->order->id;

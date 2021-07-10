@@ -27,6 +27,7 @@ import DefaultModalFooter from '../../common/ModalFooter'
 import FileUploads from '../../documents/FileUploads'
 import DropdownMenuBuilder from '../../common/DropdownMenuBuilder'
 import CustomFieldsForm from '../../common/CustomFieldsForm'
+import { toast, ToastContainer } from 'react-toastify'
 
 class EditLeadForm extends React.Component {
     constructor (props) {
@@ -45,8 +46,23 @@ class EditLeadForm extends React.Component {
         this.convertLead = this.convertLead.bind(this)
     }
 
+    static getDerivedStateFromProps (props, state) {
+        if (props.lead && props.lead.id !== state.id) {
+            const leadModel = new LeadModel(props.lead)
+            return leadModel.fields
+        }
+
+        return null
+    }
+
     componentDidMount () {
         this.getSourceTypes()
+    }
+
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.lead && this.props.lead.id !== prevProps.lead.id) {
+            this.leadModel = new LeadModel(this.props.lead)
+        }
     }
 
     toggleTab (tab) {
@@ -61,7 +77,7 @@ class EditLeadForm extends React.Component {
                 const arrTasks = [...this.props.allTasks]
                 const index = arrTasks.findIndex(task => task.id === this.props.task.id)
                 arrTasks.splice(index, 1)
-                this.props.action(arrTasks)
+                this.props.action(arrTasks, true)
             })
             .catch(function (error) {
                 console.log(error)
@@ -92,8 +108,8 @@ class EditLeadForm extends React.Component {
     getFormData () {
         return {
             project_id: this.state.project_id,
-            public_notes: this.state.public_notes,
-            private_notes: this.state.private_notes,
+            customer_note: this.state.customer_note,
+            internal_note: this.state.internal_note,
             custom_value1: this.state.custom_value1,
             custom_value2: this.state.custom_value2,
             custom_value3: this.state.custom_value3,
@@ -128,12 +144,33 @@ class EditLeadForm extends React.Component {
         this.leadModel.save(formData).then(response => {
             if (!response) {
                 this.setState({ errors: this.leadModel.errors, message: this.leadModel.error_message })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.lead), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
 
+            toast.success(translations.updated_successfully.replace('{entity}', translations.deal), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
+
             const index = this.props.allTasks.findIndex(lead => lead.id === this.props.lead.id)
             this.props.allTasks[index] = response
-            this.props.action(this.props.allTasks)
+            this.props.action(this.props.allTasks, true)
             this.setState({
                 editMode: false,
                 changesMade: false
@@ -178,7 +215,8 @@ class EditLeadForm extends React.Component {
     render () {
         const { loading } = this.state
         const email_editor = this.state.id
-            ? <Emails model={this.leadModel} emails={this.state.emails} template="email_template_lead" show_editor={true}
+            ? <Emails model={this.leadModel} emails={this.state.emails} template="email_template_lead"
+                show_editor={true}
                 entity_object={this.state} entity="lead"
                 entity_id={this.state.id}/> : null
         const contact = <Contact handleInputChanges={this.handleInputChanges} errors={this.state.errors}
@@ -196,13 +234,17 @@ class EditLeadForm extends React.Component {
             custom_value4={this.state.custom_value4}
             custom_fields={this.props.custom_fields}/>
 
-        const button = this.props.listView && this.props.listView === true
+        let button = this.props.listView && this.props.listView === true
             ? <DropdownItem onClick={this.toggle}><i className={`fa ${icons.edit}`}/>{translations.edit_lead}
             </DropdownItem>
             : <Button className="mr-2 ml-2" color="primary" onClick={this.toggle}>Edit Lead</Button>
 
-        const notes = <Notes handleInput={this.handleInputChanges} private_notes={this.state.private_notes}
-            public_notes={this.state.public_notes}/>
+        if (this.props.show_as_link === true) {
+            button = <Button className="text-white" color="link" onClick={this.toggle}>{translations.edit_task}</Button>
+        }
+
+        const notes = <Notes handleInput={this.handleInputChanges} internal_note={this.state.internal_note}
+            customer_note={this.state.customer_note}/>
         const theme = !Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true') ? 'dark-theme' : 'light-theme'
 
         return (
@@ -212,6 +254,18 @@ class EditLeadForm extends React.Component {
                     <DefaultModalHeader toggle={this.toggle} title={translations.edit_lead}/>
 
                     <ModalBody className={theme}>
+
+                        <ToastContainer
+                            position="top-center"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
 
                         <React.Fragment>
                             <Nav tabs>

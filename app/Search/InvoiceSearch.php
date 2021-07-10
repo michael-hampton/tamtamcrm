@@ -3,6 +3,7 @@
 namespace App\Search;
 
 use App\Models\Account;
+use App\Models\File;
 use App\Models\Invoice;
 use App\Repositories\InvoiceRepository;
 use App\Requests\SearchRequest;
@@ -46,29 +47,31 @@ class InvoiceSearch extends BaseSearch
 
         if ($request->filled('status')) {
             $this->status('invoices', $request->status);
+        } else {
+            $this->query->withTrashed();
         }
 
         if ($request->filled('customer_id')) {
-            $this->query->whereCustomerId($request->customer_id);
+            $this->query->byCustomer($request->customer_id);
         }
 
         if ($request->filled('project_id')) {
-            $this->query->whereProjectId($request->project_id);
+            $this->query->byProject($request->project_id);
         }
 
         if ($request->filled('id')) {
-            $this->query->whereId($request->id);
+            $this->query->byId($request->id);
         }
 
         if ($request->filled('user_id')) {
-            $this->query->where('assigned_to', '=', $request->user_id);
+            $this->query->byAssignee($request->user_id);
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
-            $this->filterDates($request);
+            $this->query->byDate($request->input('start_date'), $request->input('end_date'));
         }
 
-        $this->addAccount($account);
+        $this->query->byAccount($account);
 
         $this->checkPermissions('invoicecontroller.index');
 
@@ -113,16 +116,36 @@ class InvoiceSearch extends BaseSearch
         return true;
     }
 
+    /**
+     * @return mixed
+     */
+    private function transformList()
+    {
+        $list = $this->query->cacheFor(now()->addMonthNoOverflow())->cacheTags(['invoices'])->get();
+        $files = File::where('fileable_type', '=', 'App\Models\Invoice')->get()->groupBy('fileable_id');
+
+        $invoices = $list->map(
+            function (Invoice $invoice) use ($files) {
+                return (new InvoiceTransformable())->transformInvoice($invoice, $files);
+            }
+        )->all();
+
+        return $invoices;
+    }
+
     public function buildCurrencyReport(Request $request, Account $account)
     {
         return DB::table('invoices')
                  ->select(
-                     DB::raw('count(*) as count, currencies.name, SUM(total) as total, SUM(balance) AS balance')
+                     DB::raw(
+                         'count(*) as count, currencies.name, SUM(invoices.total) as total, SUM(invoices.balance) AS balance'
+                     )
                  )
-                 ->join('currencies', 'currencies.id', '=', 'invoices.currency_id')
-                 ->where('currency_id', '<>', 0)
-                 ->where('account_id', '=', $account->id)
-                 ->groupBy('currency_id')
+                 ->join('customers', 'customers.id', '=', 'invoices.customer_id')
+                 ->join('currencies', 'currencies.id', '=', 'customers.currency_id')
+                 ->where('customers.currency_id', '<>', 0)
+                 ->where('invoices.account_id', '=', $account->id)
+                 ->groupBy('customers.currency_id')
                  ->get();
     }
 
@@ -131,20 +154,54 @@ class InvoiceSearch extends BaseSearch
         $this->query = DB::table('invoices');
 
         if (!empty($request->input('group_by'))) {
-            $this->query->select(
+            if (in_array($request->input('group_by'), ['date', 'due_date']) && !empty(
+                $request->input(
+                    'group_by_frequency'
+                )
+                )) {
+                $this->addMonthYearToSelect('invoices', $request->input('group_by'));
+            }
+
+            $this->query->addSelect(
                 DB::raw(
                     'count(*) as count, customers.name AS customer, SUM(total) as total, SUM(invoices.balance) AS balance, invoices.status_id AS status'
                 )
-            )
-                        ->groupBy($request->input('group_by'));
+            );
+
+            $this->addGroupBy('invoices', $request->input('group_by'), $request->input('group_by_frequency'));
         } else {
             $this->query->select(
-                'customers.name AS customer',
                 'total',
-                'invoices.number',
                 'invoices.balance',
+                DB::raw('(invoices.total * 1 / invoices.exchange_rate) AS converted_amount'),
+                DB::raw('(invoices.balance * 1 / invoices.balance) AS converted_balance'),
+                'customers.name AS customer',
+                'customers.balance AS customer_balance',
+                'billing.address_1',
+                'billing.address_2',
+                'billing.city',
+                'billing.state_code AS state',
+                'billing.zip',
+                'billing_country.name AS country',
+                'shipping.address_1 AS shipping_address_1',
+                'shipping.address_2 AS shipping_address_2',
+                'shipping.city AS shipping_city',
+                'shipping.state_code AS shipping_town',
+                'shipping.zip AS shipping_zip',
+                'shipping_country.name AS shipping_country',
+                'invoices.number',
+                'discount_total',
+                'po_number',
                 'date',
                 'due_date',
+                'partial',
+                'partial_due_date',
+                'invoices.custom_value1 AS custom1',
+                'invoices.custom_value2 AS custom2',
+                'invoices.custom_value3 AS custom3',
+                'invoices.custom_value4 AS custom4',
+                'shipping_cost',
+                'tax_total',
                 'invoices.status_id AS status',
                 DB::raw('DATEDIFF(CURDATE(), DATE(invoices.due_date)) AS age')
 
@@ -152,14 +209,21 @@ class InvoiceSearch extends BaseSearch
         }
 
         $this->query->join('customers', 'customers.id', '=', 'invoices.customer_id')
+                    ->leftJoin('addresses AS billing', 'billing.customer_id', '=', 'customers.id')
+                    ->leftJoin('addresses AS shipping', 'shipping.customer_id', '=', 'customers.id')
+                    ->leftJoin('countries AS billing_country', 'billing_country.id', '=', 'billing.country_id')
+                    ->leftJoin('countries AS shipping_country', 'shipping_country.id', '=', 'shipping.country_id')
                     ->where('invoices.account_id', '=', $account->id);
 
         $order_by = $request->input('orderByField');
 
-        if ($order_by === 'customer') {
-            $this->query->orderBy('customers.name', $request->input('orderByDirection'));
-        } elseif ($order_by !== 'status') {
-            $this->query->orderBy('invoices.' . $order_by, $request->input('orderByDirection'));
+        if (!empty($order_by)) {
+            if (!empty($this->field_mapping[$order_by])) {
+                $order = str_replace('$table', 'invoices', $this->field_mapping[$order_by]);
+                $this->query->orderBy($order, $request->input('orderByDirection'));
+            } elseif ($order_by !== 'status') {
+                $this->query->orderBy('invoices.' . $order_by, $request->input('orderByDirection'));
+            }
         }
 
         if (!empty($request->input('date_format'))) {
@@ -177,9 +241,10 @@ class InvoiceSearch extends BaseSearch
             $rows[$key]->status = $this->getStatus($this->model, $row->status);
         }
 
-        if($order_by === 'status') {
+        if ($order_by === 'status') {
             $collection = collect($rows);
-            $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby('status')->toArray() : $collection->sortByDesc('status')->toArray();
+            $rows = $request->input('orderByDirection') === 'asc' ? $collection->sortby('status')->toArray(
+            ) : $collection->sortByDesc('status')->toArray();
         }
 
         if (!empty($request->input('perPage')) && $request->input('perPage') > 0) {
@@ -187,22 +252,6 @@ class InvoiceSearch extends BaseSearch
         }
 
         return $rows;
-    }
-
-    /**
-     * @return mixed
-     */
-    private function transformList()
-    {
-        $list = $this->query->get();
-
-        $invoices = $list->map(
-            function (Invoice $invoice) {
-                return (new InvoiceTransformable())->transformInvoice($invoice);
-            }
-        )->all();
-
-        return $invoices;
     }
 
 }

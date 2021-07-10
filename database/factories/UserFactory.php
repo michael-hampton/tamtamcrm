@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Domain;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -22,13 +23,13 @@ class UserFactory extends Factory
     public function definition()
     {
         return [
-            'domain_id' => 5,
-            'first_name' => $this->faker->firstName,
-            'last_name' => $this->faker->lastName,
-            'email' => $this->faker->unique()->email,
-            'username' => $this->faker->unique()->userName,
-            'password' => bcrypt($this->faker->password(6)),
-            'is_active' => 1,
+            'domain_id'     => Domain::first()->id,
+            'first_name'    => $this->faker->firstName,
+            'last_name'     => $this->faker->lastName,
+            'email'         => $this->faker->unique()->email,
+            'username'      => $this->faker->unique()->userName,
+            'password'      => bcrypt($this->faker->password(6)),
+            'is_active'     => 1,
             'profile_photo' => $this->faker->url()
         ];
     }

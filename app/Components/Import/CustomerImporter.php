@@ -4,6 +4,7 @@
 namespace App\Components\Import;
 
 
+use App\Factory\CustomerContactFactory;
 use App\Factory\CustomerFactory;
 use App\Jobs\Customer\StoreCustomerAddress;
 use App\Models\Account;
@@ -12,32 +13,44 @@ use App\Models\CustomerContact;
 use App\Models\User;
 use App\Repositories\CustomerContactRepository;
 use App\Repositories\CustomerRepository;
+use App\Requests\SearchRequest;
+use App\Search\CustomerSearch;
 use App\Transformations\ContactTransformable;
 use App\Transformations\CustomerTransformable;
+use Carbon\Carbon;
 
 class CustomerImporter extends BaseCsvImporter
 {
     use ImportMapper;
     use CustomerTransformable;
 
+    /**
+     * @var string
+     */
+    protected string $json;
+
     protected $entity;
     private array $export_columns = [
-        'number'        => 'Number',
-        'first_name'    => 'first name',
-        'last_name'     => 'last name',
-        'email'         => 'email',
-        'phone'         => 'phone',
-        'website'       => 'website',
-        'terms'         => 'terms',
-        'public notes'  => 'public notes',
-        'private notes' => 'private notes',
-        'job_title'     => 'job title',
-        'address_1'     => 'address 1',
-        'address_2'     => 'address 2',
-        'zip'           => 'zip',
-        'city'          => 'city',
-        'name'          => 'name',
-        'description'   => 'description',
+        'number'             => 'Number',
+        'first_name'         => 'first name',
+        'last_name'          => 'last name',
+        'email'              => 'email',
+        'phone'              => 'phone',
+        'website'            => 'website',
+        'terms'              => 'terms',
+        'public notes'       => 'public notes',
+        'private notes'      => 'private notes',
+        'job_title'          => 'job title',
+        'address_1'          => 'address 1',
+        'address_2'          => 'address 2',
+        'zip'                => 'zip',
+        'city'               => 'city',
+        'shipping_address_1' => 'shipping address 1',
+        'shipping_address_2' => 'shipping address 2',
+        'shipping_zip'       => 'shipping zip',
+        'shipping_city'      => 'city',
+        'name'               => 'name',
+        'description'        => 'description',
     ];
     /**
      * @var array|string[]
@@ -48,8 +61,13 @@ class CustomerImporter extends BaseCsvImporter
         'currency code' => 'currency_id',
         'website'       => 'website',
         'terms'         => 'terms',
-        'public notes'  => 'public_notes',
-        'private notes' => 'private_notes',
+        'industry'      => 'industry_id',
+        'public notes'  => 'customer_note',
+        'private notes' => 'internal_note',
+        'custom value1' => 'custom_value1',
+        'custom value2' => 'custom_value2',
+        'custom value3' => 'custom_value3',
+        'custom value4' => 'custom_value4',
         'contacts'      => [
             'first_name' => 'first_name',
             'last_name'  => 'last_name',
@@ -60,13 +78,15 @@ class CustomerImporter extends BaseCsvImporter
             'billing address 1' => 'address_1',
             'billing address 2' => 'address_2',
             'billing zip'       => 'zip',
-            'billing city'      => 'city'
+            'billing city'      => 'city',
+            'billing country'   => 'country_id'
         ],
         'shipping'      => [
             'shipping address 1' => 'address_1',
             'shipping address 2' => 'address_2',
             'shipping zip'       => 'zip',
-            'shipping city'      => 'city'
+            'shipping city'      => 'city',
+            'shipping country'   => 'country_id'
         ]
     ];
     /**
@@ -108,12 +128,16 @@ class CustomerImporter extends BaseCsvImporter
     {
         return [
             'mappings' => [
-                'first_name' => ['validation' => 'required', 'cast' => 'string'],
-                'last_name'  => ['validation' => 'required', 'cast' => 'string'],
-                'email'      => ['validation' => 'email|required', 'cast' => 'string'],
-                'phone'      => ['cast' => 'string'],
-                'name'       => ['validation' => 'required', 'cast' => 'string'],
-                'vat_number' => ['required', 'cast' => 'string'],
+                'first_name'    => ['validation' => 'required', 'cast' => 'string'],
+                'last_name'     => ['validation' => 'required', 'cast' => 'string'],
+                'email'         => ['validation' => 'email|required', 'cast' => 'string'],
+                'phone'         => ['cast' => 'string'],
+                'name'          => ['validation' => 'required', 'cast' => 'string'],
+                'vat_number'    => ['required', 'cast' => 'string'],
+                'custom value1' => ['cast' => 'string'],
+                'custom value2' => ['cast' => 'string'],
+                'custom value3' => ['cast' => 'string'],
+                'custom value4' => ['cast' => 'string'],
                 //'due date'      => ['cast' => 'date'],
                 //'customer_id' => ['required', 'cast' => 'int'],
             ],
@@ -148,8 +172,15 @@ class CustomerImporter extends BaseCsvImporter
      */
     public function saveCallback(Customer $customer, array $data)
     {
+
         if (!empty($data['contacts'])) {
-            (new CustomerContactRepository(new CustomerContact()))->save($data['contacts'], $customer);
+            foreach ($data['contacts'] as $contact) {
+
+                $customer_contact = CustomerContactFactory::create($this->account, $this->user, $customer);
+
+                (new CustomerContactRepository(new CustomerContact()))->createContact($contact, $customer_contact);
+
+            }
         }
 
         $addresses[0] = [];
@@ -173,24 +204,50 @@ class CustomerImporter extends BaseCsvImporter
         return $customer->fresh();
     }
 
-    public function export()
+    public function export($is_json = false)
     {
         $export_columns = $this->getExportColumns();
-        $list = Customer::where('account_id', '=', $this->account->id)->get();
 
-        $customers = [];
+        $search_request = new SearchRequest();
+        $search_request->replace(['column' => 'created_at', 'order' => 'desc']);
 
-        foreach ($list as $customer) {
-            $formatted_customer = $this->transformObject($customer);
+        $customers = (new CustomerSearch(new CustomerRepository(new Customer())))->filter($search_request, $this->account);
 
-            foreach ($customer->contacts as $contact) {
-                $formatted_contact = (new ContactTransformable())->transformContact($contact);
+        foreach ($customers as $key => $formatted_customer) {
 
-                $customers[] = array_merge($formatted_customer, $formatted_contact);
+            if (!empty($formatted_customer['billing']['address_1'])) {
+
+                $customers[$key] = array_merge($customers[$key], $formatted_customer['billing']);
+            }
+
+            if (!empty($formatted_customer['shipping'])) {
+
+                $shipping = [
+                    'shipping_address_1' => $formatted_customer['shipping']['address_1'],
+                    'shipping_address_2' => $formatted_customer['shipping']['address_2'],
+                    'shipping_zip'       => $formatted_customer['shipping']['zip'],
+                    'shipping_city'      => $formatted_customer['shipping']['city'],
+                ];
+
+                $customers[$key] = array_merge($customers[$key], $shipping);
+            }
+
+            if (count($formatted_customer['contacts']) > 0) {
+                foreach ($formatted_customer['contacts'] as $contact) {
+                    $customers[$key] = array_merge($customers[$key], $contact);
+                }
             }
         }
 
+        if ($is_json) {
+            $this->export->sendJson('customer', $customers);
+            $this->json = json_encode($customers);
+            return true;
+        }
+
         $this->export->build(collect($customers), $export_columns);
+
+        $this->export->notifyUser('customer');
 
         return true;
     }
@@ -213,5 +270,13 @@ class CustomerImporter extends BaseCsvImporter
     public function getTemplate()
     {
         return asset('storage/templates/customer.csv');
+    }
+
+    /**
+     * @return string
+     */
+    public function getJson(): string
+    {
+        return $this->json;
     }
 }

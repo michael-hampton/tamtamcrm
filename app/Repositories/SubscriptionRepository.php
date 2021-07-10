@@ -45,13 +45,25 @@ class SubscriptionRepository extends BaseRepository
     /**
      * @param array $data
      * @param Subscription $subscription
-     * @return Subscription|null
+     * @return Subscription
      */
-    public function save(array $data, Subscription $subscription): ?Subscription
+    public function create(array $data, Subscription $subscription): Subscription
     {
         $subscription->fill($data);
 
         $subscription->save();
+
+        return $subscription;
+    }
+
+    /**
+     * @param array $data
+     * @param Subscription $subscription
+     * @return Subscription
+     */
+    public function update(array $data, Subscription $subscription): Subscription
+    {
+        $subscription->update($data);
 
         return $subscription;
     }

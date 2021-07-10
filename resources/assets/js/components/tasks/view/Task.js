@@ -134,8 +134,8 @@ export default class Task extends Component {
                 var url = URL.createObjectURL(blob)
 
                 /* const file = new Blob (
-                 [ response.data.data ],
-                 { type: 'application/pdf' } ) */
+                     [ response.data.data ],
+                     { type: 'application/pdf' } ) */
                 // const fileURL = URL.createObjectURL ( file )
 
                 this.setState({ obj_url: url }, () => URL.revokeObjectURL(url))
@@ -226,9 +226,9 @@ export default class Task extends Component {
                 </TabContent>
 
                 {this.state.show_success &&
-                <Alert color="primary">
-                    {translations.action_completed}
-                </Alert>
+                    <Alert color="primary">
+                        {translations.action_completed}
+                    </Alert>
                 }
 
                 <BottomNavigationButtons button1_click={button1_action}

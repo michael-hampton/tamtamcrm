@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Interfaces;
 
+use App\Models\AccountUser;
 use App\Models\Department;
 use App\Models\User;
 use App\Repositories\Base\BaseRepositoryInterface;
@@ -9,6 +10,13 @@ use Illuminate\Support\Collection;
 
 interface UserRepositoryInterface extends BaseRepositoryInterface
 {
+    /**
+     * @param User $user
+     * @param array $permissions
+     * @return mixed
+     */
+    public function savePermissions(User $user, AccountUser $account_user, array $permissions);
+
     /**
      *
      * @param string[] $columns
@@ -19,10 +27,11 @@ interface UserRepositoryInterface extends BaseRepositoryInterface
     public function listUsers($columns = array('*'), string $orderBy = 'id', string $sortBy = 'asc'): Collection;
 
     /**
-     *
+     * @param User $user
+     * @param bool $delete_account
+     * @return User
      */
-    public function deleteUser(): bool;
-
+    public function deleteUser(User $user, $delete_account = false): ?User;
     /**
      *
      * @param array $data

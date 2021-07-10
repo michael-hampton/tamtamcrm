@@ -8,6 +8,8 @@
 
 namespace App\Repositories;
 
+use App\Services\Order\FulfilOrder;
+use App\Services\Order\HoldStock;
 use App\Events\Order\OrderWasBackordered;
 use App\Events\Order\OrderWasCreated;
 use App\Events\Order\OrderWasUpdated;
@@ -76,7 +78,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
      * @return Order|null
      * @return Order|null
      */
-    public function updateOrder(array $data, Order $order): ?Order
+    public function update(array $data, Order $order): ?Order
     {
         $original_order = $order->line_items;
 
@@ -84,8 +86,6 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         $order = $this->save($data, $order);
 
         event(new OrderWasUpdated($order));
-
-        $this->updateInventory($original_order, $data);
 
         return $order;
     }
@@ -98,12 +98,11 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     public function save(array $data, Order $order): Order
     {
         $order->fill($data);
+        $order = $this->calculateTotals($order);
+        $order = $order->convertCurrencies($order, $order->total, config('taskmanager.use_live_exchange_rates'));
         $order = $this->populateDefaults($order);
         $order = $this->formatNotes($order);
-
-        $order = $order->service()->calculateInvoiceTotals();
         $order->setNumber();
-        $order->setExchangeRate();
 
         $order->save();
 
@@ -112,64 +111,14 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         return $order->fresh();
     }
 
-    private function updateInventory($line_items, $data)
-    {
-        if (empty($data['line_items'])) {
-            return true;
-        }
-
-        $new_lines = collect($data['line_items'])->keyBy('product_id')->toArray();
-
-        foreach ($line_items as $line_item) {
-            if ($line_item->type_id !== Invoice::PRODUCT_TYPE) {
-                continue;
-            }
-
-            if (empty($new_lines[$line_item->product_id])) {
-                $difference = $line_item->quantity;
-                $product->increment('quantity', $difference);
-                $product->save();
-                continue;
-            }
-
-            $new_line = $new_lines[$line_item->product_id];
-
-            $product = Product::where('id', '=', $line_item->product_id)->first();
-
-            if ($new_line['quantity'] > $line_item->quantity) {
-                $difference = $new_line['quantity'] - $line_item->quantity;
-                $product->increment('quantity', $difference);
-                $product->save();
-            }
-
-            if ($new_line['quantity'] < $line_item->quantity) {
-                $difference = $line_item->quantity - $new_line['quantity'];
-                $product->decrement('quantity', $difference);
-                $product->save();
-            }
-        }
-
-        return true;
-    }
-
     /**
      * @param array $data
      * @param Order $order
      * @return Order|null
      */
-    public function createOrder(array $data, Order $order): ?Order
+    public function create(array $data, Order $order): ?Order
     {
         $order->fill($data);
-
-        if ($order->customer->getSetting('inventory_enabled') === true) {
-            $order = $order->service()->fulfillOrder($this);
-
-            /************** hold stock ***************************/
-            // if the order hasnt been failed at this point then reserve stock
-            if ($order->status_id !== Order::STATUS_ORDER_FAILED) {
-                $order->service()->holdStock();
-            }
-        }
 
         // save the order
         $order = $this->save($data, $order);

@@ -1,24 +1,27 @@
 import React, { Component } from 'react'
 import FormBuilder from './FormBuilder'
-import { Card, CardBody, Nav, NavItem, NavLink, TabContent, TabPane } from 'reactstrap'
+import { Card, CardBody } from 'reactstrap'
 import axios from 'axios'
 import { translations } from '../utils/_translations'
 import SnackbarMessage from '../common/SnackbarMessage'
-import Header from './Header'
 import AccountRepository from '../repositories/AccountRepository'
+import CompanyModel from '../models/CompanyModel'
+import EditScaffold from '../common/EditScaffold'
 
 class NumberSettings extends Component {
     constructor (props) {
         super(props)
 
         this.state = {
-            activeTab: '1',
+            loaded: false,
+            activeTab: 0,
             id: localStorage.getItem('account_id'),
             cached_settings: {},
             settings: {},
             success: false,
             error: false,
-            changesMade: false
+            changesMade: false,
+            isSaving: false
         }
 
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
@@ -26,6 +29,8 @@ class NumberSettings extends Component {
         this.handleSubmit = this.handleSubmit.bind(this)
         this.getAccount = this.getAccount.bind(this)
         this.toggle = this.toggle.bind(this)
+
+        this.model = new CompanyModel({ id: this.state.id })
     }
 
     componentDidMount () {
@@ -46,27 +51,9 @@ class NumberSettings extends Component {
         }
     }
 
-    toggle (tab, e) {
+    toggle (event, tab) {
         if (this.state.activeTab !== tab) {
             this.setState({ activeTab: tab })
-        }
-
-        const parent = e.currentTarget.parentNode
-        const rect = parent.getBoundingClientRect()
-        const rect2 = parent.nextSibling.getBoundingClientRect()
-        const rect3 = parent.previousSibling.getBoundingClientRect()
-        const winWidth = window.innerWidth || document.documentElement.clientWidth
-        const widthScroll = winWidth * 33 / 100
-        const diff = window.innerWidth <= 768 ? 10 : 255
-
-        if (rect.left <= diff || rect3.left <= diff) {
-            const container = document.getElementsByClassName('setting-tabs')[0]
-            container.scrollLeft -= widthScroll
-        }
-
-        if (rect.right >= winWidth - diff || rect2.right >= winWidth - diff) {
-            const container = document.getElementsByClassName('setting-tabs')[0]
-            container.scrollLeft += widthScroll
         }
     }
 
@@ -93,7 +80,8 @@ class NumberSettings extends Component {
 
     handleSettingsChange (event) {
         const name = event.target.name
-        const value = event.target.value
+        let value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
+        value = (value === 'true') ? true : ((value === 'false') ? false : (value))
 
         this.setState(prevState => ({
             changesMade: true,
@@ -105,6 +93,7 @@ class NumberSettings extends Component {
     }
 
     handleSubmit (e) {
+        this.setState({ isSaving: true })
         const formData = new FormData()
         formData.append('settings', JSON.stringify(this.state.settings))
         formData.append('_method', 'PUT')
@@ -115,7 +104,12 @@ class NumberSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false })
+                this.setState({
+                    success: true,
+                    cached_settings: this.state.settings,
+                    changesMade: false,
+                    isSaving: false
+                }, () => this.model.updateSettings(this.state.settings))
             })
             .catch((error) => {
                 console.error(error)
@@ -799,180 +793,195 @@ class NumberSettings extends Component {
     render () {
         const modules = JSON.parse(localStorage.getItem('modules'))
 
-        const tabs = <Nav tabs className="nav-justified setting-tabs disable-scrollbars">
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '1' ? 'active' : ''}
-                    onClick={(e) => {
-                        this.toggle('1', e)
-                    }}>
-                    {translations.settings}
-                </NavLink>
-            </NavItem>
+        const tabs = {
+            settings: {
+                activeTab: this.state.activeTab,
+                toggle: this.toggle
+            },
+            tabs: [
+                {
+                    label: translations.settings
+                }
+            ],
+            children: []
+        }
 
-            {modules && modules.invoices &&
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '2' ? 'active' : ''}
-                    onClick={(e) => {
-                        this.toggle('2', e)
-                    }}>
-                    {translations.invoices}
-                </NavLink>
-            </NavItem>
-            }
+        tabs.children.push(<Card>
+            <CardBody>
+                <FormBuilder
+                    handleChange={this.handleSettingsChange}
+                    formFieldsRows={this.getSettingFields()}
+                />
+            </CardBody>
+        </Card>)
 
-            {modules && modules.quotes &&
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '3' ? 'active' : ''}
-                    onClick={(e) => {
-                        this.toggle('3', e)
-                    }}>
-                    {translations.quotes}
-                </NavLink>
-            </NavItem>
-            }
+        if (modules && modules.invoices) {
+            tabs.tabs.push({ label: translations.invoices })
+            tabs.children.push(<Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getInvoiceFields()}
+                    />
+                </CardBody>
+            </Card>)
+        }
 
-            {modules && modules.payments &&
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '4' ? 'active' : ''}
-                    onClick={(e) => {
-                        this.toggle('4', e)
-                    }}>
-                    {translations.payments}
-                </NavLink>
-            </NavItem>
-            }
+        if (modules && modules.quotes) {
+            tabs.tabs.push({ label: translations.quotes })
+            tabs.children.push(<Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getQuoteFields()}
+                    />
+                </CardBody>
+            </Card>)
+        }
 
-            {modules && modules.credits &&
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '5' ? 'active' : ''}
-                    onClick={(e) => {
-                        this.toggle('5', e)
-                    }}>
-                    {translations.credits}
-                </NavLink>
-            </NavItem>
-            }
+        if (modules && modules.payments) {
+            tabs.tabs.push({ label: translations.payments })
+            tabs.children.push(<Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getPaymentFields()}
+                    />
+                </CardBody>
+            </Card>)
+        }
 
-            {modules && modules.orders &&
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '6' ? 'active' : ''}
-                    onClick={(e) => {
-                        this.toggle('6', e)
-                    }}>
-                    {translations.orders}
-                </NavLink>
-            </NavItem>
-            }
+        if (modules && modules.credits) {
+            tabs.tabs.push({ label: translations.credits })
+            tabs.children.push(<Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getCreditFields()}
+                    />
+                </CardBody>
+            </Card>)
+        }
 
-            {modules && modules.purchase_orders &&
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '7' ? 'active' : ''}
-                    onClick={(e) => {
-                        this.toggle('7', e)
-                    }}>
-                    {translations.POS}
-                </NavLink>
-            </NavItem>
-            }
+        if (modules && modules.orders) {
+            tabs.tabs.push({ label: translations.orders })
+            tabs.children.push(<Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getOrderFields()}
+                    />
+                </CardBody>
+            </Card>)
+        }
 
-            {modules && modules.deals &&
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '8' ? 'active' : ''}
-                    onClick={(e) => {
-                        this.toggle('8', e)
-                    }}>
-                    {translations.deals}
-                </NavLink>
-            </NavItem>
-            }
+        if (modules && modules.purchase_orders) {
+            tabs.tabs.push({ label: translations.purchase_orders })
+            tabs.children.push(<Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getPurchaseOrderFields()}
+                    />
+                </CardBody>
+            </Card>)
+        }
 
-            {modules && modules.cases &&
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '9' ? 'active' : ''}
-                    onClick={(e) => {
-                        this.toggle('9', e)
-                    }}>
-                    {translations.cases}
-                </NavLink>
-            </NavItem>
-            }
+        if (modules && modules.deals) {
+            tabs.tabs.push({ label: translations.deals })
+            tabs.children.push(<Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getDealFields()}
+                    />
+                </CardBody>
+            </Card>)
+        }
 
-            {modules && modules.tasks &&
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '10' ? 'active' : ''}
-                    onClick={(e) => {
-                        this.toggle('10', e)
-                    }}>
-                    {translations.tasks}
-                </NavLink>
-            </NavItem>
-            }
-            {modules && modules.recurringInvoices &&
-            <NavItem>
-                <NavLink
-                    className={`${this.state.activeTab === '11' ? 'active' : ''} extra-tab-space`}
-                    onClick={(e) => {
-                        this.toggle('11', e)
-                    }}>
-                    {translations.recurring_invoices_abbr}
-                </NavLink>
-            </NavItem>
-            }
-            {modules && modules.recurringQuotes &&
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '12' ? 'active' : ''}
-                    onClick={(e) => {
-                        this.toggle('12', e)
-                    }}>
-                    {translations.recurring_quotes_abbr}
-                </NavLink>
-            </NavItem>
-            }
-            {modules && modules.expenses &&
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '13' ? 'active' : ''}
-                    onClick={(e) => {
-                        this.toggle('13', e)
-                    }}>
-                    {translations.expenses}
-                </NavLink>
-            </NavItem>
-            }
-            {modules && modules.projects &&
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '14' ? 'active' : ''}
-                    onClick={(e) => {
-                        this.toggle('14', e)
-                    }}>
-                    {translations.projects}
-                </NavLink>
-            </NavItem>
-            }
-            {modules && modules.companies &&
-            <NavItem>
-                <NavLink
-                    className={this.state.activeTab === '15' ? 'active' : ''}
-                    onClick={(e) => {
-                        this.toggle('15', e)
-                    }}>
-                    {translations.companies}
-                </NavLink>
-            </NavItem>
-            }
-        </Nav>
+        if (modules && modules.cases) {
+            tabs.tabs.push({ label: translations.cases })
+            tabs.children.push(<Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getCaseFields()}
+                    />
+                </CardBody>
+            </Card>)
+        }
+
+        if (modules && modules.tasks) {
+            tabs.tabs.push({ label: translations.tasks })
+            tabs.children.push(<Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getTaskFields()}
+                    />
+                </CardBody>
+            </Card>)
+        }
+
+        if (modules && modules.recurringInvoices) {
+            tabs.tabs.push({ label: translations.recurring_invoices_abbr })
+            tabs.children.push(<Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getRecurringInvoiceFields()}
+                    />
+                </CardBody>
+            </Card>)
+        }
+
+        if (modules && modules.recurringQuotes) {
+            tabs.tabs.push({ label: translations.recurring_quotes_abbr })
+            tabs.children.push(<Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getRecurringQuoteFields()}
+                    />
+                </CardBody>
+            </Card>)
+        }
+
+        if (modules && modules.expenses) {
+            tabs.tabs.push({ label: translations.expenses })
+            tabs.children.push(<Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getExpenseFields()}
+                    />
+                </CardBody>
+            </Card>)
+        }
+
+        if (modules && modules.projects) {
+            tabs.tabs.push({ label: translations.projects })
+            tabs.children.push(<Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getProjectFields()}
+                    />
+                </CardBody>
+            </Card>)
+        }
+
+        if (modules && modules.companies) {
+            tabs.tabs.push({ label: translations.companies })
+            tabs.children.push(<Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getCompanyFields()}
+                    />
+                </CardBody>
+            </Card>)
+        }
 
         return this.state.loaded === true ? (
             <React.Fragment>
@@ -982,204 +991,13 @@ class NumberSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={translations.settings_not_saved}/>
 
-                <Header title={translations.number_settings} cancelButtonDisabled={!this.state.changesMade}
+                <EditScaffold isAdvancedSettings={true} isLoading={!this.state.loaded} isSaving={this.state.isSaving}
+                    isEditing={this.state.changesMade}
+                    title={translations.number_settings}
+                    cancelButtonDisabled={!this.state.changesMade}
                     handleCancel={this.handleCancel.bind(this)}
-                    handleSubmit={this.handleSubmit}
+                    handleSubmit={this.handleSubmit.bind(this)}
                     tabs={tabs}/>
-
-                <div className="settings-container settings-container-narrow fixed-margin-mobile">
-                    <TabContent className="fixed-margin-mobile bg-transparent" activeTab={this.state.activeTab}>
-                        <TabPane tabId="1">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getSettingFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-
-                        {modules && modules.invoices &&
-                        <TabPane tabId="2">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getInvoiceFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-                        }
-
-                        {modules && modules.quotes &&
-                        <TabPane tabId="3">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getQuoteFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-                        }
-
-                        {modules && modules.payments &&
-                        <TabPane tabId="4">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getPaymentFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-                        }
-
-                        {modules && modules.credits &&
-                        <TabPane tabId="5">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getCreditFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-                        }
-
-                        {modules && modules.orders &&
-                        <TabPane tabId="6">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getOrderFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-                        }
-
-                        {modules && modules.purchase_orders &&
-                        <TabPane tabId="7">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getPurchaseOrderFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-                        }
-
-                        {modules && modules.deals &&
-                        <TabPane tabId="8">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getDealFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-                        }
-
-                        {modules && modules.cases &&
-                        <TabPane tabId="9">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getCaseFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-                        }
-
-                        {modules && modules.tasks &&
-                        <TabPane tabId="10">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getTaskFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-                        }
-
-                        {modules && modules.recurringInvoices &&
-                        <TabPane tabId="11">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getRecurringInvoiceFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-                        }
-
-                        {modules && modules.recurringQuotes &&
-                        <TabPane tabId="12">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getRecurringQuoteFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-                        }
-                        {modules && modules.expenses &&
-                        <TabPane tabId="13">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getExpenseFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-                        }
-                        {modules && modules.projects &&
-                        <TabPane tabId="14">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getProjectFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-                        }
-                        {modules && modules.companies &&
-                        <TabPane tabId="15">
-                            <Card>
-                                <CardBody>
-                                    <FormBuilder
-                                        handleChange={this.handleSettingsChange}
-                                        formFieldsRows={this.getCompanyFields()}
-                                    />
-                                </CardBody>
-                            </Card>
-                        </TabPane>
-                        }
-                    </TabContent>
-                </div>
             </React.Fragment>
         ) : null
     }

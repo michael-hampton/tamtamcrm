@@ -10,11 +10,17 @@ import { translations } from '../utils/_translations'
 import queryString from 'query-string'
 import CompanyRepository from '../repositories/CompanyRepository'
 import { getDefaultTableFields } from '../presenters/CustomerPresenter'
+import PaginationNew from '../common/PaginationNew'
+import { filterStatuses } from '../utils/_search'
 
 export default class Customers extends Component {
     constructor (props) {
         super(props)
         this.state = {
+            currentPage: 1,
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
+            currentInvoices: [],
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             per_page: 5,
@@ -55,11 +61,36 @@ export default class Customers extends Component {
         this.getCustomFields()
     }
 
-    updateCustomers (customers) {
+    onPageChanged (data) {
+        let { customers, pageLimit } = this.state
+        const { currentPage, totalPages } = data
+
+        if (data.invoices) {
+            customers = data.invoices
+        }
+
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = customers.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
+
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
+    }
+
+    updateCustomers (customers, do_filter = false, filters = null) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? customers : this.state.cachedData
+
+        if (should_filter) {
+            customers = filterStatuses(customers, '', this.state.filters)
+        }
+
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             customers: customers,
             cachedData: cachedData
+        }, () => {
+            const totalPages = Math.ceil(customers.length / this.state.pageLimit)
+            this.onPageChanged({ invoices: customers, currentPage: this.state.currentPage, totalPages: totalPages })
         })
     }
 
@@ -71,7 +102,8 @@ export default class Customers extends Component {
         const companyRepository = new CompanyRepository()
         companyRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
             }
 
             this.setState({ companies: response }, () => {
@@ -100,11 +132,13 @@ export default class Customers extends Component {
     }
 
     customerList (props) {
-        const { customers, custom_fields } = this.state
-        return <CustomerItem viewId={props.viewId} showCheckboxes={props.showCheckboxes} customers={customers}
-            show_list={props.show_list}
+        const { pageLimit, custom_fields, currentInvoices, cachedData } = this.state
+        return <CustomerItem viewId={props.viewId} showCheckboxes={props.showCheckboxes} customers={currentInvoices}
+            show_list={props.show_list} entities={cachedData}
+            onPageChanged={this.onPageChanged.bind(this)}
+            pageLimit={pageLimit}
             custom_fields={custom_fields}
-            ignoredColumns={getDefaultTableFields()} updateCustomers={this.updateCustomers}
+            ignoredColumns={props.default_columns} updateCustomers={this.updateCustomers}
             deleteCustomer={this.deleteCustomer} toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
             onChangeBulk={props.onChangeBulk}/>
@@ -126,10 +160,11 @@ export default class Customers extends Component {
     }
 
     render () {
-        const { searchText, status, company_id, group_settings_id, start_date, end_date } = this.state.filters
-        const { custom_fields, customers, companies, error, view, filters, isOpen, error_message, success_message, show_success } = this.state
-        const fetchUrl = `/api/customers?search_term=${searchText}&status=${status}&company_id=${company_id}&group_settings_id=${group_settings_id}&start_date=${start_date}&end_date=${end_date}`
+        const { group_settings_id, start_date, end_date } = this.state.filters
+        const { custom_fields, customers, companies, error, view, filters, isOpen, error_message, success_message, show_success, currentInvoices, pageLimit } = this.state
+        const fetchUrl = `/api/customers?group_settings_id=${group_settings_id}&start_date=${start_date}&end_date=${end_date}`
         const addButton = companies.length ? <AddCustomer
+            large_buton={true}
             custom_fields={custom_fields}
             action={this.updateCustomers}
             customers={customers}
@@ -138,6 +173,7 @@ export default class Customers extends Component {
         const margin_class = isOpen === false || (Object.prototype.hasOwnProperty.call(localStorage, 'datatable_collapsed') && localStorage.getItem('datatable_collapsed') === true)
             ? 'fixed-margin-datatable-collapsed'
             : 'fixed-margin-datatable-large fixed-margin-datatable-large-mobile'
+        const total = customers.length
 
         return (
             <Row>
@@ -145,7 +181,11 @@ export default class Customers extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <CustomerFilters setFilterOpen={this.setFilterOpen.bind(this)} companies={companies}
+                                <CustomerFilters
+                                    pageLimit={pageLimit}
+                                    cachedData={this.state.cachedData}
+                                    updateList={this.updateCustomers}
+                                    setFilterOpen={this.setFilterOpen.bind(this)}
                                     customers={customers}
                                     filters={filters} filter={this.filterCustomers}
                                     saveBulk={this.saveBulk}/>
@@ -174,6 +214,12 @@ export default class Customers extends Component {
                         <Card>
                             <CardBody>
                                 <DataTable
+
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
+
                                     default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
                                     setError={this.setError.bind(this)}
@@ -187,6 +233,13 @@ export default class Customers extends Component {
                                     fetchUrl={fetchUrl}
                                     updateState={this.updateCustomers}
                                 />
+
+                                {total > 0 &&
+                                <div className="d-flex flex-row py-4 align-items-center">
+                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>

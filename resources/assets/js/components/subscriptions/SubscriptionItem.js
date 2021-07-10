@@ -36,10 +36,11 @@ export default class SubscriptionItem extends Component {
         const self = this
         axios.delete(url)
             .then(function (response) {
-                const arrSubscriptions = [...self.props.subscriptions]
+                const arrSubscriptions = [...self.props.entities]
                 const index = arrSubscriptions.findIndex(subscription => subscription.id === id)
-                arrSubscriptions.splice(index, 1)
-                self.props.addUserToState(arrSubscriptions)
+                arrSubscriptions[index].hide = archive !== true
+                arrSubscriptions[index].deleted_at = new Date()
+                self.props.addUserToState(arrSubscriptions, true)
             })
             .catch(function (error) {
                 console.log(error)
@@ -47,11 +48,11 @@ export default class SubscriptionItem extends Component {
     }
 
     render () {
-        const { subscriptions, ignoredColumns } = this.props
+        const { subscriptions, ignoredColumns, entities } = this.props
         if (subscriptions && subscriptions.length) {
             return subscriptions.map((subscription, index) => {
                 const restoreButton = subscription.deleted_at
-                    ? <RestoreModal id={subscription.id} entities={subscriptions} updateState={this.props.addUserToState}
+                    ? <RestoreModal id={subscription.id} entities={entities} updateState={this.props.addUserToState}
                         url={`/api/subscriptions/restore/${subscription.id}`}/> : null
                 const deleteButton = !subscription.deleted_at
                     ? <DeleteModal archive={false} deleteFunction={this.deleteSubscription} id={subscription.id}/> : null
@@ -59,7 +60,7 @@ export default class SubscriptionItem extends Component {
                     ? <DeleteModal archive={true} deleteFunction={this.deleteSubscription} id={subscription.id}/> : null
 
                 const editButton = !subscription.deleted_at ? <EditSubscription
-                    subscriptions={subscriptions}
+                    subscriptions={entities}
                     subscription={subscription}
                     action={this.props.addUserToState}
                 /> : null

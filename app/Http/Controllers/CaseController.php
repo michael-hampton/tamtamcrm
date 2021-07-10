@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 
+use App\Services\Cases\MergeCase;
+use App\Services\Pdf\GeneratePdf;
 use App\Factory\CaseFactory;
 use App\Factory\CloneCaseToProjectFactory;
 use App\Jobs\Utils\UploadFile;
@@ -65,9 +67,8 @@ class CaseController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public function show(int $id)
+    public function show(Cases $case)
     {
-        $case = $this->case_repo->findCaseById($id);
         return response()->json($this->transform($case));
     }
 
@@ -76,9 +77,8 @@ class CaseController extends Controller
      * @param UpdateCaseRequest $request
      * @return JsonResponse
      */
-    public function update(int $id, UpdateCaseRequest $request)
+    public function update(UpdateCaseRequest $request, Cases $case)
     {
-        $case = $this->case_repo->findCaseById($id);
         $case = $this->case_repo->updateCase($request->all(), $case, auth()->user());
         return response()->json($this->transform($case->fresh()));
     }
@@ -99,16 +99,15 @@ class CaseController extends Controller
 
         if ($request->hasFile('file')) {
             foreach ($request->file('file') as $count => $file) {
-                UploadFile::dispatchNow($file, $user, $account, $case);
+                UploadFile::dispatchNow($file, auth()->user(), auth()->user()->account_user()->account, $case);
             }
         }
 
         return response()->json($this->transform($case));
     }
 
-    public function archive(int $id)
+    public function archive(Cases $case)
     {
-        $case = $this->case_repo->findCaseById($id);
         $case->archive();
         return response()->json([], 200);
     }
@@ -118,10 +117,8 @@ class CaseController extends Controller
      * @return mixed
      * @throws AuthorizationException
      */
-    public function destroy(int $id)
+    public function destroy(Cases $case)
     {
-        $case = Cases::withTrashed()->where('id', '=', $id)->first();
-
         $this->authorize('delete', $case);
 
         $case->deleteEntity();
@@ -172,12 +169,12 @@ class CaseController extends Controller
                 if (empty($request->input('parent_id'))) {
                     return response()->json('You must select a parent');
                 }
-                $case = $case->service()->mergeCase($request, auth()->user());
+                $case = (new MergeCase($case))->execute($request, auth()->user());
                 return response()->json($case);
                 break;
             case 'download': //done
                 $disk = config('filesystems.default');
-                $content = Storage::disk($disk)->get($case->service()->generatePdf(null));
+                $content = Storage::disk($disk)->get((new GeneratePdf($case))->execute(null));
                 $response = ['data' => base64_encode($content)];
                 return response()->json($response);
                 break;

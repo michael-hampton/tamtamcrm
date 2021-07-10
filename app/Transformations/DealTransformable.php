@@ -14,7 +14,7 @@ trait DealTransformable
      * @param Deal $deal
      * @return array
      */
-    protected function transformDeal(Deal $deal)
+    protected function transformDeal(Deal $deal, $files = null)
     {
         return [
             'id'             => (int)$deal->id,
@@ -33,15 +33,17 @@ trait DealTransformable
             'customer_id'    => $deal->customer_id,
             'valued_at'      => $deal->valued_at,
             'source_type'    => $deal->source_type,
-            'is_deleted'     => (bool)$deal->is_deleted,
+            'hide'           => (bool)$deal->hide,
             'column_color'   => $deal->column_color ?: '',
             'custom_value1'  => $deal->custom_value1 ?: '',
             'custom_value2'  => $deal->custom_value2 ?: '',
             'custom_value3'  => $deal->custom_value3 ?: '',
             'custom_value4'  => $deal->custom_value4 ?: '',
-            'public_notes'   => $deal->public_notes ?: '',
-            'private_notes'  => $deal->private_notes ?: '',
-            'files'          => $this->transformDealFiles($deal->files),
+            'customer_note'  => $deal->customer_note ?: '',
+            'internal_note'  => $deal->internal_note ?: '',
+            'files'          => !empty($files) && !empty($files[$deal->id]) ? $this->transformDealFiles(
+                $files[$deal->id]
+            ) : [],
             'emails'         => $this->transformDealEmails($deal->emails()),
             'status_name'    => !empty($deal->taskStatus) ? $deal->taskStatus->name : '',
             'task_status'    => $deal->taskStatus

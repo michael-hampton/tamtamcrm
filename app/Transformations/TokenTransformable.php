@@ -22,7 +22,7 @@ trait TokenTransformable
             'updated_at'  => $company_token->updated_at,
             'archived_at' => $company_token->deleted_at,
             'created_at'  => $company_token->created_at,
-            'is_deleted'  => (bool)$company_token->is_deleted,
+            'hide'        => (bool)$company_token->hide,
         ];
     }
 }

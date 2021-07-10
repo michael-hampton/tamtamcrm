@@ -54,8 +54,8 @@ export default class UserDropdownMenu extends React.Component {
             onClick={() => this.changeStatus('archive')}>Archive</DropdownItem>
 
         const cloneButton =
-            <DropdownItem className="primary"
-                onClick={() => this.changeStatus('clone_to_company')}>Clone</DropdownItem>
+                <DropdownItem className="primary"
+                    onClick={() => this.changeStatus('clone_to_company')}>Clone</DropdownItem>
 
         const dropdownMenu = <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggleMenu}>
             <DropdownToggle caret>

@@ -35,7 +35,8 @@ export default class PasswordField extends Component {
                 </UncontrolledTooltip>
                 <Label>{translations.password}</Label>
                 <InputGroup>
-                    <Input className={this.props.hasErrorFor('password') ? 'is-invalid' : ''}
+                    <Input style={{ width: '80%' }}
+                        className={this.props.hasErrorFor('password') ? 'is-invalid' : ''}
                         onChange={this.props.handleChange} type={password_obscured ? 'password' : 'text'}
                         name="password" value={this.props.password}
                         placeholder="password"/>

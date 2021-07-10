@@ -11,11 +11,24 @@ use App\Models\PurchaseOrderInvitation;
 
 trait PurchaseOrderTransformable
 {
+    public function transformAuditsForPurchaseOrder($audits)
+    {
+        if (empty($audits)) {
+            return [];
+        }
+
+        return $audits->map(
+            function (Audit $audit) {
+                return (new AuditTransformable)->transformAudit($audit);
+            }
+        )->all();
+    }
+
     /**
      * @param PurchaseOrder $po
      * @return array
      */
-    protected function transformPurchaseOrder(PurchaseOrder $po)
+    protected function transformPurchaseOrder(PurchaseOrder $po, $files = null)
     {
         return [
             'number'              => $po->number ?: '',
@@ -26,10 +39,11 @@ trait PurchaseOrderTransformable
             'project_id'          => (int)$po->project_id,
             'assigned_to'         => (int)$po->assigned_to,
             'company_id'          => (int)$po->company_id ?: null,
+            'company_name'        => $po->company->name ?: '',
             'currency_id'         => (int)$po->currency_id ?: null,
             'exchange_rate'       => (float)$po->exchange_rate,
-            'public_notes'        => $po->public_notes ?: '',
-            'private_notes'       => $po->private_notes ?: '',
+            'customer_note'       => $po->customer_note ?: '',
+            'internal_note'       => $po->internal_note ?: '',
             'invoice_id'          => (int)$po->invoice_id,
             'date'                => $po->date ?: '',
             'due_date'            => $po->due_date ?: '',
@@ -57,8 +71,10 @@ trait PurchaseOrderTransformable
             'transaction_fee_tax' => (bool)$po->transaction_fee_tax,
             'shipping_cost_tax'   => (bool)$po->shipping_cost_tax,
             'emails'              => $this->transformPurchaseOrderEmails($po->emails()),
-            'audits'              => $this->transformAuditsForPurchaseOrder($po->audits),
-            'files'               => $this->transformPurchaseOrderFiles($po->files),
+            //'audits'              => $this->transformAuditsForPurchaseOrder($po->audits),
+            'files'               => !empty($files) && !empty($files[$po->id]) ? $this->transformPurchaseOrderFiles(
+                $files[$po->id]
+            ) : [],
             'tax_rate'            => (float)$po->tax_rate,
             'tax_2'               => (float)$po->tax_2,
             'tax_3'               => (float)$po->tax_3,
@@ -66,7 +82,7 @@ trait PurchaseOrderTransformable
             'tax_rate_name_2'     => $po->tax_rate_name_2,
             'tax_rate_name_3'     => $po->tax_rate_name_3,
             'viewed'              => (bool)$po->viewed,
-            'is_deleted'          => (bool)$po->is_deleted,
+            'hide'                => (bool)$po->hide,
         ];
     }
 
@@ -100,19 +116,6 @@ trait PurchaseOrderTransformable
         return $emails->map(
             function (Email $email) {
                 return (new EmailTransformable())->transformEmail($email);
-            }
-        )->all();
-    }
-
-    public function transformAuditsForPurchaseOrder($audits)
-    {
-        if (empty($audits)) {
-            return [];
-        }
-
-        return $audits->map(
-            function (Audit $audit) {
-                return (new AuditTransformable)->transformAudit($audit);
             }
         )->all();
     }

@@ -58,9 +58,12 @@ class ActivityController extends Controller
 
     public function index(Request $request)
     {
+        $account = auth()->user()->account_user()->account;
+
         $currentUser = auth()->user();
-        $comments = auth()->user()->account_user()->account->comments()->with('user')->get();
-        $list = $this->notification_repo->listNotifications('*', 'created_at', 'DESC');
+        $comments = $account->comments()->with('user')->get();
+        //$list = $this->notification_repo->listNotifications('*', 'created_at', 'DESC');
+        $list = Notification::where('account_id', $account->id)->orderBy('created_at', 'DESC')->get();
 
         if (!empty($request->input('read_only'))) {
             $list = $list->filter(
@@ -70,7 +73,7 @@ class ActivityController extends Controller
             );
         }
 
-        $userEvents = $this->event_repo->getEventsForUser($currentUser, auth()->user()->account_user()->account_id);
+        $userEvents = $this->event_repo->getEventsForUser($currentUser, $account->id);
 
         Notification::whereIn('id', $list->pluck('id'))->update(['read_at' => Carbon::now()]);
 
@@ -90,11 +93,11 @@ class ActivityController extends Controller
             [
                 'users'         => (new UserSearch(new UserRepository(new User())))->filter(
                     new SearchRequest(),
-                    auth()->user()->account_user()->account
+                    $account
                 ),
                 'customers'     => (new CustomerSearch(new CustomerRepository(new Customer())))->filter(
                     new SearchRequest(),
-                    auth()->user()->account_user()->account
+                    $account
                 ),
                 'notifications' => $notifications,
                 'comments'      => $comments,

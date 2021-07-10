@@ -49,14 +49,14 @@ class GroupSearch extends BaseSearch
         }
 
         if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
-            $this->filterDates($request);
+            $this->query->byDate($request->input('start_date'), $request->input('end_date'));
         }
 
-        if ($request->has('group_id') && !empty($request->search_term)) {
+        if ($request->filled('group_id') && !empty($request->search_term)) {
             $this->where('id', '=', $request->search_term);
         }
 
-        $this->addAccount($account);
+        $this->query->byAccount($account);
 
         $this->orderBy($orderBy, $orderDir);
 

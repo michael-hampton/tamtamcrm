@@ -4,6 +4,7 @@ namespace App\Mail\Admin;
 
 use App\Models\Expense;
 use App\Models\User;
+use App\ViewModels\AccountViewModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 
@@ -41,7 +42,8 @@ class ExpenseApproved extends AdminMailer
 
         $this->setSubject($data);
         $this->setMessage($data);
-        $this->execute($this->buildMessage());
+        $this->buildButton();
+        $this->execute();
     }
 
     /**
@@ -58,15 +60,11 @@ class ExpenseApproved extends AdminMailer
     /**
      * @return array
      */
-    private function buildMessage(): array
+    private function buildButton(): void
     {
-        return [
-            'title'       => $this->subject,
-            'body'        => $this->message,
+        $this->button = [
             'url'         => config('taskmanager.web_url') . '/#/expenses?id=' . $this->expense->id,
             'button_text' => trans('texts.view_expense'),
-            'signature'   => !empty($this->settings) ? $this->settings->email_signature : '',
-            'logo'        => $this->expense->account->present()->logo(),
         ];
     }
 }

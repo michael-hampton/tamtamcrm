@@ -2,8 +2,8 @@
 
 namespace App\Requests\Company;
 
-use App\Models\Company;
 use App\Repositories\Base\BaseFormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateCompanyRequest extends BaseFormRequest
 {
@@ -14,8 +14,7 @@ class UpdateCompanyRequest extends BaseFormRequest
      */
     public function authorize()
     {
-        $company = Company::find($this->company_id);
-        return auth()->user()->can('update', $company);
+        return auth()->user()->can('update', $this->company);
     }
 
 
@@ -37,6 +36,14 @@ class UpdateCompanyRequest extends BaseFormRequest
             'city'         => ['required', 'string'],
             'town'         => ['required', 'string'],
             'postcode'     => ['required', 'string'],
+            'number'       => [
+                'nullable',
+                Rule::unique('companies')->where(
+                    function ($query) {
+                        return $query->where('account_id', $this->company->account_id);
+                    }
+                )->ignore($this->company),
+            ],
             //'company_logo' => 'mimes:jpeg,jpg,png,gif|max:10000|nullable' // max 10000kb
         ];
 

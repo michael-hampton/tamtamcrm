@@ -38,10 +38,11 @@ export default class CompanyItem extends Component {
 
         axios.delete(url)
             .then(function (response) {
-                const arrBrands = [...self.props.brands]
+                const arrBrands = [...self.props.entities]
                 const index = arrBrands.findIndex(brand => brand.id === id)
-                arrBrands.splice(index, 1)
-                self.props.addUserToState(arrBrands)
+                arrBrands[index].hide = archive !== true
+                arrBrands[index].deleted_at = new Date()
+                self.props.addUserToState(arrBrands, true)
             })
             .catch(function (error) {
                 console.log(error)
@@ -54,11 +55,11 @@ export default class CompanyItem extends Component {
     }
 
     render () {
-        const { brands, custom_fields, users, ignoredColumns } = this.props
+        const { brands, custom_fields, users, ignoredColumns, entities } = this.props
         if (brands && brands.length) {
             return brands.map((brand, index) => {
                 const restoreButton = brand.deleted_at
-                    ? <RestoreModal id={brand.id} entities={brands} updateState={this.props.addUserToState}
+                    ? <RestoreModal id={brand.id} entities={entities} updateState={this.props.addUserToState}
                         url={`/api/companies/restore/${brand.id}`}/> : null
                 const archiveButton = !brand.deleted_at
                     ? <DeleteModal archive={true} deleteFunction={this.deleteBrand} id={brand.id}/> : null
@@ -68,12 +69,12 @@ export default class CompanyItem extends Component {
                     custom_fields={custom_fields}
                     users={users}
                     brand={brand}
-                    brands={brands}
+                    brands={entities}
                     action={this.props.addUserToState}
                 /> : null
 
-                const status = (brand.deleted_at && !brand.is_deleted) ? (<Badge className="mr-2"
-                    color="warning">{translations.archived}</Badge>) : ((brand.deleted_at && brand.is_deleted) ? (
+                const status = (brand.deleted_at && !brand.hide) ? (<Badge className="mr-2"
+                    color="warning">{translations.archived}</Badge>) : ((brand.deleted_at && brand.hide) ? (
                     <Badge className="mr-2" color="danger">{translations.deleted}</Badge>) : (''))
 
                 const columnList = Object.keys(brand).filter(key => {
@@ -103,8 +104,8 @@ export default class CompanyItem extends Component {
                                 onChange={this.props.onChangeBulk}/>
                             {actionMenu}
                         </td>
-                        {!!status && <td>{status}</td>}
                         {columnList}
+                        <td>{status}</td>
                     </tr>
                 }
 

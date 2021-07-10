@@ -6,15 +6,25 @@ namespace App\Components\Import;
 
 use App\Factory\DealFactory;
 use App\Models\Account;
+use App\Models\Customer;
 use App\Models\Deal;
 use App\Models\User;
+use App\Repositories\CustomerRepository;
 use App\Repositories\DealRepository;
+use App\Requests\SearchRequest;
+use App\Search\CustomerSearch;
+use App\Search\DealSearch;
 use App\Transformations\DealTransformable;
 
 class DealImporter extends BaseCsvImporter
 {
     use ImportMapper;
     use DealTransformable;
+
+    /**
+     * @var string
+     */
+    protected string $json;
 
     protected $entity;
     private array $export_columns = [
@@ -23,8 +33,8 @@ class DealImporter extends BaseCsvImporter
         'valued_at'     => 'valued at',
         'due_date'      => 'due date',
         'terms'         => 'terms',
-        'public_notes'  => 'public notes',
-        'private_notes' => 'private notes'
+        'customer_note'  => 'public notes',
+        'internal_note' => 'private notes'
     ];
     /**
      * @var array|string[]
@@ -35,8 +45,8 @@ class DealImporter extends BaseCsvImporter
         'valued_at'     => 'valued_at',
         'due_date'      => 'due_date',
         'terms'         => 'terms',
-        'public notes'  => 'public_notes',
-        'private notes' => 'private_notes',
+        'public notes'  => 'customer_note',
+        'private notes' => 'internal_note',
         'customer name' => 'customer_id',
         'task status'   => 'task_status_id'
     ];
@@ -81,7 +91,7 @@ class DealImporter extends BaseCsvImporter
             'mappings' => [
                 'name'          => ['validation' => 'required|unique:deals', 'cast' => 'string'],
                 'description'   => ['cast' => 'string'],
-                'valued_at'     => ['cast' => 'string'],
+                'valued_at'     => ['cast' => 'float'],
                 'due_date'      => ['cast' => 'date'],
                 'customer name' => ['validation' => 'required', 'cast' => 'string'],
                 'task status'   => ['validation' => 'required', 'cast' => 'string'],
@@ -109,18 +119,24 @@ class DealImporter extends BaseCsvImporter
         return new DealRepository(new Deal());
     }
 
-    public function export()
+    public function export($is_json = false)
     {
         $export_columns = $this->getExportColumns();
-        $list = Deal::where('account_id', '=', $this->account->id)->get();
 
-        $deals = $list->map(
-            function (Deal $deal) {
-                return $this->transformObject($deal);
-            }
-        )->all();
+        $search_request = new SearchRequest();
+        $search_request->replace(['column' => 'created_at', 'order' => 'desc']);
+
+        $deals = (new DealSearch(new DealRepository(new Deal())))->filter($search_request, $this->account);
+
+        if ($is_json) {
+            $this->export->sendJson('deal', $deals);
+            $this->json = json_encode($deals);
+            return true;
+        }
 
         $this->export->build(collect($deals), $export_columns);
+
+        $this->export->notifyUser('deal');
 
         return true;
     }
@@ -143,5 +159,13 @@ class DealImporter extends BaseCsvImporter
     public function getTemplate()
     {
         return asset('storage/templates/deal.csv');
+    }
+
+    /**
+     * @return string
+     */
+    public function getJson(): string
+    {
+        return $this->json;
     }
 }

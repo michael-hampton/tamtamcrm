@@ -2,7 +2,7 @@
 
 namespace App\Listeners\Order;
 
-use App\Notifications\Admin\OrderHeld;
+use App\Notifications\Order\OrderHeld;
 use App\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Notification;

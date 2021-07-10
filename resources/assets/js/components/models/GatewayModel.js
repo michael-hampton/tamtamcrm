@@ -64,7 +64,7 @@ export default class GatewayModel extends BaseModel {
     buildDropdownMenu () {
         const actions = []
 
-        if (!this.fields.is_deleted) {
+        if (!this.fields.hide) {
             actions.push('delete')
         }
 
@@ -98,26 +98,6 @@ export default class GatewayModel extends BaseModel {
                 // test for status you want, etc
                 console.log(res.status)
             }
-            // Don't forget to return something
-            return res.data
-        } catch (e) {
-            this.handleError(e)
-            return false
-        }
-    }
-
-    async getGateways () {
-        this.errors = []
-        this.error_message = ''
-
-        try {
-            const res = await axios.get(this.url)
-
-            if (res.status === 200) {
-                // test for status you want, etc
-                console.log(res.status)
-            }
-
             // Don't forget to return something
             return res.data
         } catch (e) {

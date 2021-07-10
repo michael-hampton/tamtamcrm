@@ -2,6 +2,7 @@
 
 namespace App\Components\Payment;
 
+use App\Services\Transaction\TriggerTransaction;
 use App\Models\Payment;
 use App\Repositories\PaymentRepository;
 
@@ -27,18 +28,29 @@ class BasePaymentProcessor
 
     private PaymentRepository $payment_repo;
 
+    /**
+     * @var bool
+     */
+    private bool $applying_existing_payment = false;
+
 
     /**
-     * BaseRefund constructor.
+     * BasePaymentProcessor constructor.
      * @param Payment $payment
-     * @param array $data
      * @param PaymentRepository $payment_repo
+     * @param array $data
+     * @param bool $applying_existing_payment
      */
-    public function __construct(Payment $payment, PaymentRepository $payment_repo, array $data)
-    {
+    public function __construct(
+        Payment $payment,
+        PaymentRepository $payment_repo,
+        array $data,
+        bool $applying_existing_payment = false
+    ) {
         $this->payment = $payment;
         $this->payment_repo = $payment_repo;
         $this->data = $data;
+        $this->applying_existing_payment = $applying_existing_payment;
     }
 
     public function getAmount()
@@ -95,7 +107,7 @@ class BasePaymentProcessor
     protected function save(): ?Payment
     {
         $this->applyPayment();
-        //$this->setStatus();
+        $this->setStatus();
         $this->updateCustomer();
 
         $this->payment->save();
@@ -111,7 +123,12 @@ class BasePaymentProcessor
         }
 
         //TODO - Need to check this
-        $this->payment->amount = $this->amount;
+
+        // if the payment already has an amount keep the original amount
+        if (!$this->applying_existing_payment) {
+            $this->payment->amount = $this->amount;
+        }
+
         $this->payment->applied += $this->amount;
 
         if ($this->gateway_fee > 0) {
@@ -120,13 +137,25 @@ class BasePaymentProcessor
             $this->amount += $this->gateway_fee;
         }
 
-        if ($this->credited_amount > 0) {
-            //$this->payment->amount += $this->credited_amount;
-            $this->payment->applied += $this->credited_amount;
-            //$this->amount += $this->gateway_fee;
-        }
+//        if ($this->credited_amount > 0) {
+//            //$this->payment->amount += $this->credited_amount;
+//            $this->payment->applied += $this->credited_amount;
+//            //$this->amount += $this->gateway_fee;
+//        }
+
         //$this->payment->save();
 
+        return true;
+    }
+
+    private function setStatus()
+    {
+        if ($this->payment->applied < $this->payment->amount) {
+            $this->payment->setStatus(Payment::STATUS_PENDING);
+            return true;
+        }
+
+        $this->payment->setStatus(Payment::STATUS_COMPLETED);
         return true;
     }
 
@@ -146,18 +175,12 @@ class BasePaymentProcessor
         $customer->reduceBalance($amount);
         $customer->save();
 
-        $this->payment->transaction_service()->createTransaction(
+        (new TriggerTransaction($this->payment))->execute(
             $this->amount * -1,
             $customer->balance,
             "Customer Payment {$this->payment->number}"
         );
 
         return $this;
-    }
-
-    private function setStatus()
-    {
-        $status = $this->payment->refunded == $this->amount ? Payment::STATUS_REFUNDED : Payment::STATUS_PARTIALLY_REFUNDED;
-        $this->payment->setStatus($status);
     }
 }

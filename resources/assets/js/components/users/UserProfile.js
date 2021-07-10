@@ -3,8 +3,8 @@ import { Button, Col, Container, Progress, Row } from 'reactstrap'
 import axios from 'axios'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import EditUser from './edit/EditUser'
 import { monthByNumber } from '../utils/helper'
+import AddUser from './edit/AddUser'
 
 class UserProfile extends React.Component {
     constructor (props) {
@@ -92,12 +92,12 @@ class UserProfile extends React.Component {
 
         if (this.state.user && this.state.user.id) {
             button = parseInt(JSON.parse(localStorage.getItem('appState')).user.id) === this.state.user.id
-                ? <EditUser user={this.state.user} user_id={this.state.user.id}/>
+                ? <AddUser user={this.state.user} user_id={this.state.user.id}/>
                 : ''
 
             uploadButton = parseInt(JSON.parse(localStorage.getItem('appState')).user.id) === this.state.user.id
                 ? <label className="btn btn-default btn-file">
-                    Browse <input onChange={this.fileChangedHandler.bind(this)} type="file"
+                        Browse <input onChange={this.fileChangedHandler.bind(this)} type="file"
                         style={{ display: 'none' }}/>
                 </label>
                 : ''
@@ -120,7 +120,7 @@ class UserProfile extends React.Component {
                     </section>
 
                     <h6 className="text-uppercase font-weight-light text-secondary">
-                        Contact Information
+                            Contact Information
                     </h6>
                     <dl className="row mt-4 mb-4 pb-3">
                         <dt className="col-sm-3">Phone</dt>
@@ -133,7 +133,7 @@ class UserProfile extends React.Component {
                     </dl>
 
                     <h6 className="text-uppercase font-weight-light text-secondary">
-                        Basic Information
+                            Basic Information
                     </h6>
                     <dl className="row mt-4 mb-4 pb-3">
                         <dt className="col-sm-3">Birthday</dt>
@@ -153,7 +153,7 @@ class UserProfile extends React.Component {
                         <div className="pt-4 mt-2">
                             <section className="mb-4 pb-1">
                                 <h3 className="h6 font-weight-light text-secondary text-uppercase"> Change Profile
-                                    Picture</h3>
+                                        Picture</h3>
                                 <div className="pt-2">
                                     <ToastContainer/>
                                     <Progress max="100" color="success"

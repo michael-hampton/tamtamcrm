@@ -3,7 +3,9 @@
 namespace Tests\Unit;
 
 use App\Factory\UserFactory;
+use App\Models\Account;
 use App\Models\Department;
+use App\Models\Domain;
 use App\Models\Role;
 use App\Models\User;
 use App\Repositories\UserRepository;
@@ -44,9 +46,11 @@ class UserTest extends TestCase
     /** @test */
     public function it_can_delete_the_user()
     {
+        $account = Account::factory()->create();
         $user = User::factory()->create();
-        $deleted = $user->deleteEntity();
-        $this->assertTrue($deleted);
+        $user->attachUserToAccount($account, true, true);
+        $user = (new UserRepository($user->fresh()))->deleteUser($user);
+        $this->assertNotEmpty($user->deleted_at);
     }
 
     /** @test */
@@ -54,21 +58,23 @@ class UserTest extends TestCase
     {
         $factory = (new UserFactory())->create(5);
         $data = [
-            'first_name' => $this->faker->firstName,
-            'last_name' => $this->faker->lastName,
-            'email' => $this->faker->email,
-            'username' => $this->faker->userName,
-            'password' => $this->faker->password,
-            'is_active' => 1,
+            'first_name'    => $this->faker->firstName,
+            'last_name'     => $this->faker->lastName,
+            'email'         => $this->faker->email,
+            'username'      => $this->faker->userName,
+            'password'      => $this->faker->password,
+            'is_active'     => 1,
             'profile_photo' => $this->faker->word,
-            'company_user' => ['is_admin' => false]
+            'company_user'  => ['is_admin' => false],
+            'domain_id'     => Domain::query()->first()->id
         ];
 
         $userRepo = new UserRepository(new User);
         $user = $userRepo->save($data, $factory);
+
         $data = [
-            'first_name' => $this->faker->firstName,
-            'email'      => $this->faker->unique()->email,
+            'first_name'   => $this->faker->firstName,
+            'email'        => $this->faker->unique()->email,
             'company_user' => ['is_admin' => false]
         ];
 
@@ -88,18 +94,48 @@ class UserTest extends TestCase
     }
 
     /** @test */
+    public function user_changed_email()
+    {
+        $domain = Domain::query()->first();
+
+        $factory = (new UserFactory())->create($domain->id);
+        $data = [
+            'first_name'    => $this->faker->firstName,
+            'last_name'     => $this->faker->lastName,
+            'email'         => $this->faker->email,
+            'username'      => $this->faker->userName,
+            'is_active'     => 1,
+            'profile_photo' => $this->faker->word,
+            'company_user'  => ['is_admin' => false],
+            'password'      => 'password123'
+        ];
+
+        $userRepo = new UserRepository(new User);
+        $user = $userRepo->save($data, $factory);
+        $data = [
+            'email' => $this->faker->unique()->email,
+        ];
+
+        $userRepo = new UserRepository($user);
+        $updated = $userRepo->save($data, $user);
+        $this->assertInstanceOf(User::class, $updated);
+    }
+
+    /** @test */
     public function it_can_create_a_user()
     {
-        $factory = (new UserFactory())->create(5);
+        $domain = Domain::query()->first();
+        $factory = (new UserFactory())->create($domain->id);
+
         $data = [
-            'first_name' => $this->faker->firstName,
-            'last_name' => $this->faker->lastName,
-            'email' => $this->faker->email,
-            'username' => $this->faker->userName,
-            'password' => $this->faker->password,
-            'is_active' => 1,
+            'first_name'    => $this->faker->firstName,
+            'last_name'     => $this->faker->lastName,
+            'email'         => $this->faker->email,
+            'username'      => $this->faker->userName,
+            'password'      => $this->faker->password,
+            'is_active'     => 1,
             'profile_photo' => $this->faker->word,
-            'company_user' => ['is_admin' => false]
+            'company_user'  => ['is_admin' => false]
         ];
 
         $userRepo = new UserRepository(new User);

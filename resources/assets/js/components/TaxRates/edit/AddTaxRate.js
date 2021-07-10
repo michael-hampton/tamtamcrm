@@ -58,8 +58,8 @@ class AddTaxRate extends React.Component {
                 this.setState({ errors: this.taxRateModel.errors, message: this.taxRateModel.error_message })
                 return
             }
-            this.props.taxRates.push(response)
-            this.props.action(this.props.taxRates)
+            this.props.taxRates.unshift(response)
+            this.props.action(this.props.taxRates, true)
             localStorage.removeItem('taxForm')
             this.setState(this.initialState)
         })

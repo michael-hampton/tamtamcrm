@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Services\Quote\GenerateRecurringQuote;
 use App\Events\Quote\QuoteWasCreated;
 use App\Events\Quote\QuoteWasUpdated;
 use App\Jobs\Order\QuoteOrders;
@@ -55,13 +56,13 @@ class QuoteRepository extends BaseRepository implements QuoteRepositoryInterface
      * @param Quote $quote
      * @return Quote
      */
-    public function createQuote(array $data, Quote $quote): ?Quote
+    public function create(array $data, Quote $quote): ?Quote
     {
         $quote = $this->save($data, $quote);
 
         if (!empty($data['recurring'])) {
             $recurring = json_decode($data['recurring'], true);
-            $quote->service()->createRecurringQuote($recurring);
+            (new GenerateRecurringQuote($quote))->execute($recurring);
         }
 
         QuoteOrders::dispatchNow($quote);
@@ -78,11 +79,11 @@ class QuoteRepository extends BaseRepository implements QuoteRepositoryInterface
     public function save(array $data, Quote $quote): ?Quote
     {
         $quote->fill($data);
+        $quote = $this->calculateTotals($quote);
+        $quote = $quote->convertCurrencies($quote, $quote->total, config('taskmanager.use_live_exchange_rates'));
         $quote = $this->populateDefaults($quote);
         $quote = $this->formatNotes($quote);
-        $quote = $quote->service()->calculateInvoiceTotals();
         $quote->setNumber();
-        $quote->setExchangeRate();
 
         $quote->save();
 
@@ -100,7 +101,7 @@ class QuoteRepository extends BaseRepository implements QuoteRepositoryInterface
      * @param Quote $quote
      * @return Quote|null
      */
-    public function updateQuote(array $data, Quote $quote): ?Quote
+    public function update(array $data, Quote $quote): ?Quote
     {
         $quote = $this->save($data, $quote);
         QuoteOrders::dispatchNow($quote);
@@ -131,7 +132,7 @@ class QuoteRepository extends BaseRepository implements QuoteRepositoryInterface
     public function getExpiredQuotes()
     {
         return Quote::whereDate('due_date', '<', Carbon::today()->subDay()->toDateString())
-                    ->where('is_deleted', '=', false)
+                    ->where('hide', '=', false)
                     ->whereIn(
                         'status_id',
                         [Quote::STATUS_SENT]

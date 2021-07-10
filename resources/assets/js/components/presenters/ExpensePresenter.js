@@ -30,8 +30,8 @@ export default function ExpensePresenter (props) {
     }}>{expenseStatuses[entity.status_id]}</span>
         : <Badge color={expenseStatusColors[entity.status_id]}>{expenseStatuses[entity.status_id]}</Badge>
 
-    const status = (entity.deleted_at && !entity.is_deleted) ? (<Badge className="mr-2"
-        color="warning">{translations.archived}</Badge>) : ((entity.deleted_at && entity.is_deleted) ? (
+    const status = (entity.deleted_at && !entity.hide) ? (<Badge className="mr-2"
+        color="warning">{translations.archived}</Badge>) : ((entity.deleted_at && entity.hide) ? (
         <Badge className="mr-2" color="danger">{translations.deleted}</Badge>) : (
         status_chip))
 
@@ -89,14 +89,14 @@ export default function ExpensePresenter (props) {
             }
 
             const companyIndex = props.companies.findIndex(company => company.id === entity[field])
-            const company = props.companies[companyIndex]
-            return company.name
+            const company = props.companies[companyIndex] ? props.companies[companyIndex] : null
+            return company === null ? '' : company.name
         }
 
         case 'invoices':
             return paymentInvoices
 
         default:
-            return entity[field]
+            return typeof entity[field] === 'object' ? JSON.stringify(entity[field]) : entity[field]
     }
 }

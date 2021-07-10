@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use App\Traits\SearchableTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TaskStatus extends Model
 {
@@ -13,6 +15,8 @@ class TaskStatus extends Model
     use SearchableTrait;
     use HasFactory;
     use Archiveable;
+    use SoftDeletes;
+    use QueryScopes;
 
     /**
      * The attributes that are mass assignable.
@@ -24,7 +28,8 @@ class TaskStatus extends Model
         'description',
         'icon',
         'column_color',
-        'task_type'
+        'task_type',
+        'order_id'
     ];
 
     protected $searchable = [
@@ -65,6 +70,11 @@ class TaskStatus extends Model
     public function searchTaskStatus($term)
     {
         return self::search($term);
+    }
+
+    public function scopeByTaskType($query, int $task_type)
+    {
+        return $query->where('task_type', '=', $task_type);
     }
 
 }

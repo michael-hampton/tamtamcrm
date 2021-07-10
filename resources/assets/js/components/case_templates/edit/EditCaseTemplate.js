@@ -56,7 +56,7 @@ class EditCaseTemplate extends React.Component {
                 this.toggle()
                 const index = this.props.templates.findIndex(template => template.id === this.state.id)
                 this.props.templates[index] = response.data
-                this.props.action(this.props.templates)
+                this.props.action(this.props.templates, true)
             })
             .catch((error) => {
                 this.setState({

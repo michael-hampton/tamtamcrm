@@ -2,7 +2,7 @@
 
 namespace App\Listeners\Quote;
 
-use App\Notifications\Admin\EntitySentNotification;
+use App\Notifications\Entity\EntitySentNotification;
 use App\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -36,6 +36,10 @@ class QuoteEmailedNotification implements ShouldQueue
                 'quote',
                 ['all_notifications', 'quote_sent']
             );
+
+            if (empty($notification->method)) {
+                continue;
+            }
 
             $user->notify($notification);
         }

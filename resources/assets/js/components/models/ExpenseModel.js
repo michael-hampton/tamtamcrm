@@ -29,8 +29,8 @@ export default class ExpenseModel extends BaseModel {
             custom_value2: '',
             custom_value3: '',
             custom_value4: '',
-            public_notes: '',
-            private_notes: '',
+            customer_note: '',
+            internal_note: '',
             tax_rate: 0,
             tax_2: 0,
             tax_3: 0,
@@ -219,15 +219,6 @@ export default class ExpenseModel extends BaseModel {
         return null
     }
 
-    updateCustomer () {
-        this.customer = this.customers &&
-        this.customers.length &&
-        this.fields.customer_id &&
-        this.fields.customer_id.toString().length
-            ? this.customers.filter(customer => customer.id === parseInt(this.fields.customer_id))[0]
-            : []
-    }
-
     get customer () {
         return this._customer || []
     }
@@ -240,6 +231,15 @@ export default class ExpenseModel extends BaseModel {
         return parseInt(this.fields.exchange_rate) !== 1 && parseInt(this.fields.exchange_rate) !== 0
     }
 
+    updateCustomer () {
+        this.customer = this.customers &&
+        this.customers.length &&
+        this.fields.customer_id &&
+        this.fields.customer_id.toString().length
+            ? this.customers.filter(customer => customer.id === parseInt(this.fields.customer_id))[0]
+            : []
+    }
+
     getExchangeRateForCurrency (currency_id) {
         const currency = this.currencies && this.currencies.length ? this.currencies.filter(currency => currency.id === parseInt(currency_id)) : []
 
@@ -250,7 +250,7 @@ export default class ExpenseModel extends BaseModel {
 
     buildDropdownMenu () {
         const actions = []
-        if (!this.fields.is_deleted) {
+        if (!this.fields.hide) {
             actions.push('newInvoice')
         }
 

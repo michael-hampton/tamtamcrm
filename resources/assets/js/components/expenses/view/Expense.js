@@ -5,12 +5,13 @@ import { translations } from '../../utils/_translations'
 import FileUploads from '../../documents/FileUploads'
 import BottomNavigationButtons from '../../common/BottomNavigationButtons'
 import CompanyModel from '../../models/CompanyModel'
-import InvoiceModel from '../../models/InvoiceModel'
 import EntityListTile from '../../common/entityContainers/EntityListTile'
 import { icons } from '../../utils/_icons'
 import Overview from './Overview'
 import InvoiceRepository from '../../repositories/InvoiceRepository'
 import ExpenseRepository from '../../repositories/ExpenseRepository'
+import AlertPopup from '../../common/AlertPopup'
+import InvoiceModel from '../../models/InvoiceModel'
 
 export default class Expense extends Component {
     constructor (props) {
@@ -21,6 +22,7 @@ export default class Expense extends Component {
             activeTab: '1',
             obj_url: null,
             show_success: false,
+            show_alert: false,
             file_count: this.props.entity.files.length || 0
         }
 
@@ -45,7 +47,8 @@ export default class Expense extends Component {
         const expenseRepo = new ExpenseRepository()
         expenseRepo.getCategories().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ show_alert: true })
+                return
             }
 
             this.setState({ categories: response }, () => {
@@ -57,7 +60,7 @@ export default class Expense extends Component {
     getCompanies () {
         this.companyModel.getCompanies().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ show_alert: true })
             }
 
             this.setState({ companies: response }, () => {
@@ -70,7 +73,7 @@ export default class Expense extends Component {
         const invoiceRepository = new InvoiceRepository()
         invoiceRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ show_alert: true })
             }
 
             this.setState({ invoices: response }, () => {
@@ -178,6 +181,9 @@ export default class Expense extends Component {
                     button2_click={(e) => this.triggerAction('clone_to_expense', true)}
                     button2={{ label: translations.clone_expense }}/>
 
+                <AlertPopup is_open={this.state.show_alert} message={this.state.error_message} onClose={(e) => {
+                    this.setState({ show_alert: false })
+                }}/>
             </React.Fragment>
 
         )

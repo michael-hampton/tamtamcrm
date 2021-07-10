@@ -2,6 +2,7 @@
 
 namespace App\Services\Invoice;
 
+use App\Services\Transaction\TriggerTransaction;
 use App\Events\Invoice\InvoiceWasCancelled;
 use App\Models\Customer;
 use App\Models\Invoice;
@@ -63,7 +64,7 @@ class CancelInvoice
             $this->updateInvoice();
         }
 
-        $this->invoice->transaction_service()->createTransaction(
+        (new TriggerTransaction($this->invoice))->execute(
             $old_balance,
             $this->invoice->customer->balance,
             "Invoice cancellation {$this->invoice->getNumber()}"
@@ -127,7 +128,6 @@ class CancelInvoice
     private function updateInvoice(): Invoice
     {
         $invoice = $this->invoice;
-
         $this->invoice->cacheData();
         $this->invoice->setBalance(0);
         $this->invoice->setStatus(Invoice::STATUS_CANCELLED);

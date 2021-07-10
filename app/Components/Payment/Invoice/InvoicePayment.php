@@ -2,6 +2,8 @@
 
 namespace App\Components\Payment\Invoice;
 
+use App\Services\Email\DispatchEmail;
+use App\Services\Invoice\RecalculateInvoice;
 use App\Components\Payment\BasePaymentProcessor;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -20,9 +22,13 @@ class InvoicePayment extends BasePaymentProcessor
      * @param Payment $payment
      * @param PaymentRepository $payment_repo
      */
-    public function __construct(array $data, Payment $payment, PaymentRepository $payment_repo)
-    {
-        parent::__construct($payment, $payment_repo, $data);
+    public function __construct(
+        array $data,
+        Payment $payment,
+        PaymentRepository $payment_repo,
+        bool $applying_existing_payment = false
+    ) {
+        parent::__construct($payment, $payment_repo, $data, $applying_existing_payment);
         $this->invoices = $data['invoices'];
     }
 
@@ -57,7 +63,7 @@ class InvoicePayment extends BasePaymentProcessor
 
         $this->save();
 
-        $this->payment->service()->sendEmail();
+        (new DispatchEmail($this->payment))->execute();
 
         return $this->payment;
     }

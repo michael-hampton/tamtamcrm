@@ -45,6 +45,8 @@ import ExpenseRepository from '../../repositories/ExpenseRepository'
 import ProjectRepository from '../../repositories/ProjectRepository'
 import { getExchangeRateWithMap } from '../../utils/_money'
 import Recurringm from './Recurringm'
+import { toast, ToastContainer } from 'react-toastify'
+import InvoiceModel from '../../models/InvoiceModel'
 
 class UpdateRecurringInvoice extends Component {
     constructor (props, context) {
@@ -53,6 +55,7 @@ class UpdateRecurringInvoice extends Component {
         const data = this.props.invoice ? this.props.invoice : null
         this.invoiceModel = new RecurringInvoiceModel(data, this.props.customers)
         this.initialState = this.invoiceModel.fields
+        this.initialState.customers = this.props.customers || []
         this.state = this.initialState
 
         this.updateData = this.updateData.bind(this)
@@ -83,11 +86,18 @@ class UpdateRecurringInvoice extends Component {
         this.settings = user_account[0].account.settings
     }
 
-    componentWillMount () {
-        window.addEventListener('resize', this.handleWindowSizeChange)
+    static getDerivedStateFromProps (props, state) {
+        if (props.invoice && props.invoice.id && props.invoice.id !== state.id) {
+            const invoiceModel = new RecurringInvoiceModel(props.invoice, props.customers)
+            return invoiceModel.fields
+        }
+
+        return null
     }
 
     componentDidMount () {
+        window.addEventListener('resize', this.handleWindowSizeChange)
+
         if (this.props.task_id) {
             this.loadInvoice()
         } else if (!this.state.id) {
@@ -107,6 +117,12 @@ class UpdateRecurringInvoice extends Component {
         }
     }
 
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.invoice && this.props.invoice.id && this.props.invoice.id !== prevProps.invoice.id) {
+            this.invoiceModel = new InvoiceModel(this.props.invoice, this.state.customers)
+        }
+    }
+
     // make sure to remove the listener
     // when the component is not mounted anymore
     componentWillUnmount () {
@@ -119,7 +135,16 @@ class UpdateRecurringInvoice extends Component {
         const reducer = new InvoiceReducer(this.props.entity_id, this.props.entity_type)
         repo.getById(this.props.entity_id).then(response => {
             if (!response) {
-                alert('error')
+                toast.error(translations.unexpected_error, {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+                return
             }
 
             const data = reducer.build(type, response)
@@ -320,8 +345,8 @@ class UpdateRecurringInvoice extends Component {
                         customer_id: r.data.customer_id,
                         user_id: r.data.user_id,
                         company_id: r.data.company_id,
-                        public_notes: r.data.public_notes,
-                        private_notes: r.data.private_notes,
+                        customer_note: r.data.customer_note,
+                        internal_note: r.data.internal_note,
                         terms: r.data.terms,
                         footer: r.data.footer,
                         status_id: parseInt(r.data.status_id)
@@ -347,14 +372,14 @@ class UpdateRecurringInvoice extends Component {
             if (!this.state.modalOpen && !this.state.id) {
                 this.setState({
                     changesMade: false,
-                    public_notes: '',
+                    customer_note: '',
                     tax: null,
                     tax_rate_name: '',
                     tax_rate_name_2: '',
                     tax_rate_name_3: '',
                     tax_2: null,
                     tax_3: null,
-                    private_notes: '',
+                    internal_note: '',
                     number_of_occurances: 1,
                     transaction_fee: null,
                     shipping_cost: null,
@@ -376,6 +401,7 @@ class UpdateRecurringInvoice extends Component {
                     status_id: null,
                     line_items: [],
                     invitations: [],
+                    contacts: [],
                     grace_period: 0,
                     is_never_ending: false,
                     auto_billing_enabled: false
@@ -501,8 +527,8 @@ class UpdateRecurringInvoice extends Component {
             sub_total: this.state.sub_total,
             tax_total: this.state.tax_total,
             discount_total: this.state.discount_total,
-            public_notes: this.state.public_notes,
-            private_notes: this.state.private_notes,
+            customer_note: this.state.customer_note,
+            internal_note: this.state.internal_note,
             po_number: this.state.po_number,
             terms: this.state.terms,
             footer: this.state.footer,
@@ -536,14 +562,35 @@ class UpdateRecurringInvoice extends Component {
                     errors: this.invoiceModel.errors,
                     message: this.invoiceModel.error_message
                 })
+
+                toast.error(translations.updated_unsuccessfully.replace('{entity}', translations.recurring_invoice), {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined
+                })
+
                 return
             }
+
+            toast.success(translations.updated_successfully.replace('{entity}', translations.recurring_invoice), {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            })
 
             if (!this.state.id) {
                 const firstInvoice = response
                 const allInvoices = this.props.invoices
-                allInvoices.push(firstInvoice)
-                this.props.action(allInvoices)
+                allInvoices.unshift(firstInvoice)
+                this.props.action(allInvoices, true)
                 localStorage.removeItem('recurringInvoiceForm')
                 this.setState(this.initialState)
                 return
@@ -551,8 +598,8 @@ class UpdateRecurringInvoice extends Component {
 
             const index = this.props.invoices.findIndex(invoice => invoice.id === this.state.id)
             this.props.invoices[index] = response
-            this.props.action(this.props.invoices)
-            this.setState({ loading: false, changesMade: false })
+            this.props.action(this.props.invoices, true)
+            this.setState({ loading: false, changesMade: false, modalOpen: false })
         })
     }
 
@@ -566,7 +613,7 @@ class UpdateRecurringInvoice extends Component {
     }
 
     reload (data) {
-        this.invoiceModel = new RecurringInvoiceModel(data, this.props.customers)
+        this.invoiceModel = new RecurringInvoiceModel(data, this.state.customers)
         this.initialState = this.invoiceModel.fields
         this.initialState.modalOpen = true
         this.setState(this.initialState)
@@ -649,7 +696,7 @@ class UpdateRecurringInvoice extends Component {
                 allInvoices={this.props.allInvoices} show_invoice={this.invoiceModel.isNew}
                 address={this.state.address} customerName={this.state.customerName}
                 handleInput={this.handleInput}
-                customers={this.props.customers}
+                customers={this.state.customers}
                 hide_customer={this.state.id === null}
                 errors={this.state.errors} recurring_invoice={this.state}
             />
@@ -672,11 +719,13 @@ class UpdateRecurringInvoice extends Component {
                 contacts={this.state.contacts}
                 invitations={this.state.invitations}
                 handleContactChange={this.handleContactChange}/>
-            : <Contacts hide_customer={this.state.id === null} address={this.state.address}
-                customerName={this.state.customerName}
-                handleInput={this.handleInput} invoice={this.state} errors={this.state.errors}
-                contacts={this.state.contacts}
-                invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
+            : <Contacts updateCustomers={(customers) => {
+                this.setState({ customers: customers })
+            }} hide_customer={this.state.id === null} address={this.state.address}
+            customerName={this.state.customerName}
+            handleInput={this.handleInput} invoice={this.state} errors={this.state.errors}
+            contacts={this.state.contacts} customers={this.state.customers}
+            invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
 
         const settings = <InvoiceSettings is_mobile={this.state.is_mobile} handleSurcharge={this.handleSurcharge}
             settings={this.state}
@@ -685,7 +734,7 @@ class UpdateRecurringInvoice extends Component {
             is_amount_discount={this.state.is_amount_discount}
             design_id={this.state.design_id}/>
 
-        const items = <Items line_type={this.state.line_type} model={this.invoiceModel} customers={this.props.customers}
+        const items = <Items line_type={this.state.line_type} model={this.invoiceModel} customers={this.state.customers}
             invoice={this.state} errors={this.state.errors}
             handleFieldChange={this.handleFieldChange}
             handleAddFiled={this.handleAddFiled} setTotal={this.setTotal}
@@ -694,19 +743,19 @@ class UpdateRecurringInvoice extends Component {
         const notes = !this.state.is_mobile
             ? <NoteTabs model={this.invoiceModel}
                 show_exchange={this.invoiceModel.account_currency.exchange_rate !== this.state.exchange_rate}
-                invoice={this.state} private_notes={this.state.private_notes}
-                public_notes={this.state.public_notes}
+                invoice={this.state} internal_note={this.state.internal_note}
+                customer_note={this.state.customer_note}
                 terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}
                 handleInput={this.handleInput}/>
-            : <Notes model={this.invoiceModel} private_notes={this.state.private_notes}
-                public_notes={this.state.public_notes}
+            : <Notes model={this.invoiceModel} internal_note={this.state.internal_note}
+                customer_note={this.state.customer_note}
                 terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}
                 handleInput={this.handleInput}/>
 
         const email_editor = this.state.id
-            ? <Emails model={this.invoiceModel} emails={this.state.emails} template="email_template_invoice"
+            ? <Emails width="500" model={this.invoiceModel} emails={this.state.emails} template="invoice"
                 show_editor={true}
-                customers={this.props.customers} entity_object={this.state} entity="recurringInvoice"
+                customers={this.state.customers} entity_object={this.state} entity="recurringInvoice"
                 entity_id={this.state.id}/> : null
 
         const documents = this.state.id ? <Documents invoice={this.state}/> : null
@@ -810,7 +859,7 @@ class UpdateRecurringInvoice extends Component {
                             </Col>
 
                             <Col md={3} className="m-3">
-                                <TotalsBox invoice={this.state}/>
+                                <TotalsBox settings={this.settings} invoice={this.state}/>
                             </Col>
                         </Row>
                     </TabPane>
@@ -856,6 +905,18 @@ class UpdateRecurringInvoice extends Component {
                             title={this.invoiceModel.isNew ? translations.add_recurring_invoice : translations.edit_recurring_invoice}/>
 
                         <ModalBody className={theme}>
+                            <ToastContainer
+                                position="top-center"
+                                autoClose={5000}
+                                hideProgressBar={false}
+                                newestOnTop={false}
+                                closeOnClick
+                                rtl={false}
+                                pauseOnFocusLoss
+                                draggable
+                                pauseOnHover
+                            />
+
                             {form}
                         </ModalBody>
                         <DefaultModalFooter show_success={showSuccessButton} toggle={this.toggle}

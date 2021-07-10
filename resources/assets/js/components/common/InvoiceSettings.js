@@ -146,9 +146,12 @@ export default function InvoiceSettings (props) {
                     <Label>{translations.reminder}</Label>
                     <Input type="select" name="reminder" value={props.late_fee_reminder} onChange={props.handleInput}>
                         <option value="">{translations.select_option}</option>
-                        <option value="1">{translations.reminder_1} {account_settings.amount_to_charge_1} {account_settings.percent_to_charge_1}</option>
-                        <option value="2">{translations.reminder_2} {account_settings.amount_to_charge_2} {account_settings.percent_to_charge_2}</option>
-                        <option value="3">{translations.reminder_3} {account_settings.amount_to_charge_3} {account_settings.percent_to_charge_3}</option>
+                        <option
+                            value="1">{translations.reminder_1} {account_settings.amount_to_charge_1} {account_settings.percent_to_charge_1}</option>
+                        <option
+                            value="2">{translations.reminder_2} {account_settings.amount_to_charge_2} {account_settings.percent_to_charge_2}</option>
+                        <option
+                            value="3">{translations.reminder_3} {account_settings.amount_to_charge_3} {account_settings.percent_to_charge_3}</option>
                     </Input>
                 </FormGroup>
                 }

@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\QueryScopes;
 use App\Traits\Archiveable;
 use App\Traits\Balancer;
+use App\Traits\HasSubscriptions;
 use App\Traits\Money;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,15 +13,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laracasts\Presenter\PresentableTrait;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Customer extends Model implements HasLocalePreference
 {
 
-    use SoftDeletes, PresentableTrait, Balancer, Money, HasFactory, Archiveable;
+    use SoftDeletes, Balancer, Money, HasFactory, Archiveable, QueryCacheable, HasSubscriptions, QueryScopes;
 
     const CUSTOMER_TYPE_WON = 1;
-    protected $presenter = 'App\Presenters\CustomerPresenter';
+    protected static $flushCacheOnUpdate = true;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -44,8 +47,8 @@ class Customer extends Model implements HasLocalePreference
         'custom_value3',
         'custom_value4',
         'group_settings_id',
-        'public_notes',
-        'private_notes',
+        'customer_note',
+        'internal_note',
         'website',
         'size_id',
         'industry_id',
@@ -55,9 +58,23 @@ class Customer extends Model implements HasLocalePreference
         'settings'   => 'object',
         'updated_at' => 'timestamp',
         'deleted_at' => 'timestamp',
-        'is_deleted' => 'boolean',
+        'hide'       => 'boolean',
     ];
     private $merged_settings;
+
+    /**
+     * When invalidating automatically on update, you can specify
+     * which tags to invalidate.
+     *
+     * @return array
+     */
+    public function getCacheTagsToInvalidateOnUpdate(): array
+    {
+        return [
+            'customers',
+            'dashboard_customers'
+        ];
+    }
 
     /**
      * @return HasMany
@@ -151,7 +168,7 @@ class Customer extends Model implements HasLocalePreference
             'status_id',
             [Credit::STATUS_SENT, Credit::STATUS_PARTIAL]
         )->where(
-            'is_deleted',
+            'hide',
             false
         );
     }
@@ -207,12 +224,12 @@ class Customer extends Model implements HasLocalePreference
         return $this->hasMany(CustomerGateway::class);
     }
 
-    public function getPdfFilename()
+    public function getPdfFilenameAttribute()
     {
         return 'storage/' . $this->account->id . '/' . $this->id . '/statements/' . $this->number . '.pdf';
     }
 
-    public function getDesignId()
+    public function getDesignIdAttribute()
     {
         return !empty($this->design_id) ? $this->design_id : $this->getSetting('invoice_design_id');
     }
@@ -225,6 +242,30 @@ class Customer extends Model implements HasLocalePreference
     public function getFormattedPaidToDate()
     {
         return $this->formatCurrency($this->amount_paid, $this);
+    }
+
+    public function setNumber()
+    {
+        if (empty($this->number) || !isset($this->id)) {
+            $this->number = (new NumberGenerator)->getNextNumberForEntity($this);
+            return true;
+        }
+
+        return true;
+    }
+
+    public function scopePermissions($query, User $user)
+    {
+        if ($user->isAdmin() || $user->isOwner() || $user->hasPermissionTo('customercontroller.index')) {
+            return $query;
+        }
+
+        $query->where(
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('assigned_to', auth()->user($user)->id);
+            }
+        );
     }
 
     private function checkObjectEmpty($var)

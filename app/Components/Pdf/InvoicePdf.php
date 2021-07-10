@@ -30,12 +30,18 @@ class InvoicePdf extends PdfBuilder
         $this->entity_string = $entity_string;
     }
 
+    public function getEntityString()
+    {
+        return $this->entity_string;
+    }
+
     public function build($contact = null)
     {
         $contact = $contact === null ? $this->entity->customer->contacts->first() : $contact;
         $customer = $this->entity->customer;
 
         $this->setDefaults($customer)
+             ->setStatus()
              ->buildContact($contact)
              ->setTaxes($customer)
              ->setDatetime($this->entity->created_at)
@@ -57,7 +63,7 @@ class InvoicePdf extends PdfBuilder
              ->setTotal($customer, $this->entity->total)
 //             ->setCustomerBalance($customer)
 //             ->setCustomerPaidToDate($customer)
-             ->setNotes($this->entity->public_notes)
+             ->setNotes($this->entity->customer_note)
              ->setInvoiceCustomValues()
              ->buildProduct()
              ->transformLineItems($customer, $this->entity)

@@ -32,7 +32,6 @@ export default class BaseModel {
         let url = this.user_account[0].account.portal_domain
         url = url.endsWith('/') ? url.slice(0, -1) : url
 
-
         url += '/portal/register'
 
         const accounts = JSON.parse(localStorage.getItem('appState')).accounts
@@ -107,21 +106,6 @@ export default class BaseModel {
             default:
                 return value
         }
-    }
-
-    buildPdf (data) {
-        // decode base64 string, remove space for IE compatibility
-        var binary = atob(data.data.replace(/\s/g, ''))
-        var len = binary.length
-        var buffer = new ArrayBuffer(len)
-        var view = new Uint8Array(buffer)
-        for (var i = 0; i < len; i++) {
-            view[i] = binary.charCodeAt(i)
-        }
-
-        // create the blob object with content-type "application/pdf"
-        var blob = new Blob([view], { type: 'application/pdf' })
-        return URL.createObjectURL(blob)
     }
 
     copyToClipboard (content) {

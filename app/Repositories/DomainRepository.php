@@ -15,7 +15,6 @@ class DomainRepository
 
     public function create(array $data)
     {
-        $domain = $this->model->create($data);
-        return $domain;
+        return $this->model->create($data);
     }
 }

@@ -4,25 +4,29 @@ import axios from 'axios'
 import { translations } from '../utils/_translations'
 import FormBuilder from './FormBuilder'
 import ColorPicker from '../common/ColorPicker'
-import Header from './Header'
 import SnackbarMessage from '../common/SnackbarMessage'
 import AccountRepository from '../repositories/AccountRepository'
+import CompanyModel from '../models/CompanyModel'
+import EditScaffold from '../common/EditScaffold'
 
 export default class DeviceSettings extends Component {
     constructor (props) {
         super(props)
 
         this.state = {
+            loaded: false,
             success_message: translations.settings_saved,
             id: localStorage.getItem('account_id'),
             cached_settings: {},
             settings: {
                 dark_theme: !!(!Object.prototype.hasOwnProperty.call(localStorage, 'dark_theme') || (localStorage.getItem('dark_theme') && localStorage.getItem('dark_theme') === 'true')),
-                number_of_rows: localStorage.getItem('number_of_rows') || 10
+                number_of_rows: localStorage.getItem('number_of_rows') || 10,
+                button_theme: localStorage.getItem('button_theme') || ''
             },
             success: false,
             error: false,
-            changesMade: false
+            changesMade: false,
+            isSaving: false
         }
 
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
@@ -32,6 +36,8 @@ export default class DeviceSettings extends Component {
         this.handleHeaderColor = this.handleHeaderColor.bind(this)
         this.handleFooterColor = this.handleFooterColor.bind(this)
         this.refresh = this.refresh.bind(this)
+
+        this.model = new CompanyModel({ id: this.state.id })
     }
 
     componentDidMount () {
@@ -143,6 +149,10 @@ export default class DeviceSettings extends Component {
                     localStorage.setItem('tax_rates', JSON.stringify(response.data.data.tax_rates))
                     localStorage.setItem('users', JSON.stringify(response.data.data.users))
                     localStorage.setItem('number_of_accounts', response.data.data.number_of_accounts)
+                    localStorage.setItem('industries', JSON.stringify(response.data.data.industries))
+                    localStorage.setItem('require_login', response.data.data.require_login)
+                    localStorage.setItem('allowed_permissions', JSON.stringify(response.data.data.allowed_permissions))
+                    localStorage.setItem('plan', JSON.stringify(response.data.data.plan))
 
                     this.setState({ success_message: 'Refresh completed', success: true })
                 }
@@ -151,7 +161,8 @@ export default class DeviceSettings extends Component {
 
     handleSettingsChange (event) {
         const name = event.target.name
-        const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
+        let value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
+        value = (value === 'true') ? true : ((value === 'false') ? false : (value))
 
         this.setState(prevState => ({
             changesMade: true,
@@ -161,6 +172,9 @@ export default class DeviceSettings extends Component {
             }
         }), () => {
             switch (name) {
+                case 'button_theme':
+                    localStorage.setItem('button_theme', value)
+                    break
                 case 'currency_format':
                     localStorage.setItem('currency_format', value)
                     break
@@ -208,12 +222,97 @@ export default class DeviceSettings extends Component {
                             text: 50
                         }
                     ]
+                },
+                {
+                    name: 'button_theme',
+                    label: translations.theme,
+                    type: 'select',
+                    value: settings.button_theme,
+                    options: [
+                        {
+                            value: 'cerulean',
+                            text: 'cerulean'
+                        },
+                        {
+                            value: 'darkly',
+                            text: 'darkly'
+                        },
+                        {
+                            value: 'litera',
+                            text: 'litera'
+                        },
+                        {
+                            value: 'materia',
+                            text: 'materia'
+                        },
+                        {
+                            value: 'sandstone',
+                            text: 'sandstone'
+                        },
+                        {
+                            value: 'slate',
+                            text: 'slate'
+                        },
+                        {
+                            value: 'superhero',
+                            text: 'superhero'
+                        },
+                        {
+                            value: 'cosmo',
+                            text: 'cosmo'
+                        },
+                        {
+                            value: 'flatly',
+                            text: 'flatly'
+                        },
+                        {
+                            value: 'lumen',
+                            text: 'lumen'
+                        },
+                        {
+                            value: 'minty',
+                            text: 'Minty'
+                        },
+                        {
+                            value: 'simplex',
+                            text: 'Simplex'
+                        },
+                        {
+                            value: 'solar',
+                            text: 'solar'
+                        },
+                        {
+                            value: 'cyborg',
+                            text: 'cyborg'
+                        },
+                        {
+                            value: 'sketchy',
+                            text: 'sketchy'
+                        },
+                        {
+                            value: 'spacelab',
+                            text: 'spacelab'
+                        },
+                        {
+                            value: 'pulse',
+                            text: 'pulse'
+                        },
+                        {
+                            value: 'yeti',
+                            text: 'yeti'
+                        },
+                        {
+                            value: 'journal',
+                            text: 'journal'
+                        }
+                    ]
                 }
             ]
         ]
     }
 
     handleSubmit (e) {
+        this.setState({ isSaving: true })
         const formData = new FormData()
         formData.append('settings', JSON.stringify(this.state.settings))
         formData.append('first_month_of_year', this.state.first_month_of_year)
@@ -226,7 +325,12 @@ export default class DeviceSettings extends Component {
             }
         })
             .then((response) => {
-                this.setState({ success: true, cached_settings: this.state.settings, changesMade: false })
+                this.setState({
+                    success: true,
+                    cached_settings: this.state.settings,
+                    changesMade: false,
+                    isSaving: false
+                }, () => this.model.updateSettings(this.state.settings))
             })
             .catch((error) => {
                 this.setState({ error: true })
@@ -249,6 +353,43 @@ export default class DeviceSettings extends Component {
         const header_background_color = this.state.settings && this.state.settings.header_background_color ? this.state.settings.header_background_color : ''
         const footer_background_color = this.state.settings && this.state.settings.footer_background_color ? this.state.settings.footer_background_color : ''
 
+        const tabs = {
+            children: []
+        }
+
+        tabs.children[0] = <>
+            <Card>
+                <CardBody>
+                    <ColorPicker label={translations.header_background_color} value={header_background_color}
+                        handleChange={this.handleHeaderColor}/>
+
+                    <ColorPicker label={translations.footer_background_color} value={footer_background_color}
+                        handleChange={this.handleFooterColor}/>
+
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardBody>
+                    <FormBuilder
+                        handleChange={this.handleSettingsChange}
+                        formFieldsRows={this.getInventoryFields()}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardBody>
+                    <Button onClick={this.refresh} color="primary" block>{translations.refresh}</Button>
+                    <Button className="mt-2" onClick={(e) => {
+                        e.preventDefault()
+                        localStorage.removeItem('access_token')
+                        window.location.href = '/#/login'
+                    }} color="primary" block>{translations.logout}</Button>
+                </CardBody>
+            </Card>
+        </>
+
         return (
             <React.Fragment>
                 <SnackbarMessage open={this.state.success} onClose={this.handleClose.bind(this)} severity="success"
@@ -257,41 +398,13 @@ export default class DeviceSettings extends Component {
                 <SnackbarMessage open={this.state.error} onClose={this.handleClose.bind(this)} severity="danger"
                     message={this.state.settings_not_saved}/>
 
-                <Header title={translations.device_settings}/>
-
-                <div className="settings-container settings-container-narrow fixed-margin-extra">
-                    <Card>
-                        <CardBody>
-                            <ColorPicker label={translations.header_background_color} value={header_background_color}
-                                handleChange={this.handleHeaderColor}/>
-
-                            <ColorPicker label={translations.footer_background_color} value={footer_background_color}
-                                handleChange={this.handleFooterColor}/>
-
-                        </CardBody>
-                    </Card>
-
-                    <Card>
-                        <CardBody>
-                            <FormBuilder
-                                handleChange={this.handleSettingsChange}
-                                formFieldsRows={this.getInventoryFields()}
-                            />
-                        </CardBody>
-                    </Card>
-
-                    <Card>
-                        <CardBody>
-                            <Button onClick={this.refresh} color="primary" block>{translations.refresh}</Button>
-                            <Button className="mt-2" onClick={(e) => {
-                                e.preventDefault()
-                                localStorage.removeItem('access_token')
-                                window.location.href = '/#/login'
-                            }} color="primary" block>{translations.logout}</Button>
-                        </CardBody>
-                    </Card>
-
-                </div>
+                <EditScaffold isLoading={!this.state.loaded} isSaving={this.state.isSaving}
+                    isEditing={this.state.changesMade}
+                    title={translations.device_settings}
+                    cancelButtonDisabled={!this.state.changesMade}
+                    handleCancel={this.handleCancel.bind(this)}
+                    handleSubmit={this.handleSubmit.bind(this)}
+                    tabs={tabs}/>
             </React.Fragment>
         )
     }

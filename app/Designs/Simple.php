@@ -44,19 +44,19 @@ class Simple
 $table_here
 
 <div class="px-4" style="width: 100%; margin-top: 80px;">
-    <div class="inline-block" style="width: 80%">
-        $entity.public_notes
+    <div class="inline-block" style="width: 60%">
+        $entity.customer_note
     </div>
     $costs
 </div>
     <div class="px-4 mt-4" style="width: 100%">
-        <div class="inline-block" style="width: 80%">
+        <div class="inline-block" style="width: 60%">
             <p class="font-weight-bold">$terms_label</p>
             $terms
         </div>
-        <div class="inline-block" style="width: 20%">
-            <div class="text-left col-6">
-                <span style="margin-right: 20px">$balance_due_label</span> <span class="text-primary">$balance_due</span>
+        <div class="inline-block bg-primary p-1 text-center text-white" style="width: 26%; margin-left: 50px; font-size: 20px;">
+            <div>
+                <span style="margin-right: 20px">$balance_due_label</span> <span class="text-white">$balance_due</span>
             </div>
         </div>
     </div>
@@ -65,8 +65,8 @@ $table_here
 
     public function totals()
     {
-        return '<div class="inline-block" style="width: 20% !important;">
-        <div class="col-6 text-left">
+        return '<div class="inline-block" style="width: 35% !important; margin-left: 20px">
+        <div class="text-left">
             <span style="margin-right: 20px"> $discount_label </span> $discount <br>
             <span style="margin-right: 20px"> $tax_label </span> $tax<br>
             <span style="margin-right: 20px"> $shipping_cost_label </span> $shipping_cost

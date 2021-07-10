@@ -3,6 +3,7 @@ import queryString from 'query-string'
 import EditInvoice from './edit/EditInvoice'
 import { Alert, Card, CardBody, Row } from 'reactstrap'
 import DataTable from '../common/DataTable'
+import PaginationNew from '../common/PaginationNew'
 import InvoiceItem from './InvoiceItem'
 import InvoiceFilters from './InvoiceFilters'
 import Drawer from '@material-ui/core/Drawer'
@@ -14,12 +15,16 @@ import Snackbar from '@material-ui/core/Snackbar'
 import { translations } from '../utils/_translations'
 import CustomerRepository from '../repositories/CustomerRepository'
 import { getDefaultTableFields } from '../presenters/InvoicePresenter'
+import { filterStatuses } from '../utils/_search'
 
 export default class Invoice extends Component {
     constructor (props) {
         super(props)
 
         this.state = {
+            currentPage: 1,
+            totalPages: null,
+            pageLimit: !localStorage.getItem('number_of_rows') ? Math.ceil(window.innerHeight / 90) : localStorage.getItem('number_of_rows'),
             isMobile: window.innerWidth <= 768,
             isOpen: window.innerWidth > 670,
             error: '',
@@ -33,6 +38,7 @@ export default class Invoice extends Component {
                 viewedId: null,
                 title: null
             },
+            currentInvoices: [],
             invoices: [],
             cachedData: [],
             customers: [],
@@ -65,12 +71,37 @@ export default class Invoice extends Component {
         this.getCustomFields()
     }
 
-    updateInvoice (invoices) {
+    updateInvoice (invoices, do_filter = false, filters = null) {
+        const should_filter = !this.state.cachedData.length || do_filter === true
         const cachedData = !this.state.cachedData.length ? invoices : this.state.cachedData
+
+        if (should_filter) {
+            invoices = filterStatuses(invoices, '', this.state.filters)
+        }
+
         this.setState({
+            filters: filters !== null ? filters : this.state.filters,
             invoices: invoices,
             cachedData: cachedData
+        }, () => {
+            const totalPages = Math.ceil(invoices.length / this.state.pageLimit)
+            this.onPageChanged({ invoices: invoices, currentPage: this.state.currentPage, totalPages: totalPages })
         })
+    }
+
+    onPageChanged (data) {
+        let { invoices, pageLimit } = this.state
+        const { currentPage, totalPages } = data
+
+        if (data.invoices) {
+            invoices = data.invoices
+        }
+
+        const offset = (currentPage - 1) * pageLimit
+        const currentInvoices = invoices.slice(offset, offset + pageLimit)
+        const filters = data.filters ? data.filters : this.state.filters
+
+        this.setState({ currentPage, currentInvoices, totalPages, filters })
     }
 
     filterInvoices (filters) {
@@ -82,23 +113,27 @@ export default class Invoice extends Component {
     }
 
     userList (props) {
-        const { invoices, customers, custom_fields } = this.state
-        return <InvoiceItem showCheckboxes={props.showCheckboxes}
+        const { cachedData, customers, custom_fields, currentInvoices } = this.state
+        return currentInvoices.length ? <InvoiceItem showCheckboxes={props.showCheckboxes}
+            onPageChanged={this.onPageChanged.bind(this)}
             show_list={props.show_list}
-            invoices={invoices} customers={customers}
+            invoices={currentInvoices} entities={cachedData}
+            customers={customers}
             custom_fields={custom_fields}
-            ignoredColumns={getDefaultTableFields()} updateInvoice={this.updateInvoice}
+            ignoredColumns={props.default_columns}
+            updateInvoice={this.updateInvoice}
             viewId={props.viewId}
             toggleViewedEntity={props.toggleViewedEntity}
             bulk={props.bulk}
-            onChangeBulk={props.onChangeBulk}/>
+            onChangeBulk={props.onChangeBulk}/> : null
     }
 
     getCustomers () {
         const customerRepository = new CustomerRepository()
         customerRepository.get().then(response => {
             if (!response) {
-                alert('error')
+                this.setState({ error: true, error_message: translations.unexpected_error })
+                return
             }
 
             this.setState({ customers: response }, () => {
@@ -153,9 +188,11 @@ export default class Invoice extends Component {
     }
 
     render () {
-        const { invoices, customers, custom_fields, view, filters, error, isOpen, error_message, success_message, show_success } = this.state
-        const { status_id, customer_id, searchText, start_date, end_date, project_id, user_id, id } = this.state.filters
-        const fetchUrl = `/api/invoice?search_term=${searchText}&status=${status_id}&user_id=${user_id}&id=${id}&customer_id=${customer_id}&project_id=${project_id}&start_date=${start_date}&end_date=${end_date}`
+        const { cachedData, invoices, customers, custom_fields, view, filters, error, isOpen, error_message, success_message, show_success, currentInvoices, pageLimit } = this.state
+        const { start_date, end_date, id } = this.state.filters
+        const total = invoices.length
+        const fetchUrl = `/api/invoice?id=${id}&start_date=${start_date}&end_date=${end_date}`
+
         const addButton = this.state.customers.length ? <EditInvoice
             entity_id={this.state.entity_id}
             entity_type={this.state.entity_type}
@@ -163,7 +200,7 @@ export default class Invoice extends Component {
             customers={customers}
             add={true}
             action={this.updateInvoice}
-            invoices={invoices}
+            invoices={cachedData}
             modal={true}
         /> : null
 
@@ -177,7 +214,11 @@ export default class Invoice extends Component {
                     <div className="topbar">
                         <Card>
                             <CardBody>
-                                <InvoiceFilters setFilterOpen={this.setFilterOpen.bind(this)} invoices={invoices}
+                                <InvoiceFilters
+                                    pageLimit={pageLimit}
+                                    cachedData={cachedData}
+                                    updateList={this.updateInvoice}
+                                    setFilterOpen={this.setFilterOpen.bind(this)} invoices={invoices}
                                     customers={customers}
                                     filters={filters} filter={this.filterInvoices}
                                     saveBulk={this.saveBulk}/>
@@ -206,6 +247,10 @@ export default class Invoice extends Component {
                         <Card>
                             <CardBody>
                                 <DataTable
+                                    pageLimit={pageLimit}
+                                    onPageChanged={this.onPageChanged.bind(this)}
+                                    currentData={currentInvoices}
+                                    hide_pagination={true}
                                     default_columns={getDefaultTableFields()}
                                     setSuccess={this.setSuccess.bind(this)}
                                     setError={this.setError.bind(this)}
@@ -214,7 +259,7 @@ export default class Invoice extends Component {
                                     entity_type="Invoice"
                                     bulk_save_url="/api/invoice/bulk"
                                     view={view}
-                                    columnMapping={{ customer_id: 'CUSTOMER' }}
+                                    columnMapping={{ customer_id: 'CUSTOMER', status_id: 'status' }}
                                     // order={['id', 'number', 'date', 'customer_name', 'total', 'balance', 'status_id']}
                                     disableSorting={['id']}
                                     defaultColumn='number'
@@ -222,6 +267,13 @@ export default class Invoice extends Component {
                                     fetchUrl={fetchUrl}
                                     updateState={this.updateInvoice}
                                 />
+
+                                {total > 0 &&
+                                <div className="d-flex flex-row py-4 align-items-center">
+                                    <PaginationNew totalRecords={total} pageLimit={parseInt(pageLimit)}
+                                        pageNeighbours={1} onPageChanged={this.onPageChanged.bind(this)}/>
+                                </div>
+                                }
                             </CardBody>
                         </Card>
                     </div>
